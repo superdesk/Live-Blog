@@ -1,0 +1,16 @@
+Metadata-Version: 1.0
+Name: ally
+Version: 1.0.0
+Summary: API for configuring SOA specifications
+Home-page: http://www.sourcefabric.org
+Author: Nistor Gabriel
+Author-email: gabriel.nistor@sourcefabric.org
+License: GPL License
+Description: Provides the configurations for types for SOA model and services.
+Platform: UNKNOWN
+Classifier: Development Status :: 1 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 3
+Classifier: SOA :: REST
+Classifier: Operating System :: OS Independent
