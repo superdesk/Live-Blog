@@ -16,8 +16,12 @@ from ally.ioc.node_wire import Creator
 from inspect import isfunction, isclass
 import abc
 from ally import omni
+from ally.util import Attribute
 
 # --------------------------------------------------------------------
+
+ATTR_TAG = Attribute(__name__, 'indexers', list)
+# Provides the attribute for tag indexers.
 
 class Indexer(metaclass=abc.ABCMeta):
     '''
@@ -25,10 +29,8 @@ class Indexer(metaclass=abc.ABCMeta):
     with other objects.
     '''
     
-    NAME_TAG = '_IoC_indexers'
-    
-    @classmethod
-    def indexers(cls, instance):
+    @staticmethod
+    def indexers(instance):
         '''
         Provides the indexers found on the provided instance.
         
@@ -38,11 +40,11 @@ class Indexer(metaclass=abc.ABCMeta):
             The list of object indexers or None if the object has not been tagged with any indexer.
         '''
         assert instance is not None, 'An instance is expected'
-        if isinstance(instance, dict): return instance.get(cls.NAME_TAG)
-        return getattr(instance, cls.NAME_TAG, None)
+        if isinstance(instance, dict): return ATTR_TAG.getDict(instance)
+        return ATTR_TAG.get(instance, None)
     
-    @classmethod
-    def indexersPush(cls, instance, indexers):
+    @staticmethod
+    def indexersPush(instance, indexers):
         '''
         Pushes the indexers contained in the provided instance into the indexers list.
         
@@ -54,7 +56,7 @@ class Indexer(metaclass=abc.ABCMeta):
             True if any relevant indexers have been pushed, False if no or none relevant indexers have been added.
         '''
         assert isinstance(indexers, list), 'Invalid indexers %s' % indexers
-        indexersInstance = cls.indexers(instance)
+        indexersInstance = Indexer.indexers(instance)
         if indexersInstance:
             relevant = False
             for indexer in indexersInstance:
@@ -73,8 +75,8 @@ class Indexer(metaclass=abc.ABCMeta):
         indexers = self.indexers(instance)
         if indexers is None:
             indexers = []
-            if isinstance(instance, dict): instance[self.NAME_TAG] = indexers
-            else: setattr(instance, self.NAME_TAG, indexers)
+            if isinstance(instance, dict): ATTR_TAG.setDict(instance, indexers)
+            else: ATTR_TAG.set(instance, indexers)
         self.indexerAdd(indexers)
         
     def indexerAdd(self, indexers):
@@ -124,6 +126,7 @@ class IndexerConfiguration(Indexer):
         assert not description or isinstance(description, str), 'Invalid description %s' % description
         self._name = name
         self._value = value
+        self._type = value.__class__
         self._description = description
         self.indexerTag(registry)
     
@@ -131,14 +134,14 @@ class IndexerConfiguration(Indexer):
         '''
         @see: Indexer.index
         '''
-        Configuration(toConfig(self._name), None, True, self._value, self._description).setParent(parent)
+        Configuration(toConfig(self._name), self._type, True, self._value, self._description).setParent(parent)
 
 class IndexerEventReferenced(Indexer):
     '''
     Provides the indexer for the referenced events.
     '''
     
-    def __init__(self, function, event, reference):
+    def __init__(self, function, event, reference, multiple=None):
         '''
         Create the indexer.
         
@@ -148,20 +151,26 @@ class IndexerEventReferenced(Indexer):
             The event name.
         @param reference: string
             The event reference.
+        @param multiple: boolean|None
+            True indicates that the event is allowed to be handled multiple times, False the event should be handled just
+            once and None allows the event handler to provide a default behavior based on the reference
+            (True for entities, False for configurations)
         '''
         assert isfunction(function), 'Invalid function %s' % function
         assert isinstance(event, str), 'Invalid event %s' % event
         assert isinstance(reference, str), 'Invalid reference %s' % reference
+        assert multiple is None or isinstance(multiple, bool), 'Invalid multiple flag %s' % multiple
         self._function = function
         self._event = event
         self._reference = reference
+        self._multiple = multiple
         self.indexerTag(function)
         
     def index(self, parent):
         '''
         @see: Indexer.index
         '''
-        eventReferencedFrom(self._function, event=self._event, reference=self._reference).setParent(parent)
+        eventReferencedFrom(self._function, self._event, None, self._reference, self._multiple).setParent(parent)
         
 class IndexerEventStart(Indexer):
     '''

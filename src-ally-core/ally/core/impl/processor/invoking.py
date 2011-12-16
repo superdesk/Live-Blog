@@ -79,7 +79,7 @@ class InvokingHandler(Processor):
                         rsp.obj = value
                 else:
                     rsp.setCode(CANNOT_INSERT, 'Cannot insert')
-                    log.debug('Cannot updated resource')
+                    assert log.debug('Cannot updated resource') or True
                     return
             else:
                 rsp.objType = req.invoker.outputType
@@ -93,14 +93,14 @@ class InvokingHandler(Processor):
             except: return
             if req.invoker.outputType.isOf(None):
                 rsp.setCode(UPDATE_SUCCESS, 'Successfully updated')
-                log.debug('Successful updated resource')
+                assert log.debug('Successful updated resource') or True
             elif req.invoker.outputType.isOf(bool):
                 if value == True:
                     rsp.setCode(UPDATE_SUCCESS, 'Successfully updated')
-                    log.debug('Successful updated resource')
+                    assert log.debug('Successful updated resource') or True
                 else:
                     rsp.setCode(CANNOT_UPDATE, 'Cannot updated')
-                    log.debug('Cannot updated resource')
+                    assert log.debug('Cannot updated resource') or True
                 return
             else:
                 #If an entity is returned than we will render that.
@@ -113,10 +113,10 @@ class InvokingHandler(Processor):
             if req.invoker.outputType.isOf(bool):
                 if value == True:
                     rsp.setCode(DELETED_SUCCESS, 'Successfully deleted')
-                    log.debug('Successful deleted resource')
+                    assert log.debug('Successful deleted resource') or True
                 else:
                     rsp.setCode(CANNOT_DELETE, 'Cannot delete')
-                    log.debug('Cannot deleted resource')
+                    assert log.debug('Cannot deleted resource') or True
                 return
             else:
                 #If an entity is returned than we will render that.
@@ -135,7 +135,7 @@ class InvokingHandler(Processor):
                 args.append(None)
         try:
             value = invoker.invoke(*args)
-            log.debug('Successful on calling invoker %s with values %s', invoker, args)
+            assert log.debug('Successful on calling invoker %s with values %s', invoker, args) or True
             return value
         except DevelException as e:
             rsp.setCode(BAD_CONTENT, e.message)
@@ -143,7 +143,7 @@ class InvokingHandler(Processor):
             raise
         except InputException as e:
             rsp.setCode(RESOURCE_NOT_FOUND, e, 'Invalid resource')
-            log.exception('User input exception: %s', e)
+            assert log.exception('User input exception: %s', e) or True
             raise
         except:
             rsp.setCode(INTERNAL_ERROR, 'Upps, it seems I am in a pickle, please consult the server logs')

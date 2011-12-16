@@ -22,7 +22,7 @@ from ally.core.spec.server import Processor, ProcessorsChain, Response
 from ally.exception import InputException, Ref
 from ally.ioc import injected
 from ally.listener import ProxyListener
-from ally.util import fullyQName
+from ally.util import fullyQName, Attribute
 from inspect import isclass
 from sqlalchemy import event
 from sqlalchemy.exc import InvalidRequestError, IntegrityError, OperationalError
@@ -43,10 +43,10 @@ import logging
 log = logging.getLogger(__name__)
 _ = internationalization.translator(__name__)
 
-NAME_SQL_SESSION = '_SQL_session'
-NAME_SQL_SESSION_CREATE = '_SQL_session_create'
-NAME_SQL_MAPPER = '_SQL_mapper'
-NAME_SQL_COLUMN = '_SQL_column'
+ATTR_SQL_SESSION = Attribute(__name__, 'session')
+ATTR_SQL_SESSION_CREATE = Attribute(__name__, 'session_create')
+ATTR_SQL_MAPPER = Attribute(__name__, 'mapper')
+ATTR_SQL_COLUMN = Attribute(__name__, 'column', Column)
 
 # --------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ def mapperSimple(modelClass, sql, **keyargs):
     event.listen(mapping, 'load', _onLoad)
     event.listen(mapping, 'after_insert', _onInsert)
     
-    setattr(model, NAME_SQL_MAPPER, mapping)
+    ATTR_SQL_MAPPER.set(model, mapping)
     return mapping
 
 def mapperModelProperties(modelClass, mapping=None, exclude=None):
@@ -98,7 +98,7 @@ def mapperModelProperties(modelClass, mapping=None, exclude=None):
     model = modelFor(modelClass)
     assert isinstance(model, Model), 'Invalid class %s is not a model' % modelClass
     
-    if not mapping: mapping = getattr(model, NAME_SQL_MAPPER)
+    if not mapping: mapping = ATTR_SQL_MAPPER.get(model)
     assert isinstance(mapping, Mapper), 'Invalid mapper %s' % mapping
     
     properties = dict(model.properties)
@@ -181,7 +181,7 @@ def mapperQuery(queryClass, sql):
     assert isclass(queryClass), 'Invalid query class %s' % queryClass
     model = modelFor(sql)
     if isinstance(model, Model):
-        sql = getattr(model, NAME_SQL_MAPPER, None)
+        sql = ATTR_SQL_MAPPER.get(model, None)
         assert sql is not None, 'Invalid model %s, it has not been mapped yet' % model
     if isinstance(sql, Mapper):
         columns = [(cp.key, cp.columns[0]) for cp in sql.iterate_properties if cp.key]
@@ -212,7 +212,7 @@ def supportForPartialUpdate(propertyId, mapping=None):
     typ = typeFor(propertyId)
     assert isinstance(typ, TypeProperty), 'Invalid type property %s' % propertyId
     
-    if not mapping: mapping = getattr(typ.model, NAME_SQL_MAPPER)
+    if not mapping: mapping = ATTR_SQL_MAPPER.get(typ.model)
     assert isinstance(mapping, Mapper), 'Invalid mapper %s' % mapping
         
     validateModel(typ.model, functools.partial(_onModelMerge, mapping, typ.property), key=EVENT_VALID_UPDATE)
@@ -295,14 +295,14 @@ def _getSession():
     Function to provide the session on the current thread.
     '''
     thread = current_thread()
-    session = getattr(thread, NAME_SQL_SESSION, None)
+    session = ATTR_SQL_SESSION.get(thread, None)
     if not session:
-        sessionCreate = getattr(thread, NAME_SQL_SESSION_CREATE, None)
+        sessionCreate = ATTR_SQL_SESSION_CREATE.get(thread, None)
         if sessionCreate:
             session = sessionCreate()
-            setattr(thread, NAME_SQL_SESSION, session)
-            delattr(thread, NAME_SQL_SESSION_CREATE)
-            log.debug('Created SQL Alchemy session')
+            ATTR_SQL_SESSION.set(thread, session)
+            ATTR_SQL_SESSION_CREATE.delete(thread)
+            assert log.debug('Created SQL Alchemy session') or True
     assert session, 'Invalid call, it seems that the thread is not tagged with an SQL session'
     return session
 
@@ -347,7 +347,7 @@ class AlchemySessionHandler(Processor):
         '''
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        setattr(current_thread(), NAME_SQL_SESSION_CREATE, self.sessionCreator)
+        ATTR_SQL_SESSION_CREATE.set(current_thread(), self.sessionCreator)
         try:
             chain.process(req, rsp)
         except:
@@ -372,10 +372,10 @@ def bindSession(proxyListener, sessionCreator):
     assert isinstance(proxyListener, ProxyListener), 'Invalid proxyCall %s' % proxyListener
     assert issubclass(sessionCreator, Session), 'Invalid session creator %s' % sessionCreator
     def _open(*args):
-        setattr(current_thread(), NAME_SQL_SESSION_CREATE, sessionCreator)
+        ATTR_SQL_SESSION_CREATE.set(current_thread(), sessionCreator)
     def _close(value):
         if value is not None:
-            session = getattr(current_thread(), NAME_SQL_SESSION, None)
+            session = ATTR_SQL_SESSION.get(current_thread(), None)
             if session:
                 session.expunge(value)
                 commit(session)
@@ -396,46 +396,45 @@ def open(sessionCreator):
     Opens a new session on the current thread.
     '''
     assert issubclass(sessionCreator, Session), 'Invalid session creator %s' % sessionCreator
-    setattr(current_thread(), NAME_SQL_SESSION_CREATE, sessionCreator)
+    ATTR_SQL_SESSION_CREATE.set(current_thread(), sessionCreator)
 
 def commit(session=None):
     '''
     Commit the current thread session.
     '''
-    session = session or getattr(current_thread(), NAME_SQL_SESSION, None)
+    session = session or ATTR_SQL_SESSION.get(current_thread(), None)
     if session:
         assert isinstance(session, Session)
         try:
             session.commit()
-            log.debug('Committed SQL Alchemy session transactions')
+            assert log.debug('Committed SQL Alchemy session transactions') or True
         except InvalidRequestError:
-            log.debug('Nothing to commit on SQL Alchemy session')
+            assert log.debug('Nothing to commit on SQL Alchemy session') or True
         except Exception as e:
             #TODO: add handling when commit fails
-            log.debug('Problems committing %r', e)
+            assert log.debug('Problems committing %r', e) or True
         session.close()
         _clear()
-        log.debug('Properly closed SQL Alchemy session')
+        assert log.debug('Properly closed SQL Alchemy session') or True
 
 def rollback(session=None):
     '''
     Roll back the current thread session.
     '''
-    session = session or getattr(current_thread(), NAME_SQL_SESSION, None)
+    session = session or ATTR_SQL_SESSION.get(current_thread(), None)
     if session:
         session.rollback()
         session.close()
         _clear()
-        log.warning('Improper SQL Alchemy session, rolled back transactions')
+        assert log.debug('Improper SQL Alchemy session, rolled back transactions') or True
 
 def _clear():
     '''
     Clears the current thread of any alchemy session info.
     '''
     thread = current_thread()
-    if hasattr(thread, NAME_SQL_SESSION): delattr(thread, NAME_SQL_SESSION)
-    if hasattr(thread, NAME_SQL_SESSION_CREATE): delattr(thread, NAME_SQL_SESSION_CREATE)
-
+    if ATTR_SQL_SESSION.has(thread): ATTR_SQL_SESSION.delete(thread)
+    if ATTR_SQL_SESSION_CREATE.has(thread): ATTR_SQL_SESSION_CREATE.delete(thread)
         
 # --------------------------------------------------------------------
 
@@ -452,10 +451,9 @@ def columnFor(obj, column=None):
         If the properties has been associate then the return will be none, if the properties is being extracted 
         it can return either the Properties or None if is not found.
     '''
-    if column is None: return getattr(obj, NAME_SQL_COLUMN, None)
-    assert isinstance(column, Column), 'Invalid column %s' % column
-    assert NAME_SQL_COLUMN not in obj.__dict__, 'Already has a column %s' % obj
-    setattr(obj, NAME_SQL_COLUMN, column)
+    if column is None: return ATTR_SQL_COLUMN.get(obj, None)
+    assert not ATTR_SQL_COLUMN.hasOwn(obj), 'Already has a column %s' % obj
+    ATTR_SQL_COLUMN.set(obj, column)
     return column
 
 def handle(e, entity):

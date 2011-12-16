@@ -10,7 +10,6 @@ Module containing specifications for the server processing.
 '''
 
 from ally.core.spec.codes import Code
-from ally.util import simpleName
 from collections import deque
 import abc
 import logging
@@ -73,11 +72,11 @@ class ProcessorsChain:
         if len(self._processors) > 0:
             proc = self._processors.popleft()
             assert isinstance(proc, Processor)
-            log.debug('Processing %r', simpleName(proc))
+            assert log.debug('Processing %r', proc.__class__.__name__) or True
             proc.process(request, response, self)
-            log.debug('Processing finalized %r', simpleName(proc))
+            assert log.debug('Processing finalized %r', proc.__class__.__name__) or True
         else:
-            log.debug('Processing finalized by consuming')
+            assert log.debug('Processing finalized by consuming') or True
             self._consumed = True
     
     def isConsumed(self):

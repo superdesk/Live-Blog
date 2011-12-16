@@ -11,9 +11,12 @@ Provides implementations for easy attachment of listeners.
 
 from _abcoll import Callable
 import functools
-from ally.util import Proxy
+from ally.util import Proxy, Attribute
 
 # --------------------------------------------------------------------
+
+ATTR_LISTENERS = Attribute(__name__, 'listeners', dict)
+# The listeners attribute.
 
 def addListener(to, key, listener, index=1):
     '''
@@ -30,10 +33,8 @@ def addListener(to, key, listener, index=1):
         The index at which to position the listener, -1 means at the end of the list.
     '''
     assert to, 'Provide a to object'
-    _listeners = to.__dict__.get('_EVENT_listeners')
-    if not _listeners:
-        _listeners = {}
-        to.__dict__['_EVENT_listeners'] = _listeners
+    _listeners = ATTR_LISTENERS.getOwn(to, None)
+    if not _listeners: _listeners = ATTR_LISTENERS.setOwn(to, {}) 
     if isinstance(key, tuple):_keys = key
     else: _keys = [key]
     addlist = list(listener) if isinstance(listener, tuple) else [listener]
@@ -64,7 +65,7 @@ def callListeners(to, key, *args):
     @raise Exception: Will raise exceptions for different situations dictated by the listeners. 
     '''
     assert to, 'Provide a to object'
-    _listeners = to.__dict__.get('_EVENT_listeners')
+    _listeners = ATTR_LISTENERS.getOwn(to, None)
     if _listeners:
         listeners = _listeners.get(key)
         if listeners:
@@ -78,9 +79,9 @@ def callListeners(to, key, *args):
 
 # --------------------------------------------------------------------
 
-EVENT_BEFORE_CALL = '_EVENT_before_call'
-EVENT_AFTER_CALL = '_EVENT_after_call'
-EVENT_EXCEPTION_CALL = '_EVENT_exception_call'
+EVENT_BEFORE_CALL = 'before_call'
+EVENT_AFTER_CALL = 'after_call'
+EVENT_EXCEPTION_CALL = 'exception_call'
 
 class ProxyListener:
     '''

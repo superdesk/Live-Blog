@@ -14,7 +14,7 @@ from ally.api.operator import Call, Service, Criteria, Query, Model, Property, \
 from ally.api.type import TypeProperty, typeFor, TypeModel, List, Type, \
     TypeQuery, Iter, Input
 from ally.type_legacy import Callable
-from ally.util import IS_PY3K, simpleName
+from ally.util import IS_PY3K, Attribute
 from functools import wraps
 from inspect import isfunction, isclass
 import inspect
@@ -57,7 +57,7 @@ class APIModel(Callable):
         '''
         properties = _processProperties(modelClass)
         model = modelFor(modelClass)
-        modelName = self.name or simpleName(modelClass)
+        modelName = self.name or modelClass.__name__
         if model is None:
             # this is not an extended model
             assert not len(properties) == 0, 'There are no API properties on model class %s' % modelClass
@@ -675,7 +675,7 @@ def _init__query(self, **keyargs):
     for name, value in keyargs.items():
         crtEntry = query.criteriaEntries.get(name, None)
         if not isinstance(crtEntry, CriteriaEntry):
-            raise AssertionError('Invalid query name %r for %r' % (name, simpleName(self)))
+            raise AssertionError('Invalid query name %r for %r' % (name, self.__class__.__name__))
         _setattr__entry(self, name, value)
 
 def _getattr__entry(self, name):
@@ -732,6 +732,9 @@ def _delattr__entry(self, name):
 
 # --------------------------------------------------------------------
 
+ATTR_PROPERTIES = Attribute(__name__, 'properties', Properties)
+# Provides attribute for properties.
+
 def propertiesFor(obj, properties=None):
     '''
     If the properties are provided it will be associate with the obj, if the properties is not provided than this 
@@ -745,10 +748,9 @@ def propertiesFor(obj, properties=None):
         If the properties has been associate then the return will be none, if the properties is being extracted it 
         can return either the Properties or None if is not found.
     '''
-    if properties is None: return getattr(obj, '_api_properties', None)
-    assert isinstance(properties, Properties), 'Invalid properties %s' % properties
-    assert '_api_properties' not in obj.__dict__, 'Already has a properties %s' % obj
-    setattr(obj, '_api_properties', properties)
+    if properties is None: return ATTR_PROPERTIES.get(obj, None)
+    assert not ATTR_PROPERTIES.hasOwn(obj), 'Already has a properties %s' % obj
+    ATTR_PROPERTIES.set(obj, properties)
     return properties
 
 def modelFor(obj, model=None):
@@ -767,6 +769,9 @@ def criteriaFor(obj, criteria=None):
     assert not criteria or isinstance(criteria, Criteria), 'Invalid criteria %s' % criteria
     return criteria
 
+ATTR_QUERY = Attribute(__name__, 'query', Query)
+# Provides attribute for query.
+
 def queryFor(obj, query=None):
     '''
     If the query is provided it will be associate with the obj, if the query is not provided than this function
@@ -780,10 +785,12 @@ def queryFor(obj, query=None):
         If the query has been associate then the return will be none, if the query is being extracted it can
         return either the Query or None if is not found.
     '''
-    if query is None: return getattr(obj, '_api_query', None)
-    assert isinstance(query, Query), 'Invalid query %s' % query
-    assert '_api_query' not in obj.__dict__, 'Already has a query %s' % obj
-    setattr(obj, '_api_query', query)
+    if query is None: return ATTR_QUERY.get(obj, None)
+    assert not ATTR_QUERY.hasOwn(obj), 'Already has a query %s' % obj
+    ATTR_QUERY.set(obj, query)
+
+ATTR_SERVICE = Attribute(__name__, 'service', Service)
+# Provides attribute for service.
 
 def serviceFor(obj, service=None):
     '''
@@ -798,10 +805,9 @@ def serviceFor(obj, service=None):
         If the service has been associate then the return will be none, if the service is being extracted it can
         return either the Service or None if is not found.
     '''
-    if service is None: return getattr(obj, '_api_service', None)
-    assert isinstance(service, Service), 'Invalid service %s' % service
-    assert '_api_service' not in obj.__dict__, 'Already has a service %s' % obj
-    setattr(obj, '_api_service', service)
+    if service is None: return ATTR_SERVICE.get(obj, None)
+    assert not ATTR_SERVICE.hasOwn(obj), 'Already has a service %s' % obj
+    ATTR_SERVICE.set(obj, service)
 
 # --------------------------------------------------------------------
 

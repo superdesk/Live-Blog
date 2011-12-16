@@ -73,7 +73,7 @@ class EncodingXMLHandler(EncodingBaseHandler):
 
                 typ = rsp.objType
                 if typ is None or isinstance(typ, TypeNone):
-                    log.debug('Nothing to encode')
+                    assert log.debug('Nothing to encode') or True
                     return
                 if isinstance(typ, Iter):
                     assert isinstance(typ, Iter)
@@ -94,7 +94,7 @@ class EncodingXMLHandler(EncodingBaseHandler):
                         xml.endDocument()
                         return
                     else:
-                        log.debug('Cannot encode list item object type %r', typ.itemType)
+                        assert log.debug('Cannot encode list item object type %r', typ.itemType) or True
                 elif isinstance(typ, TypeProperty):
                     xml = self._xml(req, rsp)
                     if isPropertyTypeId(typ):
@@ -109,9 +109,9 @@ class EncodingXMLHandler(EncodingBaseHandler):
                     xml.endDocument()
                     return
                 else:
-                    log.debug('Cannot encode object type %r', typ)
+                    assert log.debug('Cannot encode object type %r', typ) or True
             else:
-                log.debug('Invalid response, has no path encoder')
+                assert log.debug('Invalid response, has no path encoder') or True
         chain.process(req, rsp)
 
     def _xml(self, req, rsp):
@@ -325,9 +325,9 @@ class DecodingXMLHandler(DecodingBaseHandler):
                 name, model = nameModel
                 assert isinstance(req.content, ContentRequest)
                 root = self._ruleModel(model, req.content.contentConverter or rsp.contentConverter)
-                log.debug('Decoding model %s', model)
+                assert log.debug('Decoding model %s', model) or True
             else:
-                log.debug('Expected a model for decoding the content, could not find one')
+                assert log.debug('Expected a model for decoding the content, could not find one') or True
             
             if root:
                 digester = Digester(root, False, False)
@@ -335,14 +335,14 @@ class DecodingXMLHandler(DecodingBaseHandler):
                     value = digester.parse(req.content.charSet or self.charSetDefault, req.content)
                     if len(digester.errors) > 0: raise InputException(*digester.errors)
                     req.arguments[name] = value
-                    log.debug('Successfully decoded for input (%s) value %s', name, value)
+                    assert log.debug('Successfully decoded for input (%s) value %s', name, value) or True
                 except DevelException as e:
                     rsp.setCode(BAD_CONTENT, e.message)
                 except InputException as e:
                     rsp.setCode(BAD_CONTENT, e, 'Invalid data')
                 return
         else:
-            log.debug('Invalid request for the XML decoder')
+            assert log.debug('Invalid request for the XML decoder') or True
         chain.process(req, rsp)
         
     def _ruleModel(self, model, converter):
@@ -441,4 +441,4 @@ class RuleSetProperty(Rule):
         except ValueError:
             digester.errors.append(Ref(_('Invalid value expected $1 type', str(self._property.type)),
                                        model=self._model, property=self._property))
-            log.debug('Problems setting property %r from XML value %s', self._property.name, content)
+            assert log.debug('Problems setting property %r from XML value %s', self._property.name, content) or True

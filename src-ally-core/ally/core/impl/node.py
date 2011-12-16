@@ -12,7 +12,6 @@ Provides the nodes used in constructing the resources node tree.
 from ally.api.operator import Model
 from ally.api.type import TypeProperty, TypeModel, Input
 from ally.core.spec.resources import ConverterPath, Match, Node, Invoker
-from ally.util import simpleName
 import logging
 
 # --------------------------------------------------------------------
@@ -280,7 +279,7 @@ class NodePath(Node):
         return False
     
     def __str__(self):
-        return '<%s[%s]>' % (simpleName(self), self.name)
+        return '<%s[%s]>' % (self.__class__.__name__, self.name)
 
 class NodeModel(NodePath):
     '''
@@ -348,4 +347,4 @@ class NodeProperty(Node):
         return False
 
     def __str__(self):
-        return '<%s[%s]>' % (simpleName(self), self.typeProperty)
+        return '<%s[%s]>' % (self.__class__.__name__, self.typeProperty)

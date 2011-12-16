@@ -15,7 +15,6 @@ from ally.core.spec.resources import Normalizer, Converter, Invoker, \
     ResourcesManager
 from ally.core.spec.server import Processor, ContentRequest, Request, Response
 from ally.ioc import injected
-from ally.util import simpleName
 import codecs
 import logging
 
@@ -67,15 +66,15 @@ class EncodingBaseHandler(Processor):
     def _processResponse(self, rsp):
         assert isinstance(rsp, Response)
         if rsp.contentType not in self.contentTypes:
-            log.debug('Invalid response, the content type %r is not for this %r encoder',
-                      rsp.contentType, simpleName(self))
+            assert log.debug('Invalid response, the content type %r is not for this %r encoder',
+                             rsp.contentType, self.__class__.__name__) or True
             return False
         if not rsp.contentConverter:
-            log.debug('Invalid response, has no content converter')
+            assert log.debug('Invalid response, has no content converter') or True
             return False
         contentType = self.contentTypes[rsp.contentType]
         if contentType:
-            log.debug('Normalized content type %r to %r', rsp.contentType, contentType)
+            assert log.debug('Normalized content type %r to %r', rsp.contentType, contentType) or True
             rsp.contentType = contentType
         return True
     
@@ -101,13 +100,13 @@ class EncodingBaseHandler(Processor):
         assert isinstance(model, Model)
         assert isinstance(rsp, Response)
         if rsp.objInclude:
-            log.debug('There are already element in the included list')
+            assert log.debug('There are already element in the included list') or True
         else:
             for prop in model.properties.values():
                 assert isinstance(prop, Property)
                 if isTypeId(prop.type):
                     rsp.objInclude.append(prop.name)
-                    log.debug('Added the property %r to included list', prop.name)
+                    assert log.debug('Added the property %r to included list', prop.name) or True
                     break
 
 # --------------------------------------------------------------------

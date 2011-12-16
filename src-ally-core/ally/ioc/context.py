@@ -6,7 +6,9 @@ Created on Dec 6, 2011
 
 from .. import omni
 from .indexer import Indexer
+from .initializer import InitializerListener
 from .node import functionFrom, SetupError, Node, toConfig
+from .node_wire import WiringListener
 from _abcoll import Callable
 from inspect import ismodule, isfunction
 import logging
@@ -58,7 +60,7 @@ class ContextIoC:
         assert isinstance(configurations, dict), 'Invalid configurations dictionary %s' % configurations
         if __debug__:
             for name in configurations: assert isinstance(name, str), 'Invalid configuration name %s' % name
-        self._root.data.update({toConfig(name): value for name, value in configurations.items()})
+        self._root.configurations.update({toConfig(name): value for name, value in configurations.items()})
         
     def putConfigurations(self, configurations):
         '''
@@ -70,7 +72,7 @@ class ContextIoC:
         for name, value in configurations.items():
             assert isinstance(name, str), 'Invalid configuration name %s' % name
             name = toConfig(name)
-            if name not in self._root.data: self._root.data[name] = value
+            if name not in self._root.configurations: self._root.configurations[name] = value
         
     def addSetupModule(self, module):
         '''
@@ -110,11 +112,10 @@ class ContextIoC:
         '''
         self._root.doAssemble()
         self._root.doStart()
-    
         unused = self._root.doFindUnused()
-        print('\n'.join(unused))
+        log.warn('Unused setup paths :\n\t%s', '\n\t'.join(unused))
         
-        return self._root.data[NAME_CONTEXT]
+        return self._root.getEntity(NAME_CONTEXT)
 
 # --------------------------------------------------------------------
 
@@ -136,7 +137,8 @@ class ContextNode(Node):
             if parent.doIsContext(name): raise SetupError('There is already a parent context with the name %r,'
                                                           ' please change the name of this context' % name)
         self._parentContext = parent
-        self.data = {}
+        self._data = {}
+        self.configurations = {}
     
     @omni.resolver   
     def doIsContext(self, name):
@@ -152,7 +154,7 @@ class ContextNode(Node):
         if self._name == name: return True
         return omni.CONTINUE
     
-    @omni.resolver(isolation='resolver')
+    @omni.resolver(isolation='none')
     def doFindSource(self, *criteria):
         '''
         Finds the node that recognizes the criteria and has a data source to deliver.
@@ -163,22 +165,7 @@ class ContextNode(Node):
             The path of the source.
         '''
         for path in criteria:
-            if isinstance(path, str) and path in self.data: return path
-        return omni.CONTINUE
-    
-    @omni.resolver
-    def doFindConfiguration(self, *criteria):
-        '''
-        Finds the configurations with values for the provided criteria.
-        
-        @param criteria: arguments
-            The criteria(s) used to identify the node. If no criteria is provided than the event is considered valid for
-            all nodes.
-        @return: string
-            The path of the configuration.
-        '''
-        for path in criteria:
-            if isinstance(path, str) and path in self.data: return path
+            if isinstance(path, str) and path in self._data: return path
         return omni.CONTINUE
     
     @omni.resolver(isolation='none')
@@ -190,7 +177,7 @@ class ContextNode(Node):
             The path to check the data for.
         '''
         assert isinstance(path, str), 'Invalid path %s' % path
-        return path in self.data
+        return path in self._data
         
     @omni.resolver(isolation='none')
     def doGetValue(self, path):
@@ -199,24 +186,26 @@ class ContextNode(Node):
         
         @param path: string
             The path to get the data for.
+        @return: object
+            The value for the path.
         '''
         assert isinstance(path, str), 'Invalid path %s' % path
-        if path not in self.data:
-            log.debug('No value available for %r, trying to process the value', path)
+        if path not in self._data:
+            assert log.debug('No value available for %r, trying to process the value', path) or True
             
             if omni.local(): source = omni.origin()
             else: source = self
             
             try:
                 full = source.doFindSource(path, omni=omni.F_FIRST | omni.F_LOCAL)
-                if full in self.data: return self.data[full]
-            except omni.NoResultError: log.debug('No source available for %r' % path)
+                if full in self._data: return self._data[full]
+            except omni.NoResultError: assert log.debug('No source available for %r' % path) or True
             
             try: return source.doProcessValue(path, omni=omni.F_FIRST | omni.F_LOCAL)
             except omni.NoResultError:
-                log.debug('No processor available for %r' % path)
+                assert log.debug('No processor available for %r' % path) or True
                 return omni.CONTINUE
-        return self.data[path]
+        return self._data[path]
     
     @omni.resolver(isolation='none')
     def doSetValue(self, path, value):
@@ -229,8 +218,8 @@ class ContextNode(Node):
             The value to be registered.
         '''
         assert isinstance(path, str), 'Invalid path %s' % path
-        assert path not in self.data, 'The path %s already has a value' % path
-        self.data[path] = value
+        assert path not in self._data, 'The path %s already has a value' % path
+        self._data[path] = value
         return True
     
     @omni.resolver
@@ -238,9 +227,15 @@ class ContextNode(Node):
         '''
         Assembles this context node.
         '''
-        self.data[NAME_CONTEXT] = Context(self.getEntity)
-        self.data[NAME_CONFIG] = Context(self.getConfig)
+        self._data[NAME_CONTEXT] = Context(self.getEntity)
+        self._data[NAME_CONFIG] = Context(self.getConfig)
+        self.doAddListener(WiringListener())
+        self.doAddListener(InitializerListener())
         if self._parent: self._parentContext.doAssemble()
+        for name, value in self.configurations.items():
+            if not self.doSetConfiguration(name, value, omni=omni.F_LOCAL):
+                assert log.debug('The configuration %r with value %s is not known in the context', name, value) or True
+                self._data[name] = value
         return omni.CONTINUE # We just let others also assemble, especially the bridged ones.
     
     @omni.bridge
@@ -297,8 +292,8 @@ class Context:
         except MissingError as e:
             raise AttributeError(e)
     
-    def __getitem__(self, name):
-        try: return self.__resolver(name)
+    def __getitem__(self, criteria):
+        try: return self.__resolver(criteria)
         except MissingError as e:
             raise KeyError(e)
 

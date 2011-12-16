@@ -10,7 +10,6 @@ Module containing specifications for the resources tree.
 '''
 
 from ally.api.type import Type, Input
-from ally.util import simpleName
 import abc
 import re
 
@@ -395,7 +394,7 @@ class Invoker(metaclass=abc.ABCMeta):
         inputStr = []
         for i, inp in enumerate(self.inputs):
             inputStr.append(('defaulted:' if i >= self.mandatoryCount else '') + inp.name + '=' + str(inp.type))
-        return '<%s[%s %s(%s)]>' % (simpleName(self), self.outputType, self.name, ', '.join(inputStr))
+        return '<%s[%s %s(%s)]>' % (self.__class__.__name__, self.outputType, self.name, ', '.join(inputStr))
 
 class Node(metaclass=abc.ABCMeta):
     '''

@@ -15,7 +15,6 @@ from ally.exception import DevelException
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Processor, ProcessorsChain, Request, Response, \
     Content
-from ally.util import simpleName
 from ally.ioc import injected
 from babel import numbers as bn, dates as bd
 from babel.core import Locale
@@ -78,11 +77,11 @@ class ConverterHandler(Processor):
                     l = Locale.parse(lang, sep='-')
                 except: continue
                 rsp.contentLanguage = str(l)
-                log.debug('Accepted language %r for response', lang)
+                assert log.debug('Accepted language %r for response', lang) or True
                 break
             else:
                 rsp.contentLanguage = self.languageDefault
-                log.debug('No language specified for the response, set default %r', rsp.contentLanguage)
+                assert log.debug('No language specified for the response, set default %r', rsp.contentLanguage) or True
         
         try:
             rsp.contentConverter = self._makeConverter(rsp, self.presentFormating)
@@ -99,7 +98,7 @@ class ConverterHandler(Processor):
                 rsp.setCode(INVALID_FORMATING, 'Bad request content formatting, %s' % e.message)
                 return
         else:
-            log.debug('No language on the request content, cannot create converter')
+            assert log.debug('No language on the request content, cannot create converter') or True
         
         chain.process(req, rsp)
         
@@ -123,7 +122,7 @@ class ConverterHandler(Processor):
                     raise
                 formats[clsTyp] = format
             except Exception as e:
-                raise DevelException('invalid %s %r because: %r' % (simpleName(clsTyp), format, str(e)))
+                raise DevelException('invalid %s %r because: %r' % (clsTyp.__name__, format, str(e)))
             
         if presentFormating:
             if Number not in formats:

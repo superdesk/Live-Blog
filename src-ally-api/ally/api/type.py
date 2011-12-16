@@ -11,7 +11,7 @@ Provides the types used for APIs.
 
 from ally import type_legacy as numbers
 from ally.type_legacy import Iterable, Sized, Iterator
-from ally.util import Uninstantiable, simpleName, Singletone
+from ally.util import Uninstantiable, Singletone, Attribute
 from datetime import datetime, date, time
 from inspect import isclass
 import logging
@@ -22,9 +22,9 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-_types = {}
-formatted = []
-# The formatted Uninstantiable classes
+_TYPES = {}
+FORMATTED = []
+# The FORMATTED Uninstantiable classes
 
 # --------------------------------------------------------------------
 
@@ -154,7 +154,7 @@ class TypeClass(Type):
         return False
     
     def __str__(self):
-        return simpleName(self._forClass)
+        return self._forClass.__name__
 
 class TypePercentage(Singletone, TypeClass):
     '''
@@ -249,7 +249,7 @@ class Iter(Type):
         return False
     
     def __str__(self):
-        return '%s(%s)' % (simpleName(self), self.itemType)
+        return '%s(%s)' % (self.__class__.__name__, self.itemType)
     
 class List(Iter):
     '''
@@ -403,6 +403,9 @@ class Input:
 
 # --------------------------------------------------------------------
 
+ATTR_TYPE = Attribute(__name__, 'type', Type)
+# Provides attribute for type.
+
 def typeFor(obj, type=None):
     '''
     If the type is provided it will be associate with the obj, if the type is not provided than this function
@@ -418,20 +421,16 @@ def typeFor(obj, type=None):
         either the Type or None if is not found.
     '''
     if type is None:
-        type = getattr(obj, '_api_type', None)
+        if obj is None: return ATTR_TYPE.get(Non)
+        type = ATTR_TYPE.get(obj, None)
         if type is None:
-            if obj is None:
-                return Non._api_type
             if isclass(obj):
-                typ = _types.get(obj)
-                if typ is not None:
-                    return typ
-            if isinstance(obj, Type):
-                type = obj
+                typ = _TYPES.get(obj)
+                if typ is not None: return typ
+            if isinstance(obj, Type): type = obj
         return type
-    assert isinstance(type, Type), 'Invalid type %s' % type
-    assert '_api_type' not in obj.__dict__, 'Already has a type %s' % obj
-    setattr(obj, '_api_type', type)
+    assert not ATTR_TYPE.hasOwn(obj), 'Already has a type %s' % obj
+    return ATTR_TYPE.set(obj, type)
 
 # --------------------------------------------------------------------
 
@@ -447,7 +446,7 @@ class Boolean(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Boolean, TypeClass(bool, True))
-_types[bool] = typeFor(Boolean)
+_TYPES[bool] = typeFor(Boolean)
 
 
 class Integer(Uninstantiable):
@@ -456,7 +455,7 @@ class Integer(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Integer, TypeClass(int, True))
-_types[int] = typeFor(Integer)
+_TYPES[int] = typeFor(Integer)
 
 class Number(Uninstantiable):
     '''
@@ -464,9 +463,9 @@ class Number(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Number, TypeClass(numbers.Number, True))
-_types[float] = typeFor(Number)
-_types[numbers.Number] = typeFor(Number)
-formatted.append(Number)
+_TYPES[float] = typeFor(Number)
+_TYPES[numbers.Number] = typeFor(Number)
+FORMATTED.append(Number)
 
 class Percentage(Uninstantiable):
     '''
@@ -474,7 +473,7 @@ class Percentage(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Percentage, TypePercentage())
-formatted.append(Percentage)
+FORMATTED.append(Percentage)
 
 class String(Uninstantiable):
     '''
@@ -482,7 +481,7 @@ class String(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(String, TypeClass(str, True))
-_types[str] = typeFor(String)
+_TYPES[str] = typeFor(String)
 
 class Date(Uninstantiable):
     '''
@@ -490,8 +489,8 @@ class Date(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Date, TypeClass(date, True))
-_types[date] = typeFor(Date)
-formatted.append(Date)
+_TYPES[date] = typeFor(Date)
+FORMATTED.append(Date)
 
 class Time(Uninstantiable):
     '''
@@ -499,8 +498,8 @@ class Time(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Time, TypeClass(time, True))
-_types[time] = typeFor(Time)
-formatted.append(Time)
+_TYPES[time] = typeFor(Time)
+FORMATTED.append(Time)
 
 class DateTime(Uninstantiable):
     '''
@@ -508,8 +507,8 @@ class DateTime(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(DateTime, TypeClass(datetime, True))
-_types[datetime] = typeFor(DateTime)
-formatted.append(DateTime)
+_TYPES[datetime] = typeFor(DateTime)
+FORMATTED.append(DateTime)
 
 # --------------------------------------------------------------------
 # Id types

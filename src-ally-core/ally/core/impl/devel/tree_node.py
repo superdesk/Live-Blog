@@ -9,7 +9,6 @@ Created on Aug 26, 2011
 Provides a Node on the resource manager with an invoker that presents the node tree of the resource manager.
 '''
 
-from ally.util import simpleName
 from ally.ioc import injected
 from ally.core.spec.resources import ResourcesManager, Node
 from collections import OrderedDict
@@ -54,7 +53,7 @@ class TreeNodePresenter:
         elif isinstance(node, NodePath):
             nodeValue = node.name
         
-        ns[simpleName(node)] = nodeValue
+        ns[node.__class__.__name__] = nodeValue
         invk = []
         if node.get: invk.append('Get(%s)' % node.get.name)
         if node.insert: invk.append('Insert(%s)' % node.insert.name)

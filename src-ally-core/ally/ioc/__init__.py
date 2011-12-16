@@ -6,16 +6,18 @@ Created on Sep 23, 2011
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the IoC (Inversion of Control or dependency injection) services.
+Provides the IoC (Inversion of Control or dependency injection) services. Attention the IoC should always be used from a
+single thread at one time.
 '''
 
+from ..util import callerLocals, isPackage
 from .aop import AOPModules, AOPClasses
 from .context import NAMES_RESERVED, ContextIoC
 from .indexer import IndexerCreator, IndexerEventReferenced, IndexerEventStart, \
     IndexerOnlyIf, IndexerConfiguration
-from .node import SetupError, Initializer, isConfig, argumentsFor
+from .initializer import Initializer
+from .node import SetupError, isConfig, argumentsFor
 from .node_event import EVENT_BEFORE, EVENT_AFTER
-from .util import callerRegistry, isPackage
 from _abcoll import Callable
 from functools import partial
 from inspect import isclass, ismodule, isfunction
@@ -51,6 +53,10 @@ def onNamedEvent(*args, **keyargs):
         decorated function needs to have only one argument that will be considered as the before use scope. 
     @keyword event: string
         The event name.
+    @keyword multiple: boolean|None
+        True indicates that the event is allowed to be handled multiple times, False the event should be handled just
+        once and None allows the event handler to provide a default behavior based on the reference
+        (True for entities, False for configurations)
     '''
     assert 'event' in keyargs, 'Expected an event key argument, got key arguments %s' % keyargs
     event = keyargs.pop('event')
@@ -58,6 +64,9 @@ def onNamedEvent(*args, **keyargs):
     
     name = keyargs.pop('name', None)
     assert name is None or isinstance(name, str), 'Invalid name %s' % name
+    
+    multiple = keyargs.pop('multiple', None)
+    assert multiple is None or isinstance(multiple, bool), 'Invalid multiple flag %s' % multiple
     
     wrap = keyargs.pop('wrap', False)
     if args:
@@ -76,30 +85,38 @@ def onNamedEvent(*args, **keyargs):
             args = [argn for argn in args if argn not in NAMES_RESERVED]
             if len(args) != 1: raise SetupError('Expected one argument got %r arguments' % ','.join(args))
             name = args[0]
-        IndexerEventReferenced(function, event, name)
+        IndexerEventReferenced(function, event, name, multiple)
         return function
 
-    return partial(onNamedEvent, event=event, wrap=True)
+    return partial(onNamedEvent, event=event, multiple=multiple, wrap=True)
 
-def before(*args):
+def before(*args, multiple=None):
     '''
     Decorator used for functions that should be used as a setup for the specified entity name before initialization.
     
     @param args[0]: string|None
         The name of the entity that is the scope of the before initialization setup, if not specified than the
-        decorated function needs to have only one argument that will be considered as the before use scope. 
+        decorated function needs to have only one argument that will be considered as the before use scope.
+    @param multiple: boolean|None
+        True indicates that the event is allowed to be handled multiple times, False the event should be handled just
+        once and None allows the event handler to provide a default behavior based on the reference
+        (True for entities, False for configurations)
     '''
-    return onNamedEvent(*args, event=EVENT_BEFORE)
+    return onNamedEvent(*args, event=EVENT_BEFORE, multiple=multiple)
 
-def after(*args):
+def after(*args, multiple=None):
     '''
     Decorator used for functions that should be used as a setup for the specified entity name after it is initialize.
     
     @param args[0]: string|None
         The name of the entity that is the scope of the after initialize setup, if not specified than the
-        decorated function needs to have only one argument that will be considered as the after initialize scope. 
+        decorated function needs to have only one argument that will be considered as the after initialize scope.
+    @param multiple: boolean|None
+        True indicates that the event is allowed to be handled multiple times, False the event should be handled just
+        once and None allows the event handler to provide a default behavior based on the reference
+        (True for entities, False for configurations)
     '''
-    return onNamedEvent(*args, event=EVENT_AFTER)
+    return onNamedEvent(*args, event=EVENT_AFTER, multiple=multiple)
 
 def start(*args):
     '''
@@ -163,7 +180,7 @@ def setup(*classes):
             clazzes.extend(clazz.asList())
         else: raise SetupError('Cannot use class %s' % clazz)
     
-    registry = callerRegistry()
+    registry = callerLocals()
     entities = []
     for clazz in clazzes:
         initializer = Initializer.initializerFor(clazz)
@@ -186,8 +203,7 @@ def config(doc=None, **config):
         The configuration values, the names will be considered as the actual configuration names.
     '''
     assert doc is None or isinstance(doc, str), 'Invalid documentation %s' % doc
-    registry = callerRegistry()
-    for name, value in config.items(): IndexerConfiguration(registry, name, value, doc)
+    for name, value in config.items(): IndexerConfiguration(callerLocals(), name, value, doc)
 
 # --------------------------------------------------------------------
 

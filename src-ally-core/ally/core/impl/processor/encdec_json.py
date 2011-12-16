@@ -63,7 +63,7 @@ class EncodingJSONHandler(EncodingBaseHandler):
                 else:
                     typ = rsp.objType
                     if typ is None or isinstance(typ, TypeNone):
-                        log.debug('Nothing to encode')
+                        assert log.debug('Nothing to encode') or True
                         return
                     if isinstance(typ, Iter):
                         assert isinstance(typ, Iter)
@@ -77,7 +77,7 @@ class EncodingJSONHandler(EncodingBaseHandler):
                             self._processObjectInclude(typ.itemType.model, rsp)
                             obj = self._convertListModels(rsp.obj, typ.itemType.model, req.resourcePath, rsp)
                         else:
-                            log.debug('Cannot encode list item object type %r', typ.itemType)
+                            assert log.debug('Cannot encode list item object type %r', typ.itemType) or True
                     elif isinstance(typ, TypeProperty):
                         if isPropertyTypeId(typ):
                             path = self.resourcesManager.findGetModel(req.resourcePath, typ.model)
@@ -86,7 +86,7 @@ class EncodingJSONHandler(EncodingBaseHandler):
                     elif isinstance(typ, TypeModel):
                         obj = self._convertModel(rsp.obj, typ.model, req.resourcePath, rsp)
                     else:
-                        log.debug('Cannot encode object type %r', typ)
+                        assert log.debug('Cannot encode object type %r', typ) or True
             if obj:
                 txt = TextIOWrapper(rsp.dispatch(), self._getCharSet(req, rsp), self.encodingError)
                 # Need to stop the text close since this will close the socket, just a small hack to prevent this.
@@ -246,20 +246,20 @@ class DecodingJSONHandler(DecodingBaseHandler):
 
                 name, model = nameModel
                 assert isinstance(req.content, ContentRequest)
-                log.debug('Decoding model %s', model)
+                assert log.debug('Decoding model %s', model) or True
                 try:
                     req.arguments[name] = self._decodeModel(obj, model,
                                                             req.content.contentConverter or rsp.contentConverter)
-                    log.debug('Successfully decoded for input (%s) value %s', name, req.arguments[name])
+                    assert log.debug('Successfully decoded for input (%s) value %s', name, req.arguments[name]) or True
                 except DevelException as e:
                     rsp.setCode(BAD_CONTENT, e.message)
                 except InputException as e:
                     rsp.setCode(BAD_CONTENT, e, 'Invalid data')
                 return
             else:
-                log.debug('Expected a model for decoding the content, could not find one')
+                assert log.debug('Expected a model for decoding the content, could not find one') or True
         else:
-            log.debug('Invalid request for the JSON decoder')
+            assert log.debug('Invalid request for the JSON decoder') or True
         chain.process(req, rsp)
             
     def _decodeModel(self, obj, model, converter):
@@ -289,7 +289,7 @@ class DecodingJSONHandler(DecodingBaseHandler):
                     prop.set(mi, converter.asValue(content, prop.type))
                 except ValueError:
                     errors.append(Ref(_('Invalid value expected $1 type', _(prop.type)), model=model, property=prop))
-                    log.debug('Problems setting property %r from JSON value %s', propName, content)
+                    assert log.debug('Problems setting property %r from JSON value %s', propName, content) or True
         if len(obj) > 0: raise DevelException('Unknown keys %r' % ', '.join(str(key) for key in obj.keys()))
         if len(errors) > 0: raise InputException(*errors)
         return mi

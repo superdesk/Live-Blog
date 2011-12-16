@@ -9,10 +9,11 @@ Created on Jun 9, 2011
 Provides implementations that provide general behavior or functionality.
 '''
 
-from inspect import isclass
+from inspect import isclass, ismodule
 import sys
 import builtins
 from ally.type_legacy import Callable
+import inspect
 
 # --------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ class Uninstantiable:
         '''
         Does not allow you to create an instance.
         '''
-        raise AssertionError('Cannot create an instance of "' + str(cls.__name__) + '" class')
+        raise 'Cannot create an instance of "' + str(cls.__name__) + '" class'
 
 # --------------------------------------------------------------------
 
@@ -47,6 +48,210 @@ class Singletone:
         if not hasattr(cls, '_UTIL_singletone'):
             cls._UTIL_singletone = super().__new__(cls)
         return cls._UTIL_singletone
+
+# --------------------------------------------------------------------
+
+_NAME_IDS = {}
+# Used by the attribute to assign a unique id to a name.
+
+_NAME_ID = lambda name: str(_NAME_IDS.setdefault(name, len(_NAME_IDS)))
+# Provides the name id.
+
+class Attribute:
+    '''
+    Class used for creating attributes for python objects. The purpose of this is not to directly use the the __dict__
+    or getattr in order to store values in order to avoid name clashes.
+    '''
+    
+    def __init__(self, group, name, valueType=None):
+        '''
+        Creates a new attribute.
+        
+        @param group: string
+            The group name for the attribute, this is usually the module name where is created, it helps to distinguish
+            between same names but with other purposes.
+        @param name: string
+            The name of the attribute.
+        @param valueType: type
+            The type to check for the set and get values.
+        '''
+        assert isinstance(group, str), 'Invalid group name %s' % group
+        assert isinstance(name, str), 'Invalid name %s' % name
+        assert not valueType or isclass(valueType), 'Invalid value type %s' % valueType
+        self.__group = group
+        self.__name = name
+        self.__type = valueType
+        if __debug__: self.__id = group + '.' + name
+        else:
+            self.__id = _NAME_ID(group) + '_' + _NAME_ID(name)
+    
+    def has(self, obj):
+        '''
+        Checks if there is a value for the provided object.
+        
+        @param obj: object
+            The object to check for value.
+        @return: boolean
+            true if there is a value, False otherwise.
+        '''
+        assert obj is not None, 'An object is required'
+        return hasattr(obj, self.__id)
+    
+    def get(self, obj, *default):
+        '''
+        Get the value from the provided object.
+        
+        @param obj: object
+            The object to get the value from.
+        @param default: argument
+            If provided will return the default if no argument value is available.
+        @return: object
+            The value.
+        '''
+        assert obj is not None, 'An object is required'
+        value = getattr(obj, self.__id, *default)
+        assert not(self.__type and value is not None) or isinstance(value, self.__type), 'Invalid value %s to get for ' \
+        'required type %s, for attribute %s.%s' % (value, self.__type, self.__group, self.__name)
+        return value
+    
+    def set(self, obj, value):
+        '''
+        Sets the value to the provided object.
+        
+        @param obj: object
+            The object to set the value to.
+        @param value: object
+            The value to set.
+        @return: object
+            The provided value.
+        '''
+        assert obj is not None, 'An object is required'
+        assert not(self.__type and value is not None) or isinstance(value, self.__type), 'Invalid value %s to set for ' \
+        'required type %s, for attribute %s.%s' % (value, self.__type, self.__group, self.__name)
+        setattr(obj, self.__id, value)
+        return value
+        
+    def delete(self, obj):
+        '''
+        Deletes the value from the provided object.
+        
+        @param obj: object
+            The object to delete the value from.
+        '''
+        assert obj is not None, 'An object is required'
+        delattr(obj, self.__id)
+        
+    def hasOwn(self, obj):
+        '''
+        Checks if there is a value for the provided object by using __dict__.
+        
+        @param obj: object
+            The object to check for value.
+        @return: boolean
+            true if there is a value, False otherwise.
+        '''
+        assert obj is not None, 'An object is required'
+        return self.__id in obj.__dict__
+    
+    def getOwn(self, obj, *default):
+        '''
+        Get the value from the provided object by using __dict__.
+        
+        @param obj: object
+            The object to get the value from.
+        @param default: argument
+            If provided will return the default if no argument value is available.
+        @return: object
+            The value.
+        '''
+        assert obj is not None, 'An object is required'
+        value = obj.__dict__.get(self.__id, *default)
+        assert not(self.__type and value is not None) or isinstance(value, self.__type), 'Invalid value %s to get for ' \
+        'required type %s, for attribute %s.%s' % (value, self.__type, self.__group, self.__name)
+        return value
+    
+    def setOwn(self, obj, value):
+        '''
+        Sets the value to the provided object by using __dict__.
+        
+        @param obj: object
+            The object to set the value to.
+        @param value: object
+            The value to set.
+        @return: object
+            The provided value.
+        '''
+        assert obj is not None, 'An object is required'
+        assert not(self.__type and value is not None) or isinstance(value, self.__type), 'Invalid value %s to set for ' \
+        'required type %s, for attribute %s.%s' % (value, self.__type, self.__group, self.__name)
+        obj.__dict__[self.__id] = value
+        return value
+        
+    def deleteOwn(self, obj):
+        '''
+        Deletes the value from the provided object by using __dict__.
+        
+        @param obj: object
+            The object to delete the value from.
+        '''
+        assert obj is not None, 'An object is required'
+        del obj.__dict__[self.__id]
+        
+    def hasDict(self, map):
+        '''
+        Checks if there is a value for the provided map dictionary.
+        
+        @param map: dictionary
+            The map dictionary to check for value.
+        @return: boolean
+            true if there is a value, False otherwise.
+        '''
+        assert isinstance(map, dict), 'Invalid map %s' % map
+        return self.__id in map
+    
+    def getDict(self, map, *default):
+        '''
+        Get the value from the provided map dictionary.
+        
+        @param map: dictionary
+            The map dictionary to get the value from.
+        @param default: argument
+            If provided will return the default if no argument value is available.
+        @return: object
+            The value.
+        '''
+        assert isinstance(map, dict), 'Invalid map %s' % map
+        value = map.get(self.__id, *default)
+        assert not(self.__type and value is not None) or isinstance(value, self.__type), 'Invalid value %s to get for ' \
+        'required type %s, for attribute %s.%s' % (value, self.__type, self.__group, self.__name)
+        return value
+    
+    def setDict(self, map, value):
+        '''
+        Sets the value to the provided map dictionary.
+        
+        @param map: dictionary
+            The map dictionary to set the value to.
+        @param value: object
+            The value to set.
+        @return: object
+            The provided value.
+        '''
+        assert isinstance(map, dict), 'Invalid map %s' % map
+        assert not(self.__type and value is not None) or isinstance(value, self.__type), 'Invalid value %s to set for ' \
+        'required type %s, for attribute %s.%s' % (value, self.__type, self.__group, self.__name)
+        map[self.__id] = value
+        return value
+        
+    def deleteDict(self, map):
+        '''
+        Deletes the value from the provided map dictionary.
+        
+        @param map: dictionary
+            The map dictionary to delete the value from.
+        '''
+        assert isinstance(map, dict), 'Invalid map %s' % map
+        del map[self.__id]
 
 # --------------------------------------------------------------------
 
@@ -99,6 +304,9 @@ def _overrideIsinstance():
   
 # --------------------------------------------------------------------
 
+ATTR_BEAN = Attribute(__name__, 'bean', dict)
+# Provides the bean properties.
+
 def bean(clazz):
     '''
     Used for describing bean classes, this type of classes are just containers.
@@ -107,10 +315,10 @@ def bean(clazz):
     for name, value in clazz.__dict__.items():
         if isclass(value): properties[name] = value
     for name in properties.keys(): delattr(clazz, name)
-    inherited = getattr(clazz, '_UTIL_bean', None)    
+    inherited = ATTR_BEAN.get(clazz, None)    
     if inherited: properties.update(inherited)
     
-    setattr(clazz, '_UTIL_bean', properties)
+    ATTR_BEAN.set(clazz, properties)
     setattr(clazz, '__getattr__', _getattr_bean)
     setattr(clazz, '__setattr__', _setattr_bean)
     return clazz
@@ -120,7 +328,7 @@ def _getattr_bean(self, name):
     FOR INTERNAL USE.
     Used to get attributes for bean defined classes.
     '''
-    if name not in getattr(self.__class__, '_UTIL_bean'): raise AttributeError
+    if name not in ATTR_BEAN.get(self.__class__): raise AttributeError
     return None
 
 def _setattr_bean(self, name, value):
@@ -128,11 +336,11 @@ def _setattr_bean(self, name, value):
     FOR INTERNAL USE.
     Used to get attributes for bean defined classes.
     '''
-    properties = getattr(self.__class__, '_UTIL_bean')
+    properties = ATTR_BEAN.get(self.__class__)
     clazz = properties.get(name, None)
     if clazz:
         assert value is None or isinstance(value, clazz), \
-        'Invalid value %s for name %r, expected %r' % (value, name, simpleName(clazz))
+        'Invalid value %s for name %r, expected %r' % (value, name, clazz.__name__)
     object.__setattr__(self, name, value)
 
 # --------------------------------------------------------------------
@@ -177,12 +385,12 @@ def findOnEscapedKey(key, regexEscape, items, prefix=None):
 
 def replaceInFile(fileObj, replacements):
     '''
-    Creates a proxy for the provided file object that will replace in the provided file object content the data
+    Creates a proxy for the provided file object that will replace in the provided file content based on the data
     provided in the replacements map.
     
     @param fileObj: a file like object with a 'read' method
         The file object to wrap and have the content changed.
-    @param replacements: dictionary
+    @param replacements: dictionary{string|bytes, string|bytes}
         A dictionary containing as a key the data that needs to be changed and as a value the data to change with.
     @return: Proxy
         The proxy created for the file that will handle the data replacing.
@@ -201,38 +409,38 @@ class _ProxyRead(Callable):
     '''
     
     def __init__(self, fileObj, replacements):
-        self.fileObj = fileObj
-        self.replacements = replacements
+        self.__fileObj = fileObj
+        self.__replacements = replacements
         
-        self.maxKey = 0
+        self.__maxKey = 0
         for key in replacements.keys():
-            if self.maxKey < len(key): self.maxKey = len(key)
+            if self.__maxKey < len(key): self.__maxKey = len(key)
             
-        self.leftOver = None
+        self.__leftOver = None
     
     def __call__(self, count=None):
-        data = self.fileObj.read(count)
+        data = self.__fileObj.read(count)
         
         if not data:
-            if self.leftOver:
-                data = self.leftOver
-                self.leftOver = None
+            if self.__leftOver:
+                data = self.__leftOver
+                self.__leftOver = None
             else: return data
         
         toIndex = None
-        if self.leftOver:
+        if self.__leftOver:
             toIndex = len(data)
-            data = self.leftOver + data
+            data = self.__leftOver + data
         else:
-            extra = self.fileObj.read(self.maxKey - 1)
+            extra = self.__fileObj.read(self.__maxKey - 1)
             if extra:
                 toIndex = len(data)
                 data = data + extra
                 
-        for key, value in self.replacements.items(): data = data.replace(key, value)
+        for key, value in self.__replacements.items(): data = data.replace(key, value)
         
         if toIndex:
-            self.leftOver = data[toIndex:]
+            self.__leftOver = data[toIndex:]
             data = data[:toIndex]
         
         return data
@@ -249,17 +457,6 @@ def fullyQName(obj):
     if not isclass(obj):
         obj = obj.__class__
     return obj.__module__ + '.' + obj.__name__
-
-def simpleName(obj):
-    '''
-    Provides the simple class name of the instance or class provided.
-    
-    @param obj: class|object
-        The class or instance to provide the simple class name for.
-    '''
-    if not isclass(obj):
-        obj = obj.__class__
-    return obj.__name__
 
 def classForName(name):
     '''
@@ -312,3 +509,31 @@ def exceptionModuleName(e):
     if m is not None:
         return m.__name__
     return None
+
+def isPackage(module):
+    '''
+    Checks if the provided module is a package.
+    
+    @param module: module
+        The module to be checked.
+    '''
+    assert ismodule(module), 'Invalid module %s' % module
+    return hasattr(module, '__path__')
+
+def callerLocals(level=1):
+    '''
+    Provides the calling module locals.
+    
+    @param level: integer
+        The level from where to start finding the caller.
+    @return: dictionary{string, object}
+        The locals of the caller (based on the provided level)
+    '''
+    stack = inspect.stack()
+    currentModule = stack[level][1]
+    for k in range(level + 1, len(stack)):
+        if stack[k][1] != currentModule:
+            frame = stack[k][0]
+            break
+    else: raise 'There is no other module than the current one'
+    return frame.f_locals

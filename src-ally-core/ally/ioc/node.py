@@ -12,7 +12,6 @@ Module containing the nodes for the IoC setup procedure.
 from .. import omni
 from _abcoll import Callable
 from copy import deepcopy
-from functools import partial
 from inspect import isclass, isfunction, getfullargspec, isgenerator
 import abc
 import logging
@@ -62,15 +61,23 @@ class IListener(metaclass=abc.ABCMeta):
     '''
     
     @abc.abstractclassmethod
-    def before(self):
+    def before(self, source):
         '''
         Method invoked before an action is taken by the node.
+        
+        @param source: Node
+            The source node of the event.
         '''
         
     @abc.abstractclassmethod
-    def after(self):
+    def after(self, source, result):
         '''
         Method invoked after an action has been finalized.
+        
+        @param source: Node
+            The source node of the event.
+        @param result: object|None
+            The result of the after process.
         '''
         
 class ICondition(metaclass=abc.ABCMeta):
@@ -121,7 +128,7 @@ class Node:
         self._parent = parent
         parent._children[self._name] = self
         self._updatePath()
-        log.debug('Set parent %s for %s', parent, self)
+        assert log.debug('Set parent %s for %s', parent, self) or True
         return self
 
     name = property(lambda self: self._name, doc=
@@ -177,10 +184,21 @@ class Node:
         assert isinstance(criteria, (tuple, list)), 'Invalid criteria %s' % criteria
         if not criteria: return True 
         for crt in criteria:
-            if isinstance(crt, str):
-                assert isinstance(crt, str)
-                if self._path == crt: return True
-                if self._path.endswith(asSubPath(crt)): return True
+            if isinstance(crt, str): return self._isMatchedPath(crt)
+        return False
+    
+    def _isMatchedPath(self, path):
+        '''
+        Checks if the provided path matches the Node path.
+        
+        @param path: string
+            The path to check.
+        @return: boolean
+            True if the path is matched, False otherwise.
+        '''
+        assert isinstance(path, str), 'Invalid path %s' % path
+        if self._path == path: return True
+        if self._path.endswith(asSubPath(path)): return True
         return False
     
     def __repr__(self):
@@ -239,7 +257,7 @@ class Woman(Node):
         assert isinstance(condition, ICondition), 'Invalid condition %s' % condition
         if condition in self._conditions: raise SetupError('The condition %s is already in %s' % (condition, self))
         self._conditions.append(condition)
-        log.debug('Added condition %s to %s', condition, self)
+        assert log.debug('Added condition %s to %s', condition, self) or True
         return self._path
 
     def _addListener(self, listener):
@@ -252,7 +270,7 @@ class Woman(Node):
         assert isinstance(listener, IListener), 'Invalid listener %s' % listener
         if listener in self._listeners: raise SetupError('The listener %s is already in %s' % (listener, self))
         self._listeners.append(listener)
-        log.debug('Added listener %s to %s', listener, self)
+        assert log.debug('Added listener %s to %s', listener, self) or True
 
     def _isChecked(self):
         '''
@@ -268,26 +286,28 @@ class Woman(Node):
     
     def _listenersBefore(self):
         '''
+        @see: IListener.before
         Dispatches a before event to the events registered listeners.
         '''
         for listener in self._listeners:
             assert isinstance(listener, IListener)
-            listener.before()
+            listener.before(self)
             
-    def _listenersAfter(self):
+    def _listenersAfter(self, result):
         '''
+        @see: IListener.after
         Dispatches a after event to the events registered listeners.
         '''
         for listener in self._listeners:
             assert isinstance(listener, IListener)
-            listener.after()
+            listener.after(self, result)
             
-    def _listenersAll(self):
+    def _listenersAll(self, result):
         '''
         Dispatches a before and after event to the events registered listeners.
         '''
         self._listenersBefore()
-        self._listenersAfter()
+        self._listenersAfter(result)
 
 class Source(Woman):
     '''
@@ -332,7 +352,7 @@ class Source(Woman):
             The path of the unused source.
         '''
         if not self._isMatched(criteria) or not self._isChecked(): return omni.CONTINUE
-        if self.doIsValue(self._path, omni=omni.F_FIRST): return omni.CONTINUE
+        if self._isUsed(): return omni.CONTINUE
         return self._path
 
     @omni.resolver
@@ -385,6 +405,12 @@ class Source(Woman):
                 if isclass(crt) and issubclass(self._type, crt): return True
         return False
     
+    def _isUsed(self):
+        '''
+        Checks if this source is used.
+        '''
+        return self.doIsValue(self._path, omni=omni.F_FIRST)
+    
     def __repr__(self):
         '''
         @see: http://docs.python.org/reference/datamodel.html
@@ -423,25 +449,21 @@ class Function(Source):
         Processes the function value.
         @see: Source.processValue
         '''
-        keyargs = {}
-        for name in self._arguments:
-            try: keyargs[name] = self.doGetValue(name, omni=omni.F_FIRST)
-            except omni.NoResultError: raise SetupError('Could not find argument value %r for %s' % (name, self))
+        keyargs = extractArguments(self, self._arguments)
         ret = self._call(**keyargs)
         if isgenerator(ret): value, generator = self._validate(next(ret)), ret
         else: value, generator = self._validate(ret), None
         
         self.doSetValue(self._path, value)
         self._listenersBefore()
-        log.debug('Processed and set value %s of node %s', value, self)
+        assert log.debug('Processed and set value %s of node %s', value, self) or True
         
         if generator:
             try: next(generator)
             except StopIteration: pass
-            
-        Initializer.initialize(value)
-        self._listenersAfter()
-        log.debug('Initialized and set value %s of node %s', value, self)
+        
+        self._listenersAfter(value)
+        assert log.debug('Initialized and set value %s of node %s', value, self) or True
         return value
 
 class Argument(Source):
@@ -491,8 +513,8 @@ class Argument(Source):
         '''
         if self._hasValue:
             self.doSetValue(self._path, self._value)
-            self._listenersAll()
-            log.debug('Set fixed value %s of node %s', self._value, self)
+            self._listenersAll(self._value)
+            assert log.debug('Set fixed value %s of node %s', self._value, self) or True
             return self._value
         else:
             values = self.doProcessValue(self._type)
@@ -503,7 +525,7 @@ class Argument(Source):
             else:
                 value = self._validate(values[0])
                 self.doSetValue(self._path, value)
-                log.debug('Processed value %s by type of node %s', value, self)
+                assert log.debug('Processed value %s by type of node %s', value, self) or True
                 return value
             
 class Configuration(Source):
@@ -538,17 +560,22 @@ class Configuration(Source):
         return omni.CONTINUE
     
     @omni.resolver
-    def doFindConfiguration(self, *criteria):
+    def doSetConfiguration(self, path, value):
         '''
-        Finds the configurations with values for the provided criteria.
+        Sets the configuration with the specified path.
         
-        @param criteria: arguments
-            The criteria(s) used to identify the node. If no criteria is provided than the event is considered valid for
-            all nodes.
-        @return: string
-            The path of the configuration.
+        @param path: string
+            The path to set the configuration to.
+        @param value: object
+            The configuration value to set.
+        @return: True
+            If the path was successfully set on this node.
         '''
-        if self._isMatched(criteria) and self._isChecked() and self._hasValue: return self._path
+        assert isinstance(path, str), 'Invalid configuration path %s' % path
+        if self._isMatchedPath(path) and self._isChecked():
+            self._value = self._validate(value)
+            self._hasValue = True
+            return True
         return omni.CONTINUE
 
     def _process(self):
@@ -556,105 +583,16 @@ class Configuration(Source):
         Processes the configuration value.
         @see: Source.processValue
         '''
-        source, others = None, []
-        configs = self.doFindConfiguration(self._name)
         if self._hasValue:
-            for config in configs:
-                path, name = split(config)
-                if self._name != name: raise SetupError('The configuration path %r has not the same name %r with '
-                                                        'the requested source' % (config, self._name))
-                if self._path.startswith(asPrePath(path)): source = path
-                elif self._path.endswith(asSubPath(path)): source = path
-                elif not path.startswith(asSubPath(self._parent.path)): others.append(path)
-            if source is None:
-                self.doSetValue(self._path, self._value)
-                self._listenersAll()
-                log.debug('Set fixed value %s of node %s', self._value, self)
-                return self._value
-            conflict = [other + self._name for other in others if other.startswith(asPrePath(source)) or
-                    other.endswith(asSubPath(source))]
-            if conflict:
-                raise SetupError('Ambiguity for the configuration source %r is matching this %r configuration '
-                                 'and also %r, if this is a user configuration you need to be more explicit provide '
-                                 'the value under a name like %r' % (self._name, self._path, conflict,
-                                                                     self._parent.name + SEPARATOR + self._name))
-            source = source + self._name
+            self.doSetValue(self._path, self._value)
+            self._listenersAll(self._value)
+            assert log.debug('Set configuration value %s of node %s', self._value, self) or True
+            return self._value
         else:
-            if not configs: raise SetupError('No configuration found for %r' % self._name)
-            elif len(configs) > 1: raise SetupError('To many configurations %r for %r' % (configs, self._name))
-            source = configs[0]
-        
-        value = self.doGetValue(source, omni=omni.F_FIRST)
-        self.doSetValue(self._path, value)
-        log.debug('Processed value %s by name of node %s', value, self)
-        return value
-
-# --------------------------------------------------------------------
-
-class Initializer(Callable):
-    '''
-    Class used as the initializer for the entities classes.
-    '''
-    
-    NAME_INITIALIZED = '_IoC_initialized'
-    NAME_ARGUMENTS = '_IoC_arguments'
-    
-    @staticmethod
-    def initializerFor(entity):
-        '''
-        Provides the Initializer for the provided entity if is available.
-        
-        @param entity: object
-            The entity to provide the initializer for.
-        @return: Initializer|None
-            The Initializer or None if not available.
-        '''
-        if not isclass(entity): clazz = entity.__class__
-        else: clazz = entity
-        initializer = clazz.__dict__.get('__init__')
-        if isinstance(initializer, Initializer): return initializer
-    
-    @classmethod
-    def initialize(cls, entity):
-        assert entity is not None, 'Need to provide an entity to be initialized'
-        initializer = cls.initializerFor(entity)
-        if initializer:
-            assert isinstance(initializer, Initializer)
-            if entity.__class__ == initializer._entityClazz:
-                args, keyargs = entity.__dict__.pop(cls.NAME_ARGUMENTS)
-                entity.__dict__[cls.NAME_INITIALIZED] = True
-                if initializer._entityInit:
-                    initializer._entityInit(entity, *args, **keyargs)
-                    log.info('Initialized entity %s' % entity)
-    
-    def __init__(self, clazz):
-        '''
-        Create a entity initializer for the specified class.
-        
-        @param clazz: class
-            The entity class of this entity initializer.
-        '''
-        assert isclass(clazz), 'Invalid entity class %s' % clazz
-        self._entityClazz = clazz
-        self._entityInit = getattr(clazz, '__init__', None)
-        setattr(clazz, '__init__', self)
-        
-    def __call__(self, entity, *args, **keyargs):
-        '''
-        @see: Callable.__call__
-        '''
-        assert isinstance(entity, self._entityClazz), 'Invalid entity %s for class %s' % (entity, self._entityClazz)
-        if entity.__dict__.get(self.NAME_INITIALIZED, False):
-            return self._entityInit(entity, *args, **keyargs)
-        assert self.NAME_ARGUMENTS not in entity.__dict__, 'Cannot initialize twice the entity %s' % entity
-        entity.__dict__[self.NAME_ARGUMENTS] = (args, keyargs)
-
-    def __get__(self, entity, owner=None):
-        '''
-        @see: http://docs.python.org/reference/datamodel.html
-        '''
-        if entity is not None: return partial(self.__call__, entity)
-        return self.__call__
+            value = self.doGetValue(self._name, omni=omni.F_FIRST)
+            self.doSetValue(self._path, value)
+            assert log.debug('Set configuration value %s from source %r for node %s', value, self._name, self) or True
+            return value
 
 # --------------------------------------------------------------------
 
@@ -743,3 +681,25 @@ def functionFrom(function, name=None):
     argumentsPush(fn, arguments, defaults, annotations)
     
     return fn
+
+# --------------------------------------------------------------------
+
+def extractArguments(source, arguments):
+    '''
+    Extract the arguments.
+    
+    @param source: Node
+        The source node to process the arguments for.
+    @param arguments: list[string]|tuple(string)
+        The arguments to be extracted.
+    @return: dictionary{string, value}
+        The extracted arguments.
+    '''
+    assert isinstance(source, Node), 'Invalid source node %s' % source
+    assert isinstance(arguments, (list, tuple)), 'Invalid arguments %s' % arguments
+    keyargs = {}
+    for name in arguments:
+        assert isinstance(name, str), 'Invalid name %s' % name
+        try: keyargs[name] = source.doGetValue(name, omni=omni.F_FIRST)
+        except omni.NoResultError: raise SetupError('Could not find argument value %r for %s' % (name, source))
+    return keyargs

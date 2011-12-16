@@ -86,8 +86,8 @@ class AssembleGet(AssembleInvokers):
             assert isinstance(typ, Iter)
             typ = typ.itemType
             isList = True
-        model = getattr(typ, 'model', None)
-        if not model:
+        try: model = typ.model
+        except AttributeError:
             log.warning('Cannot extract model from output type %s for call %s', typ, call)
             return False
         types = [invoker.inputs[k].type for k in range(0, invoker.mandatoryCount)]
@@ -180,8 +180,8 @@ class AssembleInsert(AssembleInvokers):
         assert isinstance(call, Call)
         if call.method != INSERT:
             return False
-        model = getattr(invoker.outputType, 'model', None)
-        if not model:
+        try: invoker.outputType.model
+        except AttributeError:
             log.warning('Cannot extract model from output type %s for call %s', invoker.outputType, call)
             return False
         types = [invoker.inputs[k].type for k in range(0, invoker.mandatoryCount)]

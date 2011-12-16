@@ -41,5 +41,5 @@ class DecodingNoneHandler(Processor):
         if not findLastModel(req.invoker):
             noDecoding = True
         if noDecoding:
-            log.debug('Nothing required to be decoded for this invoking')
+            assert log.debug('Nothing required to be decoded for this invoking') or True
         else: chain.process(req, rsp)

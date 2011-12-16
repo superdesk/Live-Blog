@@ -94,7 +94,7 @@ class RequestHandler:
             assert isinstance(headerEncoder, EncoderHeader)
             headerEncoder.encode(cherrypy.response.headers, rsp)
         cherrypy.response.status = rsp.code.code
-        log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__))
+        assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
         
         #TODO: remove
 #        import time;

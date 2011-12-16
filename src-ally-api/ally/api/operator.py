@@ -12,7 +12,7 @@ Provides the containers that describe the APIs.
 from ally.api.type import Type, TypeClass, Input, Id, IdString, Boolean, Number, \
     Integer, Percentage, String, Time, Date, DateTime, TypeProperty, typeFor
 from ally.type_legacy import Iterable, OrderedDict
-from ally.util import simpleName, IS_PY3K
+from ally.util import IS_PY3K, Attribute
 from inspect import ismodule, getargspec, isclass
 import logging
 
@@ -27,8 +27,9 @@ INSERT = 2
 UPDATE = 4
 DELETE = 8
 
-NAME_HAS_SET = '_has'
+ATTR_HAS_SET = Attribute(__name__, 'hasSet', set)
 # Keeps the set containing the name of the properties that have been set on the model.
+
 NAME_ON_SET = '%sOnSet'
 # The name used for property on set listener.
 NAME_ON_DEL = '%sOnDel'
@@ -110,7 +111,7 @@ class Properties:
         return False
     
     def __str__(self):
-        return '<%s %s>' % (simpleName(self), [str(prop) for prop in self.properties.values()])
+        return '<%s %s>' % (self.__class__.__name__, [str(prop) for prop in self.properties.values()])
 
 class Property:
     '''
@@ -147,7 +148,7 @@ class Property:
             True if a value is present, false otherwise.
         '''
         assert not model is None, 'Invalid model object (None)'
-        has = model.__dict__.get(NAME_HAS_SET, None)
+        has = ATTR_HAS_SET.getOwn(model, None)
         if has: return self.name in has
         return False
     
@@ -159,10 +160,8 @@ class Property:
             The model instance to set the has flag on.
         '''
         assert not model is None, 'Invalid model object (None)'
-        has = model.__dict__.get(NAME_HAS_SET, None)
-        if not has:
-            has = set()
-            model.__dict__[NAME_HAS_SET] = has
+        has = ATTR_HAS_SET.getOwn(model, None)
+        if not has: has = ATTR_HAS_SET.setOwn(model, set())
         has.add(self.name)
         
         listener = getattr(model, NAME_ON_SET % self.name, None)
@@ -196,7 +195,7 @@ class Property:
         object.__setattr__(model, self.name, value)
         self.hasSet(model)
         
-        log.debug('Success on setting value (%s) for %s', value, self)
+        assert log.debug('Success on setting value (%s) for %s', value, self) or True
     
     def remove(self, model):
         '''
@@ -210,11 +209,11 @@ class Property:
         assert not model is None, 'Invalid model object (None)'
         if self.name in model.__dict__:
             model.__dict__[self.name] = None
-            has = model.__dict__.get(NAME_HAS_SET, None)
+            has = ATTR_HAS_SET.getOwn(model, None)
             if has: has.remove(self.name)
             listener = getattr(model, NAME_ON_DEL % self.name, None)
             if listener: listener()
-            log.debug('Success on removing value for %s', self)
+            assert log.debug('Success on removing value for %s', self) or True
             return True
         return False
     
@@ -224,7 +223,7 @@ class Property:
         return False
 
     def __str__(self):
-        return '<%s[%s = %s]>' % (simpleName(self), self.name, self.type)
+        return '<%s[%s = %s]>' % (self.__class__.__name__, self.name, self.type)
 
 # --------------------------------------------------------------------
 
@@ -261,7 +260,7 @@ class Model(Properties):
         @return: object
             The newly created model instance.
         '''
-        log.debug('Created model instance for class %s', self.modelClass)
+        assert log.debug('Created model instance for class %s', self.modelClass) or True
         return self.modelClass()
 
     def __eq__(self, other):
@@ -270,7 +269,7 @@ class Model(Properties):
         return False
 
     def __str__(self):
-        return '<%s (%s) %s>' % (simpleName(self), self.name, \
+        return '<%s (%s) %s>' % (self.__class__.__name__, self.name, \
                                  [str(prop) for prop in self.properties.values()])
        
 # --------------------------------------------------------------------
@@ -306,7 +305,7 @@ class Query:
         @return: object
             The newly created query instance.
         '''
-        log.debug('Created query instance for class %s', self.queryClass)
+        assert log.debug('Created query instance for class %s', self.queryClass) or True
         return self.queryClass()
 
     def __eq__(self, other):
@@ -315,7 +314,7 @@ class Query:
         return False
 
     def __str__(self):
-        return '<%s %s>' % (simpleName(self.queryClass), [str(entry) for entry in self.criteriaEntries.values()])
+        return '<%s %s>' % (self.queryClass.__class__.__name__, [str(entry) for entry in self.criteriaEntries.values()])
  
 class CriteriaEntry(Property):
     '''
@@ -388,8 +387,8 @@ class Criteria(Properties):
         criteria = self.criteriaClass()
         criteria.query = query
         criteria.entryName = criteriaEntry.name
-        log.debug('Created criteria with name (%s) for query %s as class %s', \
-                  criteriaEntry.name, query, self.criteriaClass)
+        assert log.debug('Created criteria with name (%s) for query %s as class %s', \
+                         criteriaEntry.name, query, self.criteriaClass) or True
         return criteria
 
     def __eq__(self, other):
@@ -494,8 +493,8 @@ class Call:
             raise AssertionError('The return %s provided is not compatible with the expected output type %s \
 for call %s' % (ret, self.outputType, self))
         
-        log.debug('Success calling %r with arguments %s and return class %s', \
-                  func.__name__, args, simpleName(ret))
+        assert log.debug('Success calling %r with arguments %s and return class %s', \
+                         func.__name__, args, ret.__class__.__name__) or True
         return ret
         
     def _findClassFunction(self, implClass):
@@ -579,7 +578,7 @@ class Service:
     
     def __str__(self):
         return '<Service[%s %s calls]>' % \
-            (simpleName(self.serviceClass), len(self.calls))
+            (self.serviceClasss.__class__.__name__, len(self.calls))
 
 # --------------------------------------------------------------------
 

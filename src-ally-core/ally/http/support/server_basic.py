@@ -104,7 +104,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             chain.process(req, rsp)
             if not rsp.isDispatched:
                 rsp.dispatch()
-            log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__))
+            assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
         else:
             self.send_response(404)
             self.end_headers()
@@ -113,7 +113,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         #TODO: see for a better solution for this
         # This is a fix: whenever a message is logged there is an attempt to find some sort of host name which
         # creates a big delay whenever the request is made from a non localhost client.
-        log.debug(format, *args)
+        assert log.debug(format, *args) or True
            
 # --------------------------------------------------------------------
 

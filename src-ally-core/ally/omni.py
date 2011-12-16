@@ -47,6 +47,7 @@ from functools import partial, update_wrapper
 from inspect import isfunction, getfullargspec, isclass
 import inspect
 import logging
+from ally.util import Attribute
 
 # --------------------------------------------------------------------
 
@@ -96,9 +97,6 @@ CONTINUE = object()
 # dispatching to continue.
 
 # --------------------------------------------------------------------
-
-_ATTR_HANDLER = '_OMNI_handler'
-# The attribute name for the handler.
 
 _ARGUMENT_OMNI = 'omni'
 # The name of the argument used to indicate omni event behavior.
@@ -482,6 +480,9 @@ def change(*args, **keyargs):
 
 # --------------------------------------------------------------------
 
+ATTR_HANDLER = Attribute(__name__, 'handler', Handler)
+# The attribute for the handler.
+
 def _handlerOf(instance):
     '''
     Provides the handler that is directly associated with an instance.
@@ -494,11 +495,7 @@ def _handlerOf(instance):
     assert instance is not None, 'An instance is required'
     if isclass(instance): clazz = instance
     else: clazz = instance.__class__
-    if _ATTR_HANDLER in clazz.__dict__:
-        handler = clazz.__dict__[_ATTR_HANDLER]
-        assert isinstance(handler, Handler), \
-        'The class %s has a different attribute where the handler was expected, got %s' % (clazz, handler)
-        return handler
+    return ATTR_HANDLER.get(clazz, None)
 
 def _bindResolver(resolver):
     '''
@@ -511,11 +508,8 @@ def _bindResolver(resolver):
     '''
     assert isinstance(resolver, Resolver), 'Invalid resolver %s' % resolver
     callerLocals = inspect.stack()[2][0].f_locals # Provides the locals from the calling class
-    if _ATTR_HANDLER in callerLocals:
-        handler = callerLocals[_ATTR_HANDLER]
-        assert isinstance(handler, Handler), \
-        'The caller locals has a different attribute where the handler was expected, got %s' % handler
-    else: handler = callerLocals[_ATTR_HANDLER] = Handler()
+    if ATTR_HANDLER.hasDict(callerLocals): handler = ATTR_HANDLER.getDict(callerLocals)
+    else: handler = ATTR_HANDLER.setDict(callerLocals, Handler())
     resolver.handler = handler
     return resolver
 
@@ -534,9 +528,7 @@ def _bindSources(clazz, sources):
     assert isinstance(sources, (list, tuple)), 'Invalid sources %s' % sources
     assert sources, 'Invalid sources %s, they do not contain any name' % sources
     handler = _handlerOf(clazz)
-    if not handler:
-        handler = Handler()
-        setattr(clazz, _ATTR_HANDLER, handler)
+    if not handler: handler = ATTR_HANDLER.set(clazz, Handler())
     for src in sources: handler.addSource(src)
     setattr(clazz, '__getattr__', _createEventCall)
     return clazz
@@ -607,9 +599,10 @@ def _generateCalls(instances, name, resolve):
                 resolve.isFound = True
                 if not excludeSource: yield resolver, obj
                 else:
-                    log.debug('Not used %s for %r because it was the source, and the source was excluded', obj, name)
+                    assert log.debug('Not used %s for %r because it was the source, and the source was excluded',
+                                     obj, name) or True
         else:
-            log.debug('Not used %s for %r because it was in the excluded list' , obj, name)
+            assert log.debug('Not used %s for %r because it was in the excluded list' , obj, name) or True
         excludeSource = False
         if resolve.flgSource and not resolve.flgChildren: break
         if addChildren:
@@ -640,18 +633,19 @@ def _dispatchCall(call, args, keyargs):
     if resolver.isolation == ISOLATION_INSTANCE:
         for c in _CALLER_STACK:
             if c[1] == instance:
-                log.debug('Not invoked %s with %r because is instance isolated and the instance is already handling '
-                          'another event %r', instance, resolver.name, c[0].name)
+                assert log.debug('Not invoked %s with %r because is instance isolated and the instance is already '
+                                 'handling another event %r', instance, resolver.name, c[0].name) or True
                 return CONTINUE
     elif resolver.isolation == ISOLATION_RESOLVER:
         if call in _CALLER_STACK:
-            log.debug('Not invoked %s with %r because is resolver isolated and the instance is already handling the '
-                      'same event', instance, resolver.name)
+            assert log.debug('Not invoked %s with %r because is resolver isolated and the instance is already handling '
+                             'the same event', instance, resolver.name) or True
             return CONTINUE
         
     _CALLER_STACK.append(call)
     try:
-        log.debug('Invoked %s on %r with argument %s and key arguments %s', instance, resolver.name, args, keyargs)
+        assert log.debug('Invoked %s on %r with argument %s and key arguments %s', instance, resolver.name, args,
+                         keyargs) or True
         return resolver.resolve(instance, args, keyargs)
     finally: _CALLER_STACK.pop()
 
@@ -676,7 +670,7 @@ def _dispatchEvent(source, name, args, keyargs):
     _RESOLVE_STACK.append(resolve)
     
     try:
-        log.debug('Dispatching event %s with %s', name, resolve)
+        assert log.debug('Dispatching event %s with %s', name, resolve) or True
         
         returns, sources = [], [source]
         while sources:
@@ -691,7 +685,7 @@ def _dispatchEvent(source, name, args, keyargs):
                 if isinstance(call[0], Bridge):
                     bridgeCalls.append(call)
                     continue
-                log.debug('Invoking %s', call)
+                assert log.debug('Invoking %s', call) or True
                 ret = _dispatchCall(call, resolve.args, resolve.keyargs)
                 if ret is not CONTINUE:
                     if ret is None: raise OmniError('None is not a valid return value for %r in %s' % call)
@@ -708,13 +702,15 @@ def _dispatchEvent(source, name, args, keyargs):
                             for src in ret:
                                 if src not in sources: sources.append(src)
                         else: sources.append(ret)
-            else: log.debug('Not invoking bridges for %s because is a local call', resolve.name)
+            else:
+                assert log.debug('Not invoking bridges for %s because is a local call', resolve.name) or True
         
-        log.debug('Finalized event %s with %r', name, resolve)
+        assert log.debug('Finalized event %s with %r', name, resolve) or True
         if not resolve.isFound:
             raise OmniError('Could not find any resolvers for %r called from %s' % (name, source))
         if resolve.flgFirst and not resolve.isResolved:
-            log.debug('No result obtained for %r(args=%s, keyargs=%s) called from %s', name, args, keyargs, source)
+            assert log.debug('No result obtained for %r(args=%s, keyargs=%s) called from %s', name, args, keyargs,
+                             source) or True
             raise NoResultError
     finally: _RESOLVE_STACK.pop()
     return returns
