@@ -9,13 +9,18 @@ Created on Nov 24, 2011
 Provides the configurations for the resource manager.
 '''
 
+from .assembler import assemblers
+from ally import ioc
 from ally.core.impl.resources_manager import ResourcesManagerImpl
 
 # --------------------------------------------------------------------
 # Creating the resource manager
 
-def resourcesManager(assemblers, services=[]) -> ResourcesManagerImpl:
+services = ioc.entity(lambda: [])
+
+@ioc.entity
+def resourcesManager() -> ResourcesManagerImpl:
     b = ResourcesManagerImpl()
-    b.assemblers = assemblers
-    b.services = services
+    b.assemblers = assemblers()
+    b.services = services()
     return b

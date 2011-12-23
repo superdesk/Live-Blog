@@ -9,6 +9,9 @@ Created on Nov 24, 2011
 Provides the configurations for header encoders.
 '''
 
+from ally import ioc
+from .processor import headerStandard, headerX
+
 # --------------------------------------------------------------------
 
-encodersHeader = lambda ctx:[ctx.headerStandard, ctx.headerX]
+encodersHeader = ioc.entity(lambda: [headerStandard(), headerX()])

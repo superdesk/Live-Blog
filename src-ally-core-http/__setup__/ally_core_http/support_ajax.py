@@ -9,34 +9,41 @@ Created on Nov 24, 2011
 Provides the the javascript setup required by browser for ajax.
 '''
 
-from ally.core.impl.processor.deliver_ok import DeliverOkHandler
+from ..ally_core.processor import methodInvoker
+from ..ally_core_http.encoder_header import encodersHeader
+from .processor import handlers
+from ally import ioc
 from ally.core.http.impl.encoder_header_set import EncoderHeaderSet
 from ally.core.http.spec import METHOD_OPTIONS
-from ally import ioc
+from ally.core.impl.processor.deliver_ok import DeliverOkHandler
 
 # --------------------------------------------------------------------
 # Service handlers
 
-def encoderHeaderSet(_headersAjax:'The ajax specific headers required by browser for cross domain calls'={
-                       'Access-Control-Allow-Origin':'*',
-                       'Access-Control-Allow-Headers':'X-Filter',
-                       }) -> EncoderHeaderSet:
+ajaxCrossDomain = ioc.config(lambda:False, 'Indicates that the server should also be able to support cross domain ajax '
+                             'requests')
+
+headersAjax = ioc.config(lambda:{
+                                 'Access-Control-Allow-Origin':'*',
+                                 'Access-Control-Allow-Headers':'X-Filter',
+                                 }, 'The ajax specific headers required by browser for cross domain calls')
+
+@ioc.entity
+def encoderHeaderSet() -> EncoderHeaderSet:
     b = EncoderHeaderSet()
-    b.headers = _headersAjax
+    b.headers = headersAjax()
     return b
 
-def deliverOkHandler(handlers, methodInvoker) -> DeliverOkHandler:
+@ioc.entity
+def deliverOkHandler() -> DeliverOkHandler:
     b = DeliverOkHandler()
     b.forMethod = METHOD_OPTIONS
     return b
 
-@ioc.onlyIf(_ajaxCrossDomain=True, doc='Indicates that the server should also be able to support cross domain ajax '
-            'requests')
-@ioc.before('handlers')
-def updateHandlers(handlers, methodInvoker, deliverOkHandler):
-    handlers.insert(handlers.index(methodInvoker), deliverOkHandler)
+@ioc.before(handlers)
+def updateHandlers():
+    if ajaxCrossDomain(): handlers().insert(handlers().index(methodInvoker()), deliverOkHandler())
 
-@ioc.onlyIf(_ajaxCrossDomain=True)
-@ioc.before('encodersHeader')
-def updateEncodersHeader(encodersHeader, encoderHeaderSet):
-    encodersHeader.append(encoderHeaderSet)
+@ioc.before(encodersHeader)
+def updateEncodersHeader():
+    if ajaxCrossDomain(): encodersHeader().append(encoderHeaderSet())

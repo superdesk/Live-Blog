@@ -9,6 +9,12 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
+from . import serverRoot
+from ..ally_core.converter import contentNormalizer, converterPath
+from ..ally_core.processor import explainError, methodInvoker, converter, \
+    requestTypes, parameters, decoding, invokingHandler, encoding, \
+    handlersExplainError
+from ..ally_core.resource_manager import resourcesManager
 from ally import ioc
 from ally.core.http.processor.header import HeaderStandardHandler
 from ally.core.http.processor.header_x import HeaderXHandler
@@ -16,32 +22,37 @@ from ally.core.http.processor.uri import URIHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
-    
-def uri(resourcesManager, converterPath, _serverRoot) -> URIHandler:
+
+@ioc.entity
+def uri() -> URIHandler:
     b = URIHandler()
-    b.resourcesManager = resourcesManager
-    b.converterPath = converterPath
-    if _serverRoot: b.urlRoot = _serverRoot + '/'
+    b.resourcesManager = resourcesManager()
+    b.converterPath = converterPath()
+    if serverRoot(): b.urlRoot = serverRoot() + '/'
     return b
-    
-def headerStandard(_readFromParams=True) -> HeaderStandardHandler:
+
+readFromParams = ioc.config(lambda:True, 'If true will also read header values that are provided as query parameters')
+
+@ioc.entity   
+def headerStandard() -> HeaderStandardHandler:
     b = HeaderStandardHandler()
-    b.readFromParams = _readFromParams
+    b.readFromParams = readFromParams()
     return b
 
-def headerX(contentNormalizer, _readFromParams) -> HeaderXHandler:
+@ioc.entity
+def headerX() -> HeaderXHandler:
     b = HeaderXHandler()
-    b.normalizer = contentNormalizer
-    b.readFromParams = _readFromParams
+    b.normalizer = contentNormalizer()
+    b.readFromParams = readFromParams()
     return b
 
 # ---------------------------------
 
-@ioc.before
-def updateHandlersExplainError(ctx, handlersExplainError):
-    handlersExplainError.insert(0, ctx.headerStandard)
+@ioc.before(handlersExplainError)
+def updateHandlersExplainError():
+    handlersExplainError().insert(0, headerStandard())
 
 # ---------------------------------
 
-handlers = lambda ctx: [ctx.explainError, ctx.uri, ctx.headerStandard, ctx.methodInvoker, ctx.headerX, ctx.converter,
-                        ctx.requestTypes, ctx.parameters, ctx.decoding, ctx.invokingHandler, ctx.encoding]
+handlers = ioc.entity(lambda: [explainError(), uri(), headerStandard(), methodInvoker(), headerX(), converter(),
+                               requestTypes(), parameters(), decoding(), invokingHandler(), encoding()])

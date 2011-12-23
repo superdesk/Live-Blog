@@ -9,6 +9,12 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
+from .converter import defaultErrorContentConverter
+from .encoder_decoder import handlersDecoding, handlersEncoding
+from .parameter import decodersParameters
+from .resource_manager import resourcesManager
+from ally import ioc
+from ally.core.impl.processor.converter import ConverterHandler
 from ally.core.impl.processor.decoding import DecodingHandler
 from ally.core.impl.processor.encoding import EncodingProcessorsHandler
 from ally.core.impl.processor.explain_detailed_error import \
@@ -19,45 +25,51 @@ from ally.core.impl.processor.method_invoker import MethodInvokerHandler
 from ally.core.impl.processor.parameters import ParametersHandler
 from ally.core.impl.processor.request_types import RequestTypesHandler
 from ally.core.spec.server import Processors
-from ally.core.impl.processor.converter import ConverterHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
 
-handlersExplainError = lambda ctx: [ctx.encoding]
+handlersExplainError = ioc.entity(lambda: [encoding()])
 
-def explainError(handlersExplainError, defaultErrorContentConverter,
-                 _defaultLanguage:'The default language to use in case none is provided in the request'='en',
-                 _detailed:'If true will provide as an error response a detailed XML providing info about where the '
-                 'problem originated'=False) -> ExplainErrorHandler:
-    b = ExplainDetailedErrorHandler() if _detailed else ExplainErrorHandler()
-    b.encodings = Processors(*handlersExplainError)
-    b.languageDefault = _defaultLanguage
-    b.contentConverterDefault = defaultErrorContentConverter
+defaultLanguage = ioc.config(lambda: 'en', 'The default language to use in case none is provided in the request')
+
+explainErrorDetailed = ioc.config(lambda: False, 'If True will provide as an error response a detailed XML providing '
+                                  'info about where the problem originated')
+
+@ioc.entity
+def explainError() -> ExplainErrorHandler:
+    b = ExplainDetailedErrorHandler() if explainErrorDetailed() else ExplainErrorHandler()
+    b.encodings = Processors(*handlersExplainError())
+    b.languageDefault = defaultLanguage()
+    b.contentConverterDefault = defaultErrorContentConverter()
     return b
 
-def methodInvoker() -> MethodInvokerHandler: return MethodInvokerHandler()
+methodInvoker = ioc.entity(lambda: MethodInvokerHandler(), MethodInvokerHandler)
 
-def converter() -> ConverterHandler: return ConverterHandler()
+converter = ioc.entity(lambda: ConverterHandler(), ConverterHandler)
 
-def requestTypes() -> RequestTypesHandler: return RequestTypesHandler()
+requestTypes = ioc.entity(lambda: RequestTypesHandler(), RequestTypesHandler)
 
-def parameters(decodersParameters) -> ParametersHandler:
+@ioc.entity
+def parameters() -> ParametersHandler:
     b = ParametersHandler()
-    b.decoders = decodersParameters
+    b.decoders = decodersParameters()
     return b
 
-def decoding(handlersDecoding) -> DecodingHandler:
+@ioc.entity
+def decoding() -> DecodingHandler:
     b = DecodingHandler()
-    b.decodings = Processors(*handlersDecoding)
+    b.decodings = Processors(*handlersDecoding())
     return b
 
-def invokingHandler(resourcesManager) -> InvokingHandler:
+@ioc.entity
+def invokingHandler() -> InvokingHandler:
     b = InvokingHandler()
-    b.resourcesManager = resourcesManager
+    b.resourcesManager = resourcesManager()
     return b
-    
-def encoding(handlersEncoding) -> EncodingProcessorsHandler:
+
+@ioc.entity   
+def encoding() -> EncodingProcessorsHandler:
     b = EncodingProcessorsHandler()
-    b.encodings = Processors(*handlersEncoding)
+    b.encodings = Processors(*handlersEncoding())
     return b

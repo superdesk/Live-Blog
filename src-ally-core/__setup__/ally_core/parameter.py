@@ -9,19 +9,23 @@ Created on Nov 24, 2011
 Provides the configurations for the encoders and decoders for parameters.
 '''
 
+from .converter import converterPath
+from ally import ioc
 from ally.core.impl.encdec_param import EncDecPrimitives, EncDecQuery
 
 # --------------------------------------------------------------------
 # Creating the parameters encoders and decoders
 
-def encDecPrimitives(converterPath) -> EncDecPrimitives:
+@ioc.entity
+def encDecPrimitives() -> EncDecPrimitives:
     b = EncDecPrimitives(); yield b
-    b.converterPath = converterPath
+    b.converterPath = converterPath()
 
-def encDecQuery(converterPath) -> EncDecQuery:
+@ioc.entity
+def encDecQuery() -> EncDecQuery:
     b = EncDecQuery(); yield b
-    b.converterPath = converterPath
+    b.converterPath = converterPath()
 
 # ---------------------------------
 
-decodersParameters = lambda ctx: [ctx.encDecPrimitives, ctx.encDecQuery]
+decodersParameters = ioc.entity(lambda: [encDecPrimitives(), encDecQuery()])

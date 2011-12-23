@@ -9,26 +9,30 @@ Created on Nov 24, 2011
 Provides the configurations for the assemblers.
 '''
 
+from .converter import contentNormalizer
+from ally import ioc
 from ally.core.impl.assembler import AssembleGet, AssembleInsert, AssembleUpdate, \
     AssembleDelete
 
 # --------------------------------------------------------------------
 # Creating the assemblers
 
-def assembleGet() -> AssembleGet: return AssembleGet()
+assembleGet = ioc.entity(lambda: AssembleGet(), AssembleGet)
 
-def assembleDelete() -> AssembleDelete: return AssembleDelete()
+assembleDelete = ioc.entity(lambda: AssembleDelete(), AssembleDelete)
 
-def assembleInsert(contentNormalizer):
+@ioc.entity
+def assembleInsert():
     b = AssembleInsert();
-    b.normalizer = contentNormalizer
+    b.normalizer = contentNormalizer()
     return b
 
-def assembleUpdate(contentNormalizer):
+@ioc.entity
+def assembleUpdate():
     b = AssembleUpdate();
-    b.normalizer = contentNormalizer
+    b.normalizer = contentNormalizer()
     return b
 
 # ---------------------------------
 
-assemblers = lambda ctx: [ctx.assembleGet, ctx.assembleInsert, ctx.assembleUpdate, ctx.assembleDelete]
+assemblers = ioc.entity(lambda: [assembleGet(), assembleInsert(), assembleUpdate(), assembleDelete()])

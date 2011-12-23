@@ -9,11 +9,13 @@ Created on Jul 3, 2011
 Provides additional configurations for the Zend PHP client.
 '''
 
+from ..ally_core.encoder_decoder import contentTypesJSON
 from ally import ioc
 
 # --------------------------------------------------------------------
 
-@ioc.onlyIf(_phpZendSupport=True, doc='Provides additional configurations for the Zend PHP client')
-@ioc.before
-def updateContentTypesJSON(_contentTypesJSON):
-    _contentTypesJSON['application/x-www-form-urlencoded'] = 'application/x-www-form-urlencoded'
+phpZendSupport = ioc.config(lambda:False, 'Provides additional configurations for the Zend PHP client')
+
+@ioc.before(contentTypesJSON)
+def updateContentTypesJSON():
+    contentTypesJSON()['application/x-www-form-urlencoded'] = 'application/x-www-form-urlencoded'

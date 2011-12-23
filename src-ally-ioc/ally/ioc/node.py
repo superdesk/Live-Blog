@@ -12,11 +12,9 @@ Module containing the nodes for the IoC setup procedure.
 from _abcoll import Callable
 from copy import deepcopy
 from inspect import isclass, isfunction, getfullargspec, isgenerator
-from functools import partial
 import abc
 import logging
 import re
-from ally.omni import current, Event
 
 # --------------------------------------------------------------------
 
@@ -25,7 +23,7 @@ log = logging.getLogger(__name__)
 SEPARATOR = '.'
 # The path separator.
 
-VALIDATION_NAME = re.compile('([a-z_A-Z]{1})([a-z_A-Z0-9\\$]*$)')
+VALIDATION_NAME = re.compile('([a-z_A-Z]{1})([a-z_A-Z0-9\\.\\$]*$)')
 # The regex for name validation .
 
 split = lambda path: path.rsplit(SEPARATOR, 1) if SEPARATOR in path else ('', path)
@@ -54,6 +52,9 @@ def toConfig(name):
     splits = name.split(SEPARATOR)
     splits[-1] = PREFIX_CONFIG + splits[-1]
     return SEPARATOR.join(splits)
+
+#TODO: comment
+IGNORE = object()
 
 # --------------------------------------------------------------------
 
@@ -117,205 +118,192 @@ class Node:
         assert isinstance(name, str), 'Invalid name string %s' % name
         assert VALIDATION_NAME.match(name), 'Invalid name formatting %s' % name
         self._name = name
-        self._path = name
-        self._parent = None
-        self._children = {}
-     
-    def setParent(self, parent):
-        '''
-        Sets the parent of this node.
-        
-        @param parent: Node
-            The parent to set.
-        @return: self
-            The same node for chaining purposes.
-        '''
-        assert isinstance(parent, Node), 'Invalid parent node %s' % parent
-        if self._parent: raise SetupError('This node %s has already a parent %s' % (self, self._parent))
-        if self._name in parent._children: raise SetupError('The child node %s is already in %s' % (self, parent))
-        self._parent = parent
-        parent._children[self._name] = self
-        self._updatePath()
-        assert log.debug('Set parent %s for %s', parent, self) or True
-        return self
 
     name = property(lambda self: self._name, doc=
 '''
 @type name: string
     The name of the node.
 ''')
-    path = property(lambda self: self._path, doc=
-'''
-@type path: string
-    The path of the node, this has to uniquely identify this node.
-''')
-    parent = property(lambda self: self._parent, setParent, doc=
-'''
-@type parent: Node|None
-    The parent node.
-''')
-    children = property(lambda self: self._children.values(), doc=
-'''
-@type children: list[Node]
-    The children nodes..
-''')
     
-    def do(self, *args, **keyargs):
+    def doMatch(self, *criteria):
         '''
-        Provides the exclusion, this way this node is interrogated only once per event.
-        '''
-        current().exclude(self)
-
-    def doFindNode(self, omni, setter, *criteria):
-        '''
-        Finds the node that recognizes the criteria.
+        Checks if this node recognizes the criteria.
         
-        @param setter: Callable
-            The setter to use for found nodes.
         @param criteria: arguments
-            The criteria(s) used to identify the node.
+            The criteria(s) used to identify the node. If no criteria is provided than the event is considered valid for
+            all nodes.
+        @return: Node|IGNORE
+            The matched node, otherwise IGNORE.
         '''
-        if not self._isMatched(criteria):
-            assert isinstance(setter, Callable), 'Invalid setter %s' % setter
-            setter(self)
-    
-    def replace(self, other):
-        '''
-        Replaces this node in the parent structure with the provided node.
-        
-        @param other: Node
-            The other to change with.
-        '''
-        assert isinstance(other, Node), 'Invalid other node %s' % other
-        if not self._parent: raise SetupError('This node %s has no parent to be replaced in' % (self, self._parent))
-        if other.name != self._name:
-            raise SetupError('The replacer node %s needs to have the same name with this node %s' % (other, self))
-        
-        self._parent._children[self._name] = other
-        other._parent = self._parent
-        other._updatePath()
-        
-        self._parent = None
-        self._updatePath()
-        assert log.debug('Replaced %s with %s', self, other) or True
-    
-    def _updatePath(self):
-        '''
-        Called when the parenting structure of a node is changed and the path needs to be updated.
-        '''
-        if self._parent:
-            self._path = self._parent._path + SEPARATOR + self._name
-        else: self._path = self._name
-        for child in self._children.values(): child._updatePath()
-    
-    def _isMatched(self, criteria):
-        '''
-        Checks if the provided criteria matches the Node.
-        
-        @param criteria: tuple(object)|list[object]
-            The criteria(s) to check.
-        @return: boolean
-            True if the criteria is matched, False otherwise.
-        '''
-        assert isinstance(criteria, (tuple, list)), 'Invalid criteria %s' % criteria
-        if not criteria: return True 
+        if not criteria: return self 
         for crt in criteria:
-            if isinstance(crt, str): return self._isMatchedPath(crt)
-        return False
-    
-    def _isMatchedPath(self, path):
-        '''
-        Checks if the provided path matches the Node path.
-        
-        @param path: string
-            The path to check.
-        @return: boolean
-            True if the path is matched, False otherwise.
-        '''
-        assert isinstance(path, str), 'Invalid path %s' % path
-        if self._path == path: return True
-        if self._path.endswith(asSubPath(path)): return True
-        return False
-    
+            if isinstance(crt, str):
+                if self._name == crt: return self
+                if self._name.endswith(asSubPath(crt)): return self
+        return IGNORE
+
     def __repr__(self):
         '''
         @see: http://docs.python.org/reference/datamodel.html
         '''
-        l = [self.__class__.__name__, ':', id(self), '[path=', self._path, ']']
+        l = [self.__class__.__name__, ':', id(self), '[name=', self._name, ']']
         return ''.join(str(v) for v in l)
 
-class Source(Node):
+class Resolver(Node):
     '''
-    @see: Node
+    @see: Node.__init__
+    Provides support for listeners and conditions.
+    '''
+    
+    def __init__(self, name):
+        '''
+        @see: Node.__init__
+        '''
+        Node.__init__(self, name)
+        self._listeners = []
+        self._conditions = []
+    
+    def doListener(self, listener, *criteria):
+        '''
+        Add a listener to this node.
+        
+        @param listener: IListener
+            The listener to add.
+        @param criteria: arguments
+            The criteria(s) used to identify the node. If no criteria is provided than the event is considered valid for
+            all nodes.
+        @return: string|IGNORE
+            The name of the node that added the listener.
+        '''
+        if self.doMatch(*criteria) is IGNORE: return IGNORE
+        if not self._isChecked(): return IGNORE
+        assert isinstance(listener, IListener), 'Invalid listener %s' % listener
+        if listener in self._listeners: raise SetupError('The listener %s is already in %s' % (listener, self))
+        self._listeners.append(listener)
+        assert log.debug('Added listener %s to %s', listener, self) or True
+        return self._name
+    
+    def doCondition(self, condition, *criteria):
+        '''
+        Add a condition to this node.
+        
+        @param condition: ICondition
+            The condition to add.
+        @param criteria: arguments
+            The criteria(s) used to identify the node. If no criteria is provided than the event is considered valid for
+            all nodes.
+        @return: string
+            The path of the node who registered the condition.
+        '''
+        if self.doMatch(*criteria) is IGNORE: return IGNORE
+        assert isinstance(condition, ICondition), 'Invalid condition %s' % condition
+        if condition in self._conditions: raise SetupError('The condition %s is already in %s' % (condition, self))
+        self._conditions.append(condition)
+        assert log.debug('Added condition %s to %s', condition, self) or True
+        return self._name
+
+    def _isChecked(self):
+        '''
+        Used to check the assigned conditions.
+        
+        @return: boolean
+            True if the conditions allow the node, False otherwise.
+        '''
+        for condition in self._conditions:
+            assert isinstance(condition, ICondition)
+            if not condition.isValid(): return False
+        return True
+    
+    def _dispatchBefore(self):
+        '''
+        @see: IListener.before
+        Dispatches a before event to the events registered listeners.
+        '''
+        for listener in self._listeners:
+            assert isinstance(listener, IListener)
+            listener.before(self)
+            
+    def _dispatchAfter(self, result):
+        '''
+        @see: IListener.after
+        Dispatches a after event to the events registered listeners.
+        '''
+        for listener in self._listeners:
+            assert isinstance(listener, IListener)
+            listener.after(self, result)
+            
+    def _dispatchAll(self, result):
+        '''
+        Dispatches a before and after event to the events registered listeners.
+        '''
+        self._dispatchBefore()
+        self._dispatchAfter(result)
+
+class Source(Resolver):
+    '''
+    @see: Resolver
     The base class for source nodes, basically this are the nodes that have a value to process.
     '''
     
     def __init__(self, name, type=None):
         '''
-        @see: Node.__init__
+        @see: Resolver.__init__
         
         @param type: class|None
             The type(class) of the value that is being delivered by this source.
         '''
-        Node.__init__(self, name)
+        Resolver.__init__(self, name)
         assert type is None or isclass(type), 'Invalid type %s' % type
         self._type = type
-
-    def doFindSource(self, setter, *criteria):
-        '''
-        Finds the node that recognizes the criteria and has a data source to deliver.
-        
-        @param setter: Callable
-            The setter to use for found paths.
-        @param criteria: arguments
-            The criteria(s) used to identify the node. If no criteria is provided than the event is considered valid for
-            all nodes.
-        '''
-        assert isinstance(setter, Callable), 'Invalid setter %s' % setter
-        if self._isMatched(criteria): setter(self._path)
+        self._hasValue = False
+        self._value = None
     
-    def doProcessValue(self, setter, *criteria):
+    def doMatch(self, *criteria):
         '''
-        Provides the source value.
-        
-        @param setter: Callable
-            The setter to use to place the processed value.
-        @param criteria: arguments
-            The criteria(s) used to identify the node. If no criteria is provided than the event is considered valid for
-            all nodes.
+        @see: Node.doMatch
         '''
-        if self._isMatched(criteria):
-            assert isinstance(setter, Callable), 'Invalid setter %s' % setter
-            capture = CaptureValue()
-            Event('HasValue', capture, self._path).dispatch()
-            if capture.hasValue and capture.value:
-                capture.clear()
-                Event('GetValue', capture, self._path).dispatch()
-                setter(capture.value)
-            else: self._process(setter)
+        if super().doMatch(criteria) is IGNORE:
+            if self._type:
+                for crt in criteria:
+                    if isclass(crt) and issubclass(self._type, crt): return self
+        return IGNORE
 
-    def doFindUnused(self, setter, *criteria):
+    def doUnused(self, *criteria):
         '''
         Finds the node that recognizes the criteria and is considered unused.
         
-        @param setter: Callable
-            The setter to use to place the unused path.
         @param criteria: arguments
             The criteria(s) used to identify the node. If no criteria is provided than the event is considered valid for
             all nodes.
         @return: string
             The path of the unused source.
         '''
-        if self._isMatched(criteria):
-            assert isinstance(setter, Callable), 'Invalid setter %s' % setter
-            Event('HasValue', SetValueOnceOnFlag(setter, self._path), self._path).schedule()
+        if self.doMatch(*criteria) is IGNORE: return IGNORE
+        if not self._isChecked() or self._hasValue: return IGNORE
+        return self._name
     
-    def _process(self, setter):
+    def doValue(self, search, *criteria):
+        '''
+        Provides the source value.
+        
+        @param criteria: arguments
+            The criteria(s) used to identify the node. If no criteria is provided than the event is considered valid for
+            all nodes.
+        @return: object
+            The processed object.
+        '''
+        if self.doMatch(*criteria) is IGNORE: return IGNORE
+        if self._isChecked():
+            if not self._hasValue: self._process(search)
+            return self._value
+        return IGNORE
+    
+    def _process(self, search):
         '''
         Processes the source value.
         
-        @param setter: Callable
-            The setter to use to place the unused path.
+        @return: object
+            The process value.
         '''
     
     def _validate(self, value):
@@ -331,24 +319,16 @@ class Source(Node):
         if self._type and value is not None and not isinstance(value, self._type):
             raise SetupError('Invalid value provided %s, expected type %s for %s' % (value, self._type, self))
         return value
-    
-    def _isMatched(self, criteria):
-        '''
-        @see: Node._isMatched
-        '''
-        if super()._isMatched(criteria): return True
-        if self._type:
-            for crt in criteria:
-                if isclass(crt) and issubclass(self._type, crt): return True
-        return False
-    
+
     def __repr__(self):
         '''
         @see: http://docs.python.org/reference/datamodel.html
         '''
         l = [self.__class__.__name__, ':', id(self), '[path=', self._path, ', type=', self._type, ']']
         return ''.join(str(v) for v in l)
-        
+
+# --------------------------------------------------------------------
+
 class Function(Source):
     '''
     Provides a source node that invokes a function in order to get the value.
@@ -374,36 +354,51 @@ class Function(Source):
                 for argn in arguments: assert isinstance(argn, str), 'Invalid argument name %s' % argn
             self._arguments = arguments
         else: self._arguments = []
-
-    def _process(self, setter):
+    
+    
+    def _process(self, search):
         '''
         Processes the function value.
         @see: Source._process
         '''
-        assert isinstance(setter, Callable), 'Invalid setter %s' % setter
-        keyargs = extractArguments(self, self._arguments)
-        
+        keyargs = extractArguments(search, self._arguments)
         ret = self._call(**keyargs)
-        
         if isgenerator(ret): value, generator = self._validate(next(ret)), ret
         else: value, generator = self._validate(ret), None
-        assert log.debug('Processed the value %s of node %s', value, self) or True
-        setter(value)
         
-        Event('EventBefore', self._path).dispatch()
+        self.doSetValue(self._path, value)
+        assert log.debug('Processed and set value %s of node %s', value, self) or True
+        omni.release()
+        self._listenersBefore()
         
         if generator:
             try: next(generator)
             except StopIteration: pass
-        assert log.debug('Finalized value %s of node %s', value, self) or True
         
-        Event('EventAfter', self._path, value).scheduleNow()
+        self._listenersAfter(value)
+        assert log.debug('Initialized and set value %s of node %s', value, self) or True
+        return value
 
 class Argument(Source):
     '''
     Provides a source node that acts like a function argument. It keeps a value or a type for the argument and when a
     function requires the argument it will try to provide the value based on this properties.
     '''
+    
+    @omni.resolver
+    def doAddListener(self, listener, *criteria):
+        '''
+        @see: Women.doAddListener
+        '''
+        if self._isMatched(criteria) and self._isChecked():
+            if self._hasValue:
+                self._addListener(listener)
+                return self._path
+            elif self._type not in criteria:
+                # If the argument has no value it means that he cannot deliver the listener event so we just add the type
+                # of the argument in the criteria and let other woman that has the source register the listener.
+                omni.change(listener, self._type, *criteria)
+        return omni.CONTINUE
     
     def __init__(self, name, type=None, hasValue=False, value=None):
         '''
@@ -423,36 +418,29 @@ class Argument(Source):
         Source.__init__(self, name, type)
         self._hasValue = hasValue
         self._value = value
-    
-    def doFindSource(self, setter, *criteria):
-        '''
-        @see: Source.doFindSource
-        '''
-        if self._isMatched(criteria) and self._hasValue: setter(self._path)
         
-    def _process(self, setter):
+    def _process(self):
         '''
         Processes the argument value.
-        @see: Source._process
+        @see: Source.processValue
         '''
-        assert isinstance(setter, Callable), 'Invalid setter %s' % setter
-        
         if self._hasValue:
-            setter(self._value)
-            Event('EventBefore', self._path).dispatch()
-            Event('EventAfter', self._path, self._value).scheduleNow()
+            self.doSetValue(self._path, self._value)
             assert log.debug('Set fixed value %s of node %s', self._value, self) or True
+            omni.release()
+            self._listenersAll(self._value)
+            return self._value
         else:
-            capture = CaptureValues()
-            Event('GetValue', capture, self._name).dispatch()
-            if not capture.values:
+            values = self.doProcessValue(self._type)
+            if not values:
                 raise SetupError('Could not find any data source for type %s for %s' % (self._type, self))
-            if len(capture.values) > 1:
-                raise SetupError('To many values %s found for %s' % (capture.values, self))
+            if len(values) > 1:
+                raise SetupError('To many values %s found for %s' % (values, self))
             else:
-                value = self._validate(capture.values[0])
+                value = self._validate(values[0])
+                self.doSetValue(self._path, value)
                 assert log.debug('Processed value %s by type of node %s', value, self) or True
-                setter(value)
+                return value
             
 class Configuration(Source):
     '''
@@ -474,85 +462,52 @@ class Configuration(Source):
     The description of the configuration.
 ''')
     
-    def doFindSource(self, setter, *criteria):
+    @omni.resolver
+    def doAddListener(self, listener, *criteria):
         '''
-        @see: Source.doFindSource
+        @see: Women.doAddListener
         '''
-        if self._isMatched(criteria) and self._hasValue: setter(self._path)
+        if self._isMatched(criteria) and self._isChecked() and self._hasValue:
+            # If the configuration has no value it means it cannot provide the before and after for the listeners.
+            self._addListener(listener)
+            return self._path
+        return omni.CONTINUE
 
-    def doSetConfiguration(self, setter, path, value):
+    @omni.resolver
+    def doSetConfiguration(self, path, value):
         '''
         Sets the configuration with the specified path.
         
-        @param setter: Callable
-            The setter to use to set the configuration paths that set the value.
         @param path: string
             The path to set the configuration to.
         @param value: object
             The configuration value to set.
+        @return: True
+            If the path was successfully set on this node.
         '''
         assert isinstance(path, str), 'Invalid configuration path %s' % path
-        if self._isMatchedPath(toConfig(path)):
-            assert isinstance(setter, Callable), 'Invalid setter %s' % setter
-            setter(self._path)
+        if self._isMatchedPath(toConfig(path)) and self._isChecked():
             self._value = self._validate(value)
             self._hasValue = True
+            return True
+        return omni.CONTINUE
 
-    def _process(self, setter):
+    def _process(self):
         '''
         Processes the configuration value.
-        @see: Source._process
+        @see: Source.processValue
         '''
         if self._hasValue:
-            setter(self._value)
-            Event('EventBefore', self._path).dispatch()
-            Event('EventAfter', self._path, self._value).scheduleNow()
+            self.doSetValue(self._path, self._value)
             assert log.debug('Set configuration value %s of node %s', self._value, self) or True
+            omni.release()
+            self._listenersAll(self._value)
+            return self._value
         else:
-            capture = CaptureValue()
-            Event('GetValue', capture, self._name).dispatch()
-            if not capture.hasValue:
-                raise SetupError('No configuration %r found for %s' % (self._name, self))
-            value = self._validate(capture.value)
-            assert log.debug('Processed value %s by type of node %s', value, self) or True
-            setter(value)
-
-# --------------------------------------------------------------------
-
-class CaptureValue(Callable):
-    
-    def __call__(self, value):
-        self.value = value
-        self.hasValue = True
-        current().cancel()
-        
-    def clear(self):
-        self.hasValue = False
-        self.value = None
-        
-class CaptureValues(Callable):
-    
-    def __call__(self, value):
-        self.values.append(value)
-        
-    def clear(self):
-        del self.values[:]
-
-class SetValueOnceOnFlag(Callable):
-    '''
-    Used to set the found values.
-    '''
-    
-    def __init__(self, setter, value):
-        assert isinstance(setter, Callable), 'Invalid setter %s' % setter
-        self._setter = setter
-        self._value = value
-    
-    def __call__(self, set):
-        assert isinstance(set, bool), 'Invalid set flag %s' % set
-        if set:
-            self._setter(self._value)
-            current().markResolved().cancel()
+            value = self.doGetValue(self._name, omni=omni.F_FIRST)
+            self.doSetValue(self._path, self._validate(value))
+            assert log.debug('Set configuration value %s from source %r for node %s', value, self._name, self) or True
+            return value
 
 # --------------------------------------------------------------------
 
@@ -644,12 +599,12 @@ def functionFrom(function, name=None):
 
 # --------------------------------------------------------------------
 
-def extractArguments(source, arguments):
+def extractArguments(search, arguments):
     '''
     Extract the arguments.
     
-    @param source: Node
-        The source node to process the arguments for.
+    @param search: ISearch
+        The search used for finding the values.
     @param arguments: list[string]|tuple(string)
         The arguments to be extracted.
     @return: dictionary{string, value}
@@ -658,11 +613,11 @@ def extractArguments(source, arguments):
     assert isinstance(source, Node), 'Invalid source node %s' % source
     assert isinstance(arguments, (list, tuple)), 'Invalid arguments %s' % arguments
     keyargs = {}
-    capture = CaptureValue()
+    argumentSearch = Search(search)
     for name in arguments:
         assert isinstance(name, str), 'Invalid name %s' % name
-        Event('GetValue', capture, name).dispatch()
-        if not capture.hasValue: raise SetupError('Could not find argument value %r for %s' % (name, source))
-        keyargs[name] = capture.value
-        capture.clear()
+        keyargs[name] = argumentSearch.findFirst('doValue', argumentSearch, name)
+        argumentSearch.reset()
+        try:  keyargs[name] = source.doGetValue(name, omni=omni.F_FIRST)
+        except omni.NoResultError: raise SetupError('Could not find argument value %r for %s' % (name, source))
     return keyargs

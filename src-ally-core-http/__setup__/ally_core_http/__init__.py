@@ -14,9 +14,10 @@ from ally import ioc
 # --------------------------------------------------------------------
 # The default configurations
 
-ioc.configurations({
-                    'applicationMode':'devel',
-                    'serverType':'basic',
-                    'ajaxCrossDomain':False,
-                    'phpZendSupport':False,
-                    })
+serverType = ioc.config(lambda:'basic', 'The type of the server to use one of basic, cherrypy')
+
+serverRoot = ioc.config(lambda:'resources', 'The root URL for the rest server ex: rest/resources')
+
+serverPort = ioc.config(lambda:80, 'The port on which the server will run')
+
+serverVersion = ioc.config(lambda:'AllyREST/0.1', 'The server version number')

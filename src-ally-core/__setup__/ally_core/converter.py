@@ -9,17 +9,15 @@ Created on Nov 24, 2011
 Provides the configurations for the converters and normalizers.
 '''
 
+from ally import ioc
 from ally.core.spec.resources import ConverterPath, Normalizer, Converter
 
 # --------------------------------------------------------------------
 # Creating the converters
 
-def converterPath() -> ConverterPath: return ConverterPath()
+converterPath = ioc.entity(lambda: ConverterPath(), ConverterPath)
 
-def contentNormalizer() -> Normalizer: return Normalizer()
+contentNormalizer = ioc.entity(lambda: Normalizer(), Normalizer)
 
-def defaultErrorContentConverter() -> Converter:
-    '''
-    The default converter to be used if none can be obtained based on the request.
-    '''
-    return Converter()
+defaultErrorContentConverter = ioc.entity(lambda: Converter(), Converter)
+# The default converter to be used if none can be obtained based on the request.
