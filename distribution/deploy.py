@@ -9,14 +9,49 @@ Created on Nov 24, 2011
 Provides the deployment of the distribution that contains this deploy.
 '''
 
+from inspect import stack
+from os.path import dirname
+from pkgutil import get_importer, iter_importers
+from types import ModuleType
+import os
 import sys
 import traceback
-import os
-import extender
 
 # --------------------------------------------------------------------
 
-deployExtendPackage = extender.deployExtendPackage
+_EXTEND = set()
+# Used to keep the current extending package.
+def deployExtendPackage():
+    '''
+    Provides the package extension for loaded libraries.
+    '''
+    loc = stack()[1][0].f_locals
+    fullName, paths = loc['__name__'], loc['__path__']
+    if fullName in _EXTEND: return
+    
+    _EXTEND.add(fullName)
+    k = fullName.rfind('.')
+    if k >= 0:
+        package = sys.modules[fullName[:k]]
+        name = fullName[k + 1:]
+        importers = [get_importer(path) for path in package.__path__]
+    else:
+        name = fullName
+        importers = iter_importers()
+    
+    for importer in importers:
+        moduleLoader = importer.find_module(name)
+        if moduleLoader and moduleLoader.is_package(name):
+            path = dirname(moduleLoader.get_filename(name))
+            if path not in paths:
+                paths.append(path)
+                module = ModuleType(fullName)
+                module.__dict__['__path__'] = paths
+                exec(moduleLoader.get_code(name), module.__dict__)
+                # We ensure that every __init__ is called at least once.
+                if getattr(module, 'deployExtendPackage', None) != deployExtendPackage:
+                    raise ImportError('The package %r in path %r does not allow extension' % (name, path))
+    _EXTEND.remove(fullName)
 
 # --------------------------------------------------------------------
 
@@ -36,16 +71,16 @@ if __name__ == '__main__':
         if path not in sys.path: sys.path.append(path)
         
     for path in findLibraries(os.path.join(os.path.dirname(__file__), 'components')):
-        if not path.count('ally-ioc'):
+        if not path.count('ally-utilities'):
             if path not in sys.path: sys.path.append(path)
     
-    sys.path.append('e:/Sourcefabric/Workspace/src-ally-ioc')
+    sys.path.append('e:/Sourcefabric/Workspace/src-ally-utilities')
     #TODO: investigate why there are multiple paths of same address
     try:
-        from ally import ioc
+        from ally import ioc, aop
     except ImportError:
         print('-' * 150, file=sys.stderr)
-        print('The ally.ioc is missing, no idea how to deploy the application', file=sys.stderr)
+        print('The ally ioc or aop is missing, no idea how to deploy the application', file=sys.stderr)
         traceback.print_exc()
         print('-' * 150, file=sys.stderr)
     else:
@@ -53,9 +88,9 @@ if __name__ == '__main__':
         try:
             if False:
                 import profile
-                profile.run("ioc.assemble(ioc.modulesIn('__setup__.*', '__setup__.*.*'), config=config)",
+                profile.run("ioc.deploy(aop.modulesIn('__setup__.*', '__setup__.*.*'), config=config)",
                             filename='output.stats')
-            else: ioc.assemble(ioc.modulesIn('__setup__.*', '__setup__.*.*'), config=config)
+            else: ioc.deploy(aop.modulesIn('__setup__.*', '__setup__.*.*'), config=config)
         except:
             print('-' * 150, file=sys.stderr)
             print('A problem occurred while deploying the application', file=sys.stderr)

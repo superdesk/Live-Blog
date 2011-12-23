@@ -29,13 +29,19 @@ from ally.core.spec.server import Processors
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
 
-handlersExplainError = ioc.entity(lambda: [encoding()])
+@ioc.entity
+def handlersExplainError(): return [encoding()]
 
-defaultLanguage = ioc.config(lambda: 'en', 'The default language to use in case none is provided in the request')
+@ioc.config
+def defaultLanguage():
+    '''The default language to use in case none is provided in the request'''
+    return 'en'
 
-explainErrorDetailed = ioc.config(lambda: False, 'If True will provide as an error response a detailed XML providing '
-                                  'info about where the problem originated')
-
+@ioc.config
+def explainErrorDetailed():
+    '''If True will provide as an error response a detailed XML providing info about where the problem originated'''
+    return False
+ 
 @ioc.entity
 def explainError() -> ExplainErrorHandler:
     b = ExplainDetailedErrorHandler() if explainErrorDetailed() else ExplainErrorHandler()
@@ -44,11 +50,14 @@ def explainError() -> ExplainErrorHandler:
     b.contentConverterDefault = defaultErrorContentConverter()
     return b
 
-methodInvoker = ioc.entity(lambda: MethodInvokerHandler(), MethodInvokerHandler)
+@ioc.entity
+def methodInvoker() -> MethodInvokerHandler: return MethodInvokerHandler()
 
-converter = ioc.entity(lambda: ConverterHandler(), ConverterHandler)
+@ioc.entity
+def converter() -> ConverterHandler: return ConverterHandler()
 
-requestTypes = ioc.entity(lambda: RequestTypesHandler(), RequestTypesHandler)
+@ioc.entity
+def requestTypes() -> RequestTypesHandler: return RequestTypesHandler()
 
 @ioc.entity
 def parameters() -> ParametersHandler:

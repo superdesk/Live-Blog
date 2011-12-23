@@ -16,7 +16,8 @@ from ally.core.impl.resources_manager import ResourcesManagerImpl
 # --------------------------------------------------------------------
 # Creating the resource manager
 
-services = ioc.entity(lambda: [])
+@ioc.entity
+def services(): return []
 
 @ioc.entity
 def resourcesManager() -> ResourcesManagerImpl:

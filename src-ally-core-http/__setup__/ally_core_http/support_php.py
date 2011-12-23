@@ -14,7 +14,10 @@ from ally import ioc
 
 # --------------------------------------------------------------------
 
-phpZendSupport = ioc.config(lambda:False, 'Provides additional configurations for the Zend PHP client')
+@ioc.config
+def phpZendSupport() -> bool:
+    '''Provides additional configurations for the Zend PHP client'''
+    return False
 
 @ioc.before(contentTypesJSON)
 def updateContentTypesJSON():

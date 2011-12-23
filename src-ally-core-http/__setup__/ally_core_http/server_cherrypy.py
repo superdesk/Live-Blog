@@ -15,17 +15,30 @@ from .processor import handlers
 from ally import ioc
 from ally.core.spec.server import Processors
 from threading import Thread
+from __setup__.ally_core_http import serverType
 
 # --------------------------------------------------------------------
 
-serverHost = ioc.config(lambda:'127.0.0.1', 'The IP address to bind the server to')
+@ioc.config
+def serverHost() -> str:
+    '''The IP address to bind the server to'''
+    return '127.0.0.1'
 
-serverThreadPool = ioc.config(lambda:10, 'The thread pool size for the server')
+@ioc.config
+def serverThreadPool() -> int:
+    '''The thread pool size for the server'''
+    return 10
 
-serverContentFolder = ioc.config(lambda:None, 'The folder from where the server should provide static content files, '
-                                 'attention this will be available only if there is also a server root')
+@ioc.config
+def serverContentFolder() -> str:
+    '''The folder from where the server should provide static content files, attention this will be available only if
+    there is also a server root'''
+    return None
 
-serverContentIndex = ioc.config(lambda:'index.html', 'The static folder index file')
+@ioc.config
+def serverContentIndex() -> str: 
+    '''The static folder index file'''
+    return 'index.html'
 
 @ioc.entity
 def requestHandler():
@@ -39,21 +52,23 @@ def requestHandler():
                              
 @ioc.start
 def runServer():
-    import cherrypy
-    from ally.core.http.support import server_cherrypy
-    
-    cherrypy.config.update({'engine.autoreload.on': False})
-    if serverRoot():
-        class Root: pass
-        root = Root()
-        setattr(root, serverRoot(), requestHandler)
-        requestHandler = root
-        if serverContentFolder:
-            requestHandler._cp_config = {
-                                         'tools.staticdir.on' : True,
-                                         'tools.staticdir.dir' : serverContentFolder(),
-                                         'tools.staticdir.index' : serverContentIndex(),
-                                         }
-            
-    args = requestHandler, serverHost(), serverPort(), serverThreadPool()
-    Thread(target=server_cherrypy.run, args=args).start()
+    if serverType() == 'cherrypy':
+        import cherrypy
+        from ally.core.http.support import server_cherrypy
+        
+        cherrypy.config.update({'engine.autoreload.on': False})
+        handler = requestHandler()
+        if serverRoot():
+            class Root: pass
+            root = Root()
+            setattr(root, serverRoot(), handler)
+            handler = root
+            if serverContentFolder:
+                handler._cp_config = {
+                                      'tools.staticdir.on' : True,
+                                      'tools.staticdir.dir' : serverContentFolder(),
+                                      'tools.staticdir.index' : serverContentIndex(),
+                                      }
+                
+        args = handler, serverHost(), serverPort(), serverThreadPool()
+        Thread(target=server_cherrypy.run, args=args).start()

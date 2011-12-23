@@ -15,9 +15,13 @@ from ally.core.spec.resources import ConverterPath, Normalizer, Converter
 # --------------------------------------------------------------------
 # Creating the converters
 
-converterPath = ioc.entity(lambda: ConverterPath(), ConverterPath)
+@ioc.entity
+def converterPath() -> ConverterPath: return ConverterPath()
 
-contentNormalizer = ioc.entity(lambda: Normalizer(), Normalizer)
+@ioc.entity
+def contentNormalizer() -> Normalizer: return Normalizer()
 
-defaultErrorContentConverter = ioc.entity(lambda: Converter(), Converter)
-# The default converter to be used if none can be obtained based on the request.
+@ioc.entity
+def defaultErrorContentConverter() -> Converter:
+    '''The default converter to be used if none can be obtained based on the request.'''
+    return Converter()

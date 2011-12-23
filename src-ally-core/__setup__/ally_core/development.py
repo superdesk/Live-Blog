@@ -17,16 +17,19 @@ from ally.core.impl.devel.tree_node import TreeNodePresenter
 # --------------------------------------------------------------------
 # Creating the development tools
 
-applicationMode = ioc.config(lambda:'devel', 'The application mode one of devel, prod')
+@ioc.config
+def applicationMode() -> str:
+    '''The application mode one of devel, prod'''
+    return 'devel'
 
 @ioc.entity
-def treeNodePresenter():
+def treeNodePresenter() -> TreeNodePresenter:
     b = TreeNodePresenter()
     b.resourcesManager = resourcesManager()
     return b
 
 @ioc.entity
-def memoryStatusPresenter():
+def memoryStatusPresenter() -> MemoryStatusPresenter:
     b = MemoryStatusPresenter()
     b.resourcesManager = resourcesManager()
     return b

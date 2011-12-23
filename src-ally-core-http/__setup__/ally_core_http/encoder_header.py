@@ -14,4 +14,5 @@ from .processor import headerStandard, headerX
 
 # --------------------------------------------------------------------
 
-encodersHeader = ioc.entity(lambda: [headerStandard(), headerX()])
+@ioc.entity
+def encodersHeader(): return [headerStandard(), headerX()]

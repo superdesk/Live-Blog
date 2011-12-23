@@ -17,22 +17,26 @@ from ally.core.impl.assembler import AssembleGet, AssembleInsert, AssembleUpdate
 # --------------------------------------------------------------------
 # Creating the assemblers
 
-assembleGet = ioc.entity(lambda: AssembleGet(), AssembleGet)
-
-assembleDelete = ioc.entity(lambda: AssembleDelete(), AssembleDelete)
+@ioc.entity
+def assembleGet() -> AssembleGet: return AssembleGet()
 
 @ioc.entity
-def assembleInsert():
+def assembleDelete() -> AssembleDelete: return AssembleDelete()
+
+@ioc.entity
+def assembleInsert() -> AssembleInsert:
     b = AssembleInsert();
     b.normalizer = contentNormalizer()
     return b
 
 @ioc.entity
-def assembleUpdate():
+def assembleUpdate() -> AssembleUpdate:
     b = AssembleUpdate();
     b.normalizer = contentNormalizer()
     return b
 
 # ---------------------------------
 
-assemblers = ioc.entity(lambda: [assembleGet(), assembleInsert(), assembleUpdate(), assembleDelete()])
+@ioc.entity
+def assemblers():
+    return [assembleGet(), assembleInsert(), assembleUpdate(), assembleDelete()]

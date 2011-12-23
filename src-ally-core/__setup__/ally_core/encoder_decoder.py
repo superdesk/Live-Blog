@@ -21,15 +21,20 @@ from ally.core.impl.processor.encdec_xml import EncodingXMLHandler, \
 # --------------------------------------------------------------------
 # Creating the encoding processors
 
-defaultCharacterSet = ioc.config(lambda:'ISO-8859-1', 
-                                 'The default character set to use if none is provided in the request')
+@ioc.config
+def defaultCharacterSet() -> str:
+    '''The default character set to use if none is provided in the request'''
+    return 'ISO-8859-1'
 
-contentTypesXML = ioc.config(lambda:{
-                                     'text/xml':None,
-                                     'text/plain':'text/xml',
-                                     'application/xml':None,
-                                     'xml':'text/xml'
-                                     }, 'The XML content types')
+@ioc.config
+def contentTypesXML() -> dict:
+    '''The XML content types'''
+    return {
+            'text/xml':None,
+            'text/plain':'text/xml',
+            'application/xml':None,
+            'xml':'text/xml'
+            }
 
 @ioc.entity
 def encodingXML() -> EncodingXMLHandler:
@@ -41,12 +46,15 @@ def encodingXML() -> EncodingXMLHandler:
     b.contentTypes = contentTypesXML()
     b.encodingError = 'xmlcharrefreplace'
 
-contentTypesJSON = ioc.config(lambda:{
-                                      'text/json':None,
-                                      'application/json':None,
-                                      'json':'text/json',
-                                      None:'text/json'
-                                      }, 'The JSON content types')
+@ioc.config
+def contentTypesJSON() -> dict:
+    '''The JSON content types'''
+    return {
+            'text/json':None,
+            'application/json':None,
+            'json':'text/json',
+            None:'text/json'
+            }
 
 @ioc.entity
 def encodingJSON() -> EncodingJSONHandler:
@@ -61,7 +69,8 @@ def encodingJSON() -> EncodingJSONHandler:
 # --------------------------------------------------------------------
 # Creating the decoding processors
 
-decodingNone = ioc.entity(lambda: DecodingNoneHandler(), DecodingNoneHandler)
+@ioc.entity
+def decodingNone() -> DecodingNoneHandler: return DecodingNoneHandler()
 
 @ioc.entity
 def decodingXML() -> DecodingXMLHandler:
@@ -81,5 +90,8 @@ def decodingJSON() -> DecodingJSONHandler:
 
 # ---------------------------------
 
-handlersEncoding = ioc.entity(lambda: [encodingXML(), encodingJSON()])
-handlersDecoding = ioc.entity(lambda: [decodingXML(), decodingJSON(), decodingNone()])
+@ioc.entity
+def handlersEncoding(): return [encodingXML(), encodingJSON()]
+
+@ioc.entity
+def handlersDecoding(): return [decodingXML(), decodingJSON(), decodingNone()]

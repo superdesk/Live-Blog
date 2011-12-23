@@ -14,8 +14,14 @@ from xml.sax.handler import ContentHandler
 from xml.sax import make_parser
 from xml.sax.xmlreader import InputSource
 from xml.sax._exceptions import SAXParseException
-from ally.exception import DevelException
 from xml.sax.saxutils import XMLGenerator
+
+# --------------------------------------------------------------------
+
+class DigesterError(Exception):
+    '''
+    Error raised whenever there is a xml digester problem.
+    '''
 
 # --------------------------------------------------------------------
 
@@ -67,10 +73,10 @@ class Digester(ContentHandler):
             self._parser.parse(inpsrc)
         except SAXParseException as e:
             assert isinstance(e, SAXParseException)
-            raise DevelException('Bad XML content at line %s and column %s' % 
-                                 (e.getLineNumber(), e.getColumnNumber()))
+            raise DigesterError('Bad XML content at line %s and column %s' % 
+                                (e.getLineNumber(), e.getColumnNumber()))
         if len(self.stack) == 0:
-            raise DevelException('Invalid XML content provided, cannot find root tag')
+            raise DigesterError('Invalid XML content provided, cannot find root tag')
         return self.stack[0]
     
     def currentName(self):
@@ -96,11 +102,11 @@ class Digester(ContentHandler):
         @see: ContentHandler.startElement
         '''
         if not self.acceptAttributes and len(attributes) > 0:
-            raise DevelException('No attributes accepted for path %r at line %s and column %s' % 
-                                   (self.currentPath(), self.getLineNumber(), self.getColumnNumber()))
+            raise DigesterError('No attributes accepted for path %r at line %s and column %s' % 
+                                (self.currentPath(), self.getLineNumber(), self.getColumnNumber()))
         node = self._pushName(name)
         if not self.acceptUnknownTags and not node:
-            raise DevelException('Unknown path element %r in %r at line %s and column %s' % 
+            raise DigesterError('Unknown path element %r in %r at line %s and column %s' % 
                                 (name, self.currentPath(), self.getLineNumber(), self.getColumnNumber()))
         
         self._processBegin(node, name, attributes)
@@ -171,8 +177,8 @@ class Digester(ContentHandler):
                 del self._nodes[-(k + 1):]
                 break
         else:
-            raise DevelException('Unexpected end element %r at line %s and column %s' % 
-                                   (name, self.getLineNumber(), self.getColumnNumber()))
+            raise DigesterError('Unexpected end element %r at line %s and column %s' % 
+                                (name, self.getLineNumber(), self.getColumnNumber()))
         
         return [node for node in reversed(nodes) if isinstance(node, Node)]
     

@@ -28,4 +28,5 @@ def encDecQuery() -> EncDecQuery:
 
 # ---------------------------------
 
-decodersParameters = ioc.entity(lambda: [encDecPrimitives(), encDecQuery()])
+@ioc.entity
+def decodersParameters(): return [encDecPrimitives(), encDecQuery()]

@@ -23,7 +23,7 @@ def converterBabel() -> BabelConverterHandler:
     # Babel FIX: We need to adjust the dir name for locales since they need to be outside the .egg file
     localedata._dirname = localedata._dirname.replace('.egg', '')
     core._filename = core._filename.replace('.egg', '')
-
+    
     b = BabelConverterHandler()
     b.languageDefault = defaultLanguage()
     return b

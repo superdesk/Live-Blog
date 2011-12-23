@@ -14,10 +14,22 @@ from ally import ioc
 # --------------------------------------------------------------------
 # The default configurations
 
-serverType = ioc.config(lambda:'basic', 'The type of the server to use one of basic, cherrypy')
+@ioc.config
+def serverType() -> str:
+    '''The type of the server to use one of basic, cherrypy'''
+    return 'basic'
 
-serverRoot = ioc.config(lambda:'resources', 'The root URL for the rest server ex: rest/resources')
+@ioc.config
+def serverRoot() -> str:
+    '''The root URL for the rest server ex: rest/resources'''
+    return 'resources'
 
-serverPort = ioc.config(lambda:80, 'The port on which the server will run')
+@ioc.config
+def serverPort() -> int:
+    '''The port on which the server will run'''
+    return 80
 
-serverVersion = ioc.config(lambda:'AllyREST/0.1', 'The server version number')
+@ioc.config
+def serverVersion() -> str:
+    '''The server version number'''
+    return 'AllyREST/0.1'

@@ -31,7 +31,10 @@ def uri() -> URIHandler:
     if serverRoot(): b.urlRoot = serverRoot() + '/'
     return b
 
-readFromParams = ioc.config(lambda:True, 'If true will also read header values that are provided as query parameters')
+@ioc.config
+def readFromParams():
+    '''If true will also read header values that are provided as query parameters'''
+    return True
 
 @ioc.entity   
 def headerStandard() -> HeaderStandardHandler:
@@ -54,5 +57,6 @@ def updateHandlersExplainError():
 
 # ---------------------------------
 
-handlers = ioc.entity(lambda: [explainError(), uri(), headerStandard(), methodInvoker(), headerX(), converter(),
-                               requestTypes(), parameters(), decoding(), invokingHandler(), encoding()])
+@ioc.entity
+def handlers(): return [explainError(), uri(), headerStandard(), methodInvoker(), headerX(), converter(), requestTypes(),
+                        parameters(), decoding(), invokingHandler(), encoding()]
