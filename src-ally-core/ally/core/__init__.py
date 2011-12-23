@@ -10,3 +10,8 @@ Has all the classes that compose the base framework. The classes here have a gen
 for other types of architectures than REST for instance the classes here can be made to work with a RPC type
 architecture or the communication can be made based on a different protocol than HTTP.
 '''
+
+# This is required in order to allow the extension of this package.
+try: from __main__ import deployExtendPackage
+except ImportError: pass
+else: deployExtendPackage()

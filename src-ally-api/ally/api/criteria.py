@@ -9,9 +9,9 @@ Created on Jun 10, 2011
 Provides general used criteria for APIs.
 '''
 
-from ally.api.configure import APICriteria as criteria
-from ally.api import configure
-from ally.api.type import Date, Time, DateTime
+from . import configure
+from .configure import APICriteria as criteria
+from .type import Date, Time, DateTime
 
 # --------------------------------------------------------------------
 

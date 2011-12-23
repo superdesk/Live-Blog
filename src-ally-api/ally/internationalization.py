@@ -10,7 +10,7 @@ Provides internationalization support.
 '''
 
 import re
-from ally.type_legacy import Number, Iterable, Callable
+from .type_legacy import Number, Iterable, Callable
 
 # --------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ class Translator:
             The message (that is in English) to be used as a key, this message
             has to contain as many place holders (ex: $1, $2 ...) as there are 
             arguments.
-        @param args: list[string]
+        @param args: list[object]
             The arguments to be used instead of the place holders in the message.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name

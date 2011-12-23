@@ -9,9 +9,9 @@ Created on Jun 8, 2011
 Provides the types used for APIs.
 '''
 
-from ally import type_legacy as numbers
-from ally.type_legacy import Iterable, Sized, Iterator
-from ally.util import Uninstantiable, Singletone, Attribute
+from .. import type_legacy as numbers
+from ..type_legacy import Iterable, Sized, Iterator
+from ..util import Uninstantiable, Singletone, Attribute
 from datetime import datetime, date, time
 from inspect import isclass
 import logging
@@ -294,7 +294,7 @@ class TypeModel(TypeClass):
         @param acceptPartial: boolean
             Flag indicating that partial forms of the represented model should be accepted.
         '''
-        from ally.api.operator import Model
+        from .operator import Model
         assert isinstance(model, Model), 'Invalid model provided %s' % model
         self.model = model
         TypeClass.__init__(self, model.modelClass, False)
@@ -312,7 +312,7 @@ class TypeQuery(TypeClass):
         @param query: Query
             The query that this type is constructed on.
         '''
-        from ally.api.operator import Query
+        from .operator import Query
         assert isinstance(query, Query), 'Invalid query provided %s' % query
         self.query = query
         TypeClass.__init__(self, query.queryClass, False)
@@ -335,7 +335,7 @@ class TypeProperty(Type):
         @param property: Property
             The property that this type is constructed on.
         '''
-        from ally.api.operator import Property, Model
+        from .operator import Property, Model
         assert isinstance(model, Model), 'Invalid model %s' % model
         assert isinstance(property, Property), 'Invalid property %s' % property
         assert isinstance(property.type, Type), 'Invalid property type %s' % type

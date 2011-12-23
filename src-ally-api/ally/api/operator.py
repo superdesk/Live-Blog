@@ -9,10 +9,10 @@ Created on May 29, 2011
 Provides the containers that describe the APIs.
 '''
 
-from ally.api.type import Type, TypeClass, Input, Id, IdString, Boolean, Number, \
-    Integer, Percentage, String, Time, Date, DateTime, TypeProperty, typeFor
-from ally.type_legacy import Iterable, OrderedDict
-from ally.util import IS_PY3K, Attribute
+from ..type_legacy import Iterable, OrderedDict
+from ..util import IS_PY3K, Attribute
+from .type import Type, TypeClass, Input, Id, IdString, Boolean, Number, Integer, \
+    Percentage, String, Time, Date, DateTime, TypeProperty, typeFor
 from inspect import ismodule, getargspec, isclass
 import logging
 

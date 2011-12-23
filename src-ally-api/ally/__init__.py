@@ -11,21 +11,7 @@ will be that the modules are used for describing types for models, call inputs a
 provides the means for generating this description objects by using python decorators and descriptors.
 '''
 
-# (c) 2005 Ian Bicking and contributors; written for Paste (http://pythonpaste.org)
-# Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
-
-try:
-    import pkg_resources
-    pkg_resources.declare_namespace(__name__)
-except ImportError:
-    # don't prevent use of paste if pkg_resources isn't installed
-    from pkgutil import extend_path
-    __path__ = extend_path(__path__, __name__) 
-
-try:
-    import modulefinder
-except ImportError:
-    pass
-else:
-    for p in __path__:
-        modulefinder.AddPackagePath(__name__, p)
+# This is required in order to allow the extension of this package.
+try: from __main__ import deployExtendPackage
+except ImportError: pass
+else: deployExtendPackage()

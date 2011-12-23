@@ -9,7 +9,7 @@ Created on Jun 16, 2011
 Provides special models that are interpreted by the core in specific ways.
 '''
 
-from ally.api.type import typeFor, TypeClass
+from .type import typeFor, TypeClass
 
 # --------------------------------------------------------------------
 

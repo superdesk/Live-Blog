@@ -6,7 +6,7 @@ Home-page: http://www.sourcefabric.org
 Author: Nistor Gabriel
 Author-email: gabriel.nistor@sourcefabric.org
 License: GPL License
-Description: The core of ally py framework for REST and RMI.
+Description: The core of ally py framework for REST.
 Platform: UNKNOWN
 Classifier: Development Status :: 1 - Beta
 Classifier: Intended Audience :: Developers

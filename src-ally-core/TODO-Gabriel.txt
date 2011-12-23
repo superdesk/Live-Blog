@@ -27,3 +27,4 @@
  
  - To add the wire capability to IoC.
  - TO add proxy wrapping for session handling.
+ - TO add a thread resource manager.

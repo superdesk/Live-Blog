@@ -14,7 +14,7 @@ from ally.core.impl.invoker import InvokerFunction
 from ally.core.impl.node import NodePath
 from ally.core.spec.resources import ResourcesManager
 from ally.ioc import injected
-from ally.util import fullyQName
+from ally.util_sys import fullyQName
 from collections import OrderedDict
 from inspect import isclass
 import gc
@@ -41,7 +41,7 @@ class MemoryStatusPresenter:
                                                         Input('exclude', typeFor(String)),
                                                         ], 0)
 
-    def present(self, limit=10, include=None, exclude=None):
+    def present(self, limit, include=None, exclude=None):
         '''
         Provides the dictionary structure presenting the memory.
         Attention this will also call the garbage collection.
@@ -49,6 +49,7 @@ class MemoryStatusPresenter:
         @return: dictionary
             The dictionary containing the memory status.
         '''
+        if not limit: limit = 10
         gc.collect()
         total, referencess = self.getRefcounts(limit, include, exclude)
         return {'References': {'Total':total, 'Class':referencess}}

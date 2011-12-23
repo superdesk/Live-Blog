@@ -554,14 +554,14 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         '''
     
     @abc.abstractmethod
-    def findGetAllAccessible(self, fromPath):
+    def findGetAllAccessible(self, fromPath=None):
         '''
         Finds all GET paths that can be directly accessed without the need of any path update based on the
         provided from path, basically all paths that can be directly related to the provided path without any
         additional information.
         
-        @param fromPath: Path
-            The path to make the search based on.
+        @param fromPath: Path|None
+            The path to make the search based on. If None will use the root path.
         @return: list
             A list of PathExtended from the provided from path that are accessible, empty list if none found.
         '''

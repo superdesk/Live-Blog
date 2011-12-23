@@ -54,8 +54,7 @@ class ProcessorsChain:
         '''
         assert isinstance(processors, list), 'Invalid processors list %s' % processors
         if __debug__:
-            for processor in processors:
-                assert isinstance(processor, Processor), 'Invalid processor %s' % processor
+            for processor in processors: assert isinstance(processor, Processor), 'Invalid processor %s' % processor
         self._processors = deque(processors)
         self._consumed = False
     

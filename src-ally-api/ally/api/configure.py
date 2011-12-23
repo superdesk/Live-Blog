@@ -9,12 +9,12 @@ Created on Jun 1, 2011
 Provides the decorators used for APIs.
 '''
 
-from ally.api.operator import Call, Service, Criteria, Query, Model, Property, \
+from ..type_legacy import Callable
+from ..util import IS_PY3K, Attribute
+from .operator import Call, Service, Criteria, Query, Model, Property, \
     CriteriaEntry, Properties, GET, INSERT, UPDATE, DELETE
-from ally.api.type import TypeProperty, typeFor, TypeModel, List, Type, \
-    TypeQuery, Iter, Input
-from ally.type_legacy import Callable
-from ally.util import IS_PY3K, Attribute
+from .type import TypeProperty, typeFor, TypeModel, List, Type, TypeQuery, Iter, \
+    Input
 from functools import wraps
 from inspect import isfunction, isclass
 import inspect

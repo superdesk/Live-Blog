@@ -41,15 +41,12 @@ class ResourcesManagerImpl(ResourcesManager):
         assert isinstance(self.assemblers, list), 'Invalid assemblers list %s' % self.assemblers
         assert isinstance(self.services, list), 'Invalid services list %s' % self.services
         if __debug__:
-            for asm in self.assemblers:
-                assert isinstance(asm, Assembler), 'Invalid assembler %s' % asm
-        def resources():
-            return self.findGetAllAccessible(self._rootPath)
-        self._root = NodeRoot(InvokerFunction(List(TypeClass(Path, False)), resources, [], 0))
+            for asm in self.assemblers: assert isinstance(asm, Assembler), 'Invalid assembler %s' % asm
+        self._root = NodeRoot(InvokerFunction(List(TypeClass(Path, False)), self.findGetAllAccessible, [], 0))
         self._rootPath = Path([], self._root)
         for service in self.services:
             try: self.register(serviceFor(service), service)
-            except: raise AssertionError('Cannot register service instance %s' % service)
+            except: raise Exception('Cannot register service instance %s' % service)
     
     def getRoot(self):
         '''
@@ -127,10 +124,12 @@ class ResourcesManagerImpl(ResourcesManager):
             index -= 1
         return None
         
-    def findGetAllAccessible(self, fromPath):
+    def findGetAllAccessible(self, fromPath=None):
         '''
         @see: ResourcesManager.findGetAllAccessible
         '''
+        if fromPath is None: fromPath = self._rootPath
+        
         assert isinstance(fromPath, Path), 'Invalid from path %s' % fromPath
         assert isinstance(fromPath.node, Node), 'Invalid from path Node %s' % fromPath.node
         paths = []

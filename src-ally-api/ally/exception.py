@@ -10,8 +10,8 @@ Provides the exceptions that are used in communicating issues in the API.
 The internal errors (the ones that are made by the implementation and not data) are AssertionError.
 '''
 
-from ally.api.operator import Model, Property
-from ally.api.type import typeFor, TypeProperty, TypeModel
+from .api.operator import Model, Property
+from .api.type import typeFor, TypeProperty, TypeModel
 
 # --------------------------------------------------------------------
 
