@@ -3,18 +3,19 @@
 
 	<property name="destination" value="./components/"/>
 	
-	<import file="../src-ally-utilities/build-component.ant" />
-	<import file="../src-ally-api/build-component.ant" />
-	<import file="../src-ally-core/build-component.ant" />
-	<import file="../src-ally-core-babel/build-component.ant" />
-	<import file="../src-ally-core-http/build-component.ant" />
+	<import file="../components/ally-utilities/build-component.ant" />
+	<import file="../components/ally-api/build-component.ant" />
+	<import file="../components/ally-core/build-component.ant" />
+	<import file="../components/ally-core-babel/build-component.ant" />
+	<import file="../components/ally-core-http/build-component.ant" />
+	<import file="../components/ally-core-plugin/build-component.ant" />
 	
 	<target name="clean" depends="ally-utilities.clean, ally-api.clean, ally-core.clean, ally-core-babel.clean,
-		ally-core-http.clean">
+		ally-core-http.clean, ally-core-plugin.clean">
 	</target>
 
 	<target name="build" depends="clean, ally-utilities.build, ally-api.build,ally-core.build, ally-core-babel.build,
-		ally-core-http.build">
+		ally-core-http.build, ally-core-plugin.build">
 	</target>
 
 </project>

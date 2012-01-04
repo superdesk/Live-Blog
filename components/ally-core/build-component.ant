@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ally-core" default="build" basedir=".">
+
+	<property name="destination" value="."/>
+	<property name="egg.ally.core" value="ally-core-1.0-py3.2.egg"/>
+
+	<target name="clean">
+		<delete file="${destination}/${egg.ally.core}" />
+	</target>
+
+	<target name="build" depends="clean">
+		<zip destfile="${destination}/${egg.ally.core}" basedir=".">
+			<exclude name="**/__pycache__/"/>
+			<exclude name="/.*"/>
+			<exclude name="/*.egg"/>
+		</zip>
+	</target>
+
+</project>
