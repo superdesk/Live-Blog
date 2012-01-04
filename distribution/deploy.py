@@ -10,7 +10,6 @@ Provides the deployment of the distribution that contains this deploy.
 '''
 
 from inspect import stack
-from os.path import dirname
 from pkgutil import get_importer, iter_importers
 from types import ModuleType
 import os
@@ -42,7 +41,7 @@ def deployExtendPackage():
     for importer in importers:
         moduleLoader = importer.find_module(name)
         if moduleLoader and moduleLoader.is_package(name):
-            path = dirname(moduleLoader.get_filename(name))
+            path = os.path.dirname(moduleLoader.get_filename(name))
             if path not in paths:
                 paths.append(path)
                 module = ModuleType(fullName)
@@ -55,6 +54,12 @@ def deployExtendPackage():
 
 # --------------------------------------------------------------------
 
+def setupLogging():
+    import logging
+    level = logging.INFO if __debug__ else logging.WARN
+    logging.basicConfig(level=level,
+                    format='%(asctime)s %(levelname)s (%(threadName)s %(module)s.%(funcName)s %(lineno)d): %(message)s')
+
 def findLibraries(folder):
     '''
     Finds all the libraries (that have extension .egg) if the provided folder.
@@ -65,16 +70,29 @@ def findLibraries(folder):
         if os.path.isfile(fullPath) and fullPath.endswith('.egg'): eggs.append(fullPath)
     return eggs
 
+def findDirs(folder):
+    '''
+    Finds all the directories in the provided folder.
+    '''
+    dirs = []
+    for name in os.listdir(folder):
+        fullPath = os.path.join(folder, name)
+        if os.path.isdir(fullPath): dirs.append(fullPath)
+    return dirs
+
+# --------------------------------------------------------------------
 
 if __name__ == '__main__':
+    setupLogging()
     for path in findLibraries(os.path.join(os.path.dirname(__file__), 'libraries')):
         if path not in sys.path: sys.path.append(path)
-        
-    for path in findLibraries(os.path.join(os.path.dirname(__file__), 'components')):
-        if not path.count('ally-utilities'):
-            if path not in sys.path: sys.path.append(path)
     
-    sys.path.append('e:/Sourcefabric/Workspace/src-ally-utilities')
+    if True:
+        for path in findDirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'components')):
+            if path not in sys.path: sys.path.append(path)
+    else:
+        for path in findLibraries(os.path.join(os.path.dirname(__file__), 'components')):
+            if path not in sys.path: sys.path.append(path)
     #TODO: investigate why there are multiple paths of same address
     try:
         from ally import ioc, aop
