@@ -9,48 +9,61 @@ Created on Nov 24, 2011
 Provides the deployment of the distribution that contains this deploy.
 '''
 
-from inspect import stack
 from pkgutil import get_importer, iter_importers
-from types import ModuleType
 import os
+import pkgutil
 import sys
 import traceback
 
 # --------------------------------------------------------------------
+#TODO: document
+class PackageExtender:
+    
+    def __init__(self):
+        self._loading = set()
+    
+    def find_module(self, name, paths=None):
+        if name not in self._loading:
+            self._loading.add(name)
+            loader = pkgutil.find_loader(name)
+            self._loading.remove(name)
+            if loader is not None: return PackageLoader(loader)
+    
+class PackageLoader:
+    
+    def __init__(self, loader):
+        self.__loader = loader
+    
+    def load_module(self, name):
+        module = self.__loader.load_module(name)
+        
+        if hasattr(module, '__path__'):
+            fullName, paths = module.__name__, module.__path__
 
-_EXTEND = set()
-# Used to keep the current extending package.
-def deployExtendPackage():
-    '''
-    Provides the package extension for loaded libraries.
-    '''
-    loc = stack()[1][0].f_locals
-    fullName, paths = loc['__name__'], loc['__path__']
-    if fullName in _EXTEND: return
+            k = fullName.rfind('.')
+            if k >= 0:
+                package = sys.modules[fullName[:k]]
+                name = fullName[k + 1:]
+                importers = [get_importer(path) for path in package.__path__]
+            else:
+                name = fullName
+                importers = iter_importers()
+            
+            for importer in importers:
+                moduleLoader = importer.find_module(name)
+                if moduleLoader and moduleLoader.is_package(name):
+                    path = os.path.dirname(moduleLoader.get_filename(name))
+                    if path not in paths:
+                        paths.append(path)
+                        exec(moduleLoader.get_code(name), module.__dict__)
+            module.__path__ = paths
+
+        return module
     
-    _EXTEND.add(fullName)
-    k = fullName.rfind('.')
-    if k >= 0:
-        package = sys.modules[fullName[:k]]
-        name = fullName[k + 1:]
-        importers = [get_importer(path) for path in package.__path__]
-    else:
-        name = fullName
-        importers = iter_importers()
-    
-    for importer in importers:
-        moduleLoader = importer.find_module(name)
-        if moduleLoader and moduleLoader.is_package(name):
-            path = os.path.dirname(moduleLoader.get_filename(name))
-            if path not in paths:
-                paths.append(path)
-                module = ModuleType(fullName)
-                module.__dict__['__path__'] = paths
-                exec(moduleLoader.get_code(name), module.__dict__)
-                # We ensure that every __init__ is called at least once.
-                if getattr(module, 'deployExtendPackage', None) != deployExtendPackage:
-                    raise ImportError('The package %r in path %r does not allow extension' % (name, path))
-    _EXTEND.remove(fullName)
+    def __getattr__(self, name): return getattr(self.__loader, name)
+
+def registerPackageExtender():
+    if not sys.meta_path or not isinstance(sys.meta_path[0], PackageExtender): sys.meta_path.insert(0, PackageExtender())
 
 # --------------------------------------------------------------------
 
@@ -93,9 +106,11 @@ if __name__ == '__main__':
     else:
         for path in findLibraries(os.path.join(os.path.dirname(__file__), 'components')):
             if path not in sys.path: sys.path.append(path)
-    #TODO: investigate why there are multiple paths of same address
+
+    registerPackageExtender()
+
     try:
-        from ally import ioc, aop
+        from ally.container import ioc, aop
     except ImportError:
         print('-' * 150, file=sys.stderr)
         print('The ally ioc or aop is missing, no idea how to deploy the application', file=sys.stderr)
