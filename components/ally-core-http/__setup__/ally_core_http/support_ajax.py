@@ -12,7 +12,7 @@ Provides the the javascript setup required by browser for ajax.
 from ..ally_core.processor import methodInvoker
 from ..ally_core_http.encoder_header import encodersHeader
 from .processor import handlers
-from ally import ioc
+from ally.container import ioc
 from ally.core.http.impl.encoder_header_set import EncoderHeaderSet
 from ally.core.http.spec import METHOD_OPTIONS
 from ally.core.impl.processor.deliver_ok import DeliverOkHandler

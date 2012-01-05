@@ -8,9 +8,8 @@ Created on Aug 9, 2011
 
 Provides utility methods for types and data associated with types.
 '''
+
 from ally.api.type import TypeId, TypeProperty, Iter, TypeModel
-from ally.api.operator import Property
-from ally.core.spec.resources import ResourcesManager
 
 # --------------------------------------------------------------------
 
@@ -87,26 +86,3 @@ def modelOfIter(typ):
         if isinstance(typ, TypeModel):
             return typ.model
     return None
-
-def pathsFor(resourcesManager, properties, basePath):
-    '''
-    Extracts the paths that are linked with the provided properties. Basically any property that represents the id
-    property type for a model is searched for a path.
-    
-    @param resourcesManager: ResourcesManager
-        The resource manager used for searching the paths.
-    @param properties: list[Property]
-        The list of properties to search in.
-    @param basePath: Path
-        The base bath to perform the search from.
-    '''
-    assert isinstance(resourcesManager, ResourcesManager), 'Invalid resource manager %s' % resourcesManager
-    assert isinstance(properties, list), 'Invalid properties list %s' % properties
-    paths = {}
-    for prop in properties:
-        assert isinstance(prop, Property)
-        if isPropertyTypeId(prop.type):
-            path = resourcesManager.findGetModel(basePath, prop.type.model)
-            if path is not None:
-                paths[prop.name] = path
-    return paths

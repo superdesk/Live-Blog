@@ -10,13 +10,13 @@ Provides a Node on the resource manager with an invoker that presents the memory
 '''
 
 from ally.api.type import Input, Integer, typeFor, String
+from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction
 from ally.core.impl.node import NodePath
 from ally.core.spec.resources import ResourcesManager
-from ally.ioc import injected
-from ally.util_sys import fullyQName
 from collections import OrderedDict
 from inspect import isclass
+from ally.support.util_sys import fullyQName
 import gc
 import sys
 

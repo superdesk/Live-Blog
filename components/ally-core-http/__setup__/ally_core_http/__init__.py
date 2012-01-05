@@ -9,7 +9,7 @@ Created on Jul 15, 2011
 Contains setup and configuration files for the HTTP REST server.
 '''
 
-from ally import ioc
+from ally.container import ioc
 
 # --------------------------------------------------------------------
 # The default configurations

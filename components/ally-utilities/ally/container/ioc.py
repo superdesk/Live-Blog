@@ -10,10 +10,10 @@ Provides the IoC (Inversion of Control or dependency injection) services. Attent
 single thread at one time.
 '''
 
-from .util import Attribute
+from ..support.util import Attribute
+from ..support.util_sys import callerLocals
+from .aop import AOPModules
 from _abcoll import Callable
-from ally.aop import AOPModules
-from ally.util_sys import callerLocals
 from functools import partial, update_wrapper
 from inspect import isclass, isfunction, getfullargspec, ismodule, isgenerator
 from itertools import chain
@@ -275,7 +275,7 @@ class Initializer(Callable):
         @see: http://docs.python.org/reference/datamodel.html
         '''
         if entity is not None: return partial(self.__call__, entity)
-        return self.__call__
+        return self
 
 # --------------------------------------------------------------------
 

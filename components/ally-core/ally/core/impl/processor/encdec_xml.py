@@ -13,18 +13,19 @@ from _pyio import TextIOWrapper
 from ally import internationalization
 from ally.api.operator import Model, Property
 from ally.api.type import TypeProperty, Iter, TypeModel, TypeNone
+from ally.container.ioc import injected
 from ally.core.impl.node import NodePath
 from ally.core.impl.processor.encdec_base import DecodingBaseHandler, \
     EncodingBaseHandler, findLastModel
-from ally.core.impl.util_type import isPropertyTypeId, isPropertyTypeIntId, \
-    isTypeIntId, pathsFor
 from ally.core.spec.codes import BAD_CONTENT
 from ally.core.spec.resources import Path, Converter
 from ally.core.spec.server import Request, Response, ProcessorsChain, \
     ContentRequest
-from ally.digester_xml import Rule, RuleRoot, Digester, Node
 from ally.exception import DevelException, InputException, Ref
-from ally.ioc import injected
+from ally.support.api.util_type import isPropertyTypeId, isPropertyTypeIntId, \
+    isTypeIntId
+from ally.support.core.util_resources import pathsFor
+from ally.xml.digester import Rule, RuleRoot, Digester, Node
 from xml.sax.saxutils import XMLGenerator
 import logging
 

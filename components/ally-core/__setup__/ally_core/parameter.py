@@ -10,7 +10,7 @@ Provides the configurations for the encoders and decoders for parameters.
 '''
 
 from .converter import converterPath
-from ally import ioc
+from ally.container import ioc
 from ally.core.impl.encdec_param import EncDecPrimitives, EncDecQuery
 from ally.core.spec.server import EncoderParams, DecoderParams
 

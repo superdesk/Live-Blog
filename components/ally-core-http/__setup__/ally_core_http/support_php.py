@@ -10,7 +10,7 @@ Provides additional configurations for the Zend PHP client.
 '''
 
 from ..ally_core.encoder_decoder import contentTypesJSON
-from ally import ioc
+from ally.container import ioc
 
 # --------------------------------------------------------------------
 

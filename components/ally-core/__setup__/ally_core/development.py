@@ -10,7 +10,7 @@ Provides the configurations for development tools.
 '''
 
 from .resource_manager import resourcesManager
-from ally import ioc
+from ally.container import ioc
 from ally.core.impl.devel.memory_status import MemoryStatusPresenter
 from ally.core.impl.devel.tree_node import TreeNodePresenter
 

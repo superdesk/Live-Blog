@@ -9,10 +9,10 @@ Created on Jul 4, 2011
 Provides hints in the encoded paths.
 '''
 
+from ally.container.ioc import injected
 from ally.core.spec.resources import Path, Node, Invoker
-from ally.core.spec.server import Processor, ProcessorsChain, Response,\
+from ally.core.spec.server import Processor, ProcessorsChain, Response, \
     EncoderParams, EncoderPath
-from ally.ioc import injected
 import logging
 
 # --------------------------------------------------------------------

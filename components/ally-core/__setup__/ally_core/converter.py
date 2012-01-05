@@ -9,7 +9,7 @@ Created on Nov 24, 2011
 Provides the configurations for the converters and normalizers.
 '''
 
-from ally import ioc
+from ally.container import ioc
 from ally.core.spec.resources import ConverterPath, Normalizer, Converter
 
 # --------------------------------------------------------------------

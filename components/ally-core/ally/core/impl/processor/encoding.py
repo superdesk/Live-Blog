@@ -9,10 +9,10 @@ Created on Jul 12, 2011
 Provides the encoding processing node.
 '''
 
+from ally.container.ioc import injected
 from ally.core.spec.codes import UNKNOWN_ENCODING
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain, \
     Processors
-from ally.ioc import injected
 import logging
 
 # --------------------------------------------------------------------

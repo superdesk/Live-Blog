@@ -12,11 +12,11 @@ Module containing the implementation for the resources manager.
 from ally.api.configure import serviceFor
 from ally.api.operator import Service, Model
 from ally.api.type import List, TypeClass
+from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
 from ally.core.impl.node import NodeRoot, NodePath, NodeModel, NodeProperty
 from ally.core.spec.resources import Node, Path, ConverterPath, Match, Assembler, \
     ResourcesManager, PathExtended
-from ally.ioc import injected
 from inspect import isclass
 import logging
 

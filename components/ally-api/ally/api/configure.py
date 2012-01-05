@@ -9,8 +9,8 @@ Created on Jun 1, 2011
 Provides the decorators used for APIs.
 '''
 
+from ..support.util import IS_PY3K, Attribute
 from ..type_legacy import Callable
-from ..util import IS_PY3K, Attribute
 from .operator import Call, Service, Criteria, Query, Model, Property, \
     CriteriaEntry, Properties, GET, INSERT, UPDATE, DELETE
 from .type import TypeProperty, typeFor, TypeModel, List, Type, TypeQuery, Iter, \

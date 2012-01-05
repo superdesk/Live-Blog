@@ -10,10 +10,10 @@ Provides the requested method validation handler.
 '''
 
 from ally.api.operator import GET, INSERT, UPDATE, DELETE
+from ally.container.ioc import injected
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE
 from ally.core.spec.resources import Path, Node
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
-from ally.ioc import injected
 
 # --------------------------------------------------------------------
 

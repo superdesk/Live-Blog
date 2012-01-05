@@ -9,12 +9,12 @@ Created on Jul 3, 2011
 Provides the parameters handler.
 '''
 
+from ally.container.ioc import injected
 from ally.core.spec.codes import ILLEGAL_PARAM, UNKNOWN_PARAMS
-from ally.exception import DevelException
 from ally.core.spec.resources import Invoker
 from ally.core.spec.server import Processor, ProcessorsChain, Response, Request, \
     DecoderParams
-from ally.ioc import injected
+from ally.exception import DevelException
 
 # --------------------------------------------------------------------
 

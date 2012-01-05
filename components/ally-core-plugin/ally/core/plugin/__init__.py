@@ -9,8 +9,3 @@ Created on Jul 15, 2011
 This package contains specifications, implementations and server basic configuration *server_config* that are specific
 for HTTP protocol and REST architecture.
 '''
-
-# This is required in order to allow the extension of this package.
-try: from __main__ import deployExtendPackage
-except ImportError: pass
-else: deployExtendPackage()

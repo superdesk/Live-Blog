@@ -13,7 +13,7 @@ from .converter import defaultErrorContentConverter
 from .encoder_decoder import handlersDecoding, handlersEncoding
 from .parameter import decodersParameters
 from .resource_manager import resourcesManager
-from ally import ioc
+from ally.container import ioc
 from ally.core.impl.processor.converter import ConverterHandler
 from ally.core.impl.processor.decoding import DecodingHandler
 from ally.core.impl.processor.encoding import EncodingProcessorsHandler
@@ -82,3 +82,9 @@ def encoding() -> Processor:
     b = EncodingProcessorsHandler()
     b.encodings = Processors(*handlersEncoding())
     return b
+
+# ---------------------------------
+
+@ioc.entity
+def handlers(): return [explainError(), methodInvoker(), converter(), requestTypes(), parameters(), decoding(),
+                        invokingHandler(), encoding()]

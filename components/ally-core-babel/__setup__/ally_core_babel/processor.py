@@ -10,7 +10,7 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from ..ally_core.processor import converter, defaultLanguage
-from ally import ioc
+from ally.container import ioc
 from ally.core.babel.processor.converter import BabelConverterHandler
 from ally.core.spec.server import Processor
 

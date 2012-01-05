@@ -8,16 +8,16 @@ Created on Aug 11, 2011
 
 Provides the basic encoding/decoding processor handler.
 '''
+
 from ally.api.operator import INSERT, UPDATE, Model, Property
 from ally.api.type import Input, TypeModel
-from ally.core.impl.util_type import isTypeId
+from ally.container.ioc import injected
 from ally.core.spec.resources import Normalizer, Converter, Invoker, \
     ResourcesManager
 from ally.core.spec.server import Processor, ContentRequest, Request, Response
-from ally.ioc import injected
+from ally.support.api.util_type import isTypeId
 import codecs
 import logging
-
 
 # --------------------------------------------------------------------
 

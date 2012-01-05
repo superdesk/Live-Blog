@@ -10,8 +10,8 @@ Provides the types used for APIs.
 '''
 
 from .. import type_legacy as numbers
+from ..support.util import Uninstantiable, Singletone, Attribute
 from ..type_legacy import Iterable, Sized, Iterator
-from ..util import Uninstantiable, Singletone, Attribute
 from datetime import datetime, date, time
 from inspect import isclass
 import logging

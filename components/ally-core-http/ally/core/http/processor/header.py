@@ -10,14 +10,14 @@ Provides the standard headers handling.
 '''
 
 from ally.api.operator import GET, DELETE, INSERT, UPDATE
-from ally.core.impl.util_param import extractParamValues
+from ally.container.ioc import injected
+from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE
 from ally.core.spec.server import Processor, Response, ProcessorsChain, \
     ContentRequest
-from ally.ioc import injected
-from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE
+from ally.exception import DevelException
+from ally.support.core.util_param import extractParamValues
 from collections import OrderedDict
 import re
-from ally.exception import DevelException
 
 # --------------------------------------------------------------------
 

@@ -580,3 +580,4 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         @return: list
             A list of Path's from the provided model object, empty list if none found.
         '''
+

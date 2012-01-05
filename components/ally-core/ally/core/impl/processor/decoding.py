@@ -10,10 +10,10 @@ Provides the decoding handler.
 '''
 
 from ally.api.operator import INSERT, UPDATE
+from ally.container.ioc import injected
 from ally.core.spec.codes import UNKNOWN_DECODING
 from ally.core.spec.server import Processor, ProcessorsChain, Request, Response, \
     Processors, ContentRequest
-from ally.ioc import injected
 
 # --------------------------------------------------------------------
 

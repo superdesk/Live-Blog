@@ -9,11 +9,11 @@ Created on Aug 26, 2011
 Provides a Node on the resource manager with an invoker that presents the node tree of the resource manager.
 '''
 
-from ally.ioc import injected
+from ally.container.ioc import injected
+from ally.core.impl.invoker import InvokerFunction
+from ally.core.impl.node import NodePath, NodeModel, NodeProperty
 from ally.core.spec.resources import ResourcesManager, Node
 from collections import OrderedDict
-from ally.core.impl.node import NodePath, NodeModel, NodeProperty
-from ally.core.impl.invoker import InvokerFunction
 
 # --------------------------------------------------------------------
 

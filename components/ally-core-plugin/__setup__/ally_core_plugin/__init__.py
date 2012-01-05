@@ -9,7 +9,7 @@ Created on Jul 15, 2011
 Contains setup and configuration files for the plugins support.
 '''
 
-from ally import ioc, aop
+from ally.container import ioc, aop
 
 # --------------------------------------------------------------------
 

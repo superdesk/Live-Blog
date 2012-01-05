@@ -9,12 +9,12 @@ Created on Jun 28, 2011
 Provides the URI request path handler.
 '''
 
+from ally.container.ioc import injected
+from ally.core.http.spec import RequestHTTP
 from ally.core.spec.codes import RESOURCE_NOT_FOUND, RESOURCE_FOUND
 from ally.core.spec.resources import ConverterPath, Path, ResourcesManager
 from ally.core.spec.server import Response, Processor, ProcessorsChain, \
     EncoderPath
-from ally.ioc import injected
-from ally.core.http.spec import RequestHTTP
 from urllib.parse import urlencode, urlparse, urlunsplit, parse_qsl
 import logging
 

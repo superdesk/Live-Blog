@@ -9,9 +9,9 @@ Created on Nov 15, 2011
 Provides support for setting headers on responses.
 '''
 
-from ally.core.spec.server import Response
+from ally.container.ioc import injected
 from ally.core.http.spec import EncoderHeader
-from ally.ioc import injected
+from ally.core.spec.server import Response
 import logging
 
 # --------------------------------------------------------------------

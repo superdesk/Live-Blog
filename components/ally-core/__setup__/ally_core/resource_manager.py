@@ -10,7 +10,7 @@ Provides the configurations for the resource manager.
 '''
 
 from .assembler import assemblers
-from ally import ioc
+from ally.container import ioc
 from ally.core.impl.resources_manager import ResourcesManagerImpl
 from ally.core.spec.resources import ResourcesManager
 

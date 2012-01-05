@@ -9,11 +9,10 @@ Created on Nov 28, 2011
 Provides the AOP (aspect oriented programming) support.
 '''
 
-from .util_sys import searchModules, packageModules, isPackage
+from ..support.util_sys import searchModules, packageModules, isPackage
 from inspect import isclass, ismodule
 import importlib
 import re
-
 
 # --------------------------------------------------------------------
 

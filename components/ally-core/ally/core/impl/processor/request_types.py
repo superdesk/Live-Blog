@@ -10,9 +10,9 @@ Provides the special types like @see: TypeFrontLanguage based from the request/r
 '''
 
 from ally.api.type import Input, FrontLanguage, Iter
+from ally.container.ioc import injected
 from ally.core.spec.resources import Invoker
 from ally.core.spec.server import Processor, ProcessorsChain, Request, Response
-from ally.ioc import injected
 
 # --------------------------------------------------------------------
 

@@ -10,14 +10,14 @@ Provides the invoking handler.
 '''
 
 from ally.api.operator import GET, INSERT, UPDATE, DELETE
-from ally.core.impl.util_type import isPropertyTypeId
+from ally.container.ioc import injected
 from ally.core.spec.codes import INTERNAL_ERROR, RESOURCE_NOT_FOUND, \
     DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS, CANNOT_UPDATE, INSERT_SUCCESS, \
     CANNOT_INSERT, BAD_CONTENT
-from ally.exception import DevelException, InputException
 from ally.core.spec.resources import Path, Node, Invoker, ResourcesManager
 from ally.core.spec.server import Processor, ProcessorsChain, Response, Request
-from ally.ioc import injected
+from ally.exception import DevelException, InputException
+from ally.support.api.util_type import isPropertyTypeId
 import logging
 
 # --------------------------------------------------------------------

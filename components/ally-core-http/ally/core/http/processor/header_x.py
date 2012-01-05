@@ -11,14 +11,15 @@ Provides the X headers handling.
 
 from ally.api.operator import Model, Property
 from ally.api.type import FORMATTED
-from ally.core.impl.util_type import modelOfIter
-from ally.exception import DevelException
-from ally.core.spec.resources import Normalizer
-from ally.core.spec.server import Processor, ProcessorsChain, Response,\
-    ContentRequest
-from ally.ioc import injected
-from ally.core.http.processor.header import HeaderHTTPBase, VALUES, VALUE_NO_PARSE
+from ally.container.ioc import injected
+from ally.core.http.processor.header import HeaderHTTPBase, VALUES, \
+    VALUE_NO_PARSE
 from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE
+from ally.core.spec.resources import Normalizer
+from ally.core.spec.server import Processor, ProcessorsChain, Response, \
+    ContentRequest
+from ally.exception import DevelException
+from ally.support.api.util_type import modelOfIter
 
 # --------------------------------------------------------------------
 

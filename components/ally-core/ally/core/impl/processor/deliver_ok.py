@@ -10,9 +10,9 @@ Provides a processor that just sends an ok status as a response without any body
 method for instance where we just want to deliver some response headers. 
 '''
 
+from ally.container.ioc import injected
 from ally.core.spec.codes import RESOURCE_FOUND
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
-from ally.ioc import injected
 
 # --------------------------------------------------------------------
 

@@ -10,7 +10,7 @@ Provides the configurations for the assemblers.
 '''
 
 from .converter import contentNormalizer
-from ally import ioc
+from ally.container import ioc
 from ally.core.impl.assembler import AssembleGet, AssembleInsert, AssembleUpdate, \
     AssembleDelete
 from ally.core.spec.resources import Assembler

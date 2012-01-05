@@ -6,9 +6,10 @@ Created on Aug 24, 2011
 @license http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides listener methods to handle API operators validation.
+Provides binding listener function to handle API operators validation.
 '''
 
+from .binder import callListeners
 from _abcoll import Sized
 from ally import internationalization
 from ally.api.configure import serviceFor
@@ -16,8 +17,6 @@ from ally.api.operator import Property, Model, Service, Call, UPDATE, INSERT, \
     DELETE
 from ally.api.type import Input, TypeModel, TypeProperty, typeFor
 from ally.exception import InputException, Ref
-from ally.listener import callListeners, ProxyCall, addListener, wrapInstance, \
-    wrapMethod, ProxyListener
 import functools
 
 # --------------------------------------------------------------------
@@ -74,25 +73,6 @@ def validateService(service):
     return proxy
 
 # --------------------------------------------------------------------
-    
-def bindLock(proxyListener, lock):
-    '''
-    Binds the provided proxy listener to the provided lock. Basically all proxies binded will execute one after
-    another regardless of the execution thread.
-    
-    @param proxyCall: ProxyListener
-        The proxy listener obtained by wrapping the desired instance or method.
-    @param lock: RLock
-        The lock object.
-    '''
-    assert isinstance(proxyListener, ProxyListener), 'Invalid proxy listener %s' % proxyListener
-    def _lock(*args):
-        lock.acquire()
-    def _unlock(*args):
-        lock.release()
-    proxyListener.addBeforeListener(_lock, index= -1)
-    proxyListener.addAfterListener(_unlock, index=1001)
-    proxyListener.addExceptionListener(_unlock, index=1001)
 
 def bindLockForService(service, lock, methods=(INSERT, DELETE)):
     '''
@@ -125,6 +105,7 @@ def _getModel(modelRef):
     return model
     
 # --------------------------------------------------------------------
+# listener methods
 
 def _onPropertyUnwanted(entity, model, prop, errors):
     assert isinstance(prop, Property)

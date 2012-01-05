@@ -11,11 +11,10 @@ Provides the configurations for the processors used in handling the request.
 
 from . import serverRoot
 from ..ally_core.converter import contentNormalizer, converterPath
-from ..ally_core.processor import explainError, methodInvoker, converter, \
-    requestTypes, parameters, decoding, invokingHandler, encoding, \
+from ..ally_core.processor import handlers, methodInvoker, converter, \
     handlersExplainError
 from ..ally_core.resource_manager import resourcesManager
-from ally import ioc
+from ally.container import ioc
 from ally.core.http.processor.header import HeaderStandardHandler
 from ally.core.http.processor.header_x import HeaderXHandler
 from ally.core.http.processor.uri import URIHandler
@@ -57,6 +56,8 @@ def updateHandlersExplainError():
 
 # ---------------------------------
 
-@ioc.entity
-def handlers(): return [explainError(), uri(), headerStandard(), methodInvoker(), headerX(), converter(), requestTypes(),
-                        parameters(), decoding(), invokingHandler(), encoding()]
+@ioc.before(handlers)
+def updateHandlers():
+    handlers().insert(handlers().index(methodInvoker()), headerStandard())
+    handlers().insert(handlers().index(headerStandard()), uri())
+    handlers().insert(handlers().index(converter()), headerX())

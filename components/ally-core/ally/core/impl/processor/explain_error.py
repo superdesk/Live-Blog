@@ -9,11 +9,11 @@ Created on Jun 28, 2011
 Provides support for explaining the errors in the content of the request.
 '''
 
+from ally.container.ioc import injected
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Response, Processor, ProcessorsChain, \
     Processors
 from ally.exception import InputException, Ref
-from ally.ioc import injected
 import logging
 
 # --------------------------------------------------------------------

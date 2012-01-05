@@ -9,8 +9,8 @@ Created on Nov 24, 2011
 Provides the configurations for header encoders.
 '''
 
-from ally import ioc
 from .processor import headerStandard, headerX
+from ally.container import ioc
 
 # --------------------------------------------------------------------
 

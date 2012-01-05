@@ -11,7 +11,7 @@ Provides the configurations for the processors encoders and decoders.
 
 from .converter import contentNormalizer, converterPath
 from .resource_manager import resourcesManager
-from ally import ioc
+from ally.container import ioc
 from ally.core.impl.processor.decoder_none import DecodingNoneHandler
 from ally.core.impl.processor.encdec_json import EncodingJSONHandler, \
     DecodingJSONHandler
