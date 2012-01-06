@@ -9,15 +9,16 @@ Created on Jan 4, 2012
 Provides support for SQL alchemy mapper that is able to link the alchemy with REST models.
 '''
 
+from ..util import Attribute
 from .session import getSession
 from ally.api.configure import modelFor, queryFor
 from ally.api.operator import Model, Property, Query
 from ally.api.type import TypeProperty, typeFor
 from ally.exception import InputException, Ref
+from ally.listener.binder import indexAfter
 from ally.listener.binder_op import validateAutoId, validateRequired, \
     validateMaxLength, validateProperty, validateManaged, validateModelProperties, \
-    validateModel, EVENT_VALID_UPDATE
-from ally.support.util import Attribute
+    validateModel, EVENT_VALID_UPDATE, clearModelValidations, INDEX_PROP
 from inspect import isclass
 from sqlalchemy import event
 from sqlalchemy.orm import mapper
@@ -32,7 +33,12 @@ import functools
 # --------------------------------------------------------------------
 
 ATTR_SQL_MAPPER = Attribute(__name__, 'mapper')
+# Attribute used to store the mapper usually on Models
 ATTR_SQL_COLUMN = Attribute(__name__, 'column', Column)
+# Attribute used to store the column usually on Property
+
+INDEX_PROP_FK = indexAfter('property', INDEX_PROP)
+# Index for foreign key properties
 
 # --------------------------------------------------------------------
 
@@ -55,16 +61,18 @@ def mapperSimple(modelClass, sql, **keyargs):
     assert isinstance(model, Model), 'Invalid class %s is not a model' % modelClass
     assert isinstance(sql, Table) or isinstance(sql, Join), 'Invalid SQL alchemy table/join %s' % sql
     
+    clearModelValidations(model)
+    
     typeProperties = {name:v for name, v in modelClass.__dict__.items() if isinstance(v, TypeProperty)}
     mapping = mapper(modelClass, sql, **keyargs)
     for name, typ in typeProperties.items():
         col = getattr(modelClass, name, None)
         if col: typeFor(col, typ)
 
-    event.remove(mapping, 'load', _onLoad)
-    event.listen(mapping, 'load', _onLoad)
-    event.remove(mapping, 'after_insert', _onInsert)
-    event.listen(mapping, 'after_insert', _onInsert)
+    event.remove(mapping, 'load', _eventLoad)
+    event.listen(mapping, 'load', _eventLoad)
+    event.remove(mapping, 'after_insert', _eventInsert)
+    event.listen(mapping, 'after_insert', _eventInsert)
     
     ATTR_SQL_MAPPER.set(model, mapping)
     return mapping
@@ -111,11 +119,12 @@ def mapperModelProperties(modelClass, mapping=None, exclude=None):
                     if propertyId == prop: validateAutoId(prop)
                     elif not column.nullable: validateRequired(prop)
                     if isinstance(column.type, String): validateMaxLength(prop, column.type.length)
-                    if column.unique: validateProperty(prop, _onPropertyUniue)
+                    if column.unique: validateProperty(prop, onPropertyUniue)
                     if column.foreign_keys:
                         for fk in column.foreign_keys:
                             assert isinstance(fk, ForeignKey)
-                            validateProperty(prop, functools.partial(_onPropertyForeignKey, fk.column), index=5)
+                            validateProperty(prop, functools.partial(onPropertyForeignKey, fk.column),
+                                             index=INDEX_PROP_FK)
     if not propertyId: raise AssertionError('No id found for model %s' % model)
     model.propertyId = propertyId
     
@@ -203,33 +212,28 @@ def supportForPartialUpdate(propertyId, mapping=None):
     if not mapping: mapping = ATTR_SQL_MAPPER.get(typ.model)
     assert isinstance(mapping, Mapper), 'Invalid mapper %s' % mapping
         
-    validateModel(typ.model, functools.partial(_onModelMerge, mapping, typ.property), key=EVENT_VALID_UPDATE)
+    validateModel(typ.model, functools.partial(onModelMerge, mapping, typ.property), key=EVENT_VALID_UPDATE)
 
 # --------------------------------------------------------------------
 
-def _onDBUpdate(targetIndex, *args):
+def onPropertyUniue(entity, model, prop, errors):
     '''
-    FOR INTERNAL USE.
-    Listener method called when an database mapped instance is updated by SQL alchemy.
+    Validation of a sql alchemy unique property.
+    
+    @param entity: object
+        The entity to check for the property value.
+    @param model: Model
+        The model of the entity.
+    @param prop: Property
+        The property that is unwanted.
+    @param errors: list[Ref]
+        The list of errors.
     '''
-    target = args[targetIndex]
-    model = modelFor(target)
-    if model:
-        assert isinstance(model, Model)
-        for name, prop in model.properties.items():
-            if name in target.__dict__:
-                assert isinstance(prop, Property)
-                if not prop.has(target): prop.hasSet(target)
-
-_onLoad = functools.partial(_onDBUpdate, 0)
-_onInsert = functools.partial(_onDBUpdate, 2)
-
-# --------------------------------------------------------------------
-
-def _onPropertyUniue(entity, model, prop, errors):
-    assert isinstance(model, Model)
-    assert isinstance(model.propertyId, Property)
-    assert isinstance(prop, Property)
+    assert isinstance(model, Model), 'Invalid model %s' % model
+    assert isinstance(model.propertyId, Property), 'Cannot find any property id for model %s' % model.propertyId
+    assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
+    assert isinstance(prop, Property), 'Invalid property %s' % prop
+    assert isinstance(errors, list), 'Invalid errors list %s' % errors
     if prop.has(entity):
         val = prop.get(entity)
         if val is not None:
@@ -242,8 +246,26 @@ def _onPropertyUniue(entity, model, prop, errors):
                 errors.append(Ref(_('Already an entry with this value'), ref=column))
                 return False
     
-def _onPropertyForeignKey(foreignColumn, entity, model, prop, errors):
-    assert isinstance(prop, Property)
+def onPropertyForeignKey(foreignColumn, entity, model, prop, errors):
+    '''
+    Validation of a sql alchemy fpreign key property.
+    
+    @param foreignColumn: Column
+        The foreign column used for checking.
+    @param entity: object
+        The entity to check for the property value.
+    @param model: Model
+        The model of the entity.
+    @param prop: Property
+        The property that is unwanted.
+    @param errors: list[Ref]
+        The list of errors.
+    '''
+    assert isinstance(foreignColumn, Column), 'Invalid foreign column %s' % foreignColumn
+    assert isinstance(model, Model), 'Invalid model %s' % model
+    assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
+    assert isinstance(prop, Property), 'Invalid property %s' % prop
+    assert isinstance(errors, list), 'Invalid errors list %s' % errors
     if prop.has(entity):
         val = prop.get(entity)
         if val is not None:
@@ -252,9 +274,22 @@ def _onPropertyForeignKey(foreignColumn, entity, model, prop, errors):
                 errors.append(Ref(_('Unknown foreign id'), model=model, property=prop))
                 return False
 
-def _onModelMerge(mapper, propertyId, entity, model):
-    assert isinstance(model, Model)
-    assert isinstance(propertyId, Property)
+def onModelMerge(mapper, propertyId, entity, model):
+    '''
+    This is a validation that triggers the validations found on the properties of the model.
+    
+    @param mapper: object
+        The sql alchemy mapper.
+    @param propertyId: Property
+        The property that is the id of the model.
+    @param entity: object
+        The entity to check for the property value.
+    @param model: Model
+        The model of the entity.
+    '''
+    assert isinstance(propertyId, Property), 'Invalid property id %s' % propertyId
+    assert isinstance(model, Model), 'Invalid model %s' % model
+    assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
     if model.isPartial(entity):
         session = getSession()
         aq = session.query(mapper).filter(columnFor(propertyId) == propertyId.get(entity))
@@ -282,3 +317,25 @@ def columnFor(obj, column=None):
     assert not ATTR_SQL_COLUMN.hasOwn(obj), 'Already has a column %s' % obj
     ATTR_SQL_COLUMN.set(obj, column)
     return column
+
+# --------------------------------------------------------------------
+
+def _eventDBUpdate(targetIndex, *args):
+    '''
+    FOR INTERNAL USE!
+    Listener method called when an database mapped instance is updated by SQL alchemy. This will change on the target
+    entity the has set flag for all properties that have a value.
+    '''
+    target = args[targetIndex]
+    model = modelFor(target)
+    if model:
+        assert isinstance(model, Model)
+        for name, prop in model.properties.items():
+            if name in target.__dict__:
+                assert isinstance(prop, Property)
+                if not prop.has(target): prop.hasSet(target)
+
+_eventLoad = functools.partial(_eventDBUpdate, 0)
+# FOR INTERNAL USE! listener method called when an database mapped instance is loaded by SQL alchemy.
+_eventInsert = functools.partial(_eventDBUpdate, 2)
+# FOR INTERNAL USE! listener method called when an database mapped instance is inserted by SQL alchemy.

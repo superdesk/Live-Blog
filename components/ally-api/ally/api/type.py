@@ -22,9 +22,10 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-_TYPES = {}
-FORMATTED = []
-# The FORMATTED Uninstantiable classes
+_classType = {}
+# Dictionary having as a key the class and as a value the type of that class.
+formattedType = []
+# The types that require formatting Uninstantiable classes
 
 # --------------------------------------------------------------------
 
@@ -425,7 +426,7 @@ def typeFor(obj, type=None):
         type = ATTR_TYPE.get(obj, None)
         if type is None:
             if isclass(obj):
-                typ = _TYPES.get(obj)
+                typ = _classType.get(obj)
                 if typ is not None: return typ
             if isinstance(obj, Type): type = obj
         return type
@@ -446,7 +447,7 @@ class Boolean(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Boolean, TypeClass(bool, True))
-_TYPES[bool] = typeFor(Boolean)
+_classType[bool] = typeFor(Boolean)
 
 
 class Integer(Uninstantiable):
@@ -455,7 +456,7 @@ class Integer(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Integer, TypeClass(int, True))
-_TYPES[int] = typeFor(Integer)
+_classType[int] = typeFor(Integer)
 
 class Number(Uninstantiable):
     '''
@@ -463,9 +464,9 @@ class Number(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Number, TypeClass(numbers.Number, True))
-_TYPES[float] = typeFor(Number)
-_TYPES[numbers.Number] = typeFor(Number)
-FORMATTED.append(Number)
+_classType[float] = typeFor(Number)
+_classType[numbers.Number] = typeFor(Number)
+formattedType.append(Number)
 
 class Percentage(Uninstantiable):
     '''
@@ -473,7 +474,7 @@ class Percentage(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Percentage, TypePercentage())
-FORMATTED.append(Percentage)
+formattedType.append(Percentage)
 
 class String(Uninstantiable):
     '''
@@ -481,7 +482,7 @@ class String(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(String, TypeClass(str, True))
-_TYPES[str] = typeFor(String)
+_classType[str] = typeFor(String)
 
 class Date(Uninstantiable):
     '''
@@ -489,8 +490,8 @@ class Date(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Date, TypeClass(date, True))
-_TYPES[date] = typeFor(Date)
-FORMATTED.append(Date)
+_classType[date] = typeFor(Date)
+formattedType.append(Date)
 
 class Time(Uninstantiable):
     '''
@@ -498,8 +499,8 @@ class Time(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(Time, TypeClass(time, True))
-_TYPES[time] = typeFor(Time)
-FORMATTED.append(Time)
+_classType[time] = typeFor(Time)
+formattedType.append(Time)
 
 class DateTime(Uninstantiable):
     '''
@@ -507,8 +508,8 @@ class DateTime(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(DateTime, TypeClass(datetime, True))
-_TYPES[datetime] = typeFor(DateTime)
-FORMATTED.append(DateTime)
+_classType[datetime] = typeFor(DateTime)
+formattedType.append(DateTime)
 
 # --------------------------------------------------------------------
 # Id types

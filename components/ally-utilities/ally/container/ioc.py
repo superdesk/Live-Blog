@@ -740,7 +740,7 @@ class Context:
     Provides the context of the setup functions and setup calls.
     '''
     
-    CONTEXTS = []
+    contexts = []
     # The current setup contexts
     
     @staticmethod
@@ -752,8 +752,8 @@ class Context:
             The name to be processed.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
-        if not Context.CONTEXTS: raise SetupError('There is no active context to process')
-        ctx = Context.CONTEXTS[-1]
+        if not Context.contexts: raise SetupError('There is no active context to process')
+        ctx = Context.contexts[-1]
         assert isinstance(ctx, Context)
         if not ctx._calls: raise SetupError('The active context is not started')
         call = ctx._calls.get(name)
@@ -799,9 +799,9 @@ class Context:
         if unused: log.warn('Unknown configurations: %r', ', '.join(unused))
         
         self._calls = assembly.calls
-        Context.CONTEXTS.append(self)
+        Context.contexts.append(self)
         try:     
             for call in assembly.start:
                 assert isinstance(call, Callable), 'Invalid call %s' % call
                 call()
-        finally: Context.CONTEXTS.pop()
+        finally: Context.contexts.pop()

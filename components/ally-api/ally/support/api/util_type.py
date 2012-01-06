@@ -9,7 +9,8 @@ Created on Aug 9, 2011
 Provides utility methods for types and data associated with types.
 '''
 
-from ally.api.type import TypeId, TypeProperty, Iter, TypeModel
+from ally.api.operator import Property, Model
+from ally.api.type import TypeId, TypeProperty, Iter, TypeModel, typeFor
 
 # --------------------------------------------------------------------
 
@@ -70,6 +71,34 @@ def isPropertyTypeIntId(typ, model=None):
     return isPropertyTypeId(typ) and typ.isOf(int)
 
 # --------------------------------------------------------------------
+
+def propertyOf(refProp):
+    '''
+    Provides the property found in the provided property reference.
+    
+    @param ref: Property|TypeProperty
+        The reference to get the property from.
+    @return: Property|None
+        The property found for the reference, None if the reference cannot provide a property.       
+    '''
+    if isinstance(refProp, Property): return refProp
+    else:
+        typ = typeFor(refProp)
+        if isinstance(typ, TypeProperty): return typ.property
+
+def modelOf(refModel):
+    '''
+    Provides the model found in the provided model reference.
+    
+    @param refModel: Model|TypeModel
+        The reference to get the model from.
+    @return: Model|None
+        The model found for the reference, None if the reference cannot provide a model.       
+    '''
+    if isinstance(refModel, Model): return refModel
+    else:
+        typ = typeFor(refModel)
+        if isinstance(typ, TypeModel): return typ.model
 
 def modelOfIter(typ):
     '''

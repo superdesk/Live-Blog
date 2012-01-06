@@ -10,21 +10,21 @@ Provides unit testing for the binder module.
 '''
 
 from ally.container.proxy import createProxy, ProxyWrapper
-from ally.listener.binder import bindLock
+from ally.listener.binder import bindLock, clearBindings
 import unittest
 
 # --------------------------------------------------------------------
 
 class A:
     
-    def methodLocked(self, test, lock, exc=False):
-        assert isinstance(test, TestProxy)
+    def methodLocked(self, test, lock, count=1, exc=False):
+        assert isinstance(test, TestBinder)
         assert isinstance(lock, Lock)
-        test.assertTrue(lock.count == 1)
+        test.assertTrue(lock.count == count)
         if exc: raise KeyError('Some exception')
         
     def methodNotLocked(self, test, lock):
-        assert isinstance(test, TestProxy)
+        assert isinstance(test, TestBinder)
         assert isinstance(lock, Lock)
         test.assertTrue(lock.count == 0)
 
@@ -39,7 +39,7 @@ class Lock:
 
 # --------------------------------------------------------------------
 
-class TestProxy(unittest.TestCase):
+class TestBinder(unittest.TestCase):
         
     def testBindLock(self):
         AProxy = createProxy(A)
@@ -54,10 +54,15 @@ class TestProxy(unittest.TestCase):
         proxy.methodLocked(self, lock)
         self.assertTrue(lock.count == 0)
         
-        self.assertRaises(KeyError, proxy.methodLocked, self, lock, True)
+        self.assertRaises(KeyError, proxy.methodLocked, self, lock, exc=True)
         self.assertTrue(lock.count == 0)
         
         proxy.methodNotLocked(self, lock)
+        self.assertTrue(lock.count == 0)
+        
+        clearBindings(proxy.methodLocked)
+        proxy.methodLocked(self, lock, count=0)
+        self.assertTrue(lock.count == 0)
         
 # --------------------------------------------------------------------
   

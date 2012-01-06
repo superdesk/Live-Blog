@@ -9,28 +9,16 @@ Created on Jan 5, 2012
 Provides support for SQL alchemy a processor for automatic session handling.
 '''
 
-from ally.container.ioc import injected
 from ally.core.spec.server import Processor, Response, ProcessorsChain
-from ally.support.sqlalchemy.session import rollback, commit, \
-    registerSessionCreator
-from sqlalchemy.orm.session import Session
+from ally.support.sqlalchemy.session import rollback, commit, ATTR_KEEP_ALIVE, \
+    close
 
 # --------------------------------------------------------------------
 
-@injected
 class AlchemySessionHandler(Processor):
     '''
     Implementation for a processor that provides the SQLAlchemy session handling.
     '''
-    
-    sessionCreator = None
-    # The alchemy session used for creating sessions
-    
-    def __init__(self):
-        '''
-        Construct the session stuff.
-        '''
-        assert issubclass(self.sessionCreator, Session), 'Invalid session creator %s' % self.sessionCreator
 
     def process(self, req, rsp, chain):
         '''
@@ -38,13 +26,27 @@ class AlchemySessionHandler(Processor):
         '''
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        registerSessionCreator(self.sessionCreator)
+        ATTR_KEEP_ALIVE.set(True)
         try:
             chain.process(req, rsp)
         except:
-            rollback()
+            rollback(); close()
             raise
-        if rsp.code.isSuccess:
-            commit()
+        if rsp.code.isSuccess: close()
         else:
-            rollback()
+            rollback(); close()
+            
+class AlchemySessionCommitHandler(Processor):
+    '''
+    Implementation for a processor that provides the SQLAlchemy session commit handling, usually the commit handler is
+    processed before encoding.
+    '''
+
+    def process(self, req, rsp, chain):
+        '''
+        @see: Processor.process
+        '''
+        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
+        commit()
+        chain.process(req, rsp)

@@ -9,13 +9,14 @@
 	<import file="../components/ally-core-babel/build-component.ant" />
 	<import file="../components/ally-core-http/build-component.ant" />
 	<import file="../components/ally-core-plugin/build-component.ant" />
+	<import file="../components/ally-core-sqlalchemy/build-component.ant" />
 	
 	<target name="clean" depends="ally-utilities.clean, ally-api.clean, ally-core.clean, ally-core-babel.clean,
-		ally-core-http.clean, ally-core-plugin.clean">
+		ally-core-http.clean, ally-core-plugin.clean, ally-core-sqlalchemy.clean">
 	</target>
 
 	<target name="build" depends="clean, ally-utilities.build, ally-api.build,ally-core.build, ally-core-babel.build,
-		ally-core-http.build, ally-core-plugin.build">
+		ally-core-http.build, ally-core-plugin.build, ally-core-sqlalchemy.build">
 	</target>
 
 </project>

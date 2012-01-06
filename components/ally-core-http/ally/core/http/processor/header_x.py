@@ -10,7 +10,7 @@ Provides the X headers handling.
 '''
 
 from ally.api.operator import Model, Property
-from ally.api.type import FORMATTED
+from ally.api.type import formattedType
 from ally.container.ioc import injected
 from ally.core.http.processor.header import HeaderHTTPBase, VALUES, \
     VALUE_NO_PARSE
@@ -79,7 +79,7 @@ class HeaderXHandler(HeaderHTTPBase, Processor, EncoderHeader):
                     rsp.setCode(INVALID_HEADER_VALUE, 'Unknown filter properties %r' % ', '.join(p))
                     return
             
-            for clsTyp in FORMATTED:
+            for clsTyp in formattedType:
                 p = self._parse(self.nameXFormat % clsTyp.__name__, req.headers, req.params, VALUE_NO_PARSE)
                 if p: rsp.objFormat[clsTyp] = p
                 p = self._parse(self.nameXFormatContent % clsTyp.__name__, req.headers, req.params, VALUE_NO_PARSE)

@@ -18,12 +18,13 @@ from ally.container import ioc
 from ally.core.http.processor.header import HeaderStandardHandler
 from ally.core.http.processor.header_x import HeaderXHandler
 from ally.core.http.processor.uri import URIHandler
+from ally.core.spec.server import Processor
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
 
 @ioc.entity
-def uri() -> URIHandler:
+def uri() -> Processor:
     b = URIHandler()
     b.resourcesManager = resourcesManager()
     b.converterPath = converterPath()
@@ -36,13 +37,13 @@ def readFromParams():
     return True
 
 @ioc.entity   
-def headerStandard() -> HeaderStandardHandler:
+def headerStandard() -> Processor:
     b = HeaderStandardHandler()
     b.readFromParams = readFromParams()
     return b
 
 @ioc.entity
-def headerX() -> HeaderXHandler:
+def headerX() -> Processor:
     b = HeaderXHandler()
     b.normalizer = contentNormalizer()
     b.readFromParams = readFromParams()

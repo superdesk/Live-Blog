@@ -18,7 +18,64 @@ from ..support.util import Attribute
 ATTR_LISTENERS = Attribute(__name__, 'listeners', dict)
 # The attribute used to store the listeners.
 
-def bindListener(to, key, listener, index= -1):
+INDEX_DEFAULT = 'default'
+# The default index where listeners that have not specified a index are added.
+INDEX_LOCK_BEGIN = 'lock_begin'
+# The begin lock index.
+INDEX_LOCK_END = 'lock_end'
+# The end lock index.
+
+EVENT_BEFORE_CALL = 'before'
+# Listener key that is triggered before a proxy method call is made.
+EVENT_AFTER_CALL = 'after'
+# Listener key that is triggered after a proxy method call is made.
+EVENT_EXCEPTION_CALL = 'exception'
+# Listener key that is triggered if a proxy method raises an exception.
+
+# --------------------------------------------------------------------
+
+indexes = [INDEX_LOCK_BEGIN, INDEX_DEFAULT, INDEX_LOCK_END]
+# The list of known indexes in their priority order.
+
+def indexAfter(index, after):
+    '''
+    Register the index as being after the specified after index.
+    
+    @param index: string
+        The index to register.
+    @param after: string
+        The index to register after.
+    @return: string
+        The index.
+    '''
+    assert isinstance(index, str), 'Invalid index %s' % index
+    assert isinstance(after, str), 'Invalid after index %s' % after
+    if index in indexes: raise ValueError('The index %r is already registered' % index)
+    indexes.insert(indexes.index(after) + 1, index)
+    return index
+
+def indexBefore(index, before):
+    '''
+    Register the index as being before the specified before index.
+    
+    @param index: string
+        The index to register.
+    @param before: string
+        The index to register before.
+    @return: string
+        The index.
+    '''
+    assert isinstance(index, str), 'Invalid index %s' % index
+    assert isinstance(before, str), 'Invalid before index %s' % before
+    if index in indexes: raise ValueError('The index %r is already registered' % index)
+    if index not in indexes:
+        indexes.insert(indexes.index(before), index)
+        # The index is already registered
+    return index
+
+# --------------------------------------------------------------------
+
+def bindListener(to, key, listener, index=INDEX_DEFAULT):
     '''
     Binds the listener to the provided to object.
     
@@ -29,8 +86,8 @@ def bindListener(to, key, listener, index= -1):
         will be used in different situations.
     @param listener: Callable|tuple(Callable)
         A Callable that is called as listener.
-    @param index: integer
-        The index at which to position the listener, -1 means at the end of the list.
+    @param index: string
+        The index at which to position the listener.
     '''
     assert to, 'Provide a to object'
     _listeners = ATTR_LISTENERS.getOwn(to, None)
@@ -39,6 +96,8 @@ def bindListener(to, key, listener, index= -1):
     else: _keys = [key]
     addlist = list(listener) if isinstance(listener, tuple) else [listener]
     assert addlist, 'At least one listener is required'
+    assert isinstance(index, str), 'Invalid index %s' % index
+    if index not in indexes: raise ValueError('Unknown index %s' % index)
     for key in _keys:
         listeners = _listeners.get(key)
         if listeners:
@@ -50,7 +109,24 @@ def bindListener(to, key, listener, index= -1):
                 l.extend(addlist)
         else:
             _listeners[key] = {index:addlist}
+
+def clearBindings(to, *keys):
+    '''
+    Clear all listener bindings for the provided keys.
     
+    @param to: object
+        The object to clear the bindings.
+    @param keys: arguments(object immutable)
+        The keys to be cleared, if none specified than all listeners are removed.
+    '''
+    assert to, 'Provide a to object'
+    if not keys: 
+        if ATTR_LISTENERS.hasOwn(to): ATTR_LISTENERS.deleteOwn(to)
+    else:
+        listeners = ATTR_LISTENERS.getOwn(to, None)
+        if listeners:
+            for key in keys: listeners.pop(key, None)
+
 def callListeners(to, key, *args):
     '''
     Calls the listeners having the specified key. If one of the listeners will return False it will stop all the 
@@ -70,21 +146,17 @@ def callListeners(to, key, *args):
     if _listeners:
         listeners = _listeners.get(key)
         if listeners:
-            indexes = list(listeners.keys())
-            indexes.sort()
             for index in indexes:
-                for listener in listeners[index]:
-                    if listener(*args) == False:
-                        return False
+                listenersList = listeners.get(index)
+                if listenersList:
+                    for listener in listenersList:
+                        if listener(*args) == False:
+                            return False
     return True
 
 # --------------------------------------------------------------------
 
-EVENT_BEFORE_CALL = 'before'
-EVENT_AFTER_CALL = 'after'
-EVENT_EXCEPTION_CALL = 'exception'
-
-def bindBeforeListener(to, listener, index= -1):
+def bindBeforeListener(to, listener, index=INDEX_DEFAULT):
     '''
     @see: bindListener
     The listener has to accept a parameter with the list of arguments and a parameter with the dictionary of
@@ -94,7 +166,7 @@ def bindBeforeListener(to, listener, index= -1):
     '''
     bindListener(to, EVENT_BEFORE_CALL, listener, index)
     
-def bindAfterListener(to, listener, index= -1):
+def bindAfterListener(to, listener, index=INDEX_DEFAULT):
     '''
     @see: bindListener
     The listener has to accept a parameter containing the return value. If a listener will return False it 
@@ -102,7 +174,7 @@ def bindAfterListener(to, listener, index= -1):
     '''
     bindListener(to, EVENT_AFTER_CALL, listener, index)
     
-def bindExceptionListener(to, listener, index= -1):
+def bindExceptionListener(to, listener, index=INDEX_DEFAULT):
     '''
     @see: bindListener
     The listener has to accept a parameter containing the exception. If a listener will return False it will block
@@ -169,6 +241,9 @@ def bindLock(proxy, lock):
     assert hasattr(lock, 'acquire') and hasattr(lock, 'release'), 'Invalid lock %s' % lock
     registerProxyBinder(proxy)
     
-    bindBeforeListener(proxy, lambda * args: lock.acquire(), index=0)
-    bindAfterListener(proxy, lambda * args: lock.release(), index=1001)
-    bindExceptionListener(proxy, lambda * args: lock.release(), index=1001)
+    def acquire(*args): lock.acquire()
+    def release(*args): lock.release()
+    
+    bindBeforeListener(proxy, acquire, index=INDEX_LOCK_BEGIN)
+    bindAfterListener(proxy, release, index=INDEX_LOCK_END)
+    bindExceptionListener(proxy, release, index=INDEX_LOCK_END)
