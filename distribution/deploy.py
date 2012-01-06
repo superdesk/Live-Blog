@@ -27,7 +27,8 @@ class PackageExtender:
             self._loading.add(name)
             loader = pkgutil.find_loader(name)
             self._loading.remove(name)
-            if loader is not None: return PackageLoader(loader)
+            if loader is not None and loader.is_package(name):
+                return PackageLoader(loader)
     
 class PackageLoader:
     
@@ -36,27 +37,25 @@ class PackageLoader:
     
     def load_module(self, name):
         module = self.__loader.load_module(name)
-        
-        if hasattr(module, '__path__'):
-            fullName, paths = module.__name__, module.__path__
+        fullName, paths = module.__name__, module.__path__
 
-            k = fullName.rfind('.')
-            if k >= 0:
-                package = sys.modules[fullName[:k]]
-                name = fullName[k + 1:]
-                importers = [get_importer(path) for path in package.__path__]
-            else:
-                name = fullName
-                importers = iter_importers()
-            
-            for importer in importers:
-                moduleLoader = importer.find_module(name)
-                if moduleLoader and moduleLoader.is_package(name):
-                    path = os.path.dirname(moduleLoader.get_filename(name))
-                    if path not in paths:
-                        paths.append(path)
-                        exec(moduleLoader.get_code(name), module.__dict__)
-            module.__path__ = paths
+        k = fullName.rfind('.')
+        if k >= 0:
+            package = sys.modules[fullName[:k]]
+            name = fullName[k + 1:]
+            importers = [get_importer(path) for path in package.__path__]
+        else:
+            name = fullName
+            importers = iter_importers()
+        
+        for importer in importers:
+            moduleLoader = importer.find_module(name)
+            if moduleLoader and moduleLoader.is_package(name):
+                path = os.path.dirname(moduleLoader.get_filename(name))
+                if path not in paths:
+                    paths.append(path)
+                    exec(moduleLoader.get_code(name), module.__dict__)
+        module.__path__ = paths
 
         return module
     
