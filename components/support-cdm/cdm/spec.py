@@ -24,9 +24,11 @@ class ICDM(metaclass = abc.ABCMeta):
         '''
         Publish content from a file.
 
-        @param path: the path of the content item. This is a unique
+        @param path: str
+                The path of the content item. This is a unique
                      identifier of the item.
-        @param filePath: the path of the file on the file system
+        @param filePath: str
+                The path of the file on the file system
         '''
 
     @abc.abstractmethod
@@ -34,18 +36,23 @@ class ICDM(metaclass = abc.ABCMeta):
         '''
         Publish content from a string.
 
-        @param path: the path of the content item. This is a unique
+        @param path: str
+                The path of the content item. This is a unique
                      identifier of the item.
-        @param content: the string containing the content
+        @param content: str
+                The string containing the content
         '''
 
     @abc.abstractmethod
-    def getURL(self, path):
+    def getURI(self, path, protocols):
         '''
-        Returns the URL of a certain content identified by the unique path.
+        Returns the URI of a certain content identified by the unique path.
 
-        @param path: the path of the content item. This is a unique
+        @param path: str
+                The path of the content item. This is a unique
                      identifier of the item.
-        @return: the URL of the content (string)
+        @param protocols: tuple
+                A tuple of protocol names (strings)
+        @return: The URI of the content
         @rtype: str
         '''
