@@ -96,15 +96,21 @@ def findDirs(folder):
 
 if __name__ == '__main__':
     setupLogging()
+    loadFrom = 'folder'
+    profile = False
+    
+    # Loading the libraries
     for path in findLibraries(os.path.join(os.path.dirname(__file__), 'libraries')):
         if path not in sys.path: sys.path.append(path)
     
-    if True:
+    # Loading the components.
+    if loadFrom == 'folder':
         for path in findDirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'components')):
             if path not in sys.path: sys.path.append(path)
-    else:
+    elif loadFrom == 'egg':
         for path in findLibraries(os.path.join(os.path.dirname(__file__), 'components')):
             if path not in sys.path: sys.path.append(path)
+    else: raise AssertionError('Invalid load from %s' % loadFrom)
 
     registerPackageExtender()
 
@@ -118,7 +124,7 @@ if __name__ == '__main__':
     else:
         config = {'serverType':'cherrypy', 'ajaxCrossDomain':True, 'phpZendSupport':True}
         try:
-            if False:
+            if profile:
                 import profile
                 profile.run("ioc.deploy(aop.modulesIn('__setup__.*', '__setup__.*.*'), config=config)",
                             filename='output.stats')
@@ -128,3 +134,23 @@ if __name__ == '__main__':
             print('A problem occurred while deploying the application', file=sys.stderr)
             traceback.print_exc()
             print('-' * 150, file=sys.stderr)
+    
+    # Loading the plugins. 
+    if loadFrom == 'folder':
+        for path in findDirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plugins')):
+            if path not in sys.path: sys.path.append(path)
+    elif loadFrom == 'egg':
+        for path in findLibraries(os.path.join(os.path.dirname(__file__), 'plugins')):
+            if path not in sys.path: sys.path.append(path)
+    else: raise AssertionError('Invalid load from %s' % loadFrom)
+
+    try:
+        if profile:
+            profile.run("ioc.deploy(aop.modulesIn('__plugin__.*', '__plugin__.*.*'), config=config)",
+                        filename='output.stats')
+        else: ioc.deploy(aop.modulesIn('__plugin__.*', '__plugin__.*.*'), config=config)
+    except:
+        print('-' * 150, file=sys.stderr)
+        print('A problem occurred while deploying the plugins', file=sys.stderr)
+        traceback.print_exc()
+        print('-' * 150, file=sys.stderr)
