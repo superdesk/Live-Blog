@@ -6,6 +6,5 @@ Created on Jul 15, 2011
 @license http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-This package contains specifications, implementations and server basic configuration *server_config* that are specific
-for HTTP protocol and REST architecture.
+Contains sql alchemy plugin setup files.
 '''

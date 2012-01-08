@@ -49,7 +49,7 @@ class SessionSupport:
         '''
         Bind the session method.
         '''
-        self.session = open
+        self.session = openSession
         if isinstance(self, ServiceSupport): ServiceSupport.__init__(self, self)
 
 
@@ -65,10 +65,10 @@ def register(sessionCreator):
     assert issubclass(sessionCreator, Session), 'Invalid session creator %s' % sessionCreator
     ATTR_SESSION_CREATE.set(sessionCreator)
 
-def open():
+def openSession():
     '''
-    Function to provide the session on the current thread, this will automatically creates a session based on the thread
-    session creator.
+    Function to provide the session on the current thread, this will automatically create a session based on the thread
+    session creator if one is not already created.
     '''
     session = ATTR_SESSION.get(None)
     if not session:

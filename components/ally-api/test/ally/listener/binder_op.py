@@ -13,10 +13,9 @@ from ally.api.configure import APIModel as model, APICall as call, \
     APIService as service
 from ally.container.proxy import createProxy, ProxyWrapper
 from ally.exception import InputException
-from ally.listener.binder_op import validateAutoId
-from ally.listener.binder_op import validateRequired
-from ally.listener.binder_op import validateMaxLength, validateManaged, validateModelProperties, bindValidations, \
-    clearModelValidations
+from ally.listener.binder_op import validateAutoId, validateMaxLength, \
+    validateManaged, validateModelProperties, bindValidations, clearModelValidations, \
+    validateRequired
 import unittest
 
 # --------------------------------------------------------------------

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ally-all-components" default="build" basedir=".">
+
+	<property name="root" value="../plugins/"/>
+	<property name="destination" value="./plugins/"/>
+	
+	<import file="../plugins/support-sqlalchemy/build-plugin.ant" />
+	
+	<target name="clean" depends="support-sqlalchemy.clean">
+	</target>
+
+	<target name="build" depends="clean, support-sqlalchemy.build">
+	</target>
+
+</project>

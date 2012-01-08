@@ -6,5 +6,5 @@ Created on Jul 15, 2011
 @license http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Special package that is targeted by the IoC.
+Special package that is targeted by the IoC for processing plugins.
 '''

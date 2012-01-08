@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ally-all-components" default="build" basedir=".">
 
+	<property name="root" value="../components/"/>
 	<property name="destination" value="./components/"/>
 	
 	<import file="../components/ally-utilities/build-component.ant" />

@@ -10,7 +10,7 @@ Provides support for SQL alchemy mapper that is able to link the alchemy with RE
 '''
 
 from ..util import Attribute
-from .session import getSession
+from .session import openSession
 from ally.api.configure import modelFor, queryFor
 from ally.api.operator import Model, Property, Query
 from ally.api.type import TypeProperty, typeFor
@@ -240,7 +240,7 @@ def onPropertyUniue(entity, model, prop, errors):
             assert isinstance(model, Model)
             column = getattr(model.modelClass, prop.name)
             try:
-                db = getSession().query(model.modelClass).filter(column == val).one()
+                db = openSession().query(model.modelClass).filter(column == val).one()
             except NoResultFound: return
             if model.propertyId.get(db) != model.propertyId.get(entity):
                 errors.append(Ref(_('Already an entry with this value'), ref=column))
@@ -269,7 +269,7 @@ def onPropertyForeignKey(foreignColumn, entity, model, prop, errors):
     if prop.has(entity):
         val = prop.get(entity)
         if val is not None:
-            count = getSession().query(foreignColumn).filter(foreignColumn == val).count()
+            count = openSession().query(foreignColumn).filter(foreignColumn == val).count()
             if count == 0:
                 errors.append(Ref(_('Unknown foreign id'), model=model, property=prop))
                 return False
@@ -291,7 +291,7 @@ def onModelMerge(mapper, propertyId, entity, model):
     assert isinstance(model, Model), 'Invalid model %s' % model
     assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
     if model.isPartial(entity):
-        session = getSession()
+        session = openSession()
         aq = session.query(mapper).filter(columnFor(propertyId) == propertyId.get(entity))
         try: dbEntity = aq.one()
         except NoResultFound: raise InputException(Ref(_('Unknown id'), model=model, property=propertyId))
