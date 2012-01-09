@@ -9,8 +9,9 @@ Created on Jan 5, 2012
 Provides the configurations for the CDM local filesystem implementation.
 '''
 
-from cdm.impl.local_filesystem import *
+from cdm.impl.local_filesystem import IDelivery, LocalFileSystemCDM, HTTPDelivery
 from ally.container import ioc
+from cdm.spec import ICDM
 
 # --------------------------------------------------------------------
 # Creating the content delivery managers
@@ -29,7 +30,7 @@ def HTTPDelivery() -> IDelivery:
 def localFileSystemCDM() -> ICDM:
     d = HTTPDelivery()
     cdm = LocalFileSystemCDM();
-    cdm.repositoryPath = d.getRepositoryPath()
+    cdm.delivery = d
     return cdm
 
 # ---------------------------------
