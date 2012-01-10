@@ -63,6 +63,7 @@ class TestHTTPDelivery(unittest.TestCase):
             self.assertTrue(isfile(dstFilePath))
         finally:
             rmtree(dirname(dstFilePath))
+        cdm.publishFromDir('tmp', '/home/mugur/tmp')
         try:
             path = join('somedir', 'somecontent.txt')
             cdm.publishContent(path, 'test')

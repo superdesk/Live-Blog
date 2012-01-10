@@ -15,7 +15,7 @@ from ally.container.ioc import injected
 import abc
 import os
 import shutil
-from os.path import isdir, isfile, join, dirname
+from os.path import isdir, isfile, join, dirname, normpath, relpath
 from urllib.parse import ParseResult
 from io import StringIO, IOBase
 
@@ -135,6 +135,22 @@ class LocalFileSystemCDM(ICDM):
         if not isdir(dstDir):
             os.makedirs(dstDir)
         shutil.copyfile(filePath, dstFilePath)
+
+    def publishFromDir(self, path, dirPath):
+        '''
+        @see ICDM.publishFromDir
+        '''
+        assert isinstance(path, str) and len(path) > 0, 'Invalid content path %s' % path
+        assert isinstance(dirPath, str), 'Invalid file path value %s' % dirPath
+        assert isdir(dirPath) and os.access(dirPath, os.R_OK), \
+            'Unable to read file path %s' % dirPath
+        dirPath = normpath(dirPath)
+        for root, dirs, files in os.walk(dirPath):
+            relPath = relpath(root, dirPath)
+            for file in files:
+                publishPath = join(path, relPath.lstrip('/'), file)
+                filePath = join(root, file)
+                self.publishFromFile(publishPath, filePath)
 
     def publishFromStream(self, path, ioStream):
         '''
