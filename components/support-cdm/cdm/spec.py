@@ -24,11 +24,23 @@ class ICDM(metaclass = abc.ABCMeta):
         '''
         Publish content from a file.
 
-        @param path: str
+        @param path: string
                 The path of the content item. This is a unique
                      identifier of the item.
-        @param filePath: str
+        @param filePath: string
                 The path of the file on the file system
+        '''
+
+    @abc.abstractmethod
+    def publishFromStream(self, path, ioStream):
+        '''
+        Publish content from an IO stream
+
+        @param path: string
+                The path of the content item. This is a unique
+                     identifier of the item.
+        @param ioStream: io.IOBase
+                The IO stream object
         '''
 
     @abc.abstractmethod
@@ -36,23 +48,43 @@ class ICDM(metaclass = abc.ABCMeta):
         '''
         Publish content from a string.
 
-        @param path: str
+        @param path: string
                 The path of the content item. This is a unique
                      identifier of the item.
-        @param content: str
+        @param content: string
                 The string containing the content
         '''
 
     @abc.abstractmethod
-    def getURI(self, path, protocols):
+    def getSupportedProtocols(self):
+        '''
+        @return: Returns a tuple of supported protocol names.
+        @rtype: tuple
+        '''
+
+    @abc.abstractmethod
+    def getURI(self, path, protocol):
         '''
         Returns the URI of a certain content identified by the unique path.
 
-        @param path: str
+        @param path: string
                 The path of the content item. This is a unique
                      identifier of the item.
-        @param protocols: tuple
-                A tuple of protocol names (strings)
+        @param protocol: string
+                A string containing the name of the protocol
         @return: The URI of the content
-        @rtype: str
+        @rtype: string
         '''
+
+class UnsupportedProtocol(Exception):
+    '''
+    Exception thrown when an URI was requested for an unsupported protocol.
+    '''
+
+    protocol = str
+    # The protocol identifier
+
+    def __init__(self, protocol):
+        assert isinstance(protocol, str), 'Invalid protocol %s' % protocol
+        self.protocol = protocol
+        Exception.__init__(self, 'Unsupported protocol %r' % protocol)
