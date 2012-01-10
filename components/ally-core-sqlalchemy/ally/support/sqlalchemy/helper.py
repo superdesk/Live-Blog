@@ -10,12 +10,17 @@ Provides helper functions for SQL alchemy.
 '''
 
 from .mapper import columnFor
+from ally import internationalization
 from ally.api.configure import modelFor, queryFor
 from ally.api.criteria import AsLike, AsOrdered, AsBoolean
 from ally.api.operator import Query, CriteriaEntry
 from ally.exception import InputException, Ref
 from inspect import isclass
 from sqlalchemy.exc import IntegrityError, OperationalError
+
+# --------------------------------------------------------------------
+
+_ = internationalization.translator(__name__)
 
 # --------------------------------------------------------------------
 

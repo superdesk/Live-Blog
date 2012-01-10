@@ -46,7 +46,7 @@ def deploy():
         try:
             CONTEXT = ctx = ioc.Context()
             
-            for module in aop.modulesIn('__setup__.*', '__setup__.*.*').load().asList():
+            for module in aop.modulesIn('__setup__.**').load().asList():
                 ctx.addSetupModule(module)
             
             ctx.start(loadConfigurations('application'))

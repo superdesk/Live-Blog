@@ -13,6 +13,7 @@ single thread at one time.
 from ..support.util import Attribute
 from ..support.util_sys import callerLocals
 from .aop import AOPClasses, AOPModules
+from .proxy import createProxy, ProxyWrapper
 from _abcoll import Callable
 from functools import partial, update_wrapper
 from inspect import isclass, isfunction, getfullargspec, ismodule, isgenerator
@@ -142,12 +143,12 @@ def start(*args):
 
 # --------------------------------------------------------------------
 
-def createEntitiesSetup(*classes):
+def createEntitySetup(*classes):
     '''
     Creates entity setup functions for the provided classes.
     
     @param classes: arguments(class|AOPClasses)
-        The classes to be added setup functions..
+        The classes to be added setup functions.
     @return: Entities
         The entities repository for the classes setup functions.
     '''
@@ -171,6 +172,33 @@ def createEntitiesSetup(*classes):
         entities.append(name)
         registerSetup(SetupEntityCreate(name, clazz))
     return Entities(entities)
+
+def createEntityProxy(*classes, prefix='', listeners=None):
+    '''
+    Creates entity proxies that are for the provided classes.
+    
+    @param classes: arguments(class|AOPClasses)
+        The classes to be proxied.
+    @param prefix: string
+        The prefix for the entities name to create the proxies for.
+    @param listeners: None|Callable|list[Callable]|tuple(Callable)
+        The listeners to be invoked when a proxy is created.
+    '''
+    assert isinstance(prefix, str), 'Invalid prefix %s' % prefix
+    
+    clazzes = []
+    for clazz in classes:
+        if isclass(clazz): clazzes.append(clazz)
+        elif isinstance(clazz, AOPClasses):
+            assert isinstance(clazz, AOPClasses)
+            clazzes.extend(clazz.asList())
+        else: raise SetupError('Cannot use class %s' % clazz)
+    
+    if not listeners: listeners = []
+    elif not isinstance(listeners, (list, tuple)): listeners = [listeners]
+            
+    assert isinstance(listeners, (list, tuple)), 'Invalid listeners %s' % listeners
+    registerSetup(SetupEntityProxy(prefix, clazzes, listeners))
 
 def deploy(*modules, name='main', config=None):
     '''
@@ -535,8 +563,8 @@ class SetupEntityProxy(Setup):
         Creates a setup that will create proxies for the entities that inherit or are in the provided classes.
         The proxy create process is as follows:
             - find all entity calls that have the name starting with the provided prefix
-            - if the entity instance inherits one ore more classes from the provided proxy classes create a proxy for
-              that will wrap the entity instance.
+            - if the entity instance inherits a class from the provided proxy classes it will create a proxy for
+              that and wrap the entity instance.
             - after the proxy is created invoke all the proxy listeners.
         
         @param prefix: string
@@ -572,10 +600,16 @@ class SetupEntityProxy(Setup):
         FOR INTERNAL USE!
         This is the interceptor method used in creating the proxies.
         '''
-        assert value, 'A value is required'
-        proxies = [clazz for clazz in self._classes if isinstance(value, clazz)]
-        if proxies:
-            pass
+        if value:
+            proxies = [clazz for clazz in self._classes if isinstance(value, clazz)]
+            if proxies:
+                if len(proxies) > 1:
+                    raise SetupError('Cannot create proxy for %s, because to many proxy classes matched %s' % 
+                                     (value, proxies))
+                proxy = createProxy(proxies[0])
+                value = proxy(ProxyWrapper(value))
+                
+                for listener in self._listeners: listener(value)
         return value
             
 class SetupConfig(SetupSource):
@@ -864,9 +898,9 @@ class CallEntity(CallSource):
         else: value, generator = ret, None
         
         assert log.debug('Processed entity %s', value) or True
-        v = value
+        v = self._validate(value)
         for inter in self._valueInterceptors: v = inter(v)
-        self._value = self._validate(v)
+        self._value = v
         self._hasValue = True
         
         for listener in self._listenersBefore: listener()
