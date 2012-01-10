@@ -11,22 +11,14 @@ Provides unit testing for the local filesystem module.
 
 import unittest
 from tempfile import NamedTemporaryFile, tempdir
-from os.path import join, dirname
-import shutil
-
+from os.path import join, dirname, isfile
+from shutil import rmtree
 from cdm.impl.local_filesystem import HTTPDelivery, LocalFileSystemCDM
 from ally.container import ioc
+from io import StringIO
 
 
 class TestHTTPDelivery(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-
-    def tearDown(self):
-        pass
-
 
     def testHTTPDelivery(self):
         d = HTTPDelivery()
@@ -65,10 +57,27 @@ class TestHTTPDelivery(unittest.TestCase):
         cdm = LocalFileSystemCDM()
         cdm.delivery = d
         srcTmpFile = NamedTemporaryFile()
-        cdm.publishFromFile(srcTmpFile.name, join(tempdir, srcTmpFile.name))
-        path = 'somedir/somecontent.txt'
-        cdm.publishContent(path, 'test')
-        shutil.rmtree(join(d.getRepositoryPath(), dirname(path)))
+        try:
+            cdm.publishFromFile(srcTmpFile.name, srcTmpFile.name)
+            dstFilePath = join(d.getRepositoryPath(), srcTmpFile.name.lstrip('/'))
+            self.assertTrue(isfile(dstFilePath))
+        finally:
+            rmtree(dirname(dstFilePath))
+        try:
+            path = join('somedir', 'somecontent.txt')
+            cdm.publishContent(path, 'test')
+            dstFilePath = join(d.getRepositoryPath(), path)
+            self.assertTrue(isfile(dstFilePath))
+        finally:
+            rmtree(join(d.getRepositoryPath(), dirname(path)))
+        try:
+            path = join('somedir2', 'somecontent2.txt')
+            ioStream = StringIO('test 2')
+            cdm.publishFromStream(path, ioStream)
+            dstFilePath = join(d.getRepositoryPath(), path)
+            self.assertTrue(isfile(dstFilePath))
+        finally:
+            rmtree(join(d.getRepositoryPath(), dirname(path)))
 
 
 if __name__ == "__main__":

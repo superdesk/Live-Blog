@@ -9,7 +9,7 @@ Created on Jan 5, 2012
 Contains the Content Delivery Manager implementation for local file system
 '''
 
-from cdm.spec import ICDM
+from cdm.spec import ICDM, UnsupportedProtocol
 from ally.container.ioc import injected
 
 import abc
@@ -17,7 +17,7 @@ import os
 import shutil
 from os.path import isdir, isfile, join, dirname
 from urllib.parse import ParseResult
-from io import StringIO
+from io import StringIO, IOBase
 
 # --------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ class IDelivery(metaclass = abc.ABCMeta):
         Returns the absolute path of the file repository.
 
         @return: The file repository path
-        @rtype: str
+        @rtype: string
         '''
 
     @abc.abstractmethod
@@ -40,11 +40,11 @@ class IDelivery(metaclass = abc.ABCMeta):
         '''
         Returns the URI of a certain content identified by the repository path.
 
-        @param repoFilePath: str
+        @param repoFilePath: string
                 The path of the content item. This is a unique
                      identifier of the item.
         @return: The URI of the content
-        @rtype: str
+        @rtype: string
         '''
 
 
@@ -115,7 +115,7 @@ class LocalFileSystemCDM(ICDM):
         pass
 
     def _getItemPath(self, path):
-        return join(self.delivery.getRepositoryPath(), path)
+        return join(self.delivery.getRepositoryPath(), path.lstrip('/'))
 
     def publishFromFile(self, path, filePath):
         '''
@@ -136,6 +136,20 @@ class LocalFileSystemCDM(ICDM):
             os.makedirs(dstDir)
         shutil.copyfile(filePath, dstFilePath)
 
+    def publishFromStream(self, path, ioStream):
+        '''
+        @see ICDM.publishFromStream
+        '''
+        assert isinstance(path, str), 'Invalid content path %s' % path
+        assert isinstance(ioStream, IOBase), 'Invalid content string %s' % ioStream
+        dstFilePath = self._getItemPath(path)
+        dstDir = dirname(dstFilePath)
+        if not isdir(dstDir):
+            os.makedirs(dstDir)
+        dstFile = open(dstFilePath, 'w+')
+        shutil.copyfileobj(ioStream, dstFile)
+        dstFile.close()
+
     def publishContent(self, path, content):
         '''
         @see ICDM.publishContent
@@ -149,6 +163,13 @@ class LocalFileSystemCDM(ICDM):
         dstFile = open(dstFilePath, 'w+')
         streamContent = StringIO(content)
         shutil.copyfileobj(streamContent, dstFile)
+        dstFile.close()
+
+    def getSupportedProtocols(self):
+        '''
+        @see ICDM.getSupportedProtocols
+        '''
+        return ('http',)
 
     def getURI(self, path, protocol = 'http'):
         '''
@@ -156,4 +177,6 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
         assert isinstance(protocol, str), 'Invalid protocol %s' % protocol
+        if (protocol != 'http'):
+            raise UnsupportedProtocol(protocol)
         return self.delivery.getURI(path)
