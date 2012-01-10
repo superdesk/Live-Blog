@@ -11,8 +11,8 @@ Provides the AOP (aspect oriented programming) support.
 
 from ..support.util_sys import searchModules, packageModules, isPackage
 from inspect import isclass, ismodule
-import importlib
 import re
+import sys
 
 # --------------------------------------------------------------------
 
@@ -166,7 +166,13 @@ class AOPModules(AOP):
             The same instance for chaining.
         '''
         if not self._isLoaded:
-            self._paths = {path:importlib.import_module(path) for path in self._paths}
+            #TODO: check for next python release
+            # I have tried using importlib.import_module instead of __import__ but it creates a _FileFinder in the import
+            # cache that will not provide the loaded modules again, basically once the modules are loaded they cannot
+            # be found again.
+            for path in self._paths:
+                if path not in sys.modules: __import__(path)
+            self._paths = {path:sys.modules[path] for path in self._paths}
             self._isLoaded = True
         return self
     

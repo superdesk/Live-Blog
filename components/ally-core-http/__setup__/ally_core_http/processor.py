@@ -9,7 +9,7 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from . import serverRoot
+from . import server_root
 from ..ally_core.converter import contentNormalizer, converterPath
 from ..ally_core.processor import handlers, methodInvoker, converter, \
     handlersExplainError
@@ -28,25 +28,25 @@ def uri() -> Processor:
     b = URIHandler()
     b.resourcesManager = resourcesManager()
     b.converterPath = converterPath()
-    if serverRoot(): b.urlRoot = serverRoot() + '/'
+    if server_root(): b.urlRoot = server_root() + '/'
     return b
 
 @ioc.config
-def readFromParams():
+def read_from_params():
     '''If true will also read header values that are provided as query parameters'''
     return True
 
 @ioc.entity   
 def headerStandard() -> Processor:
     b = HeaderStandardHandler()
-    b.readFromParams = readFromParams()
+    b.readFromParams = read_from_params()
     return b
 
 @ioc.entity
 def headerX() -> Processor:
     b = HeaderXHandler()
     b.normalizer = contentNormalizer()
-    b.readFromParams = readFromParams()
+    b.readFromParams = read_from_params()
     return b
 
 # ---------------------------------

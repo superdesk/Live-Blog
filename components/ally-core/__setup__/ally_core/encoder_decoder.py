@@ -23,12 +23,12 @@ from ally.core.spec.server import Processor
 # Creating the encoding processors
 
 @ioc.config
-def defaultCharacterSet() -> str:
+def default_characterset() -> str:
     '''The default character set to use if none is provided in the request'''
     return 'ISO-8859-1'
 
 @ioc.config
-def contentTypesXML() -> dict:
+def content_types_xml() -> dict:
     '''The XML content types'''
     return {
             'text/xml':None,
@@ -43,12 +43,12 @@ def encodingXML() -> Processor:
     b.resourcesManager = resourcesManager()
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
-    b.charSetDefault = defaultCharacterSet()
-    b.contentTypes = contentTypesXML()
+    b.charSetDefault = default_characterset()
+    b.contentTypes = content_types_xml()
     b.encodingError = 'xmlcharrefreplace'
 
 @ioc.config
-def contentTypesJSON() -> dict:
+def content_types_json() -> dict:
     '''The JSON content types'''
     return {
             'text/json':None,
@@ -63,8 +63,8 @@ def encodingJSON() -> Processor:
     b.resourcesManager = resourcesManager()
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
-    b.charSetDefault = defaultCharacterSet()
-    b.contentTypes = contentTypesJSON()
+    b.charSetDefault = default_characterset()
+    b.contentTypes = content_types_json()
     b.encodingError = 'backslashreplace'
 
 # --------------------------------------------------------------------
@@ -78,16 +78,16 @@ def decodingXML() -> Processor:
     b = DecodingXMLHandler(); yield b
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
-    b.charSetDefault = defaultCharacterSet()
-    b.contentTypes = list(contentTypesXML().keys())
+    b.charSetDefault = default_characterset()
+    b.contentTypes = list(content_types_xml().keys())
 
 @ioc.entity
 def decodingJSON() -> Processor:
     b = DecodingJSONHandler(); yield b
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
-    b.charSetDefault = defaultCharacterSet()
-    b.contentTypes = list(contentTypesJSON().keys())
+    b.charSetDefault = default_characterset()
+    b.contentTypes = list(content_types_json().keys())
 
 # ---------------------------------
 

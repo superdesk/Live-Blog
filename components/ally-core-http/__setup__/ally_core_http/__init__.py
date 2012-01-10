@@ -15,21 +15,21 @@ from ally.container import ioc
 # The default configurations
 
 @ioc.config
-def serverType() -> str:
+def server_type() -> str:
     '''The type of the server to use one of basic, cherrypy'''
     return 'basic'
 
 @ioc.config
-def serverRoot() -> str:
+def server_root() -> str:
     '''The root URL for the rest server ex: rest/resources'''
     return 'resources'
 
 @ioc.config
-def serverPort() -> int:
+def server_port() -> int:
     '''The port on which the server will run'''
     return 80
 
 @ioc.config
-def serverVersion() -> str:
+def server_version() -> str:
     '''The server version number'''
     return 'AllyREST/0.1'

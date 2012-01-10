@@ -21,12 +21,12 @@ from ally.core.impl.processor.deliver_ok import DeliverOkHandler
 # Service handlers
 
 @ioc.config
-def ajaxCrossDomain() -> bool:
+def ajax_cross_domain() -> bool:
     '''Indicates that the server should also be able to support cross domain ajax requests'''
     return False
 
 @ioc.config
-def headersAjax() -> dict: 
+def headers_ajax() -> dict: 
     '''The ajax specific headers required by browser for cross domain calls'''
     return {
             'Access-Control-Allow-Origin':'*',
@@ -36,7 +36,7 @@ def headersAjax() -> dict:
 @ioc.entity
 def encoderHeaderSet() -> EncoderHeaderSet:
     b = EncoderHeaderSet()
-    b.headers = headersAjax()
+    b.headers = headers_ajax()
     return b
 
 @ioc.entity
@@ -47,8 +47,8 @@ def deliverOkHandler() -> DeliverOkHandler:
 
 @ioc.before(handlers)
 def updateHandlers():
-    if ajaxCrossDomain(): handlers().insert(handlers().index(methodInvoker()), deliverOkHandler())
+    if ajax_cross_domain(): handlers().insert(handlers().index(methodInvoker()), deliverOkHandler())
 
 @ioc.before(encodersHeader)
 def updateEncodersHeader():
-    if ajaxCrossDomain(): encodersHeader().append(encoderHeaderSet())
+    if ajax_cross_domain(): encodersHeader().append(encoderHeaderSet())

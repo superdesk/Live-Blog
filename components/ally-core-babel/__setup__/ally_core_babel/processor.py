@@ -9,7 +9,7 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from ..ally_core.processor import converter, defaultLanguage
+from ..ally_core.processor import converter, default_language
 from ally.container import ioc
 from ally.core.babel.processor.converter import BabelConverterHandler
 from ally.core.spec.server import Processor
@@ -25,5 +25,5 @@ def converterBabel() -> Processor:
     core._filename = core._filename.replace('.egg', '')
     
     b = BabelConverterHandler()
-    b.languageDefault = defaultLanguage()
+    b.languageDefault = default_language()
     return b

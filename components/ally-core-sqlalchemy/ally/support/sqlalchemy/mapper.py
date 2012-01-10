@@ -37,7 +37,7 @@ ATTR_SQL_MAPPER = Attribute(__name__, 'mapper')
 ATTR_SQL_COLUMN = Attribute(__name__, 'column', Column)
 # Attribute used to store the column usually on Property
 
-INDEX_PROP_FK = indexAfter('property', INDEX_PROP)
+INDEX_PROP_FK = indexAfter('prop_fk', INDEX_PROP)
 # Index for foreign key properties
 
 # --------------------------------------------------------------------
@@ -69,9 +69,7 @@ def mapperSimple(modelClass, sql, **keyargs):
         col = getattr(modelClass, name, None)
         if col: typeFor(col, typ)
 
-    event.remove(mapping, 'load', _eventLoad)
     event.listen(mapping, 'load', _eventLoad)
-    event.remove(mapping, 'after_insert', _eventInsert)
     event.listen(mapping, 'after_insert', _eventInsert)
     
     ATTR_SQL_MAPPER.set(model, mapping)

@@ -9,7 +9,7 @@ Created on Nov 23, 2011
 Runs the cherry py web server.
 '''
 
-from . import serverType, serverVersion, serverRoot, serverPort
+from . import server_type, server_version, server_root, server_port
 from .encoder_header import encodersHeader
 from .processor import handlers
 from ally.container import ioc
@@ -19,23 +19,23 @@ from threading import Thread
 # --------------------------------------------------------------------
 
 @ioc.config
-def serverHost() -> str:
+def server_host() -> str:
     '''The IP address to bind the server to'''
     return '127.0.0.1'
 
 @ioc.config
-def serverThreadPool() -> int:
+def server_thread_pool() -> int:
     '''The thread pool size for the server'''
     return 10
 
 @ioc.config
-def serverContentFolder() -> str:
+def server_content_folder() -> str:
     '''The folder from where the server should provide static content files, attention this will be available only if
     there is also a server root'''
     return None
 
 @ioc.config
-def serverContentIndex() -> str: 
+def server_content_index() -> str: 
     '''The static folder index file'''
     return 'index.html'
 
@@ -45,29 +45,29 @@ def requestHandler():
     b = RequestHandler(); yield b
     b.processors = Processors(*handlers())
     b.encodersHeader = encodersHeader()
-    b.serverVersion = serverVersion()
+    b.serverVersion = server_version()
 
 # --------------------------------------------------------------------
                              
 @ioc.start
 def runServer():
-    if serverType() == 'cherrypy':
+    if server_type() == 'cherrypy':
         import cherrypy
         from ally.core.http.support import server_cherrypy
         
         cherrypy.config.update({'engine.autoreload.on': False})
         handler = requestHandler()
-        if serverRoot():
+        if server_root():
             class Root: pass
             root = Root()
-            setattr(root, serverRoot(), handler)
+            setattr(root, server_root(), handler)
             handler = root
-            if serverContentFolder():
+            if server_content_folder():
                 handler._cp_config = {
                                       'tools.staticdir.on' : True,
-                                      'tools.staticdir.dir' : serverContentFolder(),
-                                      'tools.staticdir.index' : serverContentIndex(),
+                                      'tools.staticdir.dir' : server_content_folder(),
+                                      'tools.staticdir.index' : server_content_index(),
                                       }
                 
-        args = handler, serverHost(), serverPort(), serverThreadPool()
+        args = handler, server_host(), server_port(), server_thread_pool()
         Thread(target=server_cherrypy.run, args=args).start()

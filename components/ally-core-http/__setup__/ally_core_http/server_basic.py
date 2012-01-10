@@ -9,7 +9,7 @@ Created on Nov 23, 2011
 Runs the basic web server.
 '''
 
-from ..ally_core_http import serverType, serverRoot, serverVersion, serverPort
+from ..ally_core_http import server_type, server_root, server_version, server_port
 from ..ally_core_http.processor import handlers
 from .encoder_header import encodersHeader
 from ally.container import ioc
@@ -21,10 +21,10 @@ from threading import Thread
 
 @ioc.start
 def runServer():
-    if serverType() == 'basic':
+    if server_type() == 'basic':
         server_basic.RequestHandler.processors = Processors(*handlers())
         server_basic.RequestHandler.encodersHeader = encodersHeader()
-        if serverRoot(): server_basic.RequestHandler.urlRoot = '/' + serverRoot()
-        server_basic.RequestHandler.server_version = serverVersion()
+        if server_root(): server_basic.RequestHandler.urlRoot = '/' + server_root()
+        server_basic.RequestHandler.server_version = server_version()
     
-        Thread(target=server_basic.run, args=(server_basic.RequestHandler, serverPort())).start()
+        Thread(target=server_basic.run, args=(server_basic.RequestHandler, server_port())).start()

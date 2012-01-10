@@ -30,12 +30,12 @@ from ally.core.spec.server import Processors, Processor
 # Creating the processors used in handling the request
 
 @ioc.config
-def defaultLanguage():
+def default_language():
     '''The default language to use in case none is provided in the request'''
     return 'en'
 
 @ioc.config
-def explainErrorDetailed():
+def explain_detailed_error():
     '''If True will provide as an error response a detailed XML providing info about where the problem originated'''
     return False
 
@@ -44,9 +44,9 @@ def handlersExplainError(): return [encoding()]
 
 @ioc.entity
 def explainError() -> Processor:
-    b = ExplainDetailedErrorHandler() if explainErrorDetailed() else ExplainErrorHandler()
+    b = ExplainDetailedErrorHandler() if explain_detailed_error() else ExplainErrorHandler()
     b.encodings = Processors(*handlersExplainError())
-    b.languageDefault = defaultLanguage()
+    b.languageDefault = default_language()
     b.contentConverterDefault = defaultErrorContentConverter()
     return b
 

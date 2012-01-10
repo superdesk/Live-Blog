@@ -578,7 +578,7 @@ class Service:
     
     def __str__(self):
         return '<Service[%s %s calls]>' % \
-            (self.serviceClasss.__class__.__name__, len(self.calls))
+            (self.serviceClass.__name__, len(self.calls))
 
 # --------------------------------------------------------------------
 

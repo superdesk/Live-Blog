@@ -18,7 +18,7 @@ from ally.core.impl.devel.tree_node import TreeNodePresenter
 # Creating the development tools
 
 @ioc.config
-def applicationMode() -> str:
+def application_mode() -> str:
     '''The application mode one of devel, prod'''
     return 'devel'
 
@@ -36,6 +36,6 @@ def memoryStatusPresenter():
 
 @ioc.after(resourcesManager)
 def development():
-    if applicationMode() == 'devel':
+    if application_mode() == 'devel':
         treeNodePresenter()
         memoryStatusPresenter()

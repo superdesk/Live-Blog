@@ -10,7 +10,5 @@ Contains the unit tests.
 '''
 
 # Required in order to register the package extender whenever the unit test is run.
-try:
-    import deploy
-    deploy.registerPackageExtender()
-except ImportError: pass
+import package_extender
+package_extender.registerPackageExtender()
