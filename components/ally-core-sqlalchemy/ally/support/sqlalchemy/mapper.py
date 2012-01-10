@@ -11,6 +11,7 @@ Provides support for SQL alchemy mapper that is able to link the alchemy with RE
 
 from ..util import Attribute
 from .session import openSession
+from ally import internationalization
 from ally.api.configure import modelFor, queryFor
 from ally.api.operator import Model, Property, Query
 from ally.api.type import TypeProperty, typeFor
@@ -31,6 +32,8 @@ from sqlalchemy.types import String
 import functools
 
 # --------------------------------------------------------------------
+
+_ = internationalization.translator(__name__)
 
 ATTR_SQL_MAPPER = Attribute(__name__, 'mapper')
 # Attribute used to store the mapper usually on Models

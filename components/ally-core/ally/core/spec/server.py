@@ -149,7 +149,7 @@ class ContentRequest(Content):
     Provides the content of a request.
     '''
     
-    def __init__(self, file):
+    def __init__(self, file, keep=False):
         '''
         Constructs the content instance.
         
@@ -157,14 +157,19 @@ class ContentRequest(Content):
         
         @param file: object
             The object with the 'read(nbytes)' method to provide the content bytes.
+        @param keep: boolean
+            Flag indicating that the used file handler should be kept open event if this content request is closed.
         @ivar length: integer|None
             The number of available bytes in the content, if None it means that is not known.
         '''
         super().__init__()
         assert file is not None and getattr(file, 'read') is not None, 'Invalid file object %s' % file
+        assert isinstance(keep, bool), 'Invalid keep flag %s' % keep
         self.file = file
+        self.keep = keep
         self.length = None
         self._offset = 0
+        self._closed = False
     
     def read(self, nbytes=None):
         '''
@@ -173,6 +178,7 @@ class ContentRequest(Content):
         @param nbytes: integer|None
             The number of bytes to read, or None to read all remaining available bytes from the content.
         '''
+        if self._closed: raise ValueError('I/O operation on a closed file')
         count = nbytes
         if self.length is not None:
             if self._offset >= self.length:
@@ -190,7 +196,8 @@ class ContentRequest(Content):
         '''
         Closes the content stream.
         '''
-        self.file.close()
+        self._closed = True
+        if not self.keep: self.file.close()
 
 # --------------------------------------------------------------------
 

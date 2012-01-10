@@ -12,7 +12,7 @@ Contains sql alchemy database setup.
 from ally.container import ioc
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.orm.session import Session, sessionmaker
+from sqlalchemy.orm.session import sessionmaker
 
 # --------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ def alchemy_pool_recycle(): '''The time to recycle pooled connection'''; return 
 def alchemy_create_tables(): '''Flag indicating that the table should be auto created'''; return True
 
 @ioc.entity
-def alchemySessionCreator() -> Session: return sessionmaker(bind=alchemyEngine())
+def alchemySessionCreator(): return sessionmaker(bind=alchemyEngine())
 
 @ioc.entity
 def alchemyEngine() -> Engine:

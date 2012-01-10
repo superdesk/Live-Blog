@@ -202,7 +202,7 @@ class ProxyMethod(Callable):
             calls = ATTR_CALLS.getOwn(proxy, None)
             if not calls: calls = ATTR_CALLS.setOwn(proxy, {})
             call = calls.get(self.name)
-            if not call: call = calls[self.name] = ProxyCall(proxy, self)
+            if not call: call = calls[self.name] = update_wrapper(ProxyCall(proxy, self), self)
             return call
         return self
 

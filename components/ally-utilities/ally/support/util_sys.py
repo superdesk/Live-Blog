@@ -124,6 +124,9 @@ def searchModules(pattern):
             __setup__.*
             Will return all the modules that are found in __setup__ package.
             
+            __setup__.**
+            Will return all the modules and sub modules that are found in __setup__ package.
+            
             __setup__.*_http
             Will return all the modules that are found in __setup__ package that end with _http.
     @return: dictionary{string, list[string]}
@@ -136,7 +139,22 @@ def searchModules(pattern):
     if k >= 0:
         name = pattern[k + 1:]
         parent = searchModules(pattern[:k])
-        if name.find('*') >= 0:
+        if name == '**':
+            while parent:
+                pckg, pckgPaths = parent.popitem()
+                packages = []
+                for path in pckgPaths:
+                    moduleLoader = pkgutil.get_importer(os.path.dirname(path)).find_module(pckg)
+                    if moduleLoader and moduleLoader.is_package(pckg): packages.append(path)
+                for moduleLoader, modulePath, isPckg in pkgutil.iter_modules(packages):
+                    path = os.path.dirname(moduleLoader.find_module(modulePath).get_filename(modulePath))
+                    if isPckg:
+                        paths = parent.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
+                        if path not in paths: paths.append(path)
+                    paths = modules.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
+                    if path not in paths: paths.append(path)
+            return modules
+        elif name.find('*') >= 0:
             matcher = re.compile('[a-zA-Z0-9_]*'.join([re.escape(e) for e in name.split('*')]))
             for pckg, pckgPaths in parent.items():
                 packages = []

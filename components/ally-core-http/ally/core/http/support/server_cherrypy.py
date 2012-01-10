@@ -85,7 +85,7 @@ class RequestHandler:
                 req.params.extend([(name, v) for v in value])
             else:
                 req.params.append((name, value));
-        req.content = ContentRequest(cherrypy.request.rfile)
+        req.content = ContentRequest(cherrypy.request.rfile, True)
         rsp = ResponseHTTP()
         chain.process(req, rsp)
         if not rsp.isDispatched:

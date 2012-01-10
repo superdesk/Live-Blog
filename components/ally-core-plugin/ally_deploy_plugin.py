@@ -35,7 +35,7 @@ def deploy():
         try:
             CONTEXT = ctx = ioc.Context()
             
-            for module in aop.modulesIn('__plugin__.*', '__plugin__.*.*').load().asList():
+            for module in aop.modulesIn('__plugin__.**').load().asList():
                 ctx.addSetupModule(module)
             
             ctx.addSetup(ioc.SetupEntityFixed('__setup__.ally_core.resource_manager.resourcesManager',
