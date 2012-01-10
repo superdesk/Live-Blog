@@ -9,18 +9,29 @@ Created on Jan 5, 2012
 Provides the configurations for the CDM local filesystem implementation.
 '''
 
-from cdm.spec import ICDM
-from cdm.impl.local_filesystem import LocalFileSystemCDM
+from cdm.impl.local_filesystem import IDelivery, LocalFileSystemCDM, HTTPDelivery
 from ally.container import ioc
+from cdm.spec import ICDM
 
 # --------------------------------------------------------------------
 # Creating the content delivery managers
 
+
+@ioc.entity
+def HTTPDelivery() -> IDelivery:
+    d = HTTPDelivery()
+    d.serverName = 'localhost'
+    d.documentRoot = '/var/www'
+    d.repositorySubdir = 'repository'
+    d.port = 80
+    return d
+
 @ioc.entity
 def localFileSystemCDM() -> ICDM:
-    b = LocalFileSystemCDM();
-    b.repositoryPath = ''
-    return b
+    d = HTTPDelivery()
+    cdm = LocalFileSystemCDM();
+    cdm.delivery = d
+    return cdm
 
 # ---------------------------------
 
