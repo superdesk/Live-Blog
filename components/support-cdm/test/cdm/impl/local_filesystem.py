@@ -10,12 +10,13 @@ Provides unit testing for the local filesystem module.
 '''
 
 import unittest
-from tempfile import NamedTemporaryFile, tempdir
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from os.path import join, dirname, isfile
 from shutil import rmtree
 from cdm.impl.local_filesystem import HTTPDelivery, LocalFileSystemCDM
 from ally.container import ioc
 from io import StringIO
+from os import makedirs
 
 
 class TestHTTPDelivery(unittest.TestCase):
@@ -63,6 +64,20 @@ class TestHTTPDelivery(unittest.TestCase):
             self.assertTrue(isfile(dstFilePath))
         finally:
             rmtree(dirname(dstFilePath))
+        srcTmpDir = TemporaryDirectory()
+        dirs = (join(srcTmpDir.name, 'test1/subdir1'), join(srcTmpDir.name, 'test2/subdir1'))
+        for dir in dirs:
+            makedirs(dir)
+            f = open(join(dir, 'text.html'), 'w+')
+            f.close()
+        try:
+            cdm.publishFromDir('tmp', srcTmpDir.name)
+            dstDirPath = join(d.getRepositoryPath(), 'tmp')
+            for dir in dirs:
+                dstFilePath = join(dstDirPath, dir, 'text.html')
+                self.assertTrue(isfile(dstFilePath))
+        finally:
+            rmtree(dstDirPath)
         try:
             path = join('somedir', 'somecontent.txt')
             cdm.publishContent(path, 'test')
