@@ -51,12 +51,12 @@ def deploy():
         ass = assembly = ctx.assemble(config)
         
         if not isConfig:
-            with open(FILE_CONFIG, 'w') as f: save(ass.configurations, f)
+            with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
         
-        try: ass.start()
+        try: ass.processStart()
         except ioc.ConfigError:
             # We save the file in case there are missing configuration
-            with open(FILE_CONFIG, 'w') as f: save(ass.configurations, f)
+            with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
             raise
     except:
         print('-' * 150, file=sys.stderr)

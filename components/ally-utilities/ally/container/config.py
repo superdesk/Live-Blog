@@ -77,10 +77,12 @@ class Config:
     Class for providing a configuration data.
     '''
     
-    def __init__(self, value, group=None, description=None, error=None):
+    def __init__(self, name, value, group=None, description=None, error=None):
         '''
         Construct the configuration.
         
+        @param name: string
+            The full name of the configuration.
         @param value: object|None
             The configuration value.
         @param group: string
@@ -90,9 +92,11 @@ class Config:
         @param error: string
             The configuration error, if is the case.
         '''
+        assert isinstance(name, str), 'Invalid name %s' % name
         assert not group or isinstance(group, str), 'Invalid group %s' % group
         assert not description or isinstance(description, str), 'Invalid description %s' % description
         assert not error or isinstance(error, str), 'Invalid error %s' % error
+        self.name = name
         self.value = value
         self.group = group
         self.description = description

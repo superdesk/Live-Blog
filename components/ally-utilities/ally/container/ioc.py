@@ -625,22 +625,8 @@ class SetupConfig(SetupSource):
         if hasValue: assembly.callsByName[self._name] = CallDeliverValue(value, self._type)
         else: assembly.callsByName[self._name] = CallDeliverError(error)
         
-        name = self._name
-        add = False
-        while not add:
-            k = name.rfind('.')
-            if k < 0:
-                sname = name
-                add = True
-            else:
-                sname = name[k + 1:]
-                name = name[:k]
-                if sname not in assembly.configurations: add = True
-            if add:
-                if sname in assembly.configurations:
-                    raise SetupError('There is already a configuration for name %s' % sname)
-                assembly.configurations[sname] = Config(value, self._function.__module__,
-                                                        self._function.__doc__, str(error) if error else None)
+        assembly.configurations[self._name] = Config(self._name, value, self._function.__module__,
+                                                     self._function.__doc__, str(error) if error else None)
 
 class SetupReplace(SetupFunction):
     '''
@@ -1063,6 +1049,37 @@ class Assembly:
         self.callsByName = {}
         self.callsByType = {}
         self.callsStart = []
+        
+    def trimmedConfigurations(self):
+        '''
+        Provides a configurations dictionary that has the configuration names trimmed.
+        
+        @return:  dictionary[string, Config]
+            A dictionary of the assembly configurations, the key is the configuration name and the value is a
+            Config object.
+        ''' 
+        def expand(name, sub):
+            ''' Used for expanding configuration names'''
+            if sub: root = name[:-len(sub)]
+            else: root = name
+            if not root: return name
+            if root[-1] == '.': root = root[:-1]
+            k = root.rfind('.')
+            if k < 0: return name
+            if sub: return root[k + 1:] + '.' + sub
+            return root[k + 1:]
+            
+        configs = {}
+        for name, config in self.configurations.items():
+            sname = expand(name, '')
+            other = configs.pop(sname, None)
+            while other:
+                assert isinstance(other, Config)
+                configs[expand(other.name, sname)] = other
+                sname = expand(name, sname)
+                other = configs.pop(sname, None)
+            configs[sname] = config
+        return configs
             
     def processForName(self, name):
         '''
@@ -1077,7 +1094,7 @@ class Assembly:
         if not isinstance(call, Callable): raise SetupError('Invalid call %s for name %r' % (call, name))
         return call()
     
-    def start(self):
+    def processStart(self):
         '''
         Starts the assembly, basically call all setup functions that have been decorated with start.
         '''
