@@ -13,12 +13,12 @@ single thread at one time.
 from ..support.util import Attribute
 from ..support.util_sys import callerLocals
 from .aop import AOPClasses, AOPModules
+from .config import Config
 from .proxy import createProxy, ProxyWrapper
 from _abcoll import Callable
 from functools import partial, update_wrapper
 from inspect import isclass, isfunction, getfullargspec, ismodule, isgenerator
 from itertools import chain
-import abc
 import importlib
 import logging
 
@@ -211,8 +211,6 @@ def deploy(*modules, name='main', config=None):
     @param config: dictionary|None
         The configurations dictionary. This is the top level configurations the values provided here will override any
         other configuration.
-    @return: Context
-        The deployed context.
     '''
     context = Context()
     for module in modules:
@@ -223,8 +221,7 @@ def deploy(*modules, name='main', config=None):
             assert isinstance(module, AOPModules)
             for m in module.load().asList(): context.addSetupModule(m)
         else: raise SetupError('Cannot use module %s' % module)
-    context.start(config)
-    return context
+    context.assemble(config).start(config)
 
 # --------------------------------------------------------------------
 
@@ -367,34 +364,9 @@ class Entities:
         @return: list[object]
             The list of entities represented by this setup.
         '''
-        return [Context.process(name) for name in self.names]
+        return [Assembly.process(name) for name in self.names]
 
 # --------------------------------------------------------------------
-
-class Assembly:
-    '''
-    Provides the assembly data.
-    '''
-    
-    def __init__(self, configurations):
-        '''
-        Construct the assembly.
-        
-        @param configurations: dictionary{string, object}
-            The configurations used for the class map indexing.
-        @ivar calls: dictionary{string, Callable}
-            A dictionary containing as a key the name of the call to be resolved and as a value the Callable that will
-            resolve the name. The Callable will not take any argument.
-        @ivar configurationsUsed: set{string}
-            A set containing the used configurations names.
-        @ivar start: list[Callable]
-            A list of Callable that are used as IoC start calls.
-        '''
-        assert isinstance(configurations, dict), 'Invalid configurations %s' % configurations
-        self.calls = {}
-        self.configurations = configurations
-        self.configurationsUsed = set()
-        self.start = []
 
 class Setup:
     '''
@@ -406,7 +378,7 @@ class Setup:
 
     def index(self, assembly):
         '''
-        Indexes the call of the setup to the calls map.
+        Indexes the call of the setup and other data.
         
         @param assembly: Assembly
             The assembly to index on.
@@ -452,7 +424,7 @@ class SetupFunction(Setup, Callable):
         '''
         Provides the actual setup of the call.
         '''
-        return Context.process(self._name)
+        return Assembly.process(self._name)
 
 class SetupSource(SetupFunction):
     '''
@@ -486,8 +458,10 @@ class SetupEntity(SetupSource):
         @see: Setup.index
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name in assembly.calls: raise SetupError('There is already a setup call for name %r' % self._name)
-        assembly.calls[self._name] = CallEntity(self._function, self._type)
+        if self._name in assembly.callsByName:
+            raise SetupError('There is already a setup call for name %r' % self._name)
+        call = assembly.callsByName[self._name] = CallEntity(self._function, self._type)
+        if self._type: assembly.callsByType.setdefault(self._type, []).append(call)
 
 class SetupEntityCreate(Setup):
     '''
@@ -513,10 +487,11 @@ class SetupEntityCreate(Setup):
         @see: Setup.index
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name in assembly.calls:
+        if self._name in assembly.callsByName:
             raise SetupError('Cannot create setup function because there is already a setup call for name %r' % 
                              self._name)
-        assembly.calls[self._name] = CallEntity(CreateEntity(self._class), self._class)
+        call = assembly.callsByName[self._name] = CallEntity(CreateEntity(self._class), self._class)
+        assembly.callsByType.setdefault(self._class, []).append(call)
 
 class SetupEntityFixed(Setup):
     '''
@@ -546,10 +521,10 @@ class SetupEntityFixed(Setup):
         @see: Setup.index
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name in assembly.calls:
-            raise SetupError('Cannot add setup function because there is already a setup call for name %r' % 
-                             self._name)
-        assembly.calls[self._name] = Value(self._entity)
+        if self._name in assembly.callsByName:
+            raise SetupError('Cannot add setup function because there is already a setup call for name %r' % self._name)
+        call = assembly.callsByName[self._name] = CallDeliverValue(self._entity, self._type)
+        assembly.callsByType.setdefault(self._type, []).append(call)
 
 class SetupEntityProxy(Setup):
     '''
@@ -590,10 +565,10 @@ class SetupEntityProxy(Setup):
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        for name, call in assembly.calls.items():
+        for name, call in assembly.callsByName.items():
             if name.startswith(self._prefix) and isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
-                call.addValueInterceptor(self._intercept)
+                call.addInterceptor(self._intercept)
                 
     def _intercept(self, value):
         '''
@@ -630,17 +605,42 @@ class SetupConfig(SetupSource):
         @see: Setup.index
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name in assembly.calls: raise SetupError('There is already a setup call for name %r' % self._name)
+        if self._name in assembly.callsByName:
+            raise SetupError('There is already a setup call for name %r' % self._name)
         hasValue, value = False, None
-        for name, val in assembly.configurations.items():
+        for name, val in assembly.configExtern.items():
             if name == self._name or self._name.endswith('.' + name):
-                if name in assembly.configurationsUsed:
+                if name in assembly.configUsed:
                     raise SetupError('The configuration %r is already in use and the configuration %r cannot use it '
                                      'again, provide a more detailed path for the configuration (ex: "ally_core.url" '
                                      'instead of "url")' % (name, self._name))
-                assembly.configurationsUsed.add(name)
+                assembly.configUsed.add(name)
                 hasValue, value = True, val
-        assembly.calls[self._name] = CallConfig(self._function, self._type, hasValue=hasValue, value=value)
+        error = None
+        if not hasValue:
+            try: 
+                value = self._function()
+                hasValue = True
+            except ConfigError as e: error = e
+        if hasValue: assembly.callsByName[self._name] = CallDeliverValue(value, self._type)
+        else: assembly.callsByName[self._name] = CallDeliverError(error)
+        
+        name = self._name
+        add = False
+        while not add:
+            k = name.rfind('.')
+            if k < 0:
+                sname = name
+                add = True
+            else:
+                sname = name[k + 1:]
+                name = name[:k]
+                if sname not in assembly.configurations: add = True
+            if add:
+                if sname in assembly.configurations:
+                    raise SetupError('There is already a configuration for name %s' % sname)
+                assembly.configurations[sname] = Config(value, self._function.__module__,
+                                                        self._function.__doc__, str(error) if error else None)
 
 class SetupReplace(SetupFunction):
     '''
@@ -665,12 +665,12 @@ class SetupReplace(SetupFunction):
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name not in assembly.calls:
+        if self._name not in assembly.callsByName:
             raise SetupError('There is no setup call for name %r to be replaced' % self._name)
-        call = assembly.calls[self._name]
-        if not isinstance(call, Call):
-            raise SetupError('Cannot find any Call object for name %r to be replaced' % self._name)
-        assert isinstance(call, Call)
+        call = assembly.callsByName[self._name]
+        if not isinstance(call, WithCall):
+            raise SetupError('Cannot replace call for name %r' % self._name)
+        assert isinstance(call, WithCall)
         call.call = self._function
         
 class SetupEvent(SetupFunction):
@@ -704,22 +704,23 @@ class SetupEvent(SetupFunction):
         @see: Setup.index
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name in assembly.calls: raise SetupError('There is already a setup call for name %r' % self._name)
-        assembly.calls[self._name] = CallEvent(self._function)
+        if self._name in assembly.callsByName:
+            raise SetupError('There is already a setup call for name %r' % self._name)
+        assembly.callsByName[self._name] = CallEvent(self._function)
         
     def assemble(self, assembly):
         '''
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._target not in assembly.calls:
+        if self._target not in assembly.callsByName:
             raise SetupError('There is no setup call for target %r to add the event on' % self._target)
-        call = assembly.calls[self._target]
-        if not isinstance(call, Call):
-            raise SetupError('Cannot find any Call object for target %r to add the event' % self._target)
-        assert isinstance(call, Call)
-        if self._event == self.BEFORE: call.addBefore(partial(Context.process, self._name))
-        elif self._event == self.AFTER: call.addAfter(partial(Context.process, self._name))
+        call = assembly.callsByName[self._target]
+        if not isinstance(call, WithListeners):
+            raise SetupError('Cannot find any listener support for target %r to add the event' % self._target)
+        assert isinstance(call, WithListeners)
+        if self._event == self.BEFORE: call.addBefore(partial(assembly.processForName, self._name))
+        elif self._event == self.AFTER: call.addAfter(partial(assembly.processForName, self._name))
         
     def __call__(self):
         '''
@@ -743,51 +744,30 @@ class SetupStart(SetupFunction):
         @see: Setup.index
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name in assembly.calls: raise SetupError('There is already a setup call for name %r' % self._name)
-        assembly.calls[self._name] = CallEvent(self._function)
+        if self._name in assembly.callsByName:
+            raise SetupError('There is already a setup call for name %r' % self._name)
+        assembly.callsByName[self._name] = CallEvent(self._function)
         
     def assemble(self, assembly):
         '''
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        assembly.start.append(partial(Context.process, self._name))
-
+        assembly.callsStart.append(partial(assembly.processForName, self._name))
 
 # --------------------------------------------------------------------
 
-class Call(Callable):
+class WithListeners:
     '''
-    Provides the base class of calls. Is just a simple wrapper for another Callable object but it provides listeners for
-    the call process.
+    Provides support for listeners to be notified of the call process.
     '''
     
-    def __init__(self, call):
+    def __init__(self):
         '''
-        Constructs the call.
-        
-        @param call: Callable
-            The call that is used by this Call in order to resolve.
+        Constructs the listener support.
         '''
-        self.call = call
         self._listenersBefore = []
         self._listenersAfter = []
-        
-    def setCall(self, call):
-        '''
-        Sets the call for this Call.
-        
-        @param call: Callable
-            The call that is used by this Call in order to resolve.
-        '''
-        assert isinstance(call, Callable), 'Invalid callable %s' % call
-        self._call = call
-        
-    call = property(lambda self: self._call, setCall, doc=
-'''
-@type call: Callable
-    The call used for resolve.
-''')
         
     def addBefore(self, listener):
         '''
@@ -809,42 +789,52 @@ class Call(Callable):
         assert isinstance(listener, Callable), 'Invalid listener %s' % listener
         self._listenersAfter.append(listener)
 
-class CallSource(Call):
+class WithCall:
     '''
-    Provides the base for calls that are value sources.
+    Provides support for calls that are wrapped around another call.
     '''
     
-    def __init__(self, call, type, hasValue=False, value=None):
+    def __init__(self, call):
         '''
-        @see: Call.__init__
+        Construct the with call support.
+        
+        @param call: Callable
+            The call that is used by this Call in order to resolve.
+        '''
+        self.call = call
+    
+    def setCall(self, call):
+        '''
+        Sets the call for this Call.
+        
+        @param call: Callable
+            The call that is used by this Call in order to resolve.
+        '''
+        assert isinstance(call, Callable), 'Invalid callable %s' % call
+        self._call = call
+        
+    call = property(lambda self: self._call, setCall, doc=
+'''
+@type call: Callable
+    The call used for resolve.
+''')
+    
+class WithType:
+    '''
+    Provides support for calls that have a type.
+    '''
+    
+    def __init__(self, type):
+        '''
+        Construct the type support.
         
         @param type: class|None
-            The type(class) of the value that is being delivered by this source.
-        @param hasValue: boolean
-            Flag indicating if this source has a value.
-        @param value: object
-            The value of the source
+            The type(class) of the value.
         '''
-        Call.__init__(self, call)
         assert type is None or isclass(type), 'Invalid type %s' % type
-        assert isinstance(hasValue, bool), 'Invalid has value flag %s' % hasValue
         self._type = type
-        self._hasValue = hasValue
-        self._value = self._validate(value)
-        self._processed = False
-
-    def __call__(self):
-        '''
-        Provides the call for the source.
-        '''
-        if not self._processed:
-            self._processed = True
-            if self._hasValue:
-                for listener in chain(self._listenersBefore, self._listenersAfter): listener()
-            else: self._process()
-        return self._value
         
-    def _validate(self, value):
+    def validate(self, value):
         '''
         Validates the provided value against the source type.
         
@@ -858,26 +848,57 @@ class CallSource(Call):
             raise SetupError('Invalid value provided %s, expected type %s' % (value, self._type))
         return value
 
-    @abc.abstractclassmethod
-    def _process(self):
-        '''
-        Called in order to process the source value. This method has to set the _hasValue flag and also populate the
-        _value attribute.
-        '''
+# --------------------------------------------------------------------
 
-class CallEntity(CallSource):
+class CallEvent(Callable, WithCall, WithListeners):
+    '''
+    Provides the event call.
+    @see: Callable, WithCall, WithType, WithListeners
+    '''
+    
+    def __init__(self, call):
+        '''
+        Construct the event call.
+        @see: WithCall.__init__
+        @see: WithListeners.__init__
+        '''
+        WithCall.__init__(self, call)
+        WithListeners.__init__(self)
+        self._processed = False
+
+    def __call__(self):
+        '''
+        Provides the call for the source.
+        '''
+        if self._processed: raise SetupError('The event call cannot be dispatched twice')
+        self._processed = True
+        
+        for listener in self._listenersBefore: listener()
+        ret = self.call()
+        if ret is not None: raise SetupError('The event call cannot return any value')
+        for listener in self._listenersAfter: listener()
+ 
+class CallEntity(Callable, WithCall, WithType, WithListeners):
     '''
     Call that resolves an entity setup.
+    @see: Callable, WithCall, WithType, WithListeners
     '''
     
-    def __init__(self, call, type, **keyargs):
+    def __init__(self, call, type=None):
         '''
-        @see: CallSource.__init__
+        Construct the entity call.
+        @see: WithCall.__init__
+        @see: WithType.__init__
+        @see: WithListeners.__init__
         '''
-        CallSource.__init__(self, call, type, **keyargs)
-        self._valueInterceptors = []
+        WithCall.__init__(self, call)
+        WithType.__init__(self, type)
+        WithListeners.__init__(self)
+        
+        self._hasValue = False
+        self._interceptors = []
     
-    def addValueInterceptor(self, interceptor):
+    def addInterceptor(self, interceptor):
         '''
         Adds a value interceptor. A value interceptor is a Callable object that takes as an argument the entity value
         and returns the value for the entity.
@@ -886,108 +907,91 @@ class CallEntity(CallSource):
             The interceptor.
         '''
         assert isinstance(interceptor, Callable), 'Invalid interceptor %s' % interceptor
-        self._valueInterceptors.append(interceptor)
+        self._interceptors.append(interceptor)
     
-    def _process(self):
-        '''
-        @see: CallSource._process
-        '''
-        ret = self._call()
-        
-        if isgenerator(ret): value, generator = next(ret), ret
-        else: value, generator = ret, None
-        
-        assert log.debug('Processed entity %s', value) or True
-        v = self._validate(value)
-        for inter in self._valueInterceptors: v = inter(v)
-        self._value = v
-        self._hasValue = True
-        
-        for listener in self._listenersBefore: listener()
-        
-        if generator:
-            try: next(generator)
-            except StopIteration: pass
-        
-        Initializer.initialize(value)
-
-        for listener in self._listenersAfter: listener()
-        
-        assert log.debug('Finalized entity %s', value) or True
-        return value
-
-class CallConfig(CallSource):
-    '''
-    Call that resolves a configuration setup.
-    '''
-    
-    def __init__(self, call, type, **keyargs):
-        '''
-        @see: CallSource.__init__
-        '''
-        CallSource.__init__(self, call, type, **keyargs)
-    
-    def _process(self):
-        '''
-        @see: CallSource._process
-        '''
-        value = self._call()
-        assert log.debug('Processed configuration %s', value) or True
-        self._value = self._validate(value)
-        self._hasValue = True
-        
-        for listener in chain(self._listenersBefore, self._listenersAfter): listener()
-        
-        assert log.debug('Finalized configuration %s', value) or True
-        return value
-
-class CallEvent(Call):
-    '''
-    Provides the event call.
-    '''
-    
-    def __init__(self, call):
-        '''
-        @see: Call.__init__
-        '''
-        Call.__init__(self, call)
-        self._invoked = False
-
     def __call__(self):
         '''
-        Provides the call for the source.
+        Provides the call for the entity.
         '''
-        if self._invoked: raise SetupError('The event call cannot be dispatched twice')
-        self._invoked = True
+        if not self._hasValue:
+            ret = self.call()
         
-        for listener in self._listenersBefore: listener()
-        ret = self._call()
-        if ret is not None: raise SetupError('The event call cannot return any value')
-        for listener in self._listenersAfter: listener()
+            if isgenerator(ret): value, generator = next(ret), ret
+            else: value, generator = ret, None
+            
+            assert log.debug('Processed entity %s', value) or True
+            v = self.validate(value)
+            for inter in self._interceptors: v = inter(v)
+            
+            self._hasValue = True
+            self._value = v
+            
+            for listener in self._listenersBefore: listener()
+            
+            if generator:
+                try: next(generator)
+                except StopIteration: pass
+            
+            Initializer.initialize(value)
+    
+            for listener in self._listenersAfter: listener()
+            
+            assert log.debug('Finalized entity %s', value) or True
+        return self._value
+
+class CallDeliverValue(Callable, WithType, WithListeners):
+    '''
+    Call that delivers a value.
+    @see: Callable, WithType, WithListeners
+    '''
+    
+    def __init__(self, value, type=None):
+        '''
+        Construct the configuration call.
+        @see: WithType.__init__
+        @see: WithListeners.__init__
+        '''
+        WithType.__init__(self, type)
+        WithListeners.__init__(self)
+        self._value = self.validate(value)
+        self._processed = False
+        
+    def __call__(self):
+        '''
+        Provides the call for the entity.
+        '''
+        if not self._processed:
+            self._processed = True
+            for listener in chain(self._listenersBefore, self._listenersAfter): listener()
+        return self._value
+    
+class CallDeliverError(Callable, WithListeners):
+    '''
+    Call that delivers an exception.
+    @see: Callable, WithListeners
+    '''
+    
+    def __init__(self, error):
+        '''
+        Construct the configuration call.
+        @see: WithListeners.__init__
+        
+        @param error: Exception
+            The exception to be raised.
+        '''
+        assert isinstance(error, Exception), 'Invalid error %s' % error
+        WithListeners.__init__(self)
+        self._error = error
+        
+    def __call__(self):
+        '''
+        Provides the call for the entity.
+        '''
+        for listener in chain(self._listenersBefore, self._listenersAfter): listener()
+        raise self._error
 
 # --------------------------------------------------------------------
 
-class Value(Callable):
-    '''
-    Implementation for a call that just delivers a value.
-    '''
-    
-    def __init__(self, value):
-        '''
-        Create the value call.
-        
-        @param value: object
-            The value to deliver.
-        '''
-        assert value, 'A value is required'
-        self._value = value
-    
-    def __call__(self):
-        '''
-        Provide the value
-        '''
-        return self._value
- 
 class CreateEntity(Callable):
     '''
     Callable class that provides the entity creation based on the provided class.
@@ -1011,36 +1015,100 @@ class CreateEntity(Callable):
 
 # --------------------------------------------------------------------
 
-class Context:
+class Assembly:
     '''
-    Provides the context of the setup functions and setup calls.
+    Provides the assembly data.
     '''
     
-    contexts = []
-    # The current setup contexts
+    current = []
+    # The current assemblies.
     
-    @staticmethod
-    def process(name):
+    @classmethod
+    def process(cls, name):
         '''
         Process the specified name into the current active context.
         
         @param name: string
             The name to be processed.
         '''
-        if not Context.contexts: raise SetupError('There is no active context to process')
-        ctx = Context.contexts[-1]
-        assert isinstance(ctx, Context)
-        return ctx.processForName(name)
+        if not cls.current: raise SetupError('There is no active assembly to process on')
+        ass = cls.current[-1]
+        assert isinstance(ass, Assembly), 'Invalid assembly %s' % ass
+        return ass.processForName(name)
+    
+    def __init__(self, configExtern):
+        '''
+        Construct the assembly.
+        
+        @param configExtern: dictionary{string, object}
+            The external configurations values to be used in the context.
+        @ivar configUsed: set{string}
+            A set containing the used configurations names from the external configurations.
+        @ivar configurations: dictionary[string, Config]
+            A dictionary of the assembly configurations, the key is the configuration name and the value is a
+            Config object.
+        @ivar callsByName: dictionary{string, Callable}
+            A dictionary containing as a key the name of the call to be resolved and as a value the Callable that will
+            resolve the name. The Callable will not take any argument.
+        @ivar callsByType: dictionary{string, list[Callable]}
+            A dictionary containing as a key the type provided by the calls and as a value a list of calls that provide
+            that type.
+        @ivar callsStart: list[Callable]
+            A list of Callable that are used as IoC start calls.
+        '''
+        assert isinstance(configExtern, dict), 'Invalid external configurations %s' % configExtern
+        self.configExtern = configExtern
+        self.configUsed = set()
+        self.configurations = {}
+        self.callsByName = {}
+        self.callsByType = {}
+        self.callsStart = []
+            
+    def processForName(self, name):
+        '''
+        Process the specified name into this assembly.
+        
+        @param name: string
+            The name to be processed.
+        '''
+        assert isinstance(name, str), 'Invalid name %s' % name
+        call = self.callsByName.get(name)
+        if not call: raise SetupError('No IoC resource for name %r' % name)
+        if not isinstance(call, Callable): raise SetupError('Invalid call %s for name %r' % (call, name))
+        return call()
+    
+    def start(self):
+        '''
+        Starts the assembly, basically call all setup functions that have been decorated with start.
+        '''
+        if self.callsStart:
+            unused = set(self.configExtern)
+            unused = unused.difference(self.configUsed)
+            if unused: log.warn('Unknown configurations: %r', ', '.join(unused))
+            
+            self.current.append(self)
+            try:     
+                for call in self.callsStart: call()
+            finally: self.current.pop()
+        else: log.error('No IoC start calls to start the setup')
+
+class Context:
+    '''
+    Provides the context of the setup functions and setup calls.
+    '''
     
     def __init__(self):
         '''
         Construct the context.
         '''
         self._setups = []
-        self._calls = None
         
     def addSetup(self, setup):
         '''
+        Adds a new setup to the context.
+        
+        @param setup: Setup
+            The setup to add to the context.
         '''
         assert isinstance(setup, Setup), 'Invalid setup %s' % setup
         self._setups.append(setup)
@@ -1057,9 +1125,12 @@ class Context:
         if setups: self._setups.extend(setups)
         else: log.info('No setup found in %s', module)
         
-    def start(self, configurations=None):
+    def assemble(self, configurations=None):
         '''
-        Starts the context, basically call all setup functions that have been decorated with start.
+        Creates and assembly based on this context.
+        
+        @param configurations: dictionary{string, object}
+            The external configurations values to be used for the assembly.
         '''
         assembly = Assembly(configurations or {})
         
@@ -1067,33 +1138,9 @@ class Context:
         for setup in setups:
             assert isinstance(setup, Setup), 'Invalid setup %s' % setup
             setup.index(assembly)
-
+            
+        self._indexing = False
         for setup in setups: setup.assemble(assembly)
         
-        if not assembly.start: log.error('No IoC start calls to start the setup')
-        
-        unused = set(assembly.configurations)
-        unused = unused.difference(assembly.configurationsUsed)
-        if unused: log.warn('Unknown configurations: %r', ', '.join(unused))
-        
-        self._calls = assembly.calls
-        Context.contexts.append(self)
-        try:     
-            for call in assembly.start:
-                assert isinstance(call, Callable), 'Invalid call %s' % call
-                call()
-        finally: Context.contexts.pop()
-        
-    def processForName(self, name):
-        '''
-        Process the specified name into this context.
-        
-        @param name: string
-            The name to be processed.
-        '''
-        assert isinstance(name, str), 'Invalid name %s' % name
-        if not self._calls: raise SetupError('The active context is not started')
-        call = self._calls.get(name)
-        if not call: raise SetupError('No IoC resource for name %r' % name)
-        if not isinstance(call, Callable): raise SetupError('Invalid call %s for name %r' % (call, name))
-        return call()
+        return assembly
+ 

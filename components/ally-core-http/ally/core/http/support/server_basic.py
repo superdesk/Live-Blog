@@ -110,7 +110,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
         
     def log_message(self, format, *args):
-        #TODO: see for a better solution for this
+        #TODO: see for a better solution for this, check for next python release
         # This is a fix: whenever a message is logged there is an attempt to find some sort of host name which
         # creates a big delay whenever the request is made from a non localhost client.
         assert log.debug(format, *args) or True

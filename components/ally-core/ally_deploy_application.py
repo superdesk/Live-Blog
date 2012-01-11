@@ -9,49 +9,52 @@ Created on Jan 9, 2012
 Special module that is targeted by the application loader in order to deploy the components in the current system path.
 '''
 
-from configparser import ConfigParser
-import json
-import package_extender
+# --------------------------------------------------------------------
+
+from ally.container import ioc, aop
+from ally.container.config import save, load
+import os
 import sys
 import traceback
 
 # --------------------------------------------------------------------
 
-package_extender.registerPackageExtender(False)
-# register the package extender.
+FILE_CONFIG = 'application.properties'
+# The name of the configuration file
 
-CONFIGURATIONS = ConfigParser()
-# The configurations for the application
-
-CONTEXT = None
-# The context of the deploy.
+context = None
+# The context of the setups.
+assembly = None
+# The deployed assembly.
 
 # --------------------------------------------------------------------
-#TODO: de facut configurile ca json simplu
-def loadConfigurations(section):
-    if CONFIGURATIONS.has_section(section):
-        return {name:json.loads(value) for name, value in CONFIGURATIONS.items(section)}
 
 def deploy():
-    global CONTEXT
-    if CONTEXT: raise ImportError('The application is already deployed')
+    global context, assembly
+    if context: raise ImportError('The application is already deployed')
     try:
-        from ally.container import ioc, aop
-    except ImportError:
+        ctx = context = ioc.Context()
+        
+        for module in aop.modulesIn('__setup__.**').load().asList():
+            ctx.addSetupModule(module)
+        
+        isConfig = os.path.isfile(FILE_CONFIG)
+        if isConfig:
+            with open(FILE_CONFIG, 'r') as f: config = load(f)
+        else: config = {}
+        
+        ass = assembly = ctx.assemble(config)
+        
+        if not isConfig:
+            with open(FILE_CONFIG, 'w') as f: save(ass.configurations, f)
+            
+        try: ass.start()
+        except ioc.ConfigError:
+            # We save the file in case there are missing configuration
+            with open(FILE_CONFIG, 'w') as f: save(ass.configurations, f)
+            raise
+    except:
         print('-' * 150, file=sys.stderr)
-        print('The ally ioc or aop is missing, no idea how to deploy the application', file=sys.stderr)
+        print('A problem occurred while deploying', file=sys.stderr)
         traceback.print_exc()
         print('-' * 150, file=sys.stderr)
-    else:
-        try:
-            CONTEXT = ctx = ioc.Context()
-            
-            for module in aop.modulesIn('__setup__.**').load().asList():
-                ctx.addSetupModule(module)
-            
-            ctx.start(loadConfigurations('application'))
-        except:
-            print('-' * 150, file=sys.stderr)
-            print('A problem occurred while deploying', file=sys.stderr)
-            traceback.print_exc()
-            print('-' * 150, file=sys.stderr)

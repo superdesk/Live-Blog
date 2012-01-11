@@ -58,9 +58,19 @@ if __name__ == '__main__':
             if path not in sys.path: sys.path.append(path)
     else: raise AssertionError('Invalid load from %s' % applicationFrom)
     
+    
+    # register the package extender.
+    try:
+        import package_extender
+        package_extender.registerPackageExtender(False)
+    except:
+        print('-' * 150, file=sys.stderr)
+        print('Cannot register the package extender', file=sys.stderr)
+        traceback.print_exc()
+        print('-' * 150, file=sys.stderr)
+
     try:
         import ally_deploy_application
-        ally_deploy_application.CONFIGURATIONS.read('application.properties')
         if applicationProfile:
             import profile
             profile.run('ally_application_deploy.deploy()', filename='output.stats')

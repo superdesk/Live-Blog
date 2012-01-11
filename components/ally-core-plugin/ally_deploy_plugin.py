@@ -9,41 +9,57 @@ Created on Jan 9, 2012
 Special module that is targeted by the application loader in order to deploy the components in the current system path.
 '''
 
-import ally_deploy_application as app
+from ally.container import ioc, aop
 import sys
 import traceback
 from ally.core.spec.resources import ResourcesManager
+from ally.container.config import load, save
+import os
+import ally_deploy_application
 
 # --------------------------------------------------------------------
 
-CONTEXT = None
-# The context of the plugins deploy.
+FILE_CONFIG = 'plugins.properties'
+# The name of the configuration file
+
+context = None
+# The context of the setups.
+assembly = None
+# The deployed assembly.
+
 
 # --------------------------------------------------------------------
 
 def deploy():
-    global CONTEXT
-    if CONTEXT: raise ImportError('The plugins are already deployed')
+    global context, assembly
+    if context: raise ImportError('The application is already deployed')
     try:
-        from ally.container import ioc, aop
-    except ImportError:
+        ctx = context = ioc.Context()
+        
+        for module in aop.modulesIn('__plugin__.**').load().asList():
+            ctx.addSetupModule(module)
+        
+        isConfig = os.path.isfile(FILE_CONFIG)
+        if isConfig:
+            with open(FILE_CONFIG, 'r') as f: config = load(f)
+        else: config = {}
+        
+        rscMng = '__setup__.ally_core.resource_manager.resourcesManager'
+        ctx.addSetup(ioc.SetupEntityFixed(rscMng, ally_deploy_application.assembly.processForName(rscMng),
+                                          ResourcesManager))
+            
+        ass = assembly = ctx.assemble(config)
+        
+        if not isConfig:
+            with open(FILE_CONFIG, 'w') as f: save(ass.configurations, f)
+        
+        try: ass.start()
+        except ioc.ConfigError:
+            # We save the file in case there are missing configuration
+            with open(FILE_CONFIG, 'w') as f: save(ass.configurations, f)
+            raise
+    except:
         print('-' * 150, file=sys.stderr)
-        print('The ally ioc or aop is missing, no idea how to deploy the application', file=sys.stderr)
+        print('A problem occurred while deploying plugins', file=sys.stderr)
         traceback.print_exc()
         print('-' * 150, file=sys.stderr)
-    else:
-        try:
-            CONTEXT = ctx = ioc.Context()
-            
-            for module in aop.modulesIn('__plugin__.**').load().asList():
-                ctx.addSetupModule(module)
-            
-            ctx.addSetup(ioc.SetupEntityFixed('__setup__.ally_core.resource_manager.resourcesManager',
-                app.CONTEXT.processForName('__setup__.ally_core.resource_manager.resourcesManager'), ResourcesManager))
-            
-            ctx.start(app.loadConfigurations('plugins'))
-        except:
-            print('-' * 150, file=sys.stderr)
-            print('A problem occurred while deploying plugins', file=sys.stderr)
-            traceback.print_exc()
-            print('-' * 150, file=sys.stderr)
