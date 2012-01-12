@@ -301,6 +301,18 @@ def onModelMerge(mapper, propertyId, entity, model):
         
 # --------------------------------------------------------------------
 
+def addLoadListener(modelClass, listener):
+    '''
+    Adds a load listener that will get notified every time a entity is loaded.
+    
+    @param modelClass: class
+        The model class to add the listener to.
+    @param listener: function
+        A function that has to take as parameter to model instance that has been loaded.
+    '''
+    def onLoad(target, *args): listener(target)
+    event.listen(modelClass, 'load', onLoad)
+
 def columnFor(obj, column=None):
     '''
     If the column is provided it will be associate with the obj, if the column is not provided than this 

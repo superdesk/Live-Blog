@@ -11,7 +11,8 @@ Special module that is targeted by the application loader in order to deploy the
 
 # --------------------------------------------------------------------
 
-from ally.container import ioc, aop
+from ally.container import aop
+from ally.container._impl import ioc
 from ally.container.config import save, load
 import os
 import sys

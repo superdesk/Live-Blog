@@ -90,9 +90,27 @@ def isPackage(module):
     assert ismodule(module), 'Invalid module %s' % module
     return hasattr(module, '__path__')
 
+def callerGlobals(level=1):
+    '''
+    Provides the caller globals.
+    
+    @param level: integer
+        The level from where to start finding the caller.
+    @return: dictionary{string, object}
+        The locals of the caller (based on the provided level)
+    '''
+    stacks = stack()
+    currentModule = stacks[level][1]
+    for k in range(level + 1, len(stacks)):
+        if stacks[k][1] != currentModule:
+            frame = stacks[k][0]
+            break
+    else: raise Exception('There is no other module than the current one')
+    return frame.f_globals
+
 def callerLocals(level=1):
     '''
-    Provides the calling module locals.
+    Provides the caller locals.
     
     @param level: integer
         The level from where to start finding the caller.

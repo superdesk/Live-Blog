@@ -327,3 +327,44 @@ class AttributeOnThread:
         '''
         thread = currentThread()
         if hasattr(thread, self.__id): delattr(thread, self.__id)
+
+# --------------------------------------------------------------------
+
+ATTR_BEAN = Attribute(__name__, 'bean', dict)
+# Provides the bean properties.
+
+def bean(clazz):
+    '''
+    Used for describing bean classes, this type of classes are just containers.
+    '''
+    properties = {}
+    for name, value in clazz.__dict__.items():
+        if isclass(value): properties[name] = value
+    for name in properties.keys(): delattr(clazz, name)
+    inherited = ATTR_BEAN.get(clazz, None)    
+    if inherited: properties.update(inherited)
+    
+    ATTR_BEAN.set(clazz, properties)
+    setattr(clazz, '__getattr__', _getattr_bean)
+    setattr(clazz, '__setattr__', _setattr_bean)
+    return clazz
+
+def _getattr_bean(self, name):
+    '''
+    FOR INTERNAL USE.
+    Used to get attributes for bean defined classes.
+    '''
+    if name not in ATTR_BEAN.get(self.__class__): raise AttributeError
+    return None
+
+def _setattr_bean(self, name, value):
+    '''
+    FOR INTERNAL USE.
+    Used to get attributes for bean defined classes.
+    '''
+    properties = ATTR_BEAN.get(self.__class__)
+    clazz = properties.get(name, None)
+    if clazz:
+        assert value is None or isinstance(value, clazz), \
+        'Invalid value %s for name %r, expected %r' % (value, name, clazz.__name__)
+    object.__setattr__(self, name, value)

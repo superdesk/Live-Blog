@@ -9,13 +9,14 @@ Created on Jan 9, 2012
 Special module that is targeted by the application loader in order to deploy the components in the current system path.
 '''
 
-from ally.container import ioc, aop
+from ally.api.configure import serviceFor
+from ally.container import aop
+from ally.container._impl import ioc
+from ally.container.config import load, save
+from ally.core.spec.resources import ResourcesManager
+import os
 import sys
 import traceback
-from ally.core.spec.resources import ResourcesManager
-from ally.container.config import load, save
-import os
-import ally_deploy_application
 
 # --------------------------------------------------------------------
 
@@ -27,6 +28,13 @@ context = None
 assembly = None
 # The deployed assembly.
 
+# --------------------------------------------------------------------
+
+resourcesManager = None
+# The resource manager used to register the plugin services.
+
+services = []
+# The services to be registered after the plugin setup is finalized.
 
 # --------------------------------------------------------------------
 
@@ -43,10 +51,6 @@ def deploy():
         if isConfig:
             with open(FILE_CONFIG, 'r') as f: config = load(f)
         else: config = {}
-        
-        rscMng = '__setup__.ally_core.resource_manager.resourcesManager'
-        ctx.addSetup(ioc.SetupEntityFixed(rscMng, ally_deploy_application.assembly.processForName(rscMng),
-                                          ResourcesManager))
             
         ass = assembly = ctx.assemble(config)
         
@@ -58,6 +62,9 @@ def deploy():
             # We save the file in case there are missing configuration
             with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
             raise
+        
+        assert isinstance(resourcesManager, ResourcesManager), 'There is no resource manager for the services'
+        for service in services: resourcesManager.register(serviceFor(service), service)
     except:
         print('-' * 150, file=sys.stderr)
         print('A problem occurred while deploying plugins', file=sys.stderr)
