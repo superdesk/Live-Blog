@@ -43,8 +43,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=level,
                     format='%(asctime)s %(levelname)s (%(threadName)s %(module)s.%(funcName)s %(lineno)d): %(message)s')
     
-    applicationFrom = 'folder'
-    applicationProfile = False
+    applicationFrom, pluginsFrom = 'folder', 'folder'
+    applicationProfile, pluginsProfile = False, False
+
     componentsConfig = {'serverType':'cherrypy', 'ajaxCrossDomain':True, 'phpZendSupport':True}
     # Loading the libraries
     for path in findLibraries(os.path.join(os.path.dirname(__file__), 'libraries')):
@@ -63,26 +64,18 @@ if __name__ == '__main__':
     try:
         import package_extender
         package_extender.registerPackageExtender(False)
-    except:
-        print('-' * 150, file=sys.stderr)
-        print('Cannot register the package extender', file=sys.stderr)
-        traceback.print_exc()
-        print('-' * 150, file=sys.stderr)
-
+    except ImportError: traceback.print_exc()
+    except: traceback.print_exc()
+    
     try:
         import ally_deploy_application
         if applicationProfile:
             import profile
             profile.run('ally_application_deploy.deploy()', filename='output.stats')
         else: ally_deploy_application.deploy()
-    except ImportError:
-        print('-' * 150, file=sys.stderr)
-        print('There is no "ally_deploy_application" module to start the application', file=sys.stderr)
-        traceback.print_exc()
-        print('-' * 150, file=sys.stderr)
+    except ImportError: traceback.print_exc()
+    except: traceback.print_exc()
     else:
-        pluginsFrom = 'folder'
-        pluginsProfile = False
         # Loading the plugins. 
         if pluginsFrom == 'folder':
             for path in findDirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plugins')):
@@ -98,8 +91,5 @@ if __name__ == '__main__':
                 import profile
                 profile.run('ally_deploy_plugin.deploy()', filename='output.stats')
             else: ally_deploy_plugin.deploy()
-        except ImportError:
-            print('-' * 150, file=sys.stderr)
-            print('There is no "ally_deploy_plugin" module to start the plugins', file=sys.stderr)
-            traceback.print_exc()
-            print('-' * 150, file=sys.stderr)
+        except ImportError: traceback.print_exc()
+        except: traceback.print_exc()
