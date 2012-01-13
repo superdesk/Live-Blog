@@ -11,9 +11,10 @@ single thread at one time.
 '''
 
 from ..support.util_sys import callerLocals
-from ._impl.ioc import Initializer, SetupEntity, SetupConfig, SetupFunction, \
-    SetupEvent, Context, SetupReplace, SetupStart, SetupError, register, ConfigError
-from .aop import AOPModules
+from ._impl.entity_handler import Initializer
+from ._impl.ioc_setup import SetupEntity, SetupConfig, SetupFunction, SetupEvent, \
+    Context, SetupReplace, SetupStart, SetupError, register, ConfigError
+from ._impl.aop_container import AOPModules
 from functools import partial, update_wrapper
 from inspect import isclass, ismodule, getfullargspec, isfunction
 import importlib
@@ -52,7 +53,7 @@ def entity(*args):
     hasType, type = _process(function)
     if hasType and not isclass(type):
         raise SetupError('Expected a class as the return annotation for function %s' % function)
-    return update_wrapper(register(SetupEntity(function, type), callerLocals()), function)
+    return update_wrapper(register(SetupEntity(function, type=type), callerLocals()), function)
 
 def config(*args):
     '''
@@ -67,7 +68,9 @@ def config(*args):
     hasType, type = _process(function)
     if hasType and not isclass(type):
         raise SetupError('Expected a class as the return annotation for function %s' % function)
-    return update_wrapper(register(SetupConfig(function, type), callerLocals()), function)
+    if not function.__name__.islower():
+        raise SetupError('Invalid name %r for configuration, needs to be lower case only' % function.__name__)
+    return update_wrapper(register(SetupConfig(function, type=type), callerLocals()), function)
 
 def before(setup):
     '''

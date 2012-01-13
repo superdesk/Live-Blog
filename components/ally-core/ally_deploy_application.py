@@ -12,7 +12,7 @@ Special module that is targeted by the application loader in order to deploy the
 # --------------------------------------------------------------------
 
 from ally.container import aop
-from ally.container._impl import ioc
+from ally.container._impl.ioc_setup import Context, ConfigError
 from ally.container.config import save, load
 import os
 import sys
@@ -34,7 +34,7 @@ def deploy():
     global context, assembly
     if context: raise ImportError('The application is already deployed')
     try:
-        ctx = context = ioc.Context()
+        ctx = context = Context()
         
         for module in aop.modulesIn('__setup__.**').load().asList():
             ctx.addSetupModule(module)
@@ -50,7 +50,7 @@ def deploy():
             with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
             
         try: ass.processStart()
-        except ioc.ConfigError:
+        except ConfigError:
             # We save the file in case there are missing configuration
             with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
             raise

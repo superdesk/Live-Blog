@@ -9,7 +9,7 @@ Created on Jan 12, 2012
 Provides the AOP implementations.
 '''
 
-from .ioc import Assembly
+from .ioc_setup import Assembly
 from _abcoll import Callable
 from inspect import isclass
 import re

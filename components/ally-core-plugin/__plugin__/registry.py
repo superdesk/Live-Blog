@@ -19,9 +19,8 @@ def services():
     '''
     The plugins services that will be registered automatically.
     '''
-    return plugin.services
+    return []
 
 @ioc.start
 def register():
-    # We just call the registry setups to trigger the creation.
-    services()
+    plugin.services = services()

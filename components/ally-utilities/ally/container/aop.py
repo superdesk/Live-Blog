@@ -10,7 +10,7 @@ Provides the AOP (aspect oriented programming) support.
 '''
 
 from ..support.util_sys import searchModules, packageModules, isPackage
-from ._impl.aop import AOPModules
+from ._impl.aop_container import AOPModules
 from inspect import ismodule
 
 # --------------------------------------------------------------------

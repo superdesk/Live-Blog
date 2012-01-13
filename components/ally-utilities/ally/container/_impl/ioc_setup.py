@@ -10,12 +10,13 @@ Provides the setup implementations for the IoC module.
 '''
 
 from ..config import Config
-from ..proxy import createProxy, ProxyWrapper
+from .entity_handler import Initializer
 from _abcoll import Callable
 from ally.support.util import Attribute
 from functools import partial
 from inspect import isclass, isfunction, getfullargspec, ismodule, isgenerator
 from itertools import chain
+from numbers import Number
 import logging
 
 # --------------------------------------------------------------------
@@ -39,14 +40,42 @@ class ConfigError(Exception):
 
 # --------------------------------------------------------------------
 
+def setups(register):
+    '''
+    Provides the setups in the register, if there are no setups in the register they will be automatically created.
+    
+    @param register: dictionary{string, object}
+        The register to retrieve or place the setups in.
+    @return: list[Setup]
+        The setups list.
+    '''
+    assert isinstance(register, dict), 'Invalid register %s' % register
+    if ATTR_SETUPS.hasDict(register): setups = ATTR_SETUPS.getDict(register)
+    else: setups = ATTR_SETUPS.setDict(register, [])
+    return setups
+
 def register(setup, register):
     '''
     Register the setup function into the calling module.
     
     @param setup: Setup
         The setup to register into the calling module.
-    @param register: dictionary
-        The register to place the setup in, if None than it will use the caller locals.
+    @param register: dictionary{string, object}
+        The register to place the setup in.
+    @return: Setup
+        The provided setup entity.
+    '''
+    setups(register).append(setup)
+    return setup
+
+def searchSetup(setup, register):
+    '''
+    Register the setup function into the calling module.
+    
+    @param setup: Setup
+        The setup to register into the calling module.
+    @param register: dictionary{string, object}
+        The register to place the setup in.
     @return: Setup
         The provided setup entity.
     '''
@@ -56,79 +85,6 @@ def register(setup, register):
     else: setups = ATTR_SETUPS.setDict(register, [])
     setups.append(setup)
     return setup
-
-# --------------------------------------------------------------------
-
-class Initializer(Callable):
-    '''
-    Class used as the initializer for the entities classes.
-    '''
-    
-    INITIALIZED = Attribute(__name__, 'initialized', bool)
-    # Provides the attribute for the initialized flag.
-    ARGUMENTS = Attribute(__name__, 'arguments')
-    # Provides the attribute for the arguments for initialization.
-    
-    @staticmethod
-    def initializerFor(entity):
-        '''
-        Provides the Initializer for the provided entity if is available.
-        
-        @param entity: object
-            The entity to provide the initializer for.
-        @return: Initializer|None
-            The Initializer or None if not available.
-        '''
-        if not isclass(entity): clazz = entity.__class__
-        else: clazz = entity
-        initializer = clazz.__dict__.get('__init__')
-        if isinstance(initializer, Initializer): return initializer
-    
-    @classmethod
-    def initialize(cls, entity):
-        '''
-        Initialize the provided entity.
-        '''
-        assert entity is not None, 'Need to provide an entity to be initialized'
-        initializer = Initializer.initializerFor(entity)
-        if initializer and not cls.INITIALIZED.get(entity, False):
-            assert isinstance(initializer, Initializer)
-            if entity.__class__ == initializer._entityClazz:
-                args, keyargs = cls.ARGUMENTS.getOwn(entity)
-                cls.ARGUMENTS.deleteOwn(entity)
-                cls.INITIALIZED.set(entity, True)
-                if initializer._entityInit:
-                    initializer._entityInit(entity, *args, **keyargs)
-                    log.info('Initialized entity %s' % entity)
-    
-    def __init__(self, clazz):
-        '''
-        Create a entity initializer for the specified class.
-        
-        @param clazz: class
-            The entity class of this entity initializer.
-        '''
-        assert isclass(clazz), 'Invalid entity class %s' % clazz
-        self._entityClazz = clazz
-        self._entityInit = getattr(clazz, '__init__', None)
-        setattr(clazz, '__init__', self)
-        
-    def __call__(self, entity, *args, **keyargs):
-        '''
-        @see: Callable.__call__
-        '''
-        assert isinstance(entity, self._entityClazz), 'Invalid entity %s for class %s' % (entity, self._entityClazz)
-        if self.INITIALIZED.get(entity, False):
-            return self._entityInit(entity, *args, **keyargs)
-        assert not self.ARGUMENTS.hasOwn(entity), 'Cannot initialize twice the entity %s' % entity
-        self.ARGUMENTS.setOwn(entity, (args, keyargs))
-
-    def __get__(self, entity, owner=None):
-        '''
-        @see: http://docs.python.org/reference/datamodel.html
-        '''
-        if entity is not None: return partial(self.__call__, entity)
-        return self
 
 # --------------------------------------------------------------------
 
@@ -162,21 +118,34 @@ class SetupFunction(Setup, Callable):
     A setup indexer based on a function.
     '''
     
-    def __init__(self, function):
+    def __init__(self, function, name=None, group=None):
         '''
         Constructs the setup call for the provided function.
         
-        @param function: function
-            The function of the setup call.
+        @param function: function|Callable
+            The function of the setup call, lambda functions or Callable are allowed only if the name is provided.
+        @param name: string|None
+            The name of this setup, if not specified it will be extracted from the provided function.
+        @param group: string|None
+            The group of this setup, if not specified it will be extracted from the provided function.
         '''
-        assert isfunction(function), 'Invalid function %s' % function
-        assert function.__name__ != '<lambda>', 'Lambda functions cannot be used %s' % function
-        if __debug__:
-            fnArgs = getfullargspec(function)
-            assert not (fnArgs.args or fnArgs.varargs or fnArgs.varkw), \
-            'The setup function %r cannot have any type of arguments' % self._name
+        assert not group or isinstance(group, str), 'Invalid group %s' % group
+        if name:
+            assert isinstance(function, Callable), 'Invalid callable function %s' % function
+            assert isinstance(name, str), 'Invalid name %s' % name
+            self._name = name
+            self._group = group
+        else:
+            assert isfunction(function), 'Invalid function %s' % function
+            assert function.__name__ != '<lambda>', 'Lambda functions cannot be used %s' % function
+            if group: self._group = group
+            else: self._group = function.__module__
+            self._name = self._group + '.' + function.__name__
+            if __debug__:
+                fnArgs = getfullargspec(function)
+                assert not (fnArgs.args or fnArgs.varargs or fnArgs.varkw), \
+                'The setup function %r cannot have any type of arguments' % self._name
         self._function = function
-        self._name = self._function.__module__ + '.' + self._function.__name__
     
     name = property(lambda self: self._name, doc=
 '''
@@ -195,14 +164,14 @@ class SetupSource(SetupFunction):
     Provides the setup for retrieving a value based on a setup function.
     '''
     
-    def __init__(self, function, type=None):
+    def __init__(self, function, type=None, **keyargs):
         '''
         @see: SetupFunction.__init__
         
         @param type: class|None
             The type(class) of the value that is being delivered by this source.
         '''
-        SetupFunction.__init__(self, function)
+        SetupFunction.__init__(self, function, **keyargs)
         assert type is None or isclass(type), 'Invalid type %s' % type
         self._type = type
         
@@ -211,11 +180,11 @@ class SetupEntity(SetupSource):
     Provides the entity setup.
     '''
     
-    def __init__(self, function, type=None):
+    def __init__(self, function, **keyargs):
         '''
         @see: SetupSource.__init__
         '''
-        SetupSource.__init__(self, function, type)
+        SetupSource.__init__(self, function, **keyargs)
     
     def index(self, assembly):
         '''
@@ -225,141 +194,18 @@ class SetupEntity(SetupSource):
         if self._name in assembly.calls:
             raise SetupError('There is already a setup call for name %r' % self._name)
         assembly.calls[self._name] = CallEntity(self._function, self._type)
-
-class SetupEntityCreate(Setup):
-    '''
-    Provides the create entity setup.
-    '''
-    
-    def __init__(self, name, clazz):
-        '''
-        Create the setup for creating an entity based on the provided class.
-        
-        @param name: string
-            The name used for the setup function.
-        @param clazz: class
-            The class to create the entity setup for.
-        '''
-        assert isinstance(name, str), 'Invalid name %s' % name
-        assert isclass(clazz), 'Invalid class %s' % clazz
-        self._name = name
-        self._class = clazz
-    
-    def index(self, assembly):
-        '''
-        @see: Setup.index
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name in assembly.calls:
-            raise SetupError('Cannot create setup function because there is already a setup call for name %r' % 
-                             self._name)
-        assembly.calls[self._name] = CallEntity(CreateEntity(self._class), self._class)
-
-class SetupEntityFixed(Setup):
-    '''
-    Provides a fixed entity value.
-    '''
-    
-    def __init__(self, name, entity, type=None):
-        '''
-        Create the setup for providing a fixed entity setup.
-        
-        @param name: string
-            The name used for the setup function.
-        @param entity: object
-            The entity to be provided.
-        '''
-        assert isinstance(name, str), 'Invalid name %s' % name
-        assert entity, 'A entity is required' % entity
-        if type:
-            assert isclass(type), 'Invalid type %s' % type
-            self._type = type
-        else: self._type = entity.__class__
-        self._name = name
-        self._entity = entity
-    
-    def index(self, assembly):
-        '''
-        @see: Setup.index
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name in assembly.calls:
-            raise SetupError('Cannot add setup function because there is already a setup call for name %r' % self._name)
-        assembly.calls[self._name] = CallDeliverValue(self._entity, self._type)
-
-class SetupEntityProxy(Setup):
-    '''
-    Provides the setup event function.
-    '''
-    
-    priority = 4
-    
-    def __init__(self, prefix, classes, listeners):
-        '''
-        Creates a setup that will create proxies for the entities that inherit or are in the provided classes.
-        The proxy create process is as follows:
-            - find all entity calls that have the name starting with the provided prefix
-            - if the entity instance inherits a class from the provided proxy classes it will create a proxy for
-              that and wrap the entity instance.
-            - after the proxy is created invoke all the proxy listeners.
-        
-        @param prefix: string
-            The name prefix of the call entities to be proxied.
-        @param classes: list[class]|tuple(class)
-            The classes to create the proxies for.
-        @param listeners: list[Callable]|tuple(Callable)
-            A list of Callable objects to be invoked when a proxy is created. The Callable needs to take one parameter
-            that is the proxy.
-        '''
-        assert isinstance(prefix, str), 'Invalid prefix %s' % prefix
-        assert isinstance(classes, (list, tuple)), 'Invalid classes %s' % classes
-        assert isinstance(listeners, (list, tuple)), 'Invalid proxy listeners %s' % listeners
-        if __debug__:
-            for clazz in classes: assert isclass(clazz), 'Invalid class %s' % clazz
-            for call in listeners: assert isinstance(call, Callable), 'Invalid listener %s' % call
-        self._prefix = prefix
-        self._classes = classes
-        self._listeners = listeners
-        
-    def assemble(self, assembly):
-        '''
-        @see: Setup.assemble
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        for name, call in assembly.calls.items():
-            if name.startswith(self._prefix) and isinstance(call, CallEntity):
-                assert isinstance(call, CallEntity)
-                call.addInterceptor(self._intercept)
-                
-    def _intercept(self, value):
-        '''
-        FOR INTERNAL USE!
-        This is the interceptor method used in creating the proxies.
-        '''
-        if value:
-            proxies = [clazz for clazz in self._classes if isinstance(value, clazz)]
-            if proxies:
-                if len(proxies) > 1:
-                    raise SetupError('Cannot create proxy for %s, because to many proxy classes matched %s' % 
-                                     (value, proxies))
-                proxy = createProxy(proxies[0])
-                value = proxy(ProxyWrapper(value))
-                
-                for listener in self._listeners: listener(value)
-        return value
             
 class SetupConfig(SetupSource):
     '''
     Provides the configuration setup.
     '''
     
-    def __init__(self, function, type=None):
+    def __init__(self, function, **keyargs):
         '''
         @see: SetupSource.__init__
         '''
-        SetupSource.__init__(self, function, type)
-        if not self._name.islower():
-            raise SetupError('Invalid name %r for configuration, needs to be lower case only' % self._name)
+        SetupSource.__init__(self, function, **keyargs)
+        self._type = normalizeConfigType(self._type) if self._type else None
     
     def index(self, assembly):
         '''
@@ -386,8 +232,8 @@ class SetupConfig(SetupSource):
         if hasValue: assembly.calls[self._name] = CallDeliverValue(value, self._type)
         else: assembly.calls[self._name] = CallDeliverError(error)
         
-        assembly.configurations[self._name] = Config(self._name, value, self._function.__module__,
-                                                     self._function.__doc__, str(error) if error else None)
+        assembly.configurations[self._name] = Config(self._name, value, self._group, self._function.__doc__,
+                                                     str(error) if error else None)
 
 class SetupReplace(SetupFunction):
     '''
@@ -396,16 +242,16 @@ class SetupReplace(SetupFunction):
     
     priority = 2
     
-    def __init__(self, function, name):
+    def __init__(self, function, target, **keyargs):
         '''
         @see: SetupFunction.__init__
         
-        @param name: string
+        @param target: string
             The setup name to be replaced.
         '''
-        SetupFunction.__init__(self, function)
-        assert isinstance(name, str), 'Invalid replace name %s' % name
-        self._name = name # We actually set the setup replace name with the replacer name.
+        SetupFunction.__init__(self, function, **keyargs)
+        assert isinstance(target, str), 'Invalid replace target name %s' % target
+        self._name = target # We actually set the setup replace name with the replacer name.
         
     def assemble(self, assembly):
         '''
@@ -431,7 +277,7 @@ class SetupEvent(SetupFunction):
     AFTER = 'after'
     EVENTS = [BEFORE, AFTER]
     
-    def __init__(self, function, target, event):
+    def __init__(self, function, target, event, **keyargs):
         '''
         @see: SetupFunction.__init__
         
@@ -440,7 +286,7 @@ class SetupEvent(SetupFunction):
         @param event: string
             On of the defined EVENTS.
         '''
-        SetupFunction.__init__(self, function)
+        SetupFunction.__init__(self, function, **keyargs)
         assert isinstance(target, str), 'Invalid target %s' % target
         assert event in self.EVENTS, 'Invalid event %s' % event
         self._target = target
@@ -480,11 +326,11 @@ class SetupStart(SetupFunction):
     Provides the start function.
     '''
     
-    def __init__(self, function):
+    def __init__(self, function, **keyargs):
         '''
         @see: SetupFunction.__init__
         '''
-        SetupFunction.__init__(self, function)
+        SetupFunction.__init__(self, function, **keyargs)
         
     def index(self, assembly):
         '''
@@ -745,29 +591,6 @@ class CallDeliverError(Callable, WithListeners):
 
 # --------------------------------------------------------------------
 
-class CreateEntity(Callable):
-    '''
-    Callable class that provides the entity creation based on the provided class.
-    '''
-    
-    def __init__(self, clazz):
-        '''
-        Create the entity creator.
-        
-        @param clazz: class
-            The class to create the entity based on.
-        '''
-        assert isclass(clazz), 'Invalid class %s' % clazz
-        self._class = clazz
-    
-    def __call__(self):
-        '''
-        Provide the entity creation
-        '''
-        return self._class()
-
-# --------------------------------------------------------------------
-
 class Assembly:
     '''
     Provides the assembly data.
@@ -934,3 +757,18 @@ class Context:
         for setup in setups: setup.assemble(assembly)
         
         return assembly
+
+# --------------------------------------------------------------------
+
+def normalizeConfigType(clazz):
+    '''
+    Checks and normalizes the provided configuration type.
+    
+    @param clazz: class
+        The configuration type to normalize.
+    @return: class
+        The normalized type.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    if clazz == float: return Number
+    return clazz

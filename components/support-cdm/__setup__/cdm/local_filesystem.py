@@ -16,7 +16,6 @@ from cdm.spec import ICDM
 # --------------------------------------------------------------------
 # Creating the content delivery managers
 
-
 @ioc.entity
 def HTTPDelivery() -> IDelivery:
     d = HTTPDelivery()
