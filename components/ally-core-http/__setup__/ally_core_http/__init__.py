@@ -20,11 +20,6 @@ def server_type() -> str:
     return 'basic'
 
 @ioc.config
-def server_root() -> str:
-    '''The root URL for the rest server ex: rest/resources'''
-    return 'resources'
-
-@ioc.config
 def server_port() -> int:
     '''The port on which the server will run'''
     return 80

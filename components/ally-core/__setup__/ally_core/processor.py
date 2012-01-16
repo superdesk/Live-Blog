@@ -86,5 +86,8 @@ def encoding() -> Processor:
 # ---------------------------------
 
 @ioc.entity
-def handlers(): return [explainError(), methodInvoker(), converter(), requestTypes(), parameters(), decoding(),
+def resourcesHandlers(): return [explainError(), methodInvoker(), converter(), requestTypes(), parameters(), decoding(),
                         invokingHandler(), encoding()]
+
+@ioc.entity
+def contentHandlers(): return []
