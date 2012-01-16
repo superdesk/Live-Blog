@@ -46,7 +46,6 @@ if __name__ == '__main__':
     applicationFrom, pluginsFrom = 'folder', 'folder'
     applicationProfile, pluginsProfile = False, False
 
-    componentsConfig = {'serverType':'cherrypy', 'ajaxCrossDomain':True, 'phpZendSupport':True}
     # Loading the libraries
     for path in findLibraries(os.path.join(os.path.dirname(__file__), 'libraries')):
         if path not in sys.path: sys.path.append(path)
@@ -59,6 +58,11 @@ if __name__ == '__main__':
             if path not in sys.path: sys.path.append(path)
     else: raise AssertionError('Invalid load from %s' % applicationFrom)
     
+    
+    try:
+        import application_logging
+        if application_logging: print('Processed logging')
+    except ImportError: pass
     
     # register the package extender.
     try:

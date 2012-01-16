@@ -39,9 +39,9 @@ def save(configurations, fwrite, maxwidth=60):
     groups = {config.group for config in configurations.values()}
     for group in sorted(groups):
         fwrite.write('\n# %s %r\n' % ('-' * maxwidth, group))
-        configByGroup = [name for name, config in configurations.items() if config.group == group]
-        configByGroup.sort()
-        for name  in configByGroup:
+        configByGroup = [(config.name, name) for name, config in configurations.items() if config.group == group]
+        configByGroup.sort(key=lambda pack: pack[0])
+        for _fullName, name in configByGroup:
             config = configurations[name]
             assert isinstance(config, Config), 'Invalid configuration %s' % config
             if config.description:
@@ -77,7 +77,7 @@ class Config:
     Class for providing a configuration data.
     '''
     
-    def __init__(self, name, value, group=None, description=None, error=None):
+    def __init__(self, name, value, group=None, description=None):
         '''
         Construct the configuration.
         
@@ -89,16 +89,12 @@ class Config:
             The configuration group.
         @param description: string
             The configuration description.
-        @param error: string
-            The configuration error, if is the case.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
         assert not group or isinstance(group, str), 'Invalid group %s' % group
         assert not description or isinstance(description, str), 'Invalid description %s' % description
-        assert not error or isinstance(error, str), 'Invalid error %s' % error
         self.name = name
         self.value = value
         self.group = group
         self.description = description
-        self.error = error
         

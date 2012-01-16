@@ -40,19 +40,40 @@ class ConfigError(Exception):
 
 # --------------------------------------------------------------------
 
-def setups(register):
+def setupFirstOf(register, *classes):
     '''
-    Provides the setups in the register, if there are no setups in the register they will be automatically created.
+    Provides the first setup in the register that is of the provided class.
     
     @param register: dictionary{string, object}
-        The register to retrieve or place the setups in.
+        The register to retrieve the setup from.
+    @param classes: arguments[class]
+        The setup class(es) to find for.
+    @return: Setup|None
+        The first found setup or None.
+    '''
+    assert isinstance(register, dict), 'Invalid register %s' % register
+    if ATTR_SETUPS.hasDict(register):
+        setups = ATTR_SETUPS.getDict(register)
+        for setup in setups:
+            if isinstance(setup, classes): return setup
+    return None
+
+def setupsOf(register, *classes):
+    '''
+    Provides the setups in the register that are of the provided class.
+    
+    @param register: dictionary{string, object}
+        The register to retrieve the setups from.
+    @param classes: arguments[class]
+        The setup class(es) to find for.
     @return: list[Setup]
         The setups list.
     '''
     assert isinstance(register, dict), 'Invalid register %s' % register
-    if ATTR_SETUPS.hasDict(register): setups = ATTR_SETUPS.getDict(register)
-    else: setups = ATTR_SETUPS.setDict(register, [])
-    return setups
+    if ATTR_SETUPS.hasDict(register):
+        setups = ATTR_SETUPS.getDict(register)
+        return [setup for setup in setups if isinstance(setup, classes)]
+    return []
 
 def register(setup, register):
     '''
@@ -65,7 +86,10 @@ def register(setup, register):
     @return: Setup
         The provided setup entity.
     '''
-    setups(register).append(setup)
+    assert isinstance(register, dict), 'Invalid register %s' % register
+    if ATTR_SETUPS.hasDict(register): setups = ATTR_SETUPS.getDict(register)
+    else: setups = ATTR_SETUPS.setDict(register, [])
+    setups.append(setup)
     return setup
 
 def searchSetup(setup, register):
@@ -200,10 +224,23 @@ class SetupConfig(SetupSource):
     Provides the configuration setup.
     '''
     
-    def __init__(self, function, **keyargs):
+    priority = 2
+    
+    def __init__(self, function, aliases=None, **keyargs):
         '''
         @see: SetupSource.__init__
+        
+        @param aliases: tuple(string)|list(string)
+            The alias(es) for this configuration, all the the configurations found that have the provided aliases will 
+            point to this configuration setup, is like a replace for entity but it is able to replace multiple 
+            configurations and if the alias is not found in the assembly is simply ignored.
         '''
+        if aliases:
+            assert isinstance(aliases, (tuple, list)), 'Invalid aliases %s' % aliases
+            if __debug__:
+                for name in aliases: assert isinstance(name, str), 'Invalid alias name %s' % name
+            self._aliases = list(aliases)
+        else: self._aliases = []
         SetupSource.__init__(self, function, **keyargs)
         self._type = normalizeConfigType(self._type) if self._type else None
     
@@ -224,16 +261,39 @@ class SetupConfig(SetupSource):
                 assembly.configUsed.add(name)
                 hasValue, value = True, val
         error = None
-        if not hasValue:
+        if hasValue:
+            if isinstance(value, ConfigError):
+                error = value
+                hasValue, value = False, None
+        else:
             try: 
                 value = self._function()
                 hasValue = True
             except ConfigError as e: error = e
         if hasValue: assembly.calls[self._name] = CallDeliverValue(value, self._type)
         else: assembly.calls[self._name] = CallDeliverError(error)
+
+        if error:
+            assembly.configurations[self._name] = Config(self._name, error, self._group, self._function.__doc__)
+        else:
+            assembly.configurations[self._name] = Config(self._name, value, self._group, self._function.__doc__)
         
-        assembly.configurations[self._name] = Config(self._name, value, self._group, self._function.__doc__,
-                                                     str(error) if error else None)
+    def assemble(self, assembly):
+        '''
+        @see: Setup.assemble
+        Checks for aliases to replace.
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        for alias in self._aliases:
+            if not alias.startswith('.'): suffix = '.' + alias
+            else: suffix = alias
+            found = [name for name in assembly.configurations if name.endswith(suffix)]
+            if found:
+                if len(found) > 1: raise SetupError('There are to many aliases %r for %r' % (', '.join(found), alias))
+                name = found[0]
+                assembly.configurations.pop(name)
+                assembly.calls[name] = assembly.calls[self._name]
+            else: log.info('No alias %r for configuration  %r', alias, self._name)
 
 class SetupReplace(SetupFunction):
     '''
@@ -549,11 +609,29 @@ class CallDeliverValue(Callable, WithType, WithListeners):
         Construct the configuration call.
         @see: WithType.__init__
         @see: WithListeners.__init__
+        
+        @param value: object
+            The value to deliver.
         '''
         WithType.__init__(self, type)
         WithListeners.__init__(self)
-        self._value = self.validate(value)
         self._processed = False
+        self.value = value
+        
+    def setValue(self, value):
+        '''
+        Sets the value to deliver.
+        
+        @param value: object
+            The value to deliver.
+        '''
+        self._value = self.validate(value)
+        
+    value = property(lambda self: self._value, setValue, doc=
+'''
+@type value: object
+    The value to deliver.
+''')
         
     def __call__(self):
         '''
@@ -668,7 +746,8 @@ class Assembly:
             
         configs = {}
         for name, config in self.configurations.items():
-            sname = expand(name, '')
+            assert isinstance(config, Config)
+            sname = name[len(config.group) + 1:]
             other = configs.pop(sname, None)
             while other:
                 assert isinstance(other, Config)

@@ -64,6 +64,11 @@ def config(name, type=None, doc=None):
             else:
                 hasValue, value = True, v
                 if v is not None: type = v.__class__
-    if type and not isclass(type): raise WireError('Invalid type %s for %r' % (type, name))
+        if type and not isclass(type): raise WireError('Invalid type %s for %r' % (type, name))
+    else:
+        if not isclass(type): raise WireError('Invalid type %s for %r' % (type, name))
+        v = locals[name]
+        if isinstance(v, type): hasValue, value = True, v
+    
     type = normalizeConfigType(type)
     Wiring.wiringFor(locals).addConfiguration(name, type, hasValue, value, doc)

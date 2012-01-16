@@ -10,8 +10,9 @@ Special module that is targeted by the application loader in order to deploy the
 '''
 
 from ally.api.configure import serviceFor
+from ally.api.operator import Service
 from ally.container import aop
-from ally.container._impl.ioc_setup import Context, ConfigError
+from ally.container._impl.ioc_setup import Context, ConfigError, SetupError
 from ally.container.config import load, save
 from ally.core.spec.resources import ResourcesManager
 import os
@@ -64,7 +65,10 @@ def deploy():
             raise
         
         assert isinstance(resourcesManager, ResourcesManager), 'There is no resource manager for the services'
-        for service in services: resourcesManager.register(serviceFor(service), service)
+        for service in services:
+            serv = serviceFor(service)
+            if not isinstance(serv, Service): raise SetupError('Invalid service instance %s' % service)
+            resourcesManager.register(serv, service)
     except:
         print('-' * 150, file=sys.stderr)
         print('A problem occurred while deploying plugins', file=sys.stderr)

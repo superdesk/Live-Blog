@@ -55,22 +55,31 @@ def entity(*args):
         raise SetupError('Expected a class as the return annotation for function %s' % function)
     return update_wrapper(register(SetupEntity(function, type=type), callerLocals()), function)
 
-def config(*args):
+def config(*args, alias=None):
     '''
     Decorator for configuration setup functions.
     For the configuration type the function will be searched for the return annotation and consider that as the type,
     if no annotation is present than this setup function is not known by return type. This creates problems whenever
     the configuration will be set externally because no validation or transformation is not possible.
+    
+    @param alias: string|tuple(string)|list(string)
+        The alias(es) for this configuration, all the the configurations found that have the provided aliases will point
+        to this configuration setup, is like a replace for entity but it is able to replace multiple configurations and
+        if the alias is not found in the assembly is simply ignored.
     '''
-    if not args: return config
+    if not args: return partial(config, alias=alias)
     assert len(args) == 1, 'Expected only one argument that is the decorator function, got %s arguments' % len(args)
     function = args[0]
+    if alias:
+        if not isinstance(alias, (tuple, list)): alias = (alias,)
+        if __debug__:
+            for name in alias: assert isinstance(name, str), 'Invalid alias name %s' % name
     hasType, type = _process(function)
     if hasType and not isclass(type):
         raise SetupError('Expected a class as the return annotation for function %s' % function)
     if not function.__name__.islower():
         raise SetupError('Invalid name %r for configuration, needs to be lower case only' % function.__name__)
-    return update_wrapper(register(SetupConfig(function, type=type), callerLocals()), function)
+    return update_wrapper(register(SetupConfig(function, alias, type=type), callerLocals()), function)
 
 def before(setup):
     '''

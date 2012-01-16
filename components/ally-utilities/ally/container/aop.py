@@ -28,15 +28,35 @@ def modulesIn(*paths):
     
     @param paths: arguments[string|module]
         The package paths to load modules from.
+    @return: AOPModules
+        The found modules.
     '''
-    new = {}
+    modules = {}
     for path in paths:
         if isinstance(path, str):
-            for modulePath in searchModules(path): new[modulePath] = modulePath
+            for modulePath in searchModules(path): modules[modulePath] = modulePath
         elif ismodule(path):
             if not isPackage(path):
                 raise AOPError('The provided module %r is not a package' % path)
-            for modulePath in packageModules(path): new[modulePath] = modulePath
+            for modulePath in packageModules(path): modules[modulePath] = modulePath
         else: raise AOPError('Cannot use path %s' % path)
-    return AOPModules(new)
+    return AOPModules(modules)
 
+def classesIn(*paths):
+    '''
+    Provides all the classes that are found in the provided pattern paths.
+    
+    @param paths: arguments[string]
+        The pattern paths to load classes from.
+    @return: AOPClasses
+        The found classes.
+    '''
+    modules, filter = {}, []
+    for path in paths:
+        if isinstance(path, str):
+            k = path.rfind('.')
+            if k >= 0:
+                for modulePath in searchModules(path[:k]): modules[modulePath] = modulePath
+            filter.append(path)
+        else: raise AOPError('Cannot use path %s' % path)
+    return AOPModules(modules).classes().filter(*filter)

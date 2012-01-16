@@ -14,6 +14,7 @@ from collections import deque
 from functools import update_wrapper
 from inspect import isclass, isfunction
 import abc
+import re
 
 # --------------------------------------------------------------------
 
@@ -23,6 +24,11 @@ ATTR_HANDLERS = Attribute(__name__, 'handlers', list)
 # The attribute used for storing the proxy handlers.
 ATTR_CALLS = Attribute(__name__, 'calls', dict)
 # The attribute used for storing the proxy calls.
+
+PREFIX_HIDDEN_METHOD = '_'
+# Provides the prefix for hidden methods (that will not have a proxy method created for)
+REGEX_SPECIAL = re.compile('__[\w]+__$')
+# Provides the regex that detects special methods
 
 # --------------------------------------------------------------------
 
@@ -47,6 +53,7 @@ def createProxy(clazz):
         The class to create a proxy for.
     '''
     assert isclass(clazz), 'Invalid class %s' % clazz
+    if isProxyClass(clazz): return clazz
     if ATTR_PROXY.has(clazz): return ATTR_PROXY.get(clazz)
     
     methods, classes = {'__init__': _proxy__init__}, deque()
@@ -58,7 +65,37 @@ def createProxy(clazz):
                 if name not in methods:
                     methods[name] = update_wrapper(ProxyMethod(name), function)
         classes.extend(base for base in cls.__bases__ if base != object)
-    return ATTR_PROXY.set(clazz, type(clazz.__name__ + '$Proxy', (clazz,), methods))
+    proxy = type(clazz.__name__ + '$Proxy', (clazz,), methods)
+    proxy.__module__ = clazz.__module__
+    return ATTR_PROXY.set(clazz, proxy)
+
+def createProxyOfImpl(clazz):
+    '''
+    @see: createProxy
+    Create a proxy class for the provided implementation clazz. Since the proxy is created for an API implementation
+    the proxy will inherit all super classes of the provided class, but not the actual class. All methods that start
+    with _ that are not special methods will not have a proxy created for.
+    
+    @param clazz: class
+        The implementation class to create a proxy for.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    if isProxyClass(clazz): return clazz
+    if ATTR_PROXY.has(clazz): return ATTR_PROXY.get(clazz)
+    
+    methods, classes = {'__init__': _proxy__init__}, deque()
+    classes.append(clazz)
+    while classes:
+        cls = classes.popleft()
+        if cls == object: continue
+        for name, function in cls.__dict__.items():
+            if isfunction(function):
+                if name not in methods and (not name.startswith(PREFIX_HIDDEN_METHOD) or REGEX_SPECIAL.match(name)):
+                    methods[name] = update_wrapper(ProxyMethod(name), function)
+        classes.extend(cls.__bases__)
+    proxy = type(clazz.__name__ + '$Proxy', (clazz,), methods)
+    proxy.__module__ = clazz.__module__
+    return ATTR_PROXY.set(clazz, proxy)
 
 def isProxyClass(clazz):
     '''
