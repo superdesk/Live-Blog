@@ -17,6 +17,7 @@ from ally.core.http.spec import EncoderHeader, RequestHTTP, METHOD_OPTIONS
 from collections import OrderedDict
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
+import re
 
 # --------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ class ResponseHTTP(Response):
     '''
     Provides the dispatch functionality for an HTTP response.
     '''
-    
+
     def __init__(self, requestHandler):
         ''''
         @see: Response.__init__
@@ -59,65 +60,81 @@ class ResponseHTTP(Response):
         rq.end_headers()
         self.isDispatched = True
         return rq.wfile
-        
+
 # --------------------------------------------------------------------
 
 class RequestHandler(BaseHTTPRequestHandler):
     '''
     The server class that handles the HTTP requests.
     '''
-    
-    processors = Processors
-    # The processors used by the request handler
+
+    requestPaths = list
+    # The list of path-processors chain tuples
+    # The path is a regular expression
+    # The processors is a Processors instance
+
     encodersHeader = list
     # The header encoders
-    urlRoot = ''
-    # The URL root for the REST services  
 
     def do_GET(self):
         self._process(GET)
-    
+
     def do_POST(self):
         self._process(INSERT)
-        
+
     def do_PUT(self):
         self._process(UPDATE)
-        
+
     def do_DELETE(self):
         self._process(DELETE)
-        
+
     def do_OPTIONS(self):
         self._process(METHOD_OPTIONS)
-    
+
     # ----------------------------------------------------------------
-            
+
+    def __init__(self):
+        assert isinstance(self.encodersHeader, list), 'Invalid header encoders list %s' % self.encodersHeader
+        if __debug__:
+            for reqPath in self.requestPaths:
+                assert isinstance(reqPath, tuple), 'Invalid request paths %s' % self.requestPaths
+                assert type(reqPath[0]) == type(re.compile('')), 'Invalid path regular expression %s' % reqPath[0]
+                assert isinstance(reqPath[1], Processors), 'Invalid processors chain %s' % reqPath[1]
+
+
     def _process(self, method):
-        chain = self.processors.newChain()
-        assert isinstance(chain, ProcessorsChain)
-        if self.path.startswith(self.urlRoot):
-            req = RequestHTTP()
-            req.method = method
-            req.path = self.path[len(self.urlRoot):]
-            req.headers.update(self.headers)
-            req.content = ContentRequest(self.rfile)
-            rsp = ResponseHTTP(self)
-            chain.process(req, rsp)
-            if not rsp.isDispatched:
-                rsp.dispatch()
-            assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
-        else:
+        req = RequestHTTP()
+        req.method = method
+
+        chain = None
+        for pathRegex, processors in self.requestPaths:
+            match = pathRegex.match(req.path)
+            if match:
+                chain = processors.newChain()
+                assert isinstance(chain, ProcessorsChain)
+                req.path = self.path[match.end + 1:]
+                break
+        if chain is None:
             self.send_response(404)
             self.end_headers()
-        
+
+        req.headers.update(self.headers)
+        req.content = ContentRequest(self.rfile)
+        rsp = ResponseHTTP(self)
+        chain.process(req, rsp)
+        if not rsp.isDispatched:
+            rsp.dispatch()
+        assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
+
     def log_message(self, format, *args):
         #TODO: see for a better solution for this, check for next python release
         # This is a fix: whenever a message is logged there is an attempt to find some sort of host name which
         # creates a big delay whenever the request is made from a non localhost client.
         assert log.debug(format, *args) or True
-           
+
 # --------------------------------------------------------------------
 
-def run(requestHandlerClass, port=80):
+def run(requestHandlerClass, port = 80):
     while True:
         try:
             server = HTTPServer(('', port), requestHandlerClass)
@@ -131,4 +148,4 @@ def run(requestHandlerClass, port=80):
             log.exception('-' * 50 + 'The server has stooped, trying to restart')
             try: server.socket.close()
             except: pass
-            
+

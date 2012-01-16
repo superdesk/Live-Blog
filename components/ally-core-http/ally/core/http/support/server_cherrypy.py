@@ -17,6 +17,7 @@ from ally.core.spec.server import Processors, ProcessorsChain, ContentRequest, \
 from io import BytesIO
 import cherrypy
 import logging
+import re
 
 # --------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ class ResponseHTTP(Response):
     '''
     Provides the dispatch functionality for an HTTP response.
     '''
-    
+
     def __init__(self):
         ''''
         @see: Response.__init__
@@ -46,7 +47,7 @@ class ResponseHTTP(Response):
         self.isDispatched = True
         self.wfile = BytesIO()
         return self.wfile
-        
+
 # --------------------------------------------------------------------
 
 @injected
@@ -54,11 +55,15 @@ class RequestHandler:
     '''
     The server class that handles the requests.
     '''
-    
-    processors = Processors
-    # The processors used by the request handler
+
+    requestPaths = list
+    # The list of path-processors chain tuples
+    # The path is a regular expression
+    # The processors is a Processors instance
+
     encodersHeader = list
     # The header encoders
+
     methods = {
                'DELETE' : DELETE,
                'GET' : GET,
@@ -67,18 +72,36 @@ class RequestHandler:
                'OPTIONS' : METHOD_OPTIONS
                }
     methodUnknown = -1
-    
+
     def __init__(self):
-        assert isinstance(self.processors, Processors), 'Invalid processors object %s' % self.processors
         assert isinstance(self.encodersHeader, list), 'Invalid header encoders list %s' % self.encodersHeader
-        
+        if __debug__:
+            for reqPath in self.requestPaths:
+                assert isinstance(reqPath, tuple), 'Invalid request paths %s' % self.requestPaths
+                assert type(reqPath[0]) == type(re.compile('')), 'Invalid path regular expression %s' % reqPath[0]
+                assert isinstance(reqPath[1], Processors), 'Invalid processors chain %s' % reqPath[1]
+
     @cherrypy.expose
     def default(self, *vpath, **params):
-        chain = self.processors.newChain()
-        assert isinstance(chain, ProcessorsChain)
+        rootDir = ''
+        path = vpath
+        if len(vpath) > 0:
+            rootDir = vpath[0]
+
+        chain = None
+        for pathRegex, processors in self.requestPaths:
+            match = pathRegex.match(rootDir)
+            if match:
+                path = vpath[1:]
+                chain = processors.newChain()
+                assert isinstance(chain, ProcessorsChain)
+        if chain is None:
+            cherrypy.response.status = 404
+            return ''
+
         req = RequestHTTP()
         req.method = self.methods.get(cherrypy.request.method, self.methodUnknown)
-        req.path = vpath
+        req.path = path
         req.headers.update(cherrypy.request.headers)
         for name, value in params.items():
             if isinstance(value, list):
@@ -95,24 +118,24 @@ class RequestHandler:
             headerEncoder.encode(cherrypy.response.headers, rsp)
         cherrypy.response.status = rsp.code.code
         assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
-        
+
         #TODO: remove
 #        import time;
 #        import random;
 #        time.sleep(random.random() / 2.0);
         #TODO: remove
-        
+
         if rsp.wfile is not None:
             return rsp.wfile.getvalue()
         return ''
-    
+
 # --------------------------------------------------------------------
 
-def run(requestHandler, host='127.0.0.1', port=80, threadPool=10):
+def run(requestHandler, host = '127.0.0.1', port = 80, threadPool = 10):
     cherrypy.config.update({
                             'server.socket_port': port,
                             'server.socket_host': host,
                             'server.thread_pool': threadPool
                             })
     print('Started HTTP REST API server...')
-    cherrypy.quickstart(requestHandler, config={'global':{'engine.autoreload.on': False}})
+    cherrypy.quickstart(requestHandler, config = {'global':{'engine.autoreload.on': False}})

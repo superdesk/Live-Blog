@@ -22,13 +22,17 @@ class RequestHTTP(Request):
 
     def __init__(self):
         '''
-        @ivar path: string
-            The requested path.
+        @ivar path: string | list[string] | tuple(string)
+            The relative requested path, or split relative request path.
         @ivar headers: dictionary
             The headers of the request
+        @ivar rootURI: string | None
+            The root URI to be considered for constructing a request path, basically the relative path root. None if the path
+            is not relative.
         '''
         self.path = None
         self.headers = {}
+        self.rootURI = None
         super().__init__()
 
 # --------------------------------------------------------------------

@@ -9,7 +9,7 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from ..ally_core.processor import handlers, invokingHandler, encoding
+from ..ally_core.processor import resourcesHandlers, invokingHandler, encoding
 from ally.container import ioc
 from ally.core.spec.server import Processor
 from ally.core.sqlalchemy.processor.alchemy_session import AlchemySessionHandler, \
@@ -26,7 +26,7 @@ def alchemySessionCommitHandler() -> Processor: return AlchemySessionCommitHandl
 
 # ---------------------------------
 
-@ioc.before(handlers)
+@ioc.before(resourcesHandlers)
 def updateHandlers():
-    handlers().insert(handlers().index(invokingHandler()), alchemySessionHandler())
-    handlers().insert(handlers().index(encoding()), alchemySessionCommitHandler())
+    resourcesHandlers().insert(resourcesHandlers().index(invokingHandler()), alchemySessionHandler())
+    resourcesHandlers().insert(resourcesHandlers().index(encoding()), alchemySessionCommitHandler())

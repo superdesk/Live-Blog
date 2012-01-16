@@ -9,9 +9,8 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from . import server_root
 from ..ally_core.converter import contentNormalizer, converterPath
-from ..ally_core.processor import handlers, methodInvoker, converter, \
+from ..ally_core.processor import resourcesHandlers, methodInvoker, converter, \
     handlersExplainError
 from ..ally_core.resource_manager import resourcesManager
 from ally.container import ioc
@@ -28,7 +27,6 @@ def uri() -> Processor:
     b = URIHandler()
     b.resourcesManager = resourcesManager()
     b.converterPath = converterPath()
-    if server_root(): b.urlRoot = server_root() + '/'
     return b
 
 @ioc.config
@@ -36,7 +34,7 @@ def read_from_params():
     '''If true will also read header values that are provided as query parameters'''
     return True
 
-@ioc.entity   
+@ioc.entity
 def headerStandard() -> Processor:
     b = HeaderStandardHandler()
     b.readFromParams = read_from_params()
@@ -57,8 +55,8 @@ def updateHandlersExplainError():
 
 # ---------------------------------
 
-@ioc.before(handlers)
+@ioc.before(resourcesHandlers)
 def updateHandlers():
-    handlers().insert(handlers().index(methodInvoker()), headerStandard())
-    handlers().insert(handlers().index(headerStandard()), uri())
-    handlers().insert(handlers().index(converter()), headerX())
+    resourcesHandlers().insert(resourcesHandlers().index(methodInvoker()), headerStandard())
+    resourcesHandlers().insert(resourcesHandlers().index(headerStandard()), uri())
+    resourcesHandlers().insert(resourcesHandlers().index(converter()), headerX())

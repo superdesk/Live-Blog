@@ -9,12 +9,13 @@ Created on Nov 23, 2011
 Runs the cherry py web server.
 '''
 
-from . import server_type, server_version, server_root, server_port
+from . import server_type, server_version, server_port
 from .encoder_header import encodersHeader
-from .processor import handlers
+from ..ally_core.processor import resourcesHandlers, contentHandlers
 from ally.container import ioc
 from ally.core.spec.server import Processors
 from threading import Thread
+import re
 
 # --------------------------------------------------------------------
 
@@ -43,7 +44,10 @@ def server_content_index() -> str:
 def requestHandler():
     from ally.core.http.support.server_cherrypy import RequestHandler
     b = RequestHandler(); yield b
-    b.processors = Processors(*handlers())
+    b.requestPaths = []
+    b.requestPaths.append((re.compile('^resources$'), Processors(*resourcesHandlers())))
+    b.requestPaths.append((re.compile('^content$'), Processors(*contentHandlers())))
+    b.processors = Processors(*resourcesHandlers())
     b.encodersHeader = encodersHeader()
     b.serverVersion = server_version()
 
@@ -56,18 +60,6 @@ def runServer():
         from ally.core.http.support import server_cherrypy
         
         cherrypy.config.update({'engine.autoreload.on': False})
-        handler = requestHandler()
-        if server_root():
-            class Root: pass
-            root = Root()
-            setattr(root, server_root(), handler)
-            handler = root
-            if server_content_folder():
-                handler._cp_config = {
-                                      'tools.staticdir.on' : True,
-                                      'tools.staticdir.dir' : server_content_folder(),
-                                      'tools.staticdir.index' : server_content_index(),
-                                      }
                 
-        args = handler, server_host(), server_port(), server_thread_pool()
+        args = requestHandler(), server_host(), server_port(), server_thread_pool()
         Thread(target=server_cherrypy.run, args=args).start()
