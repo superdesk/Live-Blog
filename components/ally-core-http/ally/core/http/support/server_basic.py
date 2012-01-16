@@ -93,7 +93,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     # ----------------------------------------------------------------
 
-    def __init__(self):
+    def __init__(self, *args):
+        super().__init__(*args)
         assert isinstance(self.encodersHeader, list), 'Invalid header encoders list %s' % self.encodersHeader
         if __debug__:
             for reqPath in self.requestPaths:
@@ -105,18 +106,20 @@ class RequestHandler(BaseHTTPRequestHandler):
     def _process(self, method):
         req = RequestHTTP()
         req.method = method
+        path = self.path.lstrip('/')
 
         chain = None
         for pathRegex, processors in self.requestPaths:
-            match = pathRegex.match(req.path)
+            match = pathRegex.match(path)
             if match:
                 chain = processors.newChain()
                 assert isinstance(chain, ProcessorsChain)
-                req.path = self.path[match.end + 1:]
+                req.path = path[match.end():]
                 break
         if chain is None:
             self.send_response(404)
             self.end_headers()
+            return
 
         req.headers.update(self.headers)
         req.content = ContentRequest(self.rfile)
