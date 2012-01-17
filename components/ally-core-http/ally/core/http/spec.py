@@ -26,13 +26,12 @@ class RequestHTTP(Request):
             The relative requested path, or split relative request path.
         @ivar headers: dictionary
             The headers of the request
-        @ivar rootURI: string | None
-            The root URI to be considered for constructing a request path, basically the relative path root. None if the path
-            is not relative.
+        @ivar rootURI: string
+            The root URI to be considered for constructing a request path, basically the relative path root.
         '''
         self.path = None
         self.headers = {}
-        self.rootURI = None
+        self.rootURI = ''
         super().__init__()
 
 # --------------------------------------------------------------------

@@ -104,7 +104,7 @@ class EncoderPathURI(EncoderPath):
             The host string.
         @param uri: URI
             The URI processor of the encoder path.
-        @param rootURI: string | None
+        @param rootURI: string
             The root URI to be considered for constructing a request path, basically the relative path root. None if the path
             is not relative.
         @param ext: string
@@ -112,7 +112,7 @@ class EncoderPathURI(EncoderPath):
         '''
         assert not host or isinstance(host, str), 'Invalid host %s' % host
         assert isinstance(uri, URIHandler), 'Invalid URI handler %s' % uri
-        assert not rootURI or isinstance(rootURI, str), 'Invalid root URI %s' % rootURI
+        assert isinstance(rootURI, str), 'Invalid root URI %s' % rootURI
         assert not ext or isinstance(ext, str), 'Invalid extension %s' % ext
         self._host = host
         self._uri = uri

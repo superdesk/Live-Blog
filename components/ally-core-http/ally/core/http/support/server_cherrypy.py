@@ -83,25 +83,22 @@ class RequestHandler:
 
     @cherrypy.expose
     def default(self, *vpath, **params):
-        rootDir = ''
-        path = vpath
-        if len(vpath) > 0:
-            rootDir = vpath[0]
-
-        chain = None
+        req = RequestHTTP()
+        req.method = self.methods.get(cherrypy.request.method, self.methodUnknown)
+        path = '/'.join(vpath)
+        
         for pathRegex, processors in self.requestPaths:
-            match = pathRegex.match(rootDir)
+            match = pathRegex.match(path)
             if match:
-                path = vpath[1:]
                 chain = processors.newChain()
                 assert isinstance(chain, ProcessorsChain)
-        if chain is None:
+                req.path = path[match.end():]
+                req.rootURI = path[:match.end()]
+                break
+        else:
             cherrypy.response.status = 404
             return ''
 
-        req = RequestHTTP()
-        req.method = self.methods.get(cherrypy.request.method, self.methodUnknown)
-        req.path = path
         req.headers.update(cherrypy.request.headers)
         for name, value in params.items():
             if isinstance(value, list):

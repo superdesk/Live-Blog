@@ -108,15 +108,15 @@ class RequestHandler(BaseHTTPRequestHandler):
         req.method = method
         path = self.path.lstrip('/')
 
-        chain = None
         for pathRegex, processors in self.requestPaths:
             match = pathRegex.match(path)
             if match:
                 chain = processors.newChain()
                 assert isinstance(chain, ProcessorsChain)
                 req.path = path[match.end():]
+                req.rootURI = path[:match.end()]
                 break
-        if chain is None:
+        else:
             self.send_response(404)
             self.end_headers()
             return

@@ -10,12 +10,12 @@ Runs the cherry py web server.
 '''
 
 from . import server_type, server_version, server_port
+from ..ally_core.processor import resourcesHandlers
 from .encoder_header import encodersHeader
-from ..ally_core.processor import resourcesHandlers, contentHandlers
+from .processor import pathProcessors
 from ally.container import ioc
 from ally.core.spec.server import Processors
 from threading import Thread
-import re
 
 # --------------------------------------------------------------------
 
@@ -44,9 +44,7 @@ def server_content_index() -> str:
 def requestHandler():
     from ally.core.http.support.server_cherrypy import RequestHandler
     b = RequestHandler(); yield b
-    b.requestPaths = []
-    b.requestPaths.append((re.compile('^resources$'), Processors(*resourcesHandlers())))
-    b.requestPaths.append((re.compile('^content$'), Processors(*contentHandlers())))
+    b.requestPaths = pathProcessors()
     b.processors = Processors(*resourcesHandlers())
     b.encodersHeader = encodersHeader()
     b.serverVersion = server_version()

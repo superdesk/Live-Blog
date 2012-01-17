@@ -9,6 +9,7 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
+from . import server_pattern_rest
 from ..ally_core.converter import contentNormalizer, converterPath
 from ..ally_core.processor import resourcesHandlers, methodInvoker, converter, \
     handlersExplainError
@@ -17,7 +18,8 @@ from ally.container import ioc
 from ally.core.http.processor.header import HeaderStandardHandler
 from ally.core.http.processor.header_x import HeaderXHandler
 from ally.core.http.processor.uri import URIHandler
-from ally.core.spec.server import Processor
+from ally.core.spec.server import Processor, Processors
+import re
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -60,3 +62,7 @@ def updateHandlers():
     resourcesHandlers().insert(resourcesHandlers().index(methodInvoker()), headerStandard())
     resourcesHandlers().insert(resourcesHandlers().index(headerStandard()), uri())
     resourcesHandlers().insert(resourcesHandlers().index(converter()), headerX())
+
+@ioc.entity
+def pathProcessors():
+    return [(re.compile(server_pattern_rest()), Processors(*resourcesHandlers()))]

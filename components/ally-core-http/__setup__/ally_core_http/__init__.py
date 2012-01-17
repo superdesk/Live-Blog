@@ -28,3 +28,8 @@ def server_port() -> int:
 def server_version() -> str:
     '''The server version number'''
     return 'AllyREST/0.1'
+
+@ioc.config
+def server_pattern_rest():
+    ''' The pattern used for matching the rest resources paths in HTTP URL's'''
+    return '^resources(/|$)'
