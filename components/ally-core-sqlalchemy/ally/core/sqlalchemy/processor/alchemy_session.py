@@ -11,7 +11,7 @@ Provides support for SQL alchemy a processor for automatic session handling.
 
 from ally.core.spec.server import Processor, Response, ProcessorsChain
 from ally.support.sqlalchemy.session import rollback, commit, ATTR_KEEP_ALIVE, \
-    endAll
+    endSessions
 
 # --------------------------------------------------------------------
 
@@ -30,9 +30,9 @@ class AlchemySessionHandler(Processor):
         try:
             chain.process(req, rsp)
         except:
-            endAll(rollback)
+            endSessions(rollback)
             raise
-        if not rsp.code.isSuccess: endAll(rollback)
+        if not rsp.code.isSuccess: endSessions(rollback)
         ATTR_KEEP_ALIVE.clear()
             
 class AlchemySessionCommitHandler(Processor):
@@ -47,5 +47,5 @@ class AlchemySessionCommitHandler(Processor):
         '''
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        if rsp.code.isSuccess: endAll(commit)
+        if rsp.code.isSuccess: endSessions(commit)
         chain.process(req, rsp)

@@ -94,6 +94,7 @@ class RequestHandler:
                 assert isinstance(chain, ProcessorsChain)
                 req.path = path[match.end():]
                 req.rootURI = path[:match.end()]
+                if not req.rootURI.endswith('/'): req.rootURI += '/'
                 break
         else:
             cherrypy.response.status = 404

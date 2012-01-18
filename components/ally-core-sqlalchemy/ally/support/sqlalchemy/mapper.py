@@ -86,7 +86,7 @@ def mapperModelProperties(modelClass, mapping=None, exclude=None):
         The model class to be mapped with the provided sql table.
     @param mapping: Mapper|None
         The mapper to link properties with. If not provided it will be extracted from the property model.
-    @param exclude: list[string]
+    @param exclude: list[string]|tuple(string)
         A list of column names to be excluded from automatic validation.
     @return: Property|None
         The property id if found one.
@@ -97,6 +97,8 @@ def mapperModelProperties(modelClass, mapping=None, exclude=None):
     
     if not mapping: mapping = ATTR_SQL_MAPPER.get(model)
     assert isinstance(mapping, Mapper), 'Invalid mapper %s' % mapping
+    
+    assert not exclude or isinstance(exclude, (list, tuple)), 'Invalid exclude %s' % exclude
     
     properties = dict(model.properties)
     propertyId = None
@@ -119,7 +121,7 @@ def mapperModelProperties(modelClass, mapping=None, exclude=None):
                 if not isExclude:
                     if propertyId == prop: validateAutoId(prop)
                     elif not column.nullable: validateRequired(prop)
-                    if isinstance(column.type, String): validateMaxLength(prop, column.type.length)
+                    if isinstance(column.type, String) and column.type.length: validateMaxLength(prop, column.type.length)
                     if column.unique: validateProperty(prop, onPropertyUniue)
                     if column.foreign_keys:
                         for fk in column.foreign_keys:
@@ -146,7 +148,7 @@ def mapperModel(modelClass, sql, exclude=None, hasPartialUpdate=True, **keyargs)
         The model class to be mapped with the provided sql table.
     @param sql: Table|Join|Select
         The table or join to map the model with.
-    @param exclude: list[string]
+    @param exclude: list[string]|tuple(string)
         A list of column names to be excluded from automatic validation.
     @param hasPartialUpdate: boolean
         If True it will add support for partial updates to the model.
@@ -159,7 +161,7 @@ def mapperModel(modelClass, sql, exclude=None, hasPartialUpdate=True, **keyargs)
     
     mapperSimple(modelClass, sql, **keyargs)
     
-    propertyId = mapperModelProperties(modelClass, exclude)
+    propertyId = mapperModelProperties(modelClass, exclude=exclude)
     
     if hasPartialUpdate: supportForPartialUpdate(TypeProperty(model, propertyId))
     

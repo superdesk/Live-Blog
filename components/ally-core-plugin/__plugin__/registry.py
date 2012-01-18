@@ -9,16 +9,40 @@ Created on Jan 12, 2012
 Provides the setup registry for the plugins.
 '''
 
-from ally.container import ioc, support
+from ally.container import ioc
+from ally.container.proxy import proxyWrapForImpl
+from functools import partial
 import ally_deploy_plugin as plugin
 import logging
 
 # --------------------------------------------------------------------
 
-FORMATTER_REST = lambda group, clazz: group + '.REST.' + clazz.__name__
-# Used in formatting the rest services names.
-
 log = logging.getLogger(__name__)
+
+# --------------------------------------------------------------------
+
+def registerService(service, binders=None):
+    '''
+    A listener to register the service.
+    
+    @param service: object
+        The service to be registered.
+    @param binders: list[Callable]|tuple(Callable)
+        The binders used for the registered services.
+    '''
+    proxy = proxyWrapForImpl(service)
+    if binders:
+        for binder in binders: binder(proxy)
+    services().append(proxy)
+
+def addService(*binders):
+    '''
+    Create listener to register the service with the provided binders.
+    
+    @param binders: arguments[Callable]
+        The binders used for the registered services.
+    '''
+    return partial(registerService, binders=binders)
 
 # --------------------------------------------------------------------
 
@@ -28,13 +52,6 @@ def services():
     The plugins services that will be registered automatically.
     '''
     return []
-
-@ioc.before(services)
-def updateServices():
-    '''
-    Automatically updates the services with all the setup name that use the rest service formatter.
-    '''
-    services().extend(support.entities().filter('**.REST.*').load().asList())
 
 @ioc.start
 def register():

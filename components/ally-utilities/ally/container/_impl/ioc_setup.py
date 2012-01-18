@@ -18,6 +18,7 @@ from inspect import isclass, isfunction, getfullargspec, ismodule, isgenerator
 from itertools import chain
 from numbers import Number
 import logging
+from collections import deque
 
 # --------------------------------------------------------------------
 
@@ -117,7 +118,9 @@ class Setup:
     The setup entity. This class provides the means of indexing setup Callable objects.
     '''
     
-    priority = 1
+    priority_index = 1
+    # Provides the indexing priority for the setup.
+    priority_assemble = 1
     # Provides the assemble priority for the setup.
 
     def index(self, assembly):
@@ -217,14 +220,14 @@ class SetupEntity(SetupSource):
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         if self._name in assembly.calls:
             raise SetupError('There is already a setup call for name %r' % self._name)
-        assembly.calls[self._name] = CallEntity(self._function, self._type)
+        assembly.calls[self._name] = CallEntity(self._name, self._function, self._type)
             
 class SetupConfig(SetupSource):
     '''
     Provides the configuration setup.
     '''
     
-    priority = 2
+    priority_assemble = 2
     
     def __init__(self, function, aliases=None, **keyargs):
         '''
@@ -300,7 +303,7 @@ class SetupReplace(SetupFunction):
     Provides the setup for replacing an entity or configuration setup function.
     '''
     
-    priority = 2
+    priority_assemble = 2
     
     def __init__(self, function, target, **keyargs):
         '''
@@ -331,7 +334,7 @@ class SetupEvent(SetupFunction):
     Provides the setup event function.
     '''
     
-    priority = 3
+    priority_assemble = 3
     
     BEFORE = 'before'
     AFTER = 'after'
@@ -543,24 +546,32 @@ class CallEntity(Callable, WithCall, WithType, WithListeners):
     @see: Callable, WithCall, WithType, WithListeners
     '''
     
-    def __init__(self, call, type=None):
+    def __init__(self, name, call, type=None):
         '''
         Construct the entity call.
+        
+        @param name: string
+            The entity name.
+        
         @see: WithCall.__init__
         @see: WithType.__init__
         @see: WithListeners.__init__
         '''
+        assert isinstance(name, str), 'Invalid name %s' % name
         WithCall.__init__(self, call)
         WithType.__init__(self, type)
         WithListeners.__init__(self)
         
+        self._name = name
         self._hasValue = False
+        self._processing = False
         self._interceptors = []
     
     def addInterceptor(self, interceptor):
         '''
-        Adds a value interceptor. A value interceptor is a Callable object that takes as an argument the entity value
-        and returns the value for the entity.
+        Adds a value interceptor. A value interceptor is a Callable object that takes as the first argument the entity
+        value and as the second value the follow up Callable of the value and returns the value for the entity and the
+        new follow up.
         
         @param interceptor: Callable
             The interceptor.
@@ -573,29 +584,29 @@ class CallEntity(Callable, WithCall, WithType, WithListeners):
         Provides the call for the entity.
         '''
         if not self._hasValue:
+            if self._processing: raise SetupError('Cyclic dependency detected for %r, try using yield' % self._name)
+            self._processing = True
             ret = self.call()
         
-            if isgenerator(ret): value, generator = next(ret), ret
-            else: value, generator = ret, None
+            if isgenerator(ret): value, followUp = next(ret), partial(next, ret, None)
+            else: value, followUp = ret, None
             
-            assert log.debug('Processed entity %s', value) or True
+            assert log.debug('Processed entity %r with value %s', self._name, value) or True
             v = self.validate(value)
-            for inter in self._interceptors: v = inter(v)
+            for inter in self._interceptors: v, followUp = inter(value, followUp)
             
             self._hasValue = True
             self._value = v
             
             for listener in self._listenersBefore: listener()
             
-            if generator:
-                try: next(generator)
-                except StopIteration: pass
+            if followUp: followUp()
             
             Initializer.initialize(value)
     
             for listener in self._listenersAfter: listener()
             
-            assert log.debug('Finalized entity %s', value) or True
+            assert log.debug('Finalized %r with value %s', self._name, value) or True
         return self._value
 
 class CallDeliverValue(Callable, WithType, WithListeners):
@@ -724,6 +735,7 @@ class Assembly:
         self.configurations = {}
         self.calls = {}
         self.callsStart = []
+        self._processing = deque()
         
     def trimmedConfigurations(self):
         '''
@@ -765,10 +777,14 @@ class Assembly:
             The name to be processed.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
+        self._processing.append(name)
         call = self.calls.get(name)
         if not call: raise SetupError('No IoC resource for name %r' % name)
         if not isinstance(call, Callable): raise SetupError('Invalid call %s for name %r' % (call, name))
-        return call()
+        try: value = call()
+        except: raise SetupError('Exception occurred for %r in processing chain %r' % (name, ', '.join(self._processing)))
+        self._processing.pop()
+        return value
     
     def processStart(self):
         '''
@@ -827,13 +843,11 @@ class Context:
         '''
         assembly = Assembly(configurations or {})
         
-        setups = sorted(self._setups, key=lambda setup: setup.priority)
-        for setup in setups:
+        for setup in sorted(self._setups, key=lambda setup: setup.priority_index):
             assert isinstance(setup, Setup), 'Invalid setup %s' % setup
             setup.index(assembly)
-            
-        self._indexing = False
-        for setup in setups: setup.assemble(assembly)
+        
+        for setup in sorted(self._setups, key=lambda setup: setup.priority_assemble): setup.assemble(assembly)
         
         return assembly
 

@@ -59,13 +59,13 @@ class PackageLoader:
             The original loader.
         '''
         assert loader, 'A loader is required'
-        self._loader = loader
+        self.__loader = loader
     
     def load_module(self, name):
         '''
         @see: http://www.python.org/dev/peps/pep-0302/
         '''
-        module = self._loader.load_module(name)
+        module = self.__loader.load_module(name)
         fullName, paths = module.__name__, module.__path__
 
         k = fullName.rfind('.')
@@ -88,7 +88,7 @@ class PackageLoader:
 
         return module
     
-    def __getattr__(self, name): return getattr(self._loader, name)
+    def __getattr__(self, name): return getattr(self.__loader, name)
 
 class ModuleLoader:
     '''

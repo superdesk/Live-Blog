@@ -161,6 +161,7 @@ def validateMaxLength(refProp, length):
     @param length: integer
         The maximum length allowed for the property value.
     '''
+    assert isinstance(length, int), 'Invalid length %s' % length
     validateProperty(refProp, functools.partial(onPropertyMaxLength, length), index=INDEX_PROP_MAX_LEN)
     
 def validateManaged(prop):

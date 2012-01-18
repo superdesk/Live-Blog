@@ -12,15 +12,16 @@ Provides support functions for the container.
 from ..support.util_sys import callerLocals, callerGlobals
 from ._impl.aop_container import AOPClasses, AOPResources
 from ._impl.entity_handler import Wiring, WireConfig
-from ._impl.ioc_setup import ConfigError, register, SetupConfig, SetupEntity, \
-    setupsOf, setupFirstOf
+from ._impl.ioc_setup import ConfigError, register, SetupConfig, setupsOf, \
+    setupFirstOf, SetupStart
 from ._impl.support_setup import CreateEntity, SetupError, SetupEntityProxy, \
-    SetupEntityWire, Assembly, CallEntity
+    SetupEntityWire, Assembly, CallEntity, SetupEntityCreate
 from .aop import classesIn
+from _abcoll import Callable
+from ally.container._impl.support_setup import SetupEntityListen
 from copy import deepcopy
 from functools import partial
-from inspect import isclass, ismodule
-from _abcoll import Callable
+from inspect import isclass, ismodule, getsource
 
 # --------------------------------------------------------------------
 # Functions available in setup modules.
@@ -32,7 +33,9 @@ def createEntitySetup(api, *impl, formatter=lambda group, clazz: group + '.' + c
     To create a setup function a class from the impl classes has to inherit at least one of the api classes then it will
     create a setup function based on the api class that will create an instance of the impl class. If a impl class
     inherits multiple api classes than for each one of the api class a setup function is generated, all setup function
-    will provide the same impl instance.
+    will provide the same impl instance. If an api class is already delivered by a different call than no create entity
+    setup will made for that implementation, the idea is if you defined a setup function in the setup module that will
+    deliver an instance for that api class it means it should not be created again.
     
     @param api: string|class|AOPClasses|tuple(string|class|AOPClasses)|list(string|class|AOPClasses)
         The classes to be considered as the APIs for the setup functions.
@@ -62,7 +65,7 @@ def createEntitySetup(api, *impl, formatter=lambda group, clazz: group + '.' + c
             wireClasses.append(clazz)
             create = CreateEntity(clazz)
             for apiClass in apiClasses:
-                register(SetupEntity(create, type=clazz, name=formatter(group, apiClass), group=group), registry)
+                register(SetupEntityCreate(create, apiClass, name=formatter(group, apiClass), group=group), registry)
     wireEntities(*wireClasses, setupModule=setupModule)
 
 def wireEntities(*classes, setupModule=None):
@@ -114,14 +117,15 @@ def wireEntities(*classes, setupModule=None):
             wire.update(wirings)
         else: register(SetupEntityWire(group, wirings), registry)
     
-def bindToEntities(*classes, listeners=None, setupModule=None):
+def listenToEntities(*classes, listeners=None, setupModule=None):
     '''
-    Creates entity implementation proxies for the provided entities classes found in the provided module.
+    Listens for entities defined in the provided module that are of the provided classes. The listening is done at the 
+    moment of the entity creation so the listen is not dependent of the declared entity return type.
     
     @param classes: arguments(string|class|AOPClasses)
         The classes to be proxied.
     @param listeners: None|Callable|list[Callable]|tuple(Callable)
-        The listeners to be invoked when a proxy is created.
+        The listeners to be invoked. The listeners Callable's will take one argument that is the instance.
     @param setupModule: module|None
         If the setup module is not provided than the calling module will be considered.
     '''
@@ -137,7 +141,80 @@ def bindToEntities(*classes, listeners=None, setupModule=None):
         if '__name__' not in registry:
             raise SetupError('The create proxy call needs to be made directly from the module')
         group = registry['__name__']
-    register(SetupEntityProxy(group, _classes(classes), listeners), registry)
+    register(SetupEntityListen(group, _classes(classes), listeners), registry)
+ 
+def bindToEntities(*classes, binders=None, setupModule=None):
+    '''
+    Creates entity implementation proxies for the provided entities classes found in the provided module. The binding is
+    done at the moment of the entity creation so the binding is not dependent of the declared entity return type.
+    
+    @param classes: arguments(string|class|AOPClasses)
+        The classes to be proxied.
+    @param binders: None|Callable|list[Callable]|tuple(Callable)
+        The binders to be invoked when a proxy is created. The binders Callable's will take one argument that is the newly
+        created proxy instance.
+    @param setupModule: module|None
+        If the setup module is not provided than the calling module will be considered.
+    '''
+    if not binders: binders = []
+    elif not isinstance(binders, (list, tuple)): binders = [binders]
+    assert isinstance(binders, (list, tuple)), 'Invalid binders %s' % binders
+    if setupModule:
+        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
+        registry = setupModule.__dict__
+        group = setupModule.__name__
+    else:
+        registry = callerLocals()
+        if '__name__' not in registry:
+            raise SetupError('The create proxy call needs to be made directly from the module')
+        group = registry['__name__']
+    register(SetupEntityProxy(group, _classes(classes), binders), registry)
+    
+def loadAllEntities(*classes, setupModule=None):
+    '''
+    Loads all entities that have the type in the provided classes.
+    
+    @param classes: arguments(string|class|AOPClasses)
+        The classes to have the entities loaded for.
+    @param setupModule: module|None
+        If the setup module is not provided than the calling module will be considered.
+    '''
+    def loadAll(prefix, classes):
+        for clazz in classes:
+            for name, call in Assembly.current().calls.items():
+                if name.startswith(prefix) and isinstance(call, CallEntity) and call.type and \
+                (call.type == clazz or issubclass(call.type, clazz)): Assembly.process(name)
+
+    if setupModule:
+        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
+        registry = setupModule.__dict__
+        group = setupModule.__name__
+    else:
+        registry = callerLocals()
+        if '__name__' not in registry:
+            raise SetupError('The create proxy call needs to be made directly from the module')
+        group = registry['__name__']
+    
+    loader = partial(loadAll, group + '.', _classes(classes))
+    register(SetupStart(loader, name='loader_%s' % id(loader)), registry)
+
+def include(module, setupModule=None):
+    '''
+    By including the provided module all the setup functions from the the included module are added as belonging to the
+    including module, is just like defining the setup functions again in the including module.
+    
+    @param module: module
+        The module to be included.
+    @param setupModule: module|None
+        If the setup module is not provided than the calling module will be considered.
+    '''
+    assert ismodule(module), 'Invalid module %s' % module
+    
+    if setupModule:
+        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
+        registry = setupModule.__dict__
+    else: registry = callerLocals()
+    exec(getsource(module), registry)
 
 # --------------------------------------------------------------------
 # Functions available in setup functions calls.

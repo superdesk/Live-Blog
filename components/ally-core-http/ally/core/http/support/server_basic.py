@@ -115,6 +115,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 assert isinstance(chain, ProcessorsChain)
                 req.path = path[match.end():]
                 req.rootURI = path[:match.end()]
+                if not req.rootURI.endswith('/'): req.rootURI += '/'
                 break
         else:
             self.send_response(404)
@@ -137,7 +138,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 # --------------------------------------------------------------------
 
-def run(requestHandlerClass, port = 80):
+def run(requestHandlerClass, port=80):
     while True:
         try:
             server = HTTPServer(('', port), requestHandlerClass)

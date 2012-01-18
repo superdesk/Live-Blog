@@ -9,12 +9,17 @@ Created on Jan 13, 2012
 Provides the setup implementations for the IoC support module.
 '''
 
-from ..proxy import ProxyWrapper
+from ..proxy import proxyWrapForImpl
 from .entity_handler import Wiring, WireConfig, WireEntity
-from .ioc_setup import Setup, Assembly, SetupError, CallEntity, CallDeliverValue
+from .ioc_setup import Setup, Assembly, SetupError, CallEntity, CallDeliverValue, \
+    SetupSource, WithType
 from _abcoll import Callable
 from inspect import isclass
-from ally.container.proxy import createProxyOfImpl
+import logging
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -55,7 +60,7 @@ class SetupEntityWire(Setup):
     Provides the setup event function.
     '''
     
-    priority = 4
+    priority_assemble = 4
     
     @classmethod
     def nameFor(cls, group, clazz, config):
@@ -121,56 +126,53 @@ class SetupEntityWire(Setup):
                 assert isinstance(call, CallEntity)
                 call.addInterceptor(self._intercept)
                 
-    def _intercept(self, value):
+    def _intercept(self, value, followUp):
         '''
         FOR INTERNAL USE!
         This is the interceptor method used in performing the wiring.
         '''
-        if value:
+        if value is not None:
             clazz = value.__class__
             wiring = self._wirings.get(clazz)
             if wiring:
-                from ally.container.support import entityFor
-                assert isinstance(wiring, Wiring)
-                for wentity in wiring.entities:
-                    assert isinstance(wentity, WireEntity)
-                    entity = getattr(value, wentity.name, None)
-                    if not entity or entity == wentity.type:
-                        setattr(value, wentity.name, entityFor(wentity.type))
-                for wconfig in wiring.configurations:
-                    assert isinstance(wconfig, WireConfig)
-                    config = getattr(value, wconfig.name, None)
-                    if not config or config == wconfig.type:
-                        setattr(value, wconfig.name, Assembly.process(self.nameFor(self._group, clazz, wconfig)))
-        return value
+                def followWiring():
+                    from ally.container.support import entityFor
+                    assert isinstance(wiring, Wiring)
+                    for wentity in wiring.entities:
+                        assert isinstance(wentity, WireEntity)
+                        entity = getattr(value, wentity.name, None)
+                        if not entity or entity == wentity.type:
+                            setattr(value, wentity.name, entityFor(wentity.type))
+                    for wconfig in wiring.configurations:
+                        assert isinstance(wconfig, WireConfig)
+                        config = getattr(value, wconfig.name, None)
+                        if not config or config == wconfig.type:
+                            setattr(value, wconfig.name, Assembly.process(self.nameFor(self._group, clazz, wconfig)))
+                    if followUp: followUp()
+                return value, followWiring
+        return value, followUp
 
-class SetupEntityProxy(Setup):
+class SetupEntityListen(Setup):
     '''
-    Provides the setup event function.
+    Provides the setup entity listen by type.
     '''
     
-    priority = 5
+    priority_assemble = 5
     
     def __init__(self, group, classes, listeners):
         '''
-        Creates a setup that will create proxies for the entities that inherit or are in the provided classes.
-        The proxy create process is as follows:
-            - find all entity calls that have the name starting with the provided group
-            - if the entity instance inherits a class from the provided proxy classes it will create a proxy for
-              that and wrap the entity instance.
-            - after the proxy is created invoke all the proxy listeners.
+        Creates a setup that will listen for entities that inherit or are in the provided classes.
         
         @param group: string
-            The name group of the call entities to be proxied.
+            The name group of the call entities to be listened.
         @param classes: list[class]|tuple(class)
-            The classes to create the proxies for.
+            The classes to listen for.
         @param listeners: list[Callable]|tuple(Callable)
-            A list of Callable objects to be invoked when a proxy is created. The Callable needs to take one parameter
-            that is the proxy.
+           The listeners to be invoked. The listeners Callable's will take one argument that is the instance.
         '''
         assert isinstance(group, str), 'Invalid group %s' % group
         assert isinstance(classes, (list, tuple)), 'Invalid classes %s' % classes
-        assert isinstance(listeners, (list, tuple)), 'Invalid proxy listeners %s' % listeners
+        assert isinstance(listeners, (list, tuple)), 'Invalid listeners %s' % listeners
         if __debug__:
             for clazz in classes: assert isclass(clazz), 'Invalid class %s' % clazz
             for call in listeners: assert isinstance(call, Callable), 'Invalid listener %s' % call
@@ -189,12 +191,69 @@ class SetupEntityProxy(Setup):
                 assert isinstance(call, CallEntity)
                 call.addInterceptor(self._intercept)
                 
-    def _intercept(self, value):
+    def _intercept(self, value, followUp):
+        '''
+        FOR INTERNAL USE!
+        This is the interceptor method used in listening.
+        '''
+        if value is not None:
+            for clazz in self._classes:
+                if isinstance(value, clazz):
+                    for listener in self._listeners: listener(value)
+                    break
+        return value, followUp
+    
+class SetupEntityProxy(Setup):
+    '''
+    Provides the setup entity proxy binding by type.
+    '''
+    
+    priority_assemble = 6
+    
+    def __init__(self, group, classes, binders):
+        '''
+        Creates a setup that will create proxies for the entities that inherit or are in the provided classes.
+        The proxy create process is as follows:
+            - find all entity calls that have the name starting with the provided group
+            - if the entity instance inherits a class from the provided proxy classes it will create a proxy for
+              that and wrap the entity instance.
+            - after the proxy is created invoke all the proxy binders.
+        
+        @param group: string
+            The name group of the call entities to be proxied.
+        @param classes: list[class]|tuple(class)
+            The classes to create the proxies for.
+        @param binders: list[Callable]|tuple(Callable)
+            A list of Callable objects to be invoked when a proxy is created. The Callable needs to take one parameter
+            that is the proxy.
+        '''
+        assert isinstance(group, str), 'Invalid group %s' % group
+        assert isinstance(classes, (list, tuple)), 'Invalid classes %s' % classes
+        assert isinstance(binders, (list, tuple)), 'Invalid proxy binders %s' % binders
+        if __debug__:
+            for clazz in classes: assert isclass(clazz), 'Invalid class %s' % clazz
+            for call in binders: assert isinstance(call, Callable), 'Invalid binder %s' % call
+        self._group = group
+        self._classes = classes
+        self._binders = binders
+        
+    def assemble(self, assembly):
+        '''
+        @see: Setup.assemble
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        prefix = self._group + '.'
+        for name, call in assembly.calls.items():
+            if name.startswith(prefix) and isinstance(call, CallEntity):
+                assert isinstance(call, CallEntity)
+                call.addInterceptor(self._intercept)
+                
+    def _intercept(self, value, followUp):
         '''
         FOR INTERNAL USE!
         This is the interceptor method used in creating the proxies.
         '''
-        if value:
+        if value is not None:
             proxies = [clazz for clazz in self._classes if isinstance(value, clazz)]
             if proxies:
                 if len(proxies) > 1:
@@ -205,11 +264,45 @@ class SetupEntityProxy(Setup):
                 if len(proxies) > 1:
                     raise SetupError('Cannot create proxy for %s, because to many proxy classes matched %s' % 
                                      (value, proxies))
-                proxy = createProxyOfImpl(proxies[0])
-                value = proxy(ProxyWrapper(value))
                 
-                for listener in self._listeners: listener(value)
-        return value
+                value = proxyWrapForImpl(value)
+                
+                for binder in self._binders: binder(value)
+        return value, followUp
+    
+class SetupEntityCreate(SetupSource):
+    '''
+    Provides the entity create setup.
+    '''
+    
+    priority_index = 2
+    
+    def __init__(self, function, type, **keyargs):
+        '''
+        Create a setup for entity creation.
+        
+        @param type: class
+            The api class of the entity to create.
+        @see: SetupSource.__init__
+        '''
+        assert isclass(type), 'Invalid api class %s' % type
+        SetupSource.__init__(self, function, type, **keyargs)
+    
+    def index(self, assembly):
+        '''
+        @see: Setup.index
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        for call in assembly.calls.values():
+            if isinstance(call, WithType):
+                assert isinstance(call, WithType)
+                if call.type == self._type:
+                    assert log.debug('There is already an entity of type %s', self._type) or True
+                    break
+        else:
+            if self._name in assembly.calls:
+                raise SetupError('There is already a setup call for name %r' % self._name)
+            assembly.calls[self._name] = CallEntity(self._name, self._function, self._type)
 
 # --------------------------------------------------------------------
 

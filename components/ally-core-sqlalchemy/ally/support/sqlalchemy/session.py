@@ -70,6 +70,7 @@ def beginWith(sessionCreator):
     if not creators: creators = ATTR_SESSION_CREATE.set(deque())
     assert isinstance(creators, deque)
     creators.append(sessionCreator)
+    assert log.debug('Begin session creator %s', sessionCreator) or True
 
 def openSession():
     '''
@@ -84,11 +85,12 @@ def openSession():
     if not sessions:
         session = creator()
         ATTR_SESSION.set({creatorId:session})
+        assert log.debug('Created SQL Alchemy session %s', session) or True
     else:
         session = sessions.get(creatorId)
-        if not session:
+        if session is None:
             session = sessions[creatorId] = creator()
-            assert log.debug('Created SQL Alchemy session') or True
+            assert log.debug('Created SQL Alchemy session %s', session) or True
     return session
 
 def endCurrent(sessionCloser=None):
@@ -102,18 +104,14 @@ def endCurrent(sessionCloser=None):
     creators = ATTR_SESSION_CREATE.get(None)
     if not creators: raise DevelException('Illegal end transaction call, there is no transaction begun')
     assert isinstance(creators, deque)
+    
     creator = creators.pop()
+    assert log.debug('End session creator %s', creator) or True
+    if not creators:
+        if not ATTR_KEEP_ALIVE.get(False): endSessions(sessionCloser)
+        ATTR_SESSION_CREATE.clear()
     
-    if not creators: ATTR_SESSION_CREATE.clear()
-    
-    if not ATTR_KEEP_ALIVE.get(False):
-        sessions = ATTR_SESSION.get(None)
-        if not sessions: ATTR_SESSION.clear()
-        if sessions:
-            session = sessions.pop(id(creator), None)
-            if session and sessionCloser: sessionCloser(session)
-
-def endAll(sessionCloser=None):
+def endSessions(sessionCloser=None):
     '''
     Ends all the transaction for the current thread session.
     
@@ -121,15 +119,13 @@ def endAll(sessionCloser=None):
         A Callable that will be invoked for the ended transactions. It will take as a parameter the session to be closed.
     '''
     assert not sessionCloser or isinstance(sessionCloser, Callable), 'Invalid session closer %s' % sessionCloser
-    creators, sessions = ATTR_SESSION_CREATE.get(None), ATTR_SESSION.get(None)
+    sessions = ATTR_SESSION.get(None)
     if sessions:
-        while creators:
-            creator = creators.pop()
-            
-            session = sessions.pop(id(creator), None)
-            if session and sessionCloser: sessionCloser(session)
-    ATTR_SESSION_CREATE.clear()
+        while sessions:
+            _creatorId, session = sessions.popitem()
+            if sessionCloser: sessionCloser(session)
     ATTR_SESSION.clear()
+    assert log.debug('Ended all sessions') or True
     
 # --------------------------------------------------------------------
 
@@ -142,6 +138,7 @@ def commit(session):
     '''
     assert isinstance(session, Session), 'Invalid session %s' % session
     try:
+        session.flush()
         session.expunge_all()
         session.commit()
         assert log.debug('Committed SQL Alchemy session transactions') or True

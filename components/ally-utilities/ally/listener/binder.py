@@ -194,9 +194,9 @@ def registerProxyBinder(proxy):
         If the registration is done on a proxy call than the proxy handler will be used only for that call method.
     '''
     proxy, _method = analyzeProxy(proxy)
-    if not hasProxyHandler(PROXY_BINDER, proxy): registerProxyHandler(PROXY_BINDER, proxy)
+    if not hasProxyHandler(BINDING_HANDLER, proxy): registerProxyHandler(BINDING_HANDLER, proxy)
 
-class ProxyBinder(IProxyHandler):
+class BindingHandler(IProxyHandler):
     '''
     Provides a @see: IProxyHandler implementation in order to execute binded listeners. 
     '''
@@ -222,7 +222,7 @@ class ProxyBinder(IProxyHandler):
                     callListeners(proxyCall, EVENT_AFTER_CALL, value)
                 return value
 
-PROXY_BINDER = ProxyBinder()
+BINDING_HANDLER = BindingHandler()
 # The single proxy binder handler that solver the listener calls.
 # This implementation is state less so it has to be considered a singletone.
 

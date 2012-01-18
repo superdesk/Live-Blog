@@ -97,6 +97,19 @@ def createProxyOfImpl(clazz):
     proxy.__module__ = clazz.__module__
     return ATTR_PROXY.set(clazz, proxy)
 
+def proxyWrapForImpl(impl):
+    '''
+    Creates a proxy that will wrap the provided implementation.
+    
+    @param impl: object
+        The object to create a proxy wrap for.
+    @return: Proxy object
+        The proxy instance that is wrapping the provided implementation.
+    '''
+    assert impl is not None, 'A impl object is required'
+    proxy = createProxyOfImpl(impl.__class__)
+    return proxy(ProxyWrapper(impl))
+
 def isProxyClass(clazz):
     '''
     Checks if the provided class is a proxy class.

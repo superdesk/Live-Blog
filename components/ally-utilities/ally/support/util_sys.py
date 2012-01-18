@@ -10,10 +10,10 @@ Provides utility functions for handling system packages/modules/classes.
 '''
 
 from inspect import isclass, ismodule, stack
-import sys
-import pkgutil
+from os.path import dirname
+from pkgutil import iter_modules, get_importer, iter_importers
 import re
-import os
+import sys
 
 # --------------------------------------------------------------------
 
@@ -162,10 +162,10 @@ def searchModules(pattern):
                 pckg, pckgPaths = parent.popitem()
                 packages = []
                 for path in pckgPaths:
-                    moduleLoader = pkgutil.get_importer(os.path.dirname(path)).find_module(pckg)
+                    moduleLoader = get_importer(dirname(path)).find_module(pckg)
                     if moduleLoader and moduleLoader.is_package(pckg): packages.append(path)
-                for moduleLoader, modulePath, isPckg in pkgutil.iter_modules(packages):
-                    path = os.path.dirname(moduleLoader.find_module(modulePath).get_filename(modulePath))
+                for moduleLoader, modulePath, isPckg in iter_modules(packages):
+                    path = dirname(moduleLoader.find_module(modulePath).get_filename(modulePath))
                     if isPckg:
                         paths = parent.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
                         if path not in paths: paths.append(path)
@@ -177,23 +177,23 @@ def searchModules(pattern):
             for pckg, pckgPaths in parent.items():
                 packages = []
                 for path in pckgPaths:
-                    moduleLoader = pkgutil.get_importer(os.path.dirname(path)).find_module(pckg)
+                    moduleLoader = get_importer(dirname(path)).find_module(pckg)
                     if moduleLoader and moduleLoader.is_package(pckg): packages.append(path)
-                for moduleLoader, modulePath, _isPckg in pkgutil.iter_modules(packages):
+                for moduleLoader, modulePath, _isPckg in iter_modules(packages):
                     if matcher.match(modulePath):
-                        path = os.path.dirname(moduleLoader.find_module(modulePath).get_filename(modulePath))
+                        path = dirname(moduleLoader.find_module(modulePath).get_filename(modulePath))
                         paths = modules.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
                         if path not in paths: paths.append(path)
             return modules
-        else: importers = [(pckg, pkgutil.get_importer(path)) for pckg, paths in parent.items() for path in paths ]
+        else: importers = [(pckg, get_importer(path)) for pckg, paths in parent.items() for path in paths ]
     else:
         name = pattern
-        importers = [('', imp) for imp in pkgutil.iter_importers()]
+        importers = [('', imp) for imp in iter_importers()]
     
     for package, importer in importers:
         moduleLoader = importer.find_module(name)
         if moduleLoader:
-            path = os.path.dirname(moduleLoader.get_filename(name))
+            path = dirname(moduleLoader.get_filename(name))
             paths = modules.setdefault(package + ('.' if package else '') + name, [])
             if path not in paths: paths.append(path)
     return modules
@@ -211,8 +211,8 @@ def packageModules(package):
     assert ismodule(package), 'Invalid module %s' % package
     assert isPackage(package), 'Invalid package module %s' % package
     modules = {}
-    for moduleLoader, modulePath, _isPckg in pkgutil.iter_modules(package.__path__, package.__name__ + '.'):
-        path = os.path.dirname(moduleLoader.find_module(modulePath).get_filename(modulePath))
+    for moduleLoader, modulePath, _isPckg in iter_modules(package.__path__, package.__name__ + '.'):
+        path = dirname(moduleLoader.find_module(modulePath).get_filename(modulePath))
         paths = modules.setdefault(modulePath, [])
         if path not in paths: paths.append(path)
     return modules
