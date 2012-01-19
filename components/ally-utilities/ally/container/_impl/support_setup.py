@@ -11,8 +11,8 @@ Provides the setup implementations for the IoC support module.
 
 from ..proxy import proxyWrapForImpl
 from .entity_handler import Wiring, WireConfig, WireEntity
-from .ioc_setup import Setup, Assembly, SetupError, CallEntity, CallDeliverValue, \
-    SetupSource, WithType
+from .ioc_setup import Setup, Assembly, SetupError, CallEntity, SetupSource, \
+    WithType
 from _abcoll import Callable
 from inspect import isclass
 import logging
@@ -22,38 +22,6 @@ import logging
 log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
-
-class SetupEntityFixed(Setup):
-    '''
-    Provides a fixed entity value.
-    '''
-    
-    def __init__(self, name, entity, type=None):
-        '''
-        Create the setup for providing a fixed entity setup.
-        
-        @param name: string
-            The name used for the setup function.
-        @param entity: object
-            The entity to be provided.
-        '''
-        assert isinstance(name, str), 'Invalid name %s' % name
-        assert entity, 'A entity is required' % entity
-        if type:
-            assert isclass(type), 'Invalid type %s' % type
-            self._type = type
-        else: self._type = entity.__class__
-        self._name = name
-        self._entity = entity
-    
-    def index(self, assembly):
-        '''
-        @see: Setup.index
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._name in assembly.calls:
-            raise SetupError('Cannot add setup function because there is already a setup call for name %r' % self._name)
-        assembly.calls[self._name] = CallDeliverValue(self._entity, self._type)
 
 class SetupEntityWire(Setup):
     '''
@@ -302,7 +270,7 @@ class SetupEntityCreate(SetupSource):
         else:
             if self._name in assembly.calls:
                 raise SetupError('There is already a setup call for name %r' % self._name)
-            assembly.calls[self._name] = CallEntity(self._name, self._function, self._type)
+            assembly.calls[self._name] = CallEntity(assembly, self._name, self._function, self._type)
 
 # --------------------------------------------------------------------
 

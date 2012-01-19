@@ -46,14 +46,14 @@ def deploy():
         
         ass = assembly = ctx.assemble(config)
         
-        if not isConfig:
-            with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
-            
         try: ass.processStart()
         except ConfigError:
             # We save the file in case there are missing configuration
             with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
             raise
+        if not isConfig:
+            with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
+            
     except:
         print('-' * 150, file=sys.stderr)
         print('A problem occurred while deploying', file=sys.stderr)

@@ -220,7 +220,7 @@ class SetupEntity(SetupSource):
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         if self._name in assembly.calls:
             raise SetupError('There is already a setup call for name %r' % self._name)
-        assembly.calls[self._name] = CallEntity(self._name, self._function, self._type)
+        assembly.calls[self._name] = CallEntity(assembly, self._name, self._function, self._type)
             
 class SetupConfig(SetupSource):
     '''
@@ -263,23 +263,16 @@ class SetupConfig(SetupSource):
                                      'instead of "url")' % (name, self._name))
                 assembly.configUsed.add(name)
                 hasValue, value = True, val
-        error = None
         if hasValue:
-            if isinstance(value, ConfigError):
-                error = value
-                hasValue, value = False, None
+            if isinstance(value, ConfigError): hasValue = False
         else:
             try: 
                 value = self._function()
                 hasValue = True
-            except ConfigError as e: error = e
-        if hasValue: assembly.calls[self._name] = CallDeliverValue(value, self._type)
-        else: assembly.calls[self._name] = CallDeliverError(error)
-
-        if error:
-            assembly.configurations[self._name] = Config(self._name, error, self._group, self._function.__doc__)
-        else:
-            assembly.configurations[self._name] = Config(self._name, value, self._group, self._function.__doc__)
+            except ConfigError as e: value = e
+    
+        assembly.calls[self._name] = CallConfig(assembly, self._name, value, self._type)
+        assembly.configurations[self._name] = Config(self._name, value, self._group, self._function.__doc__)
         
     def assemble(self, assembly):
         '''
@@ -296,7 +289,7 @@ class SetupConfig(SetupSource):
                 name = found[0]
                 assembly.configurations.pop(name)
                 assembly.calls[name] = assembly.calls[self._name]
-            else: log.info('No alias %r for configuration  %r', alias, self._name)
+            else: log.info('No alias %r for configuration %r', alias, self._name)
 
 class SetupReplace(SetupFunction):
     '''
@@ -362,7 +355,7 @@ class SetupEvent(SetupFunction):
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         if self._name in assembly.calls:
             raise SetupError('There is already a setup call for name %r' % self._name)
-        assembly.calls[self._name] = CallEvent(self._function)
+        assembly.calls[self._name] = CallEvent(assembly, self._name, self._function)
         
     def assemble(self, assembly):
         '''
@@ -402,7 +395,7 @@ class SetupStart(SetupFunction):
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         if self._name in assembly.calls:
             raise SetupError('There is already a setup call for name %r' % self._name)
-        assembly.calls[self._name] = CallEvent(self._function)
+        assembly.calls[self._name] = CallEvent(assembly, self._name, self._function)
         
     def assemble(self, assembly):
         '''
@@ -518,26 +511,38 @@ class CallEvent(Callable, WithCall, WithListeners):
     @see: Callable, WithCall, WithType, WithListeners
     '''
     
-    def __init__(self, call):
+    def __init__(self, assembly, name, call):
         '''
         Construct the event call.
+        
+        @param assembly: Assembly
+            The assembly to which this call belongs.
+        @param name: string
+            The event name.
+            
         @see: WithCall.__init__
         @see: WithListeners.__init__
         '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        assert isinstance(name, str), 'Invalid name %s' % name
         WithCall.__init__(self, call)
         WithListeners.__init__(self)
+        
+        self._assembly = assembly
+        self._name = name
         self._processed = False
 
     def __call__(self):
         '''
         Provides the call for the source.
         '''
-        if self._processed: raise SetupError('The event call cannot be dispatched twice')
+        if self._processed: raise SetupError('The event call %r cannot be dispatched twice' % self._name)
         self._processed = True
+        self._assembly.called.add(self._name)
         
         for listener in self._listenersBefore: listener()
         ret = self.call()
-        if ret is not None: raise SetupError('The event call cannot return any value')
+        if ret is not None: raise SetupError('The event call %r cannot return any value' % self._name)
         for listener in self._listenersAfter: listener()
  
 class CallEntity(Callable, WithCall, WithType, WithListeners):
@@ -546,10 +551,12 @@ class CallEntity(Callable, WithCall, WithType, WithListeners):
     @see: Callable, WithCall, WithType, WithListeners
     '''
     
-    def __init__(self, name, call, type=None):
+    def __init__(self, assembly, name, call, type=None):
         '''
         Construct the entity call.
         
+        @param assembly: Assembly
+            The assembly to which this call belongs.
         @param name: string
             The entity name.
         
@@ -557,11 +564,13 @@ class CallEntity(Callable, WithCall, WithType, WithListeners):
         @see: WithType.__init__
         @see: WithListeners.__init__
         '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         assert isinstance(name, str), 'Invalid name %s' % name
         WithCall.__init__(self, call)
         WithType.__init__(self, type)
         WithListeners.__init__(self)
         
+        self._assembly = assembly
         self._name = name
         self._hasValue = False
         self._processing = False
@@ -586,6 +595,8 @@ class CallEntity(Callable, WithCall, WithType, WithListeners):
         if not self._hasValue:
             if self._processing: raise SetupError('Cyclic dependency detected for %r, try using yield' % self._name)
             self._processing = True
+            self._assembly.called.add(self._name)
+            
             ret = self.call()
         
             if isgenerator(ret): value, followUp = next(ret), partial(next, ret, None)
@@ -609,25 +620,33 @@ class CallEntity(Callable, WithCall, WithType, WithListeners):
             assert log.debug('Finalized %r with value %s', self._name, value) or True
         return self._value
 
-class CallDeliverValue(Callable, WithType, WithListeners):
+class CallConfig(Callable, WithType, WithListeners):
     '''
     Call that delivers a value.
     @see: Callable, WithType, WithListeners
     '''
     
-    def __init__(self, value, type=None):
+    def __init__(self, assembly, name, value, type=None):
         '''
         Construct the configuration call.
-        @see: WithType.__init__
-        @see: WithListeners.__init__
         
+        @param assembly: Assembly
+            The assembly to which this call belongs.
+        @param name: string
+            The configuration name.
         @param value: object
             The value to deliver.
+            
+        @see: WithType.__init__
+        @see: WithListeners.__init__
         '''
         WithType.__init__(self, type)
         WithListeners.__init__(self)
-        self._processed = False
+        
+        self._assembly = assembly
+        self._name = name
         self.value = value
+        self._processed = False
         
     def setValue(self, value):
         '''
@@ -636,7 +655,8 @@ class CallDeliverValue(Callable, WithType, WithListeners):
         @param value: object
             The value to deliver.
         '''
-        self._value = self.validate(value)
+        if isinstance(value, Exception): self._value = value
+        else: self._value = self.validate(value)
         
     value = property(lambda self: self._value, setValue, doc=
 '''
@@ -650,33 +670,11 @@ class CallDeliverValue(Callable, WithType, WithListeners):
         '''
         if not self._processed:
             self._processed = True
+            self._assembly.called.add(self._name)
+            
             for listener in chain(self._listenersBefore, self._listenersAfter): listener()
+        if isinstance(self._value, Exception): raise self._value
         return self._value
-    
-class CallDeliverError(Callable, WithListeners):
-    '''
-    Call that delivers an exception.
-    @see: Callable, WithListeners
-    '''
-    
-    def __init__(self, error):
-        '''
-        Construct the configuration call.
-        @see: WithListeners.__init__
-        
-        @param error: Exception
-            The exception to be raised.
-        '''
-        assert isinstance(error, Exception), 'Invalid error %s' % error
-        WithListeners.__init__(self)
-        self._error = error
-        
-    def __call__(self):
-        '''
-        Provides the call for the entity.
-        '''
-        for listener in chain(self._listenersBefore, self._listenersAfter): listener()
-        raise self._error
 
 # --------------------------------------------------------------------
 
@@ -728,6 +726,13 @@ class Assembly:
             resolve the name. The Callable will not take any argument.
         @ivar callsStart: list[Callable]
             A list of Callable that are used as IoC start calls.
+        @ivar called: set[string]
+            A set of the called calls in this assembly.
+        @ivar started: boolean
+            Flag indicating if the assembly is started.
+            
+        @ivar _processing: deque(string)
+            Used internally for tracking the processing chain.
         '''
         assert isinstance(configExtern, dict), 'Invalid external configurations %s' % configExtern
         self.configExtern = configExtern
@@ -735,6 +740,9 @@ class Assembly:
         self.configurations = {}
         self.calls = {}
         self.callsStart = []
+        self.called = set()
+        self.started = False
+        
         self._processing = deque()
         
     def trimmedConfigurations(self):
@@ -759,6 +767,7 @@ class Assembly:
         configs = {}
         for name, config in self.configurations.items():
             assert isinstance(config, Config)
+            if self.started and config.name not in self.called: continue
             sname = name[len(config.group) + 1:]
             other = configs.pop(sname, None)
             while other:
@@ -799,6 +808,7 @@ class Assembly:
             try:     
                 for call in self.callsStart: call()
             finally: self.stack.pop()
+            self.started = True
         else: log.error('No IoC start calls to start the setup')
 
 class Context:

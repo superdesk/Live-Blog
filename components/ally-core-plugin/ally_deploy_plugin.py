@@ -55,14 +55,14 @@ def deploy():
             
         ass = assembly = ctx.assemble(config)
         
-        if not isConfig:
-            with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
-        
         try: ass.processStart()
         except ConfigError:
             # We save the file in case there are missing configuration
-            with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
+            isConfig = False
             raise
+        finally:
+            if not isConfig:
+                with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
         
         assert isinstance(resourcesManager, ResourcesManager), 'There is no resource manager for the services'
         for service in services:
