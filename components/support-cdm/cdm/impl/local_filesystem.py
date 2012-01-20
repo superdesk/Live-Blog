@@ -20,7 +20,6 @@ from os.path import isdir, isfile, join, dirname, normpath, relpath
 from urllib.parse import ParseResult
 from io import StringIO, IOBase, TextIOBase
 from tempfile import TemporaryDirectory
-from os import makedirs
 
 # --------------------------------------------------------------------
 
@@ -54,27 +53,35 @@ class IDelivery(metaclass = abc.ABCMeta):
 @injected
 class HTTPDelivery(IDelivery):
     '''
+    @ivar serverName: string
+        The HTTP server name
+    @ivar port: int
+        The HTTP server listening port
+    @ivar documentRoot: string
+        The HTTP server document root directory path
+    @ivar repositorySubdir: string
+        The sub - directory of the document root where the file repository is
     @see IDelivery
     '''
 
     serverName = str
     # The HTTP server name
 
-    documentRoot = str
-    # The HTTP server document root directory path
-
     port = int
     # The HTTP server listening port
+
+    documentRoot = str
+    # The HTTP server document root directory path
 
     repositorySubdir = str
     # The sub-directory of the document root where the file repository is
 
     def __init__(self):
         assert isinstance(self.serverName, str), 'Invalid server name value %s' % self.serverName
-        assert isinstance(self.documentRoot, str) and isdir(self.documentRoot), \
-            'Invalid document root directory %s' % self.documentRoot
         assert isinstance(self.port, int) and self.port > 0 and self.port <= 65535, \
             'Invalid port value %s' % self.port
+        assert isinstance(self.documentRoot, str) and isdir(self.documentRoot), \
+            'Invalid document root directory %s' % self.documentRoot
         assert isinstance(self.repositorySubdir, str), \
             'Invalid repository sub-directory value %s' % self.documentRoot
         assert isdir(self.getRepositoryPath()) \
@@ -108,6 +115,9 @@ class HTTPDelivery(IDelivery):
 @injected
 class LocalFileSystemCDM(ICDM):
     '''
+    @ivar delivery: IDelivery
+        The delivery protocol
+
     @see ICDM (Content Delivery Manager interface)
     '''
 
@@ -144,7 +154,7 @@ class LocalFileSystemCDM(ICDM):
         tmpDir = TemporaryDirectory()
         zipFile.extractall(tmpDir.name, entries)
         tmpDirPath = join(tmpDir.name, inDirPath)
-        makedirs(path)
+        os.makedirs(path)
         for entry in os.listdir(tmpDirPath):
             move(join(tmpDirPath, entry), path)
 
