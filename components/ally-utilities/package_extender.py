@@ -116,6 +116,7 @@ class ModuleLoader:
             print('Problem occurred while loading module %r from loader %s' % (name, self._loader), file=sys.stderr)
             traceback.print_exc()
             print('-' * 150, file=sys.stderr)
+            raise
 
         return module
     

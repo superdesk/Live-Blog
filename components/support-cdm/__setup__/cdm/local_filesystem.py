@@ -20,7 +20,7 @@ import re
 @ioc.config
 def server_pattern_content():
     ''' The pattern used for matching the rest content paths in HTTP URL's'''
-    return '^content/'
+    return '^content(/|$)'
 
 # --------------------------------------------------------------------
 # Creating the content delivery managers
