@@ -14,6 +14,9 @@ from ally.container import ioc
 from cdm.spec import ICDM
 from __setup__.ally_core_http.processor import pathProcessors
 import re
+from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
+from __setup__.ally_core_http import server_port
+from ally.core.spec.server import Processors
 
 # --------------------------------------------------------------------
 
@@ -22,16 +25,31 @@ def server_pattern_content():
     ''' The pattern used for matching the rest content paths in HTTP URL's'''
     return '^content(/|$)'
 
+@ioc.config
+def server_name():
+    ''' The HTTP server name '''
+    return 'localhost'
+
+@ioc.config
+def server_document_root():
+    ''' The HTTP server document root directory '''
+    return '/var/www'
+
+@ioc.config
+def repository_subdirectory():
+    ''' The repository relative path inside the server document root directory '''
+    return 'repository'
+
 # --------------------------------------------------------------------
 # Creating the content delivery managers
 
 @ioc.entity
 def HTTPDelivery() -> IDelivery:
     d = HTTPDelivery()
-    d.serverName = 'localhost'
-    d.documentRoot = '/var/www'
-    d.repositorySubdir = 'repository'
-    d.port = 80
+    d.serverName = server_name()
+    d.port = server_port()
+    d.documentRoot = server_document_root()
+    d.repositorySubdir = repository_subdirectory()
     return d
 
 @ioc.entity
@@ -45,12 +63,22 @@ def localFileSystemCDM() -> ICDM:
 def cdms():
     return [localFileSystemCDM()]
 
+# --------------------------------------------------------------------
+# Creating the processors used in handling the request
+
+@ioc.entity
+def localContentHandler():
+    h = ContentDeliveryHandler()
+    h.documentRoot = server_document_root()
+    h.repositorySubdir = repository_subdirectory()
+    return h
+
 # ---------------------------------
 
 @ioc.entity
 def contentHandlers():
-    return []
+    return [localContentHandler()]
 
-#@ioc.before(pathProcessors)
+@ioc.before(pathProcessors)
 def updatePathProcessors():
-    pathProcessors().append((re.compile(server_pattern_content()), contentHandlers()))
+    pathProcessors().append((re.compile(server_pattern_content()), Processors(*contentHandlers())))

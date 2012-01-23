@@ -11,8 +11,7 @@ Provides the content delivery handler.
 
 from ally.api.operator import GET, INSERT, UPDATE, DELETE
 from ally.container.ioc import injected
-from ally.core.spec.codes import METHOD_NOT_AVAILABLE
-from ally.core.spec.resources import Path, Node
+from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, RESOURCE_NOT_FOUND
 from ally.core.spec.server import Processor, Response, ProcessorsChain
 from ally.core.http.spec import RequestHTTP
 from os.path import isdir, isfile, join, dirname
@@ -51,9 +50,13 @@ class ContentDeliveryHandler(Processor):
             'Invalid document root directory %s' % self.documentRoot
         assert isinstance(self.repositorySubdir, str), \
             'Invalid repository sub-directory value %s' % self.documentRoot
-        assert isdir(self.getRepositoryPath()) \
-            and os.access(self.getRepositoryPath(), os.W_OK), \
-            'Unable to access the repository directory %s' % self.documentRoot
+        assert isdir(self._getRepositoryPath()) \
+            and os.access(self._getRepositoryPath(), os.R_OK), \
+            'Unable to access the repository directory %s' % self._getRepositoryPath()
+        super().__init__()
+
+    def _getRepositoryPath(self):
+        return join(self.documentRoot, self.repositorySubdir)
 
     def process(self, req, rsp, chain):
         '''
@@ -62,34 +65,28 @@ class ContentDeliveryHandler(Processor):
         assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        path = req.resourcePath
-        assert isinstance(path, Path)
-        node = path.node
-        assert isinstance(node, Node), \
-        'The node has to be available in the path %s problems in previous processors' % path
-        path = req.resourcePath
-        assert isinstance(path, str)
         if req.method == INSERT: # Inserting
-            self._sendNotAvailable(node, rsp, 'Path not available for post')
+            self._sendNotAvailable(rsp, 'Path not available for post')
             return
         elif req.method == UPDATE: # Updating
-            self._sendNotAvailable(node, rsp, 'Path not available for put')
+            self._sendNotAvailable(rsp, 'Path not available for put')
             return
         elif req.method == DELETE: # Deleting
-            self._sendNotAvailable(node, rsp, 'Path not available for delete')
+            self._sendNotAvailable(rsp, 'Path not available for delete')
             return
         elif req.method != GET:
-            self._sendNotAvailable(node, rsp, 'Path not available for this method')
+            self._sendNotAvailable(rsp, 'Path not available for this method')
             return
 
         entryPath = join(self.documentRoot, self.repositorySubdir, req.path)
+        rsp.setCode(RESOURCE_FOUND, 'File found')
         writer = rsp.dispatch()
         if (isfile(entryPath)):
             try:
                 f = open(entryPath)
                 writer.write(f.read())
             except:
-                rsp.code = 404
+                rsp.setCode(RESOURCE_NOT_FOUND, 'Unable to open file')
                 return
         elif isfile(entryPath + '.link'):
             try:
@@ -98,7 +95,7 @@ class ContentDeliveryHandler(Processor):
                 lf = open(linkedFilePath)
                 writer.write(lf.read())
             except:
-                rsp.code = 404
+                rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource link')
                 return
         else:
             linkPath = entryPath
@@ -107,7 +104,7 @@ class ContentDeliveryHandler(Processor):
                     break
                 linkPath = dirname(linkPath)
             else:
-                rsp.code = 404
+                rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
                 return
             try:
                 f = open(linkPath + '.ziplink')
@@ -117,11 +114,11 @@ class ContentDeliveryHandler(Processor):
                 file = zipFile.open(join(inFilePath, req.path))
                 writer.write(file.read())
             except:
-                rsp.code = 404
+                rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource in ZIP file')
                 return
 
         chain.process(req, rsp)
 
-    def _sendNotAvailable(self, node, rsp, message):
+    def _sendNotAvailable(self, rsp, message):
         rsp.addAllows(GET)
         rsp.setCode(METHOD_NOT_AVAILABLE, message)

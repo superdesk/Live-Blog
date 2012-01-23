@@ -124,6 +124,9 @@ class LocalFileSystemCDM(ICDM):
     delivery = IDelivery
     # The delivery protocol
 
+    def __init__(self):
+        assert isinstance(self.delivery, IDelivery), 'Invalid delivery protocol %s' % self.delivery
+
     def _getItemPath(self, path):
         return join(self.delivery.getRepositoryPath(), path.lstrip('/'))
 
