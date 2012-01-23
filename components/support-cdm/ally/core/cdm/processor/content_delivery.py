@@ -13,10 +13,11 @@ from ally.api.operator import GET, INSERT, UPDATE, DELETE
 from ally.container.ioc import injected
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE
 from ally.core.spec.resources import Path, Node
-from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
+from ally.core.spec.server import Processor, Response, ProcessorsChain
 from ally.core.http.spec import RequestHTTP
-from os.path import isdir, isfile, join, dirname, normpath, relpath
+from os.path import isdir, isfile, join, dirname
 import os
+from zipfile import ZipFile, is_zipfile
 
 # --------------------------------------------------------------------
 
@@ -62,32 +63,62 @@ class ContentDeliveryHandler(Processor):
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         path = req.resourcePath
+        assert isinstance(path, Path)
+        node = path.node
+        assert isinstance(node, Node), \
+        'The node has to be available in the path %s problems in previous processors' % path
+        path = req.resourcePath
         assert isinstance(path, str)
         if req.method == INSERT: # Inserting
-            self._sendNotAvailable(rsp, 'Path not available for post')
+            self._sendNotAvailable(node, rsp, 'Path not available for post')
             return
         elif req.method == UPDATE: # Updating
-            self._sendNotAvailable(rsp, 'Path not available for put')
+            self._sendNotAvailable(node, rsp, 'Path not available for put')
             return
         elif req.method == DELETE: # Deleting
-            self._sendNotAvailable(rsp, 'Path not available for delete')
+            self._sendNotAvailable(node, rsp, 'Path not available for delete')
             return
         elif req.method != GET:
-            self._sendNotAvailable(rsp, 'Path not available for this method')
+            self._sendNotAvailable(node, rsp, 'Path not available for this method')
             return
 
         entryPath = join(self.documentRoot, self.repositorySubdir, req.path)
         writer = rsp.dispatch()
         if (isfile(entryPath)):
-            f = open(entryPath)
-            writer.write(f.read())
+            try:
+                f = open(entryPath)
+                writer.write(f.read())
+            except:
+                rsp.code = 404
+                return
         elif isfile(entryPath + '.link'):
-            f = open(entryPath)
-            linkedFilePath = f.readline().strip()
-            lf = open(linkedFilePath)
-            writer.write(lf.read())
-        elif isfile(entryPath + '.ziplink'):
-            pass
+            try:
+                f = open(entryPath + '.link')
+                linkedFilePath = f.readline().strip()
+                lf = open(linkedFilePath)
+                writer.write(lf.read())
+            except:
+                rsp.code = 404
+                return
+        else:
+            linkPath = entryPath
+            while len(linkPath) > 0:
+                if is_zipfile(linkPath + '.ziplink'):
+                    break
+                linkPath = dirname(linkPath)
+            else:
+                rsp.code = 404
+                return
+            try:
+                f = open(linkPath + '.ziplink')
+                zipFilePath = f.readline().strip()
+                inFilePath = f.readline().strip()
+                zipFile = ZipFile(zipFilePath)
+                file = zipFile.open(join(inFilePath, req.path))
+                writer.write(file.read())
+            except:
+                rsp.code = 404
+                return
 
         chain.process(req, rsp)
 

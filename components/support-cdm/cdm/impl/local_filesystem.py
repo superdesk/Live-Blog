@@ -249,6 +249,18 @@ class LocalFileSystemCDM(ICDM):
         copyfileobj(streamContent, dstFile)
         dstFile.close()
 
+    def removePath(self, path):
+        '''
+        @see ICDM.removePath
+        '''
+        itemPath = self._getItemPath(path)
+        if (isdir(itemPath)):
+            rmtree(itemPath)
+        elif (isfile(itemPath)):
+            os.remove(itemPath)
+        else:
+            raise Exception()
+
     def getSupportedProtocols(self):
         '''
         @see ICDM.getSupportedProtocols
@@ -324,3 +336,9 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
             self._publishFromFile(path, dirPath)
         except Exception:
             raise Exception('Invalid file path value %s' % dirPath)
+
+    def removePath(self, path):
+        '''
+        @see ICDM.removePath
+        '''
+        raise Exception('Not implemented')

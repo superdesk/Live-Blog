@@ -68,6 +68,16 @@ class ICDM(metaclass = abc.ABCMeta):
         '''
 
     @abc.abstractmethod
+    def removePath(self, path):
+        '''
+        Remove the given path from the repository.
+
+        @param path: string
+                The path of the content item. This is a unique
+                     identifier of the item.
+        '''
+
+    @abc.abstractmethod
     def getSupportedProtocols(self):
         '''
         @return: Returns a tuple of supported protocol names.
