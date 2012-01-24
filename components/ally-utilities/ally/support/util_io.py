@@ -16,7 +16,7 @@ class FileReplace:
     Provides the file read replacing.
     Used by the @see: replaceInFile method.
     '''
-    
+
     def __init__(self, fileObj, replacements):
         '''
         Construct the file replacer.
@@ -35,22 +35,22 @@ class FileReplace:
                 assert isinstance(value, (str, bytes)), 'Invalid value %s' % value
         self.__fileObj = fileObj
         self.__replacements = replacements
-        
-        self.__maxKey = max(replacements.keys(), key=lambda v: len(v))
+
+        self.__maxKey = max(replacements.keys(), key = lambda v: len(v))
         self.__leftOver = None
-    
-    def read(self, count=None):
+
+    def read(self, count = None):
         '''
         Perform the data read. 
         '''
         data = self.__fileObj.read(count)
-        
+
         if not data:
             if self.__leftOver:
                 data = self.__leftOver
                 self.__leftOver = None
             else: return data
-        
+
         toIndex = None
         if self.__leftOver:
             toIndex = len(data)
@@ -60,17 +60,17 @@ class FileReplace:
             if extra:
                 toIndex = len(data)
                 data = data + extra
-                
+
         for key, value in self.__replacements.items(): data = data.replace(key, value)
-        
+
         if toIndex:
             self.__leftOver = data[toIndex:]
             data = data[:toIndex]
-        
+
         return data
-    
+
     def __getattr__(self, name): return getattr(self.__fileObj, name)
-    
+
 def replaceInFile(fileObj, replacements):
     '''
     Creates a proxy for the provided file object that will replace in the provided file content based on the data
@@ -86,3 +86,23 @@ def replaceInFile(fileObj, replacements):
     assert hasattr(fileObj, 'read'), 'Invalid file object %s does not have a read method' % fileObj
     assert isinstance(replacements, dict), 'Invalid replacements dictionary %s' % replacements
     return FileReplace(fileObj, replacements)
+
+BUFFER_SIZE = 1024
+
+def pipe(srcFileObj, dstFileObj):
+    '''
+    Copy the content from a source file to a destination file
+
+    @param srcFileObj: a file like object with a 'read' method
+        The file object to copy from
+    @param dstFileObj: a file like object with a 'write' method
+        The file object to copy to
+    '''
+    assert hasattr(srcFileObj, 'read'), \
+        'Invalid source file object %s does not have a read method' % srcFileObj
+    assert hasattr(dstFileObj, 'write'), \
+        'Invalid destination file object %s does not have a write method' % dstFileObj
+    while True:
+        buffer = srcFileObj.read(BUFFER_SIZE)
+        if not buffer: break
+        dstFileObj.write(buffer)

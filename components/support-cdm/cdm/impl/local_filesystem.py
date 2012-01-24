@@ -140,7 +140,7 @@ class LocalFileSystemCDM(ICDM):
             return (filePath, '')
         subPath = filePath
         while len(subPath) > 0:
-            if (is_zipfile(subPath)):
+            if is_zipfile(subPath):
                 return (subPath, filePath[len(subPath):].lstrip('/'))
             subPath = dirname(subPath)
         raise Exception('Invalid ZIP path %s' % filePath)
@@ -150,7 +150,7 @@ class LocalFileSystemCDM(ICDM):
         if isdir(path):
             zipFileStat = os.stat(zipFilePath)
             dstDirStat = os.stat(path)
-            if (zipFileStat.st_mtime <= dstDirStat.st_mtime):
+            if zipFileStat.st_mtime <= dstDirStat.st_mtime:
                 return
             rmtree(path)
         entries = [ent for ent in zipFile.namelist() if ent.startswith(inDirPath)]
@@ -187,7 +187,7 @@ class LocalFileSystemCDM(ICDM):
         if isfile(dstFilePath):
             srcFileStat = os.stat(filePath)
             dstFileStat = os.stat(dstFilePath)
-            if (srcFileStat.st_mtime <= dstFileStat.st_mtime):
+            if srcFileStat.st_mtime <= dstFileStat.st_mtime:
                 return
         copyfile(filePath, dstFilePath)
 
@@ -213,7 +213,7 @@ class LocalFileSystemCDM(ICDM):
                 raise Exception('Invalid directory path value %s' % dirPath)
         dirPath = normpath(dirPath)
         assert os.access(dirPath, os.R_OK), 'Unable to read the directory path %s' % dirPath
-        for root, dirs, files in os.walk(dirPath):
+        for root, _dirs, files in os.walk(dirPath):
             relPath = relpath(root, dirPath)
             for file in files:
                 publishPath = join(path, relPath.lstrip('/'), file)
@@ -257,9 +257,9 @@ class LocalFileSystemCDM(ICDM):
         @see ICDM.removePath
         '''
         itemPath = self._getItemPath(path)
-        if (isdir(itemPath)):
+        if isdir(itemPath):
             rmtree(itemPath)
-        elif (isfile(itemPath)):
+        elif isfile(itemPath):
             os.remove(itemPath)
         else:
             raise Exception()
@@ -276,7 +276,7 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
         assert isinstance(protocol, str), 'Invalid protocol %s' % protocol
-        if (protocol != 'http'):
+        if protocol != 'http':
             raise UnsupportedProtocol(protocol)
         return self.delivery.getURI(path)
 
@@ -329,7 +329,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         try:
             self._publishFromFile(path, filePath)
         except Exception:
-            raise Exception('Invalid file path value %s' % filePath)
+            raise IOError('Invalid file path value %s' % filePath)
 
     def publishFromDir(self, path, dirPath):
         '''
@@ -337,8 +337,8 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         try:
             self._publishFromFile(path, dirPath)
-        except Exception:
-            raise Exception('Invalid file path value %s' % dirPath)
+        except:
+            raise IOError('Invalid file path value %s' % dirPath)
 
     def removePath(self, path):
         '''

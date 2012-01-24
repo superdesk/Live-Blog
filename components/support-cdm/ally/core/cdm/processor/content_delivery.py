@@ -17,6 +17,7 @@ from ally.core.http.spec import RequestHTTP
 from os.path import isdir, isfile, join, dirname
 import os
 from zipfile import ZipFile, is_zipfile
+from ally.support.util_io import pipe
 
 # --------------------------------------------------------------------
 
@@ -83,8 +84,8 @@ class ContentDeliveryHandler(Processor):
         writer = rsp.dispatch()
         if (isfile(entryPath)):
             try:
-                f = open(entryPath)
-                writer.write(f.read())
+                with open(entryPath, 'rb') as f:
+                    pipe(f, writer)
             except:
                 rsp.setCode(RESOURCE_NOT_FOUND, 'Unable to open file')
                 return
@@ -92,27 +93,28 @@ class ContentDeliveryHandler(Processor):
             try:
                 f = open(entryPath + '.link')
                 linkedFilePath = f.readline().strip()
-                lf = open(linkedFilePath)
-                writer.write(lf.read())
+                with open(linkedFilePath, 'rb') as f:
+                    pipe(f, writer)
             except:
                 rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource link')
                 return
         else:
             linkPath = entryPath
-            while len(linkPath) > 0:
-                if is_zipfile(linkPath + '.ziplink'):
+            while len(linkPath.lstrip('/')) > 0:
+                if isfile(linkPath + '.ziplink'):
                     break
                 linkPath = dirname(linkPath)
             else:
                 rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
                 return
+            subPath = entryPath[len(linkPath):].lstrip('/')
             try:
                 f = open(linkPath + '.ziplink')
                 zipFilePath = f.readline().strip()
                 inFilePath = f.readline().strip()
                 zipFile = ZipFile(zipFilePath)
-                file = zipFile.open(join(inFilePath, req.path))
-                writer.write(file.read())
+                with zipFile.open(join(inFilePath, subPath), 'r') as f:
+                    pipe(f, writer)
             except:
                 rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource in ZIP file')
                 return
