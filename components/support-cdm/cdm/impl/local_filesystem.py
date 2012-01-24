@@ -17,7 +17,6 @@ import os
 from zipfile import ZipFile, is_zipfile
 from shutil import copyfile, copyfileobj, move, rmtree
 from os.path import isdir, isfile, join, dirname, normpath, relpath
-from urllib.parse import ParseResult
 from io import StringIO, IOBase, TextIOBase
 from tempfile import TemporaryDirectory
 
@@ -53,63 +52,40 @@ class IDelivery(metaclass = abc.ABCMeta):
 @injected
 class HTTPDelivery(IDelivery):
     '''
-    @ivar serverName: string
-        The HTTP server name
-    @ivar port: int
-        The HTTP server listening port
-    @ivar documentRoot: string
-        The HTTP server document root directory path
-    @ivar repositorySubdir: string
-        The sub - directory of the document root where the file repository is
+    @ivar serverURI: string
+        The server root URI for the static content
+    @ivar repositoryPath: string
+        The directory where the file repository is
     @see IDelivery
     '''
 
-    serverName = str
-    # The HTTP server name
+    serverURI = str
+    # The server root URI for the static content
 
-    port = int
-    # The HTTP server listening port
-
-    documentRoot = str
-    # The HTTP server document root directory path
-
-    repositorySubdir = str
-    # The sub-directory of the document root where the file repository is
+    repositoryPath = str
+    # The directory where the file repository is
 
     def __init__(self):
-        assert isinstance(self.serverName, str), 'Invalid server name value %s' % self.serverName
-        assert isinstance(self.port, int) and self.port > 0 and self.port <= 65535, \
-            'Invalid port value %s' % self.port
-        assert isinstance(self.documentRoot, str) and isdir(self.documentRoot), \
-            'Invalid document root directory %s' % self.documentRoot
-        assert isinstance(self.repositorySubdir, str), \
-            'Invalid repository sub-directory value %s' % self.documentRoot
-        assert isdir(self.getRepositoryPath()) \
-            and os.access(self.getRepositoryPath(), os.W_OK), \
-            'Unable to access the repository directory %s' % self.documentRoot
+        assert isinstance(self.serverURI, str), \
+            'Invalid server URI value %s' % self.serverURI
+        assert isinstance(self.repositoryPath, str), \
+            'Invalid repository directory value %s' % self.repositoryPath
+        assert isdir(self.repositoryPath) \
+            and os.access(self.repositoryPath, os.W_OK), \
+            'Unable to access the repository directory %s' % self.repositoryPath
 
     def getRepositoryPath(self):
         '''
         @see IDelivery.getRepositoryPath
         '''
-        return join(self.documentRoot, self.repositorySubdir).rstrip('/')
+        return self.repositoryPath.rstrip('/')
 
     def getURI(self, repoFilePath):
         '''
         @see IDelivery.getURI
         '''
         assert isinstance(repoFilePath, str), 'Invalid repository file path value %s' % repoFilePath
-        netloc = self.serverName
-        if self.port is not None and self.port != 80:
-            netloc = netloc + ':' + str(self.port)
-        if len(self.repositorySubdir) > 0:
-            path = self.repositorySubdir.lstrip('/')
-        else:
-            path = ''
-        path = path + '/' + repoFilePath.lstrip('/')
-        uriObj = ParseResult(scheme = 'http', netloc = netloc, path = path,
-            params = '', query = '', fragment = '')
-        return uriObj.geturl()
+        return self.serverURI + repoFilePath
 
 
 @injected
