@@ -5,11 +5,13 @@
 	<property name="destination" value="./plugins/"/>
 	
 	<import file="../plugins/support-sqlalchemy/build-plugin.ant" />
+	<import file="../plugins/support-plugin/build-plugin.ant" />
+	<import file="../plugins/support-request/build-plugin.ant" />
 	
-	<target name="clean" depends="support-sqlalchemy.clean">
+	<target name="clean" depends="support-sqlalchemy.clean, support-plugin.clean, support-request.clean">
 	</target>
 
-	<target name="build" depends="clean, support-sqlalchemy.build">
+	<target name="build" depends="clean, support-sqlalchemy.build, support-plugin.build, support-request.build">
 	</target>
 
 </project>
