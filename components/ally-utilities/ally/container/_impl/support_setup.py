@@ -14,6 +14,7 @@ from .entity_handler import Wiring, WireConfig, WireEntity
 from .ioc_setup import Setup, Assembly, SetupError, CallEntity, SetupSource, \
     WithType
 from _abcoll import Callable
+from functools import partial
 from inspect import isclass
 import logging
 
@@ -92,13 +93,14 @@ class SetupEntityWire(Setup):
         for name, call in assembly.calls.items():
             if name.startswith(prefix) and isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
-                call.addInterceptor(self._intercept)
+                call.addInterceptor(partial(self._intercept, assembly))
                 
-    def _intercept(self, value, followUp):
+    def _intercept(self, assembly, value, followUp):
         '''
         FOR INTERNAL USE!
         This is the interceptor method used in performing the wiring.
         '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         if value is not None:
             clazz = value.__class__
             wiring = self._wirings.get(clazz)
@@ -108,14 +110,13 @@ class SetupEntityWire(Setup):
                     assert isinstance(wiring, Wiring)
                     for wentity in wiring.entities:
                         assert isinstance(wentity, WireEntity)
-                        entity = getattr(value, wentity.name, None)
-                        if not entity or entity == wentity.type:
+                        if wentity.name not in value.__dict__:
                             setattr(value, wentity.name, entityFor(wentity.type))
                     for wconfig in wiring.configurations:
                         assert isinstance(wconfig, WireConfig)
-                        config = getattr(value, wconfig.name, None)
-                        if not config or config == wconfig.type:
-                            setattr(value, wconfig.name, Assembly.process(self.nameFor(self._group, clazz, wconfig)))
+                        if wconfig.name not in value.__dict__:
+                            name = self.nameFor(self._group, clazz, wconfig)
+                            setattr(value, wconfig.name, assembly.processForName(name))
                     if followUp: followUp()
                 return value, followWiring
         return value, followUp

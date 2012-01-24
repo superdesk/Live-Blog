@@ -24,7 +24,7 @@ from ally.core.spec.server import Request, Response, ProcessorsChain, \
 from ally.exception import DevelException, InputException, Ref
 from ally.support.api.util_type import isPropertyTypeId, isPropertyTypeIntId, \
     isTypeIntId
-from ally.support.core.util_resources import pathsFor
+from ally.support.core.util_resources import pathsForProperties
 from ally.xml.digester import Rule, RuleRoot, Digester, Node
 from xml.sax.saxutils import XMLGenerator
 import logging
@@ -247,7 +247,7 @@ class EncodingXMLHandler(EncodingBaseHandler):
         properties = [prop for prop in model.properties.values() if prop.name not in rsp.objExclude]
         modelName = self.normalizer.normalize(model.name)
         xml.startElement(modelName, {})
-        modelPaths = pathsFor(self.resourcesManager, properties, basePath)
+        modelPaths = pathsForProperties(self.resourcesManager, properties, basePath)
         self._encodeProperties(xml, obj, properties, modelPaths, rsp)
         
         paths = self.resourcesManager.findGetAllAccessible(basePath)
@@ -280,7 +280,7 @@ class EncodingXMLHandler(EncodingBaseHandler):
                     path.update(obj, model)
                 self._encodeProperty(xml, prop.get(obj), path, typProp, rsp)
         elif len(properties) > 0:
-            modelPaths = pathsFor(self.resourcesManager, properties, basePath)
+            modelPaths = pathsForProperties(self.resourcesManager, properties, basePath)
             for obj in objects:
                 if path is not None:
                     path.update(obj, model)

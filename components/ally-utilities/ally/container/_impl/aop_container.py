@@ -145,7 +145,9 @@ class AOPModules(AOP):
         # cache that will not provide the loaded modules again, basically once the modules are loaded they cannot
         # be found again.
         for path in self._paths:
-            if path not in sys.modules: __import__(path)
+            if path not in sys.modules:
+                try: __import__(path)
+                except ImportError: raise ImportError('Cannot import module %r' % path)
         self._paths = {path:sys.modules[path] for path in self._paths}
         return self
     

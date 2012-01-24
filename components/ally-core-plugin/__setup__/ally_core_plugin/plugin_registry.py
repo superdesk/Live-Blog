@@ -9,7 +9,7 @@ Created on Jan 12, 2012
 Provides the setup for creating the registry for plugins.
 '''
 
-from .ally_core.resource_manager import resourcesManager
+from ..ally_core.resource_manager import resourcesManager
 from ally.container import ioc
 import ally_deploy_plugin as plugin
 

@@ -11,16 +11,14 @@ Special module that is targeted by the application loader in order to deploy the
 
 # --------------------------------------------------------------------
 
-from ally.container import aop
-from ally.container._impl.ioc_setup import Context, ConfigError
-from ally.container.config import save, load
+from package_extender import PACKAGE_EXTENDER
 import os
 import sys
 import traceback
 
 # --------------------------------------------------------------------
 
-FILE_CONFIG = 'application.properties'
+configurationsFilePath = 'application.properties'
 # The name of the configuration file
 
 context = None
@@ -31,17 +29,24 @@ assembly = None
 # --------------------------------------------------------------------
 
 def deploy():
+    PACKAGE_EXTENDER.addFreezedPackage('__setup__.')
+    from ally.container import aop
+    from ally.container._impl.ioc_setup import Context, ConfigError
+    from ally.container.config import save, load
+
     global context, assembly
     if context: raise ImportError('The application is already deployed')
+    # We first adjust the sys path to only contain unique components.
+    
     try:
         ctx = context = Context()
         
         for module in aop.modulesIn('__setup__.**').load().asList():
             ctx.addSetupModule(module)
         
-        isConfig = os.path.isfile(FILE_CONFIG)
+        isConfig = os.path.isfile(configurationsFilePath)
         if isConfig:
-            with open(FILE_CONFIG, 'r') as f: config = load(f)
+            with open(configurationsFilePath, 'r') as f: config = load(f)
         else: config = {}
         
         ass = assembly = ctx.assemble(config)
@@ -49,10 +54,10 @@ def deploy():
         try: ass.processStart()
         except ConfigError:
             # We save the file in case there are missing configuration
-            with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
+            with open(configurationsFilePath, 'w') as f: save(ass.trimmedConfigurations(), f)
             raise
         if not isConfig:
-            with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
+            with open(configurationsFilePath, 'w') as f: save(ass.trimmedConfigurations(), f)
             
     except:
         print('-' * 150, file=sys.stderr)

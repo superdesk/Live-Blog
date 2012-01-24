@@ -13,12 +13,13 @@ from ..config import Config
 from .entity_handler import Initializer
 from _abcoll import Callable
 from ally.support.util import Attribute
+from collections import deque
 from functools import partial
-from inspect import isclass, isfunction, getfullargspec, ismodule, isgenerator
+from inspect import isclass, isfunction, getfullargspec, ismodule, isgenerator, \
+    getdoc
 from itertools import chain
 from numbers import Number
 import logging
-from collections import deque
 
 # --------------------------------------------------------------------
 
@@ -272,7 +273,7 @@ class SetupConfig(SetupSource):
             except ConfigError as e: value = e
     
         assembly.calls[self._name] = CallConfig(assembly, self._name, value, self._type)
-        assembly.configurations[self._name] = Config(self._name, value, self._group, self._function.__doc__)
+        assembly.configurations[self._name] = Config(self._name, value, self._group, getdoc(self._function))
         
     def assemble(self, assembly):
         '''
@@ -802,7 +803,7 @@ class Assembly:
         if self.callsStart:
             unused = set(self.configExtern)
             unused = unused.difference(self.configUsed)
-            if unused: log.warn('Unknown configurations: %r', ', '.join(unused))
+            if unused: log.info('Unknown configurations: %r', ', '.join(unused))
             
             self.stack.append(self)
             try:     

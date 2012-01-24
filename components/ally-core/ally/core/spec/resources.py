@@ -25,7 +25,7 @@ class Path:
         '''
         Initializes the path.
 
-        @param matches: list
+        @param matches: list[Match]
             The list of matches that represent the path.
         @param node: Node
             The node represented by the path, if None it means that the path is incomplete.
@@ -92,11 +92,11 @@ class Path:
         
     def toPaths(self, converterPath):
         '''
-        Converts the matches into a paths elements.
+        Converts the matches into path elements.
         
         @param converterPath: ConverterPath
             The converter path to use in constructing the paths elements.
-        @return: list
+        @return: list[string]
             A list of strings representing the paths elements, or None if the path elements cannot be obtained.
         @raise AssertionError:
             If the path cannot be represented, check first the 'isValid' method.
@@ -386,7 +386,7 @@ class Invoker(metaclass=abc.ABCMeta):
         '''
         Make the invoking and return the resources.
         
-        @param args: tuple
+        @param args: arguments
             The arguments to use in invoking.
         '''
 
@@ -436,8 +436,7 @@ class Node(metaclass=abc.ABCMeta):
         self.update = None
         self.delete = None
         self._childrens = []
-        if parent is not None:
-            parent.addChild(self)
+        if parent is not None: parent.addChild(self)
         
     def addChild(self, child):
         '''
@@ -451,6 +450,18 @@ class Node(metaclass=abc.ABCMeta):
         assert child not in self._childrens, 'Already contains children node %s' % child
         self._childrens.append(child)
         self._childrens.sort(key=lambda node: node.order)
+        
+    def remChild(self, child):
+        '''
+        Removes the child node from this node.
+        
+        @param child: Node
+            The new child node to be removed.
+        '''
+        assert isinstance(child, Node), 'Invalid child node %s' % child
+        assert child.parent is self, 'The child has a different parent %s' % child
+        assert child in self._childrens, 'No children node %s' % child
+        self._childrens.remove(child)
 
     def childrens(self):
         '''

@@ -85,6 +85,7 @@ def wireEntities(*classes, setupModule=None):
         if value and not isclass(value): return deepcopy(value)
         if wconfig.hasValue: return deepcopy(wconfig.value)
         raise ConfigError('A configuration value is required for %r in class %r' % (wconfig.name, clazz.__name__))
+    
     if setupModule:
         assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
         registry = setupModule.__dict__
@@ -244,27 +245,32 @@ def entitiesLocal():
     rsc.filter(registry['__name__'] + '.**')
     return rsc
 
-def entityFor(clazz):
+def entityFor(clazz, assembly=None):
     '''
-    !Attention this function only available from within a setup functions!
+    !Attention this function only available from within a setup functions if no assembly is provided!
     Provides the entity for the provided class (only if the setup function exposes a return type that is either the
     provided class or a super class) found in the current assembly.
     
     @param clazz: class
         The class to find the entity for.
+    @param assembly: Assembly|None
+        The assembly to find the entity in, if None the current assembly will be considered.
     @return: object
         The instance for the provided class.
     @raise SetupError: In case there is no entity for the required class or there are to many.
     '''
     assert isclass(clazz), 'Invalid class %s' % clazz
-    entities = [name for name, call in Assembly.current().calls.items()
+    assembly = assembly or Assembly.current()
+    assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+    
+    entities = [name for name, call in assembly.calls.items()
                 if isinstance(call, CallEntity) and call.type and (call.type == clazz or issubclass(call.type, clazz))]
     if not entities:
         raise SetupError('There is no entity setup function having a return type of class or subclass %s' % clazz)
     if len(entities) > 1:
         raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' % 
                          (', '.join(entities), clazz))
-    return Assembly.process(entities[0])
+    return assembly.processForName(entities[0])
 
 # --------------------------------------------------------------------
 

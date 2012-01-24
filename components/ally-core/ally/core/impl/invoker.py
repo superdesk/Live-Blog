@@ -90,7 +90,7 @@ class InvokerSetProperties(Invoker):
             The Invoker to be wrapped.
         @param model: Model
             The model of the properties to extend the invoker with.
-        @param properties: list
+        @param properties: list[Property]
             The list of properties to extend the invoker with.
         @param normalizer: Normalizer
             The normalizer used for transforming the content property names.

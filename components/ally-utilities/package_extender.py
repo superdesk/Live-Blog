@@ -9,6 +9,7 @@ Provides the support for extending packages that have the same name. This module
 any problems in locating the extender itself.
 '''
 
+from imp import is_builtin
 from pkgutil import get_importer, iter_importers, find_loader
 import os
 import sys
@@ -22,28 +23,50 @@ class PackageExtender:
     union of packages.
     '''
     
-    def __init__(self, unittest):
+    def __init__(self):
         '''
         Construct the package extender.
+        '''
+        self.__loading = set()
+        self.__unittest = False
+        self.__unextended = set()
+        
+    def setForUnitTest(self, unittest):
+        '''
+        Sets the unit test flag indicating that the module loading should be wrapped and any problem that appears in
+        importing will be reported.
         
         @param unittest: boolean
-            Flag indicating that the package extender is for unit tests. This option will wrap also the module loading.
+            True if the execution is intended for unit testing, False otherwise.
         '''
         assert isinstance(unittest, bool), 'Invalid unit test flag %s' % unittest
-        self._unittest = unittest
-        self._loading = set()
+        self.__unittest = unittest
+        
+    def addFreezedPackage(self, name):
+        '''
+        Adds a new unextended package, a unextended package will only have the modules and definitions that are found
+        in the package definition first found in the python path, basically this package will behave normally.
+        
+        @param name: string
+            The name of the package to be unextended
+        '''
+        assert isinstance(name, str), 'Invalid package name %s' % name
+        self.__unextended.add(name)
     
     def find_module(self, name, paths=None):
         '''
         @see: http://www.python.org/dev/peps/pep-0302/
         '''
-        if name not in self._loading and name not in sys.modules:
-            self._loading.add(name)
-            loader = find_loader(name)
-            self._loading.remove(name)
-            if loader is not None:
-                if loader.is_package(name): return PackageLoader(loader)
-                if self._unittest: return ModuleLoader(loader)
+        if is_builtin(name) == 0 and name not in self.__loading and name not in sys.modules:
+            for unname in self.__unextended:
+                if unname == name or name.startswith(unname): break
+            else:
+                self.__loading.add(name)
+                loader = find_loader(name)
+                self.__loading.remove(name)
+                if loader is not None:
+                    if loader.is_package(name): return PackageLoader(loader)
+                    if self.__unittest: return ModuleLoader(loader)
     
 class PackageLoader:
     '''
@@ -67,7 +90,6 @@ class PackageLoader:
         '''
         module = self.__loader.load_module(name)
         fullName, paths = module.__name__, module.__path__
-
         k = fullName.rfind('.')
         if k >= 0:
             package = sys.modules[fullName[:k]]
@@ -104,26 +126,33 @@ class ModuleLoader:
             The original loader.
         '''
         assert loader, 'A loader is required'
-        self._loader = loader
+        self.__loader = loader
     
     def load_module(self, name):
         '''
         @see: http://www.python.org/dev/peps/pep-0302/
         '''
-        try: module = self._loader.load_module(name)
+        try: module = self.__loader.load_module(name)
         except:
             print('-' * 150, file=sys.stderr)
-            print('Problem occurred while loading module %r from loader %s' % (name, self._loader), file=sys.stderr)
+            print('Problem occurred while loading module %r from loader %s' % (name, self.__loader), file=sys.stderr)
             traceback.print_exc()
             print('-' * 150, file=sys.stderr)
             raise
 
         return module
     
-    def __getattr__(self, name): return getattr(self._loader, name)
+    def __getattr__(self, name): return getattr(self.__loader, name)
 
 # --------------------------------------------------------------------
 
+PACKAGE_EXTENDER = PackageExtender()
+del PackageExtender # We remove the class so no other instance can be created.
+
+# Registers into the python sys._meta_path the package extender.
+if not sys.meta_path or not sys.meta_path[0] == PACKAGE_EXTENDER:
+    sys.meta_path.insert(0, PACKAGE_EXTENDER)
+        
 def registerPackageExtender(unittest=True):
     '''
     Registers into the python sys._meta_path the package extender. If the package extender is registered it will not be
@@ -132,5 +161,4 @@ def registerPackageExtender(unittest=True):
     @param unittest: boolean
         Flag indicating that the package extender is for unit tests.
     '''
-    if not sys.meta_path or not isinstance(sys.meta_path[0], PackageExtender):
-        sys.meta_path.insert(0, PackageExtender(unittest))
+    PACKAGE_EXTENDER.setForUnitTest(unittest)

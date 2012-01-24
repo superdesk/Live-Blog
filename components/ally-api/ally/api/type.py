@@ -197,7 +197,7 @@ class TypeFrontLanguage(Singletone, TypeClass):
     
     def __init__(self):
         '''
-        Constructs the percentage type.
+        Constructs the front language type.
         @see: TypeClass.__init__
         '''
         TypeClass.__init__(self, str, True)

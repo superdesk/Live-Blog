@@ -10,12 +10,12 @@ Provides general used criteria for APIs.
 '''
 
 from . import configure
-from .configure import APICriteria as criteria
 from .type import Date, Time, DateTime
+from ally.api.config import criteria
 
 # --------------------------------------------------------------------
 
-@criteria()
+@criteria
 class AsOrdered:
     '''
     Provides query for properties that can be ordered.
@@ -64,7 +64,7 @@ AsOrdered.orderAscendingOnDel = _orderAscendingOnDel
 # register as a default condition for descriptors the like
 configure.DEFAULT_CONDITIONS.append('like')
 
-@criteria()
+@criteria
 class AsLike(AsOrdered):
     '''
     Provides query for properties that can be managed by a like function.
@@ -77,7 +77,7 @@ class AsLike(AsOrdered):
 # register as a default condition for descriptors the flag
 configure.DEFAULT_CONDITIONS.append('flag')
 
-@criteria()
+@criteria
 class AsBoolean(AsOrdered):
     '''
     Provides query for properties that can be managed as booleans.
@@ -86,7 +86,7 @@ class AsBoolean(AsOrdered):
 
 # --------------------------------------------------------------------
 
-@criteria()
+@criteria
 class AsDate(AsOrdered):
     '''
     Provides query for properties that can be managed as date.
@@ -94,7 +94,7 @@ class AsDate(AsOrdered):
     start = Date
     end = Date
 
-@criteria()
+@criteria
 class AsTime(AsOrdered):
     '''
     Provides query for properties that can be managed as time.
@@ -102,7 +102,7 @@ class AsTime(AsOrdered):
     start = Time
     end = Time
     
-@criteria()
+@criteria
 class AsDateTime(AsOrdered):
     '''
     Provides query for properties that can be managed as date time.

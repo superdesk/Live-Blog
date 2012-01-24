@@ -24,7 +24,7 @@ from ally.core.spec.server import Request, Response, ProcessorsChain, \
 from ally.exception import DevelException, InputException, Ref
 from ally.support.api.util_type import isPropertyTypeId, isPropertyTypeIntId, \
     isTypeIntId
-from ally.support.core.util_resources import pathsFor
+from ally.support.core.util_resources import pathsForProperties
 import codecs
 import json
 import logging
@@ -172,7 +172,7 @@ class EncodingJSONHandler(EncodingBaseHandler):
         assert isinstance(model, Model)
         
         properties = [prop for prop in model.properties.values() if prop.name not in rsp.objExclude]
-        modelPaths = pathsFor(self.resourcesManager, properties, basePath)
+        modelPaths = pathsForProperties(self.resourcesManager, properties, basePath)
         modelObj = self._convertProperties(obj, properties, modelPaths, rsp)
         
         paths = self.resourcesManager.findGetAllAccessible(basePath)
@@ -207,7 +207,7 @@ class EncodingJSONHandler(EncodingBaseHandler):
                 idsList.append(self._convertProperty(prop.get(obj), path, typProp, rsp))
             return {self.normalizer.normalize(typProp.model.name + self.tagListSufix):idsList}
         elif len(properties) > 0:
-            modelPaths = pathsFor(self.resourcesManager, properties, basePath)
+            modelPaths = pathsForProperties(self.resourcesManager, properties, basePath)
             for obj in objects:
                 objModel = self._convertProperties(obj, properties, modelPaths, rsp)
                 if path is not None:

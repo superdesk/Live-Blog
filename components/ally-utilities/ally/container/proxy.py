@@ -130,6 +130,19 @@ def isProxy(obj):
     assert obj, 'Invalid object %s' % obj
     return obj.__class__.__name__.endswith('$Proxy')
 
+def proxiedClass(clazz):
+    '''
+    Provides the proxied class of a proxy class.
+    
+    @param clazz: class
+        The proxy class to provided the proxied class for.
+    @return: class
+        The proxied class or the provided clazz if is not a proxy.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    if isProxyClass(clazz): return clazz.__bases__[0]
+    return clazz
+
 def analyzeProxy(proxy):
     '''
     Analyzes the provided proxy.
