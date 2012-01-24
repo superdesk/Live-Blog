@@ -17,6 +17,7 @@ import re
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
 from __setup__.ally_core_http import server_port
 from ally.core.spec.server import Processors
+from ally.container._impl.ioc_setup import ConfigError
 
 # --------------------------------------------------------------------
 
@@ -33,7 +34,7 @@ def server_name():
 @ioc.config
 def server_document_root():
     ''' The HTTP server document root directory '''
-    return '/var/www'
+    return None
 
 @ioc.config
 def repository_subdirectory():
@@ -44,7 +45,8 @@ def repository_subdirectory():
 # Creating the content delivery managers
 
 @ioc.entity
-def HTTPDelivery() -> IDelivery:
+def delivery() -> IDelivery:
+    if not server_document_root(): raise ConfigError('No server document root configuration')
     d = HTTPDelivery()
     d.serverName = server_name()
     d.port = server_port()
@@ -53,15 +55,14 @@ def HTTPDelivery() -> IDelivery:
     return d
 
 @ioc.entity
-def localFileSystemCDM() -> ICDM:
-    d = HTTPDelivery()
+def contentDeliveryManager() -> ICDM:
     cdm = LocalFileSystemCDM();
-    cdm.delivery = d
+    cdm.delivery = delivery()
     return cdm
 
 @ioc.entity
 def cdms():
-    return [localFileSystemCDM()]
+    return [contentDeliveryManager()]
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -81,4 +82,5 @@ def contentHandlers():
 
 @ioc.before(pathProcessors)
 def updatePathProcessors():
-    pathProcessors().append((re.compile(server_pattern_content()), Processors(*contentHandlers())))
+    if server_document_root():
+        pathProcessors().append((re.compile(server_pattern_content()), Processors(*contentHandlers())))
