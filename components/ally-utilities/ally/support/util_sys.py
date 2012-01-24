@@ -9,9 +9,11 @@ Created on Dec 19, 2011
 Provides utility functions for handling system packages/modules/classes.
 '''
 
+from collections import deque
 from inspect import isclass, ismodule, stack
 from os.path import dirname
-from pkgutil import iter_modules, get_importer, iter_importers
+from pkgutil import iter_modules, get_importer, iter_importers, \
+    iter_importer_modules
 import re
 import sys
 
@@ -160,30 +162,30 @@ def searchModules(pattern):
         if name == '**':
             while parent:
                 pckg, pckgPaths = parent.popitem()
-                packages = []
                 for path in pckgPaths:
                     moduleLoader = get_importer(dirname(path)).find_module(pckg)
-                    if moduleLoader and moduleLoader.is_package(pckg): packages.append(path)
-                for moduleLoader, modulePath, isPckg in iter_modules(packages):
-                    path = dirname(moduleLoader.find_module(modulePath).get_filename(modulePath))
-                    if isPckg:
-                        paths = parent.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
-                        if path not in paths: paths.append(path)
-                    paths = modules.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
-                    if path not in paths: paths.append(path)
+                    if moduleLoader and moduleLoader.is_package(pckg):
+                        moduleImporter = get_importer(path)
+                        for modulePath, isPkg in iter_importer_modules(moduleImporter):
+                            path = dirname(moduleImporter.find_module(modulePath).get_filename(modulePath))
+                            if isPkg:
+                                paths = parent.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
+                                if path not in paths: paths.append(path)
+                            paths = modules.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
+                            if path not in paths: paths.append(path)
             return modules
         elif name.find('*') >= 0:
             matcher = re.compile('[a-zA-Z0-9_]*'.join([re.escape(e) for e in name.split('*')]))
             for pckg, pckgPaths in parent.items():
-                packages = []
                 for path in pckgPaths:
                     moduleLoader = get_importer(dirname(path)).find_module(pckg)
-                    if moduleLoader and moduleLoader.is_package(pckg): packages.append(path)
-                for moduleLoader, modulePath, _isPckg in iter_modules(packages):
-                    if matcher.match(modulePath):
-                        path = dirname(moduleLoader.find_module(modulePath).get_filename(modulePath))
-                        paths = modules.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
-                        if path not in paths: paths.append(path)
+                    if moduleLoader and moduleLoader.is_package(pckg): 
+                        moduleImporter = get_importer(path)
+                        for modulePath, isPkg in iter_importer_modules(moduleImporter):
+                            if matcher.match(modulePath):
+                                path = dirname(moduleImporter.find_module(modulePath).get_filename(modulePath))
+                                paths = modules.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
+                                if path not in paths: paths.append(path)
             return modules
         else: importers = [(pckg, get_importer(path)) for pckg, paths in parent.items() for path in paths ]
     else:
@@ -216,3 +218,24 @@ def packageModules(package):
         paths = modules.setdefault(modulePath, [])
         if path not in paths: paths.append(path)
     return modules
+
+def getAttrAndClass(clazz, name):
+    '''
+    The getattr function provides only the required attribute value, this function provides the attribute value and also the
+    class or super class that defines the attribute.
+    
+    @param clazz: class
+        The class to get the attribute from.
+    @param name: string
+        The attribute name.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    assert isinstance(name, str), 'Invalid name %s' % name
+    classes = deque()
+    classes.append(clazz)
+    while classes:
+        cls = classes.popleft()
+        if cls == object: continue
+        if name in cls.__dict__: return cls.__dict__[name], cls
+        classes.extend(cls.__bases__)
+    raise AttributeError('The %s has not attribute %r' % (clazz, name))

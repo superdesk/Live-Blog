@@ -9,7 +9,7 @@ Created on Dec 15, 2011
 Provides the IoC auto wiring.
 '''
 
-from ._impl.entity_handler import Wiring, WireError
+from ._impl.entity_handler import Wiring, WireError, WireEntity, WireConfig
 from ._impl.ioc_setup import normalizeConfigType
 from ally.support.util_sys import callerLocals
 from inspect import isclass
@@ -72,3 +72,32 @@ def config(name, type=None, doc=None):
     
     type = normalizeConfigType(type)
     Wiring.wiringFor(locals).addConfiguration(name, type, hasValue, value, doc)
+
+# --------------------------------------------------------------------
+
+def validateWiring(entity):
+    '''
+    Validates the wiring for the provided entity. Basically take all wirings and see if there is a valid value in the
+    entity.
+    
+    @param entity: object
+        The entity to validate.
+    @raise WireError: In case of missing or invalid value for a wiring.
+    '''
+    assert entity is not None, 'A entity is required'
+    wiring = Wiring.wiringOf(entity.__class__)
+    assert isinstance(wiring, Wiring), 'No wiring available for %s' % entity.__class__
+    for wentity in wiring.entities:
+        assert isinstance(wentity, WireEntity)
+        v = entity.__dict__.get(wentity.name)
+        if not isinstance(v, wentity.type):
+            raise WireError('Invalid entity value %s with expected type %s for %r' % (v, wentity.type, wentity.name))
+    for wconfig in wiring.configurations:
+        assert isinstance(wconfig, WireConfig)
+        v = entity.__dict__.get(wconfig.name)
+        if wconfig.type:
+            if not isinstance(v, wconfig.type):
+                raise WireError('Invalid configuration value %s with expected type %s for %r' % 
+                                (v, wconfig.type, wconfig.name))
+        elif not wconfig.hasValue:
+            raise WireError('No configuration value for %r' % wconfig.name)

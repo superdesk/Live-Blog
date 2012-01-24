@@ -10,7 +10,12 @@
 - The query criteria should be configurable on what model property it represents, we should anyway make the deduce
   method not to be used. (Done)
 - Add for the call descriptors also the posibility to configure by using annotations. (Done)
-  
+- To add the wire capability to IoC. (Done)
+- To add proxy wrapping for session handling. (Done)
+- Add multiple session support for sql alchemy, the sessions will be identified by names. (Done)
+- Refactor internationalization support to actually translate at runtime, remove the need for the Message instance. (Done)
+
+
 - Refactor parameters decoders.
 - For pyro protocol add security and validation, at this point the implementation just delegates to service, a more
   complex system is needed in order to prevent malicious data and access.
@@ -21,10 +26,6 @@
 - Instead of the Hinter a extension to the URL like /parameters should present the options.
 - Refactor in order to rename all classes that are as interfaces to start with I see the spec package for instance
   for assamblers.
- - Add multiple session support for sql alchemy, the sessions will be identified by names.
- - Refactor internationalization support to actually translate at runtime, remove the need for the Message instance.
  
- 
- - To add the wire capability to IoC.
- - TO add proxy wrapping for session handling.
- - TO add a thread resource manager.
+ - To add a thread resource manager.
+ - To add auto reloading for plugins.

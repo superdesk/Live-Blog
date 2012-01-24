@@ -16,7 +16,7 @@ from ally.core.spec.resources import ConverterPath, Normalizer, Converter
 # Creating the converters
 
 @ioc.entity
-def converterPath() -> Converter: return ConverterPath()
+def converterPath() -> ConverterPath: return ConverterPath()
 
 @ioc.entity
 def contentNormalizer() -> Normalizer: return Normalizer()

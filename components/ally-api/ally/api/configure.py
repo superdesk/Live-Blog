@@ -237,7 +237,7 @@ class APICall(Callable):
         '''
         Constructs the API call decorator.
 
-        @param types: variable arguments
+        @param types: arguments(Type|Type reference)
             On the first position it will be considered the output type then the input types expected for the
             service call.
         @param hints: key word arguments
@@ -249,6 +249,7 @@ class APICall(Callable):
                     order to identify the call.
                 @keyword replaceFor: class
                     The class to which the call should be replaced.
+
         @ivar inputTypes: list
             The Types obtained from the provided input.
         @ivar name: string
@@ -285,9 +286,7 @@ class APICall(Callable):
         if IS_PY3K:
             fnArgs = inspect.getfullargspec(function)
             args, varargs, keywords, defaults = fnArgs.args, fnArgs.varargs, fnArgs.varkw, fnArgs.defaults
-            if fnArgs.annotations:
-                assert self.outputType is None and self.inputTypes is None, \
-                'The type can be either specified as annotations or as decorator type, cannot have both'
+            if self.outputType is None and self.inputTypes is None:
                 self.outputType = typeFor(fnArgs.annotations.get('return'))
                 self.inputTypes = []
                 for arg in args:
@@ -297,6 +296,9 @@ class APICall(Callable):
                         assert isinstance(typ, Type), 'Could not obtain a valid Type for %s' % type
                         self.inputTypes.append(typ)
                 self.mandatoryCount = len(self.inputTypes)
+            else:
+                assert not fnArgs.annotations, \
+                'The type can be either specified as annotations or as decorator type, cannot have both'
         else:
             fnArgs = inspect.getargspec(function)
             args, varargs, keywords, defaults = fnArgs
@@ -359,7 +361,7 @@ class APIService(Callable):
         '''
         Creates the service instance based on the provided generic classes.
         
-        @param generic: (genericClass, replaceClass)|[...(genericClass, replaceClass)]
+        @param generic: arguments(genericClass, replaceClass)|[...(genericClass, replaceClass)]
             The classes of that will be generically replaced.
         '''
         self.genericModel = []

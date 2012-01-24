@@ -10,6 +10,7 @@ Provides the deployment of the distribution that contains this deploy.
 '''
 
 import os
+import profile
 import sys
 import traceback
 
@@ -25,75 +26,41 @@ def findLibraries(folder):
         if os.path.isfile(fullPath) and fullPath.endswith('.egg'): eggs.append(fullPath)
     return eggs
 
-def findDirs(folder):
-    '''
-    Finds all the directories in the provided folder.
-    '''
-    dirs = []
-    for name in os.listdir(folder):
-        fullPath = os.path.join(folder, name)
-        if os.path.isdir(fullPath): dirs.append(fullPath)
-    return dirs
-
 # --------------------------------------------------------------------
 
 if __name__ == '__main__':
-    import logging
-    level = logging.WARN
-    logging.basicConfig(level=level,
-                    format='%(asctime)s %(levelname)s (%(threadName)s %(module)s.%(funcName)s %(lineno)d): %(message)s')
-    
-    applicationFrom, pluginsFrom = 'folder', 'folder'
     applicationProfile, pluginsProfile = False, False
 
     # Loading the libraries
     for path in findLibraries(os.path.join(os.path.dirname(__file__), 'libraries')):
         if path not in sys.path: sys.path.append(path)
     # Loading the components.
-    if applicationFrom == 'folder':
-        for path in findDirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'components')):
-            if path not in sys.path: sys.path.append(path)
-    elif applicationFrom == 'egg':
-        for path in findLibraries(os.path.join(os.path.dirname(__file__), 'components')):
-            if path not in sys.path: sys.path.append(path)
-    else: raise AssertionError('Invalid load from %s' % applicationFrom)
+    for path in findLibraries(os.path.join(os.path.dirname(__file__), 'components')):
+        if path not in sys.path: sys.path.append(path)
     
-    
-    try:
-        import application_logging
-        if application_logging: print('Processed logging')
-    except ImportError: pass
+    try: import application_logging
+    except: traceback.print_exc()
     
     # register the package extender.
-    try:
-        import package_extender
-        package_extender.registerPackageExtender(False)
-    except ImportError: traceback.print_exc()
+    try: import package_extender
     except: traceback.print_exc()
     
     try:
         import ally_deploy_application
-        if applicationProfile:
-            import profile
-            profile.run('ally_application_deploy.deploy()', filename='output.stats')
+        file = os.path.join(os.path.dirname(__file__), ally_deploy_application.configurationsFilePath)
+        ally_deploy_application.configurationsFilePath = file
+        if applicationProfile: profile.run('ally_application_deploy.deploy()', filename='output.stats')
         else: ally_deploy_application.deploy()
-    except ImportError: traceback.print_exc()
     except: traceback.print_exc()
     else:
         # Loading the plugins. 
-        if pluginsFrom == 'folder':
-            for path in findDirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plugins')):
-                if path not in sys.path: sys.path.append(path)
-        elif pluginsFrom == 'egg':
-            for path in findLibraries(os.path.join(os.path.dirname(__file__), 'plugins')):
-                if path not in sys.path: sys.path.append(path)
-        else: raise AssertionError('Invalid load from %s' % pluginsFrom)
+        for path in findLibraries(os.path.join(os.path.dirname(__file__), 'plugins')):
+            if path not in sys.path: sys.path.append(path)
         
         try:
             import ally_deploy_plugin
-            if pluginsProfile:
-                import profile
-                profile.run('ally_deploy_plugin.deploy()', filename='output.stats')
+            file = os.path.join(os.path.dirname(__file__), ally_deploy_plugin.configurationsFilePath)
+            ally_deploy_plugin.configurationsFilePath = file
+            if pluginsProfile: profile.run('ally_deploy_plugin.deploy()', filename='output.stats')
             else: ally_deploy_plugin.deploy()
-        except ImportError: traceback.print_exc()
         except: traceback.print_exc()

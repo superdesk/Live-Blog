@@ -173,6 +173,9 @@ class Wiring:
         if not wiring:
             wiring = Wiring()
             cls.ATTR_WIRE.setDict(register, wiring)
+            # We also add a default __init__ that will validate the wiring
+            from ally.container.wire import validateWiring
+            if '__init__' not in register: register['__init__'] = validateWiring
         return wiring
     
     @classmethod

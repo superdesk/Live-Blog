@@ -9,30 +9,29 @@ Created on May 26, 2011
 General specifications for the entities API.
 '''
 
-from ally.api.configure import APIModel as model, APIService as service, \
-    APIQuery as query, APICall as call
+from ally.api.config import model, query, service, call
 from ally.api.type import Id, Iter
 from ally.support.util import Uninstantiable
 
 # --------------------------------------------------------------------
 
-@model()
+@model
 class Entity:
     '''
     Provides the basic container for an entity that has a primary key.
     '''
     Id = Id
 
-@model()
+@model
 class Parent(Uninstantiable, Entity):
     '''
-    Provides the mark class for parent entities, to not use this in inheritances or otherwise, since this
+    Provides the mark class for parent entities, do not use this in inheritances or otherwise, since this
     class is just intended as a mark model class.
     '''
 
 # --------------------------------------------------------------------
 
-@query()
+@query
 class QEntity:
     '''
     Provides the basic query for an entity.
@@ -41,14 +40,14 @@ class QEntity:
 # --------------------------------------------------------------------
 
 # The Entity model will be replaced by the specific model when the API will be inherited.
-@service()
+@service
 class IEntityGetService:
     '''
     Provides the basic entity service. This means locate by id.
     '''
     
-    @call(Entity, Entity.Id)
-    def getById(self, id):
+    @call
+    def getById(self, id:Entity.Id) -> Entity:
         '''
         Provides the entity based on the id.
         
@@ -57,14 +56,14 @@ class IEntityGetService:
         @raise InputException: If the id is not valid. 
         '''
 
-@service()
+@service
 class IEntityFindService:
     '''
     Provides the basic entity find service.
     '''
     
-    @call(Iter(Entity), int, int)
-    def getAll(self, offset=None, limit=None):
+    @call
+    def getAll(self, offset:int=None, limit:int=None) -> Iter(Entity):
         '''
         Provides the entities.
         
@@ -74,11 +73,11 @@ class IEntityFindService:
             The limit of entities to retrieve.
         '''
 
-@service()
+@service
 class IEntityQueryService:
         
-    @call(Iter(Entity), int, int, QEntity)
-    def getAll(self, offset=None, limit=None, q=None):
+    @call
+    def getAll(self, offset:int=None, limit:int=None, q:QEntity=None) -> Iter(Entity):
         '''
         Provides the entities searched by the provided query.
         
@@ -90,14 +89,14 @@ class IEntityQueryService:
             The query to search by.
         '''
 
-@service()
+@service
 class IEntityCRUDService:
     '''
     Provides the entity the CRUD services.
     '''
     
-    @call(Entity.Id, Entity)
-    def insert(self, entity):
+    @call
+    def insert(self, entity:Entity)->Entity.Id:
         '''
         Insert the entity.
         
@@ -108,8 +107,8 @@ class IEntityCRUDService:
         @raise InputException: If the entity is not valid. 
         '''
         
-    @call(None, Entity)
-    def update(self, entity):
+    @call
+    def update(self, entity:Entity)->None:
         '''
         Update the entity.
         
@@ -117,8 +116,8 @@ class IEntityCRUDService:
             The entity to be updated.
         '''
         
-    @call(bool, Entity.Id)
-    def delete(self, id):
+    @call
+    def delete(self, id:Entity.Id)->bool:
         '''
         Delete the entity for the provided id.
         
@@ -128,13 +127,13 @@ class IEntityCRUDService:
         @return: True if the delete is successful, false otherwise.
         '''
         
-@service()
+@service
 class IEntityNQService(IEntityGetService, IEntityFindService, IEntityCRUDService):
     '''
     Provides the find without querying, CRUD and query entity services.
     '''
     
-@service()
+@service
 class IEntityService(IEntityGetService, IEntityQueryService, IEntityCRUDService):
     '''
     Provides the find, CRUD and query entity services.

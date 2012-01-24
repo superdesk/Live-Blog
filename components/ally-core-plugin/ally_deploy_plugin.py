@@ -9,19 +9,16 @@ Created on Jan 9, 2012
 Special module that is targeted by the application loader in order to deploy the components in the current system path.
 '''
 
-from ally.api.configure import serviceFor
-from ally.api.operator import Service
-from ally.container import aop
-from ally.container._impl.ioc_setup import Context, ConfigError, SetupError
-from ally.container.config import load, save
-from ally.core.spec.resources import ResourcesManager
+from ally.support.util_sys import isPackage
+from package_extender import PACKAGE_EXTENDER
 import os
+import re
 import sys
 import traceback
 
 # --------------------------------------------------------------------
 
-FILE_CONFIG = 'plugins.properties'
+configurationsFilePath = 'plugins.properties'
 # The name of the configuration file
 
 context = None
@@ -40,17 +37,29 @@ services = []
 # --------------------------------------------------------------------
 
 def deploy():
+    PACKAGE_EXTENDER.addFreezedPackage('__plugin__.')
+    from ally.api.configure import serviceFor
+    from ally.api.operator import Service
+    from ally.container import aop
+    from ally.container._impl.ioc_setup import Context
+    from ally.container.ioc import ConfigError, SetupError
+    from ally.container.config import load, save
+    from ally.core.spec.resources import ResourcesManager
+
     global context, assembly
-    if context: raise ImportError('The application is already deployed')
+    if context: raise ImportError('The plugins are already deployed')
     try:
         ctx = context = Context()
         
         for module in aop.modulesIn('__plugin__.**').load().asList():
+            if not isPackage(module) and re.match('__plugin__\\.[^\\.]+$', module.__name__):
+                raise SetupError('The plugin setup module %r is not allowed directly in the __plugin__ package it needs '
+                                 'to be in a sub package' % module.__name__)
             ctx.addSetupModule(module)
         
-        isConfig = os.path.isfile(FILE_CONFIG)
+        isConfig = os.path.isfile(configurationsFilePath)
         if isConfig:
-            with open(FILE_CONFIG, 'r') as f: config = load(f)
+            with open(configurationsFilePath, 'r') as f: config = load(f)
         else: config = {}
             
         ass = assembly = ctx.assemble(config)
@@ -62,7 +71,7 @@ def deploy():
             raise
         finally:
             if not isConfig:
-                with open(FILE_CONFIG, 'w') as f: save(ass.trimmedConfigurations(), f)
+                with open(configurationsFilePath, 'w') as f: save(ass.trimmedConfigurations(), f)
         
         assert isinstance(resourcesManager, ResourcesManager), 'There is no resource manager for the services'
         for service in services:

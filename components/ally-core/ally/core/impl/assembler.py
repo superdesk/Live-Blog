@@ -39,8 +39,7 @@ class AssembleInvokers(Assembler):
         '''
         k = 0
         while k < len(invokers):
-            if self.assembleInvoke(root, invokers[k]):
-                del invokers[k]
+            if self.assembleInvoke(root, invokers[k]): del invokers[k]
             else: k += 1
     
     @abc.abstractmethod
@@ -178,12 +177,7 @@ class AssembleInsert(AssembleInvokers):
         assert isinstance(invoker, InvokerCall), 'Invalid invoker call %s' % invoker
         call = invoker.call
         assert isinstance(call, Call)
-        if call.method != INSERT:
-            return False
-        try: invoker.outputType.model
-        except AttributeError:
-            log.warning('Cannot extract model from output type %s for call %s', invoker.outputType, call)
-            return False
+        if call.method != INSERT: return False
         types = [invoker.inputs[k].type for k in range(0, invoker.mandatoryCount)]
         
         _processHintWebName(types, call)
@@ -261,7 +255,7 @@ class AssembleUpdate(AssembleInvokers):
             log.info('Resolved invoker %s as a update for node %s', invoker, node)
             return True
         
-        # If not types are present on insert that means we need to try to provide a reference
+        # If not types are present on update that means we need to try to provide a reference
         ids = []
         for prop in model.properties.values():
             assert isinstance(prop, Property)
@@ -348,8 +342,21 @@ def _obtainNodePath(root, isGroup, name):
 def _obtainNodeModel(root, model):
     assert isinstance(root, Node)
     for child in root.childrens():
-        if isinstance(child, NodeModel) and child.name == model.name:
-            return child
+        if isinstance(child, NodePath) and child.name == model.name:
+            if isinstance(child, NodeModel): return child
+            assert isinstance(child, NodePath)
+            
+            parent = child.parent
+            if child.parent: child.parent.remChild(child)
+            child.parent = None
+
+            node = NodeModel(parent, model)
+            node.get, node.insert, node.update, node.delete = child.get, child.insert, child.update, child.delete
+            for c in child.childrens():
+                c.parent = node
+                node.addChild(c)
+
+            return node
     return NodeModel(root, model)
 
 def _obtainNodeProperty(root, typeProperty):

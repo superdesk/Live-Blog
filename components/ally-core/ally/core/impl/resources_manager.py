@@ -15,8 +15,9 @@ from ally.api.type import List, TypeClass
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
 from ally.core.impl.node import NodeRoot, NodePath, NodeModel, NodeProperty
-from ally.core.spec.resources import Node, Path, ConverterPath, Match, Assembler, \
+from ally.core.spec.resources import Node, Path, ConverterPath, Assembler, \
     ResourcesManager, PathExtended
+from ally.support.core.util_resources import pushMatch, findNodeModel
 from inspect import isclass
 import logging
 
@@ -62,9 +63,11 @@ class ResourcesManagerImpl(ResourcesManager):
         '''
         if isclass(service): service = serviceFor(service)
         assert isinstance(service, Service), 'Invalid service %s' % service
+        assert implementation is not None, 'A implementation is required'
         log.info('Assembling node structure for service %s', service)
         invokers = [InvokerCall(service, implementation, call) for call in service.calls.values()]
         for asm in self.assemblers:
+            assert isinstance(asm, Assembler)
             asm.assemble(self._root, invokers)
         for invoker in invokers:
             assert isinstance(invoker, InvokerCall)
@@ -81,13 +84,13 @@ class ResourcesManagerImpl(ResourcesManager):
             return Path([], self._root)
         node = self._root
         matches = []
-        found = _addMatch(matches, node.tryMatch(converterPath, paths))
+        found = pushMatch(matches, node.tryMatch(converterPath, paths))
         while found and len(paths) > 0:
             found = False
             for child in node.childrens():
                 assert isinstance(child, Node)
                 match = child.tryMatch(converterPath, paths)
-                if _addMatch(matches, match):
+                if pushMatch(matches, match):
                     node = child
                     found = True
                     break
@@ -110,7 +113,7 @@ class ResourcesManagerImpl(ResourcesManager):
                 for nodeProperty in node.childrens():
                     if isinstance(nodeProperty, NodeProperty) and nodeProperty.get is not None:
                         matches = []
-                        _addMatch(matches, nodeProperty.newMatch())
+                        pushMatch(matches, nodeProperty.newMatch())
                         return PathExtended(fromPath, matches, nodeProperty, index + 1)
             for child in node.childrens():
                 assert isinstance(child, Node)
@@ -118,8 +121,8 @@ class ResourcesManagerImpl(ResourcesManager):
                     for nodeId in child.childrens():
                         if isinstance(nodeId, NodeProperty) and nodeId.get is not None:
                             matches = []
-                            _addMatch(matches, child.newMatch())
-                            _addMatch(matches, nodeId.newMatch())
+                            pushMatch(matches, child.newMatch())
+                            pushMatch(matches, nodeId.newMatch())
                             return PathExtended(fromPath, matches, nodeId, index + 1)
             index -= 1
         return None
@@ -137,7 +140,7 @@ class ResourcesManagerImpl(ResourcesManager):
             assert isinstance(child, Node)
             if isinstance(child, NodePath):
                 matches = []
-                _addMatch(matches, child.newMatch())
+                pushMatch(matches, child.newMatch())
                 extended = PathExtended(fromPath, matches, child)
                 if child.get: paths.append(extended)
                 paths.extend(self.findGetAllAccessible(extended))
@@ -150,48 +153,19 @@ class ResourcesManagerImpl(ResourcesManager):
         assert isinstance(model, Model), 'Invalid model %s' % model
         paths = []
         # First we find the model node.
-        node = _findNodeModel(self._root, model)
+        node = findNodeModel(self._root, model)
         if node:
             # Search the NodeProperty's
             assert isinstance(node, NodeModel)
             matches = [self._root.newMatch()]
-            if _addMatch(matches, node.newMatch()):
+            if pushMatch(matches, node.newMatch()):
                 for child in node.childrens():
                     if isinstance(child, NodeProperty):
                         matches = []
-                        if not _addMatch(matches, self._root.newMatch()): continue
-                        if not _addMatch(matches, node.newMatch()): continue
-                        if not _addMatch(matches, child.newMatch()): continue
+                        if not pushMatch(matches, self._root.newMatch()): continue
+                        if not pushMatch(matches, node.newMatch()): continue
+                        if not pushMatch(matches, child.newMatch()): continue
                         path = Path(matches, child)
                         path.update(obj, model)
                         paths.extend(self.findGetAllAccessible(path))
         return paths
-        
-# --------------------------------------------------------------------
-
-def _addMatch(matches, match):
-    '''
-    FOR INTERNAL USE ONLY.
-    Adds the match to the matches list, returns True if the match(es) have been added successfully, False if no
-    match was added.
-    '''
-    if match is not None and match is not False:
-        if isinstance(match, list):
-            matches.extend(match)
-        elif isinstance(match, Match):
-            matches.append(match)
-        elif match is not True:
-            raise AssertionError('Invalid match value %s') % match
-        return True
-    return False
-
-def _findNodeModel(root, model):
-    '''
-    FOR INTERNAL USE ONLY.
-    Finds the node model, None if there is no such node model.
-    '''
-    assert isinstance(root, Node)
-    for child in root.childrens():
-        if isinstance(child, NodeModel) and child.model == model:
-            return child
-    return None
