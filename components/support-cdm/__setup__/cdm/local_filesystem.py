@@ -15,7 +15,6 @@ from cdm.spec import ICDM
 from __setup__.ally_core_http.processor import pathProcessors
 import re
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
-from __setup__.ally_core_http import server_port
 from ally.core.spec.server import Processors
 from ally.container._impl.ioc_setup import ConfigError
 
@@ -27,31 +26,25 @@ def server_pattern_content():
     return '^content(/|$)'
 
 @ioc.config
-def server_name():
+def server_uri():
     ''' The HTTP server name '''
-    return 'localhost'
+    return 'http://localhost:80/content/'
 
 @ioc.config
-def server_document_root():
-    ''' The HTTP server document root directory '''
-    return None
-
-@ioc.config
-def repository_subdirectory():
+def repository_path():
     ''' The repository relative path inside the server document root directory '''
-    return 'repository'
+    return None
 
 # --------------------------------------------------------------------
 # Creating the content delivery managers
 
 @ioc.entity
 def delivery() -> IDelivery:
-    if not server_document_root(): raise ConfigError('No server document root configuration')
+    if not repository_path():
+        raise ConfigError('Missing repository path configuration')
     d = HTTPDelivery()
-    d.serverName = server_name()
-    d.port = server_port()
-    d.documentRoot = server_document_root()
-    d.repositorySubdir = repository_subdirectory()
+    d.serverURI = server_uri()
+    d.repositoryPath = repository_path()
     return d
 
 @ioc.entity
@@ -70,8 +63,7 @@ def cdms():
 @ioc.entity
 def localContentHandler():
     h = ContentDeliveryHandler()
-    h.documentRoot = server_document_root()
-    h.repositorySubdir = repository_subdirectory()
+    h.repositoryPath = repository_path()
     return h
 
 # ---------------------------------
@@ -82,5 +74,5 @@ def contentHandlers():
 
 @ioc.before(pathProcessors)
 def updatePathProcessors():
-    if server_document_root():
+    if repository_path():
         pathProcessors().append((re.compile(server_pattern_content()), Processors(*contentHandlers())))

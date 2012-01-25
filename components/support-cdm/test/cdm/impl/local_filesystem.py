@@ -23,39 +23,21 @@ class TestHTTPDelivery(unittest.TestCase):
 
     def testHTTPDelivery(self):
         d = HTTPDelivery()
-        d.serverName = 'localhost'
-        d.documentRoot = '/var/www'
-        d.repositorySubdir = 'repository'
-        d.port = 8080
+        d.serverURI = 'http://localhost:8080/content/'
+        d.repositoryPath = '/var/www/repository'
         ioc.Initializer.initialize(d)
         self.assertEqual(d.getRepositoryPath(), '/var/www/repository',
                          'Computing the repository path')
         self.assertEqual(d.getURI('somedir/somefile.jpg'),
-                         'http://localhost:8080/repository/somedir/somefile.jpg',
-                         'Computing the URI')
-        d.port = 80
-        self.assertEqual(d.getURI('somedir/somefile.jpg'),
-                         'http://localhost/repository/somedir/somefile.jpg',
-                         'Computing the URI')
-        d.port = None
-        self.assertEqual(d.getURI('somedir/somefile.jpg'),
-                         'http://localhost/repository/somedir/somefile.jpg',
-                         'Computing the URI')
-        d.repositorySubdir = ''
-        self.assertEqual(d.getRepositoryPath(), '/var/www',
-                         'Computing the repository path')
-        self.assertEqual(d.getURI('somedir/somefile.jpg'),
-                         'http://localhost/somedir/somefile.jpg',
+                         'http://localhost:8080/content/somedir/somefile.jpg',
                          'Computing the URI')
 
     def testLocalFilesystemCDM(self):
         d = HTTPDelivery()
-        d.serverName = 'localhost'
         rootDir = TemporaryDirectory()
-        d.documentRoot = rootDir.name
-#        d.documentRoot = '/var/www'
-        d.repositorySubdir = 'repository'
-        d.port = 8080
+        d.serverURI = 'http://localhost/content/'
+#        d.repositoryPath = '/var/www/repository'
+        d.repositoryPath = rootDir.name
 #        ioc.Initializer.initialize(d)
         cdm = LocalFileSystemCDM()
         cdm.delivery = d
@@ -135,12 +117,10 @@ class TestHTTPDelivery(unittest.TestCase):
 
     def testLocalFileSystemLinkCDM(self):
         d = HTTPDelivery()
-        d.serverName = 'localhost'
         rootDir = TemporaryDirectory()
-        d.documentRoot = rootDir.name
-#        d.documentRoot = '/var/www'
-        d.repositorySubdir = 'repository'
-        d.port = 8080
+        d.serverURI = 'http://localhost/content/'
+#        d.repositoryPath = '/var/www/repository'
+        d.repositoryPath = rootDir.name
 #        ioc.Initializer.initialize(d)
         cdm = LocalFileSystemLinkCDM()
         cdm.delivery = d

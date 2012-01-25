@@ -16,7 +16,7 @@ from ally.core.spec.server import Processor, Response, ProcessorsChain
 from ally.core.http.spec import RequestHTTP
 from os.path import isdir, isfile, join, dirname
 import os
-from zipfile import ZipFile, is_zipfile
+from zipfile import ZipFile
 from ally.support.util_io import pipe
 
 # --------------------------------------------------------------------
@@ -32,32 +32,22 @@ class ContentDeliveryHandler(Processor):
     Requires on request: method, resourcePath
     Requires on response: NA
 
-    @ivar documentRoot: string
-        The HTTP server document root directory path
-    @ivar repositorySubdir: string
-        The sub - directory of the document root where the file repository is
+    @ivar repositoryPath: string
+        The directory where the file repository is
 
     @see Processor
     '''
 
-    documentRoot = str
-    # The HTTP server document root directory path
-
-    repositorySubdir = str
-    # The sub-directory of the document root where the file repository is
+    repositoryPath = str
+    # The directory where the file repository is
 
     def __init__(self):
-        assert isinstance(self.documentRoot, str) and isdir(self.documentRoot), \
-            'Invalid document root directory %s' % self.documentRoot
-        assert isinstance(self.repositorySubdir, str), \
-            'Invalid repository sub-directory value %s' % self.documentRoot
-        assert isdir(self._getRepositoryPath()) \
-            and os.access(self._getRepositoryPath(), os.R_OK), \
-            'Unable to access the repository directory %s' % self._getRepositoryPath()
+        assert isinstance(self.repositoryPath, str), \
+            'Invalid repository path value %s' % self.repositoryPath
+        assert isdir(self.repositoryPath) \
+            and os.access(self.repositoryPath, os.R_OK), \
+            'Unable to access the repository directory %s' % self.repositoryPath
         super().__init__()
-
-    def _getRepositoryPath(self):
-        return join(self.documentRoot, self.repositorySubdir)
 
     def process(self, req, rsp, chain):
         '''
@@ -79,7 +69,7 @@ class ContentDeliveryHandler(Processor):
             self._sendNotAvailable(rsp, 'Path not available for this method')
             return
 
-        entryPath = join(self.documentRoot, self.repositorySubdir, req.path)
+        entryPath = join(self.repositoryPath, req.path)
         rsp.setCode(RESOURCE_FOUND, 'File found')
         writer = rsp.dispatch()
         if (isfile(entryPath)):
