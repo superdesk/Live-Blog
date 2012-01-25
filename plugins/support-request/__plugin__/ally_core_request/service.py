@@ -34,7 +34,7 @@ def converterPath() -> ConverterPath:
         import ally_deploy_application
         return support.entityFor(ConverterPath, ally_deploy_application.assembly)
     except:
-        log.exception('No converter path available in the application')
+        log.info('No converter path available in the application', exc_info=True)
         return ConverterPath()
 
 @ioc.entity

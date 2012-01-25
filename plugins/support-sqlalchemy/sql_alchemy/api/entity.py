@@ -11,7 +11,6 @@ General specifications for the entities API.
 
 from ally.api.config import model, query, service, call
 from ally.api.type import Id, Iter
-from ally.support.util import Uninstantiable
 
 # --------------------------------------------------------------------
 
@@ -21,13 +20,6 @@ class Entity:
     Provides the basic container for an entity that has a primary key.
     '''
     Id = Id
-
-@model
-class Parent(Uninstantiable, Entity):
-    '''
-    Provides the mark class for parent entities, do not use this in inheritances or otherwise, since this
-    class is just intended as a mark model class.
-    '''
 
 # --------------------------------------------------------------------
 
