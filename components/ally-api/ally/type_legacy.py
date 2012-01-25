@@ -12,7 +12,7 @@ Provides base python types for python 3 and python 2.6 legacy.
 # --------------------------------------------------------------------
 
 try:
-    from _abcoll import Iterable 
+    from collections import Iterable 
 except ImportError:
     class Iterable:
     
@@ -29,7 +29,7 @@ except ImportError:
 # --------------------------------------------------------------------
 
 try:
-    from _abcoll import Sized 
+    from collections import Sized 
 except ImportError:
     class Sized:
     
@@ -46,7 +46,7 @@ except ImportError:
 # --------------------------------------------------------------------
 
 try:
-    from _abcoll import Iterator 
+    from collections import Iterator 
 except ImportError:
     class Iterator(Iterable):
     
@@ -78,23 +78,6 @@ except ImportError:
 # --------------------------------------------------------------------
 
 try:
-    from _abcoll import Callable
-except ImportError:
-    class Callable:
-    
-        def __call__(self, *args, **kwds):
-            return False
-    
-        @classmethod
-        def __subclasshook__(cls, C):
-            if cls is Callable:
-                if any('__call__' in B.__dict__ for B in C.__mro__):
-                    return True
-            return NotImplemented
-
-# --------------------------------------------------------------------
-
-try:
     from collections import OrderedDict
 except ImportError:
     # Backport of OrderedDict() class that runs on Python 2.4, 2.5, 2.6, 2.7 and pypy.
@@ -105,7 +88,7 @@ except ImportError:
         from dummy_thread import get_ident as _get_ident
     
     try:
-        from _abcoll import KeysView, ValuesView, ItemsView
+        from collections import KeysView, ValuesView, ItemsView
     except ImportError:
         pass
     

@@ -10,7 +10,6 @@ Provides the decorators used for APIs.
 '''
 
 from ..support.util import IS_PY3K, Attribute
-from ..type_legacy import Callable
 from .operator import Call, Service, Criteria, Query, Model, Property, \
     CriteriaEntry, Properties, GET, INSERT, UPDATE, DELETE
 from .type import TypeProperty, typeFor, TypeModel, List, Type, TypeQuery, Iter, \
@@ -26,7 +25,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class APIModel(Callable):
+class APIModel:
     '''
     Used for decorating classes that are API models.
     
@@ -95,7 +94,7 @@ class APIModel(Callable):
         
 # --------------------------------------------------------------------
 
-class APIQuery(Callable):
+class APIQuery:
     '''
     Used for decorating classes that are API queries.
     
@@ -142,7 +141,7 @@ class APIQuery(Callable):
 
 # --------------------------------------------------------------------
 
-class APICriteria(Callable):
+class APICriteria:
     '''
     Used for decorating classes that are API criteria's.
     Attention the declared criteria will have the __new__ redeclared in order to provide the criteria descriptor
@@ -202,7 +201,7 @@ class APICriteria(Callable):
     
 # --------------------------------------------------------------------
 
-class APICall(Callable):
+class APICall:
     '''
     Used for decorating service methods that are used as APIs. When constructing the API service you have to
     specify the type of expected input value and the type of the output values. In the example below x value has
@@ -338,7 +337,7 @@ class APICall(Callable):
         callFunction.APICall = self
         return callFunction
 
-class APIService(Callable):
+class APIService:
     '''
     Used for decorating classes that are API services.
     

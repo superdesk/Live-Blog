@@ -14,6 +14,7 @@ from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, EncoderHeader, METHOD_OPTIONS
 from ally.core.spec.server import Processors, ProcessorsChain, ContentRequest, \
     Response
+from ally.support.util_io import keepOpen
 from io import BytesIO
 import cherrypy
 import logging
@@ -46,7 +47,7 @@ class ResponseHTTP(Response):
         assert not self.isDispatched, 'Already dispatched'
         self.isDispatched = True
         self.wfile = BytesIO()
-        return self.wfile
+        return keepOpen(self.wfile)
 
 # --------------------------------------------------------------------
 
@@ -129,11 +130,11 @@ class RequestHandler:
 
 # --------------------------------------------------------------------
 
-def run(requestHandler, host = '127.0.0.1', port = 80, threadPool = 10):
+def run(requestHandler, host='127.0.0.1', port=80, threadPool=10):
     cherrypy.config.update({
                             'server.socket_port': port,
                             'server.socket_host': host,
                             'server.thread_pool': threadPool
                             })
     print('Started HTTP REST API server...')
-    cherrypy.quickstart(requestHandler, config = {'global':{'engine.autoreload.on': False}})
+    cherrypy.quickstart(requestHandler, config={'global':{'engine.autoreload.on': False}})

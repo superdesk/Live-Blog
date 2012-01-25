@@ -9,7 +9,7 @@ Created on Sep 29, 2011
 Provides an XML digester used for parsing XML files by using a SAX parser.
 '''
 
-from _pyio import TextIOWrapper
+from io import TextIOWrapper
 from xml.sax.handler import ContentHandler
 from xml.sax import make_parser
 from xml.sax.xmlreader import InputSource

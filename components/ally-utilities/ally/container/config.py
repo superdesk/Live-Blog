@@ -10,7 +10,6 @@ Provides configurations serializing support.
 '''
 
 import re
-import yaml
 
 # --------------------------------------------------------------------
 
@@ -35,6 +34,7 @@ def save(configurations, fwrite, maxwidth=60):
     assert fwrite, 'No writer provided'
     assert isinstance(maxwidth, int), 'Invalid maximum width %s' % maxwidth
     
+    import yaml
     split = REGEX_SPLIT
     groups = {config.group for config in configurations.values()}
     for group in sorted(groups):
@@ -66,6 +66,8 @@ def load(fread):
         The configuration dictionary.
     '''
     assert fread, 'No reader provided'
+    
+    import yaml
     config = yaml.load(fread)
     assert isinstance(config, dict), 'Invalid configuration loaded %s' % config
     return config

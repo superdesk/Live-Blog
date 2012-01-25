@@ -9,7 +9,6 @@ Created on Jul 11, 2011
 Provides the XML encoding/decoding processor handler.
 '''
 
-from _pyio import TextIOWrapper
 from ally import internationalization
 from ally.api.operator import Model, Property
 from ally.api.type import TypeProperty, Iter, TypeModel, TypeNone
@@ -24,8 +23,8 @@ from ally.core.spec.server import Request, Response, ProcessorsChain, \
 from ally.exception import DevelException, InputException, Ref
 from ally.support.api.util_type import isPropertyTypeId, isPropertyTypeIntId, \
     isTypeIntId
-from ally.support.core.util_resources import pathsForProperties
 from ally.xml.digester import Rule, RuleRoot, Digester, Node
+from io import TextIOWrapper
 from xml.sax.saxutils import XMLGenerator
 import logging
 
@@ -119,8 +118,6 @@ class EncodingXMLHandler(EncodingBaseHandler):
         assert isinstance(rsp, Response)
         charSet = self._getCharSet(req, rsp)
         txt = TextIOWrapper(rsp.dispatch(), charSet, self.encodingError)
-        # Need to stop the text close since this will close the socket, just a small hack to prevent this.
-        txt.close = None
         xml = XMLGenerator(txt, charSet, short_empty_elements=True)
         xml.startDocument()
         return xml
@@ -247,7 +244,7 @@ class EncodingXMLHandler(EncodingBaseHandler):
         properties = [prop for prop in model.properties.values() if prop.name not in rsp.objExclude]
         modelName = self.normalizer.normalize(model.name)
         xml.startElement(modelName, {})
-        modelPaths = pathsForProperties(self.resourcesManager, properties, basePath)
+        modelPaths = self._pathsForProperties(properties, basePath)
         self._encodeProperties(xml, obj, properties, modelPaths, rsp)
         
         paths = self.resourcesManager.findGetAllAccessible(basePath)
@@ -280,7 +277,7 @@ class EncodingXMLHandler(EncodingBaseHandler):
                     path.update(obj, model)
                 self._encodeProperty(xml, prop.get(obj), path, typProp, rsp)
         elif len(properties) > 0:
-            modelPaths = pathsForProperties(self.resourcesManager, properties, basePath)
+            modelPaths = self._pathsForProperties(properties, basePath)
             for obj in objects:
                 if path is not None:
                     path.update(obj, model)
@@ -389,8 +386,6 @@ class RuleModel(Rule):
         assert isinstance(digester, Digester)
         if len(digester.stack) > 1:
             digester.stack.pop()
-            
-# --------------------------------------------------------------------
 
 class RuleSetProperty(Rule):
     '''

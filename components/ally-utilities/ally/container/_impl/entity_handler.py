@@ -9,7 +9,6 @@ Created on Jan 12, 2012
 Provides handlers for entities.
 '''
 
-from _abcoll import Callable
 from ally.support.util import Attribute
 from functools import partial
 from inspect import isclass
@@ -21,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class Initializer(Callable):
+class Initializer:
     '''
     Class used as the initializer for the entities classes.
     '''

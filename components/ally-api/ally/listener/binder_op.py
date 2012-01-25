@@ -17,7 +17,7 @@ from ..exception import InputException, Ref
 from ..support.api.util_type import propertyOf, modelOf
 from .binder import bindListener, callListeners, registerProxyBinder, \
     bindBeforeListener, clearBindings, indexBefore, INDEX_DEFAULT
-from _abcoll import Sized
+from collections import Sized
 import functools
     
 # --------------------------------------------------------------------

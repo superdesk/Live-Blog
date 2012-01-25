@@ -17,7 +17,6 @@ from ._impl.ioc_setup import ConfigError, register, SetupConfig, setupsOf, \
 from ._impl.support_setup import CreateEntity, SetupError, SetupEntityProxy, \
     SetupEntityWire, Assembly, CallEntity, SetupEntityCreate
 from .aop import classesIn
-from _abcoll import Callable
 from ally.container._impl.support_setup import SetupEntityListen
 from copy import deepcopy
 from functools import partial
@@ -47,7 +46,7 @@ def createEntitySetup(api, *impl, formatter=lambda group, clazz: group + '.' + c
     @param setupModule: module|None
         If the setup module is not provided than the calling module will be considered.
     '''
-    assert isinstance(formatter, Callable), 'Invalid formatter %s' % formatter
+    assert callable(formatter), 'Invalid formatter %s' % formatter
     if setupModule:
         assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
         registry = setupModule.__dict__
@@ -222,7 +221,7 @@ def include(module, setupModule=None):
 
 def entities():
     '''
-    !Attention this function only available from within a setup functions!
+    !Attention this function is only available in an open assembly @see: ioc.open!
     Provides all the entities references found in the current assembly wrapped in a AOP class.
     
     @return: AOP
@@ -232,7 +231,7 @@ def entities():
 
 def entitiesLocal():
     '''
-    !Attention this function only available from within a setup functions!
+    !Attention this function is only available in an open assembly @see: ioc.open!
     Provides all the entities references for the module from where the call is made found in the current assembly.
     
     @return: AOP
@@ -247,7 +246,7 @@ def entitiesLocal():
 
 def entityFor(clazz, assembly=None):
     '''
-    !Attention this function only available from within a setup functions if no assembly is provided!
+    !Attention this function is only available in an open assembly @see: ioc.open!
     Provides the entity for the provided class (only if the setup function exposes a return type that is either the
     provided class or a super class) found in the current assembly.
     

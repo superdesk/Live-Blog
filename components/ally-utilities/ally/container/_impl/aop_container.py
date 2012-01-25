@@ -10,7 +10,6 @@ Provides the AOP implementations.
 '''
 
 from .ioc_setup import Assembly
-from _abcoll import Callable
 from inspect import isclass
 import re
 import sys
@@ -201,7 +200,7 @@ class AOPResources(AOP):
         if __debug__:
             for path, value in resources.items():
                 assert isinstance(path, str), 'Invalid path %s' % path
-                assert isinstance(value, (str, Callable)), 'Invalid value %s' % value
+                assert isinstance(value, str) or callable(value), 'Invalid value %s' % value
         super().__init__(resources)
         
     def load(self):

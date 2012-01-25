@@ -422,7 +422,7 @@ class Node(metaclass=abc.ABCMeta):
             The invoker that provides the update of elements, populated by assemblers.
         @ivar delete: Invoker
             The invoker that provides the deletion of elements, populated by assemblers.
-         @ivar _childrens: list
+        @ivar _childrens: list
             The list of node children's.
         '''
         assert parent is None or isinstance(parent, Node), 'Invalid parent %s, can be None' % parent
@@ -452,6 +452,7 @@ class Node(metaclass=abc.ABCMeta):
         self._childrens.sort(key=lambda node: node.order)
         
     def remChild(self, child):
+        #TODO: make a better removal mechanism.
         '''
         Removes the child node from this node.
         
@@ -562,6 +563,20 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         @return: PathExtended|None
             The extended path pointing to the desired get method, attention some updates might be necessary on 
             the path to be available. None if the path could not be found.
+        '''
+    
+    @abc.abstractmethod
+    def findGetModelProperties(self, fromPath, model):
+        '''
+        Extracts the paths that are linked with the properties in the provided model. Basically any property that
+        represents the id property type for a model is searched for a path.
+        
+        @param fromPath: Path
+            The path to make the search based on.
+        @param model: Model
+            The model to search the get properties paths for.
+        @return: dictionary{string, Path}
+            A dictionary having as a key the property name and as a value the path of that property.
         '''
     
     @abc.abstractmethod

@@ -9,7 +9,7 @@ Created on May 26, 2011
 General specifications for the entities API.
 '''
 
-from ally.api.config import model, query, service, call
+from ally.api.config import model, service, call
 from ally.api.type import Id, Iter
 
 # --------------------------------------------------------------------
@@ -20,14 +20,6 @@ class Entity:
     Provides the basic container for an entity that has a primary key.
     '''
     Id = Id
-
-# --------------------------------------------------------------------
-
-@query
-class QEntity:
-    '''
-    Provides the basic query for an entity.
-    '''
     
 # --------------------------------------------------------------------
 
@@ -63,22 +55,6 @@ class IEntityFindService:
             The offset to retrieve the entities from.
         @param limit: integer
             The limit of entities to retrieve.
-        '''
-
-@service
-class IEntityQueryService:
-        
-    @call
-    def getAll(self, offset:int=None, limit:int=None, q:QEntity=None) -> Iter(Entity):
-        '''
-        Provides the entities searched by the provided query.
-        
-        @param offset: integer
-            The offset to retrieve the entities from.
-        @param limit: integer
-            The limit of entities to retrieve.
-        @param q: QEntity
-            The query to search by.
         '''
 
 @service
@@ -120,13 +96,7 @@ class IEntityCRUDService:
         '''
         
 @service
-class IEntityNQService(IEntityGetService, IEntityFindService, IEntityCRUDService):
+class IEntityService(IEntityGetService, IEntityFindService, IEntityCRUDService):
     '''
     Provides the find without querying, CRUD and query entity services.
-    '''
-    
-@service
-class IEntityService(IEntityGetService, IEntityQueryService, IEntityCRUDService):
-    '''
-    Provides the find, CRUD and query entity services.
     '''

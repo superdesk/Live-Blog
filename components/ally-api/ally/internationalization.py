@@ -10,7 +10,7 @@ Provides internationalization support.
 '''
 
 import re
-from .type_legacy import Number, Iterable, Callable
+from .type_legacy import Number, Iterable
 
 # --------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ REGEX_ID = re.compile('[1-9][0-9]*')
 
 # --------------------------------------------------------------------
 
-class Internationalizator(Callable):
+class Internationalizator:
     '''
     Class that provides the support for internationalization.
     '''

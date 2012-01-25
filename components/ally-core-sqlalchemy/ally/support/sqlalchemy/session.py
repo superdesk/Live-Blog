@@ -9,7 +9,6 @@ Created on Jan 5, 2012
 Provides support for SQL alchemy automatic session handling.
 '''
 
-from _abcoll import Callable
 from ally.api.configure import ServiceSupport
 from ally.exception import DevelException
 from ally.listener.binder import registerProxyBinder, bindBeforeListener, \
@@ -100,7 +99,7 @@ def endCurrent(sessionCloser=None):
     @param sessionCloser: Callable|None
         A Callable that will be invoked for the ended transaction. It will take as a parameter the session to be closed.
     '''
-    assert not sessionCloser or isinstance(sessionCloser, Callable), 'Invalid session closer %s' % sessionCloser
+    assert not sessionCloser or callable(sessionCloser), 'Invalid session closer %s' % sessionCloser
     creators = ATTR_SESSION_CREATE.get(None)
     if not creators: raise DevelException('Illegal end transaction call, there is no transaction begun')
     assert isinstance(creators, deque)
@@ -118,7 +117,7 @@ def endSessions(sessionCloser=None):
     @param sessionCloser: Callable|None
         A Callable that will be invoked for the ended transactions. It will take as a parameter the session to be closed.
     '''
-    assert not sessionCloser or isinstance(sessionCloser, Callable), 'Invalid session closer %s' % sessionCloser
+    assert not sessionCloser or callable(sessionCloser), 'Invalid session closer %s' % sessionCloser
     sessions = ATTR_SESSION.get(None)
     if sessions:
         while sessions:

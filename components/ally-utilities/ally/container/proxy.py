@@ -9,7 +9,6 @@ Provides utility functions for creating and managing proxies.
 '''
 
 from ..support.util import Attribute
-from _abcoll import Callable
 from collections import deque
 from functools import update_wrapper
 from inspect import isclass, isfunction
@@ -236,7 +235,7 @@ class Execution:
         assert isinstance(handler, IProxyHandler), 'Invalid handler %s' % handler
         return handler.handle(self)
 
-class ProxyMethod(Callable):
+class ProxyMethod:
     '''
     Handles the proxy method calls.
     '''

@@ -252,8 +252,27 @@ class NodePath(Node):
         '''
         assert isinstance(name, str) and name != '', 'Invalid node name %s' % name
         self.name = name
+        self._nameLong = None
         self._match = MatchString(self, name)
         super().__init__(parent, isGroup, ORDER_PATH)
+        
+    def nameLong(self):
+        '''
+        Provides the fullest name that can be extracted for the provided node. This is done by appending all names of the
+        parent nodes that are also path nodes.
+        
+        @return: string
+            The node long name.
+        '''
+        if not self._nameLong:
+            names = []
+            node = self
+            while node and isinstance(node, NodePath):
+                names.append(node.name)
+                node = node.parent
+            names.reverse() # We need to reverse since we started from the child to parent
+            self._nameLong = ''.join(names)
+        return self._nameLong
 
     def tryMatch(self, converterPath, paths):
         '''

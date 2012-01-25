@@ -13,7 +13,6 @@ from ..proxy import proxyWrapForImpl
 from .entity_handler import Wiring, WireConfig, WireEntity
 from .ioc_setup import Setup, Assembly, SetupError, CallEntity, SetupSource, \
     WithType
-from _abcoll import Callable
 from functools import partial
 from inspect import isclass
 import logging
@@ -144,7 +143,7 @@ class SetupEntityListen(Setup):
         assert isinstance(listeners, (list, tuple)), 'Invalid listeners %s' % listeners
         if __debug__:
             for clazz in classes: assert isclass(clazz), 'Invalid class %s' % clazz
-            for call in listeners: assert isinstance(call, Callable), 'Invalid listener %s' % call
+            for call in listeners: assert callable(call), 'Invalid listener %s' % call
         self._group = group
         self._classes = classes
         self._listeners = listeners
@@ -201,7 +200,7 @@ class SetupEntityProxy(Setup):
         assert isinstance(binders, (list, tuple)), 'Invalid proxy binders %s' % binders
         if __debug__:
             for clazz in classes: assert isclass(clazz), 'Invalid class %s' % clazz
-            for call in binders: assert isinstance(call, Callable), 'Invalid binder %s' % call
+            for call in binders: assert callable(call), 'Invalid binder %s' % call
         self._group = group
         self._classes = classes
         self._binders = binders
@@ -275,7 +274,7 @@ class SetupEntityCreate(SetupSource):
 
 # --------------------------------------------------------------------
 
-class CreateEntity(Callable):
+class CreateEntity:
     '''
     Callable class that provides the entity creation based on the provided class.
     '''

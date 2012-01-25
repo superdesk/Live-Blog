@@ -11,7 +11,6 @@ Provides the setup implementations for the IoC module.
 
 from ..config import Config
 from .entity_handler import Initializer
-from _abcoll import Callable
 from ally.support.util import Attribute
 from collections import deque
 from functools import partial
@@ -141,7 +140,7 @@ class Setup:
             The assembly to assemble additional behavior on.
         '''
         
-class SetupFunction(Setup, Callable):
+class SetupFunction(Setup):
     '''
     A setup indexer based on a function.
     '''
@@ -159,7 +158,7 @@ class SetupFunction(Setup, Callable):
         '''
         assert not group or isinstance(group, str), 'Invalid group %s' % group
         if name:
-            assert isinstance(function, Callable), 'Invalid callable function %s' % function
+            assert callable(function), 'Invalid callable function %s' % function
             assert isinstance(name, str), 'Invalid name %s' % name
             self._name = name
             self._group = group
@@ -426,7 +425,7 @@ class WithListeners:
         @param listener: Callable
             A callable that takes no parameters that will be invoked before the call is processed.
         '''
-        assert isinstance(listener, Callable), 'Invalid listener %s' % listener
+        assert callable(listener), 'Invalid listener %s' % listener
         self._listenersBefore.append(listener)
         
     def addAfter(self, listener):
@@ -436,7 +435,7 @@ class WithListeners:
         @param listener: Callable
             A callable that takes no parameters that will be invoked after the call is processed.
         '''
-        assert isinstance(listener, Callable), 'Invalid listener %s' % listener
+        assert callable(listener), 'Invalid listener %s' % listener
         self._listenersAfter.append(listener)
 
 class WithCall:
@@ -460,7 +459,7 @@ class WithCall:
         @param call: Callable
             The call that is used by this Call in order to resolve.
         '''
-        assert isinstance(call, Callable), 'Invalid callable %s' % call
+        assert callable(call), 'Invalid callable %s' % call
         self._call = call
         
     call = property(lambda self: self._call, setCall, doc=
@@ -506,7 +505,7 @@ class WithType:
 
 # --------------------------------------------------------------------
 
-class CallEvent(Callable, WithCall, WithListeners):
+class CallEvent(WithCall, WithListeners):
     '''
     Provides the event call.
     @see: Callable, WithCall, WithType, WithListeners
@@ -546,7 +545,7 @@ class CallEvent(Callable, WithCall, WithListeners):
         if ret is not None: raise SetupError('The event call %r cannot return any value' % self._name)
         for listener in self._listenersAfter: listener()
  
-class CallEntity(Callable, WithCall, WithType, WithListeners):
+class CallEntity(WithCall, WithType, WithListeners):
     '''
     Call that resolves an entity setup.
     @see: Callable, WithCall, WithType, WithListeners
@@ -586,7 +585,7 @@ class CallEntity(Callable, WithCall, WithType, WithListeners):
         @param interceptor: Callable
             The interceptor.
         '''
-        assert isinstance(interceptor, Callable), 'Invalid interceptor %s' % interceptor
+        assert callable(interceptor), 'Invalid interceptor %s' % interceptor
         self._interceptors.append(interceptor)
     
     def __call__(self):
@@ -621,7 +620,7 @@ class CallEntity(Callable, WithCall, WithType, WithListeners):
             assert log.debug('Finalized %r with value %s', self._name, value) or True
         return self._value
 
-class CallConfig(Callable, WithType, WithListeners):
+class CallConfig(WithType, WithListeners):
     '''
     Call that delivers a value.
     @see: Callable, WithType, WithListeners
@@ -778,7 +777,7 @@ class Assembly:
                 other = configs.pop(sname, None)
             configs[sname] = config
         return configs
-            
+    
     def processForName(self, name):
         '''
         Process the specified name into this assembly.
@@ -790,12 +789,27 @@ class Assembly:
         self._processing.append(name)
         call = self.calls.get(name)
         if not call: raise SetupError('No IoC resource for name %r' % name)
-        if not isinstance(call, Callable): raise SetupError('Invalid call %s for name %r' % (call, name))
+        if not callable(call): raise SetupError('Invalid call %s for name %r' % (call, name))
         try: value = call()
         except: raise SetupError('Exception occurred for %r in processing chain %r' % (name, ', '.join(self._processing)))
         self._processing.pop()
         return value
     
+    def processForPartialName(self, name):
+        '''
+        Process the specified partial name into this assembly.
+        
+        @param name: string
+            The partial name to be processed.
+        '''
+        assert isinstance(name, str), 'Invalid name %s' % name
+        if not name.startswith('.'): pname = '.' + name
+        else: pname = name
+        names = [fname for fname in self.calls if fname == name or fname.endswith(pname)]
+        
+        if not names: raise SetupError('No IoC resource for name %r' % name)
+        if len(names) > 1: raise SetupError('To many IoC resource for name %r' % name)
+        return self.processForName(names[0])
     def processStart(self):
         '''
         Starts the assembly, basically call all setup functions that have been decorated with start.
@@ -805,10 +819,7 @@ class Assembly:
             unused = unused.difference(self.configUsed)
             if unused: log.info('Unknown configurations: %r', ', '.join(unused))
             
-            self.stack.append(self)
-            try:     
-                for call in self.callsStart: call()
-            finally: self.stack.pop()
+            for call in self.callsStart: call()
             self.started = True
         else: log.error('No IoC start calls to start the setup')
 

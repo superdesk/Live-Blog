@@ -11,9 +11,10 @@ thread serving requests one at a time).
 '''
 
 from ally.api.operator import GET, INSERT, UPDATE, DELETE
+from ally.core.http.spec import EncoderHeader, RequestHTTP, METHOD_OPTIONS
 from ally.core.spec.server import Response, Processors, ProcessorsChain, \
     ContentRequest
-from ally.core.http.spec import EncoderHeader, RequestHTTP, METHOD_OPTIONS
+from ally.support.util_io import keepOpen
 from collections import OrderedDict
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
@@ -59,7 +60,7 @@ class ResponseHTTP(Response):
         rq.send_response(self.code.code, self.codeText)
         rq.end_headers()
         self.isDispatched = True
-        return rq.wfile
+        return keepOpen(rq.wfile)
 
 # --------------------------------------------------------------------
 

@@ -10,7 +10,7 @@ Module containing the implementation for the resources manager.
 '''
 
 from ally.api.configure import serviceFor
-from ally.api.operator import Service, Model
+from ally.api.operator import Service, Model, Property
 from ally.api.type import List, TypeClass
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
@@ -20,6 +20,7 @@ from ally.core.spec.resources import Node, Path, ConverterPath, Assembler, \
 from ally.support.core.util_resources import pushMatch, findNodeModel
 from inspect import isclass
 import logging
+from ally.support.api.util_type import isPropertyTypeId
 
 # --------------------------------------------------------------------
 
@@ -48,6 +49,8 @@ class ResourcesManagerImpl(ResourcesManager):
         for service in self.services:
             try: self.register(serviceFor(service), service)
             except: raise Exception('Cannot register service instance %s' % service)
+            
+        self._cache = {}
     
     def getRoot(self):
         '''
@@ -105,6 +108,10 @@ class ResourcesManagerImpl(ResourcesManager):
         assert isinstance(fromPath, Path), 'Invalid from path %s' % fromPath
         assert isinstance(fromPath.node, Node), 'Invalid from path Node %s' % fromPath.node
         assert isinstance(model, Model), 'Invalid model %s' % model
+        cache = self._cache.setdefault(id(fromPath.node), {}).setdefault('GetModel', {})
+        modelId = id(model)
+        if modelId in cache: return cache[modelId]
+        
         index = len(fromPath.matches) - 1
         while index >= 0:
             node = fromPath.matches[index].node
@@ -114,7 +121,8 @@ class ResourcesManagerImpl(ResourcesManager):
                     if isinstance(nodeProperty, NodeProperty) and nodeProperty.get is not None:
                         matches = []
                         pushMatch(matches, nodeProperty.newMatch())
-                        return PathExtended(fromPath, matches, nodeProperty, index + 1)
+                        path = cache[modelId] = PathExtended(fromPath, matches, nodeProperty, index + 1)
+                        return path
             for child in node.childrens():
                 assert isinstance(child, Node)
                 if isinstance(child, NodeModel) and child.model == model:
@@ -123,9 +131,31 @@ class ResourcesManagerImpl(ResourcesManager):
                             matches = []
                             pushMatch(matches, child.newMatch())
                             pushMatch(matches, nodeId.newMatch())
-                            return PathExtended(fromPath, matches, nodeId, index + 1)
+                            path = cache[modelId] = PathExtended(fromPath, matches, nodeId, index + 1)
+                            return path
             index -= 1
+        cache[modelId] = None
         return None
+    
+    def findGetModelProperties(self, fromPath, model):
+        '''
+        @see: ResourcesManager.findGetModelProperties
+        '''
+        assert isinstance(fromPath, Path), 'Invalid from path %s' % fromPath
+        assert isinstance(fromPath.node, Node), 'Invalid from path Node %s' % fromPath.node
+        assert isinstance(model, Model), 'Invalid model %s' % model
+        cache = self._cache.setdefault(id(fromPath.node), {}).setdefault('GetModelProperties', {})
+        modelId = id(model)
+        paths = cache.get(modelId)
+        
+        if paths is None:
+            cache[modelId] = paths = {}
+            for name, prop in model.properties.items():
+                assert isinstance(prop, Property), 'Invalid property %s' % prop
+                if isPropertyTypeId(prop.type):
+                    path = self.findGetModel(fromPath, prop.type.model)
+                    if path is not None: paths[name] = path
+        return paths
         
     def findGetAllAccessible(self, fromPath=None):
         '''
@@ -135,15 +165,19 @@ class ResourcesManagerImpl(ResourcesManager):
         
         assert isinstance(fromPath, Path), 'Invalid from path %s' % fromPath
         assert isinstance(fromPath.node, Node), 'Invalid from path Node %s' % fromPath.node
-        paths = []
-        for child in fromPath.node.childrens():
-            assert isinstance(child, Node)
-            if isinstance(child, NodePath):
-                matches = []
-                pushMatch(matches, child.newMatch())
-                extended = PathExtended(fromPath, matches, child)
-                if child.get: paths.append(extended)
-                paths.extend(self.findGetAllAccessible(extended))
+        cache = self._cache.setdefault(id(fromPath.node), {})
+        paths = cache.get('GetAllAccessible')
+        
+        if paths is None:
+            cache['GetAllAccessible'] = paths = []
+            for child in fromPath.node.childrens():
+                assert isinstance(child, Node)
+                if isinstance(child, NodePath):
+                    matches = []
+                    pushMatch(matches, child.newMatch())
+                    extended = PathExtended(fromPath, matches, child)
+                    if child.get: paths.append(extended)
+                    paths.extend(self.findGetAllAccessible(extended))
         return paths
     
     def findGetAccessibleByModel(self, model, obj):

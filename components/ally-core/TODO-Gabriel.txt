@@ -27,5 +27,7 @@
 - Refactor in order to rename all classes that are as interfaces to start with I see the spec package for instance
   for assamblers.
  
- - To add a thread resource manager.
- - To add auto reloading for plugins.
+- To add a thread resource manager.
+- To add auto reloading for plugins.
+- To change the cherrypy server implementation so it will directly stream the content and not sore it in memory first 
+  than send it.

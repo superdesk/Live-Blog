@@ -43,7 +43,6 @@ class ExtendModel(APIModel):
     
 # --------------------------------------------------------------------
 
-
 @query()
 class TestQuery:
     

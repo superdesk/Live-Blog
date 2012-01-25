@@ -9,7 +9,6 @@ Created on Jun 25, 2011
 Provides the invokers implementations.
 '''
 
-from _abcoll import Callable
 from ally.api.operator import Service, Call, Property, Model
 from ally.api.type import TypeProperty, Input, TypeModel
 from ally.core.spec.resources import Invoker, Normalizer
@@ -60,7 +59,7 @@ class InvokerFunction(Invoker):
         @param function: Callable
             The Callable to invoke.
         '''
-        assert isinstance(function, Callable), 'Invalid input callable provided %s' % function
+        assert callable(function), 'Invalid input callable provided %s' % function
         super().__init__(outputType, function.__name__, inputs, mandatoryCount)
         self.function = function
 

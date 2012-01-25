@@ -11,7 +11,6 @@ Special module that is targeted by the application loader in order to deploy the
 
 # --------------------------------------------------------------------
 
-from package_extender import PACKAGE_EXTENDER
 import os
 import sys
 import traceback
@@ -21,44 +20,38 @@ import traceback
 configurationsFilePath = 'application.properties'
 # The name of the configuration file
 
-context = None
-# The context of the setups.
 assembly = None
-# The deployed assembly.
+# The assembly for the application resources
 
 # --------------------------------------------------------------------
 
 def deploy():
+    from package_extender import PACKAGE_EXTENDER
     PACKAGE_EXTENDER.addFreezedPackage('__setup__.')
-    from ally.container import aop
-    from ally.container._impl.ioc_setup import Context, ConfigError
+    from ally.container import ioc, aop
+    from ally.container.ioc import ConfigError
     from ally.container.config import save, load
 
-    global context, assembly
-    if context: raise ImportError('The application is already deployed')
-    # We first adjust the sys path to only contain unique components.
+    global assembly
+    if assembly: raise ImportError('The application is already deployed')
     
     try:
-        ctx = context = Context()
-        
-        for module in aop.modulesIn('__setup__.**').load().asList():
-            ctx.addSetupModule(module)
-        
         isConfig = os.path.isfile(configurationsFilePath)
         if isConfig:
             with open(configurationsFilePath, 'r') as f: config = load(f)
         else: config = {}
-        
-        ass = assembly = ctx.assemble(config)
-        
-        try: ass.processStart()
+
+        assembly = ioc.open(aop.modulesIn('__setup__.**'), config=config)
+        try: assembly.processStart()
         except ConfigError:
             # We save the file in case there are missing configuration
-            with open(configurationsFilePath, 'w') as f: save(ass.trimmedConfigurations(), f)
+            with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
+            isConfig = True
             raise
-        if not isConfig:
-            with open(configurationsFilePath, 'w') as f: save(ass.trimmedConfigurations(), f)
-            
+        finally:
+            if not isConfig:
+                with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
+            ioc.close()
     except:
         print('-' * 150, file=sys.stderr)
         print('A problem occurred while deploying', file=sys.stderr)

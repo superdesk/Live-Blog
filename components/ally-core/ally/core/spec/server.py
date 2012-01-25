@@ -277,6 +277,10 @@ class Response(Content):
             one element than only that element will be rendered. The include list has priority over exclude. If the
             elements in the list does not make sense an error code will be provided. The include will be considered 
             whenever rendering a list of models.
+        @ivar objFetch: list[string]
+            A list with the names to be fetched in the response. This object property names will be also added to the
+            response content, basically if a response model has a reference to another model and that model is on the
+            fetch list it will also include that model in the response.
         '''
         super().__init__()
         self.code = None
@@ -289,6 +293,7 @@ class Response(Content):
         self.objType = None
         self.objExclude = []
         self.objInclude = []
+        self.objFetch = []
     
     def addAllows(self, method):
         '''

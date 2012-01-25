@@ -9,7 +9,6 @@ Created on Jul 11, 2011
 Provides the JSON encoding handler.
 '''
 
-from _pyio import TextIOWrapper
 from ally import internationalization
 from ally.api.operator import Model, Property, INSERT, UPDATE
 from ally.api.type import TypeProperty, Iter, TypeModel, TypeNone
@@ -24,7 +23,7 @@ from ally.core.spec.server import Request, Response, ProcessorsChain, \
 from ally.exception import DevelException, InputException, Ref
 from ally.support.api.util_type import isPropertyTypeId, isPropertyTypeIntId, \
     isTypeIntId
-from ally.support.core.util_resources import pathsForProperties
+from io import TextIOWrapper
 import codecs
 import json
 import logging
@@ -90,8 +89,6 @@ class EncodingJSONHandler(EncodingBaseHandler):
                         assert log.debug('Cannot encode object type %r', typ) or True
             if obj:
                 txt = TextIOWrapper(rsp.dispatch(), self._getCharSet(req, rsp), self.encodingError)
-                # Need to stop the text close since this will close the socket, just a small hack to prevent this.
-                txt.close = None
                 json.dump(obj, txt)
                 return
         chain.process(req, rsp)
@@ -172,7 +169,7 @@ class EncodingJSONHandler(EncodingBaseHandler):
         assert isinstance(model, Model)
         
         properties = [prop for prop in model.properties.values() if prop.name not in rsp.objExclude]
-        modelPaths = pathsForProperties(self.resourcesManager, properties, basePath)
+        modelPaths = self._pathsForProperties(properties, basePath)
         modelObj = self._convertProperties(obj, properties, modelPaths, rsp)
         
         paths = self.resourcesManager.findGetAllAccessible(basePath)
@@ -207,7 +204,7 @@ class EncodingJSONHandler(EncodingBaseHandler):
                 idsList.append(self._convertProperty(prop.get(obj), path, typProp, rsp))
             return {self.normalizer.normalize(typProp.model.name + self.tagListSufix):idsList}
         elif len(properties) > 0:
-            modelPaths = pathsForProperties(self.resourcesManager, properties, basePath)
+            modelPaths = self._pathsForProperties(properties, basePath)
             for obj in objects:
                 objModel = self._convertProperties(obj, properties, modelPaths, rsp)
                 if path is not None:

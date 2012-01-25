@@ -13,7 +13,7 @@ single thread at one time.
 from ..support.util_sys import callerLocals
 from ._impl.entity_handler import Initializer
 from ._impl.ioc_setup import SetupEntity, SetupConfig, SetupFunction, SetupEvent, \
-    Context, SetupReplace, SetupStart, SetupError, register, ConfigError
+    Context, SetupReplace, SetupStart, SetupError, register, ConfigError, Assembly
 from ._impl.aop_container import AOPModules
 from functools import partial, update_wrapper
 from inspect import isclass, ismodule, getfullargspec, isfunction
@@ -138,17 +138,18 @@ def start(*args):
 
 # --------------------------------------------------------------------
 
-def deploy(*modules, name='main', config=None):
+def open(*modules, config=None):
     '''
-    Load and assemble the setup modules.
+    Load and assemble the setup modules and keeps them opened for retrieving and processing values. Call the close
+    function after finalization.
     
     @param modules: arguments(path|AOPModules|module) 
         The modules that compose the setup.
-    @param name: string
-        The name of the context, if not provided will use the default.
     @param config: dictionary|None
         The configurations dictionary. This is the top level configurations the values provided here will override any
         other configuration.
+    @return: object
+        The assembly object.
     '''
     context = Context()
     for module in modules:
@@ -159,7 +160,17 @@ def deploy(*modules, name='main', config=None):
             assert isinstance(module, AOPModules)
             for m in module.load().asList(): context.addSetupModule(m)
         else: raise SetupError('Cannot use module %s' % module)
-    context.assemble(config).processStart()
+        
+    assembly = context.assemble(config)
+    Assembly.stack.append(assembly)
+    return assembly
+
+def close():
+    '''
+    Closes the ongoing assembly.
+    '''
+    assert Assembly.stack, 'No assembly available for close'
+    Assembly.stack.pop()
 
 def initialize(entity):
     '''
@@ -190,4 +201,3 @@ def _process(function):
         raise SetupError('The setup function %s cannot have any type of arguments' % function)
 
     return 'return' in fnArgs.annotations, fnArgs.annotations.get('return')
-
