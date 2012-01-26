@@ -10,9 +10,8 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from .converter import defaultErrorContentConverter
-from .encoder_decoder import handlersDecoding, handlersEncoding
+from .encoder_decoder import encodingText, handlersDecoding, handlersEncoding
 from .parameter import decodersParameters
-from .resource_manager import resourcesManager
 from ally.container import ioc
 from ally.core.impl.processor.converter import ConverterHandler
 from ally.core.impl.processor.decoding import DecodingHandler
@@ -37,6 +36,14 @@ def default_language():
 @ioc.config
 def explain_detailed_error():
     '''If True will provide as an error response a detailed XML providing info about where the problem originated'''
+    return False
+
+@ioc.config
+def use_old_encdec():
+    '''
+    Temporary flag that allows the use of the old encoders and decoders, this are kept for compatibility purposes with
+    the old applications.
+    '''
     return False
 
 @ioc.entity
@@ -72,16 +79,15 @@ def decoding() -> Processor:
     return b
 
 @ioc.entity
-def invokingHandler() -> Processor:
-    b = InvokingHandler()
-    b.resourcesManager = resourcesManager()
-    return b
+def invokingHandler() -> Processor: return InvokingHandler()
 
 @ioc.entity   
 def encoding() -> Processor:
-    b = EncodingProcessorsHandler()
-    b.encodings = Processors(*handlersEncoding())
-    return b
+    if use_old_encdec():
+        b = EncodingProcessorsHandler()
+        b.encodings = Processors(*handlersEncoding())
+        return b
+    else: return encodingText()
 
 # ---------------------------------
 

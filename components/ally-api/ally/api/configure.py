@@ -69,9 +69,9 @@ class APIModel:
                 allProperties[name] = Property(prop.name, prop.type)
             allProperties.update(properties)
             model = Model(modelClass, modelName, allProperties)
-        for prop in model.properties.values():
-            assert isinstance(prop, Property)
-            setattr(modelClass, prop.name, TypeProperty(model, prop))
+            
+        for name, typeProp in model.typeProperties.items():
+            setattr(modelClass, name, typeProp)
         _init__original = getattr(modelClass, '__init__', None)
         def _init__model(self, *args, **keyargs):
             model = modelFor(self)

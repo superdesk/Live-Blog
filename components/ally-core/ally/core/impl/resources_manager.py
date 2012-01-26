@@ -110,7 +110,10 @@ class ResourcesManagerImpl(ResourcesManager):
         assert isinstance(model, Model), 'Invalid model %s' % model
         cache = self._cache.setdefault(id(fromPath.node), {}).setdefault('GetModel', {})
         modelId = id(model)
-        if modelId in cache: return cache[modelId]
+        if modelId in cache:
+            path = cache[modelId]
+            if path: return path.clone()
+            return path
         
         index = len(fromPath.matches) - 1
         while index >= 0:
@@ -122,7 +125,7 @@ class ResourcesManagerImpl(ResourcesManager):
                         matches = []
                         pushMatch(matches, nodeProperty.newMatch())
                         path = cache[modelId] = PathExtended(fromPath, matches, nodeProperty, index + 1)
-                        return path
+                        return path.clone()
             for child in node.childrens():
                 assert isinstance(child, Node)
                 if isinstance(child, NodeModel) and child.model == model:
@@ -132,7 +135,7 @@ class ResourcesManagerImpl(ResourcesManager):
                             pushMatch(matches, child.newMatch())
                             pushMatch(matches, nodeId.newMatch())
                             path = cache[modelId] = PathExtended(fromPath, matches, nodeId, index + 1)
-                            return path
+                            return path.clone()
             index -= 1
         cache[modelId] = None
         return None
@@ -155,7 +158,7 @@ class ResourcesManagerImpl(ResourcesManager):
                 if isPropertyTypeId(prop.type):
                     path = self.findGetModel(fromPath, prop.type.model)
                     if path is not None: paths[name] = path
-        return paths
+        return {name:path.clone() for name, path in paths.items()}
         
     def findGetAllAccessible(self, fromPath=None):
         '''
@@ -178,7 +181,7 @@ class ResourcesManagerImpl(ResourcesManager):
                     extended = PathExtended(fromPath, matches, child)
                     if child.get: paths.append(extended)
                     paths.extend(self.findGetAllAccessible(extended))
-        return paths
+        return [path.clone() for path in paths]
     
     def findGetAccessibleByModel(self, model, obj):
         '''

@@ -183,7 +183,8 @@ class MatchProperty(Match):
         @see: Match.toPath
         '''
         assert isinstance(converterPath, ConverterPath)
-        assert self.matchValue is not None, 'Cannot represent the path element, there is no value'
+        assert self.matchValue is not None, \
+        'Cannot represent the path element for %s because there is no value' % self.typeProperty
         return converterPath.asString(self.matchValue, self.typeProperty)
     
     def clone(self):

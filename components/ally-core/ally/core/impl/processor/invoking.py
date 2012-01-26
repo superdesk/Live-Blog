@@ -14,7 +14,7 @@ from ally.container.ioc import injected
 from ally.core.spec.codes import INTERNAL_ERROR, RESOURCE_NOT_FOUND, \
     DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS, CANNOT_UPDATE, INSERT_SUCCESS, \
     CANNOT_INSERT, BAD_CONTENT
-from ally.core.spec.resources import Path, Invoker, ResourcesManager
+from ally.core.spec.resources import Path, Invoker
 from ally.core.spec.server import Processor, ProcessorsChain, Response, Request
 from ally.exception import DevelException, InputException
 from ally.support.api.util_type import isPropertyTypeId
@@ -42,12 +42,7 @@ class InvokingHandler(Processor):
     Requires on response: NA
     '''
     
-    resourcesManager = ResourcesManager
-    # The resources manager used in locating the resource paths for the id's presented.
-    
     def __init__(self):
-        assert isinstance(self.resourcesManager, ResourcesManager), \
-        'Invalid resources manager %s' % self.resourcesManager
         self._callback = {GET: self._afterGet, INSERT: self._afterInsert,
                           UPDATE: self._afterUpdate, DELETE: self._afterDelete}
     
@@ -110,13 +105,8 @@ class InvokingHandler(Processor):
         assert isinstance(invoker, Invoker)
         if isPropertyTypeId(invoker.outputType):
             if value is not None:
-                path = self.resourcesManager.findGetModel(path, invoker.outputType.model)
-                if path:
-                    path.update(value, invoker.outputType)
-                    rsp.contentLocation = path
-                else:
-                    rsp.objType = invoker.outputType
-                    rsp.obj = value
+                rsp.objType = invoker.outputType
+                rsp.obj = value
             else:
                 rsp.setCode(CANNOT_INSERT, 'Cannot insert')
                 assert log.debug('Cannot updated resource') or True

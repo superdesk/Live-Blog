@@ -23,4 +23,6 @@ def encoderText() -> Processor:
     encoder.resourcesManager = resourcesManager()
     encoder.normalizer = contentNormalizer()
     encoder.converterId = converterPath()
+    encoder.encoders = []
+    encoder.charSetDefault = 'UTF-8'
     return encoder

@@ -252,6 +252,7 @@ class Model(Properties):
         if __debug__:
             for prop in properties.values():
                 assert prop.type.isPrimitive, 'Not a primitive type for %s' % prop
+        self.typeProperties = {name: TypeProperty(self, prop) for name, prop in self.properties.items()}
                 
     def createModel(self):
         '''

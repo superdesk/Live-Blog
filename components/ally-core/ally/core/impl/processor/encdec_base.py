@@ -40,7 +40,7 @@ class EncodingBaseHandler(Processor):
     charSetDefault = str
     # The default character set to be used if none provided for the content.
     contentTypes = dict
-    # The dictionary[string:string] containing as a key the content types specific for this encoder and as a value
+    # The dictionary{string:string} containing as a key the content types specific for this encoder and as a value
     # the content type to set on the response, if None will use the key for the content type response. 
     encodingError = str
     # The encoding error resolving.
