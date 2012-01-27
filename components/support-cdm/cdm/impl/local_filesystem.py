@@ -9,7 +9,7 @@ Created on Jan 5, 2012
 Contains the Content Delivery Manager implementation for local file system
 '''
 
-from cdm.spec import ICDM, UnsupportedProtocol
+from cdm.spec import ICDM, UnsupportedProtocol, PathNotFound
 from ally.container.ioc import injected
 
 import abc
@@ -102,40 +102,6 @@ class LocalFileSystemCDM(ICDM):
 
     def __init__(self):
         assert isinstance(self.delivery, IDelivery), 'Invalid delivery protocol %s' % self.delivery
-
-    def _getItemPath(self, path):
-        return join(self.delivery.getRepositoryPath(), path.lstrip('/'))
-
-    def _getZipFilePath(self, filePath):
-        assert isinstance(filePath, str), 'Invalid file path %s' % filePath
-        endSep = filePath.endswith(os.sep)
-        filePath = normpath(filePath)
-        if endSep:
-            filePath = filePath + os.sep
-        if is_zipfile(filePath):
-            return (filePath, '')
-        subPath = filePath
-        while len(subPath) > 0:
-            if is_zipfile(subPath):
-                return (subPath, filePath[len(subPath):].lstrip('/'))
-            subPath = dirname(subPath)
-        raise Exception('Invalid ZIP path %s' % filePath)
-
-    def _copyZipDir(self, zipFilePath, inDirPath, path):
-        zipFile = ZipFile(zipFilePath)
-        if isdir(path):
-            zipFileStat = os.stat(zipFilePath)
-            dstDirStat = os.stat(path)
-            if zipFileStat.st_mtime <= dstDirStat.st_mtime:
-                return
-            rmtree(path)
-        entries = [ent for ent in zipFile.namelist() if ent.startswith(inDirPath)]
-        tmpDir = TemporaryDirectory()
-        zipFile.extractall(tmpDir.name, entries)
-        tmpDirPath = join(tmpDir.name, inDirPath)
-        os.makedirs(path)
-        for entry in os.listdir(tmpDirPath):
-            move(join(tmpDirPath, entry), path)
 
     def publishFromFile(self, path, filePath):
         '''
@@ -238,7 +204,7 @@ class LocalFileSystemCDM(ICDM):
         elif isfile(itemPath):
             os.remove(itemPath)
         else:
-            raise Exception()
+            raise PathNotFound(path)
 
     def getSupportedProtocols(self):
         '''
@@ -256,6 +222,40 @@ class LocalFileSystemCDM(ICDM):
             raise UnsupportedProtocol(protocol)
         return self.delivery.getURI(path)
 
+    def _getItemPath(self, path):
+        return join(self.delivery.getRepositoryPath(), path.lstrip('/'))
+
+    def _getZipFilePath(self, filePath):
+        assert isinstance(filePath, str), 'Invalid file path %s' % filePath
+        endSep = filePath.endswith(os.sep)
+        filePath = normpath(filePath)
+        if endSep:
+            filePath = filePath + os.sep
+        if is_zipfile(filePath):
+            return (filePath, '')
+        subPath = filePath
+        while len(subPath) > 0:
+            if is_zipfile(subPath):
+                return (subPath, filePath[len(subPath):].lstrip('/'))
+            subPath = dirname(subPath)
+        raise Exception('Invalid ZIP path %s' % filePath)
+
+    def _copyZipDir(self, zipFilePath, inDirPath, path):
+        zipFile = ZipFile(zipFilePath)
+        if isdir(path):
+            zipFileStat = os.stat(zipFilePath)
+            dstDirStat = os.stat(path)
+            if zipFileStat.st_mtime <= dstDirStat.st_mtime:
+                return
+            rmtree(path)
+        entries = [ent for ent in zipFile.namelist() if ent.startswith(inDirPath)]
+        tmpDir = TemporaryDirectory()
+        zipFile.extractall(tmpDir.name, entries)
+        tmpDirPath = join(tmpDir.name, inDirPath)
+        os.makedirs(path)
+        for entry in os.listdir(tmpDirPath):
+            move(join(tmpDirPath, entry), path)
+
 
 @injected
 class LocalFileSystemLinkCDM(LocalFileSystemCDM):
@@ -265,6 +265,80 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
     _linkExt = '.link'
 
     _zipLinkExt = '.ziplink'
+
+    _deletedExt = '.deleted'
+
+    def publishFromFile(self, path, filePath):
+        '''
+        @see ICDM.publishFromFile
+        '''
+        try:
+            self._publishFromFile(path, filePath)
+        except Exception:
+            raise IOError('Invalid file path value %s' % filePath)
+
+    def publishFromDir(self, path, dirPath):
+        '''
+        @see ICDM.publishFromDir
+        '''
+        try:
+            self._publishFromFile(path, dirPath)
+        except:
+            raise IOError('Invalid file path value %s' % dirPath)
+
+    def removePath(self, path):
+        '''
+        @see ICDM.removePath
+        '''
+        try:
+            super().removePath(path)
+        except PathNotFound:
+            entryPath = self._getItemPath(path)
+            linkPath = entryPath
+            linkFile, ziplinkFile = None, None
+            while len(linkPath.lstrip('/')) > 0:
+                if isfile(linkPath + self._linkExt):
+                    linkFile = linkPath + self._linkExt
+                    break
+                if isfile(linkPath + self._zipLinkExt):
+                    ziplinkFile = linkPath + self._zipLinkExt
+                    break
+                linkPath = dirname(linkPath)
+            else:
+                raise PathNotFound(path)
+            subPath = entryPath[len(linkPath):].lstrip('/')
+            if linkFile:
+                with open(linkFile) as f:
+                    linkedPath = f.readline().strip()
+                    if isdir(linkedPath):
+                        if isfile(join(linkedPath, subPath)):
+                            if not isdir(dirname(entryPath)):
+                                os.makedirs(dirname(entryPath))
+                            with open(entryPath + self._deletedExt, 'w') as _d: pass
+                        else:
+                            raise PathNotFound(path)
+                    else:
+                        if len(subPath) > 0:
+                            raise PathNotFound(path)
+                        else:
+                            os.remove(linkFile)
+            elif ziplinkFile:
+                try:
+                    with open(ziplinkFile) as f:
+                        zipFilePath = f.readline().strip()
+                        inFilePath = f.readline().strip()
+                        zipFile = ZipFile(zipFilePath)
+                        subPath = subPath[len(inFilePath):]
+                        zipFile.getinfo(join(inFilePath, subPath))
+                        if not isdir(dirname(entryPath)):
+                            os.makedirs(dirname(entryPath))
+                        with open(entryPath + self._deletedExt, 'w') as _d: pass
+                except:
+                    raise PathNotFound(path)
+            else:
+                raise PathNotFound(path)
+            if len(subPath.strip('/')) == 0 and isdir(linkPath):
+                rmtree(linkPath)
 
     def _createLinkToZipFile(self, path, zipFilePath, inFilePath):
         repFilePath = self._getItemPath(path) + self._zipLinkExt
@@ -297,27 +371,3 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         zipFile = ZipFile(zipFilePath)
         zipFile.getinfo(inFilePath)
         self._createLinkToZipFile(path, zipFilePath, inFilePath)
-
-    def publishFromFile(self, path, filePath):
-        '''
-        @see ICDM.publishFromFile
-        '''
-        try:
-            self._publishFromFile(path, filePath)
-        except Exception:
-            raise IOError('Invalid file path value %s' % filePath)
-
-    def publishFromDir(self, path, dirPath):
-        '''
-        @see ICDM.publishFromDir
-        '''
-        try:
-            self._publishFromFile(path, dirPath)
-        except:
-            raise IOError('Invalid file path value %s' % dirPath)
-
-    def removePath(self, path):
-        '''
-        @see ICDM.removePath
-        '''
-        raise Exception('Not implemented')
