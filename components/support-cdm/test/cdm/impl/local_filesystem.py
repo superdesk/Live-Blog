@@ -183,7 +183,7 @@ class TestHTTPDelivery(unittest.TestCase):
             self.assertTrue(isfile(join(d.getRepositoryPath(), delPath + '.deleted')))
             delPath = 'testlink1/test1'
             cdm.removePath(delPath)
-            self.assertFalse(isdir(join(d.getRepositoryPath(), delPath + '.deleted')))
+            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath + '.deleted')))
         finally:
             remove(dstLinkPath)
 
@@ -199,13 +199,15 @@ class TestHTTPDelivery(unittest.TestCase):
                 link = join(zipPath, inPath)
                 self.assertEqual(link, srcFilePath)
             # test path remove
-            delPath = 'testlink2/dir1/subdir1/file1.txt'
-            cdm.removePath(delPath)
-            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath + '.deleted')))
-            delPath = 'testlink2/dir1'
-            self.assertTrue(isdir(join(d.getRepositoryPath(), delPath)))
-            cdm.removePath(delPath)
-            self.assertFalse(isdir(join(d.getRepositoryPath(), delPath)))
+            delPath1 = 'testlink2/subdir1/file1.txt'
+            cdm.removePath(delPath1)
+            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath1 + '.deleted')))
+            delPath2 = 'testlink2/subdir1/'
+            self.assertTrue(isdir(join(d.getRepositoryPath(), delPath2)))
+            cdm.removePath(delPath2)
+            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath2.rstrip('/') + '.deleted')))
+            self.assertFalse(isdir(join(d.getRepositoryPath(), delPath2)))
+            self.assertFalse(isfile(join(d.getRepositoryPath(), delPath1 + '.deleted')))
         finally:
             remove(dstLinkPath)
 
