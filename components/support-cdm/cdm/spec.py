@@ -98,6 +98,19 @@ class ICDM(metaclass = abc.ABCMeta):
         @rtype: string
         '''
 
+class PathNotFound(Exception):
+    '''
+    Exception thrown when a path was not found in the repository
+    '''
+
+    path = str
+    # The path identifier
+
+    def __init__(self, path):
+        assert isinstance(path, str), 'Invalid protocol %s' % path
+        self.path = path
+        Exception.__init__(self, 'Path not found: %s' % path)
+
 class UnsupportedProtocol(Exception):
     '''
     Exception thrown when an URI was requested for an unsupported protocol.

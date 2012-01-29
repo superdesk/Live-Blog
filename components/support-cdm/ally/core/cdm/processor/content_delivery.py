@@ -77,40 +77,67 @@ class ContentDeliveryHandler(Processor):
                 with open(entryPath, 'rb') as f:
                     pipe(f, writer)
             except:
-                rsp.setCode(RESOURCE_NOT_FOUND, 'Unable to open file')
-                return
-        elif isfile(entryPath + '.link'):
-            try:
-                f = open(entryPath + '.link')
-                linkedFilePath = f.readline().strip()
-                with open(linkedFilePath, 'rb') as f:
-                    pipe(f, writer)
-            except:
-                rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource link')
-                return
+                return self._sendNotFound(rsp, 'Unable to read resource file')
         else:
+            linkFile, ziplinkFile = None, None
             linkPath = entryPath
             while len(linkPath.lstrip('/')) > 0:
+                if isfile(linkPath + '.link'):
+                    linkFile = linkPath + '.link'
+                    break
                 if isfile(linkPath + '.ziplink'):
+                    ziplinkFile = linkPath + '.ziplink'
                     break
                 linkPath = dirname(linkPath)
             else:
-                rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
-                return
+                return self._sendNotFound(rsp, 'Invalid resource')
             subPath = entryPath[len(linkPath):].lstrip('/')
-            try:
-                f = open(linkPath + '.ziplink')
-                zipFilePath = f.readline().strip()
-                inFilePath = f.readline().strip()
-                zipFile = ZipFile(zipFilePath)
-                with zipFile.open(join(inFilePath, subPath), 'r') as f:
-                    pipe(f, writer)
-            except:
-                rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource in ZIP file')
-                return
+            if linkFile:
+                try:
+                    with open(linkPath + '.link') as f:
+                        linkedFilePath = f.readline().strip()
+                        if isdir(linkedFilePath):
+                            resPath = join(linkedFilePath, subPath.lstrip('/'))
+                        elif len(subPath) > 0:
+                            return self._sendNotFound(rsp, 'Invalid link to a file in file')
+                        else:
+                            resPath = linkedFilePath
+                        with open(resPath, 'rb') as rf:
+                            if self._isPathDeleted(join(linkPath, subPath)):
+                                return self._sendNotFound(rsp, 'Resource was deleted')
+                            pipe(rf, writer)
+                except:
+                    return self._sendNotFound(rsp, 'Unable to read linked file')
+            elif ziplinkFile:
+                try:
+                    with open(linkPath + '.ziplink') as f:
+                        zipFilePath = f.readline().strip()
+                        inFilePath = f.readline().strip()
+                        zipFile = ZipFile(zipFilePath)
+                        with zipFile.open(join(inFilePath, subPath), 'r') as rf:
+                            if self._isPathDeleted(join(linkPath, subPath)):
+                                return self._sendNotFound(rsp, 'Resource was deleted')
+                            pipe(rf, writer)
+                except:
+                    return self._sendNotFound(rsp, 'Unable to read ZIP linked file')
+            else:
+                return self._sendNotFound(rsp, 'Invalid resource')
 
         chain.process(req, rsp)
 
     def _sendNotAvailable(self, rsp, message):
         rsp.addAllows(GET)
         rsp.setCode(METHOD_NOT_AVAILABLE, message)
+
+    def _sendNotFound(self, rsp, message):
+        rsp.setCode(RESOURCE_NOT_FOUND, message)
+
+    def _isPathDeleted(self, path):
+        if isfile(path + '.deleted'):
+            return True
+        subPath = dirname(path)
+        while len(subPath.strip('/')) > 0:
+            if isfile(subPath + '.deleted'):
+                return True
+            subPath = dirname(subPath)
+        return False

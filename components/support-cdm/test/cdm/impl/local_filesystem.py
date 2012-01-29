@@ -11,7 +11,7 @@ Provides unit testing for the local filesystem module.
 
 import unittest
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from os.path import join, dirname, isfile
+from os.path import join, dirname, isfile, isdir
 from shutil import rmtree
 from cdm.impl.local_filesystem import HTTPDelivery, LocalFileSystemCDM, LocalFileSystemLinkCDM
 from ally.container import ioc
@@ -69,14 +69,22 @@ class TestHTTPDelivery(unittest.TestCase):
         for dir in dirs:
             fullPath = join(srcTmpDir.name, dir)
             makedirs(fullPath)
-            f = open(join(fullPath, 'text.html'), 'w')
-            f.close()
+            with open(join(fullPath, 'text.html'), 'w') as _f: pass
         try:
             cdm.publishFromDir('testdir3', srcTmpDir.name)
             dstDirPath = join(d.getRepositoryPath(), 'testdir3')
             for dir in dirs:
                 dstFilePath = join(dstDirPath, dir, 'text.html')
                 self.assertTrue(isfile(dstFilePath))
+            # test remove path
+            filePath = 'testdir3/test1/subdir1/text.html'
+            self.assertTrue(isfile(join(d.getRepositoryPath(), filePath)))
+            cdm.removePath(filePath)
+            self.assertFalse(isfile(join(d.getRepositoryPath(), filePath)))
+            dirPath = 'testdir3/test2'
+            self.assertTrue(isdir(join(d.getRepositoryPath(), dirPath)))
+            cdm.removePath(dirPath)
+            self.assertFalse(isdir(join(d.getRepositoryPath(), dirPath)))
         finally:
             rmtree(dstDirPath)
 
@@ -88,9 +96,11 @@ class TestHTTPDelivery(unittest.TestCase):
             self.assertTrue(isfile(dstFilePath))
             dstFilePath = join(dstDirPath, 'subdir2', 'file2.txt')
             self.assertTrue(isfile(dstFilePath))
+            # Test whether republishing the same directory checks the last modified date
+            # The file created manually in the repository should not be deleted because
+            # the zip archive was not modified from the last publish
             dstFilePath = join(dstDirPath, 'sometestfile.txt')
-            tmpFile = open(dstFilePath, 'w')
-            tmpFile.close()
+            with open(dstFilePath, 'w') as _f: pass
             cdm.publishFromDir('testdir4', join(dirname(__file__), 'test.zip', 'dir1'))
             self.assertTrue(isfile(dstFilePath))
         finally:
@@ -159,8 +169,7 @@ class TestHTTPDelivery(unittest.TestCase):
         dirs = (join(srcTmpDir.name, 'test1/subdir1'), join(srcTmpDir.name, 'test2/subdir1'))
         for dir in dirs:
             makedirs(dir)
-            f = open(join(dir, 'text.html'), 'w+')
-            f.close()
+            with open(join(dir, 'text.html'), 'w+') as _f: pass
         try:
             cdm.publishFromDir('testlink1', srcTmpDir.name)
             dstLinkPath = join(d.getRepositoryPath(), 'testlink1' + cdm._linkExt)
@@ -168,6 +177,13 @@ class TestHTTPDelivery(unittest.TestCase):
             with open(dstLinkPath) as f:
                 link = f.readline().strip()
                 self.assertEqual(srcTmpDir.name, link)
+            # test path remove
+            delPath = 'testlink1/test1/subdir1/text.html'
+            cdm.removePath(delPath)
+            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath + '.deleted')))
+            delPath = 'testlink1/test1'
+            cdm.removePath(delPath)
+            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath + '.deleted')))
         finally:
             remove(dstLinkPath)
 
@@ -182,6 +198,16 @@ class TestHTTPDelivery(unittest.TestCase):
                 inPath = f.readline().strip()
                 link = join(zipPath, inPath)
                 self.assertEqual(link, srcFilePath)
+            # test path remove
+            delPath1 = 'testlink2/subdir1/file1.txt'
+            cdm.removePath(delPath1)
+            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath1 + '.deleted')))
+            delPath2 = 'testlink2/subdir1/'
+            self.assertTrue(isdir(join(d.getRepositoryPath(), delPath2)))
+            cdm.removePath(delPath2)
+            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath2.rstrip('/') + '.deleted')))
+            self.assertFalse(isdir(join(d.getRepositoryPath(), delPath2)))
+            self.assertFalse(isfile(join(d.getRepositoryPath(), delPath1 + '.deleted')))
         finally:
             remove(dstLinkPath)
 
