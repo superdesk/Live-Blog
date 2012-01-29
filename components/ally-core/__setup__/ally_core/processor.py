@@ -1,7 +1,7 @@
 '''
 Created on Nov 24, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -10,7 +10,7 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from .converter import defaultErrorContentConverter
-from .encoder_decoder import encodingText, handlersDecoding, handlersEncoding
+from .encoder_decoder import handlersDecoding, handlersEncoding
 from .parameter import decodersParameters
 from ally.container import ioc
 from ally.core.impl.processor.converter import ConverterHandler
@@ -44,7 +44,7 @@ def use_old_encdec():
     Temporary flag that allows the use of the old encoders and decoders, this are kept for compatibility purposes with
     the old applications.
     '''
-    return False
+    return True
 
 @ioc.entity
 def handlersExplainError(): return [encoding()]
@@ -83,11 +83,11 @@ def invokingHandler() -> Processor: return InvokingHandler()
 
 @ioc.entity   
 def encoding() -> Processor:
-    if use_old_encdec():
+    #TODO: if use_old_encdec():
         b = EncodingProcessorsHandler()
         b.encodings = Processors(*handlersEncoding())
         return b
-    else: return encodingText()
+    #else: return encodingText()
 
 # ---------------------------------
 

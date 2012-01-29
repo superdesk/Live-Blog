@@ -118,12 +118,6 @@ class RequestHandler:
         cherrypy.response.status = rsp.code.code
         assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
 
-        #TODO: remove
-#        import time;
-#        import random;
-#        time.sleep(random.random() / 2.0);
-        #TODO: remove
-
         if rsp.wfile is not None:
             return rsp.wfile.getvalue()
         return ''

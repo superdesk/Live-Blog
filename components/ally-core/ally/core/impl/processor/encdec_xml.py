@@ -37,6 +37,8 @@ _ = internationalization.translator(__name__)
 
 @injected
 class EncodingXMLHandler(EncodingBaseHandler):
+    #TODO: DEPRECATED: kept for parallel testing with the new encoder version, after removing this class the module
+    # can be called decoder_xml.
     '''
     Provides the XML encoding.
     '''
@@ -271,7 +273,7 @@ class EncodingXMLHandler(EncodingBaseHandler):
         elif len(properties) == 1:
             prop = properties[0]
             assert isinstance(prop, Property)
-            typProp = TypeProperty(model, prop)
+            typProp = model.typeProperties[prop.name]
             for obj in objects:
                 if path is not None:
                     path.update(obj, model)

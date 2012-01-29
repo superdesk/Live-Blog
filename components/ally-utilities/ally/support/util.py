@@ -49,6 +49,68 @@ class Singletone:
 
 # --------------------------------------------------------------------
 
+def _immutable_setattr(self, key, value):
+    '''
+    FOR INTERNAL USE.
+    Used by the @see: immutable decorator.
+    '''
+    if key in getattr(self.__class__, '__immutable__') and hasattr(self, key):
+        raise AttributeError('Immutable attribute %r' % key)
+    object.__setattr__(self, key, value)
+        
+def immutable(*args):
+    '''
+    Decorator used for classes that want to keep attributes immutable, example:
+    
+    class A:
+    
+        __immutable__ = ['a']
+        
+        def __init__(self):
+            self.a = 10
+            
+    a = A()
+    
+    If you try:
+    
+    a.a = 20
+    
+    Will raise an attribute exception.
+    This decorator uses the __setattr__ method so try to avoid adding this decorator to class that already define
+    this method.
+    '''
+    if not args: return immutable
+    assert len(args) == 1, 'Expected only one argument that is the decorator class, got %s arguments' % len(args)
+    cls = args[0]
+    assert isclass(cls), 'Invalid decorated class %s' % cls
+    assert hasattr(cls, '__immutable__'), 'The decorated class %s, need to have a __immutable__ attribute' % cls
+    if getattr(cls, '__setattr__') != _immutable_setattr: setattr(cls, '__setattr__', _immutable_setattr)
+    return cls
+
+def _immut_raise(*args, **keyargs):
+    '''
+    FOR INTERNAL USE.
+    Used by @see: immut to raise exception in case of value change
+    '''
+    raise AttributeError('Operation not allowed on immutable dictionary')
+
+def _immut_hash(self):
+    '''
+    FOR INTERNAL USE.
+    Provides the hash code for a immutable dictionary.
+    '''
+    return hash(tuple(p for p in self.items()))
+
+_immut_attributes = dict.fromkeys(
+                        ('__setitem__', '__delitem__', 'setdefault', 'pop', 'popitem', 'clear', 'update'), _immut_raise)
+_immut_attributes['__hash__'] = _immut_hash
+_immut_attributes['__slots__'] = ()
+# The immutable dictionary attributes
+immut = type('immut', (dict,), _immut_attributes)
+# The immutable dictionary class
+
+# --------------------------------------------------------------------
+
 _attrNameIds = {}
 # Used by the attribute to assign a unique id to a name.
 

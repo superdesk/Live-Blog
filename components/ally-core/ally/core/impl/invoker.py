@@ -102,10 +102,10 @@ class InvokerSetProperties(Invoker):
         assert isinstance(properties, list) and len(properties) > 0, \
         'Invalid properties %s, need at least one property' % properties
         assert isinstance(normalizer, Normalizer), 'Invalid Normalizer object %s' % normalizer
-        inputs = invoker.inputs[0:invoker.mandatoryCount - 1]
+        inputs = list(invoker.inputs[0:invoker.mandatoryCount - 1])
         for prop in properties:
             assert isinstance(prop, Property), 'Invalid property %s' % prop
-            inputs.append(Input(model.name + prop.name, TypeProperty(model, prop)))
+            inputs.append(Input(model.name + prop.name, model.typeProperties[prop.name]))
         inputs.extend(invoker.inputs[invoker.mandatoryCount - 1:])
         super().__init__(invoker.outputType, invoker.name, inputs, invoker.mandatoryCount + len(properties))
         self.invoker = invoker

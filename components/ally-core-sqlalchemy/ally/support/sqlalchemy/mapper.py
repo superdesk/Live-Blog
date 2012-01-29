@@ -163,7 +163,7 @@ def mapperModel(modelClass, sql, exclude=None, hasPartialUpdate=True, **keyargs)
     
     propertyId = mapperModelProperties(modelClass, exclude=exclude)
     
-    if hasPartialUpdate: supportForPartialUpdate(TypeProperty(model, propertyId))
+    if hasPartialUpdate: supportForPartialUpdate(model.typeProperties[propertyId.name])
     
     return modelClass
 

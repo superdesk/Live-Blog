@@ -27,6 +27,8 @@ log = logging.getLogger(__name__)
 
 @injected
 class EncodingBaseHandler(Processor):
+    #TODO: DEPRECATED: kept for parallel testing with the new encoder version, after removing this class the module
+    # can be called decoder_base.
     '''
     Provides the base encoding.
     '''
