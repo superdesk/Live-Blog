@@ -94,7 +94,7 @@ class ContentDeliveryHandler(Processor):
                 pipe(rf, rsp.dispatch())
                 rf.close()
             except Exception as e:
-                return self._sendNotFound(rsp, str(e))
+                return rsp.setCode(RESOURCE_NOT_FOUND, str(e))
 
         chain.process(req, rsp)
 
@@ -125,9 +125,6 @@ class ContentDeliveryHandler(Processor):
     def _sendNotAvailable(self, rsp, message):
         rsp.addAllows(GET)
         rsp.setCode(METHOD_NOT_AVAILABLE, message)
-
-    def _sendNotFound(self, rsp, message):
-        rsp.setCode(RESOURCE_NOT_FOUND, message)
 
     def _isPathDeleted(self, path):
         if isfile(path + '.deleted'):
