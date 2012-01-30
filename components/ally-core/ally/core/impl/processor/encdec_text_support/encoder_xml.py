@@ -89,7 +89,7 @@ class XMLEncoder:
         assert not name or isinstance(name, str), 'Invalid name %s' % name
         assert not nameList or isinstance(nameList, str), 'Invalid name list %s' % nameList
         if isinstance(obj, dict):
-            if not name and nameList and len(obj.items()) > 1: name = nameList
+            if not name and nameList and len(obj) > 1: name = nameList
             if name: xml.startElement(name, {})
             for entryName, entryValue in obj.items(): self.write(entryValue, xml, entryName)
             if name: xml.endElement(name)

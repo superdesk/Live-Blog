@@ -87,7 +87,7 @@ class APIModel:
         modelClass.__contains__ = _contains__properties
         
         modelFor(modelClass, model)
-        typeFor(modelClass, TypeModel(model))
+        typeFor(modelClass, model.type)
     
         log.info('Created model %s for class %s containing %s API properties', model, modelClass, len(properties))
         return modelClass
@@ -581,11 +581,13 @@ def _processTypeGeneric(typ, genericModel, genericQuery):
     if isinstance(typ, TypeProperty):
         assert isinstance(typ, TypeProperty)
         newModel = __searchModel(genericModel, typ.model)
-        if newModel: newType = TypeProperty(newModel, typ.property)
+        if newModel:
+            assert isinstance(newModel, Model)
+            newType = newModel.typeProperties[typ.property.name]
     elif isinstance(typ, TypeModel):
         assert isinstance(typ, TypeModel)
         newModel = __searchModel(genericModel, typ.model)
-        if newModel: newType = TypeModel(newModel)
+        if newModel: newType = newModel.type
     elif isinstance(typ, TypeQuery):
         assert isinstance(typ, TypeQuery)
         for q, newQuery in genericQuery:
@@ -824,4 +826,5 @@ def update(propertyType, toType):
     assert isinstance(propertyType, TypeProperty), 'Invalid type property %s' % propertyType
     typ = typeFor(toType)
     assert isinstance(typ, Type), 'Invalid type to update to %s' % toType
-    propertyType.property.type = typ
+    #TODO: maybe a better way to set own properties in model. The property is immutable so we make a hack to set it
+    propertyType.property.__dict__['type'] = typ

@@ -1,7 +1,7 @@
 '''
 Created on Jun 18, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -236,6 +236,7 @@ class AssembleUpdate(AssembleInvokers):
             return True
         assert isinstance(typeModel, TypeModel)
         model = typeModel.model
+        assert isinstance(model, Model)
         # Removing the actual entity type since is not needed for node.
         del types[-1]
         if types:
@@ -265,7 +266,7 @@ class AssembleUpdate(AssembleInvokers):
             log.warning('No property id`s found for model %s, I cannot attach to any id for updating', model)
             return False
         if len(ids) == 1:
-            types.append(TypeProperty(model, ids[0]))
+            types.append(model.typeProperties[ids[0].name])
             
             _processHintWebName(types, call)
             

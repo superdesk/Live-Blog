@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-#Deprecated: Instead of the Hinter a extension to the URL like /parameters should present the options.
+#TODO: DEPRECATED: Instead of the Hinter a extension to the URL like /parameters should present the options.
 @injected
 class HintingHandler(Processor):
     '''

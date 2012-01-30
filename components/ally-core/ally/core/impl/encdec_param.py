@@ -251,7 +251,7 @@ class EncDecQuery(EncoderParams, DecoderParams):
             if models is not None:
                 assert isinstance(models, dict)
                 assert not name in models, 'There is already a model with name (%s)' % name
-                models[name] = (False, prop.type.forClass(), modelNone)
+                models[name] = (False, prop.type.forClass, modelNone)
             if params is not None:
                 assert isinstance(params, list)
                 crit = crtEnt.get(query)

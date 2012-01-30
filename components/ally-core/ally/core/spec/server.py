@@ -268,19 +268,17 @@ class Response(Content):
         @ivar objType: Type|None
             The type of the object to be rendered, if object type is None then the encoders expect as the object
             a composition of dictionaries, lists and string types, the normalization is handled by the encoder.
+        @ivar objMeta: Object|None
+            The object meta, used in getting the data from the response object.
         @ivar objExclude: list[string]
-            The rendered object list of property names to be excluded from rendering. If the elements in the list 
+            The rendered object list of names to be excluded from rendering. If the elements in the list 
             does not make sense an error code will be provided. The exclude list is considered whenever rendering 
             a model entity.
         @ivar objInclude: list[string]
-            The rendered object list of property names to be included in rendering. If this list contains at least 
+            The rendered object list of names to be included in rendering. If this list contains at least 
             one element than only that element will be rendered. The include list has priority over exclude. If the
             elements in the list does not make sense an error code will be provided. The include will be considered 
             whenever rendering a list of models.
-        @ivar objFetch: list[string]
-            A list with the names to be fetched in the response. This object property names will be also added to the
-            response content, basically if a response model has a reference to another model and that model is on the
-            fetch list it will also include that model in the response.
         '''
         super().__init__()
         self.code = None
@@ -291,9 +289,9 @@ class Response(Content):
         self.encoderPath = None
         self.obj = None
         self.objType = None
-        self.objExclude = []
-        self.objInclude = []
-        self.objFetch = []
+        self.objMeta = None
+        self.objExclude = [] #TODO: DEPRECATED: no longer needed now using data meta
+        self.objInclude = [] #TODO: DEPRECATED: no longer needed now using data meta
     
     def addAllows(self, method):
         '''
@@ -337,7 +335,7 @@ class Response(Content):
 
 # --------------------------------------------------------------------
 
-class DecoderParams(metaclass=abc.ABCMeta): #TODO: to be refactored and removed, no decoders should be present
+class DecoderParams(metaclass=abc.ABCMeta): #TODO: DEPRECATED: to be refactored and removed, no decoders should be present
     '''
     Provides the decoding for request parameters.
     '''

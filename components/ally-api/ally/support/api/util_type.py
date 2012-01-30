@@ -111,7 +111,6 @@ def modelOfIter(typ):
     '''
     if isinstance(typ, Iter):
         assert isinstance(typ, Iter)
-        typ = typ.itemType
-        if isinstance(typ, TypeModel):
-            return typ.model
+        if isinstance(typ.itemType, TypeModel):
+            return typ.itemType.model
     return None

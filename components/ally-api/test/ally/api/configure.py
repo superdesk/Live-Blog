@@ -129,7 +129,7 @@ class TestConfigure(unittest.TestCase):
         self.assertTrue(a.x == 101.2)
         a.y = 'heloo'
         self.assertTrue(a.y == 'heloo')
-        self.assertTrue(APIModel.y.property.type.forClass() == str)
+        self.assertTrue(APIModel.y.property.type.forClass == str)
         del a.y
         self.assertTrue(a.y == None)
         a.entity = '100'

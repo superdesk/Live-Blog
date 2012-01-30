@@ -10,7 +10,7 @@ Provides the types used for APIs.
 '''
 
 from .. import type_legacy as numbers
-from ..support.util import Uninstantiable, Singletone, Attribute
+from ..support.util import Uninstantiable, Singletone, Attribute, immutable
 from ..type_legacy import Iterable, Sized, Iterator
 from datetime import datetime, date, time
 from inspect import isclass
@@ -29,12 +29,15 @@ formattedType = []
 
 # --------------------------------------------------------------------
 
+@immutable
 class Type:
     '''
     The class that represents the API types used for mapping data.
     '''
     
-    def __init__(self, isPrimitive):
+    __immutable__ = ('forClass', 'isPrimitive')
+    
+    def __init__(self, forClass, isPrimitive=False):
         '''
         Initializes the type setting the primitive aspect of the type.
         
@@ -42,24 +45,24 @@ class Type:
             If true than this type is considered of a primitive nature, meaning that is an boolean, integer,
             string, float ... .
         '''
+        assert isclass(forClass), 'Invalid class %s' % forClass
+        assert isinstance(isPrimitive, bool), 'Invalid is primitive flag %s' % isPrimitive
+        self.forClass = forClass
         self.isPrimitive = isPrimitive
         
-    def forClass(self):
-        '''
-        Provides the basic class representation of the type.
-        
-        @return: class|None
-            The class represented by the type, None if not available.
-        '''
-        raise NotImplementedError
-        
-    def isOf(self, typ):
+    def isOf(self, type):
         '''
         Checks if the provided type is compatible with this type.
         
         @param typ: Type|class 
+            The type to check.
+        @return: boolean
+            True if the type is of this type, False otherwise.
         '''
-        raise NotImplementedError
+        if self == type: return True
+        if isclass(type) and issubclass(type, self.forClass): return True
+        if self == typeFor(type): return True
+        return False
 
     def isValid(self, obj):
         '''
@@ -68,29 +71,33 @@ class Type:
         @param obj: object
                 The object instance to check.
         '''
-        raise NotImplementedError
+        return isinstance(obj, self.forClass)
+    
+    def __hash__(self): return hash(self.forClass)
+    
+    def __eq__(self, other):
+        if isinstance(other, self.__class__): return self.forClass == other.forClass
+        return False
+    
+    def __str__(self): return self.forClass.__name__
 
 class TypeNone(Singletone, Type):
     '''
     Provides the type that matches None.
     '''
+    
     def __init__(self):
         '''
         @see: Type.__init__
         '''
-        Type.__init__(self, True)
+        self.isPrimitive = True
+        self.forClass = None
 
-    def forClass(self):
-        '''
-        @see: Type.forClass
-        '''
-        return None
-
-    def isOf(self, typ):
+    def isOf(self, type):
         '''
         @see: Type.isOf
         '''
-        return self == typ or typ == None
+        return self is type or type == None
     
     def isValid(self, obj):
         '''
@@ -99,65 +106,12 @@ class TypeNone(Singletone, Type):
         return obj is None
     
     def __eq__(self, other):
-        return isinstance(other, TypeNone)
+        return other is self
     
     def __str__(self):
         return 'None'
 
-class TypeClass(Type):
-    '''
-    Provides type class validating based on the provided class.
-    '''
-    
-    def __init__(self, forClass, isPrimitive=False):
-        '''
-        Initializes the type for the provided type class.
-        @see: Type.__init__
-        
-        @param forClass:class
-            The class to be checked if valid.
-        '''
-        assert isclass(forClass), 'Invalid class %s.' % forClass
-        self._forClass = forClass
-        Type.__init__(self, isPrimitive)
-
-    def forClass(self):
-        '''
-        @see: Type.forClass
-        '''
-        return self._forClass
-
-    def isOf(self, typ):
-        '''
-        @see: Type.isOf
-        '''
-        b = self._isOf(typ)
-        if not b:
-            typFor = typeFor(typ)
-            if typFor:
-                b = self == typFor
-                if not b and isinstance(typFor, self.__class__):
-                    b = typFor._isOf(self)
-        return b
-    
-    def isValid(self, obj):
-        '''
-        @see: Type.isValid
-        '''
-        return isinstance(obj, self._forClass)
-    
-    def _isOf(self, typ):
-        return self == typ or (isclass(typ) and issubclass(typ, self._forClass))
-    
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self._forClass == other._forClass
-        return False
-    
-    def __str__(self):
-        return self._forClass.__name__
-
-class TypePercentage(Singletone, TypeClass):
+class TypePercentage(Singletone, Type):
     '''
     Provides the type for percentage values.
     '''
@@ -165,14 +119,14 @@ class TypePercentage(Singletone, TypeClass):
     def __init__(self):
         '''
         Constructs the percentage type.
-        @see: TypeClass.__init__
+        @see: Type.__init__
         '''
-        TypeClass.__init__(self, float, True)
+        Type.__init__(self, float, True)
         
 # --------------------------------------------------------------------
 # Id types
 
-class TypeId(TypeClass):
+class TypeId(Type):
     '''
     Provides the type for the id. This type has to be a primitive type always.
     '''
@@ -180,17 +134,17 @@ class TypeId(TypeClass):
     def __init__(self, forClass):
         '''
         Constructs the id type for the provided class.
-        @see: TypeClass.__init__
+        @see: Type.__init__
         
         @param forClass: class
             The class that this type id is constructed on.
         '''
-        TypeClass.__init__(self, forClass, True)
+        Type.__init__(self, forClass, True)
 
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
         
-class TypeFrontLanguage(Singletone, TypeClass):
+class TypeFrontLanguage(Singletone, Type):
     '''
     Provides the type representing the user requested language for presentation.
     '''
@@ -198,9 +152,9 @@ class TypeFrontLanguage(Singletone, TypeClass):
     def __init__(self):
         '''
         Constructs the front language type.
-        @see: TypeClass.__init__
+        @see: Type.__init__
         '''
-        TypeClass.__init__(self, str, True)
+        Type.__init__(self, str, True)
 
 # --------------------------------------------------------------------
 
@@ -212,45 +166,41 @@ class Iter(Type):
     not be able to validate also the elements.
     '''
     
-    def __init__(self, type):
+    __immutable__ = Type.__immutable__ + ('itemType',)
+    
+    def __init__(self, itemType):
         '''
-        Constructs the iterator type for the provided type.
+        Constructs the iterator type for the provided item type.
         @see: Type.__init__
         
-        @param type: Type|class
-            The type of the iterator.
+        @param itemType: Type|class
+            The item type of the iterator.
         '''
-        assert not isinstance(type, Iter), 'Invalid item type %s because is another iterable' % type
-        self.itemType = typeFor(type)
-        Type.__init__(self, False)
+        itemType = typeFor(itemType)
+        assert isinstance(itemType, Type), 'Invalid item type %s' % itemType
+        assert not isinstance(itemType, Iter), 'Invalid item type %s because is another iterable type' % itemType
+        self.itemType = itemType
+        Type.__init__(self, itemType.forClass)
     
-    def forClass(self):
-        '''
-        @see: Type.forClass
-        '''
-        return self.itemType.forClass()
-    
-    def isOf(self, typ):
+    def isOf(self, type):
         '''
         @see: Type.isOf
         '''
-        return self == typ or self.itemType.isOf(typ)
+        return self == type or self.itemType.isOf(type)
 
     def isValid(self, list):
         '''
         @see: Type.isValid
         '''
-        if isinstance(list, Iterator) or isinstance(list, Iterable):
-            return True
-        return False
+        return isinstance(list, Iterator) or isinstance(list, Iterable)
+    
+    def __hash__(self): return hash(self.itemType)
     
     def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.itemType == other.itemType
+        if isinstance(other, self.__class__): return self.itemType == other.itemType
         return False
     
-    def __str__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.itemType)
+    def __str__(self): return '%s(%s)' % (self.__class__.__name__, self.itemType)
     
 class List(Iter):
     '''
@@ -259,36 +209,34 @@ class List(Iter):
     Unlike the iterator type the list type also validates the contained elements.
     '''
     
-    def __init__(self, type):
+    def __init__(self, itemType):
         '''
         Constructs the list type for the provided type.
         @see: Iter.__init__
         '''
-        Iter.__init__(self, type)
-        
+        Iter.__init__(self, itemType)
 
     def isValid(self, list):
         '''
         @see: Type.isValid
         '''
         if Iter.isValid(self, list) and isinstance(list, Sized):
-            for obj in list:
-                if not self.itemType.isValid(obj):
-                    return False
-            return True
+            return all(map(self.itemType.isValid, list))
         return False
 
 # --------------------------------------------------------------------
 
-class TypeModel(TypeClass):
+class TypeModel(Type):
     '''
     Provides the type for the model.
     '''
     
+    __immutable__ = Type.__immutable__ + ('model',)
+    
     def __init__(self, model):
         '''
         Constructs the model type for the provided model.
-        @see: TypeClass.__init__
+        @see: Type.__init__
         
         @param model: Model
             The model that this type is constructed on.
@@ -298,12 +246,14 @@ class TypeModel(TypeClass):
         from .operator import Model
         assert isinstance(model, Model), 'Invalid model provided %s' % model
         self.model = model
-        TypeClass.__init__(self, model.modelClass, False)
+        Type.__init__(self, model.modelClass)
 
-class TypeQuery(TypeClass):
+class TypeQuery(Type):
     '''
     Provides the type for the query.
     '''
+    
+    __immutable__ = Type.__immutable__ + ('query',)
     
     def __init__(self, query):
         '''
@@ -316,7 +266,7 @@ class TypeQuery(TypeClass):
         from .operator import Query
         assert isinstance(query, Query), 'Invalid query provided %s' % query
         self.query = query
-        TypeClass.__init__(self, query.queryClass, False)
+        Type.__init__(self, query.queryClass)
 
 class TypeProperty(Type):
     '''
@@ -325,6 +275,8 @@ class TypeProperty(Type):
     Property and the Model that is constructed on. This type behaves as the type assigned to the property 
     and also contains the references to the property and model class.
     '''
+    
+    __immutable__ = Type.__immutable__ + ('model', 'property')
     
     def __init__(self, model, property):
         '''
@@ -342,19 +294,13 @@ class TypeProperty(Type):
         assert isinstance(property.type, Type), 'Invalid property type %s' % type
         self.model = model
         self.property = property
-        Type.__init__(self, property.type.isPrimitive)
+        Type.__init__(self, property.type.forClass, property.type.isPrimitive)
     
-    def forClass(self):
-        '''
-        @see: Type.forClass
-        '''
-        return self.property.type.forClass()
-    
-    def isOf(self, typ):
+    def isOf(self, type):
         '''
         @see: Type.isOf
         '''
-        return self == typ or self.property.type.isOf(typ)
+        return self == type or self.property.type.isOf(type)
     
     def isValid(self, obj):
         '''
@@ -364,21 +310,24 @@ class TypeProperty(Type):
                 The object instance to check.
         '''
         return self.property.type.isValid(obj)
-        
+    
+    def __hash__(self): return hash((self.model, self.property))
+    
     def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.model == other.model and self.property == other.property
+        if isinstance(other, self.__class__): return self.model == other.model and self.property == other.property
         return False
 
-    def __str__(self):
-        return '%s.%s' % (self.model.name, self.property.name)
+    def __str__(self): return '%s.%s' % (self.model.name, self.property.name)
 
 # --------------------------------------------------------------------
 
+@immutable
 class Input:
     '''
     Provides an input entry for a call, this is used for keeping the name and also the type of a call parameter.
     '''
+    
+    __immutable__ = ('name', 'type')
     
     def __init__(self, name, type):
         '''
@@ -428,7 +377,7 @@ def typeFor(obj, type=None):
             if isclass(obj):
                 typ = _classType.get(obj)
                 if typ is not None: return typ
-            if isinstance(obj, Type): type = obj
+            if isinstance(obj, Type): return obj
         return type
     assert not ATTR_TYPE.hasOwn(obj), 'Already has a type %s' % obj
     return ATTR_TYPE.set(obj, type)
@@ -446,7 +395,7 @@ class Boolean(Uninstantiable):
     Maps the boolean values.
     Only used as a class, do not create an instance.
     '''
-typeFor(Boolean, TypeClass(bool, True))
+typeFor(Boolean, Type(bool, True))
 _classType[bool] = typeFor(Boolean)
 
 
@@ -455,7 +404,7 @@ class Integer(Uninstantiable):
     Maps the integer values.
     Only used as a class, do not create an instance.
     '''
-typeFor(Integer, TypeClass(int, True))
+typeFor(Integer, Type(int, True))
 _classType[int] = typeFor(Integer)
 
 class Number(Uninstantiable):
@@ -463,7 +412,7 @@ class Number(Uninstantiable):
     Maps the numbers, this includes integer and float.
     Only used as a class, do not create an instance.
     '''
-typeFor(Number, TypeClass(numbers.Number, True))
+typeFor(Number, Type(numbers.Number, True))
 _classType[float] = typeFor(Number)
 _classType[numbers.Number] = typeFor(Number)
 formattedType.append(Number)
@@ -481,7 +430,7 @@ class String(Uninstantiable):
     Maps the string values.
     Only used as a class, do not create an instance.
     '''
-typeFor(String, TypeClass(str, True))
+typeFor(String, Type(str, True))
 _classType[str] = typeFor(String)
 
 class Date(Uninstantiable):
@@ -489,7 +438,7 @@ class Date(Uninstantiable):
     Maps the date time values.
     Only used as a class, do not create an instance.
     '''
-typeFor(Date, TypeClass(date, True))
+typeFor(Date, Type(date, True))
 _classType[date] = typeFor(Date)
 formattedType.append(Date)
 
@@ -498,7 +447,7 @@ class Time(Uninstantiable):
     Maps the date time values.
     Only used as a class, do not create an instance.
     '''
-typeFor(Time, TypeClass(time, True))
+typeFor(Time, Type(time, True))
 _classType[time] = typeFor(Time)
 formattedType.append(Time)
 
@@ -507,7 +456,7 @@ class DateTime(Uninstantiable):
     Maps the date time values.
     Only used as a class, do not create an instance.
     '''
-typeFor(DateTime, TypeClass(datetime, True))
+typeFor(DateTime, Type(datetime, True))
 _classType[datetime] = typeFor(DateTime)
 formattedType.append(DateTime)
 

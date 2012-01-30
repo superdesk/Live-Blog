@@ -10,7 +10,7 @@ Provides utility methods based on the specifications.
 '''
 
 from ally.api.operator import Model
-from ally.core.impl.node import NodeModel
+from ally.core.impl.node import NodeModel, NodePath
 from ally.core.spec.resources import Match, Node, Path, ConverterPath
 
 # --------------------------------------------------------------------
@@ -85,6 +85,24 @@ def toPaths(matches, converterPath):
     return paths
 
 # --------------------------------------------------------------------
+        
+def nodeLongName(node):
+    '''
+    Provides the fullest name that can be extracted for the provided node. This is done by appending all names of the
+    parent nodes that are also path nodes.
+    
+    @param node: NodePath
+        The node to provide the long name for.
+    @return: string
+        The node long name.
+    '''
+    assert isinstance(node, NodePath), 'Invalid node %s' % node
+    names = []
+    while node and isinstance(node, NodePath):
+        names.append(node.name)
+        node = node.parent
+    names.reverse() # We need to reverse since we started from the child to parent
+    return ''.join(names)
 
 def findNodeModel(root, model):
     '''

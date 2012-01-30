@@ -22,7 +22,7 @@ class TestType(unittest.TestCase):
         bt = typeFor(Boolean)
 
         self.assertTrue(isinstance(bt, Type))
-        self.assertTrue(bt.forClass() == bool)
+        self.assertTrue(bt.forClass == bool)
         self.assertTrue(bt.isValid(True))
         
         bt = typeFor(bool)
@@ -34,7 +34,7 @@ class TestType(unittest.TestCase):
         it = typeFor(Integer)
 
         self.assertTrue(isinstance(it, Type))
-        self.assertTrue(it.forClass() == int)
+        self.assertTrue(it.forClass == int)
         self.assertTrue(it.isValid(100))
         
         it = typeFor(int)
@@ -46,7 +46,7 @@ class TestType(unittest.TestCase):
         nt = typeFor(Number)
 
         self.assertTrue(isinstance(nt, Type))
-        self.assertTrue(nt.forClass() is numbers.Number)
+        self.assertTrue(nt.forClass is numbers.Number)
         self.assertTrue(nt.isValid(100))
         
         nt = typeFor(float)
@@ -61,7 +61,7 @@ class TestType(unittest.TestCase):
         st = typeFor(String)
 
         self.assertTrue(isinstance(st, Type))
-        self.assertTrue(st.forClass() == str)
+        self.assertTrue(st.forClass == str)
         self.assertTrue(st.isValid('ugu'))
         
         st = typeFor(str)

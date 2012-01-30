@@ -9,12 +9,13 @@ Created on May 29, 2011
 Provides the containers that describe the APIs.
 '''
 
-from ..support.util import IS_PY3K, Attribute
+from ..support.util import IS_PY3K, Attribute, immutable, immut
 from ..type_legacy import Iterable, OrderedDict
-from .type import Type, TypeClass, Input, Id, IdString, Boolean, Number, Integer, \
+from .type import Type, Input, Id, IdString, Boolean, Number, Integer, \
     Percentage, String, Time, Date, DateTime, TypeProperty, typeFor
 from inspect import ismodule, getargspec, isclass
 import logging
+from ally.api.type import TypeModel
 
 # --------------------------------------------------------------------
 
@@ -37,10 +38,13 @@ NAME_ON_DEL = '%sOnDel'
 
 # --------------------------------------------------------------------
 
+@immutable
 class Properties:
     '''
     Used for mapping the API properties.
     '''
+    
+    __immutable__ = ('properties',)
 
     def __init__(self, properties):
         '''
@@ -53,7 +57,7 @@ class Properties:
         if __debug__:
             for prop in properties.values():
                 assert isinstance(prop, Property), 'Not a Property type for %s' % prop
-        self.properties = properties
+        self.properties = immut(properties)
         
     def isPartial(self, model):
         '''
@@ -104,15 +108,14 @@ class Properties:
             if not prop.has(modelTo):
                 prop.set(modelTo, prop.get(modelFrom))
         return modelTo
-            
+    
     def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.properties == other.properties
+        if isinstance(other, self.__class__): return self.properties == other.properties
         return False
     
-    def __str__(self):
-        return '<%s %s>' % (self.__class__.__name__, [str(prop) for prop in self.properties.values()])
+    def __str__(self): return '<%s %s>' % (self.__class__.__name__, [str(prop) for prop in self.properties.values()])
 
+@immutable
 class Property:
     '''
     Provides the container for the API property types. It contains the operation that need to be
@@ -121,6 +124,8 @@ class Property:
     for changes to the contained model. So if we have property 'name' automatically whenever the value is set if
     the model contains the 'nameOnSet' method it will be called, and on deletion the 'nameOnDel' is called.
     '''
+    
+    __immutable__ = ('type', 'name')
 
     def __init__(self, name, type):
         '''
@@ -217,13 +222,13 @@ class Property:
             return True
         return False
     
+    def __hash__(self): return hash((self.name, self.type))
+    
     def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.name == other.name and self.type == other.type
+        if isinstance(other, self.__class__): return self.name == other.name and self.type == other.type
         return False
 
-    def __str__(self):
-        return '<%s[%s = %s]>' % (self.__class__.__name__, self.name, self.type)
+    def __str__(self): return '<%s[%s = %s]>' % (self.__class__.__name__, self.name, self.type)
 
 # --------------------------------------------------------------------
 
@@ -233,6 +238,8 @@ class Model(Properties):
     @attention: The model will allow only for primitive types.
     @see: Properties
     '''
+    
+    __immutable__ = Properties.__immutable__ + ('modelClass', 'name', 'typeProperties', 'type')
 
     def __init__(self, modelClass, modelName, properties):
         '''
@@ -252,7 +259,8 @@ class Model(Properties):
         if __debug__:
             for prop in properties.values():
                 assert prop.type.isPrimitive, 'Not a primitive type for %s' % prop
-        self.typeProperties = {name: TypeProperty(self, prop) for name, prop in self.properties.items()}
+        self.typeProperties = immut({name: TypeProperty(self, prop) for name, prop in self.properties.items()})
+        self.type = TypeModel(self)
                 
     def createModel(self):
         '''
@@ -263,6 +271,8 @@ class Model(Properties):
         '''
         assert log.debug('Created model instance for class %s', self.modelClass) or True
         return self.modelClass()
+    
+    def __hash__(self): return hash(self.modelClass)
 
     def __eq__(self, other):
         if Properties.__eq__(self, other):
@@ -275,10 +285,13 @@ class Model(Properties):
        
 # --------------------------------------------------------------------
 
+@immutable
 class Query:
     '''
     Used for mapping the API query.
     '''
+    
+    __immutable__ = ('queryClass', 'criteriaEntries')
 
     def __init__(self, queryClass, criteriaEntries):
         '''
@@ -297,7 +310,7 @@ class Query:
             for crt in criteriaEntries.values():
                 assert isinstance(crt, CriteriaEntry), 'Not a CriteriaEntry %s' % crt
         self.queryClass = queryClass
-        self.criteriaEntries = criteriaEntries
+        self.criteriaEntries = immut(criteriaEntries)
         
     def createQuery(self):
         '''
@@ -308,7 +321,9 @@ class Query:
         '''
         assert log.debug('Created query instance for class %s', self.queryClass) or True
         return self.queryClass()
-
+    
+    def __hash__(self): return hash(self.queryClass)
+    
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.queryClass == other.queryClass and self.criteriaEntries == other.criteriaEntries
@@ -323,6 +338,8 @@ class CriteriaEntry(Property):
     @see: Property
     '''
     
+    __immutable__ = Property.__immutable__ + ('criteria',)
+    
     def __init__(self, criteria, name):
         '''
         Constructs a criteria entry.
@@ -333,7 +350,7 @@ class CriteriaEntry(Property):
         '''
         assert isinstance(criteria, Criteria), 'Invalid criteria %s' % criteria
         self.criteria = criteria
-        Property.__init__(self, name, TypeClass(criteria.criteriaClass))
+        Property.__init__(self, name, Type(criteria.criteriaClass))
         
     def obtain(self, query):
         '''
@@ -356,6 +373,8 @@ class Criteria(Properties):
     @attention: The criteria will allow only for primitive types.
     @see: Properties
     '''
+    
+    __immutable__ = Properties.__immutable__ + ('criteriaClass',)
 
     def __init__(self, criteriaClass, properties):
         '''
@@ -392,18 +411,22 @@ class Criteria(Properties):
                          criteriaEntry.name, query, self.criteriaClass) or True
         return criteria
 
+    def __hash__(self): return hash(self.criteriaClass)
+    
     def __eq__(self, other):
-        if Properties.__eq__(self, other):
-            return self.criteriaClass == other.criteriaClass
+        if Properties.__eq__(self, other): return self.criteriaClass == other.criteriaClass
         return False
     
 # --------------------------------------------------------------------
 
+@immutable
 class Call:
     '''
     Provides the container for a service call. This class will basically contain all the
     Property types that are involved in input and output from the call.
     '''
+    
+    __immutable__ = ('name', 'hints', 'method', 'outputType', 'inputs', 'mandatoryCount')
     
     def __init__(self, name, hints, method, outputType, inputs, mandatoryCount):
         '''
@@ -434,13 +457,13 @@ class Call:
         assert mandatoryCount >= 0 and mandatoryCount <= len(inputs), \
         'Invalid mandatory count <%s>, needs to be greater than 0 and less than ' % (mandatoryCount, len(inputs))
         if __debug__:
-            for input in inputs:
-                assert isinstance(input, Input), 'Not an input %s' % input
+            for input in inputs: assert isinstance(input, Input), 'Not an input %s' % input
+            for hintn in hints: assert isinstance(hintn, str), 'Invalid hint name %s' % hintn
         self.name = name
-        self.hints = hints
+        self.hints = immut(hints)
         self.method = method
         self.outputType = outputType
-        self.inputs = inputs
+        self.inputs = tuple(inputs)
         self.mandatoryCount = mandatoryCount
 
     def isCallable(self, impl):
@@ -451,11 +474,9 @@ class Call:
         @param impl: class|module
             Either the instance or module that implements the API service method.
         '''
-        if ismodule(impl):
-            func = self._findModuleFunction(impl)
-        else:
-            func = self._findClassFunction(impl.__class__)
-        return not func is None
+        if ismodule(impl): func = self._findModuleFunction(impl)
+        else: func = self._findClassFunction(impl.__class__)
+        return func is not None
     
     def call(self, impl, args):
         '''
@@ -483,10 +504,8 @@ class Call:
         if not valid:
             raise AssertionError('The arguments %r provided are not compatible with the expected inputs %r' % 
                                  (args, self.inputs))
-        if ismodule(impl):
-            func = getattr(impl, self.name)
-        else:
-            func = getattr(impl, self.name)
+        if ismodule(impl): func = getattr(impl, self.name)
+        else: func = getattr(impl, self.name)
         
         ret = func.__call__(*args)
             
@@ -537,7 +556,9 @@ for call %s' % (ret, self.outputType, self))
                         return func
                 elif len(self.inputs) - self.mandatoryCount == len(defaults):
                     return func
-
+    
+    def __hash__(self): return hash((self.name, self.outputType, self.inputs, self.mandatoryCount))
+    
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.name == other.name and self.outputType == other.outputType \
@@ -545,16 +566,17 @@ for call %s' % (ret, self.outputType, self))
         return False
     
     def __str__(self):
-        inputStr = []
-        for i, inp in enumerate(self.inputs):
-            assert isinstance(inp, Input)
-            inputStr.append(('defaulted:' if i >= self.mandatoryCount else '') + inp.name + '=' + str(inp.type))
-        return '<Call[%s %s(%s)]>' % (self.outputType, self.name, ', '.join(inputStr))
+        return '<Call[%s %s(%s)]>' % (self.outputType, self.name, ', '.join([
+                ''.join(('defaulted:' if i >= self.mandatoryCount else '', inp.name, '=', str(inp.type))) 
+                        for i, inp in enumerate(self.inputs)]))
 
+@immutable
 class Service:
     '''
     Used for mapping the API calls.
     '''
+
+    __immutable__ = ('serviceClass', 'calls')
 
     def __init__(self, serviceClass, calls):
         '''
@@ -570,8 +592,10 @@ class Service:
                 assert isinstance(call, Call), 'Not a Call type for %s' % call
         #self.model = model
         self.serviceClass = serviceClass
-        self.calls = calls
-
+        self.calls = immut(calls)
+    
+    def __hash__(self): return hash(self.serviceClass)
+    
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.serviceClass == other.serviceClass and self.calls == other.calls
@@ -583,8 +607,7 @@ class Service:
 
 # --------------------------------------------------------------------
 
-TYPE_ORDER = [Id, IdString, Boolean, Integer, Number, Percentage, String, Time, Date, DateTime,
-              TypeClass, TypeProperty]
+TYPE_ORDER = [Id, IdString, Boolean, Integer, Number, Percentage, String, Time, Date, DateTime, TypeProperty]
 def __sortKey(item):
     '''
     FOR INTERNAL USE.

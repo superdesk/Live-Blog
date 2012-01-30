@@ -361,7 +361,7 @@ class Invoker(metaclass=abc.ABCMeta):
             The output type of the invoker.
         @param name: string
             The name of the invoker.
-        @param inputs: list
+        @param inputs: list[Input]|tuple(Input)
             The list of Inputs for the invoker, attention not all inputs are mandatory.
         @param mandatoryCount: integer
             Provides the count of the mandatory input types, if the mandatory count is two and we have three input
@@ -369,7 +369,7 @@ class Invoker(metaclass=abc.ABCMeta):
         '''
         assert not outputType or isinstance(outputType, Type), 'Invalid output type %s' % outputType
         assert isinstance(name, str), 'Invalid name %s' % name
-        assert isinstance(inputs, list), 'Invalid inputs list %s' % inputs
+        assert isinstance(inputs, (list, tuple)), 'Invalid inputs list %s' % inputs
         assert isinstance(mandatoryCount, int), 'Invalid mandatory count <%s>, needs to be integer' % mandatoryCount
         assert mandatoryCount >= 0 and mandatoryCount <= len(inputs), \
         'Invalid mandatory count <%s>, needs to be greater than 0 and less than ' % (mandatoryCount, len(inputs))
@@ -593,7 +593,7 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def findGetAccessibleByModel(self, model, obj):
+    def findGetAccessibleByModel(self, model, modelObject=None):
         '''
         Finds all GET paths that can be directly accessed without the need of any path update. The returned paths
         are basically linked with the provided model and values extracted from the model object. So all paths that
@@ -601,8 +601,8 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         
         @param model: Model
             The model of the object.
-        @param obj: object
-            The model object.
+        @param modelObject: object|None
+            The model object, if None the path has to be updated by the consumer.
         @return: list
             A list of Path's from the provided model object, empty list if none found.
         '''

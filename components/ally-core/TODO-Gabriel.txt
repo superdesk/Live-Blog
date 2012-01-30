@@ -31,3 +31,5 @@
 - To add auto reloading for plugins.
 - To change the cherrypy server implementation so it will directly stream the content and not sore it in memory first 
   than send it.
+- To make also the decoding for text (see processor encdec_text)
+- To add resource node listener so the meta creator can use that to clear the cache acordingly.
