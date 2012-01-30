@@ -292,53 +292,56 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         entryPath = self._getItemPath(path)
         linkPath = entryPath
-        linkFile, ziplinkFile = None, None
-        while len(linkPath.lstrip('/')) > 0:
-            if isfile(linkPath + self._linkExt):
-                linkFile = linkPath + self._linkExt
-                break
-            if isfile(linkPath + self._zipLinkExt):
-                ziplinkFile = linkPath + self._zipLinkExt
-                break
-            linkPath = dirname(linkPath)
-        else:
+        try:
+            while len(linkPath.lstrip('/')) > 0:
+                subPath = entryPath[len(linkPath):].lstrip('/')
+                if isfile(linkPath + self._linkExt):
+                    linkFile = linkPath + self._linkExt
+                    self._removeLink(path, entryPath, linkFile, subPath)
+                    break
+                if isfile(linkPath + self._zipLinkExt):
+                    ziplinkFile = linkPath + self._zipLinkExt
+                    self._removeZiplink(path, entryPath, ziplinkFile, subPath)
+                    break
+                linkPath = dirname(linkPath)
+            else:
+                raise PathNotFound(path)
+        except PathNotFound:
+            raise
+        except:
             raise PathNotFound(path)
-        subPath = entryPath[len(linkPath):].lstrip('/')
-        if linkFile:
-            with open(linkFile) as f:
-                linkedPath = f.readline().strip()
-                if isdir(linkedPath):
-                    if isfile(join(linkedPath, subPath)) or isdir(join(linkedPath, subPath)):
-                        if not isdir(dirname(entryPath)):
-                            os.makedirs(dirname(entryPath))
-                        with open(entryPath.rstrip('/') + self._deletedExt, 'w') as _d: pass
-                        if isdir(entryPath):
-                            rmtree(entryPath)
-                    else:
-                        raise PathNotFound(path)
-                else:
-                    if len(subPath) > 0:
-                        raise PathNotFound(path)
-                    else:
-                        os.remove(linkFile)
-        elif ziplinkFile:
-            try:
-                with open(ziplinkFile) as f:
-                    zipFilePath = f.readline().strip()
-                    inFilePath = f.readline().strip()
-                    zipFile = ZipFile(zipFilePath)
-                    zipFile.getinfo(join(inFilePath, subPath))
+        if len(subPath.strip('/')) == 0 and isdir(linkPath):
+            rmtree(linkPath)
+
+    def _removeLink(self, path, entryPath, linkFile, subPath):
+        with open(linkFile) as f:
+            linkedPath = f.readline().strip()
+            if isdir(linkedPath):
+                if isfile(join(linkedPath, subPath)) or isdir(join(linkedPath, subPath)):
                     if not isdir(dirname(entryPath)):
                         os.makedirs(dirname(entryPath))
                     with open(entryPath.rstrip('/') + self._deletedExt, 'w') as _d: pass
                     if isdir(entryPath):
                         rmtree(entryPath)
-            except:
-                raise PathNotFound(path)
-        else:
-            raise PathNotFound(path)
-        if len(subPath.strip('/')) == 0 and isdir(linkPath):
-            rmtree(linkPath)
+                else:
+                    raise PathNotFound(path)
+            else:
+                if len(subPath) > 0:
+                    raise PathNotFound(path)
+                else:
+                    os.remove(linkFile)
+
+    def _removeZiplink(self, path, entryPath, ziplinkFile, subPath):
+        with open(ziplinkFile) as f:
+            zipFilePath = f.readline().strip()
+            inFilePath = f.readline().strip()
+            zipFile = ZipFile(zipFilePath)
+            zipFile.getinfo(join(inFilePath, subPath))
+            if not isdir(dirname(entryPath)):
+                os.makedirs(dirname(entryPath))
+            with open(entryPath.rstrip('/') + self._deletedExt, 'w') as _d: pass
+            if isdir(entryPath):
+                rmtree(entryPath)
 
     def _createLinkToZipFile(self, path, zipFilePath, inFilePath):
         repFilePath = self._getItemPath(path) + self._zipLinkExt
