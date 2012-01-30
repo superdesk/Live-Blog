@@ -71,33 +71,34 @@ class ContentDeliveryHandler(Processor):
 
         entryPath = join(self.repositoryPath, req.path)
         rsp.setCode(RESOURCE_FOUND, 'File found')
-        writer = rsp.dispatch()
         if (isfile(entryPath)):
             try:
                 with open(entryPath, 'rb') as f:
-                    pipe(f, writer)
+                    pipe(f, rsp.dispatch())
             except:
-                return self._sendNotFound(rsp, 'Unable to read resource file')
+                return rsp.setCode(RESOURCE_NOT_FOUND, 'Unable to read resource file')
         else:
             linkPath = entryPath
             try:
                 while len(linkPath.lstrip('/')) > 0:
                     subPath = entryPath[len(linkPath):].lstrip('/')
                     if isfile(linkPath + '.link'):
-                        self._processLink(linkPath, subPath, writer)
+                        rf = self._processLink(linkPath, subPath)
                         break
                     if isfile(linkPath + '.ziplink'):
-                        self._processZiplink(linkPath, subPath, writer)
+                        rf = self._processZiplink(linkPath, subPath)
                         break
                     linkPath = dirname(linkPath)
                 else:
-                    return self._sendNotFound(rsp, 'Invalid resource')
+                    return rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
+                pipe(rf, rsp.dispatch())
+                rf.close()
             except Exception as e:
                 return self._sendNotFound(rsp, str(e))
 
         chain.process(req, rsp)
 
-    def _processLink(self, linkPath, subPath, writer):
+    def _processLink(self, linkPath, subPath):
         with open(linkPath + '.link') as f:
             linkedFilePath = f.readline().strip()
             if isdir(linkedFilePath):
@@ -106,20 +107,20 @@ class ContentDeliveryHandler(Processor):
                 raise Exception('Invalid link to a file in file')
             else:
                 resPath = linkedFilePath
-            with open(resPath, 'rb') as rf:
-                if self._isPathDeleted(join(linkPath, subPath)):
-                    raise Exception('Resource was deleted')
-                pipe(rf, writer)
+            rf = open(resPath, 'rb')
+            if self._isPathDeleted(join(linkPath, subPath)):
+                raise Exception('Resource was deleted')
+            return rf
 
-    def _processZiplink(self, linkPath, subPath, writer):
+    def _processZiplink(self, linkPath, subPath):
         with open(linkPath + '.ziplink') as f:
             zipFilePath = f.readline().strip()
             inFilePath = f.readline().strip()
             zipFile = ZipFile(zipFilePath)
-            with zipFile.open(join(inFilePath, subPath), 'r') as rf:
-                if self._isPathDeleted(join(linkPath, subPath)):
-                    raise Exception('Resource was deleted')
-                pipe(rf, writer)
+            rf = zipFile.open(join(inFilePath, subPath), 'r')
+            if self._isPathDeleted(join(linkPath, subPath)):
+                raise Exception('Resource was deleted')
+            return rf
 
     def _sendNotAvailable(self, rsp, message):
         rsp.addAllows(GET)
