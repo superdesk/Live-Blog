@@ -9,18 +9,17 @@ Created on Jan 27, 2012
 Provides the meta creation processor handler.
 '''
 
-from ally.api.operator import Model, Property
+from ally.api.operator import Model
 from ally.api.type import TypeModel, TypeNone, Iter, TypeProperty, Type
 from ally.container.ioc import injected
 from ally.core.impl.node import NodePath
-from ally.core.spec.data_meta import Object, Value, ValueLink, Link, List, \
-    returnSame
-from ally.core.spec.resources import ResourcesManager, Path, Node
+from ally.core.spec.data_meta import returnSame, MetaLink, MetaValue, MetaModel, \
+    MetaPath, MetaList
+from ally.core.spec.resources import ResourcesManager, Path
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
 from ally.support.api.util_type import isTypeId, isPropertyTypeId
 from ally.support.core.util_resources import nodeLongName
 import logging
-from functools import partial
 
 # --------------------------------------------------------------------
 
@@ -52,7 +51,6 @@ class MetaCreatorHandler(Processor):
         'Invalid resources manager %s' % self.resourcesManager
         assert isinstance(self.setPropertyPath, bool), 'Invalid set property path flag %s' % self.setPropertyPath
         assert isinstance(self.setAdditionalPaths, bool), 'Invalid set additional paths flag %s' % self.setAdditionalPaths
-        self._cache = {}
         
     def process(self, req, rsp, chain):
         '''
@@ -63,21 +61,12 @@ class MetaCreatorHandler(Processor):
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         
         if req.resourcePath is not None and rsp.objType is not None:
-            path = req.resourcePath
-            assert isinstance(path, Path), 'Invalid resource path %s' % path
-            assert path.node, 'Invalid resource path has no node %s' % path
-            idNode = id(path.node)
-            cache = self._cache.get(idNode)
-            if not cache: cache = self._cache[idNode] = {}
-            
-            if rsp.objType not in cache: cache[rsp.objType] = self.meta(rsp.obj, rsp.objType, path)
-            
-            rsp.objMeta = cloneMeta(cache[rsp.objType])
+            rsp.objMeta = self.meta(rsp.obj, rsp.objType, req.resourcePath)
 
         chain.process(req, rsp)
     
     # ----------------------------------------------------------------
-    
+
     def meta(self, obj, typ, resourcePath):
         '''
         Create the meta object for the provided type.
@@ -97,189 +86,158 @@ class MetaCreatorHandler(Processor):
             if isinstance(typ, Iter):
                 assert isinstance(typ, Iter)
                 itype = typ.itemType
+                
                 if isinstance(itype, TypeProperty):
-                    assert isinstance(itype, TypeProperty)
-                    if self.setPropertyPath and isPropertyTypeId(itype):
-                        path = self.resourcesManager.findGetModel(resourcePath, itype.model)
-                    else: path = None
-                    return List(self.metaProperty(itype, path))
+                    return MetaList(self.metaProperty(itype, self.linkProperty(itype, resourcePath)), returnSame)
+                
                 elif isinstance(itype, TypeModel):
                     assert isinstance(itype, TypeModel)
-                    if self.setPropertyPath:
-                        propertiesPaths = self.resourcesManager.findGetModelProperties(resourcePath, itype.model)
-                        path = self.resourcesManager.findGetModel(resourcePath, itype.model)
-                        if path:
-                            assert isinstance(itype.model, Model)
-                            idName = [name for name, prop in itype.model.properties.items() if isTypeId(prop.type)]
-                            if len(idName) == 1: propertiesPaths[idName[0]] = path
-                    else: propertiesPaths = None
-                    if self.setAdditionalPaths:
-                        paths = self.resourcesManager.findGetAllAccessible(resourcePath)
-                        pathsModel = self.resourcesManager.findGetAccessibleByModel(itype.model)
-                        paths.extend([path for path in pathsModel if path not in paths])
-                    else: paths = None
+                    model = itype.model
+                    return MetaList(self.addPaths(self.metaModel(model, self.linkModel(model, resourcePath, True)),
+                                                  self.pathsModel(model, resourcePath)), returnSame)
                     
-                    return List(self.metaModel(itype.model, propertiesPaths, paths))
                 elif itype.isOf(Path):
-                    return self.metaListPath(obj)
+                    return MetaList(MetaLink(returnSame), returnSame)
                 else:
+                    
                     assert log.debug('Cannot encode list item object type %r', itype) or True
+                    
             elif isinstance(typ, TypeNone):
                 assert log.debug('Nothing to encode') or True
+                
             elif isinstance(typ, TypeProperty):
-                assert isinstance(typ, TypeProperty)
-                if self.setPropertyPath and isPropertyTypeId(typ):
-                    path = self.resourcesManager.findGetModel(resourcePath, typ.model)
-                else: path = None
-                return self.metaProperty(typ, path)
+                return self.metaProperty(typ, self.linkProperty(typ, resourcePath))
+            
             elif isinstance(typ, TypeModel):
                 assert isinstance(typ, TypeModel)
-                if self.setPropertyPath:
-                    propertiesPaths = self.resourcesManager.findGetModelProperties(resourcePath, typ.model)
-                else: propertiesPaths = None
-                if self.setAdditionalPaths:
-                    paths = self.resourcesManager.findGetAllAccessible(resourcePath)
-                    pathsModel = self.resourcesManager.findGetAccessibleByModel(typ.model)
-                    paths.extend([path for path in pathsModel if path not in paths])
-                else: paths = None
+                model = typ.model
+                return self.addPaths(self.metaModel(model, self.linkModel(model, resourcePath)),
+                                     self.pathsModel(model, resourcePath))
                 
-                return self.metaModel(typ.model, propertiesPaths, paths)
             else:
                 assert log.debug('Cannot encode object type %r', typ) or True
     
-    def metaProperty(self, typ, path=None):
+    def linkProperty(self, typ, resourcePath, getValue=returnSame):
+        '''
+        Provides the meta link for the property type.
+        
+        @param typ: TypeProperty
+            The property type to provide the meta link for.
+        @param resourcePath: Path
+            The path reference to get the paths.
+        @param getValue: Callable(object)
+            A callable that takes as an argument the object to extract this property value instance.
+        @return: MetaLink|None
+            The meta link or None if is not available for the provided property type.
+        '''
+        assert isinstance(typ, TypeProperty), 'Invalid property type %s' % typ
+        assert isinstance(resourcePath, Path), 'Invalid resource path %s' % resourcePath
+        if self.setPropertyPath:
+            while isinstance(typ.property.type, TypeProperty): typ = typ.property.type
+            if isTypeId(typ.property.type):
+                return MetaPath(self.resourcesManager.findGetModel(resourcePath, typ.model), typ, getValue)
+    
+    def linkModel(self, model, resourcePath, addIds=False):
+        '''
+        Provides the meta links for the model properties.
+        
+        @param model: Model
+            The model to provide the meta links for.
+        @param resourcePath: Path
+            The path reference to get the model paths.
+        @return: dictionary{string, MetaLink}
+            A dictionary having the properties meta links.
+        '''
+        assert isinstance(model, Model), 'Invalid model %s' % model
+        assert isinstance(resourcePath, Path), 'Invalid resource path %s' % resourcePath
+        links = {}
+        if self.setPropertyPath:
+            for name, prop in model.properties.items():
+                if isPropertyTypeId(prop.type) or (addIds and isTypeId(prop.type)):
+                    linkProp = self.linkProperty(model.typeProperties[name], resourcePath, prop.get)
+                    if linkProp: links[name] = linkProp
+        return links
+    
+    def pathsModel(self, model, resourcePath):
+        '''
+        Provides the additional paths for the model.
+        
+        @param model: Model
+            The model to provide the path for.
+        @param resourcePath: Path
+            The path reference to get the model paths.
+        @return: list[Path]
+            A list of the additional paths.
+        '''
+        assert isinstance(model, Model), 'Invalid model %s' % model
+        assert isinstance(resourcePath, Path), 'Invalid resource path %s' % resourcePath
+        if self.setAdditionalPaths:
+            paths = self.resourcesManager.findGetAllAccessible(resourcePath)
+            pathsModel = self.resourcesManager.findGetAccessibleByModel(model)
+            paths.extend([path for path in pathsModel if path not in paths])
+            return paths
+        return []
+    
+    def metaProperty(self, typ, metaLink=None, getValue=returnSame):
         '''
         Creates the meta for the provided property type.
         
-        @param typ: TypeProperty
-            The type property to convert.
-        @param path: Path|None
-            The reference path of the property type.
+        @param typ: Type
+            The type to convert.
+        @param metaLink: MetaLink|None
+            The meta link of the property type value.
+        @param getValue: Callable(object)
+            A callable that takes as an argument the object to extract this property value instance.
         @return: Object
             The meta object.
         '''
-        assert isinstance(typ, TypeProperty), 'Invalid type property %s' % typ
-        return Object(properties=
-                {typ.property.name: ValueLink(typ, getLink=UpdatePath(path, typ)) if path is not None else Value(typ)})
-    
-    def metaModel(self, model, propertiesPaths=None, paths=None):
+        assert isinstance(typ, Type), 'Invalid type %s' % typ
+        if isinstance(typ, TypeProperty):
+            assert isinstance(typ, TypeProperty)
+            return MetaModel(typ.model, returnSame,
+                             {typ.property.name: self.metaProperty(typ.property.type, metaLink, getValue)})
+        return MetaValue(typ, getValue, metaLink)
+
+    def metaModel(self, model, metaLinks={}, getModel=returnSame):
         '''
         Creates the meta for the provided model.
         
         @param model: Model
             The model to convert to provide the meta for.
-        @param propertiesPaths: dictionary{string, Path}|None
-            The reference paths of the properties.
-        @param paths: list[Path]|tuple(Path)
-            Additional resources paths to be included in the properties meta object.
-        @return: Object
+        @param metaLinks: dictionary{string, MetaLink}
+            The meta links for the model properties.
+        @param getModel: Callable(object)|None
+            A callable that takes as an argument the object to extract the model instance.
+        @param getProperty: Callable(object)|None
+            A callable that takes as an argument the object to extract all the properties values.
+        @return: MetaModel
             The meta object.
         '''
         assert isinstance(model, Model), 'Invalid model %s' % model
-        assert not propertiesPaths or isinstance(propertiesPaths, dict), 'Invalid properties paths %s' % propertiesPaths
+        assert isinstance(metaLinks, dict), 'Invalid meta links %s' % metaLinks
         
-        properties = {}
-        for name, prop in model.properties.items():
-            assert isinstance(prop, Property)
-            
-            path = propertiesPaths.get(name) if propertiesPaths else None
-            if path:
-                if isinstance(prop.type, TypeProperty): typ = prop.type
-                else: typ = model.typeProperties[name]
-                properties[name] = ValueLink(typ, prop.get, UpdatePath(path, typ, prop.get))
-            else: properties[name] = Value(prop.type, prop.get)
-            
-        if paths:
-            assert isinstance(paths, (list, tuple)), 'Invalid paths %s' % paths
-            if __debug__:
-                for path in paths:
-                    assert isinstance(path, Path), 'Invalid path %s' % path
-                    assert isinstance(path.node, NodePath), \
-                    'Invalid path, it suppose to have a node path %s' % path.node
-            properties.update({nodeLongName(path.node):Link(UpdatePath(path, model.type)) for path in paths})
-
-        return Object(properties=properties)
+        metas = {name: self.metaProperty(prop.type, metaLinks.get(name), prop.get)
+                 for name, prop in model.properties.items()}
+        return MetaModel(model, getModel, metas)
     
-    def metaListPath(self, paths):
+    def addPaths(self, metaModel, paths):
         '''
-        Creates the meta for the provided list of paths.
+        Adds paths to a meta model.
         
-        @param paths: Iterable[path]
-            The paths to create the meta for.
-        @return: Object
-            The meta object.
+        @param metaModel: MetaModel
+            The meta model to add the paths to.
+        @param paths: list[Path]|tuple(Path)
+            The list of paths to add.
+        @return: MetaModel
+            The updated meta model.
         '''
+        assert isinstance(metaModel, MetaModel), 'Invalid meta model %s' % metaModel
+        assert isinstance(paths, (list, tuple)), 'Invalid paths %s' % paths
         if __debug__:
             for path in paths:
                 assert isinstance(path, Path), 'Invalid path %s' % path
-                assert isinstance(path.node, Node), 'Invalid path %s, has not node' % path
-        getitem = lambda index, obj: list.__getitem__(obj, index)
-        return Object(properties={nodeLongName(path.node): Link(partial(getitem, k)) for k, path in enumerate(paths)})
-        
-# --------------------------------------------------------------------
-# Helper functions used by the created meta objects.
-
-class UpdatePath:
-    '''
-    Callable class that returns a updated path.
-    '''
-    
-    def __init__(self, path, type, getValue=returnSame):
-        '''
-        Construct the update path callable.
-        
-        @param path: Path
-            The path to be updated and returned.
-        @param type: TypeProperty|TypeModel
-            The type of the object to be updated.
-        @param getValue: Callable(object)
-            A callable that takes as an argument the object to extract the value for the path.
-        '''
-        assert isinstance(path, Path), 'Invalid path %s' % path
-        assert isinstance(type, (TypeProperty, TypeModel)), 'Invalid type %s' % type
-        assert callable(getValue), 'Invalid get value callable %s' % getValue
-        self.type = type
-        self.path = path
-        self.getValue = getValue
-        
-    def __call__(self, obj):
-        '''
-        Process the update.
-        
-        @param obj: object
-            The object to update with.
-        @return: Path
-            The updated path.
-        '''
-        self.path.update(self.getValue(obj), self.type)
-        return self.path
-    
-    def clone(self):
-        '''
-        Clones the update path call.
-        '''
-        return UpdatePath(self.path.clone(), self.type, self.getValue)
-
-def cloneMeta(meta):
-    '''
-    Clones the meta object. Attention the cloning is performed only for the meta objects that require that, for instance
-    for Object meta and Link meta. So this is not a general purpose cloning for meta objects.
-    
-    @param meta: meta object
-        The meta object to clone.
-    @return: meta object
-        The cloned meta object.
-    '''
-    if isinstance(meta, Object):
-        assert isinstance(meta, Object)
-        return Object(meta.getObject, {name:cloneMeta(m) for name, m in meta.properties.items()})
-    elif isinstance(meta, Link):
-        assert isinstance(meta, Link)
-        if isinstance(meta.getLink, UpdatePath):
-            assert isinstance(meta.getLink, UpdatePath)
-            if isinstance(meta, ValueLink):
-                assert isinstance(meta, ValueLink)
-                return ValueLink(meta.type, meta.getValue, meta.getLink.clone())
-            else:
-                return Link(meta.getLink.clone())
-    return meta
+                assert isinstance(path.node, NodePath), \
+                'Invalid path, it suppose to have a node path %s' % path.node
+        type, getModel = metaModel.model.type, metaModel.getModel
+        metaModel.update({nodeLongName(path.node): MetaPath(path, type, getModel) for path in paths})
+        return metaModel

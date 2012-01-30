@@ -10,7 +10,7 @@ Module containing the implementation for the resources manager.
 '''
 
 from ally.api.configure import serviceFor
-from ally.api.operator import Service, Model, Property
+from ally.api.operator import Service, Model
 from ally.api.type import List, Type
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
@@ -20,7 +20,6 @@ from ally.core.spec.resources import Node, Path, ConverterPath, Assembler, \
 from ally.support.core.util_resources import pushMatch, findNodeModel
 from inspect import isclass
 import logging
-from ally.support.api.util_type import isPropertyTypeId
 
 # --------------------------------------------------------------------
 
@@ -129,21 +128,6 @@ class ResourcesManagerImpl(ResourcesManager):
                             return path
             index -= 1
         return None
-    
-    def findGetModelProperties(self, fromPath, model):
-        '''
-        @see: ResourcesManager.findGetModelProperties
-        '''
-        assert isinstance(fromPath, Path), 'Invalid from path %s' % fromPath
-        assert isinstance(fromPath.node, Node), 'Invalid from path Node %s' % fromPath.node
-        assert isinstance(model, Model), 'Invalid model %s' % model
-        paths = {}
-        for name, prop in model.properties.items():
-            assert isinstance(prop, Property), 'Invalid property %s' % prop
-            if isPropertyTypeId(prop.type):
-                path = self.findGetModel(fromPath, prop.type.model)
-                if path is not None: paths[name] = path
-        return paths
         
     def findGetAllAccessible(self, fromPath=None):
         '''

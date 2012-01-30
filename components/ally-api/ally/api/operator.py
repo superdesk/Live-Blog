@@ -182,6 +182,7 @@ class Property:
             The value of the property.
         '''
         assert not model is None, 'Invalid model object (None)'
+        assert hasattr(model, '__dict__'), 'Invalid model %s for %s' % (model, self) 
         return model.__dict__.get(self.name, None)
     
     def set(self, model, value):

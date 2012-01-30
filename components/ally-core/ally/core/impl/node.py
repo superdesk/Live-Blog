@@ -70,6 +70,8 @@ class MatchRoot(Match):
         @see: Match.clone
         '''
         return self
+    
+    def __str__(self): return 'ROOT'
 
 class MatchString(Match):
     '''
@@ -119,6 +121,8 @@ class MatchString(Match):
         @see: Match.clone
         '''
         return self
+    
+    def __str__(self): return self.matchValue
 
 class MatchProperty(Match):
     '''
@@ -192,6 +196,8 @@ class MatchProperty(Match):
         @see: Match.clone
         '''
         return MatchProperty(self.node, self.typeProperty, self.matchValue)
+    
+    def __str__(self): return '*' if self.matchValue is None else self.matchValue
 
 # --------------------------------------------------------------------
 

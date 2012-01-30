@@ -126,6 +126,9 @@ class Path:
         if isinstance(other, self.__class__):
             return self.matches == other.matches
         return False
+    
+    def __str__(self):
+        return '<%s[%s]>' % (self.__class__.__name__, '/'.join(str(match) for match in self.matches))
         
 class PathExtended(Path):
     '''
@@ -391,10 +394,9 @@ class Invoker(metaclass=abc.ABCMeta):
         '''
 
     def __str__(self):
-        inputStr = []
-        for i, inp in enumerate(self.inputs):
-            inputStr.append(('defaulted:' if i >= self.mandatoryCount else '') + inp.name + '=' + str(inp.type))
-        return '<%s[%s %s(%s)]>' % (self.__class__.__name__, self.outputType, self.name, ', '.join(inputStr))
+        return '<%s[%s %s(%s)]>' % (self.__class__.__name__, self.outputType, self.name, ', '.join(
+                                ''.join((('defaulted:' if i >= self.mandatoryCount else ''), inp.name, '=', str(inp.type)))
+                                for i, inp in enumerate(self.inputs)))
 
 class Node(metaclass=abc.ABCMeta):
     '''
@@ -563,20 +565,6 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         @return: PathExtended|None
             The extended path pointing to the desired get method, attention some updates might be necessary on 
             the path to be available. None if the path could not be found.
-        '''
-    
-    @abc.abstractmethod
-    def findGetModelProperties(self, fromPath, model):
-        '''
-        Extracts the paths that are linked with the properties in the provided model. Basically any property that
-        represents the id property type for a model is searched for a path.
-        
-        @param fromPath: Path
-            The path to make the search based on.
-        @param model: Model
-            The model to search the get properties paths for.
-        @return: dictionary{string, Path}
-            A dictionary having as a key the property name and as a value the path of that property.
         '''
     
     @abc.abstractmethod

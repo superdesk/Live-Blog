@@ -9,7 +9,10 @@ Created on Jan 27, 2012
 Provides the data meta support. 
 '''
 
-from ally.api.type import Type
+from ally.api.operator import Model
+from ally.api.type import Type, TypeProperty, TypeModel
+from ally.core.spec.resources import Path
+from ally.support.util import immutable
 
 # --------------------------------------------------------------------
 
@@ -18,69 +21,77 @@ returnSame = lambda obj: obj
 
 # --------------------------------------------------------------------
 
-class Object:
+@immutable
+class MetaModel(dict):
     '''
-    Provides the object meta.
+    Provides the meta model object.
     '''
     
-    def __init__(self, getObject=returnSame, properties=None):
+    __slots__ = ('model', 'getModel')
+    __immutable__ = ('model', 'getModel')
+    
+    def __init__(self, model, getModel, *args, **keyargs):
         '''
         Construct the object meta.
 
-        @param getObject: Callable(object)
-            A callable that takes as an argument the object to extract this meta object instance.
-        @param properties: dictionary{string, object meta}|None
-            The object properties.
+        @param getModel: Callable(object)
+            A callable that takes as an argument the object to extract the model instance.
+        @param metaProperties: dictionary{string, object meta}|None
+            The meta properties.
         '''
-        assert callable(getObject), 'Invalid get object callable %s' % getObject
-        assert properties is None or isinstance(properties, dict), 'Invalid properties %s' % properties
-        self.getObject = getObject
-        self.properties = properties or {}
-    
-class List:
+        assert isinstance(model, Model), 'Invalid model %s' % model
+        assert callable(getModel), 'Invalid get model callable %s' % getModel
+        self.model = model
+        self.getModel = getModel
+        super().__init__(*args, **keyargs)
+        
+    def clone(self):
+        '''
+        Clone this meta.
+        '''
+        clone = MetaModel(self.model, self.getModel)
+        clone.update({name:meta.clone() for name, meta in self.metaProperties.items()})
+        return clone
+
+@immutable  
+class MetaList:
     '''
     Provides the list meta.
     '''
     
-    def __init__(self, itemMeta, getItems=returnSame):
+    __slots__ = ('metaItem', 'getItems')
+    __immutable__ = ('metaItem', 'getItems')
+    
+    def __init__(self, metaItem, getItems):
         '''
         Construct the list meta.
 
-        @param itemMeta: Object|Path
-            The item object.
+        @param metaItem: MetaModel|MetaLink
+            The meta item.
         @param getItems: Callable(object)
             A callable that takes as an argument the object to extract this meta list instance.
         '''
+        assert isinstance(metaItem, (MetaModel, MetaLink)), 'Invalid meta item %s' % metaItem
         assert callable(getItems), 'Invalid get items callable %s' % getItems
-        assert isinstance(itemMeta, (Object, Link)), 'Invalid meta object %s' % itemMeta
+        self.metaItem = metaItem
         self.getItems = getItems
-        self.itemMeta = itemMeta
-    
-class Value:
-    '''
-    Provides the value meta.
-    '''
-    
-    def __init__(self, type, getValue=returnSame):
-        '''
-        Construct the list meta.
         
-        @param type: Type
-            The value type.
-        @param getValue: Callable(object)
-            A callable that takes as an argument the object to extract this meta value instance.
+    def clone(self):
         '''
-        assert isinstance(type, Type), 'Invalid value type %s' % type
-        assert callable(getValue), 'Invalid get value callable %s' % getValue
-        self.type = type
-        self.getValue = getValue
-    
-class Link:
+        Clone this meta.
+        '''
+        return self
+
+@immutable
+class MetaLink:
     '''
     Provides the link meta.
     '''
     
-    def __init__(self, getLink=returnSame):
+    __slots__ = ('getLink',)
+    __immutable__ = ('getLink',)
+    
+    def __init__(self, getLink):
         '''
         Construct the link meta.
         
@@ -89,23 +100,83 @@ class Link:
         '''
         assert callable(getLink), 'Invalid get link callable %s' % getLink
         self.getLink = getLink
+        
+    def clone(self):
+        '''
+        Clone this meta.
+        '''
+        return self
 
-class ValueLink(Value, Link):
+@immutable
+class MetaValue:
     '''
-    Provides the value and link meta.
+    Provides the value meta.
     '''
     
-    def __init__(self, type, getValue=returnSame, getLink=returnSame):
+    __slots__ = ('type', 'getValue', 'metaLink')
+    __immutable__ = ('type', 'getValue', 'metaLink')
+    
+    def __init__(self, type, getValue, metaLink=None):
         '''
-        Construct the value and link meta.
-
-        @param getLink: Callable(object)
-            A callable that takes as an argument the object to extract the path.
+        Construct the list meta.
+        
         @param type: Type
             The value type.
         @param getValue: Callable(object)
             A callable that takes as an argument the object to extract this meta value instance.
+        @param metaLink: MetaLink|None
+            The meta link of the value or None.
         '''
-        Value.__init__(self, type, getValue)
-        Link.__init__(self, getLink)
+        assert isinstance(type, Type), 'Invalid value type %s' % type
+        assert callable(getValue), 'Invalid get value callable %s' % getValue
+        assert metaLink is None or isinstance(metaLink, MetaLink), 'Invalid meta link %s' % metaLink
+        self.type = type
+        self.getValue = getValue
+        self.metaLink = metaLink
+
+    def clone(self):
+        '''
+        Clone this meta.
+        '''
+        return self
+
+# --------------------------------------------------------------------
+
+class MetaPath(MetaLink):
+    '''
+    Provides the link on path meta.
+    '''
+    
+    __slots__ = ('type', 'path', 'getValue')
+    __immutable__ = ('type', 'path', 'getValue')
+    
+    def __init__(self, path, type, getValue):
+        '''
+        Construct the update path callable.
         
+        @param path: Path
+            The path to be updated and returned.
+        @param type: TypeProperty|TypeModel
+            The type of the object to be updated.
+        @param getValue: Callable(object)
+            A callable that takes as an argument the object to extract the value for the path.
+        '''
+        assert isinstance(path, Path), 'Invalid path %s' % path
+        assert isinstance(type, (TypeProperty, TypeModel)), 'Invalid type %s' % type
+        assert callable(getValue), 'Invalid get value callable %s' % getValue
+        self.type = type
+        self.path = path
+        self.getValue = getValue
+        
+    def getLink(self, obj):
+        '''
+        Provides the updated path.
+        
+        @return: Path
+            The updated path.
+        '''
+        path = self.path.clone()
+        assert isinstance(path, Path)
+        path.update(self.getValue(obj), self.type)
+        assert path.isValid(), 'The updated path %s is not valid' % self.path
+        return path

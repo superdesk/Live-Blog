@@ -35,7 +35,7 @@ def encoderTextJSON():
 def encoderTextYAML():
     try:
         import yaml
-        def encodeYAML(obj, fwrite, charSet): yaml.dump(obj, fwrite, encoding=charSet, default_flow_style=False)
+        def encodeYAML(obj, fwrite, charSet): yaml.dump(obj, fwrite, default_flow_style=False)
         return encodeYAML
     except ImportError: return None
 

@@ -41,5 +41,13 @@ def metaCreator() -> Processor:
     return b
 
 @ioc.entity
-def encoderTextProcessors():
+def encoderProcessors():
     return Processors(metaCreator(), encoderText())
+
+@ioc.entity
+def encoderTextProcessors():
+    return Processors(encoderText())
+
+@ioc.entity
+def encoderCreateMetaProcessors():
+    return Processors(metaCreator())
