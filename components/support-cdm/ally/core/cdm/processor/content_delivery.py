@@ -107,20 +107,18 @@ class ContentDeliveryHandler(Processor):
                 raise Exception('Invalid link to a file in file')
             else:
                 resPath = linkedFilePath
-            rf = open(resPath, 'rb')
             if self._isPathDeleted(join(linkPath, subPath)):
                 raise Exception('Resource was deleted')
-            return rf
+            return open(resPath, 'rb')
 
     def _processZiplink(self, linkPath, subPath):
         with open(linkPath + '.ziplink') as f:
             zipFilePath = f.readline().strip()
             inFilePath = f.readline().strip()
             zipFile = ZipFile(zipFilePath)
-            rf = zipFile.open(join(inFilePath, subPath), 'r')
             if self._isPathDeleted(join(linkPath, subPath)):
                 raise Exception('Resource was deleted')
-            return rf
+            return zipFile.open(join(inFilePath, subPath), 'r')
 
     def _sendNotAvailable(self, rsp, message):
         rsp.addAllows(GET)
