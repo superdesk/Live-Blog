@@ -12,7 +12,7 @@ Provides the X headers handling.
 from ally.api.operator import Model, Property
 from ally.api.type import formattedType
 from ally.container.ioc import injected
-from ally.core.http.processor.header import HeaderHTTPBase, VALUES, \
+from .header import HeaderHTTPBase, VALUES, \
     VALUE_NO_PARSE
 from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE
 from ally.core.spec.resources import Normalizer
@@ -89,7 +89,7 @@ class HeaderXHandler(HeaderHTTPBase, Processor, EncoderHeader):
             assert isinstance(e, DevelException)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
-        chain.process(req, rsp)
+        chain.proceed()
         
     def encode(self, headers, rsp):
         '''

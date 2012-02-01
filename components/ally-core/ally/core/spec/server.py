@@ -58,6 +58,14 @@ class ProcessorsChain:
         self._processors = deque(processors)
         self._consumed = False
     
+    def proceed(self):
+        '''
+        Indicates to the chain that it should proceed with the chain execution after a processor has returned. The proceed
+        is available only when the chain execution is in execution. The execution is continued with the same request and
+        response.
+        '''
+        self._proceed = True
+    
     def process(self, request, response):
         '''
         Called in order to execute the next processors in the chain. This method will stop processing when all
@@ -68,15 +76,21 @@ class ProcessorsChain:
         @param response: object
             The response to dispatch to the next processors to be executed.
         '''
-        if len(self._processors) > 0:
-            proc = self._processors.popleft()
-            assert isinstance(proc, Processor)
-            assert log.debug('Processing %r', proc.__class__.__name__) or True
-            proc.process(request, response, self)
-            assert log.debug('Processing finalized %r', proc.__class__.__name__) or True
-        else:
-            assert log.debug('Processing finalized by consuming') or True
-            self._consumed = True
+        proceed = True
+        while proceed:
+            proceed = self._proceed = False
+            if len(self._processors) > 0:
+                proc = self._processors.popleft()
+                assert isinstance(proc, Processor)
+                assert log.debug('Processing %r', proc.__class__.__name__) or True
+                proc.process(request, response, self)
+                assert log.debug('Processing finalized %r', proc.__class__.__name__) or True
+                if self._proceed:
+                    assert log.debug('Proceed signal received, continue execution') or True
+                    proceed = self._proceed
+            else:
+                assert log.debug('Processing finalized by consuming') or True
+                self._consumed = True
     
     def isConsumed(self):
         '''

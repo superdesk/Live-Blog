@@ -100,7 +100,7 @@ class BabelConverterHandler(Processor):
         else:
             assert log.debug('No language on the request content, cannot create converter') or True
         
-        chain.process(req, rsp)
+        chain.proceed()
         
     def _makeConverter(self, content, presentFormating=False):
         '''

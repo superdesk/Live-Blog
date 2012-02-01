@@ -10,7 +10,7 @@ Provides the invokers implementations.
 '''
 
 from ally.api.operator import Service, Call, Property, Model
-from ally.api.type import TypeProperty, Input, TypeModel
+from ally.api.type import Input, TypeModel
 from ally.core.spec.resources import Invoker, Normalizer
 from ally.exception import DevelException
 

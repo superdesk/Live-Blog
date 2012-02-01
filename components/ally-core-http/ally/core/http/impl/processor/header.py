@@ -27,6 +27,8 @@ VALUES = 3
 VALUE = 4
 VALUE_NO_PARSE = 5
 
+# --------------------------------------------------------------------
+
 @injected
 class HeaderHTTPBase:
     '''
@@ -190,7 +192,7 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
         assert isinstance(self.nameContentLanguage, str), 'Invalid string %s' % self.nameContentLanguage
         assert isinstance(self.nameContentLength, str), 'Invalid string %s' % self.nameContentLength
         assert isinstance(self.nameAllow, str), 'Invalid string %s' % self.nameAllow
-        assert isinstance(self.methodsAllow, tuple), 'Invalid methods dictionary %s' % (self.methodsAllow,)
+        assert isinstance(self.methodsAllow, tuple), 'Invalid methods allow %s' % (self.methodsAllow,)
         assert isinstance(self.nameContentLocation, str), 'Invalid string %s' % self.nameContentLocation
         assert isinstance(self.nameAccept, str), 'Invalid string %s' % self.nameAccept
         assert isinstance(self.nameAcceptCharset, str), 'Invalid string %s' % self.nameAcceptCharset
@@ -233,7 +235,7 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
             assert isinstance(e, DevelException)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
-        chain.process(req, rsp)
+        chain.proceed()
 
     def encode(self, headers, rsp):
         '''

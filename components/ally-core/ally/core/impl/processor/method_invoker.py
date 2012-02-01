@@ -25,7 +25,7 @@ class MethodInvokerHandler(Processor):
     If the node has no invoke than this processor will stop the execution chain and provide an error response also
     providing the allows methods for the resource path node.
     
-    Provides on request: invoker
+    Provides on request: invoker, objType
     Provides on response: NA
     
     Requires on request: method, resourcePath
@@ -67,7 +67,8 @@ class MethodInvokerHandler(Processor):
         else:
             self._sendNotAvailable(node, rsp, 'Path not available for this method')
             return
-        chain.process(req, rsp)
+        rsp.objType = req.invoker.outputType
+        chain.proceed()
 
     def _processAllow(self, node, rsp):
         '''

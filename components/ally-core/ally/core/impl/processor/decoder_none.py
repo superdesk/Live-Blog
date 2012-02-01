@@ -42,4 +42,4 @@ class DecodingNoneHandler(Processor):
             noDecoding = True
         if noDecoding:
             assert log.debug('Nothing required to be decoded for this invoking') or True
-        else: chain.process(req, rsp)
+        else: chain.proceed()

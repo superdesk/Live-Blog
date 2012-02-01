@@ -43,4 +43,4 @@ class DeliverOkHandler(Processor):
         if req.method == self.forMethod:
             rsp.setCode(RESOURCE_FOUND, 'Ok')
         else:
-            chain.process(req, rsp)
+            chain.proceed()

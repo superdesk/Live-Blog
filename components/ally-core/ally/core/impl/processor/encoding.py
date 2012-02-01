@@ -70,4 +70,4 @@ class EncodingProcessorsHandler(Processor):
                 rsp.setCode(UNKNOWN_ENCODING,
                         'Accepted content types %r not supported for encoding' % ', '.join(req.accContentTypes))
                 return
-        chain.process(req, rsp)
+        chain.proceed()

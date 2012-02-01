@@ -47,7 +47,7 @@ class HintingHandler(Processor):
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         rsp.encoderPath = EncoderPathHinter(rsp.encoderPath, self)
-        chain.process(req, rsp)
+        chain.proceed()
 
 # --------------------------------------------------------------------
 

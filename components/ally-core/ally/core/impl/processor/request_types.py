@@ -43,4 +43,4 @@ class RequestTypesHandler(Processor):
                     req.arguments[inp.name] = req.accLanguages
                 else:
                     req.arguments[inp.name] = rsp.contentLanguage
-        chain.process(req, rsp)
+        chain.proceed()

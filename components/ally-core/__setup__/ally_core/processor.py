@@ -9,9 +9,11 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
+from . import use_old_encdec
 from .converter import defaultErrorContentConverter
 from .encoder_decoder import handlersDecoding, handlersEncoding
 from .parameter import decodersParameters
+from .resource_manager import resourcesManager
 from ally.container import ioc
 from ally.core.impl.processor.converter import ConverterHandler
 from ally.core.impl.processor.decoding import DecodingHandler
@@ -20,6 +22,7 @@ from ally.core.impl.processor.explain_detailed_error import \
     ExplainDetailedErrorHandler
 from ally.core.impl.processor.explain_error import ExplainErrorHandler
 from ally.core.impl.processor.invoking import InvokingHandler
+from ally.core.impl.processor.meta_creator import MetaCreatorHandler
 from ally.core.impl.processor.method_invoker import MethodInvokerHandler
 from ally.core.impl.processor.parameters import ParametersHandler
 from ally.core.impl.processor.request_types import RequestTypesHandler
@@ -38,14 +41,6 @@ def explain_detailed_error():
     '''If True will provide as an error response a detailed XML providing info about where the problem originated'''
     return False
 
-@ioc.config
-def use_old_encdec():
-    '''
-    Temporary flag that allows the use of the old encoders and decoders, this are kept for compatibility purposes with
-    the old applications.
-    '''
-    return True
-
 @ioc.entity
 def handlersExplainError(): return [encoding()]
 
@@ -59,6 +54,12 @@ def explainError() -> Processor:
 
 @ioc.entity
 def methodInvoker() -> Processor: return MethodInvokerHandler()
+
+@ioc.entity
+def metaCreator() -> Processor:
+    b = MetaCreatorHandler()
+    b.resourcesManager = resourcesManager()
+    return b
 
 @ioc.entity
 def converter() -> Processor: return ConverterHandler()
@@ -83,14 +84,17 @@ def invokingHandler() -> Processor: return InvokingHandler()
 
 @ioc.entity   
 def encoding() -> Processor:
-    #TODO: if use_old_encdec():
-        b = EncodingProcessorsHandler()
-        b.encodings = Processors(*handlersEncoding())
-        return b
-    #else: return encodingText()
+    b = EncodingProcessorsHandler()
+    b.encodings = Processors(*handlersEncoding())
+    return b
 
 # ---------------------------------
 
 @ioc.entity
-def resourcesHandlers(): return [explainError(), methodInvoker(), converter(), requestTypes(), parameters(), decoding(),
-                        invokingHandler(), encoding()]
+def resourcesHandlers():
+    if use_old_encdec():
+        #TODO: DEPRECATED: To be removed when the new meta encoders are finalized
+        return [explainError(), methodInvoker(), converter(), requestTypes(), parameters(), decoding(),
+                invokingHandler(), encoding()]
+    return [explainError(), methodInvoker(), metaCreator(), converter(), requestTypes(), parameters(), decoding(),
+                invokingHandler(), encoding()]

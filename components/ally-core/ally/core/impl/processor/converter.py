@@ -44,4 +44,4 @@ class ConverterHandler(Processor):
         if req.content.contentLanguage:
             req.content.contentConverter = Converter()
         
-        chain.process(req, rsp)
+        chain.proceed()

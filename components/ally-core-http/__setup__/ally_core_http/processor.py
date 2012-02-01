@@ -10,14 +10,16 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from . import server_pattern_rest
+from ..ally_core import use_old_encdec
 from ..ally_core.converter import contentNormalizer, converterPath
 from ..ally_core.processor import resourcesHandlers, methodInvoker, converter, \
     handlersExplainError
 from ..ally_core.resource_manager import resourcesManager
 from ally.container import ioc
-from ally.core.http.processor.header import HeaderStandardHandler
-from ally.core.http.processor.header_x import HeaderXHandler
-from ally.core.http.processor.uri import URIHandler
+from ally.core.http.impl.processor.header import HeaderStandardHandler
+from ally.core.http.impl.processor.header_x import HeaderXHandler
+from ally.core.http.impl.processor.meta_filter import MetaFilterHandler
+from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.spec.server import Processor, Processors
 import re
 
@@ -43,7 +45,16 @@ def headerStandard() -> Processor:
     return b
 
 @ioc.entity
+def metaFilter() -> Processor:
+    b = MetaFilterHandler()
+    b.resourcesManager = resourcesManager()
+    b.normalizer = contentNormalizer()
+    b.readFromParams = read_from_params()
+    return b
+
+@ioc.entity
 def headerX() -> Processor:
+    #TODO: DEPRECATED: To be removed when the new meta encoders are finalized
     b = HeaderXHandler()
     b.normalizer = contentNormalizer()
     b.readFromParams = read_from_params()
@@ -61,7 +72,11 @@ def updateHandlersExplainError():
 def updateHandlers():
     resourcesHandlers().insert(resourcesHandlers().index(methodInvoker()), headerStandard())
     resourcesHandlers().insert(resourcesHandlers().index(headerStandard()), uri())
-    resourcesHandlers().insert(resourcesHandlers().index(converter()), headerX())
+    if use_old_encdec():
+        #TODO: DEPRECATED: To be removed when the new meta encoders are finalized
+        resourcesHandlers().insert(resourcesHandlers().index(converter()), headerX())
+    else:
+        resourcesHandlers().insert(resourcesHandlers().index(converter()), metaFilter())
 
 @ioc.entity
 def pathProcessors():

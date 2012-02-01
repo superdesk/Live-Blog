@@ -93,7 +93,7 @@ class EncodingJSONHandler(EncodingBaseHandler):
                 txt = TextIOWrapper(rsp.dispatch(), self._getCharSet(req, rsp), self.encodingError)
                 json.dump(obj, txt)
                 return
-        chain.process(req, rsp)
+        chain.proceed()
 
     def _appendPath(self, pathsObj, path, rsp, fullName=False, pathName=None):
         assert isinstance(path, Path), 'Invalid path %s' % path
@@ -260,7 +260,7 @@ class DecodingJSONHandler(DecodingBaseHandler):
                 assert log.debug('Expected a model for decoding the content, could not find one') or True
         else:
             assert log.debug('Invalid request for the JSON decoder') or True
-        chain.process(req, rsp)
+        chain.proceed()
             
     def _decodeModel(self, obj, model, converter):
         assert isinstance(model, Model)

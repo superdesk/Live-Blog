@@ -71,6 +71,7 @@ class ExplainErrorHandler(Processor):
             if messages: error['message'] = messages
             rsp.obj = {'error':error}
             rsp.objType = None
+            rsp.objMeta = None
             rsp.contentType = None
             rsp.contentLocation = None
             if not rsp.contentConverter:

@@ -36,7 +36,7 @@ class InvokingHandler(Processor):
     a success code.
     
     Provides on request: NA
-    Provides on response: obj, objType
+    Provides on response: obj
     
     Requires on request: invoker, resourcePath
     Requires on response: NA
@@ -68,7 +68,7 @@ class InvokingHandler(Processor):
             arguments.update(req.arguments)
             if req.method == INSERT: invoke.append(path)
             
-        if self._invoke(*invoke): chain.process(req, rsp)
+        if self._invoke(*invoke): chain.proceed()
     
     # ----------------------------------------------------------------
     
@@ -85,7 +85,6 @@ class InvokingHandler(Processor):
         '''
         assert isinstance(rsp, Response)
         assert isinstance(invoker, Invoker)
-        rsp.objType = invoker.outputType
         rsp.obj = value
         return True
     
@@ -105,14 +104,12 @@ class InvokingHandler(Processor):
         assert isinstance(invoker, Invoker)
         if isPropertyTypeId(invoker.outputType):
             if value is not None:
-                rsp.objType = invoker.outputType
                 rsp.obj = value
             else:
                 rsp.setCode(CANNOT_INSERT, 'Cannot insert')
                 assert log.debug('Cannot updated resource') or True
                 return False
         else:
-            rsp.objType = invoker.outputType
             rsp.obj = value
         rsp.setCode(INSERT_SUCCESS, 'Successfully created')
         return True
@@ -143,7 +140,6 @@ class InvokingHandler(Processor):
             return False
         else:
             #If an entity is returned than we will render that.
-            rsp.objType = invoker.outputType
             rsp.obj = value
         return True
     
@@ -170,7 +166,6 @@ class InvokingHandler(Processor):
             return False
         else:
             #If an entity is returned than we will render that.
-            rsp.objType = invoker.outputType
             rsp.obj = value
         return True
     
@@ -186,11 +181,10 @@ class InvokingHandler(Processor):
         @return: boolean
             False if the invoking has failed, True for success.
         '''
-        assert isinstance(invoker, Invoker)
-        assert isinstance(rsp, Response)
+        assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
+        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         try:
-            value = invoker.invoke(*[arguments[inp.name] if inp.name in arguments else None
-                                     for inp in invoker.inputs ])
+            value = invoker.invoke(*(arguments[inp.name] for inp in invoker.inputs if inp.name in arguments))
             assert log.debug('Successful on calling invoker %s with values %s', invoker, args) or True
             return callback(value, invoker, rsp, *args)
         except DevelException as e:

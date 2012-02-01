@@ -10,12 +10,12 @@ Provides the containers that describe the APIs.
 '''
 
 from ..support.util import IS_PY3K, Attribute, immutable, immut
-from ..type_legacy import Iterable, OrderedDict
+from ..type_legacy import OrderedDict
 from .type import Type, Input, Id, IdString, Boolean, Number, Integer, \
     Percentage, String, Time, Date, DateTime, TypeProperty, typeFor
+from ally.api.type import TypeModel
 from inspect import ismodule, getargspec, isclass
 import logging
-from ally.api.type import TypeModel
 
 # --------------------------------------------------------------------
 
@@ -487,32 +487,27 @@ class Call:
         @param impl: object
             The implementation that reflects the service call that is
             contained by this call.
-        @param args: list
+        @param args: list[object]|tuple(object)
             The arguments to be used in invoking the service 
         '''
         assert not impl is None, 'Provide the service implementation to be used foe calling the represented function'
-        assert isinstance(args, Iterable), 'The arguments %s need to be iterable' % str(args)
-        valid = False
-        if len(args) >= self.mandatoryCount and len(self.inputs) >= len(args):
-            valid = True
+        assert isinstance(args, (list, tuple)), 'The arguments %s' % args
+        assert len(args) >= self.mandatoryCount and len(self.inputs) >= len(args), \
+        'Expected at least %r arguments got only %r, for %r' % (self.mandatoryCount, args, self)
+        if __debug__:
             for k, inp, value in zip(range(len(self.inputs)), self.inputs, args):
                 assert isinstance(inp, Input)
                 if value is None and k >= self.mandatoryCount:
                     continue
-                if not inp.type.isValid(value):
-                    valid = False
-                    break
-        if not valid:
-            raise AssertionError('The arguments %r provided are not compatible with the expected inputs %r' % 
-                                 (args, self.inputs))
+                assert inp.type.isValid(value), \
+                'Invalid value %s for input type %r in arguments %s for %r' % (value, inp.type, args, self)
+
         if ismodule(impl): func = getattr(impl, self.name)
         else: func = getattr(impl, self.name)
         
         ret = func.__call__(*args)
-            
-        if not self.outputType.isValid(ret):
-            raise AssertionError('The return %s provided is not compatible with the expected output type %s \
-for call %s' % (ret, self.outputType, self))
+        assert self.outputType.isValid(ret), 'The return %s provided is not compatible with the expected output type %s \
+for call %s' % (ret, self.outputType, self)
         
         assert log.debug('Success calling %r with arguments %s and return class %s', \
                          func.__name__, args, ret.__class__.__name__) or True

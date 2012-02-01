@@ -64,4 +64,4 @@ class ParametersHandler(Processor):
                 rsp.setCode(UNKNOWN_PARAMS, 'Unknown parameters or values %r' % ', '.join(
                                                                 ['%s=%s' % (param[0], param[1]) for param in params]))
                 return
-        chain.process(req, rsp)
+        chain.proceed()

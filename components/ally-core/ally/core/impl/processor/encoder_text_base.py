@@ -34,7 +34,7 @@ class EncodingTextBaseHandler(Processor):
     Provides on response: the content response
     
     Requires on request: NA
-    Requires on response: contentType, encoderPath, contentConverter, obj, [objType], [objMeta]
+    Requires on response: contentType, encoderPath, contentConverter, obj, [objMeta]
     '''
     
     charSetDefault = str
@@ -103,7 +103,7 @@ class EncodingTextBaseHandler(Processor):
                                 rsp.encoderPath.encode)
                 return
         
-        chain.process(req, rsp)
+        chain.proceed()
     
     # ----------------------------------------------------------------
     

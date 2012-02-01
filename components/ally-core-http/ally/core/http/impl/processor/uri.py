@@ -89,7 +89,7 @@ class URIHandler(Processor):
         rsp.code = RESOURCE_FOUND
         req.resourcePath = resourcePath
         assert log.debug('Successfully found resource for path %s with extension %s', req.path, extension) or True
-        chain.process(req, rsp)
+        chain.proceed()
 
 # --------------------------------------------------------------------
 

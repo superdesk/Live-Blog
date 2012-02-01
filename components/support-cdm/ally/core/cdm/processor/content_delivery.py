@@ -96,7 +96,7 @@ class ContentDeliveryHandler(Processor):
             except Exception as e:
                 return rsp.setCode(RESOURCE_NOT_FOUND, str(e))
 
-        chain.process(req, rsp)
+        chain.proceed()
 
     def _processLink(self, linkPath, subPath):
         with open(linkPath + '.link') as f:

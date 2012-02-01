@@ -29,3 +29,4 @@ logging.getLogger('newscoop').setLevel(logging.WARN)
 
 logging.getLogger('print_desk').setLevel(logging.WARN)
 
+logging.getLogger('ally.core.impl.processor.encoder_xml').setLevel(logging.WARN)

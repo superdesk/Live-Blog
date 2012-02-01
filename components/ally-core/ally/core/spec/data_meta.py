@@ -12,7 +12,7 @@ Provides the data meta support.
 from ally.api.operator import Model
 from ally.api.type import Type, TypeProperty, TypeModel
 from ally.core.spec.resources import Path
-from ally.support.util import immutable
+from ally.support.util import immutable, immut
 
 # --------------------------------------------------------------------
 
@@ -22,36 +22,41 @@ returnSame = lambda obj: obj
 # --------------------------------------------------------------------
 
 @immutable
-class MetaModel(dict):
+class MetaModel:
     '''
     Provides the meta model object.
     '''
     
-    __slots__ = ('model', 'getModel')
-    __immutable__ = ('model', 'getModel')
+    __slots__ = ('model', 'getModel', 'metaLink', 'properties')
+    __immutable__ = ('model', 'getModel', 'metaLink', 'properties')
     
-    def __init__(self, model, getModel, *args, **keyargs):
+    def __init__(self, model, getModel, metaLink=None, properties={}):
         '''
         Construct the object meta.
-
+    
+        @param model: Model
+            The model of the meta.
         @param getModel: Callable(object)
             A callable that takes as an argument the object to extract the model instance.
-        @param metaProperties: dictionary{string, object meta}|None
-            The meta properties.
+        @param metaLink: MetaLink|None
+            The meta link of the model or None.
+        @param metaLink: MetaLink|None
+            The meta link of the model or None.
+        @param properties: dictionary{string, meta object}
+            The properties of the meta model.
         '''
         assert isinstance(model, Model), 'Invalid model %s' % model
         assert callable(getModel), 'Invalid get model callable %s' % getModel
+        assert metaLink is None or isinstance(metaLink, MetaLink), 'Invalid meta link %s' % metaLink
+        assert isinstance(properties, dict), 'Invalid properties %s' % properties
+        if __debug__:
+            for name in properties: assert isinstance(name, str), 'Invalid property name %s' % name
         self.model = model
         self.getModel = getModel
-        super().__init__(*args, **keyargs)
-        
-    def clone(self):
-        '''
-        Clone this meta.
-        '''
-        clone = MetaModel(self.model, self.getModel)
-        clone.update({name:meta.clone() for name, meta in self.metaProperties.items()})
-        return clone
+        self.metaLink = metaLink
+        self.properties = immut(properties)
+    
+    def __str__(self): return '%s[%s, %s]' % (self.__class__.__name__, self.metaLink, self.properties)
 
 @immutable  
 class MetaList:
@@ -75,12 +80,8 @@ class MetaList:
         assert callable(getItems), 'Invalid get items callable %s' % getItems
         self.metaItem = metaItem
         self.getItems = getItems
-        
-    def clone(self):
-        '''
-        Clone this meta.
-        '''
-        return self
+    
+    def __str__(self): return '%s[%s]' % (self.__class__.__name__, self.metaItem)
 
 @immutable
 class MetaLink:
@@ -100,12 +101,6 @@ class MetaLink:
         '''
         assert callable(getLink), 'Invalid get link callable %s' % getLink
         self.getLink = getLink
-        
-    def clone(self):
-        '''
-        Clone this meta.
-        '''
-        return self
 
 @immutable
 class MetaValue:
@@ -113,10 +108,10 @@ class MetaValue:
     Provides the value meta.
     '''
     
-    __slots__ = ('type', 'getValue', 'metaLink')
-    __immutable__ = ('type', 'getValue', 'metaLink')
+    __slots__ = ('type', 'getValue')
+    __immutable__ = ('type', 'getValue')
     
-    def __init__(self, type, getValue, metaLink=None):
+    def __init__(self, type, getValue):
         '''
         Construct the list meta.
         
@@ -124,21 +119,38 @@ class MetaValue:
             The value type.
         @param getValue: Callable(object)
             A callable that takes as an argument the object to extract this meta value instance.
-        @param metaLink: MetaLink|None
-            The meta link of the value or None.
         '''
         assert isinstance(type, Type), 'Invalid value type %s' % type
         assert callable(getValue), 'Invalid get value callable %s' % getValue
-        assert metaLink is None or isinstance(metaLink, MetaLink), 'Invalid meta link %s' % metaLink
         self.type = type
         self.getValue = getValue
-        self.metaLink = metaLink
+    
+    def __str__(self): return '%s[%s, %s]' % (self.__class__.__name__, self.metaLink, self.type)
 
-    def clone(self):
+class MetaFetch:
+    '''
+    Provides a meta that just fetches a value that has to be used by the contained meta.
+    This type of meta is not rendered.
+    '''
+    
+    __slots__ = ('meta', 'getValue')
+    __immutable__ = ('meta', 'getValue')
+    
+    def __init__(self, meta, getValue):
         '''
-        Clone this meta.
+        Construct the fetch meta.
+        
+        @param meta: meta object
+            The meta object to be used on the fetched value.
+        @param getValue: Callable(object)
+            A callable that takes as an argument the object to extract the contained meta value.
         '''
-        return self
+        assert meta is not None, 'A meta object is required'
+        assert callable(getValue), 'Invalid get value callable %s' % getValue
+        self.meta = meta
+        self.getValue = getValue
+    
+    def __str__(self): return '%s[%s]' % (self.__class__.__name__, self.meta)
 
 # --------------------------------------------------------------------
 
@@ -172,11 +184,13 @@ class MetaPath(MetaLink):
         '''
         Provides the updated path.
         
-        @return: Path
-            The updated path.
+        @return: Path|None
+            The updated path or None if no path is available.
         '''
+        assert isinstance(self.path, Path)
+        value = self.getValue(obj)
         path = self.path.clone()
-        assert isinstance(path, Path)
-        path.update(self.getValue(obj), self.type)
-        assert path.isValid(), 'The updated path %s is not valid' % self.path
-        return path
+        path.update(value, self.type)
+        if path.isValid(): return path
+        
+    def __str__(self): return '%s[%s, %s]' % (self.__class__.__name__, self.path, self.type)

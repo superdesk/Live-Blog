@@ -72,4 +72,4 @@ class DecodingHandler(Processor):
             if rsp.code and not rsp.code.isSuccess:
                 # A failure occurred in decoding, stopping chain execution
                 return
-        chain.process(req, rsp)
+        chain.proceed()

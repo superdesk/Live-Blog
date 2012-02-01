@@ -114,7 +114,7 @@ class EncodingXMLHandler(EncodingBaseHandler):
                     assert log.debug('Cannot encode object type %r', typ) or True
             else:
                 assert log.debug('Invalid response, has no path encoder') or True
-        chain.process(req, rsp)
+        chain.proceed()
 
     def _xml(self, req, rsp):
         assert isinstance(rsp, Response)
@@ -343,7 +343,7 @@ class DecodingXMLHandler(DecodingBaseHandler):
                 return
         else:
             assert log.debug('Invalid request for the XML decoder') or True
-        chain.process(req, rsp)
+        chain.proceed()
         
     def _ruleModel(self, model, converter):
         assert isinstance(model, Model)
