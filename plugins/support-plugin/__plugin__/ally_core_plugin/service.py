@@ -17,8 +17,7 @@ from ally_core_plugin.impl.plugin import PluginService
 # --------------------------------------------------------------------
 
 @ioc.entity
-def pluginService()->IPluginService: return PluginService()
+def pluginService() -> IPluginService: return PluginService()
 
 @ioc.before(services)
 def registerService(): services().append(pluginService())
-    
