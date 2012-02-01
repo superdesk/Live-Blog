@@ -62,42 +62,22 @@ class IRequestIntrospectService:
     def getRequest(self, id:Request.Id) -> Request:
         '''
         Provides the request for the provided id.
-        
-        @param id: integer
-            The id of the request to retrieve.
-        @return: Request
-            The request object.
         '''
             
     @call
     def getMethod(self, id:Method.Id) -> Method:
         '''
         Provides the method for the provided id.
-        
-        @param id: integer
-            The id of the method to retrieve.
-        @return: Method
-            The method object.
         '''
 
     @call
-    def getPatternInputs(self, id:Request.Id) -> Iter(Input):
+    def getAllInputs(self, id:Request.Id=None) -> Iter(Input):
         '''
-        Provides the pattern inputs.
-        
-        @param id: integer
-            The id of the request to retrieve the pattern inputs for.
-        @return: iter(Input)
-            The inputs that need to be provided in the pattern.
+        Provides all the pattern inputs.
         '''
         
     @call
     def getAllRequests(self, offset:int=None, limit:int=None) -> Iter(Request):
         '''
         Provides all the request nodes.
-        
-        @param offset: integer
-            The offset to retrieve the request nodes from.
-        @param limit: integer
-            The limit of request nodes to retrieve.
         '''

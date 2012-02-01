@@ -73,15 +73,16 @@ class RequestIntrospectService(IRequestIntrospectService):
         if id not in self._methods: raise InputException(Ref(_('Invalid method id'), ref=Method.Id))
         return self._methods[id]
     
-    def getPatternInputs(self, id):
+    def getAllInputs(self, id):
         '''
-        @see: IRequestIntrospectService.getPatternInputs
+        @see: IRequestIntrospectService.getAllInputs
         '''
         self._refresh()
+        if not id: return self._inputs.values()
         if id not in self._patternInputs: raise InputException(Ref(_('Invalid request id'), ref=Request.Id))
         return (self._inputs[inpId] for inpId in self._patternInputs[id]) 
     
-    def getAllRequests(self, offset=None, limit=None):
+    def getAllRequests(self, offset, limit):
         '''
         @see: IRequestIntrospectService.getAllRequests
         '''
