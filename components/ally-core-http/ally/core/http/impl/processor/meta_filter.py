@@ -25,11 +25,6 @@ import logging
 
 log = logging.getLogger(__name__)
 
-fetchFirst = lambda pack: pack[0]
-# Function used to fetch the first value from a fetcher return tuple
-fetchSecond = lambda pack: pack[1]
-# Function used to fetch the second value from a fetcher return tuple
-
 # --------------------------------------------------------------------
 
 @injected
@@ -104,7 +99,27 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
     
     # ----------------------------------------------------------------
     
-    def filterMeta(self, meta, normalize, filterTree={}, more=False):
+    def filterMeta(self, meta, normalize, filterTree={}, first=False):
+        '''
+        Filters the provided meta based on the filter tree.
+        
+        @param meta: meta object
+            The meta object to be filtered.
+        @param normalize: Callable
+            The call used for normalize the names.
+        @param filterTree: dictionary{string, dictionary{string, ...}}
+            The filter tree for the meta, the filter tree is consumed whenever a valid filter is found. All the filters
+            that have not been recognized will be left in the filter tree structure.
+        @param first: boolean
+            Flag indicating that this is the first meta entry, False otherwise.
+        @return: meta object
+            The filtered meta object.
+        '''
+        assert meta is not None, 'A meta object is required'
+        assert callable(normalize), 'Invalid normalize %s' % normalize
+        assert isinstance(filterTree, dict), 'Invalid filter dictionary %s' % filterTree
+        assert isinstance(first, bool), 'Invalid first flag %s' % first
+        
         if isinstance(meta, MetaList):
             if isinstance(meta.metaItem, MetaModel):
                 assert isinstance(meta, MetaList)
@@ -125,7 +140,7 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                             metas[name] = self.filterMeta(pmeta, normalize, f)
                             if not f: del filterTree[nname]
                         unknownNames.remove(nname)
-                    elif more: metas[name] = pmeta
+                    elif first: metas[name] = pmeta
                     
                 if unknownNames and isinstance(meta.metaLink, MetaPath):
                     # If there are unknown filter names we will try to see if there are in the full meta model.
@@ -158,18 +173,32 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                         return MetaModel(meta.model, Fetcher(meta), meta.metaLink, metas)
                 
                 return MetaModel(meta.model, meta.getModel, meta.metaLink, metas)
-            elif not more:
+            elif not first and meta.metaLink:
                 return MetaModel(meta.model, meta.getModel, meta.metaLink)
             
         return meta
 
 # --------------------------------------------------------------------
 
+fetchFirst = lambda pack: pack[0]
+# Function used to fetch the first value from a fetcher return tuple
+fetchSecond = lambda pack: pack[1]
+# Function used to fetch the second value from a fetcher return tuple
+
 class Fetcher:
+    '''
+    The fetcher provides the ability to get the additional models to be presented.
+    '''
     
     __slots__ = ('meta',)
     
     def __init__(self, meta):
+        '''
+        Constructs the fetcher base on the meta model
+        
+        @param meta: MetaModel
+            The meta model that this fetcher wraps and extends.
+        '''
         assert isinstance(meta, MetaModel), 'Invalid meta model %s' % meta
         assert isinstance(meta.metaLink, MetaLink), 'Invalid  meta model %s, has no meta link' % meta
         self.meta = meta
@@ -187,4 +216,4 @@ class Fetcher:
         assert isinstance(invoker, Invoker), 'Invalid node %s, has no get invoker' % path.node
         
         args = path.toArguments(invoker)
-        return model, invoker.invoke(*(args[inp.name] for inp in invoker.inputs if inp.name in args))
+        return model, invoker.invoke(*(args[inp.name] if inp.name in args else inp.default for inp in invoker.inputs))

@@ -184,7 +184,8 @@ class InvokingHandler(Processor):
         assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         try:
-            value = invoker.invoke(*(arguments[inp.name] for inp in invoker.inputs if inp.name in arguments))
+            value = invoker.invoke(*(arguments[inp.name] if inp.name in arguments else inp.default
+                                     for inp in invoker.inputs))
             assert log.debug('Successful on calling invoker %s with values %s', invoker, args) or True
             return callback(value, invoker, rsp, *args)
         except DevelException as e:

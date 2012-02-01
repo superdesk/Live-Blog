@@ -36,9 +36,9 @@ class MemoryStatusPresenter:
         'Invalid resources manager %s' % self.resourcesManager
         node = NodePath(self.resourcesManager.getRoot(), True, 'MemoryStatus')
         node.get = InvokerFunction(None, self.present, [
-                                                        Input('limit', typeFor(Integer)),
-                                                        Input('include', typeFor(String)),
-                                                        Input('exclude', typeFor(String)),
+                                                        Input('limit', typeFor(Integer), True, None),
+                                                        Input('include', typeFor(String), True, None),
+                                                        Input('exclude', typeFor(String), True, None),
                                                         ], 0)
 
     def present(self, limit, include=None, exclude=None):

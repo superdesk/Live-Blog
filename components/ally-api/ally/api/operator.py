@@ -505,7 +505,7 @@ class Call:
         if ismodule(impl): func = getattr(impl, self.name)
         else: func = getattr(impl, self.name)
         
-        ret = func.__call__(*args)
+        ret = func(*args)
         assert self.outputType.isValid(ret), 'The return %s provided is not compatible with the expected output type %s \
 for call %s' % (ret, self.outputType, self)
         

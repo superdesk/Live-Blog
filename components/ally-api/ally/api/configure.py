@@ -321,7 +321,12 @@ class APICall:
                 self.method = DELETE
             else:
                 raise AssertionError('Cannot deduce method for function name (%s)' % function.__name__)
-        self.inputs = [Input(name, typ) for name, typ in zip(args[1:], self.inputTypes)]
+
+        self.inputs = []
+        for k, name, typ in zip(range(0, len(args) - 1), args[1:], self.inputTypes):
+            if k < self.mandatoryCount: self.inputs.append(Input(name, typ))
+            else: self.inputs.append(Input(name, typ, True, defaults[k - self.mandatoryCount]))
+
         @wraps(function)
         def callFunction(srv, *args):
             '''
@@ -551,7 +556,7 @@ def _processCallGeneric(call, genericModel, genericQuery):
         assert isinstance(inp, Input)
         genericType = _processTypeGeneric(inp.type, genericModel, genericQuery)
         if genericType:
-            inputs.append(Input(inp.name, genericType))
+            inputs.append(Input(inp.name, genericType, inp.hasDefault, inp.default))
             updated = True
         else: inputs.append(inp)
     if updated:

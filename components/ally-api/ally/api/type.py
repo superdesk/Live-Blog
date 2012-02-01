@@ -327,9 +327,9 @@ class Input:
     Provides an input entry for a call, this is used for keeping the name and also the type of a call parameter.
     '''
     
-    __immutable__ = ('name', 'type')
+    __immutable__ = ('name', 'type', 'hasDefault', 'default')
     
-    def __init__(self, name, type):
+    def __init__(self, name, type, hasDefault=False, default=None):
         '''
         Construct the input.
         
@@ -337,11 +337,17 @@ class Input:
             The name of the input.
         @param type: Type
             The type of the input.
+        @param hasDefault: boolean
+            A flag indicating that this input has a default value.
+        @param default: object
+            The default value.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
         assert isinstance(type, Type), 'Invalid type %s' % type
         self.name = name
         self.type = type
+        self.hasDefault = hasDefault
+        self.default = default
         
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -349,7 +355,7 @@ class Input:
         return False
 
     def __str__(self):
-        return '%s=%s' % (self.name, self.type)
+        return '%s=%s[%s:%s]' % (self.name, self.type, self.hasDefault, self.default)
 
 # --------------------------------------------------------------------
 

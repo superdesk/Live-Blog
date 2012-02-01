@@ -12,7 +12,6 @@ Provides the configurations for development tools.
 from .resource_manager import resourcesManager
 from ally.container import ioc
 from ally.core.impl.devel.memory_status import MemoryStatusPresenter
-from ally.core.impl.devel.tree_node import TreeNodePresenter
 
 # --------------------------------------------------------------------
 # Creating the development tools
@@ -20,13 +19,8 @@ from ally.core.impl.devel.tree_node import TreeNodePresenter
 @ioc.config
 def application_mode() -> str:
     '''The application mode one of devel, prod'''
-    return 'devel'
+    return 'prod'
 
-@ioc.entity
-def treeNodePresenter():
-    b = TreeNodePresenter()
-    b.resourcesManager = resourcesManager()
-    return b
 
 @ioc.entity
 def memoryStatusPresenter():
@@ -37,5 +31,4 @@ def memoryStatusPresenter():
 @ioc.after(resourcesManager)
 def development():
     if application_mode() == 'devel':
-        treeNodePresenter()
         memoryStatusPresenter()

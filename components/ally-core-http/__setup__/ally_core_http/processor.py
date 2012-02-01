@@ -22,6 +22,7 @@ from ally.core.http.impl.processor.meta_filter import MetaFilterHandler
 from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.spec.server import Processor, Processors
 import re
+from ally.core.http.impl.processor.formatting import FormattingProviderHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -53,6 +54,12 @@ def metaFilter() -> Processor:
     return b
 
 @ioc.entity
+def formattingProvider() -> Processor:
+    b = FormattingProviderHandler()
+    b.readFromParams = read_from_params()
+    return b
+
+@ioc.entity
 def headerX() -> Processor:
     #TODO: DEPRECATED: To be removed when the new meta encoders are finalized
     b = HeaderXHandler()
@@ -76,6 +83,7 @@ def updateHandlers():
         #TODO: DEPRECATED: To be removed when the new meta encoders are finalized
         resourcesHandlers().insert(resourcesHandlers().index(converter()), headerX())
     else:
+        resourcesHandlers().insert(resourcesHandlers().index(methodInvoker()), formattingProvider())
         resourcesHandlers().insert(resourcesHandlers().index(converter()), metaFilter())
 
 @ioc.entity
