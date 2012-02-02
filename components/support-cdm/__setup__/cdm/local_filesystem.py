@@ -15,7 +15,7 @@ from cdm.spec import ICDM
 from __setup__.ally_core_http.processor import pathProcessors
 import re
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
-from ally.core.spec.server import Processors
+from ally.core.spec.server import Processors, Processor
 from ally.container._impl.ioc_setup import ConfigError
 
 # --------------------------------------------------------------------
@@ -27,13 +27,13 @@ def server_pattern_content():
 
 @ioc.config
 def server_uri():
-    ''' The HTTP server name '''
-    return 'http://localhost:80/content/'
+    ''' The HTTP server URI '''
+    raise ioc.ConfigError('A server URI is required for the content')
 
 @ioc.config
 def repository_path():
-    ''' The repository relative path inside the server document root directory '''
-    return None
+    ''' The repository absolute path '''
+    raise ioc.ConfigError('A repository path is required for the content')
 
 # --------------------------------------------------------------------
 # Creating the content delivery managers
@@ -53,15 +53,11 @@ def contentDeliveryManager() -> ICDM:
     cdm.delivery = delivery()
     return cdm
 
-@ioc.entity
-def cdms():
-    return [contentDeliveryManager()]
-
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
 
 @ioc.entity
-def localContentHandler():
+def localContentHandler() -> Processor:
     h = ContentDeliveryHandler()
     h.repositoryPath = repository_path()
     return h
