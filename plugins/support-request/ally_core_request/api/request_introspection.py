@@ -11,6 +11,7 @@ API specifications for the node presenter.
 
 from ally.api.config import model, service, call
 from ally.api.type import Iter, Id
+from ally.api import configure
 
 # --------------------------------------------------------------------
 
@@ -20,7 +21,9 @@ class Method:
     Provides a call method of a request.
     '''
     Id = Id
+    ForRequest = int
     Name = str
+    Type = str
     APIClass = str
     APIClassDefiner = str
     APIDoc = str
@@ -40,12 +43,15 @@ class Request:
     Insert = Method.Id
     Update = Method.Id
     
+configure.update(Method.ForRequest, Request.Id)
+
 @model
 class Input:
     '''
     Provides the input.
     '''
     Id = Id
+    ForRequest = Request.Id
     Name = str
     Mandatory = bool
     Description = str
@@ -71,7 +77,7 @@ class IRequestIntrospectService:
         '''
 
     @call
-    def getAllInputs(self, id:Request.Id=None) -> Iter(Input):
+    def getAllInputs(self, id:Request.Id=None, offset:int=None, limit:int=None) -> Iter(Input):
         '''
         Provides all the pattern inputs.
         '''

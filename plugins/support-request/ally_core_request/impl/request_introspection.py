@@ -73,7 +73,7 @@ class RequestIntrospectService(IRequestIntrospectService):
         if id not in self._methods: raise InputException(Ref(_('Invalid method id'), ref=Method.Id))
         return self._methods[id]
     
-    def getAllInputs(self, id):
+    def getAllInputs(self, id, offset, limit):
         '''
         @see: IRequestIntrospectService.getAllInputs
         '''
@@ -87,7 +87,14 @@ class RequestIntrospectService(IRequestIntrospectService):
         @see: IRequestIntrospectService.getAllRequests
         '''
         self._refresh()
-        return self._requests.values()
+        values = self._requests.values()
+        
+        if not offset: offset = 0
+        if not limit: limit = len(values)
+        
+        values = iter(values)
+        for _k in zip(range(0, offset), values): pass 
+        return (v for v, _k in zip(values, range(0, limit)))
     
     # ----------------------------------------------------------------
     
@@ -119,7 +126,7 @@ class RequestIntrospectService(IRequestIntrospectService):
                 for k, match in enumerate(matches):
                     assert isinstance(match, Match)
                     if not match.isValid():
-                        inp = self._toPatternInput(match)
+                        inp = self._toPatternInput(match, r)
                         patternInputs.add(inp.Id)
 
                         index += 1
@@ -128,24 +135,25 @@ class RequestIntrospectService(IRequestIntrospectService):
                 r.Pattern = '/'.join(toPaths(matches, self.converterPath))
                 
                 if node.get:
-                    m = self._toMethod(node.get); requestMethods.add(m.Id)
+                    m = self._toMethod(node.get, r); requestMethods.add(m.Id)
                     r.Get = m.Id
                 if node.delete:
-                    m = self._toMethod(node.delete); requestMethods.add(m.Id)
+                    m = self._toMethod(node.delete, r); requestMethods.add(m.Id)
                     r.Delete = m.Id
                 if node.insert:
-                    m = self._toMethod(node.insert); requestMethods.add(m.Id)
+                    m = self._toMethod(node.insert, r); requestMethods.add(m.Id)
                     r.Insert = m.Id
                 if node.update:
-                    m = self._toMethod(node.update); requestMethods.add(m.Id)
+                    m = self._toMethod(node.update, r); requestMethods.add(m.Id)
                     r.Update = m.Id
                 
         for child in node.childrens(): self._process(child)
     
-    def _toPatternInput(self, match):
+    def _toPatternInput(self, match, req):
         '''
         Processes the match as a pattern input.
         '''
+        assert isinstance(req, Request)
         inp = Input()
         inp.Id = self._inputId
         self._inputs[self._inputId] = inp
@@ -153,6 +161,7 @@ class RequestIntrospectService(IRequestIntrospectService):
         self._inputId += 1
 
         inp.Mandatory = True
+        inp.ForRequest = req.Id
         
         if isinstance(match, MatchProperty):
             assert isinstance(match, MatchProperty)
@@ -160,20 +169,23 @@ class RequestIntrospectService(IRequestIntrospectService):
             assert isinstance(typProp, TypeProperty)
             assert isinstance(typProp.property, Property)
             assert isinstance(typProp.model, Model)
-            inp.Description = _('The $1 of $2($3)', _(typProp.property.name), _(typProp.model.name),
+            inp.Description = _('The $1 of $2 ($3)', _(typProp.property.name), _(typProp.model.name),
                                 _(re.sub('[\s]+', ' ', (getdoc(typProp.model.modelClass) or '...'))))
         else:
             raise DevelException('Unknown match %s' % match)
             
         return inp
     
-    def _toMethod(self, invoker):
+    def _toMethod(self, invoker, req):
         '''
         Processes the method based on the invoker.
         '''
+        assert isinstance(req, Request)
         m = Method()
         m.Id = self._methodId
         self._methods[self._methodId] = m
+        
+        m.ForRequest = req.Id
         
         self._methodId += 1
         
