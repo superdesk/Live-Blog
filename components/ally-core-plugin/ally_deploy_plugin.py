@@ -13,8 +13,11 @@ import os
 import re
 import sys
 import traceback
+import logging
 
 # --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 configurationsFilePath = 'plugins.properties'
 # The name of the configuration file
@@ -71,6 +74,7 @@ def deploy():
             ioc.close()
         
         assert isinstance(resourcesManager, ResourcesManager), 'There is no resource manager for the services'
+        assert log.debug('Registered REST services:\n\t%s', '\n\t'.join(str(srv) for srv in services)) or True
         for service in services:
             serv = serviceFor(service)
             if not isinstance(serv, Service): raise SetupError('Invalid service instance %s' % service)

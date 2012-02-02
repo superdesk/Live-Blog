@@ -9,9 +9,10 @@ Created on Jan 23, 2012
 API specifications for the node presenter.
 '''
 
-from ally.api.config import model, service, call
+from ally.api.config import service, call
 from ally.api.type import Iter, Id
 from ally.api import configure
+from . import model
 
 # --------------------------------------------------------------------
 

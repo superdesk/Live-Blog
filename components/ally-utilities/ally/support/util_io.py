@@ -40,7 +40,7 @@ class replaceInFile:
         self.__fileObj = fileObj
         self.__replacements = replacements
 
-        self.__maxKey = max(replacements.keys(), key=lambda v: len(v))
+        self.__maxKey = len(max(replacements.keys(), key=lambda v: len(v)))
         self.__leftOver = None
 
     def read(self, count=None):

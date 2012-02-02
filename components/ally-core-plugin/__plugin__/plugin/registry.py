@@ -12,12 +12,7 @@ Provides the setup registry for the plugins.
 from ally.container import ioc
 from ally.container.proxy import proxyWrapForImpl
 from functools import partial
-import logging
 from ally.core.spec.resources import ResourcesManager
-
-# --------------------------------------------------------------------
-
-log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -60,6 +55,5 @@ def services():
 
 @ioc.start
 def register():
-    assert log.debug('Registered REST services:\n\t%s', '\n\t'.join(str(srv) for srv in services())) or True
     import ally_deploy_plugin
     ally_deploy_plugin.services = services()

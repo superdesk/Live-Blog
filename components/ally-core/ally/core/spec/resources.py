@@ -178,6 +178,24 @@ class Assembler(metaclass=abc.ABCMeta):
     Provides support for assembling the calls in the node structure.
     '''
     
+    def knownModelHints(self):
+        '''
+        Provides the known model hints for the assembler.
+        
+        @return: dictionary{string:string}|None
+            A dictionary containing as a key the allowed hint name and as a value the hint description. 
+        '''
+        return None
+    
+    def knownCallHints(self):
+        '''
+        Provides the known call hints for the assembler.
+        
+        @return: dictionary{string:string}|None
+            A dictionary containing as a key the allowed hint name and as a value the hint description. 
+        '''
+        return None
+    
     @abc.abstractmethod
     def assemble(self, root, invokers):
         '''

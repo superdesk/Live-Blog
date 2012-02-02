@@ -89,7 +89,10 @@ class EncodingTextBaseHandler(Processor):
             def openTextWriter(): return TextIOWrapper(rsp.dispatch(), rsp.charSet, self.encodingError)
             
             if not rsp.objMeta:
-                if isinstance(rsp.obj, dict):
+                if rsp.obj is None:
+                    assert log.debug('Nothing to encode') or True
+                    return
+                elif isinstance(rsp.obj, dict):
                     # Expected a plain dictionary dictionary or list for rendering
                     assert isValid(rsp.obj), 'Invalid object for encoding %s' % rsp.obj
                     

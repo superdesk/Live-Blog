@@ -16,7 +16,7 @@ from inspect import isclass, isfunction
 
 # --------------------------------------------------------------------
 
-def model(*args, name=None):
+def model(*args, name=None, **hints):
     '''
     Used for decorating classes that are API models.
     @see: APIModel
@@ -30,11 +30,11 @@ def model(*args, name=None):
     @param name: string|None
         Provide a name under which the model will be known. If not provided the name of the model is the class name.
     '''
-    if not args: return partial(model, name=name)
+    if not args: return partial(model, name=name, **hints)
     assert len(args) == 1, 'Expected only one argument that is the decorator class, got %s arguments' % len(args)
     clazz = args[0]
     assert isclass(clazz), 'Invalid class %s' % clazz
-    return APIModel(name)(clazz)
+    return APIModel(name, **hints)(clazz)
 
 def query(*args):
     '''
@@ -110,7 +110,7 @@ def call(*args, types=None, **hints):
             doc string
             <no method body required>
             
-        @call(Entity, Entity.x, String, name='unassigned')
+        @call(Entity, Entity.x, String, webName='unassigned')
         def findBy(self, x, name):
             doc string
             <no method body required>
@@ -127,11 +127,6 @@ def call(*args, types=None, **hints):
         Provides hints for the call, supported parameters:
             @keyword method: integer
                 One of the operator module constants GET, INSERT, UPDATE, DELETE.
-            @keyword webName: string
-                The name for locating the call, simply put this is the last name used in the resource path in
-                order to identify the call.
-            @keyword replaceFor: class
-                The class to which the call should be replaced.
     '''
     if not args: return partial(call, types=types, **hints)
     assert not types or isinstance(types, (tuple, list)), 'Invalid types %s' % types

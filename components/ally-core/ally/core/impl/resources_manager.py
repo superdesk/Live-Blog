@@ -10,8 +10,8 @@ Module containing the implementation for the resources manager.
 '''
 
 from ally.api.configure import serviceFor
-from ally.api.operator import Service, Model
-from ally.api.type import List, Type
+from ally.api.operator import Service, Model, Call
+from ally.api.type import List, Type, Input
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
 from ally.core.impl.node import NodeRoot, NodePath, NodeModel, NodeProperty
@@ -41,10 +41,18 @@ class ResourcesManagerImpl(ResourcesManager):
     def __init__(self):
         assert isinstance(self.assemblers, list), 'Invalid assemblers list %s' % self.assemblers
         assert isinstance(self.services, list), 'Invalid services list %s' % self.services
-        if __debug__:
-            for asm in self.assemblers: assert isinstance(asm, Assembler), 'Invalid assembler %s' % asm
+        
+        self._hintsCall, self._hintsModel = {}, {}
+        for asm in self.assemblers:
+            assert isinstance(asm, Assembler), 'Invalid assembler %s' % asm
+            known = asm.knownCallHints()
+            if known: self._hintsCall.update(known)
+            known = asm.knownModelHints()
+            if known: self._hintsModel.update(known)
+            
         self._root = NodeRoot(InvokerFunction(List(Type(Path)), self.findGetAllAccessible, [], 0))
         self._rootPath = Path([], self._root)
+        
         for service in self.services:
             try: self.register(serviceFor(service), service)
             except: raise Exception('Cannot register service instance %s' % service)
@@ -65,7 +73,25 @@ class ResourcesManagerImpl(ResourcesManager):
         assert isinstance(service, Service), 'Invalid service %s' % service
         assert implementation is not None, 'A implementation is required'
         log.info('Assembling node structure for service %s', service)
-        invokers = [InvokerCall(service, implementation, call) for call in service.calls.values()]
+        invokers = []
+        for call in service.calls.values():
+            assert isinstance(call, Call), 'Invalid call %s' % call
+            if __debug__:
+                unknown = set(call.hints.keys()).difference(self._hintsCall.keys())
+                assert not unknown, 'Invalid call hints %r for %s in service %s, the allowed call hints are:\n\t%s' % \
+                (', '.join(unknown), call, service, '\n\t'.join('"%s": %s' % item for item in self._hintsCall.items()))
+                
+                for inp in call.inputs:
+                    assert isinstance(inp, Input), 'Invalid input %s' % inp
+                    try: model = inp.type.model
+                    except AttributeError: pass
+                    else:
+                        unknown = set(model.hints.keys()).difference(self._hintsModel.keys())
+                        assert not unknown, 'Invalid model hints %r for %s in %s, %s, the allowed model hints are:'\
+                        '\n\t%s' % (', '.join(unknown), model, call, service, '\n\t'.join('"%s": %s' % item
+                                                                                    for item in self._hintsModel.items()))
+                                            
+            invokers.append(InvokerCall(service, implementation, call))
         for asm in self.assemblers:
             assert isinstance(asm, Assembler)
             asm.assemble(self._root, invokers)

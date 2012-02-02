@@ -9,8 +9,9 @@ Created on Jan 19, 2012
 API specifications for plugin support.
 '''
 
-from ally.api.config import model, service, call
+from ally.api.config import service, call
 from ally.api.type import IdString, Iter
+from . import model
 
 #TODO: add reloading and auto reloading for plugins. 
 # --------------------------------------------------------------------

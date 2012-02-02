@@ -240,28 +240,33 @@ class Model(Properties):
     @see: Properties
     '''
     
-    __immutable__ = Properties.__immutable__ + ('modelClass', 'name', 'typeProperties', 'type')
+    __immutable__ = Properties.__immutable__ + ('modelClass', 'name', 'typeProperties', 'type', 'hints')
 
-    def __init__(self, modelClass, modelName, properties):
+    def __init__(self, modelClass, modelName, properties, hints={}):
         '''
         Constructs a properties model.
         @see: Properties.__init__
         
         @param modelClass: class
             The represented model class.
+        @param hints: dictionary{string, object}
+            The hints associated with the call.
         @ivar name: string
             The name of the model.
         '''
         assert isclass(modelClass), 'Invalid model class %s' % modelClass
         assert isinstance(modelName, str) and len(modelName) > 0, 'Invalid model name %s' % modelName
+        assert isinstance(hints, dict), 'Invalid hints %s' % hints
         self.modelClass = modelClass
         self.name = modelName
         Properties.__init__(self, _sort(properties))
         if __debug__:
+            for hintn in hints: assert isinstance(hintn, str), 'Invalid hint name %s' % hintn
             for prop in properties.values():
                 assert prop.type.isPrimitive, 'Not a primitive type for %s' % prop
         self.typeProperties = immut({name: TypeProperty(self, prop) for name, prop in self.properties.items()})
         self.type = TypeModel(self)
+        self.hints = immut(hints)
                 
     def createModel(self):
         '''
@@ -427,16 +432,14 @@ class Call:
     Property types that are involved in input and output from the call.
     '''
     
-    __immutable__ = ('name', 'hints', 'method', 'outputType', 'inputs', 'mandatoryCount')
+    __immutable__ = ('name', 'method', 'outputType', 'inputs', 'mandatoryCount', 'hints')
     
-    def __init__(self, name, hints, method, outputType, inputs, mandatoryCount):
+    def __init__(self, name, method, outputType, inputs, mandatoryCount, hints={}):
         '''
         Constructs an API call that will have the provided input and output types.
         
         @param name: string
             The name of the function that will be called on the service implementation.
-        @param hint: dictionary{string, object}
-            The hints associated with the call.
         @param method: integer
             The method of the call, can be one of GET, INSERT, UPDATE or DELETE constants in this module.
         @param outputType: Type
@@ -446,9 +449,10 @@ class Call:
         @param mandatoryCount: integer
             Provides the count of the mandatory input types, if the mandatory count is two and we have three input
             types it means that just the first two parameters need to be provided.
+        @param hints: dictionary{string, object}
+            The hints associated with the call.
         '''
         assert isinstance(name, str) and str != '', 'Provide a valid name'
-        assert isinstance(hints, dict), 'Invalid hints %s' % hints
         assert isinstance(method, int), 'Invalid method %s' % method
         assert method in (GET, INSERT, UPDATE, DELETE), \
         'Invalid method %s, is not one of the known constants' % method
@@ -457,6 +461,7 @@ class Call:
         assert isinstance(mandatoryCount, int), 'Invalid mandatory count <%s>, needs to be integer' % mandatoryCount
         assert mandatoryCount >= 0 and mandatoryCount <= len(inputs), \
         'Invalid mandatory count <%s>, needs to be greater than 0 and less than ' % (mandatoryCount, len(inputs))
+        assert isinstance(hints, dict), 'Invalid hints %s' % hints
         if __debug__:
             for input in inputs: assert isinstance(input, Input), 'Not an input %s' % input
             for hintn in hints: assert isinstance(hintn, str), 'Invalid hint name %s' % hintn

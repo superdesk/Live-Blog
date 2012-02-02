@@ -9,6 +9,7 @@ Created on Jun 1, 2011
 Provides the decorators used for APIs.
 '''
 
+from ..exception import DevelException
 from ..support.util import IS_PY3K, Attribute
 from .operator import Call, Service, Criteria, Query, Model, Property, \
     CriteriaEntry, Properties, GET, INSERT, UPDATE, DELETE
@@ -36,13 +37,18 @@ class APIModel:
             name = APIProperty(Integer)
     '''
     
-    def __init__(self, name=None):
+    def __init__(self, name=None, **hints):
         '''
+        Construct the API model.
+        
         @param name: string
             Provide a name under which the model will be known.
+        @param hints: key word arguments
+            Provides hints for the model.
         '''
         assert name is None or isinstance(name, str), 'Invalid model name %s' % name
         self.name = name
+        self.hints = hints
     
     def __call__(self, modelClass):
         '''
@@ -60,7 +66,7 @@ class APIModel:
         if model is None:
             # this is not an extended model
             assert not len(properties) == 0, 'There are no API properties on model class %s' % modelClass
-            model = Model(modelClass, modelName, properties)
+            model = Model(modelClass, modelName, properties, self.hints)
         else:
             assert isinstance(model, Model)
             # Cloning the inherited properties, since they have to belong now to this model.
@@ -68,7 +74,7 @@ class APIModel:
             for name, prop in model.properties.items():
                 allProperties[name] = Property(prop.name, prop.type)
             allProperties.update(properties)
-            model = Model(modelClass, modelName, allProperties)
+            model = Model(modelClass, modelName, allProperties, self.hints)
             
         for name, typeProp in model.typeProperties.items():
             setattr(modelClass, name, typeProp)
@@ -221,12 +227,12 @@ class APICall:
             doc string
             <no method body required>
             
-        @APICall(Entity, Entity.x, String, name='unassigned')
+        @APICall(Entity, Entity.x, String)
         def findBy(self, x, name):
             doc string
             <no method body required>
             
-        @APICall(Entity, Entity, OtherEntity, method=UPDATE, replaceFor=IAnotherService)
+        @APICall(Entity, Entity, OtherEntity, method=UPDATE)
         def assign(self, entity, toEntity):
             doc string
             <no method body required>
@@ -243,11 +249,6 @@ class APICall:
             Provides hints for the call, supported parameters:
                 @keyword method: integer
                     One of the operator module constants GET, INSERT, UPDATE, DELETE.
-                @keyword webName: string
-                    The name for locating the call, simply put this is the last name used in the resource path in
-                    order to identify the call.
-                @keyword replaceFor: class
-                    The class to which the call should be replaced.
 
         @ivar inputTypes: list
             The Types obtained from the provided input.
@@ -320,7 +321,7 @@ class APICall:
             elif mname.startswith('delete') or mname.startswith('remove'):
                 self.method = DELETE
             else:
-                raise AssertionError('Cannot deduce method for function name (%s)' % function.__name__)
+                raise DevelException('Cannot deduce method for function name (%s)' % function.__name__)
 
         self.inputs = []
         for k, name, typ in zip(range(0, len(args) - 1), args[1:], self.inputTypes):
@@ -520,8 +521,8 @@ def _processAPICalls(serviceClass):
             try:
                 apiCall = func.APICall
                 assert isinstance(apiCall, APICall), 'Expected API call %' % apiCall
-                call = Call(name, apiCall.hints, apiCall.method, apiCall.outputType, apiCall.inputs,
-                            apiCall.mandatoryCount)
+                call = Call(name, apiCall.method, apiCall.outputType, apiCall.inputs,
+                            apiCall.mandatoryCount, apiCall.hints)
                 calls[name] = call
                 log.info('Found call %s', call)
             except AttributeError:
@@ -560,7 +561,7 @@ def _processCallGeneric(call, genericModel, genericQuery):
             updated = True
         else: inputs.append(inp)
     if updated:
-        newCall = Call(call.name, call.hints, call.method, outputType, inputs, call.mandatoryCount)
+        newCall = Call(call.name, call.method, outputType, inputs, call.mandatoryCount, call.hints)
         log.info('Generic call transformation from %s to %s' % (call, newCall))
         call = newCall
     return call
@@ -683,7 +684,7 @@ def _init__query(self, **keyargs):
     for name, value in keyargs.items():
         crtEntry = query.criteriaEntries.get(name, None)
         if not isinstance(crtEntry, CriteriaEntry):
-            raise AssertionError('Invalid query name %r for %r' % (name, self.__class__.__name__))
+            raise DevelException('Invalid query name %r for %r' % (name, self.__class__.__name__))
         _setattr__entry(self, name, value)
 
 def _getattr__entry(self, name):
@@ -719,7 +720,7 @@ def _setattr__entry(self, name, value):
                 crt.set(active, value)
                 break
         else:
-            raise AssertionError('No default conditions %s found in criteria %s' % (DEFAULT_CONDITIONS, active))
+            raise DevelException('No default conditions %s found in criteria %s' % (DEFAULT_CONDITIONS, active))
     else:
         self.__dict__[name] = value
     
