@@ -28,6 +28,7 @@ from ally_core_request.api.request_introspection import Request, Input, Method
 from collections import OrderedDict
 from inspect import ismodule, ismethod, getdoc
 import re
+from ally_core_request.api import DOMAIN
 
 # --------------------------------------------------------------------
 
@@ -114,12 +115,8 @@ class RequestIntrospectService(IRequestIntrospectService):
             if idNode not in self._nodeRequests:
                 r = Request()
                 r.Id = self._requestId
-                self._requests[r.Id] = r
-                self._nodeRequests[idNode] = r.Id
-                patternInputs = self._patternInputs[r.Id] = set()
-                requestMethods = self._requestMethods[r.Id] = set()
                 
-                self._requestId += 1
+                patternInputs = set()
 
                 index = 0
                 matches = matchesForNode(node)
@@ -133,6 +130,14 @@ class RequestIntrospectService(IRequestIntrospectService):
                         matches[k] = inp.Name = '{%s}' % index
                         
                 r.Pattern = '/'.join(toPaths(matches, self.converterPath))
+                if r.Pattern.startswith(DOMAIN): return
+                
+                self._requests[r.Id] = r
+                self._nodeRequests[idNode] = r.Id
+                self._patternInputs[r.Id] = patternInputs
+                requestMethods = self._requestMethods[r.Id] = set()
+                
+                self._requestId += 1
                 
                 if node.get:
                     m = self._toMethod(node.get, r); requestMethods.add(m.Id)

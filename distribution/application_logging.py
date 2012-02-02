@@ -29,4 +29,5 @@ logging.getLogger('newscoop').setLevel(logging.WARN)
 
 logging.getLogger('print_desk').setLevel(logging.WARN)
 
-logging.getLogger('ally.core.impl.processor.encoder_xml').setLevel(logging.WARN)
+#logging.getLogger('ally.core.impl.assembler').setLevel(logging.DEBUG)
+logging.getLogger('ally_deploy_plugin').setLevel(logging.WARN)
