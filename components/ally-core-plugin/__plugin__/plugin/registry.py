@@ -13,10 +13,12 @@ from ally.container import ioc
 from ally.container.proxy import proxyWrapForImpl
 from functools import partial
 from ally.core.spec.resources import ResourcesManager
+from cdm.spec import ICDM
+from cdm.impl.local_filesystem import LocalFileSystemLinkCDM, HTTPDelivery
 
 # --------------------------------------------------------------------
 
-def registerService(service, binders=None):
+def registerService(service, binders = None):
     '''
     A listener to register the service.
     
@@ -37,9 +39,33 @@ def addService(*binders):
     @param binders: arguments[Callable]
         The binders used for the registered services.
     '''
-    return partial(registerService, binders=binders)
+    return partial(registerService, binders = binders)
 
 # --------------------------------------------------------------------
+
+@ioc.config
+def gui_server_uri():
+    ''' The HTTP server URI '''
+    raise ioc.ConfigError('A server URI for the GUI files is required')
+
+@ioc.config
+def gui_repository_path():
+    ''' The repository absolute path '''
+    raise ioc.ConfigError('A repository path for the GUI files is required')
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def cdmGUI() -> ICDM:
+    '''
+    The content delivery manager (CDM) for the plugin's static resources
+    '''
+    delivery = HTTPDelivery()
+    delivery.serverURI = gui_server_uri()
+    delivery.repositoryPath = gui_repository_path()
+    cdm = LocalFileSystemLinkCDM()
+    cdm.delivery = delivery
+    return cdm
 
 @ioc.entity
 def resourcesManager() -> ResourcesManager:
