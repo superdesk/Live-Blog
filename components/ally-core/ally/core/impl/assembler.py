@@ -21,6 +21,7 @@ from ally.support.api.util_type import isTypeId
 from inspect import isclass
 import abc
 import logging
+from itertools import combinations, chain
 
 # --------------------------------------------------------------------
 
@@ -89,25 +90,34 @@ class AssembleGet(AssembleInvokers):
         except AttributeError:
             log.warning('Cannot extract model from output type %s for call %s', typ, call)
             return False
-        types = [invoker.inputs[k].type for k in range(0, invoker.mandatoryCount)]
         
-        # Determine if the last path type element represents the returned model.
-        if types:
-            lastTyp = types[-1]
-            if isinstance(lastTyp, TypeModel) or isinstance(lastTyp, TypeProperty):
-                if lastTyp.model != model:
-                    types.append(model)
+        typesMandatory = [inp.type for inp in invoker.inputs[:invoker.mandatoryCount]]
+        typesExtra = [inp.type for inp in invoker.inputs[invoker.mandatoryCount:] if isinstance(inp.type, TypeProperty)]
+        typesExtra = chain(*(combinations(typesExtra, k) for  k in range(0, len(typesExtra) + 1)))
+        
+        resolved = False
+        for extra in typesExtra:
+            types = list(typesMandatory)
+            types.extend(extra)
+            # Determine if the last path type element represents the returned model.
+            if types:
+                lastTyp = types[-1]
+                if isinstance(lastTyp, TypeModel) or isinstance(lastTyp, TypeProperty):
+                    if lastTyp.model != model:
+                        types.append(model)
+                else: types.append(model)
             else: types.append(model)
-        else: types.append(model)
-        
-        _processHintWebName(types, call, isList)
-        
-        node = _obtainNode(root, types)
-        if not node: return False
-        assert isinstance(node, Node)
-        node.get = _processHintReplace(invoker, node.get)
-        log.info('Resolved invoker %s as a get for node %s', invoker, node)
-        return True
+            
+            _processHintWebName(types, call, isList)
+            
+            node = _obtainNode(root, types)
+            if not node: continue
+            
+            resolved = True
+            assert isinstance(node, Node)
+            node.get = _processHintReplace(invoker, node.get)
+            log.info('Resolved invoker %s as a get for node %s', invoker, node)
+        return resolved
 
 # --------------------------------------------------------------------
 
@@ -137,7 +147,7 @@ class AssembleDelete(AssembleInvokers):
         if not invoker.outputType.isOf(bool):
             log.warning('Invalid output type %s for a delete method, expected boolean', invoker.outputType)
             return False
-        types = [invoker.inputs[k].type for k in range(0, invoker.mandatoryCount)]
+        types = [inp.type for inp in invoker.inputs[:invoker.mandatoryCount]]
         
         _processHintWebName(types, call)
         
@@ -178,7 +188,7 @@ class AssembleInsert(AssembleInvokers):
         call = invoker.call
         assert isinstance(call, Call)
         if call.method != INSERT: return False
-        types = [invoker.inputs[k].type for k in range(0, invoker.mandatoryCount)]
+        types = [inp.type for inp in invoker.inputs[:invoker.mandatoryCount]]
         
         _processHintWebName(types, call)
         
@@ -220,7 +230,7 @@ class AssembleUpdate(AssembleInvokers):
         assert isinstance(call, Call)
         if call.method != UPDATE:
             return False
-        types = [invoker.inputs[k].type for k in range(0, invoker.mandatoryCount)]
+        types = [inp.type for inp in invoker.inputs[:invoker.mandatoryCount]]
         typeModel = types[-1]
         if not isinstance(typeModel, TypeModel):
             log.info('The last input on the update is not a type model, received type %s', typeModel)

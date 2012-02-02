@@ -83,7 +83,7 @@ class TestEncoderText(unittest.TestCase):
             req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article', '1'])
             processors.newChain().process(req, rsp)
             self.assertTrue(encoder.obj == 
-                    {'href': 'Article/1', 'Type': {'href': 'ArticleType/2', 'Id': '2'}, 'Id': '1', 'Name': 'Article 1'})
+                    {'Type': {'href': 'ArticleType/2', 'Id': '2'}, 'Id': '1', 'Name': 'Article 1'})
             
 #            processorMeta.newChain().process(req, rsp)
 #            del rsp.objMeta['Type']
@@ -107,7 +107,7 @@ class TestEncoderText(unittest.TestCase):
             req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article', '1'])
             processors.newChain().process(req, rsp)
             self.assertTrue(encoder.obj == 
-                    {'href': 'Article/3', 'Type': {'href': 'ArticleType/4', 'Id': '4'}, 'Id': '3', 'Name': 'Article 3'})
+                    {'Type': {'href': 'ArticleType/4', 'Id': '4'}, 'Id': '3', 'Name': 'Article 3'})
 
             at = ArticleType()
             at.Id, at.Name = 1, 'Article Type 1'
@@ -115,7 +115,7 @@ class TestEncoderText(unittest.TestCase):
             req.resourcePath = resourcesManager.findResourcePath(converterPath, ['ArticleType', '1'])
             processors.newChain().process(req, rsp)
             self.assertTrue(encoder.obj == 
-            {'Article': {'href': 'ArticleType/1/Article'}, 'href': 'ArticleType/1', 'Id': '1', 'Name': 'Article Type 1'})
+            {'Article': {'href': 'ArticleType/1/Article'}, 'Id': '1', 'Name': 'Article Type 1'})
 
             # Test list paths convert
             

@@ -63,7 +63,7 @@ class EntityFindService(EntitySupport):
         if not limit: limit = len(self._entityById)
         if offset < 0: offset = 0
         if offset >= len(self._entityById): offset = len(self._entityById) - 1
-        if offset + limit >= len(self._entityById): limit = 0
+        if offset + limit > len(self._entityById): limit = len(self._entityById) - offset
         return (entity for _i, entity in zip(range(offset, offset + limit), self._entityById.values()))
 
 class EntityCRUDService(EntitySupport):

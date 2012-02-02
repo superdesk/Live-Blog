@@ -99,7 +99,7 @@ class EncodingTextHandler(EncodingTextBaseHandler):
             assert log.debug('Encoding instance %s of %s', model, meta.model) or True
             
             obj = {}
-            if meta.metaLink and not first:
+            if meta.metaLink and (not first or len(meta.properties) < len(meta.model.properties)):
                 path = meta.metaLink.getLink(value)
                 if path: obj[normalize(self.namePath)] = pathEncode(path)
                 elif not meta.properties: return

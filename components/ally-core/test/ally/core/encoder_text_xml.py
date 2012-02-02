@@ -82,7 +82,7 @@ class TestEncoderXML(unittest.TestCase):
             xml = str(rsp.wfile.getvalue(), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
-<Article href="Article/1"><Type href="ArticleType/2"><Id>2</Id></Type><Id>1</Id><Name>Article 1</Name></Article>'''))
+<Article><Type href="ArticleType/2"><Id>2</Id></Type><Id>1</Id><Name>Article 1</Name></Article>'''))
             
 #            processorMeta.newChain().process(req, rsp)
 #            del rsp.objMeta['Type']
@@ -117,7 +117,7 @@ class TestEncoderXML(unittest.TestCase):
             xml = str(rsp.wfile.getvalue(), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
-<Article href="Article/3"><Type href="ArticleType/4"><Id>4</Id></Type><Id>3</Id><Name>Article 3</Name></Article>'''))
+<Article><Type href="ArticleType/4"><Id>4</Id></Type><Id>3</Id><Name>Article 3</Name></Article>'''))
             
             at = ArticleType()
             at.Id, at.Name = 1, 'Article Type 1'
@@ -127,7 +127,7 @@ class TestEncoderXML(unittest.TestCase):
             xml = str(rsp.wfile.getvalue(), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
-<ArticleType href="ArticleType/1"><Article href="ArticleType/1/Article"/><Id>1</Id><Name>Article Type 1</Name>'''\
+<ArticleType><Article href="ArticleType/1/Article"/><Id>1</Id><Name>Article Type 1</Name>'''\
 '</ArticleType>'))
             
             # Test list paths encoding
