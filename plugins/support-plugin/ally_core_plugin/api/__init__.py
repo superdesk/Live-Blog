@@ -8,3 +8,11 @@ Created on May 26, 2011
 
 Specifications for plugin APIs.
 '''
+
+from functools import partial
+from ally.api.config import model
+
+# --------------------------------------------------------------------
+
+DOMAIN = 'Devel/'
+model = partial(model, domain=DOMAIN)
