@@ -130,5 +130,5 @@ def run(requestHandler, host='127.0.0.1', port=80, threadPool=10):
                             'server.socket_host': host,
                             'server.thread_pool': threadPool
                             })
-    print('Started HTTP REST API server...')
+    print('=' * 50, 'Started HTTP REST API server...')
     cherrypy.quickstart(requestHandler, config={'global':{'engine.autoreload.on': False}})

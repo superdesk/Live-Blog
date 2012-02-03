@@ -63,13 +63,14 @@ def deploy():
         
         assembly = ioc.open(pluginModules, config=config)
         try: assembly.processStart()
-        except ConfigError:
+        except (ConfigError, SetupError):
             # We save the file in case there are missing configuration
-            with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
+            if assembly.configurations:
+                with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
             isConfig = True
             raise
         finally:
-            if not isConfig:
+            if not isConfig and assembly.configurations:
                 with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
             ioc.close()
         

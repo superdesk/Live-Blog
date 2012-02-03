@@ -29,7 +29,7 @@ def deploy():
     from package_extender import PACKAGE_EXTENDER
     PACKAGE_EXTENDER.addFreezedPackage('__setup__.')
     from ally.container import ioc, aop
-    from ally.container.ioc import ConfigError
+    from ally.container.ioc import ConfigError, SetupError
     from ally.container.config import save, load
 
     global assembly
@@ -43,13 +43,14 @@ def deploy():
 
         assembly = ioc.open(aop.modulesIn('__setup__.**'), config=config)
         try: assembly.processStart()
-        except ConfigError:
+        except (ConfigError, SetupError):
             # We save the file in case there are missing configuration
-            with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
+            if assembly.configurations:
+                with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
             isConfig = True
             raise
         finally:
-            if not isConfig:
+            if not isConfig and assembly.configurations:
                 with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
             ioc.close()
     except:

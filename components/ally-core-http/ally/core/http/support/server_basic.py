@@ -140,17 +140,19 @@ class RequestHandler(BaseHTTPRequestHandler):
 # --------------------------------------------------------------------
 
 def run(requestHandlerClass, port=80):
-    while True:
+    count = 10
+    while count:
         try:
             server = HTTPServer(('', port), requestHandlerClass)
-            print('Started HTTP REST API server...')
+            print('=' * 50, 'Started HTTP REST API server...')
             server.serve_forever()
         except KeyboardInterrupt:
-            print('^C received, shutting down server')
+            print('=' * 50, '^C received, shutting down server')
             server.socket.close()
             return
         except:
-            log.exception('-' * 50 + 'The server has stooped, trying to restart')
+            log.exception('=' * 50 + ' The server has stooped, trying to restart')
             try: server.socket.close()
             except: pass
+            count -= 1
 

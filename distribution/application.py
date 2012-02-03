@@ -51,6 +51,7 @@ if __name__ == '__main__':
         ally_deploy_application.configurationsFilePath = file
         if applicationProfile: profile.run('ally_application_deploy.deploy()', filename='output.stats')
         else: ally_deploy_application.deploy()
+        print('=' * 50, 'Application deployed')
     except: traceback.print_exc()
     else:
         # Loading the plugins. 
@@ -63,4 +64,6 @@ if __name__ == '__main__':
             ally_deploy_plugin.configurationsFilePath = file
             if pluginsProfile: profile.run('ally_deploy_plugin.deploy()', filename='output.stats')
             else: ally_deploy_plugin.deploy()
+            print('=' * 50, 'Plugins deployed')
         except: traceback.print_exc()
+    print('=' * 50, 'Application fully started')
