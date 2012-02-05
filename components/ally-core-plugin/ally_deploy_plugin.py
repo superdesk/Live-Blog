@@ -65,12 +65,11 @@ def deploy():
         try: assembly.processStart()
         except (ConfigError, SetupError):
             # We save the file in case there are missing configuration
-            if assembly.configurations:
-                with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
+            with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
             isConfig = True
             raise
         finally:
-            if not isConfig and assembly.configurations:
+            if not isConfig:
                 with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
             ioc.close()
         
