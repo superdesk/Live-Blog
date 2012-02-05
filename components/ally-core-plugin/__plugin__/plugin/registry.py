@@ -11,10 +11,10 @@ Provides the setup registry for the plugins.
 
 from ally.container import ioc
 from ally.container.proxy import proxyWrapForImpl
-from functools import partial
 from ally.core.spec.resources import ResourcesManager
-from cdm.spec import ICDM
-from cdm.impl.local_filesystem import LocalFileSystemLinkCDM, HTTPDelivery
+#from cdm.impl.local_filesystem import LocalFileSystemLinkCDM, HTTPDelivery
+#from cdm.spec import ICDM
+from functools import partial
 
 # --------------------------------------------------------------------
 
@@ -55,17 +55,17 @@ def gui_repository_path():
 
 # --------------------------------------------------------------------
 
-@ioc.entity
-def cdmGUI() -> ICDM:
-    '''
-    The content delivery manager (CDM) for the plugin's static resources
-    '''
-    delivery = HTTPDelivery()
-    delivery.serverURI = gui_server_uri()
-    delivery.repositoryPath = gui_repository_path()
-    cdm = LocalFileSystemLinkCDM()
-    cdm.delivery = delivery
-    return cdm
+#@ioc.entity
+#def cdmGUI() -> ICDM:
+#    '''
+#    The content delivery manager (CDM) for the plugin's static resources
+#    '''
+#    delivery = HTTPDelivery()
+#    delivery.serverURI = gui_server_uri()
+#    delivery.repositoryPath = gui_repository_path()
+#    cdm = LocalFileSystemLinkCDM()
+#    cdm.delivery = delivery
+#    return cdm
 
 @ioc.entity
 def resourcesManager() -> ResourcesManager:

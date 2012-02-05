@@ -69,6 +69,7 @@ def load(fread):
     
     import yaml
     config = yaml.load(fread)
+    if config is None: config = {}
     assert isinstance(config, dict), 'Invalid configuration loaded %s' % config
     return config
 

@@ -44,9 +44,9 @@ class ContentDeliveryHandler(Processor):
     def __init__(self):
         assert isinstance(self.repositoryPath, str), \
             'Invalid repository path value %s' % self.repositoryPath
-        assert isdir(self.repositoryPath) \
-            and os.access(self.repositoryPath, os.R_OK), \
-            'Unable to access the repository directory %s' % self.repositoryPath
+#        assert isdir(self.repositoryPath) \
+#            and os.access(self.repositoryPath, os.R_OK), \
+#            'Unable to access the repository directory %s' % self.repositoryPath
         super().__init__()
 
     def process(self, req, rsp, chain):

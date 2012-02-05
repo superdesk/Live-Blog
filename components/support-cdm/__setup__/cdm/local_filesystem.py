@@ -12,7 +12,7 @@ Provides the configurations for the CDM local filesystem implementation.
 from cdm.impl.local_filesystem import IDelivery, LocalFileSystemCDM, HTTPDelivery
 from ally.container import ioc
 from cdm.spec import ICDM
-from __setup__.ally_core_http.processor import pathProcessors
+from ..ally_core_http.processor import pathProcessors
 import re
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
 from ally.core.spec.server import Processors, Processor
