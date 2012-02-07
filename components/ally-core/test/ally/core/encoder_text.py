@@ -14,12 +14,12 @@ from ..samples.api.article import Article
 from ..samples.api.article_type import ArticleType
 from ..samples.impl.article import ArticleService
 from ..samples.impl.article_type import ArticleTypeService
-from ..test_support import ResponseTest, EncoderPathTest, EncoderGetObj
+from ..test_support import EncoderPathTest, EncoderGetObj
 from ally.api.configure import modelFor
 from ally.api.type import Iter, TypeNone, Type
 from ally.container import ioc, aop
 from ally.core.spec.resources import ResourcesManager, Path
-from ally.core.spec.server import Processors, Request
+from ally.core.spec.server import Processors, Request, Response
 import unittest
 
 # --------------------------------------------------------------------
@@ -52,7 +52,7 @@ class TestEncoderText(unittest.TestCase):
             processorText = get('encoderTextProcessors')
             assert isinstance(processorText, Processors)
             
-            req, rsp = Request(), ResponseTest()
+            req, rsp = Request(), Response()
             rsp.contentConverter = converterPath
             rsp.encoderPath = EncoderPathTest(converterPath)
             rsp.objMeta = encoder.obj = None

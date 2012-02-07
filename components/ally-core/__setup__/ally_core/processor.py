@@ -9,7 +9,6 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from . import use_old_encdec
 from .converter import defaultErrorContentConverter
 from .encoder_decoder import handlersDecoding, handlersEncoding
 from .parameter import decodersParameters
@@ -92,9 +91,5 @@ def encoding() -> Processor:
 
 @ioc.entity
 def resourcesHandlers():
-    if use_old_encdec():
-        #TODO: DEPRECATED: To be removed when the new meta encoders are finalized
-        return [explainError(), methodInvoker(), converter(), requestTypes(), parameters(), decoding(),
-                invokingHandler(), encoding()]
     return [explainError(), methodInvoker(), metaCreator(), converter(), requestTypes(), parameters(), decoding(),
                 invokingHandler(), encoding()]

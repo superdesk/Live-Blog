@@ -13,11 +13,11 @@ from ally.container.ioc import injected
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain, \
     EncoderPath
-from io import TextIOWrapper
 from numbers import Number
 import abc
 import codecs
 import logging
+from collections import Iterable
 
 # --------------------------------------------------------------------
 
@@ -78,8 +78,6 @@ class EncodingTextBaseHandler(Processor):
                     break
                 else: rsp.charSet = self.charSetDefault
             
-            def openTextWriter(): return TextIOWrapper(rsp.dispatch(), rsp.charSet, self.encodingError)
-            
             if not rsp.objMeta:
                 if rsp.obj is None:
                     assert log.debug('Nothing to encode') or True
@@ -88,7 +86,8 @@ class EncodingTextBaseHandler(Processor):
                     # Expected a plain dictionary dictionary or list for rendering
                     assert isValid(rsp.obj), 'Invalid object for encoding %s' % rsp.obj
                     
-                    self.encodeObject(openTextWriter, rsp.charSet, rsp.obj)
+                    rsp.content = ConvertToBytes(self.encodeObject(rsp.charSet, rsp.obj), rsp.charSet,
+                                                 self.encodingError)
                     return
                 else:
                     assert log.debug('There is no meta object or valid object on the response, not for this %s encoder',
@@ -103,9 +102,9 @@ class EncodingTextBaseHandler(Processor):
                     assert isinstance(rsp.contentConverter, Converter), 'Invalid content converter %s' % \
                     rsp.contentConverter
                     assert isinstance(rsp.encoderPath, EncoderPath), 'Invalid encoder path %s' % rsp.encoderPath
-    
-                    self.encodeMeta(openTextWriter, rsp.charSet, rsp.obj, rsp.objMeta, rsp.contentConverter.asString,
-                                    rsp.encoderPath.encode)
+
+                    rsp.content = ConvertToBytes(self.encodeMeta(rsp.charSet, rsp.obj, rsp.objMeta,
+                                rsp.contentConverter.asString, rsp.encoderPath.encode), rsp.charSet, self.encodingError)
                     return
         
         chain.proceed()
@@ -113,12 +112,10 @@ class EncodingTextBaseHandler(Processor):
     # ----------------------------------------------------------------
     
     @abc.abstractclassmethod
-    def encodeMeta(self, openTextWriter, charSet, value, meta, asString, pathEncode):
+    def encodeMeta(self, charSet, value, meta, asString, pathEncode):
         '''
         Encodes the provided value to a text object based on the  meta data.
         
-        @param openTextWriter: Callable
-            A callable function that will open the writer for the encoded text.
         @param charSet: string
             A character set encoding.
         @param value: object
@@ -129,19 +126,21 @@ class EncodingTextBaseHandler(Processor):
             The call used converting values to string values.
         @param pathEncode: Callable
             The call used for encoding the path.
+        @return: generator
+            The generator that delivers the encoded content in string format.
         '''
         
     @abc.abstractclassmethod
-    def encodeObject(self, openTextWriter, charSet, obj):
+    def encodeObject(self, charSet, obj):
         '''
-        Encodes the provided object to a text object based on the  meta data.
+        Encodes the provided object to a text object based on the meta data.
         
-        @param openTextWriter: Callable
-            A callable function that will open the writer for the encoded text.
         @param charSet: string
             A character set encoding.
         @param object: dictionary{string, ...}
             The object to be encoded.
+        @return: generator
+            The generator that delivers the encoded content in string format.
         '''
         
 # --------------------------------------------------------------------
@@ -164,3 +163,33 @@ def isValid(obj):
         elif not isinstance(value, (str, Number)) and not isValid(value) :return False
     return True
 
+class ConvertToBytes:
+    '''
+    Provides a Iterable that converts from string to bytes based on string data from another Iterable.
+    '''
+    
+    def __init__(self, iterable, charSet, encodingError):
+        '''
+        Construct the converter.
+        
+        @param iterable: Iterable
+            The iterable providing the strings to convert.
+        @param charSet: string
+            The character set to encode based on.
+        @param encodingError: string
+            The encoding error resolving.
+        '''
+        assert isinstance(iterable, Iterable), 'Invalid iterable %s' % iterable
+        assert isinstance(charSet, str), 'Invalid character set %s' % charSet
+        assert isinstance(encodingError, str), 'Invalid encoding error set %s' % encodingError
+        self.iterable = iterable
+        self.charSet = charSet
+        self.encodingError = encodingError
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        value = next(self.iterable)
+        assert isinstance(value, str), 'Invalid value %s received' % value
+        return value.encode(encoding=self.charSet, errors=self.encodingError)

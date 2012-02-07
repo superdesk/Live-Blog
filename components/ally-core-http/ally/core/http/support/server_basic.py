@@ -14,7 +14,6 @@ from ally.api.operator import GET, INSERT, UPDATE, DELETE
 from ally.core.http.spec import EncoderHeader, RequestHTTP, METHOD_OPTIONS
 from ally.core.spec.server import Response, Processors, ProcessorsChain, \
     ContentRequest
-from ally.support.util_io import keepOpen
 from collections import OrderedDict
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
@@ -23,44 +22,6 @@ import re
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-
-# --------------------------------------------------------------------
-
-class ResponseHTTP(Response):
-    '''
-    Provides the dispatch functionality for an HTTP response.
-    '''
-
-    def __init__(self, requestHandler):
-        ''''
-        @see: Response.__init__
-        
-        @param requestHandler: RequestHandler
-            The request handler used for rendering response data.
-        '''
-        super().__init__()
-        assert isinstance(requestHandler, RequestHandler), 'Invalid request handler %s' % requestHandler
-        self.requestHandler = requestHandler
-        self.isDispatched = False
-
-    def dispatch(self):
-        '''
-        @see: Response.dispatch
-        '''
-        assert self.code is not None, 'No code provided for dispatching.'
-        assert not self.isDispatched, 'Already dispatched'
-        rq = self.requestHandler
-        assert isinstance(rq, RequestHandler)
-        headers = OrderedDict()
-        for headerEncoder in rq.encodersHeader:
-            assert isinstance(headerEncoder, EncoderHeader)
-            headerEncoder.encode(headers, self)
-        for name, value in headers.items():
-            rq.send_header(name, value)
-        rq.send_response(self.code.code, self.codeText)
-        rq.end_headers()
-        self.isDispatched = True
-        return keepOpen(rq.wfile)
 
 # --------------------------------------------------------------------
 
@@ -103,7 +64,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                 assert type(reqPath[0]) == type(re.compile('')), 'Invalid path regular expression %s' % reqPath[0]
                 assert isinstance(reqPath[1], Processors), 'Invalid processors chain %s' % reqPath[1]
 
-
     def _process(self, method):
         req = RequestHTTP()
         req.method = method
@@ -125,11 +85,23 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         req.headers.update(self.headers)
         req.content = ContentRequest(self.rfile)
-        rsp = ResponseHTTP(self)
+        rsp = Response()
         chain.process(req, rsp)
-        if not rsp.isDispatched:
-            rsp.dispatch()
+        self._dispatch(rsp)
         assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
+        
+    def _dispatch(self, rsp):
+        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        headers = OrderedDict()
+        for headerEncoder in self.encodersHeader:
+            assert isinstance(headerEncoder, EncoderHeader)
+            headerEncoder.encode(headers, rsp)
+        for name, value in headers.items():
+            self.send_header(name, value)
+        self.send_response(rsp.code.code, rsp.codeText)
+        self.end_headers()
+        if rsp.content:
+            for bytes in rsp.content: self.wfile.write(bytes)
 
     def log_message(self, format, *args):
         #TODO: see for a better solution for this, check for next python release

@@ -16,6 +16,7 @@ from ally.core.spec.data_meta import MetaModel, MetaValue, MetaLink, MetaList, \
 from ally.core.spec.resources import Normalizer, Converter, Path
 from ally.exception import DevelException
 from ally.support.core.util_resources import nodeLongName
+from io import StringIO
 from numbers import Number
 from xml.sax.saxutils import XMLGenerator
 import logging
@@ -52,25 +53,27 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
         assert isinstance(self.nameResources, str), 'Invalid name resources %s' % self.nameResources
         assert isinstance(self.nameList, str), 'Invalid name list %s' % self.nameList
     
-    def encodeMeta(self, openTextWriter, charSet, value, meta, asString, pathEncode):
+    def encodeMeta(self, charSet, value, meta, asString, pathEncode):
         '''
         @see: EncodingTextBaseHandler.encodeMeta
         '''
-        assert callable(openTextWriter), 'Invalid open text %s' % openTextWriter
-        xml = XMLGenerator(openTextWriter(), charSet, short_empty_elements=True)
+        out = StringIO()
+        xml = XMLGenerator(out, charSet, short_empty_elements=True)
         xml.startDocument()
         self.encodeMetaXML(xml, value, meta, asString, pathEncode, self.normalizer.normalize, None, True)
         xml.endDocument()
+        yield out.getvalue()
         
-    def encodeObject(self, openTextWriter, charSet, obj):
+    def encodeObject(self, charSet, obj):
         '''
         @see: EncodingTextBaseHandler.encodeObject
         '''
-        assert callable(openTextWriter), 'Invalid open text %s' % openTextWriter
-        xml = XMLGenerator(openTextWriter(), charSet, short_empty_elements=True)
+        out = StringIO()
+        xml = XMLGenerator(out, charSet, short_empty_elements=True)
         xml.startDocument()
         self.encodeDictXML(xml, obj, self.normalizer.normalize)
         xml.endDocument()
+        yield out.getvalue()
     
     # ----------------------------------------------------------------
     

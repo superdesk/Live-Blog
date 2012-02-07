@@ -14,8 +14,6 @@ from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, EncoderHeader, METHOD_OPTIONS
 from ally.core.spec.server import Processors, ProcessorsChain, ContentRequest, \
     Response
-from ally.support.util_io import keepOpen
-from io import BytesIO
 import cherrypy
 import logging
 import re
@@ -23,31 +21,6 @@ import re
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-
-# --------------------------------------------------------------------
-
-class ResponseHTTP(Response):
-    '''
-    Provides the dispatch functionality for an HTTP response.
-    '''
-
-    def __init__(self):
-        ''''
-        @see: Response.__init__
-        '''
-        super().__init__()
-        self.isDispatched = False
-        self.wfile = None
-
-    def dispatch(self):
-        '''
-        @see: Response.dispatch
-        '''
-        assert self.code is not None, 'No code provided for dispatching.'
-        assert not self.isDispatched, 'Already dispatched'
-        self.isDispatched = True
-        self.wfile = BytesIO()
-        return keepOpen(self.wfile)
 
 # --------------------------------------------------------------------
 
@@ -110,10 +83,8 @@ class RequestHandler:
             else:
                 req.params.append((name, value));
         req.content = ContentRequest(cherrypy.request.rfile, True)
-        rsp = ResponseHTTP()
+        rsp = Response()
         chain.process(req, rsp)
-        if not rsp.isDispatched:
-            rsp.dispatch()
         headers = cherrypy.response.headers
         headers.pop('Content-Type', None)
         headers['Server'] = self.serverVersion
@@ -122,10 +93,8 @@ class RequestHandler:
             headerEncoder.encode(headers, rsp)
         cherrypy.response.status = rsp.code.code
         assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
-
-        if rsp.wfile is not None:
-            return rsp.wfile.getvalue()
-        return ''
+        return rsp.content
+    default._cp_config = {'response.stream': True} # We make sure that streaming occurs and is not cached
 
 # --------------------------------------------------------------------
 

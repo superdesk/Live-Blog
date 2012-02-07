@@ -128,7 +128,7 @@ class Processors:
 
 # --------------------------------------------------------------------
 
-class Content(metaclass=abc.ABCMeta):
+class Content:
     '''
     Provides the content data.
     '''
@@ -172,7 +172,7 @@ class ContentRequest(Content):
         @param file: object
             The object with the 'read(nbytes)' method to provide the content bytes.
         @param keep: boolean
-            Flag indicating that the used file handler should be kept open event if this content request is closed.
+            Flag indicating that the used file handler should be kept open even if this content request is closed.
         @ivar length: integer|None
             The number of available bytes in the content, if None it means that is not known.
         '''
@@ -284,15 +284,8 @@ class Response(Content):
             a composition of dictionaries, lists and string types, the normalization is handled by the encoder.
         @ivar objMeta: Object|None
             The object meta, used in getting the data from the response object.
-        @ivar objExclude: list[string]
-            The rendered object list of names to be excluded from rendering. If the elements in the list 
-            does not make sense an error code will be provided. The exclude list is considered whenever rendering 
-            a model entity.
-        @ivar objInclude: list[string]
-            The rendered object list of names to be included in rendering. If this list contains at least 
-            one element than only that element will be rendered. The include list has priority over exclude. If the
-            elements in the list does not make sense an error code will be provided. The include will be considered 
-            whenever rendering a list of models.
+        @ivar content: Iterable
+            A generator or iterable that provides the content in bytes for the response.
         '''
         super().__init__()
         self.code = None
@@ -304,8 +297,7 @@ class Response(Content):
         self.obj = None
         self.objType = None
         self.objMeta = None
-        self.objExclude = [] #TODO: DEPRECATED: no longer needed now using data meta
-        self.objInclude = [] #TODO: DEPRECATED: no longer needed now using data meta
+        self.content = None
     
     def addAllows(self, method):
         '''
@@ -336,16 +328,6 @@ class Response(Content):
         self.codeText = text
         if self.codeText is None and isinstance(self.codeMessage, str):
             self.codeText = message
-
-    @abc.abstractmethod
-    def dispatch(self):
-        '''
-        Dispatches the response and returns a writer object that has a 'write' method, used for outputting the
-        content. Calling this method will also close the response no more actions can be performed.
-        
-        @return: object 
-            A writer object that has a 'write' method, used for outputting the content.
-        '''
 
 # --------------------------------------------------------------------
 

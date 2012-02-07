@@ -36,9 +36,8 @@ class EncodingTextHandler(EncodingTextBaseHandler):
     converterId = Converter
     # The converter to use on the id's of the models.
     encoder = None
-    # A Callable(object, file writer, string)) function used for dumping the text object that takes as the first argument
-    # the text object to be encoded, the second the text file writer to dump to the encoded text and on the last position
-    # the character set encoding used.
+    # A Callable(object, string) function used for creating the text generator object that takes as the first argument
+    # the text object to be encoded, and on the last position the character set encoding to be used.
     namePath = 'href'
     # The name to use as the attribute in rendering the hyper link.
 
@@ -49,20 +48,18 @@ class EncodingTextHandler(EncodingTextBaseHandler):
         assert callable(self.encoder), 'Invalid callable encoder %s' % self.encoder
         assert isinstance(self.namePath, str), 'Invalid name path %s' % self.namePath
     
-    def encodeMeta(self, openTextWriter, charSet, value, meta, asString, pathEncode):
+    def encodeMeta(self, charSet, value, meta, asString, pathEncode):
         '''
         @see: EncodingTextBaseHandler.encodeMeta
         '''
-        assert callable(openTextWriter), 'Invalid open text %s' % openTextWriter
-        self.encoder(self.convertMeta(value, meta, asString, pathEncode, self.normalizer.normalize, True),
-                     openTextWriter(), charSet)
+        return self.encoder(self.convertMeta(value, meta, asString, pathEncode, self.normalizer.normalize, True),
+                            charSet)
         
-    def encodeObject(self, openTextWriter, charSet, obj):
+    def encodeObject(self, charSet, obj):
         '''
         @see: EncodingTextBaseHandler.encodeObject
         '''
-        assert callable(openTextWriter), 'Invalid open text %s' % openTextWriter
-        self.encoder(obj, openTextWriter(), charSet)
+        return self.encoder(obj, charSet)
     
     # ----------------------------------------------------------------
     
