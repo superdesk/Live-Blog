@@ -237,7 +237,9 @@ class LocalFileSystemCDM(ICDM):
         while len(subPath) > 0:
             if is_zipfile(subPath):
                 return (subPath, filePath[len(subPath):].lstrip('/'))
-            subPath = dirname(subPath)
+            nextSubPath = dirname(subPath)
+            if nextSubPath == subPath: break
+            subPath = nextSubPath
         raise Exception('Invalid ZIP path %s' % filePath)
 
     def _copyZipDir(self, zipFilePath, inDirPath, path):
@@ -303,7 +305,9 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
                     ziplinkFile = linkPath + self._zipLinkExt
                     self._removeZiplink(path, entryPath, ziplinkFile, subPath)
                     break
-                linkPath = dirname(linkPath)
+                nextLinkPath = dirname(linkPath)
+                if nextLinkPath == linkPath: break
+                linkPath = nextLinkPath
             else:
                 raise PathNotFound(path)
         except PathNotFound:
