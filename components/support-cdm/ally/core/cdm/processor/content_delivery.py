@@ -69,7 +69,9 @@ class ContentDeliveryHandler(Processor):
         elif req.method != GET:
             self._sendNotAvailable(rsp, 'Path not available for this method')
             return
-        
+        if not self._isValidPath(req.path):
+            return rsp.setCode(RESOURCE_NOT_FOUND, 'Out of repository path')
+
         entryPath = join(self.repositoryPath, req.path.replace('/', sep))
         rsp.setCode(RESOURCE_FOUND, 'File found')
         if (isfile(entryPath)):
@@ -95,7 +97,7 @@ class ContentDeliveryHandler(Processor):
                     return rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
                 pipe(rf, rsp.dispatch())
                 rf.close()
-                return 
+                return
             except Exception as e:
                 return rsp.setCode(RESOURCE_NOT_FOUND, str(e))
 
@@ -133,8 +135,11 @@ class ContentDeliveryHandler(Processor):
         path = normpath(path)
         while len(path) > len(self.repositoryPath):
             if isfile(path + '.deleted'): return True
-            
             subPath = dirname(path)
             if subPath == path: break
             path = subPath
         return False
+
+    def _isValidPath(self, path):
+        fullPath = normpath(self._getItemPath(path))
+        return fullPath.find(self.delivery.getRepositoryPath()) == 0

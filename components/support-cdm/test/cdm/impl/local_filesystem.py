@@ -17,6 +17,7 @@ from cdm.impl.local_filesystem import HTTPDelivery, LocalFileSystemCDM, LocalFil
 from ally.container import ioc
 from io import StringIO
 from os import makedirs, remove, sep
+from cdm.spec import PathNotFound
 
 
 class TestHTTPDelivery(unittest.TestCase):
@@ -134,6 +135,13 @@ class TestHTTPDelivery(unittest.TestCase):
 #        ioc.Initializer.initialize(d)
         cdm = LocalFileSystemLinkCDM()
         cdm.delivery = d
+
+        try:
+            exceptionRaised = False
+            cdm.publishFromFile('a/../../b', 'somefile.txt')
+        except PathNotFound:
+            exceptionRaised = True
+        self.assertTrue(exceptionRaised, 'No exception was rased on out of repository path')
 
         # test publish from a file from the file system
         try:
