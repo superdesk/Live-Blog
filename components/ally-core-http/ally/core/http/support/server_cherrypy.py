@@ -58,10 +58,11 @@ class RequestHandler:
     '''
 
     requestPaths = list
-    # The list of path-processors chain tuples
+    # The list[tuple(regex, Processor)] of path-processors chain tuples
     # The path is a regular expression
     # The processors is a Processors instance
-
+    serverVersion = str
+    # The server version name
     encodersHeader = list
     # The header encoders
 
@@ -76,6 +77,7 @@ class RequestHandler:
 
     def __init__(self):
         assert isinstance(self.encodersHeader, list), 'Invalid header encoders list %s' % self.encodersHeader
+        assert isinstance(self.serverVersion, str), 'Invalid server version %s' % self.serverVersion
         if __debug__:
             for reqPath in self.requestPaths:
                 assert isinstance(reqPath, tuple), 'Invalid request paths %s' % self.requestPaths
@@ -112,9 +114,12 @@ class RequestHandler:
         chain.process(req, rsp)
         if not rsp.isDispatched:
             rsp.dispatch()
+        headers = cherrypy.response.headers
+        headers.pop('Content-Type', None)
+        headers['Server'] = self.serverVersion
         for headerEncoder in self.encodersHeader:
             assert isinstance(headerEncoder, EncoderHeader)
-            headerEncoder.encode(cherrypy.response.headers, rsp)
+            headerEncoder.encode(headers, rsp)
         cherrypy.response.status = rsp.code.code
         assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
 
