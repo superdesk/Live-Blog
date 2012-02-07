@@ -118,19 +118,22 @@ class RequestIntrospectService(IRequestIntrospectService):
                 
                 patternInputs = set()
 
-                index = 0
+                index, inputs = 0, []
                 matches = matchesForNode(node)
                 for k, match in enumerate(matches):
                     assert isinstance(match, Match)
                     if not match.isValid():
-                        inp = self._toPatternInput(match, r)
-                        patternInputs.add(inp.Id)
-
                         index += 1
-                        matches[k] = inp.Name = '{%s}' % index
+                        matches[k] = '{%s}' % index
+                        inputs.append((match, matches[k]))
                         
                 r.Pattern = '/'.join(toPaths(matches, self.converterPath))
                 if r.Pattern.startswith(DOMAIN): return
+                
+                for match, name in inputs:
+                    inp = self._toPatternInput(match, r)
+                    patternInputs.add(inp.Id)
+                    inp.Name = name
                 
                 self._requests[r.Id] = r
                 self._nodeRequests[idNode] = r.Id
