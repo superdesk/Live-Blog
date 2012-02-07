@@ -9,10 +9,10 @@ Created on Nov 24, 2011
 Provides the configurations for header encoders.
 '''
 
-from .processor import headerStandard, headerX
+from .processor import headerStandard, formattingProvider
 from ally.container import ioc
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def encodersHeader(): return [headerStandard(), headerX()]
+def encodersHeader(): return [headerStandard(), formattingProvider()]

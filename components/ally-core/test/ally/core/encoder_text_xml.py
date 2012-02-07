@@ -14,14 +14,15 @@ from ..samples.api.article import Article
 from ..samples.api.article_type import ArticleType
 from ..samples.impl.article import ArticleService
 from ..samples.impl.article_type import ArticleTypeService
-from ..test_support import ResponseTest, EncoderPathTest
+from ..test_support import EncoderPathTest
 from ally.api.configure import modelFor
 from ally.api.type import Iter, Type
 from ally.container import ioc, aop
 from ally.core.spec.resources import ResourcesManager, Path
-from ally.core.spec.server import Processors, Request
+from ally.core.spec.server import Processors, Request, Response
 import re
 import unittest
+from functools import reduce
 
 # --------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ class TestEncoderXML(unittest.TestCase):
             processorText = get('encoderTextXMLProcessors')
             assert isinstance(processorText, Processors)
             
-            req, rsp = Request(), ResponseTest()
+            req, rsp = Request(), Response()
             rsp.contentConverter = converterPath
             rsp.encoderPath = EncoderPathTest(converterPath)
             rsp.objMeta = None
@@ -60,14 +61,15 @@ class TestEncoderXML(unittest.TestCase):
             rsp.obj, rsp.objType = 1, Article.Id
             req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article', '1'])
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <Article href="Article/1"><Id>1</Id></Article>'''))
             
             rsp.obj, rsp.objType = 'The Name', Article.Name
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <Article><Name>The Name</Name></Article>'''))
@@ -79,42 +81,17 @@ class TestEncoderXML(unittest.TestCase):
             rsp.obj, rsp.objType = a, modelFor(Article).type
             req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article', '1'])
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <Article><Type href="ArticleType/2"><Id>2</Id></Type><Id>1</Id><Name>Article 1</Name></Article>'''))
-            
-#            processorMeta.newChain().process(req, rsp)
-#            del rsp.objMeta['Type']
-#            processorText.newChain().process(req, rsp)
-#            xml = str(rsp.wfile.getvalue(), 'utf8')
-#            self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
-#'''<?xml version="1.0" encoding="UTF-8"?>
-#<Article><Id>1</Id><Name>Article 1</Name></Article>'''))
-#            
-#            processorMeta.newChain().process(req, rsp)
-#            del rsp.objMeta['Name']
-#            processorText.newChain().process(req, rsp)
-#            xml = str(rsp.wfile.getvalue(), 'utf8')
-#            self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
-#'''<?xml version="1.0" encoding="UTF-8"?>
-#<Article><Type href="ArticleType/2">2</Type><Id>1</Id></Article>'''))
-#            
-#            processorMeta.newChain().process(req, rsp)
-#            del rsp.objMeta['Type']
-#            del rsp.objMeta['Name']
-#            processorText.newChain().process(req, rsp)
-#            xml = str(rsp.wfile.getvalue(), 'utf8')
-#            self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
-#'''<?xml version="1.0" encoding="UTF-8"?>
-#<Id>1</Id>'''))
             
             a = Article()
             a.Id, a.Name, a.Type = 3, 'Article 3', 4
             rsp.obj, rsp.objType = a, modelFor(Article).type
             req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article', '1'])
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <Article><Type href="ArticleType/4"><Id>4</Id></Type><Id>3</Id><Name>Article 3</Name></Article>'''))
@@ -124,7 +101,7 @@ class TestEncoderXML(unittest.TestCase):
             rsp.obj, rsp.objType = at, modelFor(ArticleType).type
             req.resourcePath = resourcesManager.findResourcePath(converterPath, ['ArticleType', '1'])
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <ArticleType><Article href="ArticleType/1/Article"/><Id>1</Id><Name>Article Type 1</Name>'''\
@@ -134,7 +111,7 @@ class TestEncoderXML(unittest.TestCase):
             
             rsp.obj, rsp.objType = resourcesManager.findGetAllAccessible(), Iter(Type(Path))
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <Resources><ArticleType href="ArticleType"/><Article href="Article"/></Resources>'''))
@@ -144,7 +121,7 @@ class TestEncoderXML(unittest.TestCase):
             rsp.obj, rsp.objType = [1, 2], Iter(Article.Id)
             req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article'])
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <ArticleList><Article href="Article/1"><Id>1</Id></Article><Article href="Article/2"><Id>2</Id></Article>'''\
@@ -152,7 +129,7 @@ class TestEncoderXML(unittest.TestCase):
             
             rsp.obj, rsp.objType = [1, 2], Iter(Article.Type)
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <ArticleList><Article><Type href="ArticleType/1"><Id>1</Id></Type></Article><Article><Type href="ArticleType/2">'''\
@@ -160,7 +137,7 @@ class TestEncoderXML(unittest.TestCase):
             
             rsp.obj, rsp.objType = ['The Hulk 1', 'The Hulk 2'], Iter(Article.Name)
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <ArticleList><Article><Name>The Hulk 1</Name></Article><Article><Name>The Hulk 2</Name></Article></ArticleList>'''))
@@ -173,7 +150,7 @@ class TestEncoderXML(unittest.TestCase):
             rsp.obj, rsp.objType = (a1, a2), Iter(Article)
             req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article'])
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <ArticleList>'''\
@@ -181,30 +158,10 @@ class TestEncoderXML(unittest.TestCase):
 '<Article href="Article/2"><Type href="ArticleType/2"><Id>2</Id></Type><Id>2</Id><Name>Article 2</Name></Article>'\
 '</ArticleList>'))
             
-#            processorMeta.newChain().process(req, rsp)
-#            del rsp.objMeta.metaItem['Type']
-#            del rsp.objMeta.metaItem['Name']
-#            rsp.objMeta.metaItem['Id'] = rsp.objMeta.metaItem['Id'].metaLink
-#            processorText.newChain().process(req, rsp)
-#            xml = str(rsp.wfile.getvalue(), 'utf8')
-#            self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
-#'''<?xml version="1.0" encoding="UTF-8"?>
-#<ArticleList><Article href="Article/1"/><Article href="Article/2"/></ArticleList>'''))
-#            
-#            processorMeta.newChain().process(req, rsp)
-#            del rsp.objMeta.metaItem['Id']
-#            del rsp.objMeta.metaItem['Name']
-#            processorText.newChain().process(req, rsp)
-#            xml = str(rsp.wfile.getvalue(), 'utf8')
-#            self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
-#'''<?xml version="1.0" encoding="UTF-8"?>
-#<ArticleList><Article><Type href="ArticleType/1">1</Type></Article><Article><Type href="ArticleType/2">2</Type>'''\
-#'</Article></ArticleList>'))
-            
             rsp.obj, rsp.objType = {'Type': {'href': 'ArticleType/2', 'Id': '2'}, 'Id': '1'}, None
             rsp.objMeta = req.resourcePath = None
             processors.newChain().process(req, rsp)
-            xml = str(rsp.wfile.getvalue(), 'utf8')
+            xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <Type><href>ArticleType/2</href><Id>2</Id></Type><Id>1</Id>'''))

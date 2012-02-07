@@ -22,19 +22,8 @@ class EncoderGetObj:
     
     def __call__(self, obj, *args):
         self.obj = obj
+        return ['Nothing']
 
-# --------------------------------------------------------------------
-
-class ResponseTest(Response):
-    
-    def __init__(self):
-        Response.__init__(self)
-        self.wfile = None
-    
-    def dispatch(self):
-        self.wfile = BytesIO()
-        return keepOpen(self.wfile)
-    
 # --------------------------------------------------------------------
 
 class EncoderPathTest(EncoderPath):
