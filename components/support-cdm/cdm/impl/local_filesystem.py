@@ -73,6 +73,7 @@ class HTTPDelivery(IDelivery):
         assert isdir(self.repositoryPath) \
             and os.access(self.repositoryPath, os.W_OK), \
             'Unable to access the repository directory %s' % self.repositoryPath
+        self.repositoryPath = normpath(self.repositoryPath)
 
     def getRepositoryPath(self):
         '''
@@ -109,6 +110,7 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str) and len(path) > 0, 'Invalid content path %s' % path
         assert isinstance(filePath, str), 'Invalid file path value %s' % filePath
+        self._validatePath(path)
         dstFilePath = self._getItemPath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
@@ -139,6 +141,7 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str) and len(path) > 0, 'Invalid content path %s' % path
         assert isinstance(dirPath, str), 'Invalid directory path value %s' % dirPath
+        self._validatePath(path)
         if not isdir(dirPath):
             # not a directory, see if it's a entry in a zip file
             try:
@@ -168,6 +171,7 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
         assert isinstance(ioStream, IOBase), 'Invalid content string %s' % ioStream
+        self._validatePath(path)
         dstFilePath = self._getItemPath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
@@ -185,6 +189,7 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
         assert isinstance(content, str), 'Invalid content string %s' % content
+        self._validatePath(path)
         dstFilePath = self._getItemPath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
@@ -198,6 +203,7 @@ class LocalFileSystemCDM(ICDM):
         '''
         @see ICDM.removePath
         '''
+        self._validatePath(path)
         itemPath = self._getItemPath(path)
         if isdir(itemPath):
             rmtree(itemPath)
@@ -218,12 +224,18 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
         assert isinstance(protocol, str), 'Invalid protocol %s' % protocol
+        self._validatePath(path)
         if protocol != 'http':
             raise UnsupportedProtocol(protocol)
         return self.delivery.getURI(path)
 
     def _getItemPath(self, path):
         return join(self.delivery.getRepositoryPath(), path.lstrip(os.sep))
+
+    def _validatePath(self, path):
+        fullPath = normpath(self._getItemPath(path))
+        if fullPath.find(self.delivery.getRepositoryPath()) != 0:
+            raise PathNotFound('Path is outside the repository: %s' % path)
 
     def _getZipFilePath(self, filePath):
         assert isinstance(filePath, str), 'Invalid file path %s' % filePath
@@ -274,6 +286,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         @see ICDM.publishFromFile
         '''
+        self._validatePath(path)
         try:
             self._publishFromFile(path, filePath)
         except Exception:
@@ -283,6 +296,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         @see ICDM.publishFromDir
         '''
+        self._validatePath(path)
         try:
             self._publishFromFile(path, dirPath)
         except:
@@ -292,6 +306,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         @see ICDM.removePath
         '''
+        self._validatePath(path)
         entryPath = self._getItemPath(path)
         linkPath = entryPath
         try:
