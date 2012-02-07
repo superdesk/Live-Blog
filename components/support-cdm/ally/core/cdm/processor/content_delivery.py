@@ -69,7 +69,9 @@ class ContentDeliveryHandler(Processor):
         elif req.method != GET:
             self._sendNotAvailable(rsp, 'Path not available for this method')
             return
-        
+        if not self._isValidPath(req.path):
+            return rsp.setCode(RESOURCE_NOT_FOUND, 'Out of repository path')
+
         entryPath = join(self.repositoryPath, req.path.replace('/', sep))
         rsp.setCode(RESOURCE_FOUND, 'File found')
         if (isfile(entryPath)):
@@ -83,10 +85,10 @@ class ContentDeliveryHandler(Processor):
             try:
                 while len(linkPath) > len(self.repositoryPath):
                     if isfile(linkPath + '.link'):
-                        rf = self._processLink(linkPath + '.link', entryPath[len(linkPath):])
+                        rf = self._processLink(linkPath, entryPath[len(linkPath):])
                         break
                     if isfile(linkPath + '.ziplink'):
-                        rf = self._processZiplink(linkPath + '.ziplink', entryPath[len(linkPath):])
+                        rf = self._processZiplink(linkPath, entryPath[len(linkPath):])
                         break
                     subLinkPath = dirname(linkPath)
                     if subLinkPath == linkPath: return rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
@@ -95,7 +97,7 @@ class ContentDeliveryHandler(Processor):
                     return rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
                 pipe(rf, rsp.dispatch())
                 rf.close()
-                return 
+                return
             except Exception as e:
                 return rsp.setCode(RESOURCE_NOT_FOUND, str(e))
 
@@ -103,7 +105,7 @@ class ContentDeliveryHandler(Processor):
 
     def _processLink(self, linkPath, subPath):
         subPath = subPath.lstrip(sep)
-        with open(linkPath) as f:
+        with open(linkPath + '.link') as f:
             linkedFilePath = f.readline().strip()
             if isdir(linkedFilePath):
                 resPath = join(linkedFilePath, subPath)
@@ -117,7 +119,7 @@ class ContentDeliveryHandler(Processor):
 
     def _processZiplink(self, linkPath, subPath):
         subPath = subPath.lstrip(sep)
-        with open(linkPath) as f:
+        with open(linkPath + '.ziplink') as f:
             zipFilePath = f.readline().strip()
             inFilePath = f.readline().strip()
             zipFile = ZipFile(zipFilePath)
@@ -133,8 +135,11 @@ class ContentDeliveryHandler(Processor):
         path = normpath(path)
         while len(path) > len(self.repositoryPath):
             if isfile(path + '.deleted'): return True
-            
             subPath = dirname(path)
             if subPath == path: break
             path = subPath
         return False
+
+    def _isValidPath(self, path):
+        entryPath = normpath(join(self.repositoryPath, path.replace('/', sep)))
+        return entryPath.find(self.repositoryPath) == 0
