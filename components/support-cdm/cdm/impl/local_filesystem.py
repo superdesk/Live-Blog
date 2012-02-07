@@ -78,7 +78,7 @@ class HTTPDelivery(IDelivery):
         '''
         @see IDelivery.getRepositoryPath
         '''
-        return self.repositoryPath.rstrip('/')
+        return self.repositoryPath.rstrip(os.sep)
 
     def getURI(self, repoFilePath):
         '''
@@ -158,7 +158,7 @@ class LocalFileSystemCDM(ICDM):
         for root, _dirs, files in os.walk(dirPath):
             relPath = relpath(root, dirPath)
             for file in files:
-                publishPath = join(path, relPath.lstrip('/'), file)
+                publishPath = join(path, relPath.lstrip(os.sep), file)
                 filePath = join(root, file)
                 self.publishFromFile(publishPath, filePath)
 
@@ -223,7 +223,7 @@ class LocalFileSystemCDM(ICDM):
         return self.delivery.getURI(path)
 
     def _getItemPath(self, path):
-        return join(self.delivery.getRepositoryPath(), path.lstrip('/'))
+        return join(self.delivery.getRepositoryPath(), path.lstrip(os.sep))
 
     def _getZipFilePath(self, filePath):
         assert isinstance(filePath, str), 'Invalid file path %s' % filePath
@@ -236,7 +236,7 @@ class LocalFileSystemCDM(ICDM):
         subPath = filePath
         while len(subPath) > 0:
             if is_zipfile(subPath):
-                return (subPath, filePath[len(subPath):].lstrip('/'))
+                return (subPath, filePath[len(subPath):].lstrip(os.sep))
             nextSubPath = dirname(subPath)
             if nextSubPath == subPath: break
             subPath = nextSubPath
@@ -295,8 +295,8 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         entryPath = self._getItemPath(path)
         linkPath = entryPath
         try:
-            while len(linkPath.lstrip('/')) > 0:
-                subPath = entryPath[len(linkPath):].lstrip('/')
+            while len(linkPath.lstrip(os.sep)) > 0:
+                subPath = entryPath[len(linkPath):].lstrip(os.sep)
                 if isfile(linkPath + self._linkExt):
                     linkFile = linkPath + self._linkExt
                     self._removeLink(path, entryPath, linkFile, subPath)
@@ -314,7 +314,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
             raise
         except:
             raise PathNotFound(path)
-        if len(subPath.strip('/')) == 0 and isdir(linkPath):
+        if len(subPath.strip(os.sep)) == 0 and isdir(linkPath):
             rmtree(linkPath)
 
     def _removeLink(self, path, entryPath, linkFile, subPath):
@@ -324,7 +324,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
                 if isfile(join(linkedPath, subPath)) or isdir(join(linkedPath, subPath)):
                     if not isdir(dirname(entryPath)):
                         os.makedirs(dirname(entryPath))
-                    with open(entryPath.rstrip('/') + self._deletedExt, 'w') as _d: pass
+                    with open(entryPath.rstrip(os.sep) + self._deletedExt, 'w') as _d: pass
                     if isdir(entryPath):
                         rmtree(entryPath)
                 else:
@@ -343,7 +343,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
             zipFile.getinfo(join(inFilePath, subPath))
             if not isdir(dirname(entryPath)):
                 os.makedirs(dirname(entryPath))
-            with open(entryPath.rstrip('/') + self._deletedExt, 'w') as _d: pass
+            with open(entryPath.rstrip(os.sep) + self._deletedExt, 'w') as _d: pass
             if isdir(entryPath):
                 rmtree(entryPath)
 
