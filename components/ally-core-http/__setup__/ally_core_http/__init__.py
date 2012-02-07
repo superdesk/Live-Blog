@@ -26,7 +26,7 @@ def server_port() -> int:
 
 @ioc.config
 def server_version() -> str:
-    '''The server version number'''
+    '''The server version name'''
     return 'AllyREST/0.1'
 
 @ioc.config

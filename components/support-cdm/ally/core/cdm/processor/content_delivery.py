@@ -1,7 +1,7 @@
 '''
 Created on Jul 14, 2011
 
-@package: Newscoop
+@package: cdm
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mugur Rus
@@ -14,10 +14,10 @@ from ally.container.ioc import injected
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, RESOURCE_NOT_FOUND
 from ally.core.spec.server import Processor, Response, ProcessorsChain
 from ally.core.http.spec import RequestHTTP
-from os.path import isdir, isfile, join, dirname
-import os
+from os.path import isdir, isfile, join, dirname, normpath, sep
 from zipfile import ZipFile
 from ally.support.util_io import pipe
+import os
 
 # --------------------------------------------------------------------
 
@@ -44,9 +44,10 @@ class ContentDeliveryHandler(Processor):
     def __init__(self):
         assert isinstance(self.repositoryPath, str), \
             'Invalid repository path value %s' % self.repositoryPath
-#        assert isdir(self.repositoryPath) \
-#            and os.access(self.repositoryPath, os.R_OK), \
-#            'Unable to access the repository directory %s' % self.repositoryPath
+        self.repositoryPath = normpath(self.repositoryPath)
+        if not os.path.exists(self.repositoryPath): os.makedirs(self.repositoryPath)
+        assert isdir(self.repositoryPath) and os.access(self.repositoryPath, os.R_OK), \
+            'Unable to access the repository directory %s' % self.repositoryPath
         super().__init__()
 
     def process(self, req, rsp, chain):
@@ -68,8 +69,8 @@ class ContentDeliveryHandler(Processor):
         elif req.method != GET:
             self._sendNotAvailable(rsp, 'Path not available for this method')
             return
-
-        entryPath = join(self.repositoryPath, req.path)
+        
+        entryPath = join(self.repositoryPath, req.path.replace('/', sep))
         rsp.setCode(RESOURCE_FOUND, 'File found')
         if (isfile(entryPath)):
             try:
@@ -80,29 +81,32 @@ class ContentDeliveryHandler(Processor):
         else:
             linkPath = entryPath
             try:
-                while len(linkPath.lstrip('/')) > 0:
-                    subPath = entryPath[len(linkPath):].lstrip('/')
+                while len(linkPath) > len(self.repositoryPath):
                     if isfile(linkPath + '.link'):
-                        rf = self._processLink(linkPath, subPath)
+                        rf = self._processLink(linkPath + '.link', entryPath[len(linkPath):])
                         break
                     if isfile(linkPath + '.ziplink'):
-                        rf = self._processZiplink(linkPath, subPath)
+                        rf = self._processZiplink(linkPath + '.ziplink', entryPath[len(linkPath):])
                         break
-                    linkPath = dirname(linkPath)
+                    subLinkPath = dirname(linkPath)
+                    if subLinkPath == linkPath: return rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
+                    linkPath = subLinkPath
                 else:
                     return rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
                 pipe(rf, rsp.dispatch())
                 rf.close()
+                return 
             except Exception as e:
                 return rsp.setCode(RESOURCE_NOT_FOUND, str(e))
 
         chain.proceed()
 
     def _processLink(self, linkPath, subPath):
-        with open(linkPath + '.link') as f:
+        subPath = subPath.lstrip(sep)
+        with open(linkPath) as f:
             linkedFilePath = f.readline().strip()
             if isdir(linkedFilePath):
-                resPath = join(linkedFilePath, subPath.lstrip('/'))
+                resPath = join(linkedFilePath, subPath)
             elif len(subPath) > 0:
                 raise Exception('Invalid link to a file in file')
             else:
@@ -112,7 +116,8 @@ class ContentDeliveryHandler(Processor):
             return open(resPath, 'rb')
 
     def _processZiplink(self, linkPath, subPath):
-        with open(linkPath + '.ziplink') as f:
+        subPath = subPath.lstrip(sep)
+        with open(linkPath) as f:
             zipFilePath = f.readline().strip()
             inFilePath = f.readline().strip()
             zipFile = ZipFile(zipFilePath)
@@ -125,11 +130,11 @@ class ContentDeliveryHandler(Processor):
         rsp.setCode(METHOD_NOT_AVAILABLE, message)
 
     def _isPathDeleted(self, path):
-        if isfile(path + '.deleted'):
-            return True
-        subPath = dirname(path)
-        while len(subPath.strip('/')) > 0:
-            if isfile(subPath + '.deleted'):
-                return True
-            subPath = dirname(subPath)
+        path = normpath(path)
+        while len(path) > len(self.repositoryPath):
+            if isfile(path + '.deleted'): return True
+            
+            subPath = dirname(path)
+            if subPath == path: break
+            path = subPath
         return False

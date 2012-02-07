@@ -9,14 +9,16 @@ Created on Jan 5, 2012
 Provides the configurations for the CDM local filesystem implementation.
 '''
 
-from cdm.impl.local_filesystem import IDelivery, LocalFileSystemCDM, HTTPDelivery
-from ally.container import ioc
-from cdm.spec import ICDM
+from ..ally_core.processor import explainError
 from ..ally_core_http.processor import pathProcessors
-import re
+from ally.container import ioc
+from ally.container._impl.ioc_setup import ConfigError
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
 from ally.core.spec.server import Processors, Processor
-from ally.container._impl.ioc_setup import ConfigError
+from cdm.impl.local_filesystem import IDelivery, LocalFileSystemCDM, \
+    HTTPDelivery
+from cdm.spec import ICDM
+import re
 
 # --------------------------------------------------------------------
 
@@ -66,7 +68,7 @@ def localContentHandler() -> Processor:
 
 @ioc.entity
 def contentHandlers():
-    return [localContentHandler()]
+    return [explainError(), localContentHandler()]
 
 @ioc.before(pathProcessors)
 def updatePathProcessors():

@@ -60,19 +60,11 @@ class EncodingTextBaseHandler(Processor):
         # Check if the response is for this encoder
         if rsp.contentType not in self.contentTypes:
             assert log.debug('The content type %r is not for this %s encoder', rsp.contentType, self) or True
-        elif not rsp.contentConverter:
-            assert log.debug('The response has no content converter, not for this %s encoder', self) or True
-        elif not rsp.encoderPath:
-            assert log.debug('There is no path encoder on the response, not for this %s encoder', self) or True
         else:
             contentType = self.contentTypes[rsp.contentType]
             if contentType:
                 assert log.debug('Normalized content type %r to %r', rsp.contentType, contentType) or True
                 rsp.contentType = contentType
-            
-            # Handling the encoder and converter
-            assert isinstance(rsp.contentConverter, Converter), 'Invalid content converter %s' % rsp.contentConverter
-            assert isinstance(rsp.encoderPath, EncoderPath), 'Invalid encoder path %s' % rsp.encoderPath
             
             # Resolving the character set
             if rsp.charSet:
@@ -102,9 +94,19 @@ class EncodingTextBaseHandler(Processor):
                     assert log.debug('There is no meta object or valid object on the response, not for this %s encoder',
                                      self) or True
             else:
-                self.encodeMeta(openTextWriter, rsp.charSet, rsp.obj, rsp.objMeta, rsp.contentConverter.asString,
-                                rsp.encoderPath.encode)
-                return
+                if not rsp.contentConverter:
+                    assert log.debug('The response has no content converter, not for this %s encoder', self) or True
+                elif not rsp.encoderPath:
+                    assert log.debug('There is no path encoder on the response, not for this %s encoder', self) or True
+                else:
+                    # Handling the encoder and converter
+                    assert isinstance(rsp.contentConverter, Converter), 'Invalid content converter %s' % \
+                    rsp.contentConverter
+                    assert isinstance(rsp.encoderPath, EncoderPath), 'Invalid encoder path %s' % rsp.encoderPath
+    
+                    self.encodeMeta(openTextWriter, rsp.charSet, rsp.obj, rsp.objMeta, rsp.contentConverter.asString,
+                                    rsp.encoderPath.encode)
+                    return
         
         chain.proceed()
     
