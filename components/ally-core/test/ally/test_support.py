@@ -9,9 +9,7 @@ Created on Jan 28, 2012
 Provides test support classes.
 '''
 
-from ally.core.spec.server import Response, EncoderPath
-from ally.support.util_io import keepOpen
-from io import BytesIO
+from ally.core.spec.server import EncoderPath
 
 # --------------------------------------------------------------------
 
