@@ -66,9 +66,11 @@ var app = function(URL)
 				case 'delete':
 					tmpl = '#request-method-tmpl';
 					break;
-				case 'input':
+				case 'develinput':
 					tmpl = '#request-inputlist-tmpl';
 					break;
+				default:
+					console.error(apiMethod);
 			}
 			
 			$(this).prop('api-resource')
@@ -78,6 +80,7 @@ var app = function(URL)
 			{
 				$.tmplOption({varname: 'input'});
 				var html = $.tmpl(tmpl, methodData);
+				
 				displayBox.html(html || '<em>nothing here</em>').slideDown('fast');
 			});
 			return false;
@@ -246,6 +249,7 @@ $(function()
             		<label for="api-url" class="control-label">URL</label>
             		<div class="controls">
               			<input type="text" id="api-url" class="input-xlarge">
+						<p class="help-block">It should look something like: <br /><code>http://api.host/resources/Devel/</code></p>
             		</div>
           		</div>
 			</fieldset>
@@ -254,6 +258,7 @@ $(function()
 </script>
 
 <script type="text/x-jQuery-tmpl" id="request-inputlist-tmpl">
+
 	{% for(var i in input) %}
 	<h3>
 		<small>#{{input[i].Id}}</small> {{input[i].Name}}
@@ -350,7 +355,7 @@ $(function()
 				</li>
 			</ul>
 			<form action="" class="navbar-search pull-right">
-        	    <input type="text" placeholder="Search inputs..." class="search-query">
+        	    <input type="text" placeholder="Search inputs..." class="span2 search-query">
         	    <button type="submit" class="hide">Search</button>
           	</form>
       	</div>
