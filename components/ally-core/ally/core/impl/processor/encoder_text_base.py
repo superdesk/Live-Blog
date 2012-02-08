@@ -86,7 +86,7 @@ class EncodingTextBaseHandler(Processor):
                     # Expected a plain dictionary dictionary or list for rendering
                     assert isValid(rsp.obj), 'Invalid object for encoding %s' % rsp.obj
                     
-                    rsp.content = ConvertToBytes(self.encodeObject(rsp.charSet, rsp.obj), rsp.charSet,
+                    rsp.content = convertToBytes(self.encodeObject(rsp.charSet, rsp.obj), rsp.charSet,
                                                  self.encodingError)
                     return
                 else:
@@ -103,7 +103,7 @@ class EncodingTextBaseHandler(Processor):
                     rsp.contentConverter
                     assert isinstance(rsp.encoderPath, EncoderPath), 'Invalid encoder path %s' % rsp.encoderPath
 
-                    rsp.content = ConvertToBytes(self.encodeMeta(rsp.charSet, rsp.obj, rsp.objMeta,
+                    rsp.content = convertToBytes(self.encodeMeta(rsp.charSet, rsp.obj, rsp.objMeta,
                                 rsp.contentConverter.asString, rsp.encoderPath.encode), rsp.charSet, self.encodingError)
                     return
         
@@ -163,33 +163,20 @@ def isValid(obj):
         elif not isinstance(value, (str, Number)) and not isValid(value) :return False
     return True
 
-class ConvertToBytes:
+def convertToBytes(iterable, charSet, encodingError):
     '''
-    Provides a Iterable that converts from string to bytes based on string data from another Iterable.
+    Provides a generator that converts from string to bytes based on string data from another Iterable.
+    
+    @param iterable: Iterable
+        The iterable providing the strings to convert.
+    @param charSet: string
+        The character set to encode based on.
+    @param encodingError: string
+        The encoding error resolving.
     '''
-    
-    def __init__(self, iterable, charSet, encodingError):
-        '''
-        Construct the converter.
-        
-        @param iterable: Iterable
-            The iterable providing the strings to convert.
-        @param charSet: string
-            The character set to encode based on.
-        @param encodingError: string
-            The encoding error resolving.
-        '''
-        assert isinstance(iterable, Iterable), 'Invalid iterable %s' % iterable
-        assert isinstance(charSet, str), 'Invalid character set %s' % charSet
-        assert isinstance(encodingError, str), 'Invalid encoding error set %s' % encodingError
-        self.iterable = iterable
-        self.charSet = charSet
-        self.encodingError = encodingError
-    
-    def __iter__(self):
-        return self
-    
-    def __next__(self):
-        value = next(self.iterable)
+    assert isinstance(iterable, Iterable), 'Invalid iterable %s' % iterable
+    assert isinstance(charSet, str), 'Invalid character set %s' % charSet
+    assert isinstance(encodingError, str), 'Invalid encoding error set %s' % encodingError
+    for value in iterable:
         assert isinstance(value, str), 'Invalid value %s received' % value
-        return value.encode(encoding=self.charSet, errors=self.encodingError)
+        yield value.encode(encoding=charSet, errors=encodingError)

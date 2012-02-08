@@ -9,15 +9,21 @@ Created on Jul 14, 2011
 Provides the content delivery handler.
 '''
 
-from ally.api.operator import GET, INSERT, UPDATE, DELETE
+from ally.api.operator import GET
 from ally.container.ioc import injected
-from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, RESOURCE_NOT_FOUND
-from ally.core.spec.server import Processor, Response, ProcessorsChain
 from ally.core.http.spec import RequestHTTP
+from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
+    RESOURCE_NOT_FOUND
+from ally.core.spec.server import Processor, Response, ProcessorsChain
+from ally.support.util_io import readGenerator
 from os.path import isdir, isfile, join, dirname, normpath, sep
 from zipfile import ZipFile
-from ally.support.util_io import pipe
+import logging
 import os
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -57,65 +63,49 @@ class ContentDeliveryHandler(Processor):
         assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        if req.method == INSERT: # Inserting
-            self._sendNotAvailable(rsp, 'Path not available for post')
-            return
-        elif req.method == UPDATE: # Updating
-            self._sendNotAvailable(rsp, 'Path not available for put')
-            return
-        elif req.method == DELETE: # Deleting
-            self._sendNotAvailable(rsp, 'Path not available for delete')
-            return
-        elif req.method != GET:
-            self._sendNotAvailable(rsp, 'Path not available for this method')
-            return
-        if not self._isValidPath(req.path):
+        
+        if req.method != GET:
+            rsp.addAllows(GET)
+            return rsp.setCode(METHOD_NOT_AVAILABLE, 'Path not available for method')
+        
+        entryPath = normpath(join(self.repositoryPath, req.path.replace('/', sep)))
+        if not entryPath.startswith(self.repositoryPath):
             return rsp.setCode(RESOURCE_NOT_FOUND, 'Out of repository path')
-
-        entryPath = join(self.repositoryPath, req.path.replace('/', sep))
-        rsp.setCode(RESOURCE_FOUND, 'File found')
-        if (isfile(entryPath)):
-            try:
-                with open(entryPath, 'rb') as f:
-                    pipe(f, rsp.dispatch())
-            except:
-                return rsp.setCode(RESOURCE_NOT_FOUND, 'Unable to read resource file')
+        
+        if isfile(entryPath): rf = open(entryPath, 'rb')
         else:
             linkPath = entryPath
-            try:
-                while len(linkPath) > len(self.repositoryPath):
-                    if isfile(linkPath + '.link'):
-                        rf = self._processLink(linkPath, entryPath[len(linkPath):])
-                        break
-                    if isfile(linkPath + '.ziplink'):
-                        rf = self._processZiplink(linkPath, entryPath[len(linkPath):])
-                        break
-                    subLinkPath = dirname(linkPath)
-                    if subLinkPath == linkPath: return rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
-                    linkPath = subLinkPath
-                else:
-                    return rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid resource')
-                pipe(rf, rsp.dispatch())
-                rf.close()
-                return
-            except Exception as e:
-                return rsp.setCode(RESOURCE_NOT_FOUND, str(e))
+            while len(linkPath) > len(self.repositoryPath):
+                if isfile(linkPath + '.link'):
+                    rf = self._processLink(linkPath, entryPath[len(linkPath):])
+                    break
+                if isfile(linkPath + '.ziplink'):
+                    rf = self._processZiplink(linkPath, entryPath[len(linkPath):])
+                    break
+                subLinkPath = dirname(linkPath)
+                if subLinkPath == linkPath:
+                    rf = None
+                    break
+                linkPath = subLinkPath
+            else: rf = None
+            
+        if rf is None: rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid content resource')
+        else:
+            rsp.setCode(RESOURCE_FOUND, 'Resource found')
+            rsp.content = readGenerator(rf)
 
-        chain.proceed()
-
+    # ----------------------------------------------------------------
+    
     def _processLink(self, linkPath, subPath):
         subPath = subPath.lstrip(sep)
         with open(linkPath + '.link') as f:
             linkedFilePath = f.readline().strip()
             if isdir(linkedFilePath):
                 resPath = join(linkedFilePath, subPath)
-            elif len(subPath) > 0:
-                raise Exception('Invalid link to a file in file')
-            else:
+            elif not subPath:
                 resPath = linkedFilePath
-            if self._isPathDeleted(join(linkPath, subPath)):
-                raise Exception('Resource was deleted')
-            return open(resPath, 'rb')
+            if not self._isPathDeleted(join(linkPath, subPath)) and isfile(resPath):
+                return open(resPath, 'rb')
 
     def _processZiplink(self, linkPath, subPath):
         subPath = subPath.lstrip(sep)
@@ -123,13 +113,9 @@ class ContentDeliveryHandler(Processor):
             zipFilePath = f.readline().strip()
             inFilePath = f.readline().strip()
             zipFile = ZipFile(zipFilePath)
-            if self._isPathDeleted(join(linkPath, subPath)):
-                raise Exception('Resource was deleted')
-            return zipFile.open(join(inFilePath, subPath), 'r')
-
-    def _sendNotAvailable(self, rsp, message):
-        rsp.addAllows(GET)
-        rsp.setCode(METHOD_NOT_AVAILABLE, message)
+            resPath = join(inFilePath, subPath)
+            if not self._isPathDeleted(join(linkPath, subPath)) and resPath in zipFile.filelist:
+                return zipFile.open(resPath, 'r')
 
     def _isPathDeleted(self, path):
         path = normpath(path)
@@ -140,6 +126,4 @@ class ContentDeliveryHandler(Processor):
             path = subPath
         return False
 
-    def _isValidPath(self, path):
-        entryPath = normpath(join(self.repositoryPath, path.replace('/', sep)))
-        return entryPath.find(self.repositoryPath) == 0
+# --------------------------------------------------------------------

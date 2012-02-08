@@ -83,15 +83,33 @@ def pipe(srcFileObj, dstFileObj, bufferSize=1024):
         The file object to copy from
     @param dstFileObj: a file like object with a 'write' method
         The file object to copy to
+    @param bufferSize: integer
+        The buffer size used for copying data chunks.
     '''
-    assert hasattr(srcFileObj, 'read'), \
-        'Invalid source file object %s does not have a read method' % srcFileObj
-    assert hasattr(dstFileObj, 'write'), \
-        'Invalid destination file object %s does not have a write method' % dstFileObj
+    assert hasattr(srcFileObj, 'read'), 'Invalid source file object %s does not have a read method' % srcFileObj
+    assert hasattr(dstFileObj, 'write'), 'Invalid destination file object %s does not have a write method' % dstFileObj
+    assert isinstance(bufferSize, int), 'Invalid buffer size %s' % bufferSize
     while True:
         buffer = srcFileObj.read(bufferSize)
         if not buffer: break
         dstFileObj.write(buffer)
+
+def readGenerator(fileObj, bufferSize=1024):
+    '''
+    Provides a generator that read data from the provided file object.
+    
+    @param fileObj: a file like object with a 'read' method
+        The file object to have the generator read data from.
+    @param bufferSize: integer
+        The buffer size used for returning data chunks.
+    '''
+    assert hasattr(fileObj, 'read'), 'Invalid file object %s does not have a read method' % fileObj
+    assert isinstance(bufferSize, int), 'Invalid buffer size %s' % bufferSize
+    with fileObj:
+        while True:
+            buffer = fileObj.read(bufferSize)
+            if not buffer: break
+            yield buffer
 
 class keepOpen:
     '''
