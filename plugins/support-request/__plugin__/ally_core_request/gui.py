@@ -18,4 +18,4 @@ import os
 @ioc.start
 def publishJS():
     sysPath = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    cdmGUI().publishFromDir('devel', os.path.join(sysPath, 'js_gui'))
+    cdmGUI().publishFromDir('js/devel', os.path.join(sysPath, 'js_gui'))
