@@ -19,6 +19,12 @@ from shutil import copyfile, copyfileobj, move, rmtree
 from os.path import isdir, isfile, join, dirname, normpath, relpath
 from io import StringIO, IOBase, TextIOBase
 from tempfile import TemporaryDirectory
+from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath
+import logging
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -117,23 +123,19 @@ class LocalFileSystemCDM(ICDM):
             os.makedirs(dstDir)
         if not isfile(filePath):
             # not a file, see if it's a entry in a zip file
-            try:
-                zipFilePath, inFilePath = self._getZipFilePath(filePath)
-                zipFile = ZipFile(zipFilePath)
-                fileInfo = zipFile.getinfo(inFilePath)
-                if fileInfo.filename.endswith(os.sep):
-                    raise Exception()
+            zipFilePath, inFilePath = self._getZipFilePath(filePath)
+            zipFile = ZipFile(zipFilePath)
+            fileInfo = zipFile.getinfo(inFilePath)
+            if fileInfo.filename.endswith(ZIPSEP):
+                raise IOError('Trying to publish a file from a ZIP directory path: %s' % fileInfo.filename)
+            if not self._isSyncFile(zipFilePath, dstFilePath):
                 copyfileobj(zipFile.open(inFilePath), open(dstFilePath, 'w+b'))
-                return
-            except:
-                raise Exception('Invalid file path value %s' % filePath)
+                assert log.debug('Success publishing ZIP file %s (%s) to path %s', inFilePath, zipFilePath, path) or True
+            return
         assert os.access(filePath, os.R_OK), 'Unable to read the file path %s' % filePath
-        if isfile(dstFilePath):
-            srcFileStat = os.stat(filePath)
-            dstFileStat = os.stat(dstFilePath)
-            if srcFileStat.st_mtime <= dstFileStat.st_mtime:
-                return
-        copyfile(filePath, dstFilePath)
+        if not self._isSyncFile(filePath, dstFilePath):
+            copyfile(filePath, dstFilePath)
+            assert log.debug('Success publishing file %s to path %s', filePath, path) or True
 
     def publishFromDir(self, path, dirPath):
         '''
@@ -144,18 +146,16 @@ class LocalFileSystemCDM(ICDM):
         self._validatePath(path)
         if not isdir(dirPath):
             # not a directory, see if it's a entry in a zip file
-            try:
-                zipFilePath, inDirPath = self._getZipFilePath(dirPath)
-                zipFile = ZipFile(zipFilePath)
-                if not inDirPath.endswith(os.sep):
-                    inDirPath = inDirPath + os.sep
-                fileInfo = zipFile.getinfo(inDirPath)
-                if not fileInfo.filename.endswith(os.sep):
-                    raise Exception()
-                self._copyZipDir(zipFilePath, inDirPath, self._getItemPath(path))
-                return
-            except:
-                raise Exception('Invalid directory path value %s' % dirPath)
+            zipFilePath, inDirPath = self._getZipFilePath(dirPath)
+            zipFile = ZipFile(zipFilePath)
+            if not inDirPath.endswith(ZIPSEP):
+                inDirPath = inDirPath + ZIPSEP
+            fileInfo = zipFile.getinfo(inDirPath)
+            if not fileInfo.filename.endswith(ZIPSEP):
+                raise IOError('Trying to publish a file from a ZIP directory path: %s' % fileInfo.filename)
+            self._copyZipDir(zipFilePath, inDirPath, self._getItemPath(path))
+            assert log.debug('Success publishing ZIP dir %s (%s) to path %s', inDirPath, zipFilePath, path) or True
+            return
         dirPath = normpath(dirPath)
         assert os.access(dirPath, os.R_OK), 'Unable to read the directory path %s' % dirPath
         for root, _dirs, files in os.walk(dirPath):
@@ -164,6 +164,7 @@ class LocalFileSystemCDM(ICDM):
                 publishPath = join(path, relPath.lstrip(os.sep), file)
                 filePath = join(root, file)
                 self.publishFromFile(publishPath, filePath)
+            assert log.debug('Success publishing directory %s to path %s', dirPath, path) or True
 
     def publishFromStream(self, path, ioStream):
         '''
@@ -237,35 +238,58 @@ class LocalFileSystemCDM(ICDM):
         if fullPath.find(self.delivery.getRepositoryPath()) != 0:
             raise PathNotFound('Path is outside the repository: %s' % path)
 
+    def _isSyncFile(self, srcFilePath, dstFilePath):
+        '''
+        Return true if the destination file exists and was newer than
+        the source file.
+        '''
+        return (isfile(srcFilePath) or isdir(srcFilePath)) \
+            and (isfile(dstFilePath) or isdir(dstFilePath)) \
+            and os.stat(srcFilePath).st_mtime < os.stat(dstFilePath).st_mtime
+
     def _getZipFilePath(self, filePath):
+        '''
+        Detect if part or all of the given path points to a ZIP file
+
+        @return: tuple(string, string)
+            Returns a tuple with the following content:
+            1. path to the ZIP file
+            2. ZIP internal path to the requested file
+        '''
         assert isinstance(filePath, str), 'Invalid file path %s' % filePath
-        endSep = filePath.endswith(os.sep)
-        filePath = normpath(filePath)
-        if endSep:
-            filePath = filePath + os.sep
+        # Remember if the path ends with separator.
+        # This will be used to detect whether a file or directory was requested.
+        hasEndSep = filePath.endswith(ZIPSEP) or filePath.endswith(os.sep)
+        # make sure the file path is normalized and uses the OS separator
+        filePath = normOSPath(filePath)
         if is_zipfile(filePath):
             return (filePath, '')
-        subPath = filePath
-        while len(subPath) > 0:
-            if is_zipfile(subPath):
-                return (subPath, filePath[len(subPath):].lstrip(os.sep))
-            nextSubPath = dirname(subPath)
-            if nextSubPath == subPath: break
-            subPath = nextSubPath
+        parentPath = filePath
+        while parentPath:
+            if is_zipfile(parentPath):
+                inZipPath = normZipPath(filePath[len(parentPath):])
+                if hasEndSep:
+                    inZipPath = inZipPath + ZIPSEP
+                return (parentPath, inZipPath)
+            nextSubPath = dirname(parentPath)
+            if nextSubPath == parentPath: break
+            parentPath = nextSubPath
         raise Exception('Invalid ZIP path %s' % filePath)
 
     def _copyZipDir(self, zipFilePath, inDirPath, path):
+        # make sure the ZIP file path is normalized and uses the OS separator
+        zipFilePath = normOSPath(zipFilePath)
+        # make sure the ZIP file path is normalized and uses the ZIP separator
+        inDirPath = normZipPath(inDirPath)
         zipFile = ZipFile(zipFilePath)
         if isdir(path):
-            zipFileStat = os.stat(zipFilePath)
-            dstDirStat = os.stat(path)
-            if zipFileStat.st_mtime <= dstDirStat.st_mtime:
+            if self._isSyncFile(zipFilePath, path):
                 return
             rmtree(path)
         entries = [ent for ent in zipFile.namelist() if ent.startswith(inDirPath)]
         tmpDir = TemporaryDirectory()
         zipFile.extractall(tmpDir.name, entries)
-        tmpDirPath = join(tmpDir.name, inDirPath)
+        tmpDirPath = join(tmpDir.name, normOSPath(inDirPath))
         os.makedirs(path)
         for entry in os.listdir(tmpDirPath):
             move(join(tmpDirPath, entry), path)
@@ -365,8 +389,8 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
     def _createLinkToZipFile(self, path, zipFilePath, inFilePath):
         repFilePath = self._getItemPath(path) + self._zipLinkExt
         fHandler = open(repFilePath, 'w')
-        fHandler.write(zipFilePath + "\n")
-        fHandler.write(inFilePath + "\n")
+        fHandler.write(ZIPSEP + normZipPath(zipFilePath) + "\n")
+        fHandler.write(normZipPath(inFilePath) + "\n")
         fHandler.close()
 
     def _createLinkToFileOrDir(self, path, filePath):
