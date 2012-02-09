@@ -10,7 +10,6 @@ Provides the deployment of the distribution that contains this deploy.
 '''
 
 import os
-import profile
 import sys
 import traceback
 
@@ -49,7 +48,9 @@ if __name__ == '__main__':
         import ally_deploy_application
         file = os.path.join(os.path.dirname(__file__), ally_deploy_application.configurationsFilePath)
         ally_deploy_application.configurationsFilePath = file
-        if applicationProfile: profile.run('ally_application_deploy.deploy()', filename='output.stats')
+        if applicationProfile:
+            import profile
+            profile.run('ally_application_deploy.deploy()', filename='output.stats')
         else: ally_deploy_application.deploy()
         print('=' * 50, 'Application deployed')
     except: traceback.print_exc()
@@ -57,12 +58,13 @@ if __name__ == '__main__':
         # Loading the plugins. 
         for path in findLibraries(os.path.join(os.path.dirname(__file__), 'plugins')):
             if path not in sys.path: sys.path.append(path)
-        
         try:
             import ally_deploy_plugin
             file = os.path.join(os.path.dirname(__file__), ally_deploy_plugin.configurationsFilePath)
             ally_deploy_plugin.configurationsFilePath = file
-            if pluginsProfile: profile.run('ally_deploy_plugin.deploy()', filename='output.stats')
+            if pluginsProfile:
+                import profile
+                profile.run('ally_deploy_plugin.deploy()', filename='output.stats')
             else: ally_deploy_plugin.deploy()
             print('=' * 50, 'Plugins deployed')
         except: traceback.print_exc()

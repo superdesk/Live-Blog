@@ -29,12 +29,12 @@ def server_pattern_content():
 
 @ioc.config
 def server_uri():
-    ''' The HTTP server URI '''
-    return '/content'
+    ''' The HTTP server URI, basically the URL where the content should be fetched from'''
+    return '/content/'
 
 @ioc.config
 def repository_path():
-    ''' The repository absolute path '''
+    ''' The repository absolute or relative (to the distribution folder) path '''
     return 'workspace'
 
 # --------------------------------------------------------------------

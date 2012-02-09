@@ -18,7 +18,11 @@ from ally.container import ioc
 from io import StringIO
 from os import makedirs, remove, sep
 from cdm.spec import PathNotFound
+import re
+from ally.zip.util_zip import normOSPath, ZIPSEP
 
+
+normpath = lambda txt: re.sub('[\\W]+', '', txt)
 
 class TestHTTPDelivery(unittest.TestCase):
 
@@ -27,7 +31,7 @@ class TestHTTPDelivery(unittest.TestCase):
         d.serverURI = 'http://localhost:8080/content/'
         d.repositoryPath = '/var/www/repository'
         ioc.Initializer.initialize(d)
-        self.assertEqual(d.getRepositoryPath(), '/var/www/repository',
+        self.assertEqual(normpath(d.getRepositoryPath()), normpath('/var/www/repository'),
                          'Computing the repository path')
         self.assertEqual(d.getURI('somedir/somefile.jpg'),
                          'http://localhost:8080/content/somedir/somefile.jpg',
@@ -45,13 +49,15 @@ class TestHTTPDelivery(unittest.TestCase):
 
         # test publish from a file from the file system
         try:
-            srcTmpFile = NamedTemporaryFile()
+            srcTmpFile = NamedTemporaryFile(delete=False)
+            srcTmpFile.close()
             dstFile = join('testdir1', 'tempfile.txt')
             cdm.publishFromFile(dstFile, srcTmpFile.name)
             dstFilePath = join(d.getRepositoryPath(), dstFile)
             self.assertTrue(isfile(dstFilePath))
         finally:
             rmtree(dirname(dstFilePath))
+            remove(srcTmpFile.name)
 
         # test publish from a file from a zip archive
         try:
@@ -168,7 +174,7 @@ class TestHTTPDelivery(unittest.TestCase):
                 zipPath = f.readline().strip()
                 inPath = f.readline().strip()
                 link = join(zipPath, inPath)
-                self.assertEqual(link, srcFilePath)
+                self.assertEqual(normpath(link), normpath(srcFilePath))
         finally:
             rmtree(dirname(dstLinkPath))
 
@@ -202,8 +208,8 @@ class TestHTTPDelivery(unittest.TestCase):
             dstLinkPath = join(d.getRepositoryPath(), 'testlink2' + cdm._zipLinkExt)
             self.assertTrue(isfile(dstLinkPath))
             with open(dstLinkPath) as f:
-                zipPath = f.readline().strip()
-                inPath = f.readline().strip()
+                zipPath = normOSPath(f.readline().strip())
+                inPath = f.readline().strip().replace(ZIPSEP, sep)
                 link = join(zipPath, inPath)
                 self.assertEqual(link, srcFilePath)
             # test path remove
