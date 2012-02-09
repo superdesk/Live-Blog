@@ -45,13 +45,13 @@ def addService(*binders):
 
 @ioc.config
 def gui_server_uri():
-    ''' The HTTP server URI '''
-    raise ioc.ConfigError('A server URI for the GUI files is required')
+    ''' The HTTP server URI, basically the URL where the javascript content should be fetched from'''
+    return '/content/js/'
 
 @ioc.config
 def gui_repository_path():
-    ''' The repository absolute path '''
-    raise ioc.ConfigError('A repository path for the GUI files is required')
+    ''' The repository absolute or relative (to the distribution folder) path '''
+    return 'workspace'
 
 # --------------------------------------------------------------------
 

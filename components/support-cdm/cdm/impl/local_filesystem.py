@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class IDelivery(metaclass = abc.ABCMeta):
+class IDelivery(metaclass=abc.ABCMeta):
     '''
     Delivery protocol interface
     '''
@@ -219,7 +219,7 @@ class LocalFileSystemCDM(ICDM):
         '''
         return ('http',)
 
-    def getURI(self, path, protocol = 'http'):
+    def getURI(self, path, protocol='http'):
         '''
         @see ICDM.getURI
         '''
@@ -320,9 +320,12 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         @see ICDM.publishFromDir
         '''
+        assert isinstance(path, str), 'Invalid path %s' % path
+        assert isinstance(dirPath, str), 'Invalid directory path %s' % dirPath
         self._validatePath(path)
+        dirPath = dirPath.strip()
         try:
-            self._publishFromFile(path, dirPath)
+            self._publishFromFile(path, dirPath if dirPath.endswith(ZIPSEP) else dirPath + ZIPSEP)
         except:
             raise IOError('Invalid file path value %s' % dirPath)
 
@@ -330,6 +333,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         @see ICDM.removePath
         '''
+        path = path.replace(ZIPSEP, os.sep)
         self._validatePath(path)
         entryPath = self._getItemPath(path)
         linkPath = entryPath
@@ -379,7 +383,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
             zipFilePath = f.readline().strip()
             inFilePath = f.readline().strip()
             zipFile = ZipFile(zipFilePath)
-            zipFile.getinfo(join(inFilePath, subPath))
+            zipFile.getinfo(normZipPath(join(normOSPath(inFilePath), subPath)))
             if not isdir(dirname(entryPath)):
                 os.makedirs(dirname(entryPath))
             with open(entryPath.rstrip(os.sep) + self._deletedExt, 'w') as _d: pass
@@ -389,7 +393,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
     def _createLinkToZipFile(self, path, zipFilePath, inFilePath):
         repFilePath = self._getItemPath(path) + self._zipLinkExt
         fHandler = open(repFilePath, 'w')
-        fHandler.write(ZIPSEP + normZipPath(zipFilePath) + "\n")
+        fHandler.write(zipFilePath + "\n")
         fHandler.write(normZipPath(inFilePath) + "\n")
         fHandler.close()
 
