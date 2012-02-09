@@ -20,6 +20,7 @@ from os.path import isdir, isfile, join, dirname, normpath, sep
 from zipfile import ZipFile
 import logging
 import os
+from ally.zip.util_zip import normOSPath, normZipPath
 
 # --------------------------------------------------------------------
 
@@ -63,16 +64,17 @@ class ContentDeliveryHandler(Processor):
         assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        
+
         if req.method != GET:
             rsp.addAllows(GET)
             return rsp.setCode(METHOD_NOT_AVAILABLE, 'Path not available for method')
-        
+
         entryPath = normpath(join(self.repositoryPath, req.path.replace('/', sep)))
         if not entryPath.startswith(self.repositoryPath):
             return rsp.setCode(RESOURCE_NOT_FOUND, 'Out of repository path')
-        
-        if isfile(entryPath): rf = open(entryPath, 'rb')
+
+        if isfile(entryPath):
+            rf = open(entryPath, 'rb')
         else:
             linkPath = entryPath
             while len(linkPath) > len(self.repositoryPath):
@@ -87,34 +89,48 @@ class ContentDeliveryHandler(Processor):
                     rf = None
                     break
                 linkPath = subLinkPath
-            else: rf = None
-            
-        if rf is None: rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid content resource')
+            else:
+                rf = None
+
+        if rf is None:
+            rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid content resource')
         else:
             rsp.setCode(RESOURCE_FOUND, 'Resource found')
             rsp.content = readGenerator(rf)
 
     # ----------------------------------------------------------------
-    
+
     def _processLink(self, linkPath, subPath):
-        subPath = subPath.lstrip(sep)
+        # make sure the paths are normalized and use the OS separator
+        linkPath = normOSPath(linkPath)
+        subPath = normOSPath(subPath).lstrip(sep)
+        # open the link description file
         with open(linkPath + '.link') as f:
-            linkedFilePath = f.readline().strip()
+            # make sure the file path uses the OS separator
+            linkedFilePath = normOSPath(f.readline().strip())
             if isdir(linkedFilePath):
                 resPath = join(linkedFilePath, subPath)
             elif not subPath:
                 resPath = linkedFilePath
+            else:
+                return None
             if not self._isPathDeleted(join(linkPath, subPath)) and isfile(resPath):
                 return open(resPath, 'rb')
 
     def _processZiplink(self, linkPath, subPath):
-        subPath = subPath.lstrip(sep)
+        # make sure the paths are normalized and use the OS separator
+        linkPath = normOSPath(linkPath)
+        subPath = normOSPath(subPath).lstrip(sep)
+        # open the zip link description file
         with open(linkPath + '.ziplink') as f:
-            zipFilePath = f.readline().strip()
-            inFilePath = f.readline().strip()
+            # make sure the ZIP file path uses the OS separator
+            zipFilePath = normOSPath(f.readline().strip())
+            # convert the internal ZIP path to OS format in order to use standard path functions
+            inFilePath = normOSPath(f.readline().strip())
             zipFile = ZipFile(zipFilePath)
-            resPath = join(inFilePath, subPath)
-            if not self._isPathDeleted(join(linkPath, subPath)) and resPath in zipFile.filelist:
+            # resource internal ZIP path should be in ZIP format
+            resPath = normZipPath(join(inFilePath, subPath))
+            if not self._isPathDeleted(join(linkPath, subPath)) and resPath in zipFile.NameToInfo:
                 return zipFile.open(resPath, 'r')
 
     def _isPathDeleted(self, path):
@@ -125,5 +141,3 @@ class ContentDeliveryHandler(Processor):
             if subPath == path: break
             path = subPath
         return False
-
-# --------------------------------------------------------------------
