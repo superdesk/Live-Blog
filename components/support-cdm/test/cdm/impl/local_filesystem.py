@@ -157,6 +157,8 @@ class TestHTTPDelivery(unittest.TestCase):
             dstLinkPath = join(d.getRepositoryPath(), dstFile + cdm._linkExt)
             self.assertTrue(isfile(dstLinkPath))
             with open(dstLinkPath) as f:
+                type = f.readline().strip()
+                self.assertEqual(type, 'FS')
                 link = f.readline().strip()
                 self.assertEqual(srcTmpFile.name, link)
         finally:
@@ -168,11 +170,13 @@ class TestHTTPDelivery(unittest.TestCase):
             inFileName = join('dir1', 'subdir2', 'file1.txt')
             srcFilePath = join(dirname(__file__), 'test.zip', inFileName)
             cdm.publishFromFile(dstFile, srcFilePath)
-            dstLinkPath = join(d.getRepositoryPath(), dstFile + cdm._zipLinkExt)
+            dstLinkPath = join(d.getRepositoryPath(), dstFile + cdm._linkExt)
             self.assertTrue(isfile(dstLinkPath))
             with open(dstLinkPath) as f:
-                zipPath = f.readline().strip()
-                inPath = f.readline().strip()
+                type = f.readline().strip()
+                self.assertEqual(type, 'ZIP')
+                zipPath = normOSPath(f.readline().strip())
+                inPath = normOSPath(f.readline().strip())
                 link = join(zipPath, inPath)
                 self.assertEqual(normpath(link), normpath(srcFilePath))
         finally:
@@ -189,6 +193,8 @@ class TestHTTPDelivery(unittest.TestCase):
             dstLinkPath = join(d.getRepositoryPath(), 'testlink1' + cdm._linkExt)
             self.assertTrue(isfile(dstLinkPath))
             with open(dstLinkPath) as f:
+                type = f.readline().strip()
+                self.assertEqual(type, 'FS')
                 link = f.readline().strip()
                 self.assertEqual(srcTmpDir.name, link)
             # test path remove
@@ -205,9 +211,11 @@ class TestHTTPDelivery(unittest.TestCase):
         try:
             srcFilePath = join(dirname(__file__), 'test.zip', 'dir1') + sep
             cdm.publishFromFile('testlink2', srcFilePath)
-            dstLinkPath = join(d.getRepositoryPath(), 'testlink2' + cdm._zipLinkExt)
+            dstLinkPath = join(d.getRepositoryPath(), 'testlink2' + cdm._linkExt)
             self.assertTrue(isfile(dstLinkPath))
             with open(dstLinkPath) as f:
+                type = f.readline().strip()
+                self.assertEqual(type, 'ZIP')
                 zipPath = normOSPath(f.readline().strip())
                 inPath = f.readline().strip().replace(ZIPSEP, sep)
                 link = join(zipPath, inPath)

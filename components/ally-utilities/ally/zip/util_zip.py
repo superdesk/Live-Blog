@@ -17,7 +17,7 @@ from os.path import normpath
 # The path separator inside a ZIP archive
 ZIPSEP = '/'
 
-def normOSPath(filePath):
+def normOSPath(filePath, keepEndSep = False):
     '''
     Normalizes the given path and replaces all ZIP path separators
     with system path separators.
@@ -25,9 +25,11 @@ def normOSPath(filePath):
     if not filePath:
         return filePath
     if os.sep == ZIPSEP:
-        return normpath(filePath)
+        hasEndSep = filePath.endswith(os.sep)
     else:
-        return normpath(filePath.replace(ZIPSEP, os.sep))
+        hasEndSep = filePath.endswith(ZIPSEP)
+        filePath = filePath.replace(ZIPSEP, os.sep)
+    return normpath(filePath) + os.sep if hasEndSep and keepEndSep else normpath(filePath)
 
 def normZipPath(inZipPath):
     '''
