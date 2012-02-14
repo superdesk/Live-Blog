@@ -16,7 +16,7 @@ from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
     RESOURCE_NOT_FOUND
 from ally.core.spec.server import Processor, Response, ProcessorsChain
 from ally.support.util_io import readGenerator
-from os.path import isdir, isfile, join, dirname, normpath, sep, abspath
+from os.path import isdir, isfile, join, dirname, normpath, sep
 from zipfile import ZipFile
 import logging
 import os
@@ -45,6 +45,14 @@ class ContentDeliveryHandler(Processor):
     @see Processor
     '''
 
+    _linkExt = '.link'
+
+    _zipHeader = 'ZIP'
+
+    _fsHeader = 'FS'
+
+    _linkTypes = dict
+
     repositoryPath = str
     # The directory where the file repository is
 
@@ -52,11 +60,12 @@ class ContentDeliveryHandler(Processor):
         assert isinstance(self.repositoryPath, str), \
             'Invalid repository path value %s' % self.repositoryPath
         self.repositoryPath = normpath(self.repositoryPath)
-        self.repositoryPath = abspath(self.repositoryPath)
         if not os.path.exists(self.repositoryPath): os.makedirs(self.repositoryPath)
         assert isdir(self.repositoryPath) and os.access(self.repositoryPath, os.R_OK), \
             'Unable to access the repository directory %s' % self.repositoryPath
         super().__init__()
+        self._linkTypes = { self._fsHeader : self._processLink,
+                           self._zipHeader : self._processZiplink }
 
     def process(self, req, rsp, chain):
         '''
@@ -70,28 +79,32 @@ class ContentDeliveryHandler(Processor):
             rsp.addAllows(GET)
             return rsp.setCode(METHOD_NOT_AVAILABLE, 'Path not available for method')
 
-        entryPath = normpath(join(self.repositoryPath, req.path.replace('/', sep)))
+        # Make sure the given path points inside the repository
+        entryPath = normOSPath(join(self.repositoryPath, normZipPath(req.path)))
         if not entryPath.startswith(self.repositoryPath):
             return rsp.setCode(RESOURCE_NOT_FOUND, 'Out of repository path')
 
+        # Initialize the read file handler with None value
+        # This will be set upon successful file open
+        rf = None
         if isfile(entryPath):
             rf = open(entryPath, 'rb')
         else:
             linkPath = entryPath
             while len(linkPath) > len(self.repositoryPath):
-                if isfile(linkPath + '.link'):
-                    rf = self._processLink(linkPath, entryPath[len(linkPath):])
-                    break
-                if isfile(linkPath + '.ziplink'):
-                    rf = self._processZiplink(linkPath, entryPath[len(linkPath):])
+                if isfile(linkPath + self._linkExt):
+                    with open(linkPath + self._linkExt) as f:
+                        linkType = f.readline().strip()
+                        if linkType in self._linkTypes:
+                            # make sure the subpath is normalized and uses the OS separator
+                            subPath = normOSPath(entryPath[len(linkPath):]).lstrip(sep)
+                            if not self._isPathDeleted(join(linkPath, subPath)):
+                                rf = self._linkTypes[linkType](f, subPath)
                     break
                 subLinkPath = dirname(linkPath)
                 if subLinkPath == linkPath:
-                    rf = None
                     break
                 linkPath = subLinkPath
-            else:
-                rf = None
 
         if rf is None:
             rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid content resource')
@@ -101,40 +114,42 @@ class ContentDeliveryHandler(Processor):
 
     # ----------------------------------------------------------------
 
-    def _processLink(self, linkPath, subPath):
-        # make sure the paths are normalized and use the OS separator
-        linkPath = normOSPath(linkPath)
-        subPath = normOSPath(subPath).lstrip(sep)
-        # open the link description file
-        with open(linkPath + '.link') as f:
-            # make sure the file path uses the OS separator
-            linkedFilePath = normOSPath(f.readline().strip())
-            if isdir(linkedFilePath):
-                resPath = join(linkedFilePath, subPath)
-            elif not subPath:
-                resPath = linkedFilePath
-            else:
-                return None
-            if not self._isPathDeleted(join(linkPath, subPath)) and isfile(resPath):
-                return open(resPath, 'rb')
+    def _processLink(self, fHandler, subPath):
+        '''
+        Reads a link description file and returns a file handler to
+        the linked file.
+        '''
+        # make sure the file path uses the OS separator
+        linkedFilePath = normOSPath(fHandler.readline().strip())
+        if isdir(linkedFilePath):
+            resPath = join(linkedFilePath, subPath)
+        elif not subPath:
+            resPath = linkedFilePath
+        else:
+            return None
+        if isfile(resPath):
+            return open(resPath, 'rb')
 
-    def _processZiplink(self, linkPath, subPath):
-        # make sure the paths are normalized and use the OS separator
-        linkPath = normOSPath(linkPath)
-        subPath = normOSPath(subPath).lstrip(sep)
-        # open the zip link description file
-        with open(linkPath + '.ziplink') as f:
-            # make sure the ZIP file path uses the OS separator
-            zipFilePath = normOSPath(f.readline().strip())
-            # convert the internal ZIP path to OS format in order to use standard path functions
-            inFilePath = normOSPath(f.readline().strip())
-            zipFile = ZipFile(zipFilePath)
-            # resource internal ZIP path should be in ZIP format
-            resPath = normZipPath(join(inFilePath, subPath))
-            if not self._isPathDeleted(join(linkPath, subPath)) and resPath in zipFile.NameToInfo:
-                return zipFile.open(resPath, 'r')
+    def _processZiplink(self, fHandler, subPath):
+        '''
+        Reads a link description file and returns a file handler to
+        the linked file inside the ZIP archive.
+        '''
+        # make sure the ZIP file path uses the OS separator
+        zipFilePath = normOSPath(fHandler.readline().strip())
+        # convert the internal ZIP path to OS format in order to use standard path functions
+        inFilePath = normOSPath(fHandler.readline().strip())
+        zipFile = ZipFile(zipFilePath)
+        # resource internal ZIP path should be in ZIP format
+        resPath = normZipPath(join(inFilePath, subPath))
+        if resPath in zipFile.NameToInfo:
+            return zipFile.open(resPath, 'r')
 
     def _isPathDeleted(self, path):
+        '''
+        Returns true if the given path was deleted or was part of a directory
+        that was deleted.
+        '''
         path = normpath(path)
         while len(path) > len(self.repositoryPath):
             if isfile(path + '.deleted'): return True
