@@ -27,8 +27,8 @@ def normOSPath(filePath, keepEndSep = False):
     if os.sep == ZIPSEP:
         hasEndSep = filePath.endswith(os.sep)
     else:
-        hasEndSep = filePath.endswith(ZIPSEP)
         filePath = filePath.replace(ZIPSEP, os.sep)
+        hasEndSep = filePath.endswith(os.sep)
     return normpath(filePath) + os.sep if hasEndSep and keepEndSep else normpath(filePath)
 
 def normZipPath(inZipPath):
