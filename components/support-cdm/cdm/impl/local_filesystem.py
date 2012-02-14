@@ -165,22 +165,22 @@ class LocalFileSystemCDM(ICDM):
                 filePath = join(root, file)
                 self.publishFromFile(publishPath, filePath)
 
-    def publishFromStream(self, path, ioStream):
+    def publishFromStream(self, path, fileObj):
         '''
         @see ICDM.publishFromStream
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
-        assert isinstance(ioStream, IOBase), 'Invalid content string %s' % ioStream
+        assert hasattr(fileObj, 'read'), 'Invalid file object %s' % fileObj
         self._validatePath(path)
         dstFilePath = self._getItemPath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
             os.makedirs(dstDir)
-        if isinstance(ioStream, TextIOBase):
+        if isinstance(fileObj, TextIOBase):
             dstFile = open(dstFilePath, 'w')
         else:
             dstFile = open(dstFilePath, 'w+b')
-        copyfileobj(ioStream, dstFile)
+        copyfileobj(fileObj, dstFile)
         dstFile.close()
 
     def publishContent(self, path, content):
