@@ -16,7 +16,7 @@ from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
     RESOURCE_NOT_FOUND
 from ally.core.spec.server import Processor, Response, ProcessorsChain
 from ally.support.util_io import readGenerator
-from os.path import isdir, isfile, join, dirname, normpath, sep
+from os.path import isdir, isfile, join, dirname, normpath, sep, abspath
 from zipfile import ZipFile
 import logging
 import os
@@ -52,6 +52,7 @@ class ContentDeliveryHandler(Processor):
         assert isinstance(self.repositoryPath, str), \
             'Invalid repository path value %s' % self.repositoryPath
         self.repositoryPath = normpath(self.repositoryPath)
+        self.repositoryPath = abspath(self.repositoryPath)
         if not os.path.exists(self.repositoryPath): os.makedirs(self.repositoryPath)
         assert isdir(self.repositoryPath) and os.access(self.repositoryPath, os.R_OK), \
             'Unable to access the repository directory %s' % self.repositoryPath

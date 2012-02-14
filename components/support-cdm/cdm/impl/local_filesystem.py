@@ -16,7 +16,7 @@ import abc
 import os
 from zipfile import ZipFile, is_zipfile
 from shutil import copyfile, copyfileobj, move, rmtree
-from os.path import isdir, isfile, join, dirname, normpath, relpath
+from os.path import isdir, isfile, join, dirname, normpath, relpath, abspath
 from io import StringIO, IOBase, TextIOBase
 from tempfile import TemporaryDirectory
 from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath
@@ -72,14 +72,12 @@ class HTTPDelivery(IDelivery):
     # The directory where the file repository is
 
     def __init__(self):
-        assert isinstance(self.serverURI, str), \
-            'Invalid server URI value %s' % self.serverURI
-        assert isinstance(self.repositoryPath, str), \
-            'Invalid repository directory value %s' % self.repositoryPath
-        assert isdir(self.repositoryPath) \
-            and os.access(self.repositoryPath, os.W_OK), \
-            'Unable to access the repository directory %s' % self.repositoryPath
+        assert isinstance(self.serverURI, str), 'Invalid server URI value %s' % self.serverURI
         self.repositoryPath = normpath(self.repositoryPath)
+        self.repositoryPath = abspath(self.repositoryPath)
+        assert isinstance(self.repositoryPath, str), 'Invalid repository directory value %s' % self.repositoryPath
+        assert isdir(self.repositoryPath) and os.access(self.repositoryPath, os.W_OK), \
+            'Unable to access the repository directory %s' % self.repositoryPath
 
     def getRepositoryPath(self):
         '''
@@ -236,7 +234,7 @@ class LocalFileSystemCDM(ICDM):
     def _validatePath(self, path):
         fullPath = normpath(self._getItemPath(path))
         if fullPath.find(self.delivery.getRepositoryPath()) != 0:
-            raise PathNotFound('Path is outside the repository: %s' % path)
+            raise PathNotFound('Path is outside the repository: %s' % fullPath)
 
     def _isSyncFile(self, srcFilePath, dstFilePath):
         '''
