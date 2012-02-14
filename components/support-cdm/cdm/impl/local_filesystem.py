@@ -17,7 +17,7 @@ import os
 from zipfile import ZipFile, is_zipfile
 from shutil import copyfile, copyfileobj, move, rmtree
 from os.path import isdir, isfile, join, dirname, normpath, relpath
-from io import StringIO, IOBase, TextIOBase
+from io import StringIO
 from tempfile import TemporaryDirectory
 from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath
 import logging
@@ -165,23 +165,19 @@ class LocalFileSystemCDM(ICDM):
                 self.publishFromFile(publishPath, filePath)
             assert log.debug('Success publishing directory %s to path %s', dirPath, path) or True
 
-    def publishFromStream(self, path, ioStream):
+    def publishFromStream(self, path, fileObj):
         '''
         @see ICDM.publishFromStream
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
-        assert isinstance(ioStream, IOBase), 'Invalid content string %s' % ioStream
+        assert hasattr(fileObj, 'read'), 'Invalid file object %s' % fileObj
         path, dstFilePath = self._validatePath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
             os.makedirs(dstDir)
-        if isinstance(ioStream, TextIOBase):
-            dstFile = open(dstFilePath, 'w')
-        else:
-            dstFile = open(dstFilePath, 'w+b')
-        copyfileobj(ioStream, dstFile)
-        dstFile.close()
-        assert log.debug('Success publishing stream to path %s', path) or True
+        with open(dstFilePath, 'w+b') as dstFile:
+            copyfileobj(fileObj, dstFile)
+            assert log.debug('Success publishing stream to path %s', path) or True
 
     def publishContent(self, path, content):
         '''
@@ -193,11 +189,9 @@ class LocalFileSystemCDM(ICDM):
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
             os.makedirs(dstDir)
-        dstFile = open(dstFilePath, 'w')
-        streamContent = StringIO(content)
-        copyfileobj(streamContent, dstFile)
-        dstFile.close()
-        assert log.debug('Success publishing content to path %s', path) or True
+        with open(dstFilePath, 'w') as dstFile:
+            copyfileobj(StringIO(content), dstFile)
+            assert log.debug('Success publishing content to path %s', path) or True
 
     def removePath(self, path):
         '''
