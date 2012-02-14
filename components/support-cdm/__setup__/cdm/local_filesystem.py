@@ -29,13 +29,13 @@ def server_pattern_content():
 
 @ioc.config
 def server_uri():
-    ''' The HTTP server URI '''
-    raise ioc.ConfigError('A server URI is required for the content')
+    ''' The HTTP server URI, basically the URL where the content should be fetched from'''
+    return '/content/'
 
 @ioc.config
 def repository_path():
-    ''' The repository absolute path '''
-    raise ioc.ConfigError('A repository path is required for the content')
+    ''' The repository absolute or relative (to the distribution folder) path '''
+    return 'workspace'
 
 # --------------------------------------------------------------------
 # Creating the content delivery managers

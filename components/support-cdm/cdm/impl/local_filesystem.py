@@ -19,6 +19,12 @@ from shutil import copyfile, copyfileobj, move, rmtree
 from os.path import isdir, isfile, join, dirname, normpath, relpath
 from io import StringIO, IOBase, TextIOBase
 from tempfile import TemporaryDirectory
+from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath
+import logging
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -110,30 +116,25 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str) and len(path) > 0, 'Invalid content path %s' % path
         assert isinstance(filePath, str), 'Invalid file path value %s' % filePath
-        self._validatePath(path)
-        dstFilePath = self._getItemPath(path)
+        path, dstFilePath = self._validatePath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
             os.makedirs(dstDir)
         if not isfile(filePath):
             # not a file, see if it's a entry in a zip file
-            try:
-                zipFilePath, inFilePath = self._getZipFilePath(filePath)
-                zipFile = ZipFile(zipFilePath)
-                fileInfo = zipFile.getinfo(inFilePath)
-                if fileInfo.filename.endswith(os.sep):
-                    raise Exception()
+            zipFilePath, inFilePath = self._getZipFilePath(filePath)
+            zipFile = ZipFile(zipFilePath)
+            fileInfo = zipFile.getinfo(inFilePath)
+            if fileInfo.filename.endswith(ZIPSEP):
+                raise IOError('Trying to publish a file from a ZIP directory path: %s' % fileInfo.filename)
+            if not self._isSyncFile(zipFilePath, dstFilePath):
                 copyfileobj(zipFile.open(inFilePath), open(dstFilePath, 'w+b'))
-                return
-            except:
-                raise Exception('Invalid file path value %s' % filePath)
+                assert log.debug('Success publishing ZIP file %s (%s) to path %s', inFilePath, zipFilePath, path) or True
+            return
         assert os.access(filePath, os.R_OK), 'Unable to read the file path %s' % filePath
-        if isfile(dstFilePath):
-            srcFileStat = os.stat(filePath)
-            dstFileStat = os.stat(dstFilePath)
-            if srcFileStat.st_mtime <= dstFileStat.st_mtime:
-                return
-        copyfile(filePath, dstFilePath)
+        if not self._isSyncFile(filePath, dstFilePath):
+            copyfile(filePath, dstFilePath)
+            assert log.debug('Success publishing file %s to path %s', filePath, path) or True
 
     def publishFromDir(self, path, dirPath):
         '''
@@ -141,21 +142,19 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str) and len(path) > 0, 'Invalid content path %s' % path
         assert isinstance(dirPath, str), 'Invalid directory path value %s' % dirPath
-        self._validatePath(path)
+        path, fullPath = self._validatePath(path)
         if not isdir(dirPath):
             # not a directory, see if it's a entry in a zip file
-            try:
-                zipFilePath, inDirPath = self._getZipFilePath(dirPath)
-                zipFile = ZipFile(zipFilePath)
-                if not inDirPath.endswith(os.sep):
-                    inDirPath = inDirPath + os.sep
-                fileInfo = zipFile.getinfo(inDirPath)
-                if not fileInfo.filename.endswith(os.sep):
-                    raise Exception()
-                self._copyZipDir(zipFilePath, inDirPath, self._getItemPath(path))
-                return
-            except:
-                raise Exception('Invalid directory path value %s' % dirPath)
+            zipFilePath, inDirPath = self._getZipFilePath(dirPath)
+            zipFile = ZipFile(zipFilePath)
+            if not inDirPath.endswith(ZIPSEP):
+                inDirPath = inDirPath + ZIPSEP
+            fileInfo = zipFile.getinfo(inDirPath)
+            if not fileInfo.filename.endswith(ZIPSEP):
+                raise IOError('Trying to publish a file from a ZIP directory path: %s' % fileInfo.filename)
+            self._copyZipDir(zipFilePath, inDirPath, fullPath)
+            assert log.debug('Success publishing ZIP dir %s (%s) to path %s', inDirPath, zipFilePath, path) or True
+            return
         dirPath = normpath(dirPath)
         assert os.access(dirPath, os.R_OK), 'Unable to read the directory path %s' % dirPath
         for root, _dirs, files in os.walk(dirPath):
@@ -164,24 +163,25 @@ class LocalFileSystemCDM(ICDM):
                 publishPath = join(path, relPath.lstrip(os.sep), file)
                 filePath = join(root, file)
                 self.publishFromFile(publishPath, filePath)
+            assert log.debug('Success publishing directory %s to path %s', dirPath, path) or True
 
-    def publishFromStream(self, path, fileObj):
+    def publishFromStream(self, path, ioStream):
         '''
         @see ICDM.publishFromStream
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
-        assert hasattr(fileObj, 'read'), 'Invalid file object %s' % fileObj
-        self._validatePath(path)
-        dstFilePath = self._getItemPath(path)
+        assert isinstance(ioStream, IOBase), 'Invalid content string %s' % ioStream
+        path, dstFilePath = self._validatePath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
             os.makedirs(dstDir)
-        if isinstance(fileObj, TextIOBase):
+        if isinstance(ioStream, TextIOBase):
             dstFile = open(dstFilePath, 'w')
         else:
             dstFile = open(dstFilePath, 'w+b')
-        copyfileobj(fileObj, dstFile)
+        copyfileobj(ioStream, dstFile)
         dstFile.close()
+        assert log.debug('Success publishing stream to path %s', path) or True
 
     def publishContent(self, path, content):
         '''
@@ -189,8 +189,7 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
         assert isinstance(content, str), 'Invalid content string %s' % content
-        self._validatePath(path)
-        dstFilePath = self._getItemPath(path)
+        path, dstFilePath = self._validatePath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
             os.makedirs(dstDir)
@@ -198,19 +197,20 @@ class LocalFileSystemCDM(ICDM):
         streamContent = StringIO(content)
         copyfileobj(streamContent, dstFile)
         dstFile.close()
+        assert log.debug('Success publishing content to path %s', path) or True
 
     def removePath(self, path):
         '''
         @see ICDM.removePath
         '''
-        self._validatePath(path)
-        itemPath = self._getItemPath(path)
+        path, itemPath = self._validatePath(path)
         if isdir(itemPath):
             rmtree(itemPath)
         elif isfile(itemPath):
             os.remove(itemPath)
         else:
             raise PathNotFound(path)
+        assert log.debug('Success removing path %s', path) or True
 
     def getSupportedProtocols(self):
         '''
@@ -233,39 +233,72 @@ class LocalFileSystemCDM(ICDM):
         return join(self.delivery.getRepositoryPath(), path.lstrip(os.sep))
 
     def _validatePath(self, path):
-        fullPath = normpath(self._getItemPath(path))
-        if fullPath.find(self.delivery.getRepositoryPath()) != 0:
+        path = normOSPath(path, True)
+        fullPath = normOSPath(self._getItemPath(path), True)
+        if not fullPath.startswith(self.delivery.getRepositoryPath()):
             raise PathNotFound('Path is outside the repository: %s' % path)
+        return (path, fullPath)
+
+    def _isSyncFile(self, srcFilePath, dstFilePath):
+        '''
+        Return true if the destination file exists and was newer than
+        the source file.
+        '''
+        return (isfile(srcFilePath) or isdir(srcFilePath)) \
+            and (isfile(dstFilePath) or isdir(dstFilePath)) \
+            and os.stat(srcFilePath).st_mtime < os.stat(dstFilePath).st_mtime
 
     def _getZipFilePath(self, filePath):
+        '''
+        Detect if part or all of the given path points to a ZIP file
+
+        @param filePath: string
+            The full path to the resource
+
+        @return: tuple(string, string)
+            Returns a tuple with the following content:
+            1. path to the ZIP file in OS format (using OS path separator)
+            2. ZIP internal path to the requested file in ZIP format
+        '''
         assert isinstance(filePath, str), 'Invalid file path %s' % filePath
-        endSep = filePath.endswith(os.sep)
-        filePath = normpath(filePath)
-        if endSep:
-            filePath = filePath + os.sep
+        # make sure the file path is normalized and uses the OS separator
+        filePath = normOSPath(filePath, True)
         if is_zipfile(filePath):
             return (filePath, '')
-        subPath = filePath
-        while len(subPath) > 0:
-            if is_zipfile(subPath):
-                return (subPath, filePath[len(subPath):].lstrip(os.sep))
-            nextSubPath = dirname(subPath)
-            if nextSubPath == subPath: break
-            subPath = nextSubPath
+        parentPath = filePath
+        repPathLen = len(self.delivery.getRepositoryPath())
+        while len(parentPath) > repPathLen:
+            if is_zipfile(parentPath):
+                return (parentPath, normZipPath(filePath[len(parentPath):]))
+            nextSubPath = dirname(parentPath)
+            if nextSubPath == parentPath: break
+            parentPath = nextSubPath
         raise Exception('Invalid ZIP path %s' % filePath)
 
     def _copyZipDir(self, zipFilePath, inDirPath, path):
+        '''
+        Copy a directory from a ZIP archive to a filesystem directory
+
+        @param zipFilePath: string
+            The path of the ZIP archive
+        @param inDirPath: string
+            The path to the file in the ZIP archive
+        @param path: string
+            Destination path where the ZIP directory is copied
+        '''
+        # make sure the ZIP file path is normalized and uses the OS separator
+        zipFilePath = normOSPath(zipFilePath)
+        # make sure the ZIP file path is normalized and uses the ZIP separator
+        inDirPath = normZipPath(inDirPath)
         zipFile = ZipFile(zipFilePath)
         if isdir(path):
-            zipFileStat = os.stat(zipFilePath)
-            dstDirStat = os.stat(path)
-            if zipFileStat.st_mtime <= dstDirStat.st_mtime:
+            if self._isSyncFile(zipFilePath, path):
                 return
             rmtree(path)
         entries = [ent for ent in zipFile.namelist() if ent.startswith(inDirPath)]
         tmpDir = TemporaryDirectory()
         zipFile.extractall(tmpDir.name, entries)
-        tmpDirPath = join(tmpDir.name, inDirPath)
+        tmpDirPath = join(tmpDir.name, normOSPath(inDirPath))
         os.makedirs(path)
         for entry in os.listdir(tmpDirPath):
             move(join(tmpDirPath, entry), path)
@@ -278,7 +311,9 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
     '''
     _linkExt = '.link'
 
-    _zipLinkExt = '.ziplink'
+    _zipHeader = 'ZIP'
+
+    _fsHeader = 'FS'
 
     _deletedExt = '.deleted'
 
@@ -286,92 +321,119 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         @see ICDM.publishFromFile
         '''
-        self._validatePath(path)
-        try:
-            self._publishFromFile(path, filePath)
-        except Exception:
-            raise IOError('Invalid file path value %s' % filePath)
+        path, _fullPath = self._validatePath(path)
+        self._publishFromFile(path, filePath)
 
     def publishFromDir(self, path, dirPath):
         '''
         @see ICDM.publishFromDir
         '''
-        self._validatePath(path)
-        try:
-            self._publishFromFile(path, dirPath)
-        except:
-            raise IOError('Invalid file path value %s' % dirPath)
+        assert isinstance(path, str), 'Invalid path %s' % path
+        assert isinstance(dirPath, str), 'Invalid directory path %s' % dirPath
+        path, _fullPath = self._validatePath(path)
+        dirPath = dirPath.strip()
+        self._publishFromFile(path, dirPath if dirPath.endswith(ZIPSEP) else dirPath + ZIPSEP)
 
     def removePath(self, path):
         '''
         @see ICDM.removePath
         '''
-        self._validatePath(path)
-        entryPath = self._getItemPath(path)
+        path, entryPath = self._validatePath(path)
         linkPath = entryPath
-        try:
-            while len(linkPath.lstrip(os.sep)) > 0:
+        repPathLen = len(self.delivery.getRepositoryPath())
+        while len(linkPath.lstrip(os.sep)) > repPathLen:
+            linkFile = linkPath + self._linkExt
+            if isfile(linkFile):
+                if (linkPath == entryPath.rstrip(os.sep)):
+                    os.remove(linkPath)
+                    break
                 subPath = entryPath[len(linkPath):].lstrip(os.sep)
-                if isfile(linkPath + self._linkExt):
-                    linkFile = linkPath + self._linkExt
-                    self._removeLink(path, entryPath, linkFile, subPath)
-                    break
-                if isfile(linkPath + self._zipLinkExt):
-                    ziplinkFile = linkPath + self._zipLinkExt
-                    self._removeZiplink(path, entryPath, ziplinkFile, subPath)
-                    break
-                nextLinkPath = dirname(linkPath)
-                if nextLinkPath == linkPath: break
-                linkPath = nextLinkPath
-            else:
-                raise PathNotFound(path)
-        except PathNotFound:
-            raise
-        except:
+                with open(linkFile) as f:
+                    linkType = f.readline().strip()
+                    if linkType == self._fsHeader:
+                        self._removeFSLink(f, path, entryPath, subPath)
+                    elif linkType == self._zipHeader:
+                        self._removeZiplink(f, path, entryPath, subPath)
+                    else:
+                        raise Exception('Invalid link type found: %s in %s', linkType, entryPath)
+                break
+            nextLinkPath = dirname(linkPath)
+            if nextLinkPath == linkPath: break
+            linkPath = nextLinkPath
+        else:
             raise PathNotFound(path)
         if len(subPath.strip(os.sep)) == 0 and isdir(linkPath):
             rmtree(linkPath)
 
-    def _removeLink(self, path, entryPath, linkFile, subPath):
-        with open(linkFile) as f:
-            linkedPath = f.readline().strip()
-            if isdir(linkedPath):
-                if isfile(join(linkedPath, subPath)) or isdir(join(linkedPath, subPath)):
-                    if not isdir(dirname(entryPath)):
-                        os.makedirs(dirname(entryPath))
-                    with open(entryPath.rstrip(os.sep) + self._deletedExt, 'w') as _d: pass
-                    if isdir(entryPath):
-                        rmtree(entryPath)
-                else:
-                    raise PathNotFound(path)
-            else:
-                if len(subPath) > 0:
-                    raise PathNotFound(path)
-                else:
-                    os.remove(linkFile)
+    def _createDelMark(self, path):
+        '''
+        Creates a mark file for a deleted path inside a linked directory
+        or ZIP file.
 
-    def _removeZiplink(self, path, entryPath, ziplinkFile, subPath):
-        with open(ziplinkFile) as f:
-            zipFilePath = f.readline().strip()
-            inFilePath = f.readline().strip()
-            zipFile = ZipFile(zipFilePath)
-            zipFile.getinfo(join(inFilePath, subPath))
-            if not isdir(dirname(entryPath)):
-                os.makedirs(dirname(entryPath))
-            with open(entryPath.rstrip(os.sep) + self._deletedExt, 'w') as _d: pass
-            if isdir(entryPath):
-                rmtree(entryPath)
+        @param path: string
+            The path for which to create the delete mark.
+        '''
+        if not isdir(dirname(path)):
+            os.makedirs(dirname(path))
+        with open(path.rstrip(os.sep) + self._deletedExt, 'w') as _d: pass
+        if isdir(path):
+            rmtree(path)
+
+    def _removeFSLink(self, fHandler, path, entryPath, subPath):
+        '''
+        Removes a link to a file or directory on the file system.
+
+        @param fHandler: file handler
+            Handler to the link file.
+        @param path: string
+            The repository path to remove.
+        @param entryPath: string
+            The full path for which to create the deletion mark.
+        @param subPath: string
+            The path inside the linked directory (if needed)
+        '''
+        linkedPath = fHandler.readline().strip()
+        if isdir(linkedPath):
+            if isfile(join(linkedPath, subPath)) or isdir(join(linkedPath, subPath)):
+                self._createDelMark(entryPath)
+            else:
+                raise PathNotFound(path)
+        elif subPath:
+            raise PathNotFound(path)
+
+    def _removeZiplink(self, fHandler, path, entryPath, subPath):
+        '''
+        Removes a link to a file or directory in a ZIP archive.
+
+        @param fHandler: file handler
+            Handler to the link file.
+        @param path: string
+            The repository path to remove.
+        @param entryPath: string
+            The full path for which to create the deletion mark.
+        @param subPath: string
+            The path inside the linked ZIP archive.
+        '''
+        zipFilePath = normOSPath(fHandler.readline().strip())
+        inFilePath = normOSPath(fHandler.readline().strip(), True)
+        zipFile = ZipFile(zipFilePath)
+        inZipFile = normZipPath(join(inFilePath, subPath))
+        if not inZipFile in zipFile.NameToInfo:
+            raise PathNotFound(path)
+        self._createDelMark(entryPath)
 
     def _createLinkToZipFile(self, path, zipFilePath, inFilePath):
-        repFilePath = self._getItemPath(path) + self._zipLinkExt
+        repFilePath = self._getItemPath(path) + self._linkExt
         fHandler = open(repFilePath, 'w')
+        fHandler.write(self._zipHeader + "\n")
         fHandler.write(zipFilePath + "\n")
-        fHandler.write(inFilePath + "\n")
+        fHandler.write(normZipPath(inFilePath) + "\n")
         fHandler.close()
 
     def _createLinkToFileOrDir(self, path, filePath):
         repFilePath = self._getItemPath(path) + self._linkExt
         fHandler = open(repFilePath, 'w')
+        fHandler.write(self._fsHeader + "\n")
         fHandler.write(filePath + "\n")
         fHandler.close()
 
