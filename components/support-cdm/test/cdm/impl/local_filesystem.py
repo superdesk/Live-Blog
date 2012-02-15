@@ -13,13 +13,14 @@ import unittest
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from os.path import join, dirname, isfile, isdir
 from shutil import rmtree
-from cdm.impl.local_filesystem import HTTPDelivery, LocalFileSystemCDM, LocalFileSystemLinkCDM
 from ally.container import ioc
-from io import StringIO
 from os import makedirs, remove, sep
 from cdm.spec import PathNotFound
 import re
+
+from cdm.impl.local_filesystem import HTTPDelivery, LocalFileSystemCDM, LocalFileSystemLinkCDM
 from ally.zip.util_zip import normOSPath, ZIPSEP
+from io import BytesIO
 
 
 normpath = lambda txt: re.sub('[\\W]+', '', txt)
@@ -29,10 +30,6 @@ class TestHTTPDelivery(unittest.TestCase):
     def testHTTPDelivery(self):
         d = HTTPDelivery()
         d.serverURI = 'http://localhost:8080/content/'
-        d.repositoryPath = '/var/www/repository'
-        ioc.Initializer.initialize(d)
-        self.assertEqual(normpath(d.getRepositoryPath()), normpath('/var/www/repository'),
-                         'Computing the repository path')
         self.assertEqual(d.getURI('somedir/somefile.jpg'),
                          'http://localhost:8080/content/somedir/somefile.jpg',
                          'Computing the URI')
@@ -49,7 +46,7 @@ class TestHTTPDelivery(unittest.TestCase):
 
         # test publish from a file from the file system
         try:
-            srcTmpFile = NamedTemporaryFile(delete=False)
+            srcTmpFile = NamedTemporaryFile(delete = False)
             srcTmpFile.close()
             dstFile = join('testdir1', 'tempfile.txt')
             cdm.publishFromFile(dstFile, srcTmpFile.name)
@@ -113,7 +110,7 @@ class TestHTTPDelivery(unittest.TestCase):
         finally:
             rmtree(dstDirPath)
 
-        # test publish from a buffer
+        # test publish from a string
         try:
             path = join('testdir5', 'somecontent.txt')
             cdm.publishContent(path, 'test')
@@ -122,11 +119,10 @@ class TestHTTPDelivery(unittest.TestCase):
         finally:
             rmtree(join(d.getRepositoryPath(), dirname(path)))
 
-        # test publish from a file handler
+        # test publish from a file object
         try:
             path = join('testdir6', 'somecontent2.txt')
-            ioStream = StringIO('test 2')
-            cdm.publishFromStream(path, ioStream)
+            cdm.publishFromFile(path, BytesIO(b'test 2'))
             dstFilePath = join(d.getRepositoryPath(), path)
             self.assertTrue(isfile(dstFilePath))
         finally:

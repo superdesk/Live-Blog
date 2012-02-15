@@ -27,8 +27,8 @@ class ICDM(metaclass = abc.ABCMeta):
         @param path: string
                 The path of the content item. This is a unique
                      identifier of the item.
-        @param filePath: string
-                The path of the file on the file system
+        @param filePath: string or file object
+                The path of the file on the file system or a readable file object
         '''
 
     @abc.abstractmethod
@@ -41,18 +41,6 @@ class ICDM(metaclass = abc.ABCMeta):
                      identifier of the item.
         @param dirPath: string
                 The path of the directory on the file system
-        '''
-
-    @abc.abstractmethod
-    def publishFromStream(self, path, ioStream):
-        '''
-        Publish content from an IO stream
-
-        @param path: string
-                The path of the content item. This is a unique
-                     identifier of the item.
-        @param ioStream: io.IOBase
-                The IO stream object
         '''
 
     @abc.abstractmethod
