@@ -297,6 +297,8 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         @see ICDM.publishFromFile
         '''
         path, _fullPath = self._validatePath(path)
+        if not isinstance(filePath, str) and hasattr(filePath, 'read'):
+            return self._publishFromFileObj(path, filePath)
         self._publishFromFile(path, filePath)
 
     def publishFromDir(self, path, dirPath):
