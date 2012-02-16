@@ -297,6 +297,8 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         @see ICDM.publishFromFile
         '''
         path, _fullPath = self._validatePath(path)
+        if not isinstance(filePath, str) and hasattr(filePath, 'read'):
+            return self._publishFromFileObj(path, filePath)
         self._publishFromFile(path, filePath)
 
     def publishFromDir(self, path, dirPath):
@@ -423,6 +425,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
             assert os.access(filePath, os.R_OK), 'Unable to read file path %s' % filePath
             self._createLinkToFileOrDir(path, filePath)
             return
+        
         # not a file, see if it's a entry in a zip file
         zipFilePath, inFilePath = getZipFilePath(filePath, self.delivery.getRepositoryPath())
         assert isfile(zipFilePath) and os.access(zipFilePath, os.R_OK), \
