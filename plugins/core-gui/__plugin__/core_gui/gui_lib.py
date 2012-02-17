@@ -15,14 +15,26 @@ from ally.support.util_io import replaceInFile, openURI
 from .gui_core import publishLib
 from __plugin__.core_gui.gui_core import getGuiPath, lib_folder_format
 from __plugin__.plugin.registry import gui_server_url
+from io import BytesIO
 
 
 # --------------------------------------------------------------------
 
 @ioc.config
-def js_bootstrap_file():
+def js_core_libs_format():
     ''' The javascript bootstrap relative filename '''
-    return 'scripts/js/startup.js'
+    return 'scripts/js/%s.js'
+
+@ioc.config
+def js_core_libs():
+    ''' The javascript core libraries '''
+    return ['jquery', 'jquery-ui', 'jquery-ui-ext', 'jquery/rest']
+
+@ioc.config
+def js_bootstrap_file():
+    ''' The javascript core libraries '''
+    return 'startup.js'
+
 
 @ioc.start
 def publish():
@@ -30,8 +42,9 @@ def publish():
     
 @ioc.after(publish)
 def updateStartup():
-    bootScript = openURI(getGuiPath(js_bootstrap_file()))
-    bootPath = lib_folder_format() % 'core/'+js_bootstrap_file()
-    boot = replaceInFile(bootScript, {b'{libUri}': (gui_server_url() + bootPath).encode()})
-    
-    cdmGUI().publishFromFile(bootPath, boot)
+    bootPath = lib_folder_format() % 'core/'
+    try:
+        fileList = [open(getGuiPath(js_core_libs_format() % x), 'r+b') for x in js_core_libs()]
+        cdmGUI().publishFromFile(bootPath + js_bootstrap_file(), BytesIO(b'\n'.join([fi.read() for fi in fileList])))
+    finally:
+        for f in fileList: f.close()
