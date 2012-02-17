@@ -28,7 +28,7 @@ def js_core_libs_format():
 @ioc.config
 def js_core_libs():
     ''' The javascript core libraries '''
-    return ['jquery', 'jquery-ui', 'jquery-ui-ext', 'jquery/rest']
+    return ['jquery', 'jquery-ui', 'jquery-ui-ext', 'jquery/rest', 'jquery/tmpl']
 
 @ioc.config
 def js_bootstrap_file():
