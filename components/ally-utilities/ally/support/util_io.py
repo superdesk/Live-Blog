@@ -8,6 +8,9 @@ Created on Jan 17, 2012
 
 Provides utility functions for handling I/O operations.
 '''
+from ally.zip.util_zip import normOSPath, getZipFilePath, ZIPSEP
+from zipfile import ZipFile, is_zipfile
+from os.path import isfile, dirname
 
 # --------------------------------------------------------------------
 
@@ -15,7 +18,7 @@ class replaceInFile:
     '''
     Provides the file read replacing.
     '''
-    
+
     __slots__ = ['__fileObj', '__replacements', '__maxKey', '__leftOver']
 
     def __init__(self, fileObj, replacements):
@@ -40,10 +43,10 @@ class replaceInFile:
         self.__fileObj = fileObj
         self.__replacements = replacements
 
-        self.__maxKey = len(max(replacements.keys(), key=lambda v: len(v)))
+        self.__maxKey = len(max(replacements.keys(), key = lambda v: len(v)))
         self.__leftOver = None
 
-    def read(self, count=None):
+    def read(self, count = None):
         '''
         Perform the data read. 
         '''
@@ -75,7 +78,7 @@ class replaceInFile:
 
     def __getattr__(self, name): return getattr(self.__fileObj, name)
 
-def pipe(srcFileObj, dstFileObj, bufferSize=1024):
+def pipe(srcFileObj, dstFileObj, bufferSize = 1024):
     '''
     Copy the content from a source file to a destination file
 
@@ -94,7 +97,7 @@ def pipe(srcFileObj, dstFileObj, bufferSize=1024):
         if not buffer: break
         dstFileObj.write(buffer)
 
-def readGenerator(fileObj, bufferSize=1024):
+def readGenerator(fileObj, bufferSize = 1024):
     '''
     Provides a generator that read data from the provided file object.
     
@@ -111,11 +114,27 @@ def readGenerator(fileObj, bufferSize=1024):
             if not buffer: break
             yield buffer
 
+def openURI(path):
+    '''
+    Returns a read file object for the given path.
+    
+    @param path: string
+        The path to a resource: a file system path, a ZIP path
+    '''
+    path = normOSPath(path)
+    if isfile(path):
+        return open(path, 'r+b')
+    zipFilePath, inZipPath = getZipFilePath(path)
+    zipFile = ZipFile(zipFilePath)
+    if inZipPath in zipFile.NameToInfo and not inZipPath.endswith(ZIPSEP) and inZipPath != '':
+        return zipFile.open(inZipPath)
+    raise IOError('Invalid file path %s' % path)
+
 class keepOpen:
     '''
     Keeps opened a file object, basically blocks the close calls.
     '''
-    
+
     __slots__ = ['__fileObj']
 
     def __init__(self, fileObj):
@@ -134,4 +153,4 @@ class keepOpen:
         '''
 
     def __getattr__(self, name): return getattr(self.__fileObj, name)
-    
+

@@ -14,12 +14,12 @@ from ally.container.ioc import injected
 
 import abc
 import os
-from zipfile import ZipFile, is_zipfile
+from zipfile import ZipFile
 from shutil import copyfile, copyfileobj, move, rmtree
 from os.path import isdir, isfile, join, dirname, normpath, relpath
-from io import StringIO, IOBase, TextIOBase
+from io import StringIO
 from tempfile import TemporaryDirectory
-from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath
+from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath, getZipFilePath
 import logging
 
 # --------------------------------------------------------------------
@@ -79,7 +79,7 @@ class HTTPDelivery(IDelivery):
         assert isdir(self.repositoryPath) \
             and os.access(self.repositoryPath, os.W_OK), \
             'Unable to access the repository directory %s' % self.repositoryPath
-        self.repositoryPath = normpath(self.repositoryPath)
+        self.repositoryPath = normOSPath(self.repositoryPath)
 
     def getRepositoryPath(self):
         '''
@@ -115,6 +115,8 @@ class LocalFileSystemCDM(ICDM):
         @see ICDM.publishFromFile
         '''
         assert isinstance(path, str) and len(path) > 0, 'Invalid content path %s' % path
+        if not isinstance(filePath, str) and hasattr(filePath, 'read'):
+            return self._publishFromFileObj(path, filePath)
         assert isinstance(filePath, str), 'Invalid file path value %s' % filePath
         path, dstFilePath = self._validatePath(path)
         dstDir = dirname(dstFilePath)
@@ -122,7 +124,7 @@ class LocalFileSystemCDM(ICDM):
             os.makedirs(dstDir)
         if not isfile(filePath):
             # not a file, see if it's a entry in a zip file
-            zipFilePath, inFilePath = self._getZipFilePath(filePath)
+            zipFilePath, inFilePath = getZipFilePath(filePath, self.delivery.getRepositoryPath())
             zipFile = ZipFile(zipFilePath)
             fileInfo = zipFile.getinfo(inFilePath)
             if fileInfo.filename.endswith(ZIPSEP):
@@ -145,7 +147,7 @@ class LocalFileSystemCDM(ICDM):
         path, fullPath = self._validatePath(path)
         if not isdir(dirPath):
             # not a directory, see if it's a entry in a zip file
-            zipFilePath, inDirPath = self._getZipFilePath(dirPath)
+            zipFilePath, inDirPath = getZipFilePath(dirPath, self.delivery.getRepositoryPath())
             zipFile = ZipFile(zipFilePath)
             if not inDirPath.endswith(ZIPSEP):
                 inDirPath = inDirPath + ZIPSEP
@@ -165,24 +167,6 @@ class LocalFileSystemCDM(ICDM):
                 self.publishFromFile(publishPath, filePath)
             assert log.debug('Success publishing directory %s to path %s', dirPath, path) or True
 
-    def publishFromStream(self, path, ioStream):
-        '''
-        @see ICDM.publishFromStream
-        '''
-        assert isinstance(path, str), 'Invalid content path %s' % path
-        assert isinstance(ioStream, IOBase), 'Invalid content string %s' % ioStream
-        path, dstFilePath = self._validatePath(path)
-        dstDir = dirname(dstFilePath)
-        if not isdir(dstDir):
-            os.makedirs(dstDir)
-        if isinstance(ioStream, TextIOBase):
-            dstFile = open(dstFilePath, 'w')
-        else:
-            dstFile = open(dstFilePath, 'w+b')
-        copyfileobj(ioStream, dstFile)
-        dstFile.close()
-        assert log.debug('Success publishing stream to path %s', path) or True
-
     def publishContent(self, path, content):
         '''
         @see ICDM.publishContent
@@ -193,11 +177,9 @@ class LocalFileSystemCDM(ICDM):
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
             os.makedirs(dstDir)
-        dstFile = open(dstFilePath, 'w')
-        streamContent = StringIO(content)
-        copyfileobj(streamContent, dstFile)
-        dstFile.close()
-        assert log.debug('Success publishing content to path %s', path) or True
+        with open(dstFilePath, 'w') as dstFile:
+            copyfileobj(StringIO(content), dstFile)
+            assert log.debug('Success publishing content to path %s', path) or True
 
     def removePath(self, path):
         '''
@@ -229,6 +211,26 @@ class LocalFileSystemCDM(ICDM):
             raise UnsupportedProtocol(protocol)
         return self.delivery.getURI(path)
 
+    def _publishFromFileObj(self, path, fileObj):
+        '''
+        Publish content from a file object
+
+        @param path: string
+                The path of the content item. This is a unique
+                     identifier of the item.
+        @param ioStream: io.IOBase
+                The IO stream object
+        '''
+        assert isinstance(path, str), 'Invalid content path %s' % path
+        assert hasattr(fileObj, 'read'), 'Invalid file object %s' % fileObj
+        path, dstFilePath = self._validatePath(path)
+        dstDir = dirname(dstFilePath)
+        if not isdir(dstDir):
+            os.makedirs(dstDir)
+        with open(dstFilePath, 'w+b') as dstFile:
+            copyfileobj(fileObj, dstFile)
+            assert log.debug('Success publishing stream to path %s', path) or True
+
     def _getItemPath(self, path):
         return join(self.delivery.getRepositoryPath(), path.lstrip(os.sep))
 
@@ -247,33 +249,6 @@ class LocalFileSystemCDM(ICDM):
         return (isfile(srcFilePath) or isdir(srcFilePath)) \
             and (isfile(dstFilePath) or isdir(dstFilePath)) \
             and os.stat(srcFilePath).st_mtime < os.stat(dstFilePath).st_mtime
-
-    def _getZipFilePath(self, filePath):
-        '''
-        Detect if part or all of the given path points to a ZIP file
-
-        @param filePath: string
-            The full path to the resource
-
-        @return: tuple(string, string)
-            Returns a tuple with the following content:
-            1. path to the ZIP file in OS format (using OS path separator)
-            2. ZIP internal path to the requested file in ZIP format
-        '''
-        assert isinstance(filePath, str), 'Invalid file path %s' % filePath
-        # make sure the file path is normalized and uses the OS separator
-        filePath = normOSPath(filePath, True)
-        if is_zipfile(filePath):
-            return (filePath, '')
-        parentPath = filePath
-        repPathLen = len(self.delivery.getRepositoryPath())
-        while len(parentPath) > repPathLen:
-            if is_zipfile(parentPath):
-                return (parentPath, normZipPath(filePath[len(parentPath):]))
-            nextSubPath = dirname(parentPath)
-            if nextSubPath == parentPath: break
-            parentPath = nextSubPath
-        raise Exception('Invalid ZIP path %s' % filePath)
 
     def _copyZipDir(self, zipFilePath, inDirPath, path):
         '''
@@ -322,6 +297,8 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         @see ICDM.publishFromFile
         '''
         path, _fullPath = self._validatePath(path)
+        if not isinstance(filePath, str) and hasattr(filePath, 'read'):
+            return self._publishFromFileObj(path, filePath)
         self._publishFromFile(path, filePath)
 
     def publishFromDir(self, path, dirPath):
@@ -448,8 +425,9 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
             assert os.access(filePath, os.R_OK), 'Unable to read file path %s' % filePath
             self._createLinkToFileOrDir(path, filePath)
             return
+        
         # not a file, see if it's a entry in a zip file
-        zipFilePath, inFilePath = self._getZipFilePath(filePath)
+        zipFilePath, inFilePath = getZipFilePath(filePath, self.delivery.getRepositoryPath())
         assert isfile(zipFilePath) and os.access(zipFilePath, os.R_OK), \
             'Unable to read file path %s' % filePath
         zipFile = ZipFile(zipFilePath)
