@@ -10,12 +10,12 @@ Provides unit testing for the operators listener binders.
 '''
 
 from ally.api.configure import APIModel as model, APICall as call, \
-    APIService as service
+    APIService as service, modelFor
 from ally.container.proxy import createProxy, ProxyWrapper
 from ally.exception import InputException
 from ally.listener.binder_op import validateAutoId, validateMaxLength, \
-    validateManaged, validateModelProperties, bindValidations, clearModelValidations, \
-    validateRequired
+    validateManaged, validateModelProperties, bindValidations, \
+    validateRequired, createModelMapping
 import unittest
 
 # --------------------------------------------------------------------
@@ -60,15 +60,17 @@ class DummyServiceEntity(IServiceEntity):
 class TestBinderOp(unittest.TestCase):
     
     def testValidation(self):
-        validateAutoId(Entity.id)
-        validateRequired(Entity.required)
-        validateMaxLength(Entity.withLength, 5)
-        validateManaged(Entity.managed)
+        EntityM = createModelMapping(Entity)
+
+        validateAutoId(EntityM.id)
+        validateRequired(EntityM.required)
+        validateMaxLength(EntityM.withLength, 5)
+        validateManaged(EntityM.managed)
         
-        validateModelProperties(Entity)
+        validateModelProperties(EntityM)
         
         proxySrv = createProxy(IServiceEntity)(ProxyWrapper(DummyServiceEntity()))
-        bindValidations(proxySrv)
+        bindValidations(proxySrv, {modelFor(Entity):EntityM})
         assert isinstance(proxySrv, IServiceEntity)
         
         e = Entity()
@@ -103,13 +105,6 @@ class TestBinderOp(unittest.TestCase):
         self.assertRaisesRegex(InputException, "(Entity.managed='No value expected')", proxySrv.insert, e)
         e.id = 'id'
         self.assertRaisesRegex(InputException, "(Entity.managed='No value expected')", proxySrv.update, e)
-        
-        
-        clearModelValidations(Entity)
-        
-        e = Entity()
-        self.assertTrue(proxySrv.insert(e) == 'inserted')
-        self.assertTrue(proxySrv.update(e) == 'updated')
         
 # --------------------------------------------------------------------
   

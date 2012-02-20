@@ -10,11 +10,9 @@ Runs the cherry py web server.
 '''
 
 from . import server_type, server_version, server_port
-from ..ally_core.processor import resourcesHandlers
 from .encoder_header import encodersHeader
 from .processor import pathProcessors
 from ally.container import ioc
-from ally.core.spec.server import Processors
 from threading import Thread
 
 # --------------------------------------------------------------------
@@ -45,7 +43,6 @@ def requestHandler():
     from ally.core.http.support.server_cherrypy import RequestHandler
     b = RequestHandler(); yield b
     b.requestPaths = pathProcessors()
-    b.processors = Processors(*resourcesHandlers())
     b.encodersHeader = encodersHeader()
     b.serverVersion = server_version()
 
