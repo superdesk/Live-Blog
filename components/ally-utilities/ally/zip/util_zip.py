@@ -10,7 +10,8 @@ Contains ZIP utils
 '''
 
 import os
-from os.path import normpath
+from os.path import normpath, dirname
+from zipfile import is_zipfile
 
 # --------------------------------------------------------------------
 
@@ -42,3 +43,31 @@ def normZipPath(inZipPath):
         return inZipPath.lstrip(ZIPSEP)
     else:
         return inZipPath.replace(os.sep, ZIPSEP).lstrip(ZIPSEP)
+
+def getZipFilePath(filePath, stopPath = ''):
+    '''
+    Detect if part or all of the given path points to a ZIP file
+
+    @param filePath: string
+        The full path to the resource
+
+    @return: tuple(string, string)
+        Returns a tuple with the following content:
+        1. path to the ZIP file in OS format (using OS path separator)
+        2. ZIP internal path to the requested file in ZIP format
+    '''
+    assert isinstance(filePath, str), 'Invalid file path %s' % filePath
+    assert isinstance(stopPath, str), 'Invalid stop path %s' % stopPath
+    # make sure the file path is normalized and uses the OS separator
+    filePath = normOSPath(filePath, True)
+    if is_zipfile(filePath):
+        return (filePath, '')
+    parentPath = filePath
+    stopPathLen = len(stopPath)
+    while len(parentPath) > stopPathLen:
+        if is_zipfile(parentPath):
+            return (parentPath, normZipPath(filePath[len(parentPath):]))
+        nextSubPath = dirname(parentPath)
+        if nextSubPath == parentPath: break
+        parentPath = nextSubPath
+    raise Exception('Invalid ZIP path %s' % filePath)
