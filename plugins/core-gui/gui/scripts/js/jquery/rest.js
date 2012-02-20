@@ -354,13 +354,13 @@ $(function()
 	{
 		$.extend(true, this.requestOptions, options);
 		return this;
-	}
+	};
 	
 	resource.prototype.xfilter = function(value)
 	{
 		this.lastAdded.request = { headers: { 'X-Filter' : value } };
 		return this;
-	}
+	};
 	
 	$.extend($, {rest : resource});
 });
