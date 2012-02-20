@@ -18,6 +18,7 @@ from collections import OrderedDict
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
 import re
+from urllib.parse import urlparse, parse_qsl
 
 # --------------------------------------------------------------------
 
@@ -67,7 +68,8 @@ class RequestHandler(BaseHTTPRequestHandler):
     def _process(self, method):
         req = RequestHTTP()
         req.method = method
-        path = self.path.lstrip('/')
+        url = urlparse(self.path)
+        path = url.path.lstrip('/')
 
         for pathRegex, processors in self.requestPaths:
             match = pathRegex.match(path)
@@ -76,6 +78,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 assert isinstance(chain, ProcessorsChain)
                 req.path = path[match.end():]
                 req.rootURI = path[:match.end()]
+                req.params.extend(parse_qsl(url.query, True, False))
                 if not req.rootURI.endswith('/'): req.rootURI += '/'
                 break
         else:

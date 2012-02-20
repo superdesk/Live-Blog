@@ -22,8 +22,8 @@ class RequestHTTP(Request):
 
     def __init__(self):
         '''
-        @ivar path: string | list[string] | tuple(string)
-            The relative requested path, or split relative request path.
+        @ivar path: list[string] | tuple(string)
+            The split relative request path.
         @ivar headers: dictionary
             The headers of the request
         @ivar rootURI: string

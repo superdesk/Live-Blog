@@ -35,7 +35,7 @@ class Type:
     The class that represents the API types used for mapping data.
     '''
     
-    __immutable__ = ('forClass', 'isPrimitive')
+    __slots__ = __immutable__ = ('forClass', 'isPrimitive')
     
     def __init__(self, forClass, isPrimitive=False):
         '''
@@ -86,6 +86,8 @@ class TypeNone(Singletone, Type):
     Provides the type that matches None.
     '''
     
+    __slots__ = Type.__slots__
+    
     def __init__(self):
         '''
         @see: Type.__init__
@@ -116,6 +118,8 @@ class TypePercentage(Singletone, Type):
     Provides the type for percentage values.
     '''
     
+    __slots__ = Type.__slots__
+    
     def __init__(self):
         '''
         Constructs the percentage type.
@@ -130,6 +134,8 @@ class TypeId(Type):
     '''
     Provides the type for the id. This type has to be a primitive type always.
     '''
+    
+    __slots__ = Type.__slots__
     
     def __init__(self, forClass):
         '''
@@ -149,6 +155,8 @@ class TypeFrontLanguage(Singletone, Type):
     Provides the type representing the user requested language for presentation.
     '''
     
+    __slots__ = Type.__slots__
+    
     def __init__(self):
         '''
         Constructs the front language type.
@@ -166,7 +174,7 @@ class Iter(Type):
     not be able to validate also the elements.
     '''
     
-    __immutable__ = Type.__immutable__ + ('itemType',)
+    __slots__ = __immutable__ = Type.__immutable__ + ('itemType',)
     
     def __init__(self, itemType):
         '''
@@ -209,6 +217,8 @@ class List(Iter):
     Unlike the iterator type the list type also validates the contained elements.
     '''
     
+    __slots__ = Iter.__slots__
+    
     def __init__(self, itemType):
         '''
         Constructs the list type for the provided type.
@@ -231,7 +241,7 @@ class TypeModel(Type):
     Provides the type for the model.
     '''
     
-    __immutable__ = Type.__immutable__ + ('model',)
+    __slots__ = __immutable__ = Type.__immutable__ + ('model',)
     
     def __init__(self, model):
         '''
@@ -253,7 +263,7 @@ class TypeQuery(Type):
     Provides the type for the query.
     '''
     
-    __immutable__ = Type.__immutable__ + ('query',)
+    __slots__ = __immutable__ = Type.__immutable__ + ('query',)
     
     def __init__(self, query):
         '''
@@ -276,7 +286,7 @@ class TypeProperty(Type):
     and also contains the references to the property and model class.
     '''
     
-    __immutable__ = Type.__immutable__ + ('model', 'property')
+    __slots__ = __immutable__ = Type.__immutable__ + ('model', 'property')
     
     def __init__(self, model, property):
         '''
@@ -327,7 +337,7 @@ class Input:
     Provides an input entry for a call, this is used for keeping the name and also the type of a call parameter.
     '''
     
-    __immutable__ = ('name', 'type', 'hasDefault', 'default')
+    __slots__ = __immutable__ = ('name', 'type', 'hasDefault', 'default')
     
     def __init__(self, name, type, hasDefault=False, default=None):
         '''

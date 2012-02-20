@@ -9,7 +9,6 @@ Created on Sep 29, 2011
 Provides an XML digester used for parsing XML files by using a SAX parser.
 '''
 
-from io import TextIOWrapper
 from xml.sax.handler import ContentHandler
 from xml.sax import make_parser
 from xml.sax.xmlreader import InputSource
@@ -51,7 +50,6 @@ class Digester(ContentHandler):
         
         self.stack = []
         self.errors = []
-        self._nodes = [root]
         self._parser = make_parser()
         self._parser.setContentHandler(self)
     
@@ -69,14 +67,15 @@ class Digester(ContentHandler):
         inpsrc = InputSource()
         inpsrc.setByteStream(file)
         inpsrc.setEncoding(charSet)
+        
+        del self.errors[:]
+        self._nodes = [self.root]
         try:
             self._parser.parse(inpsrc)
         except SAXParseException as e:
             assert isinstance(e, SAXParseException)
-            raise DigesterError('Bad XML content at line %s and column %s' % 
-                                (e.getLineNumber(), e.getColumnNumber()))
-        if len(self.stack) == 0:
-            raise DigesterError('Invalid XML content provided, cannot find root tag')
+            raise DigesterError('Bad XML content at line %s and column %s' % (e.getLineNumber(), e.getColumnNumber()))
+        if not self.stack: raise DigesterError('Invalid XML content provided, cannot find root tag')
         return self.stack[0]
     
     def currentName(self):
@@ -256,10 +255,13 @@ class DigesterXMLUpdate(Digester, XMLGenerator):
     def __init__(self, root, out, encoding='UTF-8', acceptAttributes=True, acceptUnknownTags=True,
                  shortEmptyElements=True):
         '''
+        @param out: file object with write
+            The file object to write the updated xml, needs to have a 'write' method that accepts text.
+            
         @see: Digester.__init__
         @see: XMLGenerator.__init__
         '''
-        XMLGenerator.__init__(self, TextIOWrapper(out, encoding), encoding, shortEmptyElements)
+        XMLGenerator.__init__(self, out, encoding, shortEmptyElements)
         Digester.__init__(self, root, acceptAttributes, acceptUnknownTags)
         
     def parse(self, charSet, file):

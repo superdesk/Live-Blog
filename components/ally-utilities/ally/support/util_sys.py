@@ -99,7 +99,7 @@ def callerGlobals(level=1):
     @param level: integer
         The level from where to start finding the caller.
     @return: dictionary{string, object}
-        The locals of the caller (based on the provided level)
+        The globals of the caller (based on the provided level)
     '''
     stacks = stack()
     currentModule = stacks[level][1]

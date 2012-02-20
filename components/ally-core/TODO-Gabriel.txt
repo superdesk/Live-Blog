@@ -14,7 +14,9 @@
 - To add proxy wrapping for session handling. (Done)
 - Add multiple session support for sql alchemy, the sessions will be identified by names. (Done)
 - Refactor internationalization support to actually translate at runtime, remove the need for the Message instance. (Done)
-
+- To add a thread resource manager. (Done by making a thread based attribute)
+- To change the cherrypy server implementation so it will directly stream the content and not sore it in memory first 
+  than send it. (Done by using generators)
 
 - Refactor parameters decoders.
 - For pyro protocol add security and validation, at this point the implementation just delegates to service, a more
@@ -26,10 +28,7 @@
 - Instead of the Hinter a extension to the URL like /parameters should present the options.
 - Refactor in order to rename all classes that are as interfaces to start with I see the spec package for instance
   for assamblers.
- 
-- To add a thread resource manager.
+
 - To add auto reloading for plugins.
-- To change the cherrypy server implementation so it will directly stream the content and not sore it in memory first 
-  than send it.
 - To make also the decoding for text (see processor encdec_text)
-- To add resource node listener so the meta creator can use that to clear the cache acordingly.
+- To check the X-Filter for language type parameters (see Language).

@@ -15,7 +15,7 @@ from ally.core.spec.codes import RESOURCE_NOT_FOUND, RESOURCE_FOUND
 from ally.core.spec.resources import ConverterPath, Path, ResourcesManager
 from ally.core.spec.server import Response, Processor, ProcessorsChain, \
     EncoderPath
-from urllib.parse import urlencode, urlparse, urlunsplit, parse_qsl
+from urllib.parse import urlencode, urlunsplit
 import logging
 
 # --------------------------------------------------------------------
@@ -30,7 +30,7 @@ class URIHandler(Processor):
     Implementation for a processor that provides the searches based on the request URL the resource path, also
     populates the parameters and extension format on the request.
     
-    Provides on request: resourcePath, params, accContentTypes
+    Provides on request: resourcePath, accContentTypes
     Provides on response: code, encoderPath
     
     Requires on request: path
@@ -60,13 +60,9 @@ class URIHandler(Processor):
         assert isinstance(req, RequestHTTP), 'Invalid HTTP request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        if isinstance(req.path, str):
-            url = urlparse(req.path)
-            paths = url.path.split('/')
-            req.params.extend(parse_qsl(url.query, True, False))
-        else:
-            paths = list(req.path)
-
+        assert isinstance(req.path, str), 'Invalid request path %s' % req.path
+        
+        paths = req.path.split('/')
         i = paths[-1].rfind('.') if len(paths) > 0 else -1
         if i < 0:
             extension = None
@@ -119,7 +115,7 @@ class EncoderPathURI(EncoderPath):
         self._rootURI = rootURI
         self._ext = ext
 
-    def encode(self, path, parameters = None):
+    def encode(self, path, parameters=None):
         '''
         @see: EncoderPath.encode
         '''
