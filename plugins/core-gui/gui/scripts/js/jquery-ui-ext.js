@@ -2,6 +2,7 @@
  * jQuery UI Widget Override
  * addon to jQuery UI 1.8.16 
  */
+// TODO move into some general js lib
 Function.prototype.inherits = function( parentClassOrObject )
 { 
 	if( parentClassOrObject.constructor == Function ) //Normal Inheritance 
