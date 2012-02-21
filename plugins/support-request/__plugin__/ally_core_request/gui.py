@@ -20,4 +20,3 @@ from __plugin__.core_gui.gui_core import publishGui
 def publishJS():
     sysPath = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     publishGui('app')
-    #cdmGUI().publishFromDir('js/devel', os.path.join(sysPath, 'js_gui'))
