@@ -628,10 +628,8 @@ def _setattr__properties(self, name, value):
     properties = propertiesFor(self)
     assert isinstance(properties, Properties), 'Invalid object %r, has no properties' % self
     prop = properties.properties.get(name, None)
-    if isinstance(prop, Property):
-        prop.set(self, value)
-    else:
-        self.__dict__[name] = value
+    if isinstance(prop, Property): prop.set(self, value)
+    else: self.__dict__[name] = value
     
 def _delattr__properties(self, name):
     '''
@@ -641,11 +639,9 @@ def _delattr__properties(self, name):
     properties = propertiesFor(self)
     assert isinstance(properties, Properties), 'Invalid object %r, has no properties' % self
     prop = properties.properties.get(name, None)
-    if isinstance(prop, Property):
-        prop.remove(self)
+    if isinstance(prop, Property): prop.remove(self)
     else:
-        if not self.__dict__.has_key(name):
-            raise AttributeError(name)
+        if not self.__dict__.has_key(name): raise AttributeError(name)
         del self.__dict__[name]
 
 def _getstate__properties(self):
@@ -690,15 +686,13 @@ def _init__query(self, **keyargs):
 def _getattr__entry(self, name):
     '''
     ONLY FOR INTERNAL USE.
-    Function for setting attributes on criteria entry object.
+    Function for getting attributes on criteria entry object.
     '''
     query = queryFor(self)
     assert isinstance(query, Query), 'Invalid instance %s, is not associated with a query' % self
     crtEntry = query.criteriaEntries.get(name, None)
-    if isinstance(crtEntry, CriteriaEntry):
-        return crtEntry.obtain(self)
-    if not self.__dict__.has_key(name):
-        raise AttributeError(name)
+    if isinstance(crtEntry, CriteriaEntry): return crtEntry.obtain(self)
+    if not self.__dict__.has_key(name): raise AttributeError(name)
     return self.__dict__[name]
     
 def _setattr__entry(self, name, value):
@@ -833,4 +827,4 @@ def update(propertyType, toType):
     typ = typeFor(toType)
     assert isinstance(typ, Type), 'Invalid type to update to %s' % toType
     #TODO: maybe a better way to set own properties in model. The property is immutable so we make a hack to set it
-    propertyType.property.__dict__['type'] = typ
+    propertyType.property.type = typ

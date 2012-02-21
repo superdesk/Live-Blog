@@ -12,11 +12,10 @@ Provides the configurations for the processors encoders and decoders.
 from .converter import contentNormalizer, converterPath
 from ally.container import ioc
 from ally.core.impl.processor.decoder_none import DecodingNoneHandler
-from ally.core.impl.processor.encdec_json import DecodingJSONHandler
-from ally.core.impl.processor.encdec_xml import DecodingXMLHandler
+from ally.core.impl.processor.decoder_text import DecodingTextHandler
+from ally.core.impl.processor.decoder_xml import DecodingXMLHandler
 from ally.core.spec.server import Processor
 from ally.core.impl.processor.encoder_text import EncodingTextHandler
-
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
@@ -111,13 +110,39 @@ def decodingXML() -> Processor:
     b.charSetDefault = default_characterset()
     b.contentTypes = list(content_types_xml().keys())
 
+@ioc.entity   
+def decoderTextJSON():
+    import json
+    import codecs
+    def decodeJSON(content, charSet):
+        return json.load(codecs.getreader(charSet)(content))
+    return decodeJSON
+
 @ioc.entity
 def decodingJSON() -> Processor:
-    b = DecodingJSONHandler(); yield b
+    b = DecodingTextHandler(); yield b
     b.normalizer = contentNormalizer()
+    b.decoder = decoderTextJSON()
     b.converterId = converterPath()
     b.charSetDefault = default_characterset()
     b.contentTypes = list(content_types_json().keys())
+
+@ioc.entity   
+def decoderTextYAML():
+    import yaml
+    import codecs
+    def decodeYAML(content, charSet):
+        return yaml.load(codecs.getreader(charSet)(content))
+    return decodeYAML
+
+@ioc.entity
+def decodingYAML() -> Processor:
+    b = DecodingTextHandler(); yield b
+    b.normalizer = contentNormalizer()
+    b.decoder = decoderTextYAML()
+    b.converterId = converterPath()
+    b.charSetDefault = default_characterset()
+    b.contentTypes = list(content_types_yaml().keys())
 
 # ---------------------------------
 
@@ -129,5 +154,9 @@ def handlersEncoding():
     return b
 
 @ioc.entity
-def handlersDecoding(): return [decodingXML(), decodingJSON(), decodingNone()]
+def handlersDecoding():
+    b = [decodingXML(), decodingJSON(), decodingNone()]
+    try: b.append(decodingYAML())
+    except ImportError: pass
+    return b
 

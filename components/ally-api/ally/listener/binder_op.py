@@ -10,14 +10,15 @@ Provides binding listener function to handle API operators validation.
 '''
 
 from .. import internationalization
-from ..api.configure import serviceFor
-from ..api.operator import Property, Model, Service, Call, UPDATE, INSERT
-from ..api.type import Input, TypeModel
+from ..api.configure import modelFor, serviceFor, queryFor
+from ..api.operator import Property, Model, Query, Service, Call, UPDATE, INSERT
+from ..api.type import Input, TypeModel, TypeProperty, typeFor
 from ..exception import InputException, Ref
-from ..support.api.util_type import propertyOf, modelOf
+from ..support.api.util_type import propertyOf
 from .binder import bindListener, callListeners, registerProxyBinder, \
-    bindBeforeListener, clearBindings, indexBefore, INDEX_DEFAULT
+    bindBeforeListener, indexBefore, INDEX_DEFAULT
 from collections import Sized
+from inspect import isclass
 import functools
     
 # --------------------------------------------------------------------
@@ -45,13 +46,54 @@ _ = internationalization.translator(__name__)
 
 # --------------------------------------------------------------------
 
-def validateModel(refModel, validator, key=(EVENT_VALID_INSERT, EVENT_VALID_UPDATE), index=INDEX_MODEL):
+def createModelMapping(modelClass):
+    '''
+    Creates a mapping class for the provided model class. The mapping class allows for bindings.
+    
+    @param modelClass: class
+        The model class to create a mapping for.
+    @return: class
+        The mapping class.
+    '''
+    assert isclass(modelClass), 'Invalid model class %s' % modelClass
+    model = modelFor(modelClass)
+    assert isinstance(model, Model), 'Invalid class %s is not a model' % modelClass
+    
+    mappings = {}
+    for name, typ in modelClass.__dict__.items():
+        if isinstance(typ, TypeProperty):
+            m = mappings[name] = Mapping()
+            typeFor(m, typ)
+    return type(modelClass.__name__, (modelClass,), mappings)
+
+def createQueryMapping(queryClass):
+    '''
+    Creates a mapping class for the provided query class. The mapping class allows for bindings.
+    
+    @param queryClass: class
+        The query class to create a mapping for.
+    @return: class
+        The mapping class.
+    '''
+    assert isclass(queryClass), 'Invalid query class %s' % queryClass
+    query = queryFor(queryClass)
+    assert isinstance(query, Query), 'Invalid class %s is not a query' % queryClass
+    return type(queryClass.__name__, (queryClass,), {name: Mapping() for name in query.criteriaEntries})
+
+class Mapping:
+    '''
+    Class that defines simple objects that allow mapping.
+    '''
+
+# --------------------------------------------------------------------
+
+def validateModel(mappedClass, validator, key=(EVENT_VALID_INSERT, EVENT_VALID_UPDATE), index=INDEX_MODEL):
     '''
     @see: bindListener
     Binds a validation listener on the model that will be triggered for the provided event keys.
     
-    @param refModel: @see: modelOf
-        The model reference to get the model to bind to.
+    @param mappedClass: class
+        The model mapped class to bind to.
     @param validator: Callable|tuple(Callable)
         The validator(s) to use. 
     @param key: object immutable|tuple(object immutable)
@@ -59,38 +101,20 @@ def validateModel(refModel, validator, key=(EVENT_VALID_INSERT, EVENT_VALID_UPDA
     @param index: string
         The index at which to position the validation.
     '''
-    model = modelOf(refModel)
-    if not model: raise AssertionError('No model available for %s' % refModel) 
-    bindListener(model, key, validator, index)
-
-def clearModelValidations(refModel, key=(EVENT_VALID_INSERT, EVENT_VALID_UPDATE)):
-    '''
-    @see: clearBindings
-    Clears all validation bindings on the property for the provided event keys.
+    assert isclass(mappedClass), 'Invalid mapped model class %s' % mappedClass
+    assert isinstance(modelFor(mappedClass), Model), 'Invalid mapped model class %s, has no model' % mappedClass
+    bindListener(mappedClass, key, validator, index)
     
-    @param refModel: @see: modelOf
-        The model reference to get the model to bind to.
-    @param key: object immutable|tuple(object immutable)
-        The event keys to bind the validation to.
-    '''
-    model = modelOf(refModel)
-    if not model: raise AssertionError('No model available for %s' % refModel) 
-    assert isinstance(model, Model)
-    if isinstance(key, tuple): clearBindings(model, *key)
-    else: clearBindings(model, key)
-    
-    for prop in model.properties.values(): clearPropertyValidations(prop, key)
-    
-def validateModelProperties(refModel):
+def validateModelProperties(mappedClass):
     '''
     Binds a model properties validation on the model. The validation consists in calling all the validations found on
     properties of the model.
     
-    @param refModel: @see: modelOf
-        The model reference to get the model to bind to.
+    @param mappedClass: class
+        The model mapped class to bind to.
     '''
-    validateModel(refModel, functools.partial(onModel, EVENT_VALID_INSERT), EVENT_VALID_INSERT)
-    validateModel(refModel, functools.partial(onModel, EVENT_VALID_UPDATE), EVENT_VALID_UPDATE)
+    validateModel(mappedClass, functools.partial(onModel, EVENT_VALID_INSERT), EVENT_VALID_INSERT)
+    validateModel(mappedClass, functools.partial(onModel, EVENT_VALID_UPDATE), EVENT_VALID_UPDATE)
 
 # --------------------------------------------------------------------
 
@@ -110,22 +134,7 @@ def validateProperty(refProp, validator, key=(EVENT_VALID_INSERT, EVENT_VALID_UP
     '''
     prop = propertyOf(refProp)
     if not prop: raise AssertionError('No property available for %s' % refProp) 
-    bindListener(prop, key, validator, index)
-    
-def clearPropertyValidations(refProp, key=(EVENT_VALID_INSERT, EVENT_VALID_UPDATE)):
-    '''
-    @see: clearBindings
-    Clears all validation bindings on the property for the provided event keys.
-    
-    @param refProp: @see: propertyOf
-        The property reference to get the property to clear the bindings from.
-    @param key: object immutable|tuple(object immutable)
-        The event keys to bind the validation to.
-    '''
-    prop = propertyOf(refProp)
-    if not prop: raise AssertionError('No property available for %s' % refProp) 
-    if isinstance(key, tuple): clearBindings(prop, *key)
-    else: clearBindings(prop, key)
+    bindListener(refProp, key, validator, index)
 
 def validateAutoId(refProp):
     '''
@@ -177,21 +186,23 @@ def validateManaged(prop):
 # --------------------------------------------------------------------
 # validation listener methods
 
-def onPropertyUnwanted(entity, model, prop, errors):
+def onPropertyUnwanted(entity, mappedClass, prop, errors):
     '''
     Validation for unwanted properties, whenever this validator is added will not allow the property to have a value on 
     the provided entity.
     
     @param entity: object
         The entity to check for the property value.
-    @param model: Model
-        The model of the entity.
+    @param mappedClass: class
+        The model mapped class of the entity.
     @param prop: Property
         The property that is unwanted.
     @param errors: list[Ref]
         The list of errors.
     '''
-    assert isinstance(model, Model), 'Invalid model %s' % model
+    assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
+    model = modelFor(mappedClass)
+    assert isinstance(model, Model), 'Invalid mapped class %s, has no model' % mappedClass
     assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
     assert isinstance(prop, Property), 'Invalid property %s' % prop
     assert isinstance(errors, list), 'Invalid errors list %s' % errors
@@ -199,21 +210,23 @@ def onPropertyUnwanted(entity, model, prop, errors):
         errors.append(Ref(_('No value expected'), model=model, property=prop))
         return False
 
-def onPropertyRequired(entity, model, prop, errors):
+def onPropertyRequired(entity, mappedClass, prop, errors):
     '''
     Validation for required properties, whenever this validator is added will require the property to have a value on the
     provided entity.
     
     @param entity: object
         The entity to check for the property value.
-    @param model: Model
-        The model of the entity.
+    @param mappedClass: class
+        The model mapped class of the entity.
     @param prop: Property
         The property that is unwanted.
     @param errors: list[Ref]
         The list of errors.
     '''
-    assert isinstance(model, Model), 'Invalid model %s' % model
+    assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
+    model = modelFor(mappedClass)
+    assert isinstance(model, Model), 'Invalid mapped class %s, has no model' % mappedClass
     assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
     assert isinstance(prop, Property), 'Invalid property %s' % prop
     assert isinstance(errors, list), 'Invalid errors list %s' % errors
@@ -221,20 +234,22 @@ def onPropertyRequired(entity, model, prop, errors):
         errors.append(Ref(_('Expected a value'), model=model, property=prop))
         return False
 
-def onPropertyNone(entity, model, prop, errors):
+def onPropertyNone(entity, mappedClass, prop, errors):
     '''
     Validation for properties that are allowed not to have a value but if they have then the None value is not allowed.
     
     @param entity: object
         The entity to check for the property value.
-    @param model: Model
-        The model of the entity.
+    @param mappedClass: class
+        The model mapped class of the entity.
     @param prop: Property
         The property that is unwanted.
     @param errors: list[Ref]
         The list of errors.
     '''
-    assert isinstance(model, Model), 'Invalid model %s' % model
+    assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
+    model = modelFor(mappedClass)
+    assert isinstance(model, Model), 'Invalid mapped class %s, has no model' % mappedClass
     assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
     assert isinstance(prop, Property), 'Invalid property %s' % prop
     assert isinstance(errors, list), 'Invalid errors list %s' % errors
@@ -242,15 +257,15 @@ def onPropertyNone(entity, model, prop, errors):
         errors.append(Ref(_('Invalid value'), model=model, property=prop))
         return False
 
-def onPropertyMaxLength(length, entity, model, prop, errors):
+def onPropertyMaxLength(length, entity, mappedClass, prop, errors):
     '''
     Validation for properties that are allowed a maximum length for their value. If the property has a value and that
     value is of type @see: Sized it will be checked for the maximum lenght.
     
     @param length: integer
         The maximum length allowed for the property value.
-    @param entity: object
-        The entity to check for the property value.
+    @param mappedClass: class
+        The model mapped class of the entity.
     @param model: Model
         The model of the entity.
     @param prop: Property
@@ -259,7 +274,9 @@ def onPropertyMaxLength(length, entity, model, prop, errors):
         The list of errors.
     '''
     assert isinstance(length, int), 'Invalid length %s' % length
-    assert isinstance(model, Model), 'Invalid model %s' % model
+    assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
+    model = modelFor(mappedClass)
+    assert isinstance(model, Model), 'Invalid mapped class %s, has no model' % mappedClass
     assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
     assert isinstance(prop, Property), 'Invalid property %s' % prop
     assert isinstance(errors, list), 'Invalid errors list %s' % errors
@@ -270,7 +287,7 @@ def onPropertyMaxLength(length, entity, model, prop, errors):
                               model=model, property=prop))
             return False
 
-def onModel(event, entity, model):
+def onModel(event, entity, mappedClass):
     '''
     This is a validation that triggers the validations found on the properties of the model.
     
@@ -278,27 +295,29 @@ def onModel(event, entity, model):
         The event to trigger on the properties of the model.
     @param entity: object
         The entity to check for the property value.
-    @param model: Model
-        The model of the entity.
+    @param mappedClass: class
+        The model mapped class of the entity.
     @raise InputException: the input exception with all the errors indicated by the properties validation.
     '''
-    assert isinstance(model, Model), 'Invalid model %s' % model
+    assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
+    model = modelFor(mappedClass)
+    assert isinstance(model, Model), 'Invalid mapped class %s, has no model' % mappedClass
     assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
     errors = []
-    for prop in model.properties.values():
-        callListeners(prop, event, entity, model, prop, errors)
+    for name, prop in model.properties.items():
+        callListeners(getattr(mappedClass, name), event, entity, mappedClass, prop, errors)
     if errors: raise InputException(*errors)
     
 # --------------------------------------------------------------------
 
-def processModelCall(call, model, argEntityIndex, args, keyargs):
+def processModelCall(call, mappedClass, argEntityIndex, args, keyargs):
     '''
     Process the validation for a model for the specified call.
     
     @param call: Call
         The call to process the model for.
-    @param model: Model
-        The model to process the validation for.
+    @param mappedClass: class
+        The model mapped class of the entity.
     @param argEntityIndex: integer
         The index in the arguments (args) where to find the model entity to perform validations on.
     @param args: arguments
@@ -310,29 +329,36 @@ def processModelCall(call, model, argEntityIndex, args, keyargs):
     if len(args) > argEntityIndex:
         # Check the arguments length just in case the entity argument has a default.
         assert isinstance(call, Call), 'Invalid call %s' % call
-        assert isinstance(model, Model), 'Invalid model %s' % model
+        assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
+        model = modelFor(mappedClass)
+        assert isinstance(model, Model), 'Invalid mapped class %s, has no model' % mappedClass
         entity = args[argEntityIndex]
         assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
         if call.method == INSERT:
-            return callListeners(model, EVENT_VALID_INSERT, entity, model)
+            return callListeners(mappedClass, EVENT_VALID_INSERT, entity, mappedClass)
         if call.method == UPDATE:
-            return callListeners(model, EVENT_VALID_UPDATE, entity, model)
+            return callListeners(mappedClass, EVENT_VALID_UPDATE, entity, mappedClass)
 
-def bindValidations(proxyService):
+def bindValidations(proxyService, mappings):
     '''
     Binds the registered model validations to the provided service. Basically all models detected to be used by the
     service in insert and update methods will have their validations triggered whenever this methods are called.
     
     @param proxyService: proxy service
-        The proxy of the service to bind the validations to.    
+        The proxy of the service to bind the validations to.
+    @param mappings: dictionary{class, class}
+        A dictionary containing as a key the model API class and as a value the mapping class for the model.
     '''
     registerProxyBinder(proxyService)
     service = serviceFor(proxyService)
     assert isinstance(service, Service), 'Invalid service proxy %s, has no service attached' % proxyService
+    assert isinstance(mappings, dict), 'Invalid mappings %s' % mappings
     for name, call in service.calls.items():
         assert isinstance(call, Call)
         for index, inp in enumerate(call.inputs):
             assert isinstance(inp, Input)
             if isinstance(inp.type, TypeModel):
-                bindBeforeListener(getattr(proxyService, name),
-                                   functools.partial(processModelCall, call, inp.type.model, index))
+                mappedClass = mappings.get(inp.type.model.modelClass)
+                if isclass(mappedClass):
+                    bindBeforeListener(getattr(proxyService, name),
+                                       functools.partial(processModelCall, call, mappedClass, index))

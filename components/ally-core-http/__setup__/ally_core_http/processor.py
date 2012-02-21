@@ -11,16 +11,16 @@ Provides the configurations for the processors used in handling the request.
 
 from . import server_pattern_rest
 from ..ally_core.converter import contentNormalizer, converterPath
-from ..ally_core.processor import resourcesHandlers, methodInvoker, converter, \
-    handlersExplainError
+from ..ally_core.processor import handlersResources, methodInvoker, converter, \
+    handlersExplainError, requestTypes, parameters, invokingHandler
 from ..ally_core.resource_manager import resourcesManager
 from ally.container import ioc
+from ally.core.http.impl.processor.formatting import FormattingProviderHandler
 from ally.core.http.impl.processor.header import HeaderStandardHandler
 from ally.core.http.impl.processor.meta_filter import MetaFilterHandler
 from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.spec.server import Processor, Processors
 import re
-from ally.core.http.impl.processor.formatting import FormattingProviderHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -44,10 +44,15 @@ def headerStandard() -> Processor:
     return b
 
 @ioc.entity
+def handlersFetching():
+    return [methodInvoker(), requestTypes(), parameters(), invokingHandler()]
+
+@ioc.entity
 def metaFilter() -> Processor:
     b = MetaFilterHandler()
     b.resourcesManager = resourcesManager()
     b.normalizer = contentNormalizer()
+    b.fetching = Processors(*handlersFetching())
     b.readFromParams = read_from_params()
     return b
 
@@ -65,9 +70,9 @@ def updateHandlersExplainError():
 
 # ---------------------------------
 
-@ioc.before(resourcesHandlers)
-def updateHandlers():
-    rscH = resourcesHandlers()
+@ioc.before(handlersResources)
+def updateHandlersResources():
+    rscH = handlersResources()
     rscH.insert(rscH.index(methodInvoker()), headerStandard())
     rscH.insert(rscH.index(headerStandard()), uri())
     rscH.insert(rscH.index(methodInvoker()), formattingProvider())
@@ -75,4 +80,4 @@ def updateHandlers():
 
 @ioc.entity
 def pathProcessors():
-    return [(re.compile(server_pattern_rest()), Processors(*resourcesHandlers()))]
+    return [(re.compile(server_pattern_rest()), Processors(*handlersResources()))]

@@ -31,20 +31,28 @@ class EntitySupportAlchemy(SessionSupport):
     Provides support generic entity handling.
     '''
     
-    def __init__(self, model, query=None, mapper=None):
-        if isclass(model): model = modelFor(model)
-        if isclass(query): query = queryFor(query)
-        assert not model or isinstance(model, Model), 'Invalid model %s' % model
-        assert not query or isinstance(query, Query), 'Invalid query %s' % query
+    def __init__(self, Entity, query=None):
+        '''
+        Construct the entity support for the provided model class and query class.
+        
+        @param Entity: class
+            The mapped entity model class.
+        @param Query: class|None
+            The query mapped class if there is one.
+        '''
+        assert isclass(Entity), 'Invalid model mapped class %s' % Entity
+        model = modelFor(Entity)
+        assert isinstance(model, Model), 'Invalid mapped class %s, has no model' % Entity
+        if query:
+            query = queryFor(query)
+            assert isinstance(query, Query), 'Invalid query %s' % query
         self.model = model
-        self.Entity = model.modelClass
-        self.EntityMapper = mapper if mapper is not None else model.modelClass
+        self.Entity = Entity
         self.query = query
         SessionSupport.__init__(self)
     
     def _buildGetAll(self, filter=None, offset=None, limit=None, q=None):
-        assert self.EntityMapper, 'No model provided for the entity support'
-        aq = self.session().query(self.EntityMapper)
+        aq = self.session().query(self.Entity)
         if filter is not None: aq = aq.filter(filter)
         if q:
             assert self.query, 'No query provided for the entity support'
@@ -65,7 +73,7 @@ class EntityGetServiceAlchemy(EntitySupportAlchemy):
         '''
         @see: IEntityGetService.getById
         '''
-        entity = self.session().query(self.EntityMapper).get(id)
+        entity = self.session().query(self.Entity).get(id)
         if not entity: raise InputException(Ref(_('Unknown id'), ref=self.Entity.Id))
         return entity
 
@@ -101,13 +109,12 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
         '''
         @see: IEntityCRUDService.insert
         '''
-        assert isinstance(entity, self.Entity), 'Invalid entity %s, expected class %s' % (entity, self.Entity)
+        assert isinstance(entity, self.model.modelClass), \
+        'Invalid entity %s, expected class %s' % (entity, self.model.modelClass)
+        entity = self.model.copy(self.Entity(), entity)
         try:
             self.session().add(entity)
             self.session().flush((entity,))
-            self.session().expunge(entity)
-            # We need to get it out from the session because in case of new updates on the same entity will have
-            # not been propagated since the entity is flushed.
         except SQLAlchemyError as e: handle(e, entity)
         return entity.Id
 
@@ -115,9 +122,11 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
         '''
         @see: IEntityCRUDService.update
         '''
-        assert isinstance(entity, self.Entity), 'Invalid entity %s, expected class %s' % (entity, self.Entity)
-        try:
-            self.session().merge(entity)
+        assert isinstance(entity, self.model.modelClass), \
+        'Invalid entity %s, expected class %s' % (entity, self.model.modelClass)
+        entityDb = self.session().query(self.Entity).get(entity.Id)
+        if not entityDb: raise InputException(Ref(_('Unknown id'), ref=self.Entity.Id))
+        try: self.model.copy(entityDb, entity)
         except SQLAlchemyError as e: handle(e, self.Entity)
 
     def delete(self, id):
