@@ -11,7 +11,7 @@ Provides the encoder/decoder whenever there is no content required for the invok
 
 from ally.api.operator import INSERT, UPDATE
 from ally.container.ioc import injected
-from ally.core.impl.processor.encdec_base import findLastModel
+from ally.core.impl.processor.decoder_text_base import findLastModel
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
 import logging
 

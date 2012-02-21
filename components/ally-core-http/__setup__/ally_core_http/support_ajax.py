@@ -11,7 +11,7 @@ Provides the the javascript setup required by browser for ajax.
 
 from ..ally_core.processor import methodInvoker
 from ..ally_core_http.encoder_header import encodersHeader
-from .processor import resourcesHandlers
+from .processor import handlersResources
 from ally.container import ioc
 from ally.core.http.impl.encoder_header_set import EncoderHeaderSet
 from ally.core.http.spec import METHOD_OPTIONS
@@ -45,9 +45,9 @@ def deliverOkHandler() -> DeliverOkHandler:
     b.forMethod = METHOD_OPTIONS
     return b
 
-@ioc.before(resourcesHandlers)
+@ioc.before(handlersResources)
 def updateHandlers():
-    if ajax_cross_domain(): resourcesHandlers().insert(resourcesHandlers().index(methodInvoker()), deliverOkHandler())
+    if ajax_cross_domain(): handlersResources().insert(handlersResources().index(methodInvoker()), deliverOkHandler())
 
 @ioc.before(encodersHeader)
 def updateEncodersHeader():

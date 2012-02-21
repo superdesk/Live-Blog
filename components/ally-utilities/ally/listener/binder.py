@@ -91,7 +91,7 @@ def bindListener(to, key, listener, index=INDEX_DEFAULT):
     '''
     assert to, 'Provide a to object'
     _listeners = ATTR_LISTENERS.getOwn(to, None)
-    if not _listeners: _listeners = ATTR_LISTENERS.setOwn(to, {}) 
+    if not _listeners: _listeners = ATTR_LISTENERS.set(to, {}) 
     if isinstance(key, tuple):_keys = key
     else: _keys = [key]
     addlist = list(listener) if isinstance(listener, tuple) else [listener]
