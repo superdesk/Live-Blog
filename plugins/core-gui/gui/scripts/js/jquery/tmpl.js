@@ -121,7 +121,7 @@
         {
         	return this.each(function()
         	{
-        		$(this).html( $.tmpl(selector, data), undefined, defs ); 
+        		$(this).html( $.tmpl(selector, data, defs) ); 
         	});
         },
         renderTmpl: function(data)
@@ -133,6 +133,10 @@
     ({
         tmpl : function(tmpl, data, defs)
         {
+        	if(typeof data == 'undefined') data = {}
+        	
+        	if(typeof tmpl == 'function') return tmpl(data)
+        	
             if (!$(tmpl).data('compiled-template')) 
             	$(tmpl).data('compiled-template', doT.template( $(tmpl).html(), undefined, defs ));
             
