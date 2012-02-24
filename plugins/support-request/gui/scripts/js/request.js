@@ -84,7 +84,6 @@ $(function()
 			superdesk.layout.main.find('#area-sidebar')
 				.tmpl('#request-list-tmpl', {request: requestList})
 				.find('ul').children().off('click').on('click', displayPattern);
-			
 		}, appFail);
 		
 		// handle search
@@ -124,7 +123,7 @@ $(function()
 		$($.tmpl('#request-fail-tmpl', {})).appendTo($('#area-error').html(''));
 	};
 
-	superdesk.layout.main.tmpl(superdesk.layouts.layoutSidebarLeft)
+	superdesk.layout.main.tmpl(superdesk.layouts[2])
 	app(superdesk.apiUrl+'/resources/Devel/')
 });
 
