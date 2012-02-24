@@ -9,14 +9,11 @@ Created on Feb 2, 2012
 Contains the GUI configuration setup for the node presenter plugin.
 '''
 
-from ..plugin.registry import cdmGUI
 from ally.container import ioc
-import os
 from __plugin__.core_gui.gui_core import publishGui
 
 # --------------------------------------------------------------------
 
 @ioc.start
 def publishJS():
-    sysPath = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     publishGui('app')

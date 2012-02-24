@@ -95,7 +95,7 @@
 
 <script type="text/x-jQuery-tmpl" id="request-descr-tmpl">
 
-	<div class="row">
+	<div class="row-fluid">
 		<div class="page-header">
 			<h2><small>#{{Request.Id}}</small> {{Request.Pattern}}</h2>	
 		</div>
@@ -103,7 +103,7 @@
 
 	{% for( var prop in Request ) %}
 		{?Request[prop].href}
-		<article class="row well">
+		<article class="row-fluid well">
 			<header>
 				<h3>
 					{{prop}}
