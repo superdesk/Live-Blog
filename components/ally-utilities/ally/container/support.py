@@ -214,7 +214,7 @@ def include(module, setupModule=None):
         assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
         registry = setupModule.__dict__
     else: registry = callerLocals()
-    exec(getsource(module), registry)
+    exec(compile(getsource(module), registry['__file__'], 'exec'), registry)
 
 # --------------------------------------------------------------------
 # Functions available in setup functions calls.
