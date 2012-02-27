@@ -24,6 +24,7 @@ update(Menu.Parent, Menu.Id)
 @service
 class IMenuProviderService:
     '''
+    Provides GUI menu entries
     '''
     
     @call
