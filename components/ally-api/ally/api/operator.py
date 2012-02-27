@@ -125,7 +125,8 @@ class Property:
     the model contains the 'nameOnSet' method it will be called, and on deletion the 'nameOnDel' is called.
     '''
     
-    __immutable__ = ('type', 'name')
+    __slots__ = ('type', 'name')
+    __immutable__ = ('name',)
 
     def __init__(self, name, type):
         '''
@@ -240,7 +241,7 @@ class Model(Properties):
     @see: Properties
     '''
     
-    __immutable__ = Properties.__immutable__ + ('modelClass', 'name', 'typeProperties', 'type', 'hints')
+    __slots__ = __immutable__ = Properties.__immutable__ + ('modelClass', 'name', 'typeProperties', 'type', 'hints')
 
     def __init__(self, modelClass, modelName, properties, hints={}):
         '''
@@ -297,7 +298,7 @@ class Query:
     Used for mapping the API query.
     '''
     
-    __immutable__ = ('queryClass', 'criteriaEntries')
+    __slots__ = __immutable__ = ('queryClass', 'criteriaEntries')
 
     def __init__(self, queryClass, criteriaEntries):
         '''
@@ -344,6 +345,7 @@ class CriteriaEntry(Property):
     @see: Property
     '''
     
+    __slots__ = Property.__slots__ + ('criteria',)
     __immutable__ = Property.__immutable__ + ('criteria',)
     
     def __init__(self, criteria, name):
@@ -380,7 +382,7 @@ class Criteria(Properties):
     @see: Properties
     '''
     
-    __immutable__ = Properties.__immutable__ + ('criteriaClass',)
+    __slots__ = __immutable__ = Properties.__immutable__ + ('criteriaClass',)
 
     def __init__(self, criteriaClass, properties):
         '''
@@ -432,7 +434,7 @@ class Call:
     Property types that are involved in input and output from the call.
     '''
     
-    __immutable__ = ('name', 'method', 'outputType', 'inputs', 'mandatoryCount', 'hints')
+    __slots__ = __immutable__ = ('name', 'method', 'outputType', 'inputs', 'mandatoryCount', 'hints')
     
     def __init__(self, name, method, outputType, inputs, mandatoryCount, hints={}):
         '''
@@ -529,14 +531,9 @@ for call %s' % (ret, self.outputType, self)
         func = getattr(implClass, self.name, None)
         if not func is None:
             fnArgs = getargspec(func)
-            if IS_PY3K: args, varargs, keywords, defaults = fnArgs.args, fnArgs.varargs, fnArgs.keywords, fnArgs.defaults
-            else: args, varargs, keywords, defaults = fnArgs
-            if len(args) == 1 + len(self.inputs) and not varargs or keywords:
-                if defaults is None:
-                    if len(self.inputs) - self.mandatoryCount == 0:
-                        return func
-                elif len(self.inputs) - self.mandatoryCount == len(defaults):
-                    return func
+            if IS_PY3K: args, varargs, keywords, _defaults = fnArgs.args, fnArgs.varargs, fnArgs.keywords, fnArgs.defaults
+            else: args, varargs, keywords, _defaults = fnArgs
+            if len(args) == 1 + len(self.inputs) and not varargs or keywords: return func
                         
     def _findModuleFunction(self, implModule):
         '''
@@ -549,14 +546,9 @@ for call %s' % (ret, self.outputType, self)
         func = getattr(implModule, self.name, None)
         if not func is None:
             fnArgs = getargspec(func)
-            if IS_PY3K: args, varargs, keywords, defaults = fnArgs.args, fnArgs.varargs, fnArgs.keywords, fnArgs.defaults
-            else: args, varargs, keywords, defaults = fnArgs
-            if len(args) == len(self.inputs) and not varargs or keywords:
-                if defaults is None:
-                    if len(self.inputs) - self.mandatoryCount == 0:
-                        return func
-                elif len(self.inputs) - self.mandatoryCount == len(defaults):
-                    return func
+            if IS_PY3K: args, varargs, keywords, _defaults = fnArgs.args, fnArgs.varargs, fnArgs.keywords, fnArgs.defaults
+            else: args, varargs, keywords, _defaults = fnArgs
+            if len(args) == len(self.inputs) and not varargs or keywords: return func
     
     def __hash__(self): return hash((self.name, self.outputType, self.inputs, self.mandatoryCount))
     
@@ -577,7 +569,7 @@ class Service:
     Used for mapping the API calls.
     '''
 
-    __immutable__ = ('serviceClass', 'calls')
+    __slots__ = __immutable__ = ('serviceClass', 'calls')
 
     def __init__(self, serviceClass, calls):
         '''
