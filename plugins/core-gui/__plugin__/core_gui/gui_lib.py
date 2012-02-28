@@ -11,10 +11,8 @@ Contains the GUI configuration setup for the node presenter plugin.
 
 from ..plugin.registry import cdmGUI
 from ally.container import ioc
-from ally.support.util_io import replaceInFile, openURI
 from .gui_core import publishLib
 from __plugin__.core_gui.gui_core import getGuiPath, lib_folder_format
-from __plugin__.plugin.registry import gui_server_url
 from io import BytesIO
 
 
@@ -28,7 +26,7 @@ def js_core_libs_format():
 @ioc.config
 def js_core_libs():
     ''' The javascript core libraries '''
-    return ['jquery', 'jquery-ui', 'jquery-ui-ext', 'jquery/rest', 'jquery/tmpl']
+    return ['jquery', 'jquery-ui', 'jquery-ui-ext', 'jquery/rest', 'jquery/tmpl', 'startup']
 
 @ioc.config
 def js_bootstrap_file():

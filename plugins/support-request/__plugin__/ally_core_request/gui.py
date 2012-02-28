@@ -9,15 +9,21 @@ Created on Feb 2, 2012
 Contains the GUI configuration setup for the node presenter plugin.
 '''
 
-from ..plugin.registry import cdmGUI
 from ally.container import ioc
-import os
 from __plugin__.core_gui.gui_core import publishGui
+from __plugin__.menu_gui.service import actionManagerService, menuAction
+from menu_gui.api.action import Action
 
 # --------------------------------------------------------------------
 
 @ioc.start
 def publishJS():
-    sysPath = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     publishGui('app')
-    #cdmGUI().publishFromDir('js/devel', os.path.join(sysPath, 'js_gui'))
+    
+@ioc.entity    
+def requestAction():
+    return Action('request', menuAction())
+    
+@ioc.start
+def actionRegister():
+    actionManagerService().add(requestAction())
