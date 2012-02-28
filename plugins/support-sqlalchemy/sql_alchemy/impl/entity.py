@@ -51,7 +51,12 @@ class EntitySupportAlchemy(SessionSupport):
         self.query = query
         SessionSupport.__init__(self)
     
-    def _buildGetAll(self, filter=None, offset=None, limit=None, q=None):
+    def _getAll(self, filter=None, offset=None, limit=None, q=None):
+        '''
+        Provides all the entities for the provided filter, with offset and limit. Also if query is known to the
+        service then also a query can be provided.
+        '''
+        if limit == 0: return []
         aq = self.session().query(self.Entity)
         if filter is not None: aq = aq.filter(filter)
         if q:
@@ -61,6 +66,20 @@ class EntitySupportAlchemy(SessionSupport):
             aq = buildQuery(aq, self.query, q)
         aq = buildLimits(aq, offset, limit)
         return aq.all()
+    
+    def _getCount(self, filter=None, q=None):
+        '''
+        Provides the count of all the entities for the provided filter. Also if query is known to the service
+        then also a query can be provided.
+        '''
+        aq = self.session().query(self.Entity)
+        if filter is not None: aq = aq.filter(filter)
+        if q:
+            assert self.query, 'No query provided for the entity support'
+            assert isinstance(q, self.query.queryClass), \
+            'Invalid query %s, expected class %s' % (q, self.query.queryClass)
+            aq = buildQuery(aq, self.query, q)
+        return aq.count()
         
 # --------------------------------------------------------------------
 

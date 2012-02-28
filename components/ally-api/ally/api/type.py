@@ -35,20 +35,24 @@ class Type:
     The class that represents the API types used for mapping data.
     '''
     
-    __slots__ = __immutable__ = ('forClass', 'isPrimitive')
+    __slots__ = __immutable__ = ('forClass', 'isPrimitive', 'isContainable')
     
-    def __init__(self, forClass, isPrimitive=False):
+    def __init__(self, forClass, isPrimitive=False, isContainable=True):
         '''
         Initializes the type setting the primitive aspect of the type.
         
         @param isPrimitive: boolean
             If true than this type is considered of a primitive nature, meaning that is an boolean, integer,
             string, float ... .
+        @param isContainable: boolean
+            If true than this type is containable in types like List and Count.
         '''
         assert isclass(forClass), 'Invalid class %s' % forClass
         assert isinstance(isPrimitive, bool), 'Invalid is primitive flag %s' % isPrimitive
+        assert isinstance(isContainable, bool), 'Invalid is containable flag %s' % isContainable
         self.forClass = forClass
         self.isPrimitive = isPrimitive
+        self.isContainable = isContainable
         
     def isOf(self, type):
         '''
@@ -186,9 +190,9 @@ class Iter(Type):
         '''
         itemType = typeFor(itemType)
         assert isinstance(itemType, Type), 'Invalid item type %s' % itemType
-        assert not isinstance(itemType, Iter), 'Invalid item type %s because is another iterable type' % itemType
+        assert itemType.isContainable, 'Invalid item type %s because is not containable' % itemType
         self.itemType = itemType
-        Type.__init__(self, itemType.forClass)
+        Type.__init__(self, itemType.forClass, False, False)
     
     def isOf(self, type):
         '''
@@ -290,7 +294,7 @@ class TypeProperty(Type):
     
     def __init__(self, model, property):
         '''
-        Constructs the model type for the provided property and model.
+        Constructs the property type for the provided property and model.
         @see: Type.__init__
         
         @param model: Model
@@ -301,7 +305,6 @@ class TypeProperty(Type):
         from .operator import Property, Model
         assert isinstance(model, Model), 'Invalid model %s' % model
         assert isinstance(property, Property), 'Invalid property %s' % property
-        assert isinstance(property.type, Type), 'Invalid property type %s' % type
         self.model = model
         self.property = property
         Type.__init__(self, property.type.forClass, property.type.isPrimitive)
@@ -328,6 +331,56 @@ class TypeProperty(Type):
         return False
 
     def __str__(self): return '%s.%s' % (self.model.name, self.property.name)
+    
+class TypeCriteriaEntry(Type):
+    '''
+    This type is used to wrap query criteria as types. So whenever a type is provided based on a Query criteria
+    this type will be used. Contains the type that is reflected based on the criteria entry type also contains the 
+    CriteriaEntry and the Query that is constructed on. 
+    '''
+    
+    __slots__ = __immutable__ = Type.__immutable__ + ('query', 'criteriaEntry')
+    
+    def __init__(self, query, criteriaEntry):
+        '''
+        Constructs the criteria entry type for the provided criteria entry and query.
+        @see: Type.__init__
+        
+        @param query: Query
+            The query of the type.
+        @param criteriaEntry: CriteriaEntry
+            The criteria entry that this type is constructed on.
+        '''
+        from .operator import CriteriaEntry, Query
+        assert isinstance(query, Query), 'Invalid query %s' % query
+        assert isinstance(criteriaEntry, CriteriaEntry), 'Invalid criteria entry %s' % criteriaEntry
+        self.query = query
+        self.criteriaEntry = criteriaEntry
+        Type.__init__(self, criteriaEntry.type.forClass, criteriaEntry.type.isPrimitive)
+    
+    def isOf(self, type):
+        '''
+        @see: Type.isOf
+        '''
+        return self == type or self.criteriaEntry.type.isOf(type)
+    
+    def isValid(self, obj):
+        '''
+        Checks if the provided object instance is represented by this API type.
+        
+        @param obj: object
+                The object instance to check.
+        '''
+        return self.criteriaEntry.type.isValid(obj)
+    
+    def __hash__(self): return hash((self.query, self.criteriaEntry))
+    
+    def __eq__(self, other):
+        if isinstance(other, self.__class__): return self.query == other.query and \
+        self.criteriaEntry == other.criteriaEntry
+        return False
+
+    def __str__(self): return '%s.%s' % (self.query.queryClass.__name__, self.criteriaEntry.name)
 
 # --------------------------------------------------------------------
 

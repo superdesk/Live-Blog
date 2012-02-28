@@ -435,7 +435,7 @@ class Node(metaclass=abc.ABCMeta):
             The order index of the node, this will be used in correctly ordering the children's to have a proper
             order when searching for path matching.
         @ivar get: Invoker
-            The invoker that provides the retrieve of elements, populated by assemblers.
+            The invoker that provides the data elements fetch, populated by assemblers.
         @ivar insert: Invoker
             The invoker that provides the insert of elements, populated by assemblers.
         @ivar update: Invoker
@@ -572,7 +572,7 @@ class ResourcesManager(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def findGetModel(self, fromPath, model):
         '''
-        Finds the path for the first Node that provides a get for the model. The search is made based
+        Finds the path for the first Node that provides a get for the name. The search is made based
         on the from path. First the from path Node and is children's are searched for the get method if 
         not found it will go to the Nodes parent and make the search there, so forth and so on.
         

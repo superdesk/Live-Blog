@@ -96,14 +96,15 @@ class AssembleGet(AssembleInvokers):
         assert isinstance(invoker, InvokerCall), 'Invalid invoker call %s' % invoker
         call = invoker.call
         assert isinstance(call, Call)
-        if call.method != GET:
-            return False
-        isList = False
+        if call.method != GET: return False
+        
         typ = invoker.outputType
         if isinstance(typ, Iter):
             assert isinstance(typ, Iter)
             typ = typ.itemType
             isList = True
+        else: isList = False
+            
         try: model = typ.model
         except AttributeError:
             log.warning('Cannot extract model from output type %s for call %s', typ, call)
@@ -328,7 +329,7 @@ def processHintWebName(types, call, isGroup=False):
     '''
     Processes the web name hint found on the call and alters the provided types list according to it.
     
-    @param types: list[object]
+    @param types: list[TypeProperty|TypeModel|Model|tuple(string,boolean)]
         The list of types to be altered based on the web name hint.
     @param call: Call
         The call used to extract the web name hint from.
@@ -471,7 +472,7 @@ def obtainNode(root, types):
     
     @param root: Node
         The root node to obtain the node in.
-    @param types: list[object]|tuple(object)
+    @param types: list[TypeProperty|TypeModel|Model|tuple(string,boolean)]|tuple(...)
         The list of types to identify the node.
     @return: Node|boolean
         The node for the types or False if unable to obtain one for the provided types.
