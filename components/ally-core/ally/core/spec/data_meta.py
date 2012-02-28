@@ -27,8 +27,7 @@ class MetaModel:
     Provides the meta model object.
     '''
     
-    __slots__ = ('model', 'getModel', 'metaLink', 'properties')
-    __immutable__ = ('model', 'getModel', 'metaLink', 'properties')
+    __slots__ = __immutable__ = ('model', 'getModel', 'metaLink', 'properties')
     
     def __init__(self, model, getModel, metaLink=None, properties={}):
         '''
@@ -64,8 +63,7 @@ class MetaList:
     Provides the list meta.
     '''
     
-    __slots__ = ('metaItem', 'getItems')
-    __immutable__ = ('metaItem', 'getItems')
+    __slots__ = __immutable__ = ('metaItem', 'getItems')
     
     def __init__(self, metaItem, getItems):
         '''
@@ -74,7 +72,7 @@ class MetaList:
         @param metaItem: MetaModel|MetaLink
             The meta item.
         @param getItems: Callable(object)
-            A callable that takes as an argument the object to extract this meta list instance.
+            A callable that takes as an argument the object to extract this meta iterable instance.
         '''
         assert isinstance(metaItem, (MetaModel, MetaLink)), 'Invalid meta item %s' % metaItem
         assert callable(getItems), 'Invalid get items callable %s' % getItems
@@ -89,8 +87,7 @@ class MetaLink:
     Provides the link meta.
     '''
     
-    __slots__ = ('getLink',)
-    __immutable__ = ('getLink',)
+    __slots__ = __immutable__ = ('getLink',)
     
     def __init__(self, getLink):
         '''
@@ -108,8 +105,7 @@ class MetaValue:
     Provides the value meta.
     '''
     
-    __slots__ = ('type', 'getValue')
-    __immutable__ = ('type', 'getValue')
+    __slots__ = __immutable__ = ('type', 'getValue')
     
     def __init__(self, type, getValue):
         '''
@@ -133,8 +129,7 @@ class MetaFetch:
     This type of meta is not rendered.
     '''
     
-    __slots__ = ('meta', 'getValue')
-    __immutable__ = ('meta', 'getValue')
+    __slots__ = __immutable__ = ('meta', 'getValue')
     
     def __init__(self, meta, getValue):
         '''
@@ -159,8 +154,7 @@ class MetaPath(MetaLink):
     Provides the link on path meta.
     '''
     
-    __slots__ = ('type', 'path', 'getValue')
-    __immutable__ = ('type', 'path', 'getValue')
+    __slots__ = __immutable__ = ('type', 'path', 'getValue')
     
     def __init__(self, path, type, getValue):
         '''

@@ -13,7 +13,7 @@ from ..support.util import IS_PY3K, Attribute, immutable, immut
 from ..type_legacy import OrderedDict
 from .type import Type, Input, Id, IdString, Boolean, Number, Integer, \
     Percentage, String, Time, Date, DateTime, TypeProperty, typeFor
-from ally.api.type import TypeModel
+from ally.api.type import TypeModel, TypeQuery, TypeCriteriaEntry
 from inspect import ismodule, getargspec, isclass
 import logging
 
@@ -298,7 +298,7 @@ class Query:
     Used for mapping the API query.
     '''
     
-    __slots__ = __immutable__ = ('queryClass', 'criteriaEntries')
+    __slots__ = __immutable__ = ('queryClass', 'criteriaEntries', 'typeCriteriaEntries', 'type')
 
     def __init__(self, queryClass, criteriaEntries):
         '''
@@ -318,6 +318,9 @@ class Query:
                 assert isinstance(crt, CriteriaEntry), 'Not a CriteriaEntry %s' % crt
         self.queryClass = queryClass
         self.criteriaEntries = immut(criteriaEntries)
+        self.typeCriteriaEntries = immut({name: TypeCriteriaEntry(self, crte) for name, crte in
+                                          self.criteriaEntries.items()})
+        self.type = TypeQuery(self)
         
     def createQuery(self):
         '''

@@ -199,7 +199,10 @@ def mapperQuery(queryClass, sql):
         crtEntry = criteriaEntries.get(name.lower(), None)
         if crtEntry:
             assert isinstance(crtEntry, CriteriaEntry)
-            columnFor(getattr(mappedClass, crtEntry.name), column)
+            mapping = getattr(mappedClass, crtEntry.name, None)
+            if mapping is not None:
+                if typeFor(mapping) is None: typeFor(mapping, query.typeCriteriaEntries[name])
+                columnFor(mapping, column)
         
     return mappedClass
 
@@ -273,8 +276,8 @@ def addLoadListener(mappedClass, listener):
     
     @param mappedClass: class
         The model mapped class to add the listener to.
-    @param listener: function
-        A function that has to take as parameter to model instance that has been loaded.
+    @param listener: callable(object)
+        A function that has to take as parameter the model instance that has been loaded.
     '''
     assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
     def onLoad(target, *args): listener(target)

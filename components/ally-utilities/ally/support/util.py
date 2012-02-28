@@ -1,7 +1,7 @@
 '''
 Created on Jun 9, 2011
 
-@package: Newscoop
+@package: utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -102,7 +102,7 @@ def _immut_hash(self):
     return hash(tuple(p for p in self.items()))
 
 _immut_attributes = dict.fromkeys(
-                        ('__setitem__', '__delitem__', 'setdefault', 'pop', 'popitem', 'clear', 'update'), _immut_raise)
+                ('__setitem__', '__delitem__', 'setdefault', 'pop', 'popitem', 'clear', 'update'), _immut_raise)
 _immut_attributes['__hash__'] = _immut_hash
 _immut_attributes['__slots__'] = ()
 # The immutable dictionary attributes

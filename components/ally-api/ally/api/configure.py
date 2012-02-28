@@ -19,6 +19,7 @@ from functools import wraps
 from inspect import isfunction, isclass
 import inspect
 import logging
+from ally.api.type import TypeCriteriaEntry
 
 # --------------------------------------------------------------------
 
@@ -41,12 +42,18 @@ class APIModel:
         '''
         Construct the API model.
         
-        @param name: string
+        @param name: string|model
             Provide a name under which the model will be known.
         @param hints: key word arguments
             Provides hints for the model.
         '''
-        assert name is None or isinstance(name, str), 'Invalid model name %s' % name
+        if name is not None:
+            if not isinstance(name, str):
+                model = modelFor(name)
+                assert isinstance(model, Model), \
+                'Invalid model name reference, cannot extract model from it%s' % name
+                name = model.name
+            assert isinstance(name, str), 'Invalid model name %s' % name
         self.name = name
         self.hints = hints
     
@@ -61,19 +68,20 @@ class APIModel:
             The same model class.
         '''
         properties = _processProperties(modelClass)
-        model = modelFor(modelClass)
+        inherited = {model for model in [modelFor(clazz) for clazz in modelClass.__bases__] if model is not None}
         modelName = self.name or modelClass.__name__
-        if model is None:
+        if not inherited:
             # this is not an extended model
             assert not len(properties) == 0, 'There are no API properties on model class %s' % modelClass
             model = Model(modelClass, modelName, properties, self.hints)
         else:
-            assert isinstance(model, Model)
             # Cloning the inherited properties, since they have to belong now to this model.
             allProperties = {}
-            for name, prop in model.properties.items():
-                allProperties[name] = Property(prop.name, prop.type)
-            allProperties.update(properties)
+            for model in inherited:
+                assert isinstance(model, Model)
+                for name, prop in model.properties.items():
+                    allProperties[name] = Property(prop.name, prop.type)
+                allProperties.update(properties)
             model = Model(modelClass, modelName, allProperties, self.hints)
             
         for name, typeProp in model.typeProperties.items():
@@ -122,26 +130,30 @@ class APIQuery:
             The query class processed.
         '''
         entries = _processEntries(queryClass)
-        query = queryFor(queryClass)
-        if query is None:
+        inherited = {query for query in [queryFor(clazz) for clazz in queryClass.__bases__] if query is not None}
+        if not inherited:
             # this is not an extended query
             query = Query(queryClass, entries)
         else:
-            assert isinstance(query, Query)
             allEntries = {}
-            allEntries.update(query.criteriaEntries)
+            for query in inherited:
+                assert isinstance(query, Query)
+                allEntries.update(query.criteriaEntries)
             allEntries.update(entries)
             query = Query(queryClass, allEntries)
+            
+        for name, typeCrt in query.typeCriteriaEntries.items():
+            setattr(queryClass, name, typeCrt)
+            
         queryFor(queryClass, query)
         typeFor(queryClass, TypeQuery(query))
-        # We remove here the descriptions, since they should not be used anymore (unlike the Model).
-        for entry in query.criteriaEntries.values():
-            assert isinstance(entry, CriteriaEntry)
-            if hasattr(queryClass, entry.name): delattr(queryClass, entry.name)
+        
         queryClass.__init__ = _init__query
         queryClass.__getattr__ = _getattr__entry
         queryClass.__setattr__ = _setattr__entry
         queryClass.__delattr__ = _delattr__entry
+        queryClass.__contains__ = _contains__entry
+        
         log.info('Created query %s for class %s containing %s API entries', query, queryClass, len(entries))
         return queryClass
 
@@ -677,6 +689,8 @@ def _init__query(self, **keyargs):
     '''
     query = queryFor(self)
     assert isinstance(query, Query), 'Invalid instance %s, is not associated with a query' % self
+    for name in query.criteriaEntries:
+        if name not in keyargs: self.__dict__[name] = None
     for name, value in keyargs.items():
         crtEntry = query.criteriaEntries.get(name, None)
         if not isinstance(crtEntry, CriteriaEntry):
@@ -692,8 +706,8 @@ def _getattr__entry(self, name):
     assert isinstance(query, Query), 'Invalid instance %s, is not associated with a query' % self
     crtEntry = query.criteriaEntries.get(name, None)
     if isinstance(crtEntry, CriteriaEntry): return crtEntry.obtain(self)
-    if not self.__dict__.has_key(name): raise AttributeError(name)
-    return self.__dict__[name]
+    try: self.__dict__[name]
+    except KeyError: raise AttributeError(name)
     
 def _setattr__entry(self, name, value):
     '''
@@ -733,6 +747,18 @@ def _delattr__entry(self, name):
             raise AttributeError(name)
         del self.__dict__[name]
 
+def _contains__entry(self, key):
+    '''
+    ONLY FOR INTERNAL USE.
+    Function for using the 'in' keyword for detecting if a criteria entry is found in a query.
+    '''
+    query = queryFor(self)
+    assert isinstance(query, Query), 'Invalid instance %s, is not associated with a query' % self
+    typ = typeFor(key)
+    if isinstance(typ, TypeCriteriaEntry):
+        return typ.criteriaEntry.has(self)
+    return False
+
 # --------------------------------------------------------------------
 
 ATTR_PROPERTIES = Attribute(__name__, 'properties', Properties)
@@ -748,10 +774,12 @@ def propertiesFor(obj, properties=None):
     @param properties: Properties
         The properties to associate with the obj.
     @return: Properties|None
-        If the properties has been associate then the return will be none, if the properties is being extracted it 
-        can return either the Properties or None if is not found.
+        If the properties has been associate then the return will be the associated properties, if the properties is
+         being extracted it can return either the Properties or None if is not found.
     '''
-    if properties is None: return ATTR_PROPERTIES.get(obj, None)
+    if properties is None:
+        if isinstance(obj, Properties): return obj
+        return ATTR_PROPERTIES.get(obj, None)
     assert not ATTR_PROPERTIES.hasOwn(obj), 'Already has a properties %s' % obj
     ATTR_PROPERTIES.set(obj, properties)
     return properties
@@ -788,7 +816,9 @@ def queryFor(obj, query=None):
         If the query has been associate then the return will be none, if the query is being extracted it can
         return either the Query or None if is not found.
     '''
-    if query is None: return ATTR_QUERY.get(obj, None)
+    if query is None:
+        if isinstance(obj, Query): return obj
+        return ATTR_QUERY.get(obj, None)
     assert not ATTR_QUERY.hasOwn(obj), 'Already has a query %s' % obj
     ATTR_QUERY.set(obj, query)
 
@@ -808,7 +838,9 @@ def serviceFor(obj, service=None):
         If the service has been associate then the return will be none, if the service is being extracted it can
         return either the Service or None if is not found.
     '''
-    if service is None: return ATTR_SERVICE.get(obj, None)
+    if service is None:
+        if isinstance(obj, Service): return obj
+        return ATTR_SERVICE.get(obj, None)
     assert not ATTR_SERVICE.hasOwn(obj), 'Already has a service %s' % obj
     ATTR_SERVICE.set(obj, service)
 
