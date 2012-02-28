@@ -29,6 +29,7 @@ from collections import OrderedDict
 from inspect import ismodule, ismethod, getdoc
 import re
 from ally_core_request.api import DOMAIN
+from ally.support.api.util_service import trimIter
 
 # --------------------------------------------------------------------
 
@@ -89,13 +90,7 @@ class RequestIntrospectService(IRequestIntrospectService):
         '''
         self._refresh()
         values = self._requests.values()
-        
-        if not offset: offset = 0
-        if not limit: limit = len(values)
-        
-        values = iter(values)
-        for _k in zip(range(0, offset), values): pass 
-        return (v for v, _k in zip(values, range(0, limit)))
+        return trimIter(iter(values), len(values), offset, limit)
     
     # ----------------------------------------------------------------
     
