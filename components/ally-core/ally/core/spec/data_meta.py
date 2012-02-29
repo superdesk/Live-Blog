@@ -69,12 +69,12 @@ class MetaList:
         '''
         Construct the list meta.
 
-        @param metaItem: MetaModel|MetaLink
+        @param metaItem: MetaModel|MetaLink|MetaValue
             The meta item.
         @param getItems: Callable(object)
             A callable that takes as an argument the object to extract this meta iterable instance.
         '''
-        assert isinstance(metaItem, (MetaModel, MetaLink)), 'Invalid meta item %s' % metaItem
+        assert isinstance(metaItem, (MetaModel, MetaLink, MetaValue)), 'Invalid meta item %s' % metaItem
         assert callable(getItems), 'Invalid get items callable %s' % getItems
         self.metaItem = metaItem
         self.getItems = getItems
@@ -121,7 +121,7 @@ class MetaValue:
         self.type = type
         self.getValue = getValue
     
-    def __str__(self): return '%s[%s, %s]' % (self.__class__.__name__, self.metaLink, self.type)
+    def __str__(self): return '%s[%s]' % (self.__class__.__name__, self.type)
 
 class MetaFetch:
     '''
