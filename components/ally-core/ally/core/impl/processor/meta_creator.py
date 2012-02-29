@@ -133,6 +133,9 @@ class MetaCreatorHandler(Processor):
             assert isinstance(prop, Property)
             return MetaModel(typ.model, getValue, metaLink,
                              {prop.name: self.metaProperty(prop.type, resourcePath)})
+        if isinstance(typ, Iter):
+            assert isinstance(typ, Iter)
+            return MetaList(MetaValue(typ.itemType, returnSame), getValue)
         return MetaValue(typ, getValue)
 
     def metaModel(self, model, resourcePath, getModel=returnSame):

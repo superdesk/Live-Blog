@@ -10,8 +10,8 @@ Provides unit testing for the language module.
 '''
 
 import unittest
-from superdesk.impl.language import LanguageServiceBabelAlchemy
-from superdesk.api.language import QLanguage
+from superdesk.language.impl.language import LanguageServiceBabelAlchemy
+from superdesk.language.api.language import QLanguage
 from ally.container import ioc
 import pstats
 from profile import Profile
