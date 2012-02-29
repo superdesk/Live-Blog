@@ -44,6 +44,8 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
     # The tag to be used as the main container for the resources.
     nameList = '%sList'
     # The name to use for rendering lists.
+    nameValue = 'Value'
+    # The name to use for rendering the values in a list of values.
 
     def __init__(self):
         super().__init__()
@@ -52,6 +54,7 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
         assert isinstance(self.namePath, str), 'Invalid name path %s' % self.namePath
         assert isinstance(self.nameResources, str), 'Invalid name resources %s' % self.nameResources
         assert isinstance(self.nameList, str), 'Invalid name list %s' % self.nameList
+        assert isinstance(self.nameValue, str), 'Invalid name value %s' % self.nameValue
     
     def encodeMeta(self, charSet, value, meta, asString, pathEncode):
         '''
@@ -132,7 +135,10 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
             assert isinstance(meta, MetaList)
             assert log.debug('Encoding list of %s', meta.metaItem) or True
             
-            if name: tag = normalize(name)
+            nameItem = None
+            if name:
+                tag = normalize(name)
+                if isinstance(meta.metaItem, MetaValue): nameItem = self.nameValue
             elif isinstance(meta.metaItem, MetaModel): tag = normalize(self.nameList % meta.metaItem.model.name)
             elif isinstance(meta.metaItem, MetaLink): tag = normalize(self.nameResources)
             else: raise DevelException('Illegal item meta %s for meta list %s' % (meta.metaItem, meta)) 
@@ -141,7 +147,7 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
             if items is None: return
             xml.startElement(tag, {})
             for item in items:
-                self.encodeMetaXML(xml, item, meta.metaItem, asString, pathEncode, normalize)
+                self.encodeMetaXML(xml, item, meta.metaItem, asString, pathEncode, normalize, name=nameItem)
             xml.endElement(tag)
             
         elif isinstance(meta, MetaValue):
