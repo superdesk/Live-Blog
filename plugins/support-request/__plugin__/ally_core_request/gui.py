@@ -10,9 +10,15 @@ Contains the GUI configuration setup for the node presenter plugin.
 '''
 
 from ally.container import ioc
-from __plugin__.core_gui.gui_core import publishGui
-from __plugin__.menu_gui.service import actionManagerService, menuAction
-from menu_gui.api.action import Action
+from __plugin__.core_gui.gui_core import publishGui, gui_folder_format
+from __plugin__.actions_gui.defaults import actionManagerService, menuAction
+from actions_gui.api.action import Action
+from __plugin__.plugin.registry import cdmGUI
+from ally.internationalization import translator
+
+# --------------------------------------------------------------------
+
+_ = translator(__name__)
 
 # --------------------------------------------------------------------
 
@@ -22,8 +28,12 @@ def publishJS():
     
 @ioc.entity    
 def requestAction():
-    return Action('request', menuAction())
+    a = Action('request', _('Request'), Parent=menuAction())
+    a.ScriptPath = cdmGUI().getURI(gui_folder_format() % 'app/scripts/js/request.js')
+    return a
     
 @ioc.start
 def actionRegister():
     actionManagerService().add(requestAction())
+    actionManagerService().add(Action('demo', _('Demo'), Parent=menuAction()))
+    
