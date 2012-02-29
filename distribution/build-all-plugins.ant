@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="ally-all-components" default="build" basedir=".">
+<project name="ally-all-plugins" default="build" basedir=".">
 
 	<property name="root" value="../plugins/"/>
 	<property name="destination" value="./plugins/"/>

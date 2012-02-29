@@ -162,7 +162,6 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         if locale.territory: language.Script = translator.territories.get(locale.territory)
         if locale.script: language.Script = translator.scripts.get(locale.script)
         if locale.variant: language.Script = translator.variants.get(locale.variant)
-        
         return language
     
     def _validateCode(self, language, model, prop, errors):
