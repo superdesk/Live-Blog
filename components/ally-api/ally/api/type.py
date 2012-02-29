@@ -192,7 +192,7 @@ class Iter(Type):
         assert isinstance(itemType, Type), 'Invalid item type %s' % itemType
         assert itemType.isContainable, 'Invalid item type %s because is not containable' % itemType
         self.itemType = itemType
-        Type.__init__(self, itemType.forClass, False, False)
+        Type.__init__(self, itemType.forClass, itemType.isPrimitive, False)
     
     def isOf(self, type):
         '''
