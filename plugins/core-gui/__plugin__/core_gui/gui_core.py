@@ -67,5 +67,7 @@ def publishGui(name):
     assert isinstance(name, str), 'Invalid name: %s' % name
     log.info('published gui %s = %s', gui_folder_format() % name, getGuiPath())
     cdmGUI().publishFromDir(gui_folder_format() % name, getGuiPath())
+    
+    
 
 # --------------------------------------------------------------------
