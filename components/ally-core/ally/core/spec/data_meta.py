@@ -58,14 +58,14 @@ class MetaModel:
     def __str__(self): return '%s[%s, %s]' % (self.__class__.__name__, self.metaLink, self.properties)
 
 @immutable  
-class MetaList:
+class MetaCollection:
     '''
     Provides the list meta.
     '''
     
-    __slots__ = __immutable__ = ('metaItem', 'getItems')
+    __slots__ = __immutable__ = ('metaItem', 'getItems', 'getTotal')
     
-    def __init__(self, metaItem, getItems):
+    def __init__(self, metaItem, getItems, getTotal=None):
         '''
         Construct the list meta.
 
@@ -73,11 +73,16 @@ class MetaList:
             The meta item.
         @param getItems: Callable(object)
             A callable that takes as an argument the object to extract this meta iterable instance.
+        @param getTotal: Callable(object)
+            A callable that takes as an argument the object used when the collection is a part of a bigger collection
+            to extract the total count of elements.
         '''
         assert isinstance(metaItem, (MetaModel, MetaLink, MetaValue)), 'Invalid meta item %s' % metaItem
         assert callable(getItems), 'Invalid get items callable %s' % getItems
+        assert getTotal is None or callable(getTotal), 'Invalid get total callable %s' % getTotal
         self.metaItem = metaItem
         self.getItems = getItems
+        self.getTotal = getTotal
     
     def __str__(self): return '%s[%s]' % (self.__class__.__name__, self.metaItem)
 

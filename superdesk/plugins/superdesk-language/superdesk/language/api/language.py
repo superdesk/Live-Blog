@@ -11,7 +11,7 @@ API specifications for languages.
 
 from ally.api.config import service, call, query
 from ally.api.criteria import AsLike
-from ally.api.type import Iter, FrontLanguage, IdString
+from ally.api.type import FrontLanguage, IdString, IterPart, List
 from sql_alchemy.api.entity import Entity, IEntityCRUDService
 from superdesk.api import modelSuperDesk
 
@@ -57,28 +57,26 @@ class ILanguageService(IEntityCRUDService):
     '''
     
     @call
-    def getByCode(self, code:Language.Code, translate:Iter(FrontLanguage)=None) -> Language:
+    def getByCode(self, code:Language.Code, translate:List(FrontLanguage)=None) -> Language:
         '''
         Provides the language having the specified code.
         '''
 
     @call(webName='Available')
     def getAllAvailable(self, offset:int=None, limit:int=10, q:QLanguage=None,
-                        translate:Iter(FrontLanguage)=None) -> Iter(Language):
+                        translate:List(FrontLanguage)=None) -> IterPart(Language):
         '''
         Provides all the available languages.
         '''
-    
-    #def getCountAvailable(self) -> Count(Language): pass
    
     @call
-    def getById(self, id:LanguageEntity.Id, translate:Iter(FrontLanguage)=None) -> LanguageEntity:
+    def getById(self, id:LanguageEntity.Id, translate:List(FrontLanguage)=None) -> LanguageEntity:
         '''
         Provides the language based on the id.
         '''
     
     @call
-    def getAll(self, offset:int=None, limit:int=None, translate:Iter(FrontLanguage)=None) -> Iter(LanguageEntity):
+    def getAll(self, offset:int=None, limit:int=None, translate:List(FrontLanguage)=None) -> IterPart(LanguageEntity):
         '''
         Provides all the languages available in the system.
         '''

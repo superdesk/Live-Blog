@@ -11,10 +11,11 @@ Provides the types used for APIs.
 
 from .. import type_legacy as numbers
 from ..support.util import Uninstantiable, Singletone, Attribute, immutable
-from ..type_legacy import Iterable, Sized, Iterator
+from ..type_legacy import Iterable, Sized
 from datetime import datetime, date, time
 from inspect import isclass
 import logging
+from ally.api.model import Part
 
 # --------------------------------------------------------------------
 
@@ -192,7 +193,7 @@ class Iter(Type):
         assert isinstance(itemType, Type), 'Invalid item type %s' % itemType
         assert itemType.isContainable, 'Invalid item type %s because is not containable' % itemType
         self.itemType = itemType
-        Type.__init__(self, itemType.forClass, itemType.isPrimitive, False)
+        Type.__init__(self, itemType.forClass, False, False)
     
     def isOf(self, type):
         '''
@@ -200,11 +201,11 @@ class Iter(Type):
         '''
         return self == type or self.itemType.isOf(type)
 
-    def isValid(self, list):
+    def isValid(self, iter):
         '''
         @see: Type.isValid
         '''
-        return isinstance(list, Iterator) or isinstance(list, Iterable)
+        return isinstance(iter, Iterable)
     
     def __hash__(self): return hash(self.itemType)
     
@@ -213,6 +214,32 @@ class Iter(Type):
         return False
     
     def __str__(self): return '%s(%s)' % (self.__class__.__name__, self.itemType)
+    
+class IterPart(Iter):
+    '''
+    Maps an iterator of values that is a part of a bigger collection.
+    You need also to specify in the constructor what elements this iterator will contain.
+    Since the values in an iterator can only be retrieved once than this type when validating the iterator it will
+    not be able to validate also the elements.
+    '''
+    
+    __slots__ = __immutable__ = Type.__immutable__ + ('itemType',)
+    
+    def __init__(self, itemType):
+        '''
+        Constructs the iterator type for the provided item type.
+        @see: Type.__init__
+        
+        @param itemType: Type|class
+            The item type of the iterator.
+        '''
+        Iter.__init__(self, itemType)
+
+    def isValid(self, iter):
+        '''
+        @see: Type.isValid
+        '''
+        return isinstance(iter, Part)
     
 class List(Iter):
     '''
@@ -228,14 +255,17 @@ class List(Iter):
         Constructs the list type for the provided type.
         @see: Iter.__init__
         '''
-        Iter.__init__(self, itemType)
+        itemType = typeFor(itemType)
+        assert isinstance(itemType, Type), 'Invalid item type %s' % itemType
+        assert itemType.isContainable, 'Invalid item type %s because is not containable' % itemType
+        self.itemType = itemType
+        Type.__init__(self, itemType.forClass, itemType.isPrimitive, False)
 
     def isValid(self, list):
         '''
         @see: Type.isValid
         '''
-        if Iter.isValid(self, list) and isinstance(list, Sized):
-            return all(map(self.itemType.isValid, list))
+        if isinstance(list, (Iterable, Sized)): return all(map(self.itemType.isValid, list))
         return False
 
 # --------------------------------------------------------------------
