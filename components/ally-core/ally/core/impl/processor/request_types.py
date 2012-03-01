@@ -9,7 +9,7 @@ Created on Aug 8, 2011
 Provides the special types like @see: TypeFrontLanguage based from the request/response.
 '''
 
-from ally.api.type import Input, FrontLanguage, Iter
+from ally.api.type import Input, FrontLanguage, List
 from ally.container.ioc import injected
 from ally.core.spec.resources import Invoker
 from ally.core.spec.server import Processor, ProcessorsChain, Request, Response
@@ -39,8 +39,8 @@ class RequestTypesHandler(Processor):
         for inp in req.invoker.inputs:
             assert isinstance(inp, Input)
             if inp.type.isOf(FrontLanguage):
-                if isinstance(inp.type, Iter):
-                    req.arguments[inp.name] = req.accLanguages
+                if isinstance(inp.type, List):
+                    req.arguments[inp.name] = list(req.accLanguages)
                 else:
                     req.arguments[inp.name] = rsp.contentLanguage
         chain.proceed()

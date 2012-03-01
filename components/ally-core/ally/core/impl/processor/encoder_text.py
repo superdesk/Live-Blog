@@ -15,7 +15,7 @@ from ally.core.spec.resources import Normalizer, Converter, Path
 from ally.exception import DevelException
 from ally.support.core.util_resources import nodeLongName
 import logging
-from ally.core.spec.data_meta import MetaModel, MetaList, MetaLink, MetaValue, \
+from ally.core.spec.data_meta import MetaModel, MetaCollection, MetaLink, MetaValue, \
     MetaFetch
 
 # --------------------------------------------------------------------
@@ -40,6 +40,12 @@ class EncodingTextHandler(EncodingTextBaseHandler):
     # the text object to be encoded, and on the last position the character set encoding to be used.
     namePath = 'href'
     # The name to use as the attribute in rendering the hyper link.
+    nameResources = 'Resources'
+    # The tag to be used as the main container for the resources.
+    nameList = '%sList'
+    # The name to use for rendering lists.
+    nameTotal = 'total'
+    # The name to use for rendering the attribute with the total count of elements in a part.
 
     def __init__(self):
         super().__init__()
@@ -47,6 +53,9 @@ class EncodingTextHandler(EncodingTextBaseHandler):
         assert isinstance(self.converterId, Converter), 'Invalid Converter object %s' % self.converterId
         assert callable(self.encoder), 'Invalid callable encoder %s' % self.encoder
         assert isinstance(self.namePath, str), 'Invalid name path %s' % self.namePath
+        assert isinstance(self.nameResources, str), 'Invalid name resources %s' % self.nameResources
+        assert isinstance(self.nameList, str), 'Invalid name list %s' % self.nameList
+        assert isinstance(self.nameTotal, str), 'Invalid name total %s' % self.nameTotal
     
     def encodeMeta(self, charSet, value, meta, asString, pathEncode):
         '''
@@ -111,12 +120,21 @@ class EncodingTextHandler(EncodingTextBaseHandler):
 
             return obj
             
-        elif isinstance(meta, MetaList):
-            assert isinstance(meta, MetaList)
+        elif isinstance(meta, MetaCollection):
+            assert isinstance(meta, MetaCollection)
             assert log.debug('Encoding list of %s', meta.metaItem) or True
             items = meta.getItems(value)
             if items is None: return
-            return [self.convertMeta(item, meta.metaItem, asString, pathEncode, normalize) for item in items]
+            
+            if isinstance(meta.metaItem, MetaValue):
+                return [self.convertMeta(item, meta.metaItem, asString, pathEncode, normalize) for item in items]
+            elif isinstance(meta.metaItem, MetaModel): name = normalize(self.nameList % meta.metaItem.model.name)
+            elif isinstance(meta.metaItem, MetaLink): name = normalize(self.nameResources)
+            else: raise DevelException('Illegal item meta %s for meta list %s' % (meta.metaItem, meta)) 
+            
+            obj = {name:[self.convertMeta(item, meta.metaItem, asString, pathEncode, normalize) for item in items]}
+            if meta.getTotal: obj[normalize(self.nameTotal)] = str(meta.getTotal(value))
+            return obj
         
         elif isinstance(meta, MetaValue):
             assert isinstance(meta, MetaValue)

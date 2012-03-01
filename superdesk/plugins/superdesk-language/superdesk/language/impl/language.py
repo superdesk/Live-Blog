@@ -12,6 +12,7 @@ SQL alchemy implementation for language API.
 from ..api.language import Language, QLanguage, ILanguageService
 from ..meta.language import LanguageEntity
 from ally import internationalization
+from ally.api.model import Part
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.exception import InputException, DevelException, Ref
@@ -67,11 +68,13 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
                 name = translator.languages.get(locale.language)
                 if name and nameRegex.match(name): languages.append((code, translator))
                     
-            languages = trimIter(iter(languages), len(languages), offset, limit)
-            return (self._populate(Language(code), translator) for code, translator in languages)
+            trimLanguages = trimIter(iter(languages), len(languages), offset, limit)
+            return Part((self._populate(Language(code), translator) for code, translator in trimLanguages),
+                            len(languages))
         
         languages = trimIter(iter(self._locales.items()), len(self._locales), offset, limit)
-        return (self._populate(Language(code), self._translator(locale, locales)) for code, locale in languages)
+        return Part((self._populate(Language(code), self._translator(locale, locales))
+                         for code, locale in languages), len(self._locales))
     
     def getById(self, id, translate):
         '''
@@ -88,15 +91,9 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         '''
         if not translate: translate = self.default_language
         locales = self._localesOf(translate)
-        languages = self._getAll(None, offset, limit)
-        return (self._populate(language, self._translator(self._localeOf(language.Code), locales))
-                for language in languages)
-    
-    def getCount(self):
-        '''
-        @see: ILanguageService.getCount
-        '''
-        return  self._getCount()
+        languages, total = self._getAllWithTotal(offset=offset, limit=limit)
+        return Part((self._populate(language, self._translator(self._localeOf(language.Code), locales))
+                for language in languages), total)
     
     # ----------------------------------------------------------------
 

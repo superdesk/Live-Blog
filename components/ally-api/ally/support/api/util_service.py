@@ -9,7 +9,7 @@ Created on Feb 28, 2012
 Provides utility methods for service implementations.
 '''
 
-from _abcoll import Iterator
+from ally.type_legacy import Iterator
 import re
 
 # --------------------------------------------------------------------

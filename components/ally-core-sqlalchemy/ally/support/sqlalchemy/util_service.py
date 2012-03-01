@@ -6,7 +6,7 @@ Created on Jan 5, 2012
 @license http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides helper functions for SQL alchemy.
+Provides utility methods for SQL alchemy service implementations.
 '''
 
 from .mapper import columnFor
@@ -15,7 +15,6 @@ from ally.api.configure import modelFor, queryFor
 from ally.api.criteria import AsLike, AsOrdered, AsBoolean
 from ally.api.operator import Query, CriteriaEntry
 from ally.exception import InputException, Ref
-from inspect import isclass
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 # --------------------------------------------------------------------
@@ -34,38 +33,48 @@ def handle(e, entity):
         raise InputException(Ref(_('A foreign key is not valid'), model=modelFor(entity)))
     raise e
 
-def buildLimits(aq, offset=None, limit=None):
+def buildLimits(sqlQuery, offset=None, limit=None):
     '''
     Builds limiting on the SQL alchemy query.
+    
+    @param offset: integer|None
+        The offset to fetch elements from.
+    @param limit: integer|None
+        The limit of elements to get.
     '''
-    if offset: aq = aq.offset(offset)
-    if limit: aq = aq.limit(limit)
-    return aq
+    if offset: sqlQuery = sqlQuery.offset(offset)
+    if limit: sqlQuery = sqlQuery.limit(limit)
+    return sqlQuery
 
-def buildQuery(aq, query, q):
+def buildQuery(sqlQuery, query):
     '''
     Builds the query on the SQL alchemy query.
+    
+    @param sqlQuery: SQL alchemy
+        The sql alchemy query to use.
+    @param query: query
+        The REST query object to provide filtering on.
     '''
-    if isclass(query): query = queryFor(query)
-    assert isinstance(query, Query), 'Invalid query %s' % query
-    for crtEnt in query.criteriaEntries.values():
+    queryRest = queryFor(query)
+    assert isinstance(queryRest, Query), 'Invalid query %s, has no REST query' % queryRest
+    for crtEnt in queryRest.criteriaEntries.values():
         assert isinstance(crtEnt, CriteriaEntry)
-        if crtEnt.has(q):
-            crt = crtEnt.get(q)
+        if crtEnt.has(query):
+            crt = crtEnt.get(query)
             if isinstance(crt, AsBoolean):
                 assert isinstance(crt, AsBoolean)
                 if crt.flag is not None:
-                    aq = aq.filter(columnFor(crtEnt) == crt.flag)
+                    sqlQuery = sqlQuery.filter(columnFor(crtEnt) == crt.flag)
             if isinstance(crt, AsLike):
                 assert isinstance(crt, AsLike)
                 if crt.like is not None:
-                    if crt.caseInsensitive: aq = aq.filter(columnFor(crtEnt).ilike(crt.like))
-                    else: aq = aq.filter(columnFor(crtEnt).like(crt.like))
+                    if crt.caseInsensitive: sqlQuery = sqlQuery.filter(columnFor(crtEnt).ilike(crt.like))
+                    else: sqlQuery = sqlQuery.filter(columnFor(crtEnt).like(crt.like))
             if isinstance(crt, AsOrdered):
                 assert isinstance(crt, AsOrdered)
                 if crt.orderAscending is not None:
                     if crt.orderAscending:
-                        aq = aq.order_by(columnFor(crtEnt))
+                        sqlQuery = sqlQuery.order_by(columnFor(crtEnt))
                     else:
-                        aq = aq.order_by(columnFor(crtEnt).desc())
-    return aq
+                        sqlQuery = sqlQuery.order_by(columnFor(crtEnt).desc())
+    return sqlQuery
