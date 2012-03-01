@@ -21,6 +21,7 @@ from zipfile import ZipFile
 import logging
 import os
 from ally.zip.util_zip import normOSPath, normZipPath
+import json
 
 # --------------------------------------------------------------------
 
@@ -93,13 +94,14 @@ class ContentDeliveryHandler(Processor):
             linkPath = entryPath
             while len(linkPath) > len(self.repositoryPath):
                 if isfile(linkPath + self._linkExt):
-                    with open(linkPath + self._linkExt) as f:
-                        linkType = f.readline().strip()
+                    with open(linkPath + self._linkExt) as f: links = json.load(f)
+                    subPath = normOSPath(entryPath[len(linkPath):]).lstrip(sep)
+                    for linkType, *data in links:
                         if linkType in self._linkTypes:
                             # make sure the subpath is normalized and uses the OS separator
-                            subPath = normOSPath(entryPath[len(linkPath):]).lstrip(sep)
                             if not self._isPathDeleted(join(linkPath, subPath)):
-                                rf = self._linkTypes[linkType](f, subPath)
+                                rf = self._linkTypes[linkType](subPath, *data)
+                                if rf is not None: break
                     break
                 subLinkPath = dirname(linkPath)
                 if subLinkPath == linkPath:
@@ -114,13 +116,13 @@ class ContentDeliveryHandler(Processor):
 
     # ----------------------------------------------------------------
 
-    def _processLink(self, fHandler, subPath):
+    def _processLink(self, subPath, linkedFilePath):
         '''
         Reads a link description file and returns a file handler to
         the linked file.
         '''
         # make sure the file path uses the OS separator
-        linkedFilePath = normOSPath(fHandler.readline().strip())
+        linkedFilePath = normOSPath(linkedFilePath)
         if isdir(linkedFilePath):
             resPath = join(linkedFilePath, subPath)
         elif not subPath:
@@ -130,15 +132,15 @@ class ContentDeliveryHandler(Processor):
         if isfile(resPath):
             return open(resPath, 'rb')
 
-    def _processZiplink(self, fHandler, subPath):
+    def _processZiplink(self, subPath, zipFilePath, inFilePath):
         '''
         Reads a link description file and returns a file handler to
         the linked file inside the ZIP archive.
         '''
         # make sure the ZIP file path uses the OS separator
-        zipFilePath = normOSPath(fHandler.readline().strip())
+        zipFilePath = normOSPath(zipFilePath)
         # convert the internal ZIP path to OS format in order to use standard path functions
-        inFilePath = normOSPath(fHandler.readline().strip())
+        inFilePath = normOSPath(inFilePath)
         zipFile = ZipFile(zipFilePath)
         # resource internal ZIP path should be in ZIP format
         resPath = normZipPath(join(inFilePath, subPath))
