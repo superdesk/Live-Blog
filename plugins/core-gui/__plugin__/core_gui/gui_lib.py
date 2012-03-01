@@ -14,7 +14,7 @@ from ally.container import ioc
 from .gui_core import publishLib
 from __plugin__.core_gui.gui_core import getGuiPath, lib_folder_format
 from io import BytesIO
-
+from ally.support.util_io import openURI
 
 # --------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ def publish():
 def updateStartup():
     bootPath = lib_folder_format() % 'core/'
     try:
-        fileList = [open(getGuiPath(js_core_libs_format() % x), 'r+b') for x in js_core_libs()]
+        fileList = [openURI(getGuiPath(js_core_libs_format() % x)) for x in js_core_libs()]
         cdmGUI().publishFromFile(bootPath + js_bootstrap_file(), BytesIO(b'\n'.join([fi.read() for fi in fileList])))
     finally:
         for f in fileList: f.close()
