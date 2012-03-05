@@ -26,7 +26,7 @@ class Action:
     Label = str
     ScriptPath = str
     
-    def __init__(self, Path=None, Label=None, Parent=None):
+    def __init__(self, Path=None, Label=None, Parent=None, ScriptPath=None):
         self.Path = ''
         if Path:
             self.Path = re.compile('[^\w\-\.]', re.ASCII).sub('', Path)
@@ -35,6 +35,8 @@ class Action:
             self.Path = Parent.Path + '.' + self.Path
         if Label:
             self.Label = Label
+        if ScriptPath:
+            self.ScriptPath = ScriptPath
     
 # --------------------------------------------------------------------
 
