@@ -9,7 +9,6 @@ Created on Aug 10, 2011
 Provides the converters for the response content and request content.
 '''
 
-from ally import internationalization
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Processor, ProcessorsChain, Request, Response
 import logging
@@ -17,7 +16,6 @@ import logging
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-_ = internationalization.translator(__name__)
 
 # --------------------------------------------------------------------
 
