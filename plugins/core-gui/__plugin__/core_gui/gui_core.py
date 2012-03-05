@@ -60,14 +60,24 @@ def publishLib(name):
     log.info('published library %s = %s', lib_folder_format() % name, getGuiPath())
     cdmGUI().publishFromDir(lib_folder_format() % name, getGuiPath())
 
+def getPublishedLib(name):
+    '''
+    just to keep other modules from using the cdm and settings from this module...
+    '''
+    return cdmGUI().getURI(lib_folder_format() % name)
+
 def publishGui(name):
     '''
-    Publishes
+    Publishes a gui file, usually implementation files
     '''
     assert isinstance(name, str), 'Invalid name: %s' % name
     log.info('published gui %s = %s', gui_folder_format() % name, getGuiPath())
     cdmGUI().publishFromDir(gui_folder_format() % name, getGuiPath())
-    
-    
+
+def getPublishedGui(name):
+    '''
+    just to keep other modules from using the cdm and settings from this module...
+    '''
+    return cdmGUI().getURI(gui_folder_format() % name)
 
 # --------------------------------------------------------------------
