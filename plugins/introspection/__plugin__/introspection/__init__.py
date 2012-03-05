@@ -1,17 +1,17 @@
 '''
 Created on Jul 15, 2011
 
-@package: SQL alchemy
+@package: introspection
 @copyright: 2011 Sourcefabric o.p.s.
 @license http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Contains the sql alchemy setup files.
+Contains the introspection setup files.
 '''
 
 # --------------------------------------------------------------------
 
-NAME = 'SQL alchemy support'
-GROUP = 'SQL alchemy'
+NAME = 'introspection'
+GROUP = 'development'
 VERSION = '1.0'
-DESCRIPTION = 'Provides the support for SQL alchemy'
+DESCRIPTION = 'Provides the introspection for the application components and plugins'
