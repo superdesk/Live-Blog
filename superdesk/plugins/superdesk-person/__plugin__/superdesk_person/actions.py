@@ -8,10 +8,10 @@ Created on Feb 23, 2012
 '''
 
 from ally.container import ioc
-from actions_gui.api.action import Action
-from __plugin__.actions_gui.service import actionManagerService
+from gui.action.api.action import Action
 import __plugin__.superdesk_user.actions as userActions
-from __plugin__.core_gui.gui_core import getPublishedGui
+from ..gui_core.gui_core import getPublishedGui
+from ..gui_action.service import actionManagerService
 
 # --------------------------------------------------------------------
 
