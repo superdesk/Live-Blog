@@ -15,17 +15,32 @@ $.extend( $,
 			dfd = new $.Deferred;
 		$.ajax(path, {dataType: 'html'}).done(function(html)
 		{ 
-			var templates = []
-			$(html).each(function(i, elem){ if($(elem).is(tplSelector)) templates.push(elem) });
+			var templates = [];
+			$(html).each(function(i, elem){ if($(elem).is(tplSelector)) templates.push(elem); });
 			
-		// ------------------------------ //
+		// ----------------?--------------- //
 			$('head').append(templates);
-		// ------------------------------ //
+		// ----------------?--------------- //
 			
-			dfd.resolve(templates) 
+			dfd.resolve(templates);
 		})
 		return dfd;
+	},
+	/*!
+	 * Loads and applies script to a layout object
+	 * 
+	 * @param scriptPath 
+	 * @param layoutObject 
+	 * @param bool fullPath if true superdesk.apiUrl will not be included
+	 */
+	applyScriptToLayout: function(scriptPath, layoutObject, fullPath)
+	{
+		return $.ajax((!fullPath ? superdesk.apiUrl : '') + '/' + scriptPath, {dataType: 'text'})
+			.done(function(data)
+			{
+				// TODO additional security checking here
+				(new Function('layout', data)).call(null, layoutObject);
+			});
 	}
 });
-
-var superdesk = {}
+var superdesk = new Object;

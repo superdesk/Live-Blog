@@ -1,0 +1,30 @@
+<script type="text/x-jQuery-tmpl" id="tpl-user-update-main">
+<div class="well">
+	<label>Label name</label>
+	<input type="text" class="span3" placeholder="Username" value="{{Name}}">
+	<span class="help-inline">Unique on the system!</span>
+	<label class="checkbox">
+		<input type="checkbox"> Check me out
+    </label>
+</div>
+</script>
+
+<script type="text/x-jQuery-tmpl" id="tpl-user-update-logs">
+<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th>Date</th>
+    		<th>Event</th>
+    	</tr>
+	</thead>
+	<tbody>
+	{% for(var i in logs) %}
+		<tr>
+    		<td>{{logs[i].date}}</td>
+    		<td>{{logs[i].event}}</td>
+    	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+</script>
+
