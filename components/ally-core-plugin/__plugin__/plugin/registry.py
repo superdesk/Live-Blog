@@ -18,7 +18,7 @@ from functools import partial
 
 # --------------------------------------------------------------------
 
-def registerService(service, binders = None):
+def registerService(service, binders=None):
     '''
     A listener to register the service.
     
@@ -39,7 +39,7 @@ def addService(*binders):
     @param binders: arguments[Callable]
         The binders used for the registered services.
     '''
-    return partial(registerService, binders = binders)
+    return partial(registerService, binders=binders)
 
 
 

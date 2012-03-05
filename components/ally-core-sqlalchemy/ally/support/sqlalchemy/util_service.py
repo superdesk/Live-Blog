@@ -10,7 +10,7 @@ Provides utility methods for SQL alchemy service implementations.
 '''
 
 from .mapper import columnFor
-from ally import internationalization
+from ally.internationalization import _, textdomain
 from ally.api.configure import modelFor, queryFor
 from ally.api.criteria import AsLike, AsOrdered, AsBoolean
 from ally.api.operator import Query, CriteriaEntry
@@ -19,7 +19,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 # --------------------------------------------------------------------
 
-_ = internationalization.translator(__name__)
+textdomain('error')
 
 # --------------------------------------------------------------------
 

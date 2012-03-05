@@ -11,7 +11,7 @@ Provides support for SQL alchemy mapper that is able to link the alchemy with RE
 
 from ..util import Attribute
 from .session import openSession
-from ally import internationalization
+from ally.internationalization import _, textdomain
 from ally.api.configure import modelFor, queryFor
 from ally.api.operator import Model, Property, Query, CriteriaEntry
 from ally.api.type import typeFor
@@ -33,10 +33,10 @@ import functools
 
 # --------------------------------------------------------------------
 
-_ = internationalization.translator(__name__)
-
 INDEX_PROP_FK = indexAfter('propFk', INDEX_PROP)
 # Index for foreign key properties
+
+textdomain('error')
 
 # --------------------------------------------------------------------
 

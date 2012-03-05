@@ -8,3 +8,12 @@ Created on Jul 15, 2011
 
 Contains sql alchemy setup files.
 '''
+
+from .. import ally_api
+
+# --------------------------------------------------------------------
+
+NAME = 'ally core sqlalchemy'
+GROUP = ally_api.GROUP
+VERSION = '1.0'
+DESCRIPTION = 'Provides the sql alchemy support for request processing'
