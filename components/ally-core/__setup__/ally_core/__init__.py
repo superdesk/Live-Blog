@@ -8,3 +8,12 @@ Created on Jul 15, 2011
 
 The core of ally py framework for REST.
 '''
+
+from .. import ally_api
+
+# --------------------------------------------------------------------
+
+NAME = 'ally core'
+GROUP = ally_api.GROUP
+VERSION = '1.0'
+DESCRIPTION = 'Provides the core functionality for handling the REST API decorated services and models'

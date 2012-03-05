@@ -1,2 +1,0 @@
-ally.core.
-__setup__.ally.core.

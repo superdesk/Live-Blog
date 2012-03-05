@@ -21,6 +21,7 @@ from io import StringIO
 from tempfile import TemporaryDirectory
 from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath, getZipFilePath
 import logging
+import json
 
 # --------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class IDelivery(metaclass = abc.ABCMeta):
+class IDelivery(metaclass=abc.ABCMeta):
     '''
     Delivery protocol interface
     '''
@@ -200,7 +201,7 @@ class LocalFileSystemCDM(ICDM):
         '''
         return ('http',)
 
-    def getURI(self, path, protocol = 'http'):
+    def getURI(self, path, protocol='http'):
         '''
         @see ICDM.getURI
         '''
@@ -401,18 +402,32 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
 
     def _createLinkToZipFile(self, path, zipFilePath, inFilePath):
         repFilePath = self._getItemPath(path) + self._linkExt
-        fHandler = open(repFilePath, 'w')
-        fHandler.write(self._zipHeader + "\n")
-        fHandler.write(zipFilePath + "\n")
-        fHandler.write(normZipPath(inFilePath) + "\n")
-        fHandler.close()
+        if isfile(repFilePath):
+            with open(repFilePath, 'r') as f: links = json.load(f)
+        else: links = []
+        inFilePath = normZipPath(inFilePath)
+        for k, entry in enumerate(links):
+            if entry and entry[0] == self._zipHeader:
+                if entry[1] == zipFilePath and entry[2] == inFilePath:
+                    if k > 0: links.insert(0, links.pop(k))
+                    break
+        else: links.insert(0, (self._zipHeader, zipFilePath, inFilePath))
+        
+        with open(repFilePath, 'w') as f: json.dump(links, f)
 
     def _createLinkToFileOrDir(self, path, filePath):
         repFilePath = self._getItemPath(path) + self._linkExt
-        fHandler = open(repFilePath, 'w')
-        fHandler.write(self._fsHeader + "\n")
-        fHandler.write(filePath + "\n")
-        fHandler.close()
+        if isfile(repFilePath):
+            with open(repFilePath, 'r') as f: links = json.load(f)
+        else: links = []
+        for k, entry in enumerate(links):
+            if entry and entry[0] == self._fsHeader:
+                if entry[1] == filePath:
+                    if k > 0: links.insert(0, links.pop(k))
+                    break
+        else: links.insert(0, (self._fsHeader, filePath))
+        
+        with open(repFilePath, 'w') as f: json.dump(links, f)
 
     def _publishFromFile(self, path, filePath):
         assert isinstance(path, str) and len(path) > 0, 'Invalid content path %s' % path

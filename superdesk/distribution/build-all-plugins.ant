@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="superdesk-plugins" default="build" basedir=".">
+
+	<property name="root" value="../plugins/"/>
+	<property name="destination" value="./plugins/"/>
+	
+	<import file="../plugins/superdesk/build-plugin.ant" />
+	<import file="../plugins/superdesk-language/build-plugin.ant" />
+	<import file="../plugins/superdesk-address/build-plugin.ant" />
+	
+	<target name="clean" depends="superdesk.clean, superdesk-language.clean, superdesk-address.clean">
+	</target>
+
+	<target name="build" depends="clean, superdesk.build, superdesk-language.build, superdesk-address.build">
+	</target>
+
+</project>

@@ -8,3 +8,12 @@ Created on Jul 15, 2011
 
 The babel converters and internationalization of ally py REST framework.
 '''
+
+from .. import ally_api
+
+# --------------------------------------------------------------------
+
+NAME = 'ally core babel'
+GROUP = ally_api.GROUP
+VERSION = '1.0'
+DESCRIPTION = 'Provides the formatting and translation based on Babel'

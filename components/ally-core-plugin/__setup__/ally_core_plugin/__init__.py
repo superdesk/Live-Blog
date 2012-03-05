@@ -8,3 +8,12 @@ Created on Jul 15, 2011
 
 The plugin support for REST.
 '''
+
+from .. import ally_api
+
+# --------------------------------------------------------------------
+
+NAME = 'ally core plugin'
+GROUP = ally_api.GROUP
+VERSION = '1.0'
+DESCRIPTION = 'Provides the plugin support'

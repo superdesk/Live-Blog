@@ -9,7 +9,7 @@ Created on Aug 10, 2011
 Provides the converters for the response content and request content.
 '''
 
-from ally import internationalization
+from ally.internationalization import dgettext
 from ally.api.type import Type, Percentage, Number, Date, DateTime, Time
 from ally.container.ioc import injected
 from ally.core.spec.codes import INVALID_FORMATING
@@ -25,7 +25,6 @@ import logging
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-_ = internationalization.translator(__name__)
 
 # --------------------------------------------------------------------
 
@@ -182,7 +181,7 @@ class ConverterBabel(Converter):
         if objType.isOf(str):
             return strValue
         if objType.isOf(bool):
-            return strValue.strip().lower() == _('true')
+            return strValue.strip().lower() == dgettext('value', 'true')
         if objType.isOf(Percentage):
             return float(strValue) / 100
         if objType.isOf(Number):
@@ -190,9 +189,9 @@ class ConverterBabel(Converter):
                 return int(strValue)
             return bn.parse_decimal(strValue, self.language)
         if objType.isOf(Date):
-            return datetime.strptime(strValue, _('%Y-%m-%d')).date()
+            return datetime.strptime(strValue, '%Y-%m-%d').date()
         if objType.isOf(Time):
-            return datetime.strptime(strValue, _('%H:%M:%S')).time()
+            return datetime.strptime(strValue, '%H:%M:%S').time()
         if objType.isOf(DateTime):
-            return datetime.strptime(strValue, _('%Y-%m-%d %H:%M:%S'))
+            return datetime.strptime(strValue, '%Y-%m-%d %H:%M:%S')
         raise AssertionError('Invalid object type %s for Babel converter' % objType)
