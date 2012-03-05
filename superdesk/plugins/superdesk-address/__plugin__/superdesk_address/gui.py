@@ -10,7 +10,7 @@ Contains the GUI configuration setup for the node presenter plugin.
 '''
 
 from ally.container import ioc
-from ..core_gui.gui_core import publishGui
+from ..gui_core.gui_core import publishGui
 
 # --------------------------------------------------------------------
 
