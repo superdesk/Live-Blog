@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="introspection" default="build" basedir=".">
+
+	<property name="root" value="../"/>
+	<property name="destination" value="."/>
+	<property name="egg.introspection" value="introspection-1.0-py3.2.egg"/>
+
+	<target name="clean">
+		<delete file="${destination}/${egg.introspection}" />
+	</target>
+
+	<target name="build" depends="clean">
+		<zip destfile="${destination}/${egg.introspection}" basedir="${root}/introspection">
+			<exclude name="**/__pycache__/"/>
+			<exclude name="/.*"/>
+			<exclude name="/*.egg"/>
+		</zip>
+	</target>
+
+</project>

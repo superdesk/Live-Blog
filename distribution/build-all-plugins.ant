@@ -5,13 +5,17 @@
 	<property name="destination" value="./plugins/"/>
 	
 	<import file="../plugins/support-sqlalchemy/build-plugin.ant" />
-	<import file="../plugins/support-plugin/build-plugin.ant" />
-	<import file="../plugins/support-request/build-plugin.ant" />
+	<import file="../plugins/introspection/build-plugin.ant" />
+	<import file="../plugins/introspection-request/build-plugin.ant" />
+	<import file="../plugins/gui-core/build-plugin.ant" />
+	<import file="../plugins/gui-action/build-plugin.ant" />
 	
-	<target name="clean" depends="support-sqlalchemy.clean, support-plugin.clean, support-request.clean">
+	<target name="clean" depends="support-sqlalchemy.clean, introspection.clean, introspection-request.clean,
+		gui-core.clean, gui-action.clean">
 	</target>
 
-	<target name="build" depends="clean, support-sqlalchemy.build, support-plugin.build, support-request.build">
+	<target name="build" depends="clean, support-sqlalchemy.build, introspection.build, introspection-request.build,
+		gui-core.build, gui-action.build">
 	</target>
 
 </project>

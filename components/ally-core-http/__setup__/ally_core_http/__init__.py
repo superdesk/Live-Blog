@@ -10,6 +10,14 @@ Contains setup and configuration files for the HTTP REST server.
 '''
 
 from ally.container import ioc
+from .. import ally_api
+
+# --------------------------------------------------------------------
+
+NAME = 'ally core HTTP'
+GROUP = ally_api.GROUP
+VERSION = '1.0'
+DESCRIPTION = 'Provides the HTTP communication support'
 
 # --------------------------------------------------------------------
 # The default configurations

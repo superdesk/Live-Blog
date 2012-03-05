@@ -9,7 +9,7 @@ Created on Aug 24, 2011
 Provides binding listener function to handle API operators validation.
 '''
 
-from .. import internationalization
+from ..internationalization import _, textdomain
 from ..api.configure import modelFor, serviceFor, queryFor
 from ..api.operator import Property, Model, Query, Service, Call, UPDATE, INSERT
 from ..api.type import Input, TypeModel, TypeProperty, typeFor
@@ -42,7 +42,7 @@ EVENT_VALID_INSERT = 'valid_insert'
 EVENT_VALID_UPDATE = 'valid_update'
 # Listener key used for the update
 
-_ = internationalization.translator(__name__)
+textdomain('error')
 
 # --------------------------------------------------------------------
 
@@ -283,8 +283,8 @@ def onPropertyMaxLength(length, entity, mappedClass, prop, errors):
     if prop.has(entity):
         val = prop.get(entity)
         if isinstance(val, Sized) and len(val) > length:
-            errors.append(Ref(_('Maximum length allowed is $1 but got length $2', length, len(val)),
-                              model=model, property=prop))
+            errors.append(Ref(_('Maximum length allowed is %(maximum)i but got length %(provided)i') %
+                              dict(maximum=length, provided=len(val)), model=model, property=prop))
             return False
 
 def onModel(event, entity, mappedClass):
