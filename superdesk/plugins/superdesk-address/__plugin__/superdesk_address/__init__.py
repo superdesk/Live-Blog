@@ -1,17 +1,17 @@
 '''
 Created on Jul 15, 2011
 
-@package: Superdesk
+@package: Superdesk address
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
-@author: Gabriel Nistor
+@author: Mihai Balaceanu
 
-Contains superdesk setup files.
+Contains the superdesk address setup files.
 '''
 
 # --------------------------------------------------------------------
 
-NAME = 'Superdesk core'
+NAME = 'Superdesk address'
 GROUP = 'Superdesk'
 VERSION = '1.0'
-DESCRIPTION = 'Provides the the Superdesk setups and database configurations'
+DESCRIPTION = 'Provides the the Superdesk address'
