@@ -10,10 +10,11 @@ Provides the meta creation processor handler.
 '''
 
 from ally.api.operator import Model, Property
-from ally.api.type import TypeModel, TypeNone, Iter, TypeProperty, Type
+from ally.api.type import TypeModel, TypeNone, Iter, TypeProperty, Type, \
+    IterPart, List
 from ally.container.ioc import injected
 from ally.core.spec.data_meta import returnSame, MetaLink, MetaValue, MetaModel, \
-    MetaPath, MetaList
+    MetaPath, MetaCollection
 from ally.core.spec.resources import ResourcesManager, Path
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
 from ally.support.api.util_type import isPropertyTypeId
@@ -23,6 +24,9 @@ import logging
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
+
+returnTotal = lambda part: part.total
+# Function that returns the total count of a part.
 
 # --------------------------------------------------------------------
 
@@ -76,17 +80,21 @@ class MetaCreatorHandler(Processor):
         if isinstance(typ, Type):
             if isinstance(typ, Iter):
                 assert isinstance(typ, Iter)
+                
+                if isinstance(typ, IterPart): getTotal = returnTotal
+                else: getTotal = None
+                
                 itype = typ.itemType
                 
                 if isinstance(itype, TypeProperty):
-                    return MetaList(self.metaProperty(itype, resourcePath), returnSame)
+                    return MetaCollection(self.metaProperty(itype, resourcePath), returnSame, getTotal)
                 
                 elif isinstance(itype, TypeModel):
                     assert isinstance(itype, TypeModel)
-                    return MetaList(self.metaModel(itype.model, resourcePath), returnSame)
+                    return MetaCollection(self.metaModel(itype.model, resourcePath), returnSame, getTotal)
                     
                 elif itype.isOf(Path):
-                    return MetaList(MetaLink(returnSame), returnSame)
+                    return MetaCollection(MetaLink(returnSame), returnSame, getTotal)
                 else:
                     
                     assert log.debug('Cannot encode list item object type %r', itype) or True
@@ -133,6 +141,9 @@ class MetaCreatorHandler(Processor):
             assert isinstance(prop, Property)
             return MetaModel(typ.model, getValue, metaLink,
                              {prop.name: self.metaProperty(prop.type, resourcePath)})
+        if isinstance(typ, List):
+            assert isinstance(typ, List)
+            return MetaCollection(MetaValue(typ.itemType, returnSame), getValue)
         return MetaValue(typ, getValue)
 
     def metaModel(self, model, resourcePath, getModel=returnSame):

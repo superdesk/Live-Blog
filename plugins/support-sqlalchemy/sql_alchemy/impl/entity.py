@@ -9,11 +9,11 @@ Created on Jun 23, 2011
 SQL alchemy implementation for the generic entities API.
 '''
 
-from ally import internationalization
+from ally.internationalization import _, textdomain
 from ally.api.configure import modelFor, queryFor
 from ally.api.operator import Model, Query
 from ally.exception import InputException, Ref
-from ally.support.sqlalchemy.helper import buildQuery, buildLimits, handle
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
 from ally.support.sqlalchemy.session import SessionSupport
 from inspect import isclass
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
@@ -22,7 +22,8 @@ import logging
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-_ = internationalization.translator(__name__)
+
+textdomain('error')
 
 # --------------------------------------------------------------------
 
@@ -51,16 +52,63 @@ class EntitySupportAlchemy(SessionSupport):
         self.query = query
         SessionSupport.__init__(self)
     
-    def _buildGetAll(self, filter=None, offset=None, limit=None, q=None):
-        aq = self.session().query(self.Entity)
-        if filter is not None: aq = aq.filter(filter)
-        if q:
+    def _getAll(self, filter=None, query=None, offset=None, limit=None, sqlQuery=None):
+        '''
+        Provides all the entities for the provided filter, with offset and limit. Also if query is known to the
+        service then also a query can be provided.
+        
+        @param filter: SQL alchemy filtering|None
+            The sql alchemy conditions to filter by.
+        @param query: query
+            The REST query object to provide filtering on.
+        @param offset: integer|None
+            The offset to fetch elements from.
+        @param limit: integer|None
+            The limit of elements to get.
+        @param sqlQuery: SQL alchemy|None
+            The sql alchemy query to use.
+        @return: list
+            The list of all filtered and limited elements.
+        '''
+        if limit == 0: return []
+        sqlQuery = sqlQuery or self.session().query(self.Entity)
+        if filter is not None: sqlQuery = sqlQuery.filter(filter)
+        if query:
             assert self.query, 'No query provided for the entity support'
-            assert isinstance(q, self.query.queryClass), \
-            'Invalid query %s, expected class %s' % (q, self.query.queryClass)
-            aq = buildQuery(aq, self.query, q)
-        aq = buildLimits(aq, offset, limit)
-        return aq.all()
+            assert isinstance(query, self.query.queryClass), \
+            'Invalid query %s, expected class %s' % (query, self.query.queryClass)
+            sqlQuery = buildQuery(sqlQuery, query)
+        sqlQuery = buildLimits(sqlQuery, offset, limit)
+        return sqlQuery.all()
+    
+    def _getAllWithTotal(self, filter=None, query=None, offset=None, limit=None, sqlQuery=None):
+        '''
+        Provides all the entities for the provided filter, with offset and limit  and the total count. Also if query is 
+        known to the service then also a query can be provided.
+        
+        @param filter: SQL alchemy filtering|None
+            The sql alchemy conditions to filter by.
+        @param query: query
+            The REST query object to provide filtering on.
+        @param offset: integer|None
+            The offset to fetch elements from.
+        @param limit: integer|None
+            The limit of elements to get.
+        @param sqlQuery: SQL alchemy|None
+            The sql alchemy query to use.
+        @return: tuple(list, integer)
+            The list of all filtered and limited elements and the count of the total elements.
+        '''
+        sqlQuery = sqlQuery or self.session().query(self.Entity)
+        if filter is not None: sqlQuery = sqlQuery.filter(filter)
+        if query:
+            assert self.query, 'No query provided for the entity support'
+            assert isinstance(query, self.query.queryClass), \
+            'Invalid query %s, expected class %s' % (query, self.query.queryClass)
+            sqlQuery = buildQuery(sqlQuery, query)
+        sqlQuery = buildLimits(sqlQuery, offset, limit)
+        if limit == 0: return [], sqlQuery.count()
+        return sqlQuery.all(), sqlQuery.count()
         
 # --------------------------------------------------------------------
 

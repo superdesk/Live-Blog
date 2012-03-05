@@ -13,7 +13,7 @@ from .header import HeaderHTTPBase, VALUES
 from ally.container.ioc import injected
 from ally.core.http.spec import INVALID_HEADER_VALUE
 from ally.core.impl.processor.meta_creator import MetaCreatorHandler
-from ally.core.spec.data_meta import MetaLink, MetaModel, MetaPath, MetaList, \
+from ally.core.spec.data_meta import MetaLink, MetaModel, MetaPath, MetaCollection, \
     MetaFetch
 from ally.core.spec.resources import Normalizer
 from ally.core.spec.server import Request, Response, ProcessorsChain, Processors
@@ -143,10 +143,11 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
         assert isinstance(filterTree, dict), 'Invalid filter dictionary %s' % filterTree
         assert isinstance(first, bool), 'Invalid first flag %s' % first
         
-        if isinstance(meta, MetaList):
+        if isinstance(meta, MetaCollection):
             if isinstance(meta.metaItem, MetaModel):
-                assert isinstance(meta, MetaList)
-                return MetaList(self.filterMeta(meta.metaItem, normalize, createFetcher, filterTree), meta.getItems)
+                assert isinstance(meta, MetaCollection)
+                return MetaCollection(self.filterMeta(meta.metaItem, normalize, createFetcher, filterTree),
+                                      meta.getItems, meta.getTotal)
             
         elif isinstance(meta, MetaModel):
             assert isinstance(meta, MetaModel)

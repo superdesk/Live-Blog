@@ -134,24 +134,22 @@ class ResourcesManagerImpl(ResourcesManager):
         index = len(fromPath.matches) - 1
         while index >= 0:
             node = fromPath.matches[index].node
-            assert isinstance(node, Node)
-            if isinstance(node, NodeModel) and node.model == model:
-                for nodeProperty in node.childrens():
-                    if isinstance(nodeProperty, NodeProperty) and nodeProperty.get is not None:
-                        matches = []
-                        pushMatch(matches, nodeProperty.newMatch())
-                        path = PathExtended(fromPath, matches, nodeProperty, index + 1)
-                        return path
+            if isinstance(node, NodePath):
+                nodeProperty = self._findGetNode(node, model)
+                if nodeProperty:
+                    matches = []
+                    pushMatch(matches, nodeProperty.newMatch())
+                    path = PathExtended(fromPath, matches, nodeProperty, index + 1)
+                    return path
             for child in node.childrens():
-                assert isinstance(child, Node)
-                if isinstance(child, NodeModel) and child.model == model:
-                    for nodeId in child.childrens():
-                        if isinstance(nodeId, NodeProperty) and nodeId.get is not None:
-                            matches = []
-                            pushMatch(matches, child.newMatch())
-                            pushMatch(matches, nodeId.newMatch())
-                            path = PathExtended(fromPath, matches, nodeId, index + 1)
-                            return path
+                if isinstance(child, NodePath):
+                    nodeId = self._findGetNode(child, model)
+                    if nodeId:
+                        matches = []
+                        pushMatch(matches, child.newMatch())
+                        pushMatch(matches, nodeId.newMatch())
+                        path = PathExtended(fromPath, matches, nodeId, index + 1)
+                        return path
             index -= 1
         return None
         
@@ -199,3 +197,17 @@ class ResourcesManagerImpl(ResourcesManager):
         if modelObject:
             for path in paths: path.update(modelObject, model)
         return paths
+
+    # ----------------------------------------------------------------
+    
+    def _findGetNode(self, node, model):
+        '''
+        Utility method to extract the get property node.
+        '''
+        assert isinstance(node, NodePath)
+        assert isinstance(model, Model)
+        if node.name == model.name:
+            for nodeId in node.childrens():
+                if isinstance(nodeId, NodeProperty):
+                    assert isinstance(nodeId, NodeProperty)
+                    if nodeId.get is not None and nodeId.typeProperty.model == model: return nodeId
