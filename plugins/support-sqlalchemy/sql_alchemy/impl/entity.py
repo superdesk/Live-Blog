@@ -9,7 +9,7 @@ Created on Jun 23, 2011
 SQL alchemy implementation for the generic entities API.
 '''
 
-from ally import internationalization
+from ally.internationalization import _, textdomain
 from ally.api.configure import modelFor, queryFor
 from ally.api.operator import Model, Query
 from ally.exception import InputException, Ref
@@ -22,7 +22,8 @@ import logging
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-_ = internationalization.translator(__name__)
+
+textdomain('error')
 
 # --------------------------------------------------------------------
 
