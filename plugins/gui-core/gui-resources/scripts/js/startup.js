@@ -25,12 +25,36 @@ $.extend( $,
 			dfd.resolve(templates);
 		})
 		return dfd;
+	}
+});
+var superdesk = 
+{
+	layouts: {},
+	/*!
+	 * load layout to superdesk object layouts
+	 * @param string path layout path
+	 * @param string name layout name
+	 */
+	loadLayout: function(path, name)
+	{
+		return $.ajax( superdesk.apiUrl+path, {dataType: 'html'})
+			.done(function(data)
+			{
+				// need to wrap it in a <div /> tag for $ selector to work
+				var layoutObject = $('<div>'+data+'</div>');
+				if( typeof name == 'string')
+					superdesk.layouts[name] = layoutObject;
+				else
+					name = layoutObject;
+				
+				return layoutObject;
+			});
 	},
 	/*!
 	 * Loads and applies script to a layout object
 	 * 
-	 * @param scriptPath 
-	 * @param layoutObject 
+	 * @param string scriptPath 
+	 * @param object layoutObject 
 	 * @param bool fullPath if true superdesk.apiUrl will not be included
 	 */
 	applyScriptToLayout: function(scriptPath, layoutObject, fullPath)
@@ -42,5 +66,4 @@ $.extend( $,
 				(new Function('layout', data)).call(null, layoutObject);
 			});
 	}
-});
-var superdesk = new Object;
+};

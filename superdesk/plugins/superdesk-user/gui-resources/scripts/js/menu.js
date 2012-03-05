@@ -7,7 +7,7 @@ $(function()
 			{
 				if(this.Path == 'modules.user.update' && this.ScriptPath)
 				{
-					$.applyScriptToLayout(this.ScriptPath, superdesk.layouts.update)
+					superdesk.applyScriptToLayout(this.ScriptPath, superdesk.layouts.update)
 					return false;
 				}
 			})
