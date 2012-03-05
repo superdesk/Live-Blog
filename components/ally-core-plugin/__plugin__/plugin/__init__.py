@@ -8,3 +8,10 @@ Created on Jul 15, 2011
 
 The plugin support for REST.
 '''
+
+# --------------------------------------------------------------------
+
+NAME = 'ally core plugin'
+GROUP = 'ally'
+VERSION = '1.0'
+DESCRIPTION = 'Provides the plugin support'
