@@ -8,20 +8,21 @@ Created on Feb 23, 2012
 '''
 
 from ally.container import ioc
-from actions_gui.api.action import Action
-from __plugin__.actions_gui.service import actionManagerService
-from __plugin__.actions_gui import defaults
-from __plugin__.core_gui.gui_core import getPublishedGui
-from ally.internationalization import translator
+from gui.action.api.action import Action
+from ..gui_action.service import actionManagerService
+from ..gui_action import defaults
+from ..gui_core.gui_core import getPublishedGui
+from ally.internationalization import N_, textdomain
 
 # --------------------------------------------------------------------
 
-_ = translator(__name__)
+textdomain('actions')
+
 # --------------------------------------------------------------------
 
 @ioc.entity   
 def menuAction():
-    return Action('user', Parent=defaults.menuAction(), Label=_('Users'), ScriptPath=getPublishedGui('superdesk/user/scripts/js/menu.js'))
+    return Action('user', Parent=defaults.menuAction(), Label=N_('Users'), ScriptPath=getPublishedGui('superdesk/user/scripts/js/menu.js'))
 
 @ioc.entity   
 def modulesAction():
