@@ -8,9 +8,10 @@ Created on Jan 17, 2012
 
 Provides utility functions for handling I/O operations.
 '''
+
 from ally.zip.util_zip import normOSPath, getZipFilePath, ZIPSEP
-from zipfile import ZipFile, is_zipfile
-from os.path import isfile, dirname
+from os.path import isfile
+from zipfile import ZipFile
 
 # --------------------------------------------------------------------
 

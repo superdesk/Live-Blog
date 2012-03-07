@@ -36,7 +36,7 @@ import functools
 INDEX_PROP_FK = indexAfter('propFk', INDEX_PROP)
 # Index for foreign key properties
 
-textdomain('error')
+textdomain('errors')
 
 # --------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ def mapperQuery(queryClass, sql):
             assert isinstance(crtEntry, CriteriaEntry)
             mapping = getattr(mappedClass, crtEntry.name, None)
             if mapping is not None:
-                if typeFor(mapping) is None: typeFor(mapping, query.typeCriteriaEntries[name])
+                if typeFor(mapping) is None: typeFor(mapping, query.typeCriteriaEntries[crtEntry.name])
                 columnFor(mapping, column)
         
     return mappedClass
@@ -272,7 +272,7 @@ def onPropertyForeignKey(foreignColumn, entity, mappedClass, prop, errors):
 
 def addLoadListener(mappedClass, listener):
     '''
-    Adds a load listener that will get notified every time a entity is loaded.
+    Adds a load listener that will get notified every time the mapped class entity is loaded.
     
     @param mappedClass: class
         The model mapped class to add the listener to.
@@ -280,8 +280,47 @@ def addLoadListener(mappedClass, listener):
         A function that has to take as parameter the model instance that has been loaded.
     '''
     assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
+    assert callable(listener), 'Invalid listener %s' % listener
     def onLoad(target, *args): listener(target)
     event.listen(mappedClass, 'load', onLoad)
+    
+def addInsertListener(mappedClass, listener, before=True):
+    '''
+    Adds an insert listener that will get notified every time the mapped class entity is inserted.
+    
+    @param mappedClass: class
+        The model mapped class to add the listener to.
+    @param listener: callable(object)
+        A function that has to take as parameter the model instance that will be or has been inserted.
+    @param before: boolean
+        If True the listener will be notified before the insert occurs, if False will be notified after.
+    '''
+    mapper = mapperFor(mappedClass)
+    assert isinstance(mapper, Mapper), 'Invalid mapped class %s, has no valid mapper %s' % (mappedClass, mapper)
+    assert callable(listener), 'Invalid listener %s' % listener
+    assert isinstance(before, bool), 'Invalid before flag %s' % before
+    def onInsert(mapper, conn, target): listener(target)
+    if before: event.listen(mapper, 'before_insert', onInsert)
+    else: event.listen(mapper, 'after_insert', onInsert)
+    
+def addUpdateListener(mappedClass, listener, before=True):
+    '''
+    Adds an update listener that will get notified every time the mapped class entity is update.
+    
+    @param mappedClass: class
+        The model mapped class to add the listener to.
+    @param listener: callable(object)
+        A function that has to take as parameter the model instance that will be or has been update.
+    @param before: boolean
+        If True the listener will be notified before the update occurs, if False will be notified after.
+    '''
+    mapper = mapperFor(mappedClass)
+    assert isinstance(mapper, Mapper), 'Invalid mapped class %s, has no valid mapper %s' % (mappedClass, mapper)
+    assert callable(listener), 'Invalid listener %s' % listener
+    assert isinstance(before, bool), 'Invalid before flag %s' % before
+    def onUpdate(mapper, conn, target): listener(target)
+    if before: event.listen(mapper, 'before_update', onUpdate)
+    else: event.listen(mapper, 'after_update', onUpdate)
 
 ATTR_SQL_MAPPINGS = Attribute(__name__, 'mappings', dict)
 # Attribute used to store the meta mappings.
@@ -297,7 +336,6 @@ def mappingsOf(meta):
     assert isinstance(meta, MetaData), 'Invalid meta %s' % meta
     if ATTR_SQL_MAPPINGS.hasOwn(meta): return ATTR_SQL_MAPPINGS.get(meta)
     return ATTR_SQL_MAPPINGS.set(meta, {})
-    
 
 ATTR_SQL_MAPPER = Attribute(__name__, 'mapper', Mapper)
 # Attribute used to store the mapper.

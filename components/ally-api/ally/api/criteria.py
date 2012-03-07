@@ -67,10 +67,22 @@ configure.DEFAULT_CONDITIONS.append('like')
 @criteria
 class AsLike(AsOrdered):
     '''
-    Provides query for properties that can be managed by a like function.
+    Provides query for properties that can be managed by a like function, this will only handle string types
     '''
     like = str
     caseInsensitive = bool
+
+# --------------------------------------------------------------------
+
+# register as a default condition for descriptors the equal
+configure.DEFAULT_CONDITIONS.append('equal')
+
+@criteria
+class AsEqual(AsOrdered):
+    '''
+    Provides query for properties that can be managed by a equal function, this will only handle string types.
+    '''
+    equal = str
 
 # --------------------------------------------------------------------
 

@@ -171,8 +171,8 @@ def bindSession(proxy, sessionCreator):
     registerProxyBinder(proxy)
     
     def begin(*args): beginWith(sessionCreator)
-    def end(*args): endCurrent(commit)
-    def exception(*args): endCurrent(rollback)
+    def end(returned): endCurrent(commit)
+    def exception(exception): endCurrent(rollback)
     
     bindBeforeListener(proxy, begin, index=INDEX_SESSION_BEGIN)
     bindAfterListener(proxy, end, index=INDEX_SESSION_END)
