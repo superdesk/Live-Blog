@@ -9,14 +9,12 @@ Created on Mar 5, 2012
 API specifications for localized messages sources.
 '''
 
+from .file import File, QFile
 from ally.api.config import service, query
-from ally.api.criteria import AsLike, AsEqual
+from ally.api.criteria import AsEqual
 from ally.internationalization import N_, textdomain
 from introspection.api import modelDevel
-from introspection.api.plugin import Plugin
 from sql_alchemy.api.entity import Entity, QEntity, IEntityService
-from introspection.api.component import Component
-from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -32,26 +30,19 @@ TYPES = (TYPE_PYTHON, TYPE_JAVA_SCRIPT)
 # --------------------------------------------------------------------
 
 @modelDevel
-class Source(Entity):
+class Source(File):
     '''
     Model for the source of the message, basically a file reference.
     '''
-    Component = Component.Id
-    Plugin = Plugin.Id
-    Path = str
     Type = str
-    LastModified = datetime
     
 # --------------------------------------------------------------------
 
 @query
-class QSource(QEntity):
+class QSource(QFile):
     '''
     Provides the query for the source.
     '''
-    component = AsLike
-    plugin = AsLike
-    path = AsLike
     type = AsEqual
 
 # --------------------------------------------------------------------
@@ -59,5 +50,5 @@ class QSource(QEntity):
 @service((Entity, Source), (QEntity, QSource))
 class ISourceService(IEntityService):
     '''
-    The source service.
+    The sources service.
     '''
