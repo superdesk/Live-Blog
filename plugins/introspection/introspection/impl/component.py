@@ -9,9 +9,8 @@ Created on Mar 4, 2012
 Implementation for the components introspection.
 '''
 
-from ally.internationalization import dgettext
+from ally.internationalization import _, textdomain
 from ally.api.model import Part
-from ally.container import wire
 from ally.container.aop import modulesIn
 from ally.container.ioc import injected
 from ally.exception import InputException, Ref
@@ -22,14 +21,18 @@ import sys
 
 # --------------------------------------------------------------------
 
+textdomain('errors')
+
+# --------------------------------------------------------------------
+
 @injected
 class ComponentService(IComponentService):
     '''
     Provides the implementation for @see: IComponentService.
     '''
     
-    package = '__setup__'; wire.config('package', doc=
-    'The top package where the components are configured')
+    package = '__setup__'
+    # The top package where the components are configured
     
     def __init__(self):
         '''
@@ -43,10 +46,10 @@ class ComponentService(IComponentService):
         '''
         assert isinstance(id, str), 'Invalid id %s' % id
         modules = modulesIn('%s.%s' % (self.package, id)).asList()
-        if len(modules) != 1: raise InputException(Ref(dgettext('error', 'Invalid component id'), ref=Component.Id))
+        if len(modules) != 1: raise InputException(Ref(_('Invalid component id'), ref=Component.Id))
         return self.componentFor(modules[0])
     
-    def getComponents(self, offset, limit):
+    def getComponents(self, offset=None, limit=None):
         '''
         @see: IComponentService.getComponents
         '''
