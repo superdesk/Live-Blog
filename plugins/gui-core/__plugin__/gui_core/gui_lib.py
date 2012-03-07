@@ -30,7 +30,7 @@ def js_core_libs():
 @ioc.config
 def js_bootstrap_file():
     ''' The javascript core libraries '''
-    return 'startup.js'
+    return 'scripts/js/startup.js'
 
 # --------------------------------------------------------------------
 

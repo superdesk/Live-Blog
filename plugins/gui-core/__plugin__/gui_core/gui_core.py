@@ -29,7 +29,7 @@ def lib_folder_format():
 @ioc.config
 def gui_folder_format():
     ''' describes where the gui files are published '''
-    return 'front/%s'
+    return 'gui/%s'
 
 # --------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ def getGuiPath(file=None):
     moduleName, modulePath = gl['__name__'], gl['__file__']
     for _k in range(0, moduleName.count('.') + 1):
         modulePath = os.path.dirname(modulePath)
-    path = os.path.join(modulePath, gui_folder_format() % '')
+    path = os.path.join(modulePath, 'gui-resources')
     if file: 
         path = os.path.join(path, file.replace('/', os.sep))
     return path
@@ -59,10 +59,26 @@ def publishLib(name):
     log.info('published library %s = %s', lib_folder_format() % name, getGuiPath())
     cdmGUI().publishFromDir(lib_folder_format() % name, getGuiPath())
 
+def getPublishedLib(name):
+    '''
+    Get CDM a published library path
+    
+    just to keep other modules from using the cdm and settings from this module...
+    '''
+    return cdmGUI().getURI(lib_folder_format() % name)
+
 def publishGui(name):
     '''
-    Publishes
+    Publishes a gui file, usually implementation files
     '''
     assert isinstance(name, str), 'Invalid name: %s' % name
     log.info('published gui %s = %s', gui_folder_format() % name, getGuiPath())
     cdmGUI().publishFromDir(gui_folder_format() % name, getGuiPath())
+
+def getPublishedGui(name):
+    '''
+    Get CDM a published GUI path
+    
+    just to keep other modules from using the cdm and settings from this module...
+    '''
+    return cdmGUI().getURI(gui_folder_format() % name)
