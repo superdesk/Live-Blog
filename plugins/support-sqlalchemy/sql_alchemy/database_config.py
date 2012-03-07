@@ -13,6 +13,11 @@ from ally.container import ioc
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm.session import sessionmaker
+import logging
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -43,4 +48,6 @@ def metas(): return []
 @ioc.start
 def createTables():
     if alchemy_create_tables():
-        for meta in metas(): meta.create_all(alchemyEngine())
+        for meta in metas():
+            log.info('Create tables for meta %s', meta)
+            meta.create_all(alchemyEngine())

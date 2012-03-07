@@ -103,7 +103,7 @@ class DecodingTextHandler(DecodingTextBaseHandler):
                 try:
                     prop.set(mi, converter.asValue(content, prop.type))
                 except ValueError:
-                    errors.append(Ref(dgettext('error', 'Invalid value, expected %(type)s type') % 
+                    errors.append(Ref(dgettext('errors', 'Invalid value, expected %(type)s type') % 
                                       dict(type=_(str(prop.type))), model=model, property=prop))
                     assert log.debug('Problems setting property %r from JSON value %s', propName, content) or True
         if len(obj) > 0: raise DevelException('Unknown keys %r' % ', '.join(str(key) for key in obj.keys()))

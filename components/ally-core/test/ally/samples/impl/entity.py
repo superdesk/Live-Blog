@@ -9,7 +9,6 @@ Created on Jun 23, 2011
 SQL alchemy implementation for the generic entities API.
 '''
 
-from ally.internationalization import dgettext
 from ally.api.configure import modelFor, ServiceSupport
 from ally.api.operator import Model
 from ally.exception import InputException, Ref
@@ -48,7 +47,7 @@ class EntityGetService(EntitySupport):
         @see: IEntityGetService.getById
         '''
         entity = self._entityById.get(id)
-        if not entity: raise InputException(Ref(dgettext('error', 'Unknown id'), ref=self.Entity.Id))
+        if not entity: raise InputException(Ref('Unknown id', ref=self.Entity.Id))
         return entity
 
 class EntityFindService(EntitySupport):
