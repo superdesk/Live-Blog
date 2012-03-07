@@ -11,9 +11,8 @@ The scanner used for extracting the localized text messages.
 
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.internationalization import textdomain
-from babel.messages.extract import extract_nothing, extract_python, GROUP_NAME, \
-    _strip_comment_tags, empty_msgid_warning
+from babel.messages.extract import extract_nothing, extract_python, \
+    _strip_comment_tags, empty_msgid_warning, extract_javascript
 from babel.util import pathmatch
 from datetime import datetime
 from functools import partial
@@ -27,6 +26,7 @@ from os import path
 from zipfile import ZipFile
 import logging
 import os
+from io import TextIOWrapper
 
 # --------------------------------------------------------------------
 
@@ -34,10 +34,12 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-METHOD_MAP = [('**.py', 'python')]#, ('**.js', 'javascript'), ('**.html', 'javascript')]
+METHOD_MAP = [('**.py', 'python'), ('**.js', 'javascript'), ('**.html', 'javascript')]
 # A list of ``(pattern, method)`` tuples that maps of extraction method names to extended global patterns
+METHOD_EXTRACTOR = {'ignore': extract_nothing, 'python': extract_python, 'javascript': extract_javascript}
+# The modethod extractors to be used.
 
-DOMAIN_DEFAULT = textdomain()
+DOMAIN_DEFAULT = 'messages'
 # The default domain used.
 LOCALE_DEFAULT = 'en'
 # The default locale.
@@ -280,9 +282,9 @@ def process(openFile, method, overall):
     assert callable(openFile), 'Invalid open file function %s' % openFile
     assert isinstance(method, str), 'Invalid method %s' % method
     assert isinstance(overall, dict), 'Invalid overall %s' % overall
-
+    
     with openFile() as fileObj:
-        for fname, lineno, message, comments in extract(method, fileObj):
+        for fname, lineno, message, comments in extract(method, TextIOWrapper(fileObj)):
             domain, cntxt = overall['domain'], None
             if fname == 'textlocale':
                 assert isinstance(message, str), 'Invalid message %s' % message
@@ -327,17 +329,7 @@ def extract(method, fileobj, keywords=KEYWORDS, comment_tags=COMMENT_TAGS, optio
             module, attrname = method.split(':', 1)
         func = getattr(__import__(module, {}, {}, [attrname]), attrname)
     else:
-        try:
-            from pkg_resources import working_set
-        except ImportError:
-            # pkg_resources is not available, so we resort to looking up the
-            # builtin extractors directly
-            builtin = {'ignore': extract_nothing, 'python': extract_python}
-            func = builtin.get(method)
-        else:
-            for entry_point in working_set.iter_entry_points(GROUP_NAME, method):
-                func = entry_point.load(require=True)
-                break
+        func = METHOD_EXTRACTOR.get(method)
     if func is None:
         raise ValueError('Unknown extraction method %r' % method)
 
