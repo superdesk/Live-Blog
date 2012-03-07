@@ -19,8 +19,8 @@ from superdesk.meta import meta
 # --------------------------------------------------------------------
 
 table = Table('language', meta,
-               Column('id', INTEGER(unsigned=True), primary_key=True, key='Id'),
-               Column('code', String(20), nullable=False, unique=True, key='Code'),
-               mysql_engine='InnoDB', mysql_charset='utf8')
+              Column('id', INTEGER(unsigned=True), primary_key=True, key='Id'),
+              Column('code', String(20), nullable=False, unique=True, key='Code'),
+              mysql_engine='InnoDB', mysql_charset='utf8')
 
 LanguageEntity = mapperModel(LanguageEntity, table)

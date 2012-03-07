@@ -18,6 +18,7 @@ from ally.core.spec.server import Processors, Processor
 from cdm.impl.local_filesystem import IDelivery, LocalFileSystemCDM, \
     HTTPDelivery
 from cdm.spec import ICDM
+from os import path
 import re
 
 # --------------------------------------------------------------------
@@ -35,7 +36,7 @@ def server_uri():
 @ioc.config
 def repository_path():
     ''' The repository absolute or relative (to the distribution folder) path '''
-    return 'workspace'
+    return path.join('workspace', 'cdm')
 
 # --------------------------------------------------------------------
 # Creating the content delivery managers

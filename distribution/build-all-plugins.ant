@@ -9,13 +9,14 @@
 	<import file="../plugins/introspection-request/build-plugin.ant" />
 	<import file="../plugins/gui-core/build-plugin.ant" />
 	<import file="../plugins/gui-action/build-plugin.ant" />
+	<import file="../plugins/internationalization/build-plugin.ant" />
 	
 	<target name="clean" depends="support-sqlalchemy.clean, introspection.clean, introspection-request.clean,
-		gui-core.clean, gui-action.clean">
+		gui-core.clean, gui-action.clean, internationalization.clean">
 	</target>
 
 	<target name="build" depends="clean, support-sqlalchemy.build, introspection.build, introspection-request.build,
-		gui-core.build, gui-action.build">
+		gui-core.build, gui-action.build, internationalization.build">
 	</target>
 
 </project>
