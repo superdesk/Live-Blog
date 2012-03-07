@@ -9,9 +9,8 @@ Created on Mar 4, 2012
 Implementation for the components introspection.
 '''
 
-from ally.internationalization import dgettext
+from ally.internationalization import _, textdomain
 from ally.api.model import Part
-from ally.container import wire
 from ally.container.aop import modulesIn
 from ally.container.ioc import injected
 from ally.exception import InputException, Ref
@@ -22,14 +21,18 @@ import sys
 
 # --------------------------------------------------------------------
 
+textdomain('errors')
+
+# --------------------------------------------------------------------
+
 @injected
 class PluginService(IPluginService):
     '''
     Provides the implementation for @see: IPluginService.
     '''
     
-    package = '__plugin__'; wire.config('package', doc=
-    'The top package where the plugins are configured')
+    package = '__plugin__'
+    # The top package where the plugins are configured
     
     def __init__(self):
         '''
@@ -43,10 +46,10 @@ class PluginService(IPluginService):
         '''
         assert isinstance(id, str), 'Invalid id %s' % id
         modules = modulesIn('%s.%s' % (self.package, id)).asList()
-        if len(modules) != 1: raise InputException(Ref(dgettext('error', 'Invalid plugin id'), ref=Plugin.Id))
+        if len(modules) != 1: raise InputException(Ref(_('Invalid plugin id'), ref=Plugin.Id))
         return self.pluginFor(modules[0])
     
-    def getPlugins(self, offset, limit):
+    def getPlugins(self, offset=None, limit=None):
         '''
         @see: IPluginService.getPlugins
         '''
