@@ -43,7 +43,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         self._locales = OrderedDict([(code, Locale.parse(code)) for code in locale_identifiers()])
         validateProperty(LanguageEntity.Code, self._validateCode)
     
-    def getByCode(self, code, translate):
+    def getByCode(self, code, translate=None):
         '''
         @see: ILanguageService.getByCode
         '''
@@ -52,7 +52,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         if not locale: raise InputException(Ref(_('Unknown code'), ref=Language.Code))
         return self._populate(Language(code), self._translator(locale, self._localesOf(translate)))
 
-    def getAllAvailable(self, offset, limit, q, translate):
+    def getAllAvailable(self, offset=None, limit=None, q=None, translate=None):
         '''
         @see: ILanguageService.getAllAvailable
         '''
@@ -76,7 +76,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         return Part((self._populate(Language(code), self._translator(locale, locales))
                          for code, locale in languages), len(self._locales))
     
-    def getById(self, id, translate):
+    def getById(self, id, translate=None):
         '''
         @see: ILanguageService.getById
         '''
@@ -85,7 +85,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         language = super().getById(id)
         return self._populate(language, self._translator(self._localeOf(language.Code), locales))
     
-    def getAll(self, offset, limit, translate):
+    def getAll(self, offset=None, limit=None, translate=None):
         '''
         @see: ILanguageService.getAll
         '''

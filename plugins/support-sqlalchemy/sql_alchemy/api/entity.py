@@ -88,7 +88,7 @@ class IEntityCRUDService:
     '''
     
     @call
-    def insert(self, entity:Entity)->Entity.Id:
+    def insert(self, entity:Entity) -> Entity.Id:
         '''
         Insert the entity.
         
@@ -100,7 +100,7 @@ class IEntityCRUDService:
         '''
         
     @call
-    def update(self, entity:Entity)->None:
+    def update(self, entity:Entity) -> None:
         '''
         Update the entity.
         
@@ -109,7 +109,7 @@ class IEntityCRUDService:
         '''
         
     @call
-    def delete(self, id:Entity.Id)->bool:
+    def delete(self, id:Entity.Id) -> bool:
         '''
         Delete the entity for the provided id.
         
@@ -118,7 +118,13 @@ class IEntityCRUDService:
             
         @return: True if the delete is successful, false otherwise.
         '''
-        
+
+@service
+class IEntityGetCRUDService(IEntityGetService, IEntityCRUDService):
+    '''
+    Provides the get and CRUD.
+    '''
+   
 @service
 class IEntityNQService(IEntityGetService, IEntityFindService, IEntityCRUDService):
     '''

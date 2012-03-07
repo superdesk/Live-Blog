@@ -9,7 +9,21 @@ Created on May 26, 2011
 Provides internationalization support.
 '''
 
+import gettext as pygettext
+
 # --------------------------------------------------------------------
+
+def textlocale(locale=None):
+    '''
+    Change or query the current global locale. If locale is None, then the current global locale is returned, otherwise
+    the global locale is set to locale, which is returned.
+    
+    @param locale: string|None
+        The locale to set, if None will return the current locale.
+    @return: string|None
+        None if the locale has been set, otherwise the current locale.
+    '''
+    assert locale is None or isinstance(locale, str), 'Invalid locale %s' % locale
 
 def gettext(msg):
     '''
@@ -46,6 +60,7 @@ def textdomain(domain=None):
         None if the domain has been set, otherwise the current domain.
     '''
     assert domain is None or isinstance(domain, str), 'Invalid domain %s' % domain
+    return pygettext.textdomain(domain)
 
 def dgettext(domain, msg):
     '''

@@ -15,6 +15,7 @@ from ally.core.spec.resources import ResourcesManager
 from cdm.impl.local_filesystem import LocalFileSystemLinkCDM, HTTPDelivery
 from cdm.spec import ICDM
 from functools import partial
+from os import path
 
 # --------------------------------------------------------------------
 
@@ -53,7 +54,7 @@ def gui_server_url():
 @ioc.config
 def gui_repository_path():
     ''' The repository absolute or relative (to the distribution folder) path '''
-    return 'workspace'
+    return path.join('workspace', 'cdm')
 
 # --------------------------------------------------------------------
 

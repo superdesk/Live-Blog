@@ -181,7 +181,7 @@ class ConverterBabel(Converter):
         if objType.isOf(str):
             return strValue
         if objType.isOf(bool):
-            return strValue.strip().lower() == dgettext('value', 'true')
+            return strValue.strip().lower() == dgettext('values', 'true')
         if objType.isOf(Percentage):
             return float(strValue) / 100
         if objType.isOf(Number):
