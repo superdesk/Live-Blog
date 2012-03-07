@@ -32,7 +32,7 @@ import re
 
 # --------------------------------------------------------------------
 
-textdomain('error')
+textdomain('errors')
 
 # --------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ class RequestService(IRequestService):
         
     def getRequest(self, id):
         '''
-        @see: IRequestIntrospectService.getRequest
+        @see: IRequestService.getRequest
         '''
         self._refresh()
         if id not in self._requests: raise InputException(Ref(_('Invalid request id'), ref=Request.Id))
@@ -71,24 +71,24 @@ class RequestService(IRequestService):
     
     def getMethod(self, id):
         '''
-        @see: IRequestIntrospectService.getMethod
+        @see: IRequestService.getMethod
         '''
         self._refresh()
         if id not in self._methods: raise InputException(Ref(_('Invalid method id'), ref=Method.Id))
         return self._methods[id]
     
-    def getAllInputs(self, id, offset, limit):
+    def getAllInputs(self, id, offset=None, limit=None):
         '''
-        @see: IRequestIntrospectService.getAllInputs
+        @see: IRequestService.getAllInputs
         '''
         self._refresh()
         if not id: return self._inputs.values()
         if id not in self._patternInputs: raise InputException(Ref(_('Invalid request id'), ref=Request.Id))
         return (self._inputs[inpId] for inpId in self._patternInputs[id]) 
     
-    def getAllRequests(self, offset, limit):
+    def getAllRequests(self, offset=None, limit=None):
         '''
-        @see: IRequestIntrospectService.getAllRequests
+        @see: IRequestService.getAllRequests
         '''
         self._refresh()
         values = self._requests.values()
@@ -174,7 +174,7 @@ class RequestService(IRequestService):
             assert isinstance(typProp, TypeProperty)
             assert isinstance(typProp.property, Property)
             assert isinstance(typProp.model, Model)
-            inp.Description = dgettext('message', 'The %(type)s of %(model)s %(description)s') % \
+            inp.Description = dgettext('messages', 'The %(type)s of %(model)s %(description)s') % \
                         dict(type=dgettext('value', typProp.property.name), model=dgettext('value', typProp.model.name),
                         description=re.sub('[\s]+', ' ', getdoc(typProp.model.modelClass) or '...'))
         else:
