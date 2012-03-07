@@ -42,7 +42,7 @@ EVENT_VALID_INSERT = 'valid_insert'
 EVENT_VALID_UPDATE = 'valid_update'
 # Listener key used for the update
 
-textdomain('error')
+textdomain('errors')
 
 # --------------------------------------------------------------------
 
