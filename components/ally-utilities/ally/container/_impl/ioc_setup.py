@@ -227,23 +227,12 @@ class SetupConfig(SetupSource):
     Provides the configuration setup.
     '''
     
-    priority_assemble = 2
+    priority_assemble = 3
     
-    def __init__(self, function, aliases=None, **keyargs):
+    def __init__(self, function, **keyargs):
         '''
         @see: SetupSource.__init__
-        
-        @param aliases: tuple(string)|list(string)
-            The alias(es) for this configuration, all the the configurations found that have the provided aliases will 
-            point to this configuration setup, is like a replace for entity but it is able to replace multiple 
-            configurations and if the alias is not found in the assembly is simply ignored.
         '''
-        if aliases:
-            assert isinstance(aliases, (tuple, list)), 'Invalid aliases %s' % aliases
-            if __debug__:
-                for name in aliases: assert isinstance(name, str), 'Invalid alias name %s' % name
-            self._aliases = list(aliases)
-        else: self._aliases = []
         SetupSource.__init__(self, function, **keyargs)
         self._type = normalizeConfigType(self._type) if self._type else None
     
@@ -254,25 +243,8 @@ class SetupConfig(SetupSource):
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         if self._name in assembly.calls:
             raise SetupError('There is already a setup call for name %r' % self._name)
-        hasValue, value = False, None
-        for name, val in assembly.configExtern.items():
-            if name == self._name or self._name.endswith('.' + name):
-                if name in assembly.configUsed:
-                    raise SetupError('The configuration %r is already in use and the configuration %r cannot use it '
-                                     'again, provide a more detailed path for the configuration (ex: "ally_core.url" '
-                                     'instead of "url")' % (name, self._name))
-                assembly.configUsed.add(name)
-                hasValue, value = True, val
-        if hasValue:
-            if isinstance(value, ConfigError): hasValue = False
-        else:
-            try: 
-                value = self._function()
-                hasValue = True
-            except ConfigError as e: value = e
     
-        assembly.calls[self._name] = CallConfig(assembly, self._name, value, self._type)
-        assembly.configurations[self._name] = Config(self._name, value, self._group, getdoc(self._function))
+        assembly.calls[self._name] = CallConfig(assembly, self._name, self._type)
         
     def assemble(self, assembly):
         '''
@@ -280,20 +252,68 @@ class SetupConfig(SetupSource):
         Checks for aliases to replace.
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        for alias in self._aliases:
-            if not alias.startswith('.'): suffix = '.' + alias
-            else: suffix = alias
-            found = [name for name in assembly.configurations if name.endswith(suffix)]
-            if found:
-                if len(found) > 1: raise SetupError('There are to many aliases %r for %r' % (', '.join(found), alias))
-                name = found[0]
-                assembly.configurations.pop(name)
-                assembly.calls[name] = assembly.calls[self._name]
-            else: log.info('No alias %r for configuration %r', alias, self._name)
+        config = assembly.calls.get(self._name)
+        assert isinstance(config, CallConfig), 'Invalid call configuration %s' % config
+        
+        valueSet = False
+        for name, val in assembly.configExtern.items():
+            if name == self._name or self._name.endswith('.' + name):
+                if name in assembly.configUsed:
+                    raise SetupError('The configuration %r is already in use and the configuration %r cannot use it '
+                                     'again, provide a more detailed path for the configuration (ex: "ally_core.url" '
+                                     'instead of "url")' % (name, self._name))
+                assembly.configUsed.add(name)
+                valueSet, config.value = True, val
+        
+        if not config.hasValue:
+            valueSet = True
+            try: config.value = self._function()
+            except ConfigError as e: config.value = e
+        
+        if valueSet:
+            cfg = assembly.configurations.get(self._name)
+            if not cfg:
+                cfg = Config(self._name, config.value, self._group, getdoc(self._function))
+                assembly.configurations[self._name] = cfg
+            else:
+                assert isinstance(cfg, Config), 'Invalid config %s' % cfg
+                cfg.value = config.value
 
+class SetupReplaceConfig(SetupFunction):
+    '''
+    Provides the setup for replacing a configuration setup function.
+    '''
+    
+    priority_assemble = 2
+
+    def __init__(self, function, target, **keyargs):
+        '''
+        @see: SetupFunction.__init__
+        
+        @param target: string
+            The setup name to be replaced.
+        '''
+        SetupFunction.__init__(self, function, **keyargs)
+        assert isinstance(target, str), 'Invalid replace target name %s' % target
+        self._name = target # We actually set the setup replace name with the replacer name.
+
+    def assemble(self, assembly):
+        '''
+        @see: Setup.assemble
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        if self._name not in assembly.calls:
+            raise SetupError('There is no setup configuration call for name %r to be replaced' % self._name)
+        config = assembly.calls[self._name]
+        assert isinstance(config, CallConfig), 'Invalid call configuration %s' % config
+        try: config.value = self._function()
+        except ConfigError as e: config.value = e
+        
+        assembly.configurations[self._name] = Config(self._name, config.value, self._group, getdoc(self._function))
+        
 class SetupReplace(SetupFunction):
     '''
-    Provides the setup for replacing an entity or configuration setup function.
+    Provides the setup for replacing an entity or event setup function.
     '''
     
     priority_assemble = 2
@@ -308,7 +328,7 @@ class SetupReplace(SetupFunction):
         SetupFunction.__init__(self, function, **keyargs)
         assert isinstance(target, str), 'Invalid replace target name %s' % target
         self._name = target # We actually set the setup replace name with the replacer name.
-        
+    
     def assemble(self, assembly):
         '''
         @see: Setup.assemble
@@ -327,7 +347,7 @@ class SetupEvent(SetupFunction):
     Provides the setup event function.
     '''
     
-    priority_assemble = 3
+    priority_assemble = 4
     
     BEFORE = 'before'
     AFTER = 'after'
@@ -626,7 +646,7 @@ class CallConfig(WithType, WithListeners):
     @see: Callable, WithType, WithListeners
     '''
     
-    def __init__(self, assembly, name, value, type=None):
+    def __init__(self, assembly, name, type=None):
         '''
         Construct the configuration call.
         
@@ -645,7 +665,7 @@ class CallConfig(WithType, WithListeners):
         
         self._assembly = assembly
         self._name = name
-        self.value = value
+        self._hasValue = False
         self._processed = False
         
     def setValue(self, value):
@@ -655,9 +675,17 @@ class CallConfig(WithType, WithListeners):
         @param value: object
             The value to deliver.
         '''
-        if isinstance(value, Exception): self._value = value
-        else: self._value = self.validate(value)
-        
+        if isinstance(value, Exception):
+            self._value = value
+        else:
+            self._value = self.validate(value)
+            self._hasValue = True
+    
+    hasValue = property(lambda self: self._hasValue, doc=
+'''
+@type hasValue: boolean
+    True if the configuration has a value.
+''')
     value = property(lambda self: self._value, setValue, doc=
 '''
 @type value: object
@@ -674,6 +702,7 @@ class CallConfig(WithType, WithListeners):
             
             for listener in chain(self._listenersBefore, self._listenersAfter): listener()
         if isinstance(self._value, Exception): raise self._value
+        if not self._hasValue: raise ConfigError('No value for configuration %s' % self._name)
         return self._value
 
 # --------------------------------------------------------------------
@@ -810,6 +839,7 @@ class Assembly:
         if not names: raise SetupError('No IoC resource for name %r' % name)
         if len(names) > 1: raise SetupError('To many IoC resource for name %r' % name)
         return self.processForName(names[0])
+    
     def processStart(self):
         '''
         Starts the assembly, basically call all setup functions that have been decorated with start.
@@ -869,7 +899,8 @@ class Context:
             assert isinstance(setup, Setup), 'Invalid setup %s' % setup
             setup.index(assembly)
         
-        for setup in sorted(self._setups, key=lambda setup: setup.priority_assemble): setup.assemble(assembly)
+        for setup in sorted(self._setups, key=lambda setup: setup.priority_assemble):
+            setup.assemble(assembly)
         
         return assembly
 
