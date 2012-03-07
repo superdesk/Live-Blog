@@ -36,5 +36,5 @@ class ActionManagerService(IActionManagerService):
         @see: IActionManagerService.getAll
         '''
         actions = self._actions.values()
-        if path: actions = [action for action in actions if action.Path.startswith(path.rstrip('.')+'.')]
-        return actions
+        if path: actions = [action for action in actions if action.Path.startswith(path.rstrip('.'))]
+        return sorted(actions, key=lambda action: action.Path)
