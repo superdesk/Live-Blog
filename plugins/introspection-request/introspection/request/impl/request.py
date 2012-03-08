@@ -10,7 +10,7 @@ API specifications for the node presenter.
 '''
 
 from ..api.request import IRequestService, Request, Input, Method
-from ally.internationalization import _, textdomain, dgettext
+from ally.internationalization import _
 from ally.api.operator import Property, Model, Call, Service
 from ally.api.type import TypeProperty
 from ally.container import wire
@@ -29,10 +29,6 @@ from collections import OrderedDict
 from inspect import ismodule, ismethod, getdoc
 from introspection.api import DOMAIN
 import re
-
-# --------------------------------------------------------------------
-
-textdomain('errors')
 
 # --------------------------------------------------------------------
 
@@ -174,8 +170,8 @@ class RequestService(IRequestService):
             assert isinstance(typProp, TypeProperty)
             assert isinstance(typProp.property, Property)
             assert isinstance(typProp.model, Model)
-            inp.Description = dgettext('messages', 'The %(type)s of %(model)s %(description)s') % \
-                        dict(type=dgettext('value', typProp.property.name), model=dgettext('value', typProp.model.name),
+            inp.Description = _('The %(type)s of %(model)s %(description)s') % \
+                        dict(type=_(typProp.property.name), model=_(typProp.model.name),
                         description=re.sub('[\s]+', ' ', getdoc(typProp.model.modelClass) or '...'))
         else:
             raise DevelException('Unknown match %s' % match)

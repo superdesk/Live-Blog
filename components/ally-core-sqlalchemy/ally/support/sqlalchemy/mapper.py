@@ -15,7 +15,7 @@ from ally.api.configure import modelFor, queryFor
 from ally.api.operator import Model, Property, Query, CriteriaEntry
 from ally.api.type import typeFor
 from ally.exception import Ref
-from ally.internationalization import _, textdomain
+from ally.internationalization import _
 from ally.listener.binder import indexAfter
 from ally.listener.binder_op import validateAutoId, validateRequired, \
     validateMaxLength, validateProperty, validateManaged, validateModelProperties, \
@@ -35,8 +35,6 @@ import functools
 
 INDEX_PROP_FK = indexAfter('propFk', INDEX_PROP)
 # Index for foreign key properties
-
-textdomain('errors')
 
 # --------------------------------------------------------------------
 

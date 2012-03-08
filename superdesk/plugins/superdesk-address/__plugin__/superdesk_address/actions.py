@@ -13,18 +13,14 @@ from ..gui_action.service import actionManagerService
 from ..gui_action import defaults
 import __plugin__.superdesk_person.actions as personActions
 from ..gui_core.gui_core import getPublishedGui
-from ally.internationalization import N_, textdomain
-
-# --------------------------------------------------------------------
-
-textdomain('actions')
+from ally.internationalization import NC_
 
 # --------------------------------------------------------------------
 
 @ioc.entity   
 def menuAction():
     scriptPath = getPublishedGui('superdesk/address/scripts/js/menu.js')
-    return Action('address', Parent=defaults.menuAction(), Label=N_('Adresses'), ScriptPath=scriptPath)
+    return Action('address', Parent=defaults.menuAction(), Label=NC_('Menu', 'Adresses'), ScriptPath=scriptPath)
 
 @ioc.entity   
 def modulesAction():

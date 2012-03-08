@@ -18,7 +18,8 @@ from datetime import datetime
 from functools import partial
 from internationalization.api.file import IFileService, QFile, File
 from internationalization.api.message import IMessageService, Message
-from internationalization.api.source import ISourceService, TYPES, Source
+from internationalization.api.source import ISourceService, TYPES, Source, \
+    QSource
 from introspection.api.component import IComponentService, Component
 from introspection.api.plugin import IPluginService, Plugin
 from io import BytesIO
@@ -39,24 +40,13 @@ METHOD_MAP = [('**.py', 'python'), ('**.js', 'javascript'), ('**.html', 'javascr
 METHOD_EXTRACTOR = {'ignore': extract_nothing, 'python': extract_python, 'javascript': extract_javascript}
 # The modethod extractors to be used.
 
-DOMAIN_DEFAULT = 'messages'
-# The default domain used.
-LOCALE_DEFAULT = 'en'
-# The default locale.
-
 KEYWORDS = {
-            'textlocale': None,
             'gettext': None,
             '_': None,
-            'textdomain': None,
-            'dgettext': (1, 2),
             'ngettext': (1, 2),
-            'dngettext': (1, 2, 3),
             'pgettext': (1, 2),
             'C_': (1, 2),
-            'dpgettext': (1, 2, 3),
             'npgettext': (1, 2, 3),
-            'dnpgettext': (1, 2, 3, 4),
             'N_': None,
             'NC_': (1, 2),
             }
@@ -118,6 +108,7 @@ class Scanner:
             else:
                 lastModified, scanner = None, scanFolder(component.Path)
             
+            files.update({source.Path: source for source in self.sourceService.getAll(q=QSource(component=component.Id))})
             self._persist(files, scanner, component.Path, lastModified, component.Id, None)
             
     def scanPlugins(self):
@@ -147,6 +138,8 @@ class Scanner:
             else:
                 lastModified, scanner = None, scanFolder(plugin.Path)
             
+            
+            files.update({source.Path: source for source in self.sourceService.getAll(q=QSource(plugin=plugin.Id))})
             self._persist(files, scanner, plugin.Path, lastModified, None, plugin.Id)
             
     # ----------------------------------------------------------------
@@ -155,6 +148,7 @@ class Scanner:
         '''
         Persist the sources and messages. 
         '''
+        assert isinstance(files, dict), 'Invalid files %s' % files
         processModified = lastModified is None
         for filePath, method, extractor in scanner:
             assert method in TYPES, 'Invalid method %s' % method
@@ -173,7 +167,7 @@ class Scanner:
             if isinstance(file, Source): source = file
             else: source = None
             messages = None
-            for locale, domain, text, context, lineno, comments in extractor:
+            for text, context, lineno, comments in extractor:
                 if not source:
                     if file: self.fileService.delete(file.Id)
                     source = Source()
@@ -195,8 +189,6 @@ class Scanner:
                 if not msg:
                     msg = Message()
                     msg.Source = source.Id
-                    msg.Locale = locale
-                    msg.Domain = domain
                     msg.Singular = singular
                     msg.Plural = plurals
                     msg.Context = context
@@ -205,6 +197,12 @@ class Scanner:
                     
                     self.messageService.insert(msg)
                     messages[singular] = msg
+                else:
+                    msg.Plural = plurals
+                    msg.Context = context
+                    msg.LineNumber = lineno
+                    msg.Comments = '\n'.join(comments)
+                    self.messageService.update(msg)
 
             if processModified and filePath not in files:
                 file = File()
@@ -233,14 +231,13 @@ def scanZip(zipFilePath):
     names = zipFile.namelist()
     names.sort()
     for name in names:
-        overall = dict(domain=DOMAIN_DEFAULT, locale=LOCALE_DEFAULT)
         for pattern, method in METHOD_MAP:
             if pathmatch(pattern, name):
                 filePath = zipFilePath + '/' + name
                 def openZip():
                     with zipFile.open(name, 'r') as f:
                         return BytesIO(f.read())
-                yield filePath, method, process(openZip, method, overall)
+                yield filePath, method, process(openZip, method)
 
 def scanFolder(folderPath):
     '''
@@ -251,20 +248,16 @@ def scanFolder(folderPath):
     @return: tuple(string, string, generator)
         Returns a tuple containing: (filePath, method, generator(@see: process))
     '''
-    for root, dirnames, filenames in os.walk(folderPath):
-        for subdir in dirnames:
-            if subdir.startswith('.'): dirnames.remove(subdir)
-        dirnames.sort()
+    for root, _dirnames, filenames in os.walk(folderPath):
         filenames.sort()
         for name in filenames:
             name = path.relpath(os.path.join(root, name)).replace(os.sep, '/')
-            overall = dict(domain=DOMAIN_DEFAULT, locale=LOCALE_DEFAULT)
             for pattern, method in METHOD_MAP:
                 if pathmatch(pattern, name):
                     filePath = name.replace('/', os.sep)
-                    yield filePath, method, process(partial(open, name, 'rb'), method, overall)
+                    yield filePath, method, process(partial(open, name, 'rb'), method)
 
-def process(openFile, method, overall):
+def process(openFile, method):
     '''
     Process the content of the file generated by the openFile.
     
@@ -272,39 +265,22 @@ def process(openFile, method, overall):
         The open file function.
     @param method: string
         The method used for processing the file.
-    @param overall: dictionary{string, string}
-        Contains the overall data, like 'domain' and 'locale'
     @param message: string|list[string]|tuple(string)
         The message to be processed.
-    @return: tuple(string, string, string|tuple(string), string, integer, string)
-        Returns a tuple containing: (locale, domain, message, context, lineno, comments)
+    @return: tuple(string|tuple(string), string, integer, string)
+        Returns a tuple containing: (message, context, lineno, comments)
     '''
     assert callable(openFile), 'Invalid open file function %s' % openFile
     assert isinstance(method, str), 'Invalid method %s' % method
-    assert isinstance(overall, dict), 'Invalid overall %s' % overall
     
     with openFile() as fileObj:
         for fname, lineno, message, comments in extract(method, TextIOWrapper(fileObj)):
-            domain, cntxt = overall['domain'], None
-            if fname == 'textlocale':
-                assert isinstance(message, str), 'Invalid message %s' % message
-                overall['locale'] = message
-                continue
-            elif fname == 'textdomain':
-                assert isinstance(message, str), 'Invalid message %s' % message
-                overall['domain'] = message
-                continue
-            elif fname == 'dgettext': domain, message = message
-            elif fname == 'dngettext': domain, *message = message
-            elif fname in ('pgettext', 'C_', 'NC_'): cntxt, message = message
-            elif fname == 'dpgettext': cntxt, domain, message = message
+            if fname in ('pgettext', 'C_', 'NC_'): cntxt, message = message
             elif fname == 'npgettext': cntxt, *message = message
-            elif fname == 'dnpgettext': cntxt, domain, *message = message
-            
-            locale = overall['locale']
+            else: cntxt = None
         
-            assert log.debug('(%s) %s -> %s (%s) #%s' % (locale, domain, message, cntxt, comments)) or True
-            yield locale, domain, message, cntxt, lineno, comments
+            assert log.debug('%s (%s) #%s' % (message, cntxt, comments)) or True
+            yield message, cntxt, lineno, comments
 
 # --------------------------------------------------------------------
 
