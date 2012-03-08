@@ -51,7 +51,7 @@ class MessageServiceAlchemy(EntityGetCRUDServiceAlchemy, IMessageService):
         '''
         assert isinstance(message, Message), 'Invalid message %s' % message
         plurals = [plural for plural in (getattr(message, 'plural%s' % k) for k in range(1, 5)) if plural is not None]
-        message.Plural = plurals
+        if plurals: message.Plural = plurals
         
     def _onPersistMessage(self, message):
         '''

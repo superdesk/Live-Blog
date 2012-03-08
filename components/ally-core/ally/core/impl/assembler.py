@@ -15,7 +15,7 @@ from ally.api.operator import Model, Property, GET, Call, INSERT, DELETE, UPDATE
 from ally.api.type import TypeProperty, TypeModel, Iter
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerCall, InvokerSetProperties
-from ally.core.impl.node import NodeModel, NodePath, NodeProperty
+from ally.core.impl.node import NodeModel, NodePath, NodeProperty, NodeRoot
 from ally.core.spec.resources import Assembler, Node, Normalizer
 from ally.support.api.util_type import isTypeId
 from inspect import isclass
@@ -422,11 +422,12 @@ def obtainNodeModel(root, model):
     assert isinstance(root, Node), 'Invalid root node %s' % root
     assert isinstance(model, Model), 'Invalid model %s' % model
     
-    domain = model.hints.get('domain')
-    if domain:
-        assert isinstance(domain, str) and domain, 'Invalid domain %s' % domain
-        domain = domain.split('/')
-        root = obtainNode(root, [(name, False) for name in domain if name.strip()])
+    if isinstance(root, NodeRoot):
+        domain = model.hints.get('domain')
+        if domain:
+            assert isinstance(domain, str) and domain, 'Invalid domain %s' % domain
+            domain = domain.split('/')
+            root = obtainNode(root, [(name, False) for name in domain if name.strip()])
             
     for child in root.childrens():
         if isinstance(child, NodePath) and child.name == model.name:
