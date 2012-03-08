@@ -9,7 +9,7 @@ Created on Jul 11, 2011
 Provides the JSON encoding handler.
 '''
 
-from ally.internationalization import dgettext
+from ally.internationalization import _
 from ally.api.operator import Model, Property, INSERT, UPDATE
 from ally.container.ioc import injected
 from ally.core.impl.processor.decoder_text_base import DecodingTextBaseHandler, \
@@ -103,7 +103,7 @@ class DecodingTextHandler(DecodingTextBaseHandler):
                 try:
                     prop.set(mi, converter.asValue(content, prop.type))
                 except ValueError:
-                    errors.append(Ref(dgettext('errors', 'Invalid value, expected %(type)s type') % 
+                    errors.append(Ref(_('Invalid value, expected %(type)s type') % 
                                       dict(type=_(str(prop.type))), model=model, property=prop))
                     assert log.debug('Problems setting property %r from JSON value %s', propName, content) or True
         if len(obj) > 0: raise DevelException('Unknown keys %r' % ', '.join(str(key) for key in obj.keys()))

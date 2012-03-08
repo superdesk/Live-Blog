@@ -11,7 +11,7 @@ SQL alchemy implementation for language API.
 
 from ..api.language import Language, QLanguage, ILanguageService
 from ..meta.language import LanguageEntity
-from ally.internationalization import _, textdomain
+from ally.internationalization import _
 from ally.api.model import Part
 from ally.container import wire
 from ally.container.ioc import injected
@@ -22,10 +22,6 @@ from babel.core import Locale
 from babel.localedata import locale_identifiers
 from collections import OrderedDict
 from sql_alchemy.impl.entity import EntityNQServiceAlchemy
-
-# --------------------------------------------------------------------
-
-textdomain('error')
 
 # --------------------------------------------------------------------
 

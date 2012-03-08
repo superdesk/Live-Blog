@@ -12,17 +12,14 @@ from gui.action.api.action import Action
 from ..gui_action.service import actionManagerService
 from ..gui_action import defaults
 from ..gui_core.gui_core import getPublishedGui
-from ally.internationalization import N_, textdomain
-
-# --------------------------------------------------------------------
-
-textdomain('actions')
+from ally.internationalization import NC_
 
 # --------------------------------------------------------------------
 
 @ioc.entity   
 def menuAction():
-    return Action('user', Parent=defaults.menuAction(), Label=N_('Users'), ScriptPath=getPublishedGui('superdesk/user/scripts/js/menu.js'))
+    return Action('user', Parent=defaults.menuAction(), Label=NC_('Menu', 'Users'),
+                  ScriptPath=getPublishedGui('superdesk/user/scripts/js/menu.js'))
 
 @ioc.entity   
 def modulesAction():

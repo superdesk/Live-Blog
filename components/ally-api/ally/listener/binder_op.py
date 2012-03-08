@@ -9,7 +9,7 @@ Created on Aug 24, 2011
 Provides binding listener function to handle API operators validation.
 '''
 
-from ..internationalization import _, textdomain
+from ..internationalization import _
 from ..api.configure import modelFor, serviceFor, queryFor
 from ..api.operator import Property, Model, Query, Service, Call, UPDATE, INSERT
 from ..api.type import Input, TypeModel, TypeProperty, typeFor
@@ -41,8 +41,6 @@ EVENT_VALID_INSERT = 'valid_insert'
 # Listener key used for the insert
 EVENT_VALID_UPDATE = 'valid_update'
 # Listener key used for the update
-
-textdomain('errors')
 
 # --------------------------------------------------------------------
 
