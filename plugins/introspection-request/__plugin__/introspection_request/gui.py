@@ -13,12 +13,8 @@ from ..gui_action.defaults import actionManagerService, menuAction
 from ..gui_core.gui_core import publishGui, gui_folder_format
 from ..plugin.registry import cdmGUI
 from ally.container import ioc
-from ally.internationalization import N_, textdomain
+from ally.internationalization import N_
 from gui.action.api.action import Action
-
-# --------------------------------------------------------------------
-
-textdomain('actions')
 
 # --------------------------------------------------------------------
 

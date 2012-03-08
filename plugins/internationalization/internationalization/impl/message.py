@@ -16,11 +16,7 @@ from ally.api.model import Part
 from ally.support.sqlalchemy.mapper import addLoadListener, addInsertListener, \
     addUpdateListener
 from ally.exception import InputException, Ref
-from ally.internationalization import textdomain, _
-
-# --------------------------------------------------------------------
-
-textdomain('errors')
+from ally.internationalization import _
 
 # --------------------------------------------------------------------
 
