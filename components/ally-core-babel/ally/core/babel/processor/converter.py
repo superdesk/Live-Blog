@@ -9,7 +9,7 @@ Created on Aug 10, 2011
 Provides the converters for the response content and request content.
 '''
 
-from ally.internationalization import dgettext
+from ally.internationalization import _
 from ally.api.type import Type, Percentage, Number, Date, DateTime, Time
 from ally.container.ioc import injected
 from ally.core.spec.codes import INVALID_FORMATING
@@ -181,7 +181,7 @@ class ConverterBabel(Converter):
         if objType.isOf(str):
             return strValue
         if objType.isOf(bool):
-            return strValue.strip().lower() == dgettext('values', 'true')
+            return strValue.strip().lower() == _('true')
         if objType.isOf(Percentage):
             return float(strValue) / 100
         if objType.isOf(Number):

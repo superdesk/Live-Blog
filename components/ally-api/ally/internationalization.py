@@ -9,21 +9,7 @@ Created on May 26, 2011
 Provides internationalization support.
 '''
 
-import gettext as pygettext
-
 # --------------------------------------------------------------------
-
-def textlocale(locale=None):
-    '''
-    Change or query the current global locale. If locale is None, then the current global locale is returned, otherwise
-    the global locale is set to locale, which is returned.
-    
-    @param locale: string|None
-        The locale to set, if None will return the current locale.
-    @return: string|None
-        None if the locale has been set, otherwise the current locale.
-    '''
-    assert locale is None or isinstance(locale, str), 'Invalid locale %s' % locale
 
 def gettext(msg):
     '''
@@ -48,33 +34,6 @@ def _(msg):
         The translated message.
     '''
     return gettext(msg)
-
-def textdomain(domain=None):
-    '''
-    Change or query the current global domain. If domain is None, then the current global domain is returned, otherwise
-    the global domain is set to domain, which is returned.
-    
-    @param domain: string|None
-        The domain to set, if None will return the current domain.
-    @return: string|None
-        None if the domain has been set, otherwise the current domain.
-    '''
-    assert domain is None or isinstance(domain, str), 'Invalid domain %s' % domain
-    return pygettext.textdomain(domain)
-
-def dgettext(domain, msg):
-    '''
-    Like @see: gettext, but look the message up in the specified domain.
-    
-    @param domain: string
-        The domain of the key message.
-    @param msg: string
-        The key message.
-    @return: string
-        The translated message.
-    '''
-    assert isinstance(domain, str), 'Invalid domain %s' % domain
-    return gettext(msg)
     
 def ngettext(msg, msgp, count):
     '''
@@ -96,22 +55,6 @@ def ngettext(msg, msgp, count):
     assert isinstance(msgp, str), 'Invalid plural key message %s' % msg
     if count == 1: return msg
     return msgp
-    
-def dngettext(domain, msg, msgp, count):
-    '''
-    Like @see: ngettext, but look the message up in the specified domain.
-    
-    @param domain: string
-        The domain of the key message.
-    @param msg: string
-        The key message.
-    @param msgp: string
-        The plural key message.
-    @return: string
-        The translated message.
-    '''
-    assert isinstance(domain, str), 'Invalid domain %s' % domain
-    return ngettext(msg, msgp, count)
 
 def pgettext(ctxt, msg):
     '''
@@ -140,22 +83,6 @@ def C_(ctxt, msg):
     '''
     return pgettext(ctxt, msg)
 
-def dpgettext(domain, ctxt, msg):
-    '''
-    Like @see: dgettext, but use the provided context for the message.
-    
-    @param domain: string
-        The domain of the key message.
-    @param ctxt: string
-        The context of the key message.
-    @param msg: string
-        The key message.
-    @return: string
-        The translated message.
-    '''
-    assert isinstance(ctxt, str), 'Invalid context %s' % ctxt
-    return dgettext(domain, msg)
-
 def npgettext(ctxt, msg, msgp, count):
     '''
     Like @see: ngettext, but use the provided context for the message.
@@ -171,24 +98,6 @@ def npgettext(ctxt, msg, msgp, count):
     '''
     assert isinstance(ctxt, str), 'Invalid context %s' % ctxt
     return ngettext(msg, msgp, count)
-
-def dnpgettext(domain, ctxt, msg, msgp, count):
-    '''
-    Like @see: dngettext, but use the provided context for the message.
-    
-    @param domain: string
-        The domain of the key message.
-    @param ctxt: string
-        The context of the key message.
-    @param msg: string
-        The key message.
-    @param msgp: string
-        The plural key message.
-    @return: string
-        The translated message.
-    '''
-    assert isinstance(ctxt, str), 'Invalid context %s' % ctxt
-    return dngettext(domain, msg, msgp, count)
 
 def N_(msg):
     '''

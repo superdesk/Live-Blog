@@ -10,17 +10,13 @@ Provides utility methods for SQL alchemy service implementations.
 '''
 
 from .mapper import columnFor
-from ally.internationalization import _, textdomain
+from ally.internationalization import _
 from ally.api.configure import modelFor, queryFor
 from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual
 from ally.api.operator import Query, CriteriaEntry
 from ally.exception import InputException, Ref
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.schema import Column
-
-# --------------------------------------------------------------------
-
-textdomain('errors')
 
 # --------------------------------------------------------------------
 
