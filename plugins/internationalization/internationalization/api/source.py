@@ -12,18 +12,17 @@ API specifications for localized messages sources.
 from .file import File, QFile
 from ally.api.config import service, query
 from ally.api.criteria import AsEqual
-from ally.internationalization import N_, textdomain
+from ally.internationalization import N_
 from introspection.api import modelDevel
 from sql_alchemy.api.entity import Entity, QEntity, IEntityService
 
 # --------------------------------------------------------------------
 
-textdomain('values')
-
-TYPE_PYTHON = N_('python')
 # The python type for the source
-TYPE_JAVA_SCRIPT = N_('javascript')
+TYPE_PYTHON = N_('python')
 # The java script type for the source
+TYPE_JAVA_SCRIPT = N_('javascript')
+
 TYPES = (TYPE_PYTHON, TYPE_JAVA_SCRIPT)
 # The available source types.
 

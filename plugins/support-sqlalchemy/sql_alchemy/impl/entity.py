@@ -12,7 +12,7 @@ SQL alchemy implementation for the generic entities API.
 from ally.api.configure import modelFor, queryFor
 from ally.api.operator import Model, Query
 from ally.exception import InputException, Ref
-from ally.internationalization import _, textdomain
+from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
 from inspect import isclass
@@ -22,8 +22,6 @@ import logging
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-
-textdomain('errors')
 
 # --------------------------------------------------------------------
 
@@ -190,7 +188,7 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
         try:
             return self.session().query(self.Entity).filter(self.Entity.Id == id).delete() > 0
         except OperationalError:
-            raise InputException(_('Cannot delete because is in use', model=self.model))
+            raise InputException(Ref(_('Cannot delete because is in use'), model=self.model))
 
 class EntityGetCRUDServiceAlchemy(EntityGetServiceAlchemy, EntityCRUDServiceAlchemy):
     '''
