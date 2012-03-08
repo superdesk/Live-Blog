@@ -19,7 +19,7 @@ from sqlalchemy.types import Enum
 # --------------------------------------------------------------------
 
 table = Table('inter_source', meta,
-              Column('fk_file_id', ForeignKey(File.Id, ondelete='CASCADE'), primary_key=True, key='Id'),
+              Column('fk_file_id', ForeignKey(File.Id), primary_key=True, key='Id'),
               Column('type', Enum(TYPE_PYTHON, TYPE_JAVA_SCRIPT), nullable=False, key='Type'),
               mysql_engine='InnoDB'
               )

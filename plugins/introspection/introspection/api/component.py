@@ -24,6 +24,7 @@ class Component:
     Name = str
     Group = str
     Version = str
+    Locale = str
     Description = str
     Loaded = bool
     Path = str
