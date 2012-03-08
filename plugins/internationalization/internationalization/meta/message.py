@@ -22,8 +22,6 @@ from sqlalchemy.dialects.mysql.base import INTEGER, VARCHAR
 table = Table('inter_message', meta,
               Column('id', INTEGER(unsigned=True), primary_key=True, key='Id'),
               Column('fk_source_id', ForeignKey(Source.Id, ondelete='RESTRICT'), key='Source'),
-              Column('locale', String(20), nullable=False, key='Locale'),
-              Column('domain', String(100), nullable=False, key='Domain'),
               Column('singular', VARCHAR(255, charset='utf8'), nullable=False, key='Singular'),
               Column('plural_1', VARCHAR(255, charset='utf8'), key='plural1'),
               Column('plural_2', VARCHAR(255, charset='utf8'), key='plural2'),

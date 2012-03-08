@@ -11,7 +11,7 @@ API specifications for localized messages.
 
 from .source import Source
 from ally.api.config import service, call
-from ally.api.criteria import AsLike, AsEqual
+from ally.api.criteria import AsLike
 from introspection.api import modelDevel
 from sql_alchemy.api.entity import Entity, QEntity, IEntityGetCRUDService
 from ally.api.type import IterPart, List
@@ -24,8 +24,6 @@ class Message(Entity):
     Model for a localized message.
     '''
     Source = Source.Id
-    Locale = str
-    Domain = str
     Singular = str
     Plural = List(str)
     Context = str
@@ -38,8 +36,6 @@ class QMessage(QEntity):
     '''
     Provides the query for the message.
     '''
-    locale = AsEqual
-    domain = AsEqual
     singular = AsLike
     context = AsLike
 
