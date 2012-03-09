@@ -14,7 +14,7 @@ from ally.api.config import service, call
 from ally.api.criteria import AsLike
 from introspection.api import modelDevel
 from sql_alchemy.api.entity import Entity, QEntity, IEntityGetCRUDService
-from ally.api.type import IterPart, List
+from ally.api.type import Iter, Count, List
 
 # --------------------------------------------------------------------
 
@@ -47,8 +47,13 @@ class IMessageService(IEntityGetCRUDService):
     The messages service.
     '''
     
-    @call
-    def getMessages(self, sourceId:Source.Id=None, offset:int=None, limit:int=10, q:QMessage=None) -> IterPart(Message):
+    def getMessagesCount(self, sourceId:Source.Id=None, q:QMessage=None) -> Count:
+        '''
+        Provides the messages count searched based on the provided parameters.
+        '''
+        
+    @call(countMethod=getMessagesCount)
+    def getMessages(self, sourceId:Source.Id=None, offset:int=None, limit:int=10, q:QMessage=None) -> Iter(Message):
         '''
         Provides the messages searched based on the provided parameters.
         '''
