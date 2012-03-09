@@ -11,11 +11,11 @@ Provides support for SQL alchemy mapper that is able to link the alchemy with RE
 
 from ..util import Attribute
 from .session import openSession
-from ally.internationalization import _, textdomain
 from ally.api.configure import modelFor, queryFor
 from ally.api.operator import Model, Property, Query, CriteriaEntry
 from ally.api.type import typeFor
 from ally.exception import Ref
+from ally.internationalization import _
 from ally.listener.binder import indexAfter
 from ally.listener.binder_op import validateAutoId, validateRequired, \
     validateMaxLength, validateProperty, validateManaged, validateModelProperties, \
@@ -35,8 +35,6 @@ import functools
 
 INDEX_PROP_FK = indexAfter('propFk', INDEX_PROP)
 # Index for foreign key properties
-
-textdomain('errors')
 
 # --------------------------------------------------------------------
 
@@ -67,7 +65,20 @@ def mapperSimple(modelClass, sql, **keyargs):
     assert mapperFor(modelClass) is None, 'The class %s is already mapped ' % modelClass
     assert isinstance(sql, Table) or isinstance(sql, Join), 'Invalid SQL alchemy table/join %s' % sql
     
-    mappedClass = createModelMapping(modelClass)
+    # We need to treat the case when a model inherits another, since the provided inherited model class is actually the 
+    # mapped class the provided model class will not be seen as inheriting the provided mapped class/
+    inherits = keyargs.get('inherits')
+    if inherits is not None:
+        assert isclass(inherits), 'Invalid class %s' % inherits
+        if __debug__:
+            inhModel = modelFor(inherits)
+            assert isinstance(inhModel, Model), 'Invalid inheritance class %s, has no model' % inherits
+            assert issubclass(modelClass, inhModel.modelClass), \
+            'Invalid inherited mapped class %s, for model class %s' % (inherits, inhModel.modelClass)
+        mappedClass = createModelMapping(type(modelClass.__name__, (modelClass, inherits), {}))
+    else:    
+        mappedClass = createModelMapping(modelClass)
+
     mapper_ = mapperFor(mappedClass, mapper(mappedClass, sql, **keyargs))
     mappings = mappingsOf(mapper_.tables[0].metadata)
     assert model not in mappings, 'The model %s is already mapped' % model
@@ -355,7 +366,7 @@ def mapperFor(obj, mapper=None):
     '''
     if mapper is None:
         if isinstance(obj, Mapper): return obj
-        return ATTR_SQL_MAPPER.get(obj, None)
+        return ATTR_SQL_MAPPER.getOwn(obj, None)
     assert not ATTR_SQL_MAPPER.hasOwn(obj), 'Already has a mapper %s' % obj
     return ATTR_SQL_MAPPER.set(obj, mapper)
 

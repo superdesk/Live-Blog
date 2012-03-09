@@ -6,19 +6,19 @@ Created on Mar 5, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Implementation for the source API.
+Implementation for the file API.
 '''
 
-from ..api.source import ISourceService
-from ..meta.source import Source, QSource
+from ..api.file import IFileService
+from ..meta.file import File, QFile
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 
 # --------------------------------------------------------------------
 
-class SourceServiceAlchemy(EntityServiceAlchemy, ISourceService):
+class FileServiceAlchemy(EntityServiceAlchemy, IFileService):
     '''
-    Alchemy implementation for @see: ISourceService
+    Alchemy implementation for @see: IFileService
     '''
     
     def __init__(self):
-        EntityServiceAlchemy.__init__(self, Source, QSource)
+        EntityServiceAlchemy.__init__(self, File, QFile)

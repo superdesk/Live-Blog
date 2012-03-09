@@ -23,6 +23,11 @@ support.include(database_config)
 
 # --------------------------------------------------------------------
 
+@ioc.replace(database_url)
+def database_url():
+    '''The database URL for the supredesk tables'''
+    return 'sqlite:///workspace/superdesk.db'
+
 @ioc.replace(metas)
 def metas(): return [meta]
 

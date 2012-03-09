@@ -11,8 +11,7 @@ Contains the services setup for internationalization.
 
 from ..plugin.registry import addService
 from .db_internationalization import bindInternationalizationSession, \
-    bindInternationalizationValidations
-from __plugin__.internationalization.db_internationalization import createTables
+    bindInternationalizationValidations, createTables
 from ally.container import support, ioc
 from internationalization.scanner import Scanner
 
