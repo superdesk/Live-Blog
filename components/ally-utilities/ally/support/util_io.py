@@ -44,10 +44,10 @@ class replaceInFile:
         self.__fileObj = fileObj
         self.__replacements = replacements
 
-        self.__maxKey = len(max(replacements.keys(), key = lambda v: len(v)))
+        self.__maxKey = len(max(replacements.keys(), key=lambda v: len(v)))
         self.__leftOver = None
 
-    def read(self, count = None):
+    def read(self, count=None):
         '''
         Perform the data read. 
         '''
@@ -79,7 +79,7 @@ class replaceInFile:
 
     def __getattr__(self, name): return getattr(self.__fileObj, name)
 
-def pipe(srcFileObj, dstFileObj, bufferSize = 1024):
+def pipe(srcFileObj, dstFileObj, bufferSize=1024):
     '''
     Copy the content from a source file to a destination file
 
@@ -98,7 +98,7 @@ def pipe(srcFileObj, dstFileObj, bufferSize = 1024):
         if not buffer: break
         dstFileObj.write(buffer)
 
-def readGenerator(fileObj, bufferSize = 1024):
+def readGenerator(fileObj, bufferSize=1024):
     '''
     Provides a generator that read data from the provided file object.
     
@@ -121,6 +121,8 @@ def openURI(path):
     
     @param path: string
         The path to a resource: a file system path, a ZIP path
+    @return: byte file
+        A file like object that delivers bytes.
     '''
     path = normOSPath(path)
     if isfile(path):
