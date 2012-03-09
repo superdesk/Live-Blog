@@ -49,15 +49,20 @@ class IMessageService(IEntityGetCRUDService):
     The messages service.
     '''
 
+    def getMessagesCount(self, sourceId:Source.Id=None, q:QMessage=None) -> Count:
+        '''
+        Provides the total count of messages searched based on the given parameters.
+        '''
+
     @call(countMethod=getMessagesCount)
     def getMessages(self, sourceId:Source.Id=None, offset:int=None, limit:int=10, q:QMessage=None) -> Iter(Message):
         '''
         Provides the messages searched based on the given parameters.
         '''
 
-    def getMessagesCount(self, sourceId:Source.Id=None, q:QMessage=None) -> Count:
+    def getComponentMessagesCount(self, component:Component.Id, q:QMessage=None) -> Count:
         '''
-        Provides the total count of messages searched based on the given parameters.
+        Provides the total count of messages for the given component.
         '''
 
     @call(countMethod=getComponentMessagesCount)
@@ -66,9 +71,9 @@ class IMessageService(IEntityGetCRUDService):
         Provides the messages for the given component.
         '''
 
-    def getComponentMessagesCount(self, component:Component.Id, q:QMessage=None) -> Count:
+    def getPluginMessagesCount(self, plugin:Plugin.Id, q:QMessage=None) -> Count:
         '''
-        Provides the total count of messages for the given component.
+        Provides the total count of messages for the given plugin.
         '''
 
     @call(countMethod=getPluginMessagesCount)
@@ -77,7 +82,3 @@ class IMessageService(IEntityGetCRUDService):
         Provides the messages for the given plugin.
         '''
 
-    def getPluginMessagesCount(self, plugin:Plugin.Id, q:QMessage=None) -> Count:
-        '''
-        Provides the total count of messages for the given plugin.
-        '''
