@@ -9,7 +9,7 @@ Created on Jul 11, 2011
 Provides the XML encoding/decoding processor handler.
 '''
 
-from ally.internationalization import dgettext
+from ally.internationalization import _
 from ally.api.operator import Model, Property
 from ally.container.ioc import injected
 from ally.core.impl.processor.decoder_text_base import DecodingTextBaseHandler, \
@@ -173,6 +173,6 @@ class RuleSetProperty(Rule):
         try:
             self._property.set(digester.stack[-1], self._converter.asValue(content, self._property.type))
         except ValueError:
-            digester.errors.append(Ref(dgettext('errors', 'Invalid value, expected %{type}s type') % 
+            digester.errors.append(Ref(_('Invalid value, expected %{type}s type') % 
                                     dict(type=_(str(self._property.type))), model=self._model, property=self._property))
             assert log.debug('Problems setting property %r from XML value %s', self._property.name, content) or True

@@ -9,19 +9,22 @@ Created on Jun 18, 2011
 Provides the call assemblers used in constructing the resources node.
 '''
 
-from ally.api.configure import modelFor, serviceFor
+from ally.api.configure import modelFor, serviceFor, functionFor
+from ally.api.model import Part
 from ally.api.operator import Model, Property, GET, Call, INSERT, DELETE, UPDATE, \
     Service
-from ally.api.type import TypeProperty, TypeModel, Iter
+from ally.api.type import TypeProperty, TypeModel, Iter, IterPart, List, Count
 from ally.container.ioc import injected
-from ally.core.impl.invoker import InvokerCall, InvokerSetProperties
-from ally.core.impl.node import NodeModel, NodePath, NodeProperty
-from ally.core.spec.resources import Assembler, Node, Normalizer
+from ally.core.impl.invoker import InvokerCall, InvokerSetProperties, \
+    InvokerFunction
+from ally.core.impl.node import NodeModel, NodePath, NodeProperty, NodeRoot
+from ally.core.spec.resources import Assembler, Node, Normalizer, AssembleError
 from ally.support.api.util_type import isTypeId
 from inspect import isclass
 from itertools import combinations, chain
 import abc
 import logging
+import re
 
 # --------------------------------------------------------------------
 
@@ -47,9 +50,17 @@ class AssembleInvokers(Assembler):
         @see: AssembleInvokers.knownCallHints
         '''
         return {
+                'active': '(boolean) Flag indicating that the call is active, if a call is declared inactive no other '\
+                'hints are allowed.',
+                
                 'webName': '(string|model API class) The name for locating the call, simply put this is the last name '\
                 'used in the resource path in order to identify the call.',
-                'replaceFor': '(service API class) The class to which the call should be replaced.'
+                
+                'replaceFor': '(service API class) Used whenever a service call has the same signature with another '\
+                'service call and thus require to use the same web address, this allows to explicitly dictate what'\
+                'call has priority over another call by providing the class to which the call should be replaced.',
+                
+                'countMethod': '(string|function) Specified the total count method for the call'
                 }
         
     def assemble(self, root, invokers):
@@ -58,8 +69,25 @@ class AssembleInvokers(Assembler):
         '''
         k = 0
         while k < len(invokers):
-            if self.assembleInvoke(root, invokers[k]): del invokers[k]
-            else: k += 1
+            invoker = invokers[k]
+            assert isinstance(invoker, InvokerCall), 'Invalid invoker call %s' % invoker
+            assert isinstance(invoker.call, Call)
+            if invoker.call.hints.get('active', True):
+                try:
+                    if self.assembleInvoke(root, invoker): del invokers[k]
+                    else: k += 1
+                except:
+                    assert isinstance(invoker, InvokerCall)
+                    fnc = functionFor(invoker.service, invoker.call).__code__
+                    raise AssembleError('Problems assembling call at:\nFile "%s", line %i, in %s' % \
+                                        (fnc.co_filename, fnc.co_firstlineno, invoker.call.name))
+            else:
+                if len(invoker.call.hints) > 1:
+                    fnc = functionFor(invoker.service, invoker.call).__code__
+                    raise AssembleError('Illegal hints "%s" the inactive call %s:\nFile "%s", line %i, in %s' % \
+                                        (','.join(name for name in invoker.call.hints.keys() if name != 'active'),
+                                         invoker.call, fnc.co_filename, fnc.co_firstlineno, invoker.call.name))
+                del invokers[k]
     
     @abc.abstractmethod
     def assembleInvoke(self, root, invoker):
@@ -127,14 +155,14 @@ class AssembleGet(AssembleInvokers):
                 else: types.append(model)
             else: types.append(model)
             
-            processHintWebName(types, call, isList)
+            types = processTypesHints(types, call, isList)
             
             node = obtainNode(root, types)
             if not node: continue
             
             resolved = True
             assert isinstance(node, Node)
-            node.get = processHintReplace(invoker, node.get)
+            node.get = processInvokerHints(invoker, node.get)
             log.info('Resolved invoker %s as a get for node %s', invoker, node)
         return resolved
 
@@ -166,14 +194,12 @@ class AssembleDelete(AssembleInvokers):
         if not invoker.outputType.isOf(bool):
             log.warning('Invalid output type %s for a delete method, expected boolean', invoker.outputType)
             return False
-        types = [inp.type for inp in invoker.inputs[:invoker.mandatoryCount]]
-        
-        processHintWebName(types, call)
+        types = processTypesHints([inp.type for inp in invoker.inputs[:invoker.mandatoryCount]], call)
         
         node = obtainNode(root, types)
         if not node: return False
         assert isinstance(node, Node)
-        node.delete = processHintReplace(invoker, node.delete)
+        node.delete = processInvokerHints(invoker, node.delete)
         log.info('Resolved invoker %s as a delete for node %s', invoker, node)
         return True
 
@@ -207,14 +233,12 @@ class AssembleInsert(AssembleInvokers):
         call = invoker.call
         assert isinstance(call, Call)
         if call.method != INSERT: return False
-        types = [inp.type for inp in invoker.inputs[:invoker.mandatoryCount]]
-        
-        processHintWebName(types, call)
+        types = processTypesHints([inp.type for inp in invoker.inputs[:invoker.mandatoryCount]], call)
         
         node = obtainNode(root, types)
         if not node: return False
         assert isinstance(node, Node)
-        node.insert = processHintReplace(invoker, node.insert)
+        node.insert = processInvokerHints(invoker, node.insert)
         log.info('Resolved invoker %s as a insert for node %s', invoker, node)
         return True
 
@@ -254,7 +278,7 @@ class AssembleUpdate(AssembleInvokers):
         if not isinstance(typeModel, TypeModel):
             log.info('The last input on the update is not a type model, received type %s', typeModel)
             
-            processHintWebName(types, call)
+            types = processTypesHints(types, call)
 
             node = obtainNode(root, types)
             if not node: return False
@@ -276,12 +300,12 @@ class AssembleUpdate(AssembleInvokers):
                     types.append(model)
             else: types.append(model)
             
-            processHintWebName(types, call)
+            types = processTypesHints(types, call)
 
             node = obtainNode(root, types)
             if not node: return False
             assert isinstance(node, Node)
-            node.update = processHintReplace(invoker, node.update)
+            node.update = processInvokerHints(invoker, node.update)
             log.info('Resolved invoker %s as a update for node %s', invoker, node)
             return True
         
@@ -297,7 +321,7 @@ class AssembleUpdate(AssembleInvokers):
         if len(ids) == 1:
             types.append(model.typeProperties[ids[0].name])
             
-            processHintWebName(types, call)
+            types = processTypesHints(types, call)
             
             node = obtainNode(root, types)
             if not node: return False
@@ -309,7 +333,7 @@ class AssembleUpdate(AssembleInvokers):
                 setInvoker = nodeUpdate
                 nodeUpdate = setInvoker.invoker
                 
-            nodeUpdate = processHintReplace(invoker, nodeUpdate)
+            nodeUpdate = processInvokerHints(invoker, nodeUpdate)
             
             if setInvoker:
                 setInvoker.invoker = nodeUpdate
@@ -322,6 +346,36 @@ class AssembleUpdate(AssembleInvokers):
         else:
             log.warning('To many model %s properties representing an id %s to handle', model, ids)
             return False
+
+# --------------------------------------------------------------------
+
+def processTypesHints(types, call, isGroup=False):
+    '''
+    Process the hints that affect the types used for constructing the node path.
+    
+    @param types: list[TypeProperty|TypeModel|Model|tuple(string,boolean)]
+        The list of types to be altered based on the type hints.
+    @param call: Call
+        The call to process the hints for.
+    @param isGroup: boolean
+        Flag indicating that the hints should be considered for a group node (True) or an object node (False).
+    @return: list[TypeProperty|TypeModel|Model|tuple(string,boolean)]
+        The processed types.
+    '''
+    return processHintWebName(types, call, isGroup)
+
+def processInvokerHints(invoker, prevInvoker):
+    '''
+    Process the hints that affect the invoker used on the assembled node.
+    
+    @param invoker: Invoker
+        The invoker to be processed.
+    @param prevInvoker: Invoker|None
+        The previous invoker found on the node if is the case.
+    @return: Invoker
+        The invoker to be used.
+    '''
+    return processHintCountMethod(processHintReplace(invoker, prevInvoker))
 
 # --------------------------------------------------------------------
 
@@ -349,9 +403,11 @@ def processHintWebName(types, call, isGroup=False):
         assert isinstance(webName, str), 'Invalid web name hint %s for call %s' % (webName, call)
         webName = webName.split('/')
         for k, name in enumerate(webName):
+            assert re.match('^[\w]+$', name), 'Invalid name "%s" in web name "%s"' % (name, '/'.join(webName)) 
             types.append((name, False if k <= len(webName) - 1 else isGroup))
+    return types
 
-def processHintReplace(invoker, prevInvoker):
+def processHintReplace(invoker, prevInvoker=None):
     '''
     Processes the replace for hint for the invokers.
     
@@ -383,6 +439,53 @@ def processHintReplace(invoker, prevInvoker):
 
     return invoker
         
+def processHintCountMethod(invoker):
+    '''
+    Process the hint for the count method.
+    
+    @param invoker: Invoker
+        The invoker to be processed.
+    @return: Invoker
+        The invoker to be used.
+    '''
+    assert isinstance(invoker, InvokerCall), 'Invoker call expected %s' % invoker
+    call = invoker.call
+    assert isinstance(call, Call)
+    
+    countMethod = invoker.call.hints.get('countMethod')
+    if countMethod:
+        if not isinstance(countMethod, str):
+            assert hasattr(countMethod, '__name__'), 'Cannot extract the count method name from %s' % countMethod
+            countMethod = countMethod.__name__
+        assert isinstance(invoker.service, Service)
+        countCall = invoker.service.calls.get(countMethod)
+        assert isinstance(countCall, Call), 'No call for name %s' % countMethod
+        assert isinstance(call.outputType, Iter), 'Invalid call output type %s, expected a collection(%s) type' % \
+        (call.outputType, ', '.join(Iter, List))
+        assert countCall.outputType.isOf(int), 'Invalid count call output type %s, expected %s' % \
+        (countCall.outputType, Count)
+        
+        available = set(input.name for input in countCall.inputs)
+        different = available.difference(input.name for input in call.inputs)
+        assert not different, 'Cannot provide values for "%s" for count method call %s' % \
+        (', '.join(different), countCall)
+        
+        indexes = [k for k, input in enumerate(call.inputs) if input.name in available]
+        def partCall(*args):
+            '''
+            Function that combines the call with the count call.
+            '''
+            countArgs = []
+            for k in indexes:
+                if k < len(args): countArgs.append(args[k])
+                else: break
+            count = countCall.call(invoker.implementation, countArgs)
+            iter = call.call(invoker.implementation, args)
+            return Part(iter, count)
+        return InvokerFunction(IterPart(call.outputType.itemType), partCall, call.inputs, call.mandatoryCount)
+        
+    return invoker
+    
 # --------------------------------------------------------------------
 
 def obtainNodePath(root, name, isGroup=False):
@@ -422,11 +525,12 @@ def obtainNodeModel(root, model):
     assert isinstance(root, Node), 'Invalid root node %s' % root
     assert isinstance(model, Model), 'Invalid model %s' % model
     
-    domain = model.hints.get('domain')
-    if domain:
-        assert isinstance(domain, str) and domain, 'Invalid domain %s' % domain
-        domain = domain.split('/')
-        root = obtainNode(root, [(name, False) for name in domain if name.strip()])
+    if isinstance(root, NodeRoot):
+        domain = model.hints.get('domain')
+        if domain:
+            assert isinstance(domain, str) and domain, 'Invalid domain %s' % domain
+            domain = domain.split('/')
+            root = obtainNode(root, [(name, False) for name in domain if name.strip()])
             
     for child in root.childrens():
         if isinstance(child, NodePath) and child.name == model.name:

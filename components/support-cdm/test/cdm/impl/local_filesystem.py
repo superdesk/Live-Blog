@@ -13,7 +13,6 @@ import unittest
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from os.path import join, dirname, isfile, isdir
 from shutil import rmtree
-from ally.container import ioc
 from os import makedirs, remove, sep
 from cdm.spec import PathNotFound
 import re

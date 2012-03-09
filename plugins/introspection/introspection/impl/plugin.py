@@ -9,7 +9,7 @@ Created on Mar 4, 2012
 Implementation for the components introspection.
 '''
 
-from ally.internationalization import _, textdomain
+from ally.internationalization import _
 from ally.api.model import Part
 from ally.container.aop import modulesIn
 from ally.container.ioc import injected
@@ -21,10 +21,6 @@ import sys
 
 # --------------------------------------------------------------------
 
-textdomain('errors')
-
-# --------------------------------------------------------------------
-
 @injected
 class PluginService(IPluginService):
     '''
@@ -33,12 +29,15 @@ class PluginService(IPluginService):
     
     package = '__plugin__'
     # The top package where the plugins are configured
+    default_locale = 'en'
+    # The default locale in which the plugins are defined.
     
     def __init__(self):
         '''
         Constructs the plugins service.
         '''
         assert isinstance(self.package, str), 'Invalid package pattern %s' % self.package
+        assert isinstance(self.default_locale, str), 'Invalid locale %s' % self.default_locale
     
     def getById(self, id):
         '''
@@ -78,6 +77,7 @@ class PluginService(IPluginService):
             c.Name = getattr(m, 'NAME', None)
             c.Group = getattr(m, 'GROUP', None)
             c.Version = getattr(m, 'VERSION', None)
+            c.Locale = getattr(m, 'LANGUAGE', self.default_locale)
             c.Description = getattr(m, 'DESCRIPTION', None)
             c.Path = path.relpath(path.dirname(path.dirname(path.dirname(m.__file__))))
             c.InEgg = not path.isfile(m.__file__)
