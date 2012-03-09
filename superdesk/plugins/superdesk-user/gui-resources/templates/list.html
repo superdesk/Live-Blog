@@ -1,0 +1,19 @@
+<script type="text/x-jQuery-tmpl" id="tpl-user-list">
+<table class="table table-bordered user-list">
+	<thead>
+		<tr>
+			<th>Id</th>
+    		<th>Name</th>
+    	</tr>
+	</thead>
+	<tbody>
+	{% for(var i in users) %}
+		<tr>
+    		<td>{{users[i].Id}}</td>
+    		<td>{{users[i].Name}}</td>
+			<td><a href="/modules/user/update#top" user-id="{{users[i].Id}}" class="btn btn-edit">edit</a></td>
+    	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+</script>
