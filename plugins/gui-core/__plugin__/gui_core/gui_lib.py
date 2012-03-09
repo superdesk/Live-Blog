@@ -25,7 +25,7 @@ def js_core_libs_format():
 @ioc.config
 def js_core_libs():
     ''' The javascript core libraries '''
-    return ['jquery', 'jquery-ui', 'jquery-ui-ext', 'jquery/rest', 'jquery/tmpl', 'startup']
+    return ['jquery', 'jquery-ui', 'jquery-ui-ext', 'jquery/rest', 'jquery/tmpl', 'superdesk', 'startup']
 
 @ioc.config
 def js_bootstrap_file():
@@ -43,6 +43,7 @@ def updateStartup():
     bootPath = lib_folder_format() % 'core/'
     try:
         fileList = [openURI(getGuiPath(js_core_libs_format() % x)) for x in js_core_libs()]
+        cdmGUI().removePath(bootPath + js_bootstrap_file())
         cdmGUI().publishFromFile(bootPath + js_bootstrap_file(), BytesIO(b'\n'.join([fi.read() for fi in fileList])))
     finally:
         for f in fileList: f.close()

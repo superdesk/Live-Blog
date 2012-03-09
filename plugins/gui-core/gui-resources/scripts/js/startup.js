@@ -1,69 +1,41 @@
-$.extend( $, 
+// TODO set automatically on server startup
+superdesk.apiUrl = "http://localhost:8080";
+
+$(function()
 {
-	/*!
-	 * Loads template files via ajax and extracts the templates
-	 * 
-	 * @param string path 
-	 * 	the url from which to load templates
-	 * @param string selector 
-	 * 	optional, selector to use to match templates in loaded file
-	 * @returns $.Deferred
-	 */
-	getTmpl: function(path)
+	var buildMenu = function()
 	{
-		var tplSelector = typeof arguments[1] != 'undefined' ? arguments[2] : "script[type='text/x-jQuery-tmpl']", 
-			dfd = new $.Deferred;
-		$.ajax(path, {dataType: 'html'}).done(function(html)
-		{ 
-			var templates = [];
-			$(html).each(function(i, elem){ if($(elem).is(tplSelector)) templates.push(elem); });
+		var menu = new $.rest(superdesk.apiUrl + '/resources/GUI/Action?path=menu')
+		.done(function(menu)
+		{
+			// superdesk.navigation.bind(menu);
+
+			var displayMenu = [];
+			$(menu).each(function()
+			{ 
+				if( this.Path == 'menu' ) return true;
+				var path = this.Path.split('.'); 
+				this.Href = "/"+path.join('/');
+				this.Name = path.join('-');
+				displayMenu.push(this);
+				var scriptPath = this.ScriptPath;
+				$(document).on('click', 'a[href^="'+this.Href+'"]', function(event)
+				{
+					$.ajax(superdesk.apiUrl+'/'+scriptPath, {dataType: 'script'});
+					event.preventDefault();
+				});
+			});
+			$('#navbar-top').tmpl( '#navbar-tmpl', {menu: displayMenu} );
 			
-		// ----------------?--------------- //
-			$('head').append(templates);
-		// ----------------?--------------- //
-			
-			dfd.resolve(templates);
-		})
-		return dfd;
-	}
+		});
+	};
+	
+	$.when( superdesk.loadLayout('/content/lib/core/layouts/dashboard.html', 'dashboard'),
+			superdesk.loadLayout('/content/lib/core/layouts/update.html', 'update'),
+			superdesk.loadLayout('/content/lib/core/layouts/list.html', 'list') )
+	.then(function()
+	{
+		buildMenu();
+		$('#area-main').tmpl(superdesk.layouts.dashboard);
+	});
 });
-var superdesk = 
-{
-	layouts: {},
-	/*!
-	 * load layout to superdesk object layouts
-	 * @param string path layout path
-	 * @param string name layout name
-	 */
-	loadLayout: function(path, name)
-	{
-		return $.ajax( superdesk.apiUrl+path, {dataType: 'html'})
-			.done(function(data)
-			{
-				// need to wrap it in a <div /> tag for $ selector to work
-				var layoutObject = $('<div>'+data+'</div>');
-				if( typeof name == 'string')
-					superdesk.layouts[name] = layoutObject;
-				else
-					name = layoutObject;
-				
-				return layoutObject;
-			});
-	},
-	/*!
-	 * Loads and applies script to a layout object
-	 * 
-	 * @param string scriptPath 
-	 * @param object layoutObject 
-	 * @param bool fullPath if true superdesk.apiUrl will not be included
-	 */
-	applyScriptToLayout: function(scriptPath, layoutObject, fullPath)
-	{
-		return $.ajax((!fullPath ? superdesk.apiUrl : '') + '/' + scriptPath, {dataType: 'text'})
-			.done(function(data)
-			{
-				// TODO additional security checking here
-				(new Function('layout', data)).call(null, layoutObject);
-			});
-	}
-};
