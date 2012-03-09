@@ -7,11 +7,12 @@
 	<import file="../plugins/superdesk/build-plugin.ant" />
 	<import file="../plugins/superdesk-language/build-plugin.ant" />
 	<import file="../plugins/superdesk-address/build-plugin.ant" />
+	<import file="../plugins/superdesk-user/build-plugin.ant" />
 	
-	<target name="clean" depends="superdesk.clean, superdesk-language.clean, superdesk-address.clean">
+	<target name="clean" depends="superdesk.clean, superdesk-language.clean, superdesk-address.clean, superdesk-user.clean">
 	</target>
 
-	<target name="build" depends="clean, superdesk.build, superdesk-language.build, superdesk-address.build">
+	<target name="build" depends="clean, superdesk.build, superdesk-language.build, superdesk-address.build, superdesk-user.build">
 	</target>
 
 </project>

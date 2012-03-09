@@ -1,5 +1,7 @@
 $(function()
 {
+	$('#area-main').html(layout);
+	
 	// main application, on deferred success
 	var app = function(URL) 
 	{
@@ -19,8 +21,8 @@ $(function()
 					.spawn()
 				.done(function( request, requestResource )
 				{
-					superdesk.layout.main.find('#area-content')
-						.tmpl( '#request-descr-tmpl', {Request: request} ); // need object for iteration
+					$('#area-content', layout)
+						.tmpl( $('#request-descr-tmpl', superdesk.tmplRepo), {Request: request} ); // need object for iteration
 					// attach spawned resource to the info button
 					$('header', '#area-content')
 						.prop('api-resource', requestResource)
@@ -48,10 +50,10 @@ $(function()
 					case 'insert':
 					case 'update':
 					case 'delete':
-						tmpl = '#request-method-tmpl';
+						tmplName = '#request-method-tmpl';
 						break;
 					case 'develinput':
-						tmpl = '#request-inputlist-tmpl';
+						tmplName = '#request-inputlist-tmpl';
 						break;
 					default:
 						console.error(apiMethod);
@@ -63,9 +65,7 @@ $(function()
 				.done(function(methodData)
 				{
 					$.tmplOption({varname: 'input'});
-					var html = $.tmpl(tmpl, methodData);
-					
-					displayBox.html(html || '<em>nothing here</em>').slideDown('fast');
+					displayBox.tmpl($(tmplName, superdesk.tmplRepo), methodData).slideDown('fast');
 				});
 				return false;
 			},
@@ -75,14 +75,14 @@ $(function()
 			inputRequests = new $.rest(URL+'Input').xfilter('ForRequest.Pattern, ForRequest.Id');
 
 		// bind click on header to open method description box
-		$(document).off('click', '#area-content article header');
-		$(document).on('click', '#area-content article header', displayMethod);
+		$(document).off('click.superdesk', '#area-content article header');
+		$(document).on('click.superdesk', '#area-content article header', displayMethod);
 		
 		// generate list of available requests
 		requests.done(function(requestList)
 		{
-			superdesk.layout.main.find('#area-sidebar')
-				.tmpl('#request-list-tmpl', {request: requestList})
+			$('#area-sidebar-left', layout)
+				.tmpl($('#request-list-tmpl', superdesk.tmplRepo), {request: requestList})
 				.find('ul').children().off('click').on('click', displayPattern);
 		}, appFail);
 		
@@ -114,16 +114,14 @@ $(function()
 				}
 			});
 			return false;
-		})
-		
+		});
 	},
-	
 	appFail = function()
 	{
-		$($.tmpl('#request-fail-tmpl', {})).appendTo($('#area-error').html(''));
+		$('#area-error').html('').tmpl($('#request-fail-tmpl', superdesk.tmplRepo));
 	};
-
-	superdesk.layout.main.tmpl(superdesk.layouts[2])
-	app(superdesk.apiUrl+'/resources/Devel/')
+	
+	superdesk.getTmpl(superdesk.apiUrl+'/content/gui/superdesk/request/request.html')
+		.done(function(){ app(superdesk.apiUrl+'/resources/Devel/'); });
 });
 
