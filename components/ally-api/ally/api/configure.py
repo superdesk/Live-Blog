@@ -341,7 +341,7 @@ class APICall:
             else: self.inputs.append(Input(name, typ, True, defaults[k - self.mandatoryCount]))
 
         @wraps(function)
-        def callFunction(srv, *args):
+        def proxyFunction(srv, *args):
             '''
             Used for wrapping the actual service function call.
             '''
@@ -352,8 +352,9 @@ class APICall:
             assert self.name in service.calls, \
             'Invalid service %s has no call for name <%s>' % (service, self.name)
             return service.calls[self.name].call(srv.implementation, args)
-        callFunction.APICall = self
-        return callFunction
+        proxyFunction.APICall = self
+        proxyFunction.APIFunction = function
+        return proxyFunction
 
 class APIService:
     '''
@@ -521,7 +522,7 @@ def _processAPICalls(serviceClass):
     
     @param serviceClass: class 
         The service class to search the calls for.
-    @return: dictionary
+    @return: tuple(dictionary{string, Call}, dictionary{string, Function})
         A dictionary containing all the Call's attached to the API calls found, as key is the name of the 
         API call decorated function.
     '''
@@ -532,14 +533,21 @@ def _processAPICalls(serviceClass):
             apiCall = None
             try:
                 apiCall = func.APICall
-                assert isinstance(apiCall, APICall), 'Expected API call %' % apiCall
-                call = Call(name, apiCall.method, apiCall.outputType, apiCall.inputs,
-                            apiCall.mandatoryCount, apiCall.hints)
-                calls[name] = call
-                log.info('Found call %s', call)
             except AttributeError:
-                log.warn('Function %s is not an API call, maybe you forgot to decorated with APICall?', \
-                         func.__name__)
+                assert log.debug('Function %s has no API call, making it an inactive API call', func.__name__) or True
+                try:
+                    apiCall = APICall(active=False)
+                    setattr(serviceClass, name, apiCall(func))
+                except:
+                    fnc = func.__code__
+                    raise AssertionError('Cannot create the inactive API call at:\nFile "%s", line %i, in %s' % \
+                                        (fnc.co_filename, fnc.co_firstlineno, func.__name__))
+                
+            assert isinstance(apiCall, APICall), 'Expected API call %' % apiCall
+            call = Call(name, apiCall.method, apiCall.outputType, apiCall.inputs,
+                        apiCall.mandatoryCount, apiCall.hints)
+            calls[name] = call
+            assert log.debug('Processed call %s', call) or True
     return calls
 
 def _processCallGeneric(call, genericModel, genericQuery):
@@ -843,6 +851,33 @@ def serviceFor(obj, service=None):
         return ATTR_SERVICE.get(obj, None)
     assert not ATTR_SERVICE.hasOwn(obj), 'Already has a service %s' % obj
     ATTR_SERVICE.set(obj, service)
+
+
+def functionFor(service, call):
+    '''
+    Provides the original API function defined in the service that was defined by the user for the provided call. This
+    is useful when we need information about that function like the file where it was defined or the line number ...
+    
+    @param service: Service|class
+        The service or service class to provide the original function from.
+    @param call: Call|string
+        The call or call name of the original function to get.
+    @return: function
+        The original API function (the one that has been decorated and transformed).
+    '''
+    if isclass(service):
+        serviceClass = service
+        service = serviceFor(serviceClass)
+        assert isinstance(service, Service), 'Invalid class %s, is not a service class' % serviceClass
+    else:
+        assert isinstance(service, Service), 'Invalid service %s' % service
+        serviceClass = service.serviceClass
+    if isinstance(call, Call): call = call.name
+    assert isinstance(call, str), 'Invalid call name %s' % call
+    assert call in service.calls, 'Invalid call %s for service %s' % (call, service)
+    fn = getattr(serviceClass, call)
+    try: return fn.APIFunction
+    except AttributeError: return fn
 
 # --------------------------------------------------------------------
 

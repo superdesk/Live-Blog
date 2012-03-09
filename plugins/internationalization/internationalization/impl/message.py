@@ -11,12 +11,11 @@ Implementation for the message API.
 
 from ..api.message import IMessageService
 from ..meta.message import Message, QMessage
-from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
-from ally.api.model import Part
-from ally.support.sqlalchemy.mapper import addLoadListener, addInsertListener, \
-    addUpdateListener
 from ally.exception import InputException, Ref
 from ally.internationalization import _
+from ally.support.sqlalchemy.mapper import addLoadListener, addInsertListener, \
+    addUpdateListener
+from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 
 # --------------------------------------------------------------------
 
@@ -35,9 +34,17 @@ class MessageServiceAlchemy(EntityGetCRUDServiceAlchemy, IMessageService):
         '''
         @see: IMessageService.getMessages
         '''
-        filter = None
         if sourceId: filter = Message.Source == sourceId
-        return Part(*self._getAllWithTotal(filter, q, offset, limit))
+        else: filter = None
+        return self._getAll(filter, q, offset, limit)
+    
+    def getMessagesCount(self, sourceId=None, q=None):
+        '''
+        @see: IMessageService.getMessagesCount
+        '''
+        if sourceId: filter = Message.Source == sourceId
+        else: filter = None
+        return self._getCount(filter, q)
     
     # ----------------------------------------------------------------
     
