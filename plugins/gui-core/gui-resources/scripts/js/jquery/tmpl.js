@@ -133,22 +133,29 @@
     ({
         tmpl : function(tmpl, data, defs)
         {
-        	if(typeof data == 'undefined') data = {}
+        	// for no data passed
+        	if( typeof data == 'undefined' ) data = {};
+        	// for direct compiled template passed as argument use
+        	if( typeof tmpl == 'function' ) return tmpl(data); 
+        	// for jQuery object passed
+        	if( typeof tmpl == 'object' && typeof tmpl.html == 'function' )
+        		tmplObj = tmpl
+        	// for string selector passed
+        	else
+        		tmplObj = $(tmpl)
         	
-        	if(typeof tmpl == 'function') return tmpl(data)
-        	
-            if (!$(tmpl).data('compiled-template')) 
-            	$(tmpl).data('compiled-template', doT.template( $(tmpl).html(), undefined, defs ));
+            if( !tmplObj.data('compiled-template') ) 
+            	tmplObj.data('compiled-template', doT.template( tmplObj.html(), undefined, defs ));
             
-            fn = $(tmpl).data('compiled-template');
-            if(typeof fn === 'function')
+            fn = tmplObj.data('compiled-template');
+            if( typeof fn === 'function' )
                 return fn(data);
             else
                 return;
         },
         tmplOption : function(key)
     	{
-    		$.extend(doT.templateSettings, key);
+    		$.extend( doT.templateSettings, key );
     	}
     });
 })(jQuery);
