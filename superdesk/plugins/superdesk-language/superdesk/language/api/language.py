@@ -11,7 +11,7 @@ API specifications for languages.
 
 from ally.api.config import service, call, query
 from ally.api.criteria import AsLike
-from ally.api.type import FrontLanguage, IdString, IterPart, List
+from ally.api.type import FrontLanguage, IdString, IterPart, List, Iter, Count
 from sql_alchemy.api.entity import Entity, IEntityCRUDService
 from superdesk.api import modelSuperDesk
 
@@ -27,7 +27,7 @@ class Language:
     Territory = str
     Script = str
     Variant = str
-    
+
     def __init__(self, Code=None, Name=None):
         if Code: self.Code = Code
         if Name: self.Name = Name
@@ -55,7 +55,7 @@ class ILanguageService(IEntityCRUDService):
     '''
     Provides services for languages.
     '''
-    
+
     @call
     def getByCode(self, code:Language.Code, translate:List(FrontLanguage)=None) -> Language:
         '''
@@ -68,15 +68,20 @@ class ILanguageService(IEntityCRUDService):
         '''
         Provides all the available languages.
         '''
-   
+
     @call
     def getById(self, id:LanguageEntity.Id, translate:List(FrontLanguage)=None) -> LanguageEntity:
         '''
         Provides the language based on the id.
         '''
-    
-    @call
-    def getAll(self, offset:int=None, limit:int=None, translate:List(FrontLanguage)=None) -> IterPart(LanguageEntity):
+
+    def getCount(self) -> Count:
+        '''
+        Provides the count of all the languages available in the system.
+        '''
+
+    @call(countMethod=getCount)
+    def getAll(self, offset:int=None, limit:int=None, translate:List(FrontLanguage)=None) -> Iter(LanguageEntity):
         '''
         Provides all the languages available in the system.
         '''

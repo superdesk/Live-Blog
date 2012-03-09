@@ -30,22 +30,28 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
     '''
     Implementation for @see: ILanguageService using Babel library.
     '''
-    
+
     default_language = 'en'; wire.config('default_language', doc=
     'The default language to use in presenting the languages names')
-    
+
     def __init__(self):
+        '''
+        Construct the language service.
+        '''
+        assert isinstance(self.default_language, str), 'Invalid default language %s' % self.default_language
         EntityNQServiceAlchemy.__init__(self, LanguageEntity)
-        self._locales = OrderedDict([(code, Locale.parse(code)) for code in locale_identifiers()])
+        locales = [(code, Locale.parse(code)) for code in locale_identifiers()]
+        locales.sort(key=lambda pack: pack[0])
+        self._locales = OrderedDict(locales)
         validateProperty(LanguageEntity.Code, self._validateCode)
-    
+
     def getByCode(self, code, translate=None):
         '''
         @see: ILanguageService.getByCode
         '''
         if not translate: translate = self.default_language
         locale = self._localeOf(code)
-        if not locale: raise InputException(Ref(_('Unknown code'), ref=Language.Code))
+        if not locale: raise InputException(Ref(_('Unknown language code'), ref=Language.Code))
         return self._populate(Language(code), self._translator(locale, self._localesOf(translate)))
 
     def getAllAvailable(self, offset=None, limit=None, q=None, translate=None):
@@ -63,15 +69,15 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
                 assert isinstance(translator, Locale)
                 name = translator.languages.get(locale.language)
                 if name and nameRegex.match(name): languages.append((code, translator))
-                    
+
             trimLanguages = trimIter(iter(languages), len(languages), offset, limit)
             return Part((self._populate(Language(code), translator) for code, translator in trimLanguages),
                             len(languages))
-        
+
         languages = trimIter(iter(self._locales.items()), len(self._locales), offset, limit)
         return Part((self._populate(Language(code), self._translator(locale, locales))
                          for code, locale in languages), len(self._locales))
-    
+
     def getById(self, id, translate=None):
         '''
         @see: ILanguageService.getById
@@ -80,17 +86,23 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         locales = self._localesOf(translate)
         language = super().getById(id)
         return self._populate(language, self._translator(self._localeOf(language.Code), locales))
-    
+
+    def getCount(self):
+        '''
+        @see: ILanguageService.getCount
+        '''
+        return self._getCount()
+
     def getAll(self, offset=None, limit=None, translate=None):
         '''
         @see: ILanguageService.getAll
         '''
         if not translate: translate = self.default_language
         locales = self._localesOf(translate)
-        languages, total = self._getAllWithTotal(offset=offset, limit=limit)
-        return Part((self._populate(language, self._translator(self._localeOf(language.Code), locales))
-                for language in languages), total)
-    
+        languages = self._getAll(offset=offset, limit=limit)
+        return (self._populate(language, self._translator(self._localeOf(language.Code), locales))
+                for language in languages)
+
     # ----------------------------------------------------------------
 
     def _localeOf(self, code):
@@ -104,7 +116,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         '''
         assert isinstance(code, str), 'Invalid code %s' % code
         return self._locales.get(code.replace('-', '_'))
-    
+
     def _localesOf(self, codes):
         '''
         Helper method that based on a language code list will provide a babel locales.
@@ -119,7 +131,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
 
     def _translator(self, locale, locales):
         '''
-        Helper method that provides the translated language name for locale 'l' based on the locales list, the first
+        Helper method that provides the translated language name for locale based on the locales list, the first
         locale will be used if not translation will be available for that than it will fall back to the next.
         
         @param locale: Locale
@@ -147,22 +159,22 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         '''
         assert isinstance(language, Language), 'Invalid language %s' % language
         assert isinstance(translator, Locale), 'Invalid translator locale %s' % translator
-        
+
         locale = self._localeOf(language.Code)
         if not locale: raise DevelException('Invalid language code %r' % language.Code)
-        
+
         language.Name = translator.languages.get(locale.language)
-        if locale.territory: language.Script = translator.territories.get(locale.territory)
+        if locale.territory: language.Territory = translator.territories.get(locale.territory)
         if locale.script: language.Script = translator.scripts.get(locale.script)
-        if locale.variant: language.Script = translator.variants.get(locale.variant)
+        if locale.variant: language.Variant = translator.variants.get(locale.variant)
         return language
-    
+
     def _validateCode(self, language, model, prop, errors):
         '''
         Validates the language code on a language instance, this is based on the operator listeners.
         '''
         assert isinstance(language, Language), 'Invalid language %s' % language
-        locale = self._localeOf(language.Code) 
+        locale = self._localeOf(language.Code)
         if not locale:
             errors.append(Ref(_('Invalid language code'), ref=Language.Code))
             return False
