@@ -82,11 +82,34 @@ class EntitySupportAlchemy(SessionSupport):
             'Invalid query %s, expected class %s' % (query, self.query.queryClass)
             sqlQuery = buildQuery(sqlQuery, query, self.QEntity)
         sqlQuery = buildLimits(sqlQuery, offset, limit)
-        return sqlQuery.all()
+        return (entity for entity in sqlQuery.all())
     
-    def _getAllWithTotal(self, filter=None, query=None, offset=None, limit=None, sqlQuery=None):
+    def _getCount(self, filter=None, query=None, sqlQuery=None):
         '''
-        Provides all the entities for the provided filter, with offset and limit  and the total count. Also if query is 
+        Provides the count for the entities of the provided filter. Also if query is known to the service then also a
+        query can be provided.
+        
+        @param filter: SQL alchemy filtering|None
+            The sql alchemy conditions to filter by.
+        @param query: query
+            The REST query object to provide filtering on.
+        @param sqlQuery: SQL alchemy|None
+            The sql alchemy query to use.
+        @return: integer
+            The count of the total elements.
+        '''
+        sqlQuery = sqlQuery or self.session().query(self.Entity)
+        if filter is not None: sqlQuery = sqlQuery.filter(filter)
+        if query:
+            assert self.query, 'No query provided for the entity support'
+            assert isinstance(query, self.query.queryClass), \
+            'Invalid query %s, expected class %s' % (query, self.query.queryClass)
+            sqlQuery = buildQuery(sqlQuery, query, self.QEntity)
+        return sqlQuery.count()
+    
+    def _getAllWithCount(self, filter=None, query=None, offset=None, limit=None, sqlQuery=None):
+        '''
+        Provides all the entities for the provided filter, with offset and limit and the total count. Also if query is 
         known to the service then also a query can be provided.
         
         @param filter: SQL alchemy filtering|None
@@ -111,7 +134,7 @@ class EntitySupportAlchemy(SessionSupport):
             sqlQuery = buildQuery(sqlQuery, query, self.QEntity)
         sql = buildLimits(sqlQuery, offset, limit)
         if limit == 0: return [], sqlQuery.count()
-        return sql.all(), sqlQuery.count()
+        return (entity for entity in sql.all()), sqlQuery.count()
         
 # --------------------------------------------------------------------
 
