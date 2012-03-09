@@ -172,6 +172,13 @@ class PathExtended(Path):
         return PathExtended(self.parent.clone(), [match.clone() for match in self.matchesOwned], self.node, \
                             self.index)
 
+# --------------------------------------------------------------------
+
+class AssembleError(Exception):
+    '''
+    Exception thrown whenever there is an assembly problem.
+    '''
+
 class Assembler(metaclass=abc.ABCMeta):
     '''
     This class needs to be extended.
@@ -205,7 +212,7 @@ class Assembler(metaclass=abc.ABCMeta):
         
         @param root: Node
             The root node to assemble the invokers to.
-        @param invokers: list
+        @param invokers: list[Invoker]
             The list of invokers to be assembled.
         '''
 

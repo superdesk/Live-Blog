@@ -284,8 +284,6 @@ class TypeModel(Type):
         
         @param model: Model
             The model that this type is constructed on.
-        @param acceptPartial: boolean
-            Flag indicating that partial forms of the represented model should be accepted.
         '''
         from .operator import Model
         assert isinstance(model, Model), 'Invalid model provided %s' % model
@@ -560,7 +558,7 @@ _classType[datetime] = typeFor(DateTime)
 formattedType.append(DateTime)
 
 # --------------------------------------------------------------------
-# Id types
+# Id and special types
 
 class Id(Uninstantiable, int):
     '''
@@ -575,6 +573,13 @@ class IdString(Uninstantiable):
     Only used as a class, do not create an instance.
     '''
 typeFor(IdString, TypeId(str))
+
+class Count(Uninstantiable):
+    '''
+    Maps the total count for a collection. 
+    Only used as a class, do not create an instance.
+    '''
+typeFor(Count, Type(int, True, False))
 
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
