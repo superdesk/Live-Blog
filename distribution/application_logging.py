@@ -14,11 +14,11 @@ import logging
 logging.basicConfig(format='%(module)s.%(funcName)s %(lineno)d: %(message)s')
 
 #logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
-#logging.getLogger('internationalization').setLevel(logging.DEBUG)
+#logging.getLogger('internationalization.scanner').setLevel(logging.DEBUG)
 #logging.getLogger('ally.support.sqlalchemy.mapper').setLevel(logging.DEBUG)
 #logging.getLogger('__plugin__').setLevel(logging.DEBUG)
 
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.WARN)
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 #logging.getLogger('sqlalchemy.dialects').setLevel(logging.WARN)
 #logging.getLogger('sqlalchemy.pool').setLevel(logging.WARN)
 #logging.getLogger('sqlalchemy.orm').setLevel(logging.DEBUG)
