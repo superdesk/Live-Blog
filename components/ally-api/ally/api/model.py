@@ -20,9 +20,9 @@ class Part:
     Provides a wrapping for iterable objects that represent a part of a bigger collection. Basically beside the actual
     items this class objects also contain a total count of the big item collection that this iterable is part of.
     '''
-    
+
     __slots__ = __immutable__ = ('iter', 'total')
-    
+
     def __init__(self, iter, total):
         '''
         Construct the partial iterable.
@@ -37,8 +37,8 @@ class Part:
         assert total >= 0, 'Invalid total count %s, cannot be less then 0'
         self.iter = iter
         self.total = total
-        
+
     __iter__ = lambda self: self.iter.__iter__()
-    
+
     def __str__(self):
         return '%s[%s, %s]' % (self.__class__.__name__, self.total, self.iter)

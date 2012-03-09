@@ -35,9 +35,9 @@ class Type:
     '''
     The class that represents the API types used for mapping data.
     '''
-    
+
     __slots__ = __immutable__ = ('forClass', 'isPrimitive', 'isContainable')
-    
+
     def __init__(self, forClass, isPrimitive=False, isContainable=True):
         '''
         Initializes the type setting the primitive aspect of the type.
@@ -54,7 +54,7 @@ class Type:
         self.forClass = forClass
         self.isPrimitive = isPrimitive
         self.isContainable = isContainable
-        
+
     def isOf(self, type):
         '''
         Checks if the provided type is compatible with this type.
@@ -77,22 +77,22 @@ class Type:
                 The object instance to check.
         '''
         return isinstance(obj, self.forClass)
-    
+
     def __hash__(self): return hash(self.forClass)
-    
+
     def __eq__(self, other):
         if isinstance(other, self.__class__): return self.forClass == other.forClass
         return False
-    
+
     def __str__(self): return self.forClass.__name__
 
 class TypeNone(Singletone, Type):
     '''
     Provides the type that matches None.
     '''
-    
+
     __slots__ = Type.__slots__
-    
+
     def __init__(self):
         '''
         @see: Type.__init__
@@ -105,16 +105,16 @@ class TypeNone(Singletone, Type):
         @see: Type.isOf
         '''
         return self is type or type == None
-    
+
     def isValid(self, obj):
         '''
         @see: Type.isValid
         '''
         return obj is None
-    
+
     def __eq__(self, other):
         return other is self
-    
+
     def __str__(self):
         return 'None'
 
@@ -122,16 +122,16 @@ class TypePercentage(Singletone, Type):
     '''
     Provides the type for percentage values.
     '''
-    
+
     __slots__ = Type.__slots__
-    
+
     def __init__(self):
         '''
         Constructs the percentage type.
         @see: Type.__init__
         '''
         Type.__init__(self, float, True)
-        
+
 # --------------------------------------------------------------------
 # Id types
 
@@ -139,9 +139,9 @@ class TypeId(Type):
     '''
     Provides the type for the id. This type has to be a primitive type always.
     '''
-    
+
     __slots__ = Type.__slots__
-    
+
     def __init__(self, forClass):
         '''
         Constructs the id type for the provided class.
@@ -154,14 +154,14 @@ class TypeId(Type):
 
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
-        
+
 class TypeFrontLanguage(Singletone, Type):
     '''
     Provides the type representing the user requested language for presentation.
     '''
-    
+
     __slots__ = Type.__slots__
-    
+
     def __init__(self):
         '''
         Constructs the front language type.
@@ -178,9 +178,9 @@ class Iter(Type):
     Since the values in an iterator can only be retrieved once than this type when validating the iterator it will
     not be able to validate also the elements.
     '''
-    
+
     __slots__ = __immutable__ = Type.__immutable__ + ('itemType',)
-    
+
     def __init__(self, itemType):
         '''
         Constructs the iterator type for the provided item type.
@@ -194,7 +194,7 @@ class Iter(Type):
         assert itemType.isContainable, 'Invalid item type %s because is not containable' % itemType
         self.itemType = itemType
         Type.__init__(self, itemType.forClass, False, False)
-    
+
     def isOf(self, type):
         '''
         @see: Type.isOf
@@ -206,15 +206,15 @@ class Iter(Type):
         @see: Type.isValid
         '''
         return isinstance(iter, Iterable)
-    
+
     def __hash__(self): return hash(self.itemType)
-    
+
     def __eq__(self, other):
         if isinstance(other, self.__class__): return self.itemType == other.itemType
         return False
-    
+
     def __str__(self): return '%s(%s)' % (self.__class__.__name__, self.itemType)
-    
+
 class IterPart(Iter):
     '''
     Maps an iterator of values that is a part of a bigger collection.
@@ -222,9 +222,9 @@ class IterPart(Iter):
     Since the values in an iterator can only be retrieved once than this type when validating the iterator it will
     not be able to validate also the elements.
     '''
-    
+
     __slots__ = __immutable__ = Type.__immutable__ + ('itemType',)
-    
+
     def __init__(self, itemType):
         '''
         Constructs the iterator type for the provided item type.
@@ -240,16 +240,16 @@ class IterPart(Iter):
         @see: Type.isValid
         '''
         return isinstance(iter, Part)
-    
+
 class List(Iter):
     '''
     Maps lists of values.
     You need also to specify in the constructor what elements this list will contain.
     Unlike the iterator type the list type also validates the contained elements.
     '''
-    
+
     __slots__ = Iter.__slots__
-    
+
     def __init__(self, itemType):
         '''
         Constructs the list type for the provided type.
@@ -274,9 +274,9 @@ class TypeModel(Type):
     '''
     Provides the type for the model.
     '''
-    
+
     __slots__ = __immutable__ = Type.__immutable__ + ('model',)
-    
+
     def __init__(self, model):
         '''
         Constructs the model type for the provided model.
@@ -294,9 +294,9 @@ class TypeQuery(Type):
     '''
     Provides the type for the query.
     '''
-    
+
     __slots__ = __immutable__ = Type.__immutable__ + ('query',)
-    
+
     def __init__(self, query):
         '''
         Constructs the query type for the provided query.
@@ -317,9 +317,9 @@ class TypeProperty(Type):
     Property and the Model that is constructed on. This type behaves as the type assigned to the property 
     and also contains the references to the property and model class.
     '''
-    
+
     __slots__ = __immutable__ = Type.__immutable__ + ('model', 'property')
-    
+
     def __init__(self, model, property):
         '''
         Constructs the property type for the provided property and model.
@@ -336,13 +336,13 @@ class TypeProperty(Type):
         self.model = model
         self.property = property
         Type.__init__(self, property.type.forClass, property.type.isPrimitive)
-    
+
     def isOf(self, type):
         '''
         @see: Type.isOf
         '''
         return self == type or self.property.type.isOf(type)
-    
+
     def isValid(self, obj):
         '''
         Checks if the provided object instance is represented by this API type.
@@ -351,24 +351,24 @@ class TypeProperty(Type):
                 The object instance to check.
         '''
         return self.property.type.isValid(obj)
-    
+
     def __hash__(self): return hash((self.model, self.property))
-    
+
     def __eq__(self, other):
         if isinstance(other, self.__class__): return self.model == other.model and self.property == other.property
         return False
 
     def __str__(self): return '%s.%s' % (self.model.name, self.property.name)
-    
+
 class TypeCriteriaEntry(Type):
     '''
     This type is used to wrap query criteria as types. So whenever a type is provided based on a Query criteria
     this type will be used. Contains the type that is reflected based on the criteria entry type also contains the 
     CriteriaEntry and the Query that is constructed on. 
     '''
-    
+
     __slots__ = __immutable__ = Type.__immutable__ + ('query', 'criteriaEntry')
-    
+
     def __init__(self, query, criteriaEntry):
         '''
         Constructs the criteria entry type for the provided criteria entry and query.
@@ -385,13 +385,13 @@ class TypeCriteriaEntry(Type):
         self.query = query
         self.criteriaEntry = criteriaEntry
         Type.__init__(self, criteriaEntry.type.forClass, criteriaEntry.type.isPrimitive)
-    
+
     def isOf(self, type):
         '''
         @see: Type.isOf
         '''
         return self == type or self.criteriaEntry.type.isOf(type)
-    
+
     def isValid(self, obj):
         '''
         Checks if the provided object instance is represented by this API type.
@@ -400,9 +400,9 @@ class TypeCriteriaEntry(Type):
                 The object instance to check.
         '''
         return self.criteriaEntry.type.isValid(obj)
-    
+
     def __hash__(self): return hash((self.query, self.criteriaEntry))
-    
+
     def __eq__(self, other):
         if isinstance(other, self.__class__): return self.query == other.query and \
         self.criteriaEntry == other.criteriaEntry
@@ -417,9 +417,9 @@ class Input:
     '''
     Provides an input entry for a call, this is used for keeping the name and also the type of a call parameter.
     '''
-    
+
     __slots__ = __immutable__ = ('name', 'type', 'hasDefault', 'default')
-    
+
     def __init__(self, name, type, hasDefault=False, default=None):
         '''
         Construct the input.
@@ -439,7 +439,7 @@ class Input:
         self.type = type
         self.hasDefault = hasDefault
         self.default = default
-        
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.name == other.name and self.type == other.type
@@ -583,10 +583,11 @@ typeFor(Count, Type(int, True, False))
 
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
-    
+
 class FrontLanguage(Uninstantiable):
     '''
     Maps the type representing the user requested language for presentation.
     Only used as a class, do not create an instance.
     '''
 typeFor(FrontLanguage, TypeFrontLanguage())
+
