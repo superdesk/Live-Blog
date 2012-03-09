@@ -10,7 +10,16 @@ Contains the GUI configuration setup for the node presenter plugin.
 '''
 
 from ally.container import ioc
+<<<<<<< HEAD
 from ..gui_core.gui_core import publishGui
+=======
+from ally.internationalization import N_, textdomain
+from gui.action.api.action import Action
+
+# --------------------------------------------------------------------
+
+textdomain('actions')
+>>>>>>> 2765788efb6d3f5ded377d5a0a8f8fb74255c330
 
 # --------------------------------------------------------------------
 
