@@ -11,20 +11,18 @@ Contains the SQL alchemy meta for source API.
 
 from . import meta
 from ..api.source import Source, QSource, TYPE_PYTHON, TYPE_JAVA_SCRIPT
+from .file import File
 from ally.support.sqlalchemy.mapper import mapperModel, mapperQuery
-from sqlalchemy.schema import Table, Column
-from sqlalchemy.types import String, Integer, Enum, DateTime
+from sqlalchemy.schema import Table, Column, ForeignKey
+from sqlalchemy.types import Enum
 
 # --------------------------------------------------------------------
 
 table = Table('inter_source', meta,
-              Column('id', Integer(unsigned=True), primary_key=True, key='Id'),
-              Column('fk_component_id', String(255), nullable=True, key='Component'),
-              Column('fk_plugin_id', String(255), nullable=True, key='Plugin'),
-              Column('path', String(255), nullable=False, unique=True, key='Path'),
+              Column('fk_file_id', ForeignKey(File.Id), primary_key=True, key='Id'),
               Column('type', Enum(TYPE_PYTHON, TYPE_JAVA_SCRIPT), nullable=False, key='Type'),
-              Column('last_modified', DateTime, nullable=False, key='LastModified'),
+              mysql_engine='InnoDB'
               )
 
-Source = mapperModel(Source, table)
+Source = mapperModel(Source, table, inherits=File)
 QSource = mapperQuery(QSource, Source)
