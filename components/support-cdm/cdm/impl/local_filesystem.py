@@ -318,6 +318,9 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         path, entryPath = self._validatePath(path)
         linkPath = entryPath
+        
+        if isfile(linkPath): return os.remove(linkPath)
+            
         repPathLen = len(self.delivery.getRepositoryPath())
         while len(linkPath.lstrip(os.sep)) > repPathLen:
             linkFile = linkPath + self._linkExt
