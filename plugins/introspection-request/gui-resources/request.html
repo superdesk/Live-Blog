@@ -35,7 +35,7 @@
 
 <script type="text/x-jQuery-tmpl" id="request-inputlist-tmpl">
 
-	{% for(var i in input) %}
+	{% for(var i in input.InputList) %}
 	<h3>
 		<small>#{{input[i].Id}}</small> {{input[i].Name}}
 		{% if(input[i].Mandatory) %}
@@ -50,6 +50,8 @@
 		{{input[i].Description}}
 	</p>
 	{% endfor %}
+
+	{?input.InputList}<em>nothing here</em>{?}
 
 </script><!--/#request-inputlist-tmpl-->
 

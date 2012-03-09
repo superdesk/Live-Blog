@@ -9,6 +9,7 @@ Created on Feb 27, 2012
 Action Manager Implementation
 '''
 
+import re
 from ally.container.ioc import injected
 from gui.action.api.action import IActionManagerService, Action
 
@@ -30,11 +31,23 @@ class ActionManagerService(IActionManagerService):
         '''
         assert isinstance(action, Action), 'Invalid parameter action: %s' % action
         self._actions[action.Path] = action
+        return action.Path
         
     def getAll(self, path):
         '''
         @see: IActionManagerService.getAll
         '''
         actions = self._actions.values()
-        if path: actions = [action for action in actions if action.Path.startswith(path.rstrip('.'))]
+        if path:
+            # match exact path, passed between " (double quotes)
+            if re.match('".+"', path): 
+                actions = [action for action in actions if action.Path == path.strip('"')]
+            # match a word placeholder *
+            elif path.find('*') != -1:
+                p = '^'+re.sub(r'\\\*', '\w+', re.escape(path))+'$'
+                actions = [action for action in actions if re.match(p, action.Path)]
+            # normal match, paths starting with path string
+            else: 
+                actions = [action for action in actions if action.Path.startswith(path.rstrip('.'))]
+                
         return sorted(actions, key=lambda action: action.Path)
