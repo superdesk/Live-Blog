@@ -15,6 +15,8 @@ from ally.api.criteria import AsLike
 from introspection.api import modelDevel
 from sql_alchemy.api.entity import Entity, QEntity, IEntityGetCRUDService
 from ally.api.type import Iter, Count, List
+from introspection.api.plugin import Plugin
+from introspection.api.component import Component
 
 # --------------------------------------------------------------------
 
@@ -29,7 +31,7 @@ class Message(Entity):
     Context = str
     LineNumber = int
     Comments = str
-    
+
 # --------------------------------------------------------------------
 
 class QMessage(QEntity):
@@ -46,14 +48,36 @@ class IMessageService(IEntityGetCRUDService):
     '''
     The messages service.
     '''
-    
-    def getMessagesCount(self, sourceId:Source.Id=None, q:QMessage=None) -> Count:
-        '''
-        Provides the messages count searched based on the provided parameters.
-        '''
-        
+
     @call(countMethod=getMessagesCount)
     def getMessages(self, sourceId:Source.Id=None, offset:int=None, limit:int=10, q:QMessage=None) -> Iter(Message):
         '''
-        Provides the messages searched based on the provided parameters.
+        Provides the messages searched based on the given parameters.
+        '''
+
+    def getMessagesCount(self, sourceId:Source.Id=None, q:QMessage=None) -> Count:
+        '''
+        Provides the total count of messages searched based on the given parameters.
+        '''
+
+    @call(countMethod=getComponentMessagesCount)
+    def getComponentMessages(self, component:Component.Id, offset:int=None, limit:int=10, q:QMessage=None) -> Iter(Message):
+        '''
+        Provides the messages for the given component.
+        '''
+
+    def getComponentMessagesCount(self, component:Component.Id, q:QMessage=None) -> Count:
+        '''
+        Provides the total count of messages for the given component.
+        '''
+
+    @call(countMethod=getPluginMessagesCount)
+    def getPluginMessages(self, plugin:Plugin.Id, offset:int=None, limit:int=10, q:QMessage=None) -> Iter(Message):
+        '''
+        Provides the messages for the given plugin.
+        '''
+
+    def getPluginMessagesCount(self, plugin:Plugin.Id, q:QMessage=None) -> Count:
+        '''
+        Provides the total count of messages for the given plugin.
         '''
