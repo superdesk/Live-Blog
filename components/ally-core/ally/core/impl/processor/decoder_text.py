@@ -54,7 +54,7 @@ class DecodingTextHandler(DecodingTextBaseHandler):
             
             if nameModel:
                 try:
-                    obj = self.decoder(req.content.charSet or self.charSetDefault, req.content)
+                    obj = self.decoder(req.content, req.content.charSet or self.charSetDefault)
                 except ValueError as e:
                     rsp.setCode(BAD_CONTENT, 'Invalid JSON content')
                     return
