@@ -48,6 +48,7 @@ $(function()
 		this.getData = [];
 		this.lastAdded = {};
 		this.job = [];
+		this.initXFrom = false;
 		
 		this.requestOptions = 
 		{
@@ -68,6 +69,7 @@ $(function()
 			return ret;
 		}
 		this.extractListData = extractListData;
+		
 		if( typeof arguments[0] == 'string' )
 		{
 			this.request({url : arguments[0] });
@@ -97,8 +99,15 @@ $(function()
 		this.lastAdded = this.initData;
 		
 		this.fromData = new chainable(function(data){ this.deferred.resolve(data); }, 'fromInit');
-		var fromData = this.fromData;
-		$.when(this.initData).then(function(){ fromData.invoke.apply(fromData, arguments); }, fromData.deferred.reject );
+		var fromData = this.fromData,
+			self = this;
+		
+		fromData.promise().always(function(){ self.initXFrom = false; })
+		self.initXFrom = true;
+		$.when(this.initData).then(function()
+		{
+			fromData.invoke.apply(fromData, arguments);
+		}, fromData.deferred.reject );
 		
 		if(arguments[1]) this.name = arguments[1];
 		
@@ -113,7 +122,7 @@ $(function()
 	{
 		var self = this,
 			args = arguments;
-			  
+		
 		this.fromData = new chainable( function(list)
 		{
 			var found = false;
@@ -123,13 +132,11 @@ $(function()
 				found = list[item];
 				// for each key check if exists and is the value	
 				for( keyName in key )
-				{
 					if(!(keyName in list[item]) || list[item][keyName] != key[keyName])
 					{
 						found = false;
 						break;
 					}
-				}
 				if( found ) break;
 			}
 			
@@ -151,14 +158,27 @@ $(function()
 			
 			return self
 				.doRequest(fromUrl)
-				.pipe(function(data){ return data; })
+				.pipe(function(data)
+				{ 
+					self.fromData.fn = function()
+					{ 
+						this.deferred.resolve(data); 
+						return data; 
+					};
+					return data;
+				})
 				.then(this.deferred.resolve, this.deferred.reject);
 			
 		}, "from "+key);
 		
 		var fromData = this.fromData;
 		this.lastAdded = fromData;
-		$.when(this.initData).then(function(){ fromData.invoke.apply(fromData, arguments); }, fromData.deferred.reject );
+
+		if(!self.initXFrom)
+		{
+			self.iniXFrom = true;
+			$.when(this.initData).then(function(){ fromData.invoke.apply(fromData, arguments); }, fromData.deferred.reject );
+		}
 		
 		if( typeof this.insideJob != 'undefined' )
 			this.insideJob.push(fromData);
@@ -168,7 +188,7 @@ $(function()
 	
 	/*!
 	 * register an operation to obtain a key value from an object node
-	 * obtained by the last operationm either from or construct
+	 * obtained by the last operation either from or construct
 	 */
 	resource.prototype.get = function(key)
 	{
@@ -203,7 +223,7 @@ $(function()
 					self.request(this.request);
 				
 				var ajax = self.doRequest(node.href)
-					.pipe(function(data){ return data; })
+					//.pipe(function(data){ return data; })
 					.then(this.deferred.resolve, this.deferred.reject);
 				return ajax;
 			}
@@ -214,6 +234,7 @@ $(function()
 		
 		this.getData.push(getData);
 		this.lastAdded = getData;
+		
 		$.when(this.fromData).then(function(){ getData.invoke.apply(getData, arguments); }, getData.deferred.reject );
 		
 		if( typeof this.insideJob != 'undefined' )
@@ -238,8 +259,9 @@ $(function()
 			$.when(this.fromData).then(function(){ getInit.invoke.apply(getInit, arguments); }, getInit.deferred.reject );
 		}
 				
-		var self = this;
-		var name = arguments[1];
+		var self = this,
+			name = arguments[1];
+		
 		if( typeof arguments[0] == 'function' )
 		{
 			var callback = arguments[0],
@@ -261,7 +283,14 @@ $(function()
 			})
 			.always(function() // we need to reset at least initData for future chains..
 			{
-				self.initData = new chainable(self.initData.fn);
+				self.initData = new chainable(self.initData.fn, 'reset');
+				self.fromData = new chainable(self.fromData.fn, 'reset');
+				//self.fromData = new chainable(self.fromData.fn);
+				self.initXFrom = true
+				$.when(self.initData).then(function()
+				{ 
+					self.fromData.invoke.apply(self.fromData, arguments); 
+				}, self.fromData.deferred.reject );
 			});	
 		}
 		
