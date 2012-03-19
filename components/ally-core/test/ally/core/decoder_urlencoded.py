@@ -11,7 +11,7 @@ Provides unit testing for the encoder and decoder xml.
 
 import unittest
 from ally.support.core.util_param import parseStr
-from urllib.parse import quote as encode
+from urllib.parse import quote as encode, quote
 
 # --------------------------------------------------------------------
 
@@ -22,13 +22,13 @@ class TestDecoderUrlencoded(unittest.TestCase):
         self.assertDictEqual(parseStr(urlQuery), {'simple': 'demo'}, 'Simple: {0}'.format(urlQuery))
 
     def testSimpleMore(self):
-        urlQuery = 'simple=demo&another=demo&last=is'
-        self.assertDictEqual(parseStr(urlQuery), {'simple': 'demo', 'another': 'demo', 'last': 'is'}, 'Simple more params: {0}'.format(urlQuery))
+        urlQuery = 'simple=demo&another='+quote('de mo')+'&last=is'
+        self.assertDictEqual(parseStr(urlQuery), {'simple': 'demo', 'another': 'de mo', 'last': 'is'}, 'Simple more params: {0}'.format(urlQuery))
         
     def testSimpleList(self):
-        urlQuery = 'list[]=demo&list[]=demo&list[]=abc'
+        urlQuery = 'list[]=demo&list[]=demo&list[]=abc'+quote('de mo+de mo')
         parseDict = parseStr(urlQuery)
-        self.assertDictEqual(parseDict, {'list': ['demo', 'demo', 'abc']}, 'Simple list: {0}'.format(urlQuery))
+        self.assertDictEqual(parseDict, {'list': ['demo', 'demo', 'abcde mo+de mo']}, 'Simple list: {0}'.format(urlQuery))
         
     def testDictList(self):
         urlQuery = 'list[demo][]=abc&list[demo][]=def&list[demo][]=xyz'

@@ -95,7 +95,8 @@ def parseStr(theString):
             [key, value] = paramPair.split('=')
         except:
             [key, value] = [paramPair, None]
-        value = unquote(value) if value is not None else value
+        print(value)
+        value = unquote(compile(r'\+').sub(' ', value)) if value is not None else value # also replace the + with space
         key = unquote(key).strip()
         
         # look for string end mark
@@ -112,11 +113,11 @@ def parseStr(theString):
         for k in range(keysLen): #loop found keys in pairs to look for nested objects
             if keys[k].strip() == '': # matched at [] - means list entry
                 if not isinstance(curRet, list): # previous is not already a list
-                    curRet[keys[k-1]] = []
+                    curRet[keys[k-1]] = [] #TODO: lookbehind
                     curRet = curRet[keys[k-1]]
                 if keysLen-1 == k: # if last key in this iteration append value to list
                     curRet.append(value)
-            else: # for dict 
+            else: # for parsing as dict 
                 if not keys[k] in curRet: # init new key
                     if isinstance(curRet, list): # previous is list
                         curRet.append({ keys[k]: value if keysLen-1 == k else {}})
@@ -124,11 +125,12 @@ def parseStr(theString):
                     else: # append value to current dict
                         if keysLen-1 == k:
                             curRet[keys[k]] = value
-                        elif keys[k+1].strip() == '': # next is a list [] - init accordingly 
+                        elif keys[k+1].strip() == '': #TODO: lookahead - next is a list [], init accordingly 
                             curRet[keys[k]] = []
                         else:
-                            curRet[keys[k]] = {} 
+                            curRet[keys[k]] = {}
                         curRet = curRet[keys[k]]
                 else:
                     curRet = curRet[keys[k]] # put pointer at the next key in tree
+                
     return ret
