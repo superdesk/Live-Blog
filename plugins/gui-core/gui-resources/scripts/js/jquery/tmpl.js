@@ -137,13 +137,8 @@
         	if( typeof data == 'undefined' ) data = {};
         	// for direct compiled template passed as argument use
         	if( typeof tmpl == 'function' ) return tmpl(data); 
-        	// for jQuery object passed
-        	if( typeof tmpl == 'object' && typeof tmpl.html == 'function' )
-        		tmplObj = tmpl
-        	// for string selector passed
-        	else
-        		tmplObj = $(tmpl)
-        	
+
+        	tmplObj = $(tmpl)
             if( !tmplObj.data('compiled-template') ) 
             	tmplObj.data('compiled-template', doT.template( tmplObj.html(), undefined, defs ));
             

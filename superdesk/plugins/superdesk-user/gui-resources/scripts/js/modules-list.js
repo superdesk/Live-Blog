@@ -1,8 +1,8 @@
+var users;
 var app = function()
 {
-	$('#area-main').html(layout)
-	
-	new $.rest(superdesk.apiUrl + '/resources/Superdesk/User').xfilter('Id, Name')
+	$('#area-main').html(layout);
+	users = new $.rest(superdesk.apiUrl + '/resources/Superdesk/User').xfilter('Id, Name')
 		.done(function(users)
 		{
 			$('#area-content', layout)
@@ -17,7 +17,6 @@ $(document)
 .off('click.superdesk', '.user-list .btn-edit')
 .on('click.superdesk', '.user-list .btn-edit', function(event)
 {
-	superdesk.applyScriptToLayout(args.updateScript, superdesk.layouts.update, {userId: $(this).attr('user-id')})
+	superdesk.applyScriptToLayout(args.updateScript, superdesk.layouts.update.clone(), {users: users, userId: $(this).attr('user-id')})
 	event.preventDefault();
-})
-
+});
