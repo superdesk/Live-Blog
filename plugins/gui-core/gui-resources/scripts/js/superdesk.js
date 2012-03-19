@@ -2,6 +2,14 @@ $.extend( $,
 {
 	
 });
+
+var presentation = function(script, layout, args)
+{
+	this.script = script
+	this.layout = layout || null
+	this.args = args || null
+};
+
 var superdesk = 
 {
 	/*!
@@ -63,12 +71,46 @@ var superdesk =
 	 */
 	applyScriptToLayout: function(scriptPath, layoutObject, additional)
 	{
-		return $.ajax(superdesk.apiUrl + '/' + scriptPath, {dataType: 'text'})
-			.done(function(data)
-			{
-				// TODO additional security checking here
-				(new Function('layout', 'args', data)).call(null, layoutObject.clone(), additional);
-			});
+		var dfd = $.Deferred();
+		dfd.done(function(scriptText)
+		{
+			// TODO additional security checking here
+			(new Function('layout', 'args', scriptText)).call(null, layoutObject, additional);
+		});
+		if( !superdesk.cache.scripts[scriptPath] )
+		{
+			$.ajax(superdesk.apiUrl + '/' + scriptPath, {dataType: 'text'})
+				.done(function(data)
+				{
+					superdesk.cache.scripts[scriptPath] = data;
+					dfd.resolve(data);
+				});
+			return dfd;
+		}
+		return dfd.resolve(superdesk.cache.scripts[scriptPath]);
+	},
+	/*!
+	 * cache repo
+	 */
+	cache: {actions: {}, scripts: {}},
+	/*!
+	 * @param string path 
+	 * @returns $.Deferred()
+	 */
+	getActions: function(path)
+	{
+		var dfd = $.Deferred();
+		if( !superdesk.cache.actions[path] )
+		{
+			new $.rest(superdesk.apiUrl + '/resources/GUI/Action?path='+path)
+				.done(function(actions)
+				{ 
+					superdesk.cache.actions[path] = actions;
+					dfd.resolve(actions);
+				});
+			return dfd;
+		}
+		return dfd.resolve(superdesk.cache.actions[path]);
 	},
 	/*!
 	 * 
@@ -91,7 +133,7 @@ var superdesk =
 		},
 		init: function()
 		{
-			$(window).on('popstate', function(){ console.log(history.state); })
+			$(window).on('popstate', function(){ console.log(history.state); });
 		}
 	}
 };
