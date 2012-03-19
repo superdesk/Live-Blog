@@ -13,15 +13,11 @@ from ..gui_action.defaults import actionManagerService
 from ..gui_action import defaults
 from ..gui_core.gui_core import getPublishedGui
 from ally.container import ioc
-from ally.internationalization import N_, textdomain
+from ally.internationalization import N_
 from gui.action.api.action import Action
 
 # --------------------------------------------------------------------
 
-textdomain('action')
-
-# --------------------------------------------------------------------
-    
 @ioc.entity    
 def menuAction():
     return Action('request', N_('Request'), Parent=defaults.menuAction(), 

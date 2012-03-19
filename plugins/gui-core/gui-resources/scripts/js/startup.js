@@ -5,7 +5,7 @@ $(function()
 {
 	var buildMenu = function()
 	{
-		var menu = new $.rest(superdesk.apiUrl + '/resources/GUI/Action?path=menu')
+		superdesk.getActions('menu')
 		.done(function(menu)
 		{
 			// superdesk.navigation.bind(menu);
