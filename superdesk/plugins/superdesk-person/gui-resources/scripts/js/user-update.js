@@ -1,4 +1,5 @@
-var app = function()
+var presentation = this,
+app = function()
 {
 	args.users.get('Person').xfilter('FirstName,LastName,Id,Address')
 	.done(function(data)
@@ -17,7 +18,10 @@ superdesk.getActions('modules.user.update.person.*')
 {
 	$(actions).each(function()
 	{ 
-		superdesk.applyScriptToLayout(this.ScriptPath, layout, {userId: args.userId})
+		presentation.setScript(this.ScriptPath)
+			.setLayout(layout)
+			.setArgs({userId: args.userId})
+			.run();
 	});
 })
 
