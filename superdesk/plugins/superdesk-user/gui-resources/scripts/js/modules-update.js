@@ -1,11 +1,29 @@
-var app = function()
+var presentation = this,
+app = function()
 {
 	$('#area-main').html(layout)
 
+	var form = function(){}
+	form.prototype = 
+	{
+		add: function(html, nodeName)
+		{
+			if(!nodeName) return html;
+			
+			$(html).find('input, textarea, select').each(function()
+			{
+				var name = $(this).attr('name');
+				$(this).attr('name', name.replace(/^([^\[]+)/, nodeName+'[$1]'))
+			})
+			return html
+		}
+	};
+	
 	args.users.from({Id: args.userId})
 		.done(function(data)
 		{
-			$('#area-content', layout).tmpl($("#tpl-user-update-main", superdesk.tmplRepo), data)	
+			var userForm = (new form).add($($.tmpl($("#tpl-user-update-main", superdesk.tmplRepo), data)), 'User');
+			$('#area-content', layout).html(userForm)	
 		});
 		
 	var d = $.Deferred($.noop).then(function(data)
@@ -19,7 +37,7 @@ var app = function()
 	{
 		$(actions).each(function()
 		{ 
-			superdesk.applyScriptToLayout(this.ScriptPath, layout, {userId: args.userId, users: args.users})
+			presentation.run(this.ScriptPath, layout, {userId: args.userId, users: args.users})
 		});
 	});
 	
