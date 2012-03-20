@@ -3,13 +3,6 @@ $.extend( $,
 	
 });
 
-var presentation = function(script, layout, args)
-{
-	this.script = script
-	this.layout = layout || null
-	this.args = args || null
-};
-
 var superdesk = 
 {
 	/*!
@@ -62,34 +55,6 @@ var superdesk =
 			});
 	},
 	/*!
-	 * Loads and applies script to a layout object
-	 * 
-	 * @param string scriptPath 
-	 * @param object layoutObject 
-	 * @param object additional
-	 * 	additional parameters to be passed
-	 */
-	applyScriptToLayout: function(scriptPath, layoutObject, additional)
-	{
-		var dfd = $.Deferred();
-		dfd.done(function(scriptText)
-		{
-			// TODO additional security checking here
-			(new Function('layout', 'args', scriptText)).call(null, layoutObject, additional);
-		});
-		if( !superdesk.cache.scripts[scriptPath] )
-		{
-			$.ajax(superdesk.apiUrl + '/' + scriptPath, {dataType: 'text'})
-				.done(function(data)
-				{
-					superdesk.cache.scripts[scriptPath] = data;
-					dfd.resolve(data);
-				});
-			return dfd;
-		}
-		return dfd.resolve(superdesk.cache.scripts[scriptPath]);
-	},
-	/*!
 	 * cache repo
 	 */
 	cache: {actions: {}, scripts: {}},
@@ -134,6 +99,69 @@ var superdesk =
 		init: function()
 		{
 			$(window).on('popstate', function(){ console.log(history.state); });
+		}
+	},
+	presentation: function(script, layout, args)
+	{
+		var _setScript = function(value){ script = value; };
+		this.setScript = function(value){ _setScript(value); return this; };
+		this.getScript = function(){ return script; };
+		
+		var _setLayout = function(value){ layout = value; };
+		this.setLayout = function(value){ _setLayout(value); return this; };
+		this.getLayout = function(){ return layout; };
+		
+		var _setArgs = function(value){ args = value; };
+		this.setArgs = function(value){ _setArgs(value); return this; };
+		this.getArgs = function(){ return args; };
+		
+		var script = script,
+			layout = layout || null,
+			args = args || null,
+			self = this;
+		
+		/*!
+		 * Loads and applies script to a layout object
+		 * 
+		 * @param string scriptPath 
+		 * @param object layoutObject 
+		 * @param object additional
+		 * 	additional parameters to be passed
+		 */
+		this.run = function()
+		{
+			if(arguments[0]) _setScript(arguments[0]); // set script
+			if(arguments[1]) _setLayout(arguments[1]); // set layout
+			if(arguments[2]) _setArgs(arguments[2]); // set args
+			
+			var dfd = $.Deferred();
+			dfd.done(function(scriptText)
+			{
+				// TODO additional security checking here
+				(new Function('layout', 'args', scriptText)).call(self, layout, args);
+			});
+			if( !superdesk.cache.scripts[script] )
+			{
+				$.ajax(superdesk.apiUrl + '/' + script, {dataType: 'text'})
+					.done(function(data)
+					{
+						superdesk.cache.scripts[script] = data;
+						dfd.resolve(data);
+					});
+				return dfd;
+			}
+			return dfd.resolve(superdesk.cache.scripts[script]);
+		};
+	}
+};
+superdesk.presentation.prototype = 
+{
+	view:
+	{
+		prefix: function(){ return superdesk.apiUrl+'/content/gui/superdesk/'; },
+		load: function(template)
+		{
+			return superdesk.getTmpl( (typeof this.prefix == 'function' ? this.prefix() : this.prefix) + template);
 		}
 	}
 };
