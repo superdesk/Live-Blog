@@ -1,4 +1,5 @@
-var users;
+var users,
+	presentation = this;
 var app = function()
 {
 	$('#area-main').html(layout);
@@ -10,13 +11,17 @@ var app = function()
 		})
 }
 
-superdesk.getTmpl(superdesk.apiUrl+'/content/gui/superdesk/user/templates/list.html').done(function(){ app() })
+this.view.load('user/templates/list.html').done(function(){ app() })
 
 // edit button functionality 
 $(document)
 .off('click.superdesk', '.user-list .btn-edit')
 .on('click.superdesk', '.user-list .btn-edit', function(event)
 {
-	superdesk.applyScriptToLayout(args.updateScript, superdesk.layouts.update.clone(), {users: users, userId: $(this).attr('user-id')})
+	presentation
+		.setScript(args.updateScript)
+		.setLayout(superdesk.layouts.update.clone())
+		.setArgs({users: users, userId: $(this).attr('user-id')})
+		.run()
 	event.preventDefault();
 });
