@@ -113,282 +113,291 @@ $(function()
 		
 	};
 
-	resource.prototype.chainable = chainable;
-	
-	/*!
-	 * get item from the already existing list
-	 */
-	resource.prototype.from = function(key)
+	resource.prototype = 
 	{
-		var self = this,
-			args = arguments;
-		
-		this.fromData = new chainable( function(list)
-		{
-			var found = false;
-			for( var item in list )
-			{
-				if( typeof key != 'object' && item != key ) continue;
-				found = list[item];
-				// for each key check if exists and is the value	
-				for( keyName in key )
-					if(!(keyName in list[item]) || list[item][keyName] != key[keyName])
-					{
-						found = false;
-						break;
-					}
-				if( found ) break;
-			}
-			
-			if( !found || typeof found.href == 'undefined' ) return this.deferred.reject();
-			var fromUrl = found.href;
-				
-			if( args.length > 1 ) 
-			{
-				if(typeof args[1] == 'function')
-					fromUrl = args[1](found);
-				if(typeof args[1] == 'object')
-					self.request(args[1]);
-				if(typeof args[2] == 'object')
-					self.request(args[2]);
-			}
-			
-			if( typeof this.request != 'undefined' )
-				self.request(this.request);
-			
-			return self
-				.doRequest(fromUrl)
-				.pipe(function(data)
-				{ 
-					self.fromData.fn = function()
-					{ 
-						this.deferred.resolve(data); 
-						return data; 
-					};
-					return data;
-				})
-				.then(this.deferred.resolve, this.deferred.reject);
-			
-		}, "from "+key);
-		
-		var fromData = this.fromData;
-		this.lastAdded = fromData;
-
-		if(!self.initXFrom)
-		{
-			self.iniXFrom = true;
-			$.when(this.initData).then(function(){ fromData.invoke.apply(fromData, arguments); }, fromData.deferred.reject );
-		}
-		
-		if( typeof this.insideJob != 'undefined' )
-			this.insideJob.push(fromData);
-		
-		return this;
-	};
+		chainable: chainable,
 	
-	/*!
-	 * register an operation to obtain a key value from an object node
-	 * obtained by the last operation either from or construct
-	 */
-	resource.prototype.get = function(key)
-	{
-		var self = this;
-		var args = arguments;
-		var getData = new chainable( function(data) 
+		/*!
+		 * get item from the already existing list
+		 */
+		from: function(key)
 		{
-			var node;
-			if( !Array.isArray(data) ) 
-				if( Object.keys(data).length == 1 )
+			var self = this,
+				args = arguments;
+			
+			this.fromData = new chainable( function(list)
+			{
+				var found = false;
+				for( var item in list )
 				{
-					for( var i in data )
-						if( key in data[i] )
-							node = data[i][key]
+					if( typeof key != 'object' && item != key ) continue;
+					found = list[item];
+					// for each key check if exists and is the value	
+					for( keyName in key )
+						if(!(keyName in list[item]) || list[item][keyName] != key[keyName])
+						{
+							found = false;
+							break;
+						}
+					if( found ) break;
 				}
-				else if(typeof data[key] != 'undefined') node = data[key];
-
-			if(typeof node == 'undefined') 
-			{
-				this.deferred.reject();
-				return false;
-			}
-
-			// assume that we only have a href property provided and we need to follow it to get the entity
-			if(typeof node.href == 'string' && Object.keys(node).length == 1)
-			{
-				var dfd = this.deferred;
-				if(typeof args[1] != 'undefined' )
-					self.request(args[1]);
+				
+				if( !found || typeof found.href == 'undefined' ) return this.deferred.reject();
+				var fromUrl = found.href;
+					
+				if( args.length > 1 ) 
+				{
+					if(typeof args[1] == 'function')
+						fromUrl = args[1](found);
+					if(typeof args[1] == 'object')
+						self.request(args[1]);
+					if(typeof args[2] == 'object')
+						self.request(args[2]);
+				}
 				
 				if( typeof this.request != 'undefined' )
 					self.request(this.request);
 				
-				var ajax = self.doRequest(node.href)
-					//.pipe(function(data){ return data; })
+				return self
+					.doRequest(fromUrl)
+					.pipe(function(data)
+					{ 
+						self.fromData.fn = function()
+						{ 
+							this.deferred.resolve(data); 
+							return data; 
+						};
+						return data;
+					})
 					.then(this.deferred.resolve, this.deferred.reject);
-				return ajax;
-			}
-			// assume we have all/the filtered properties
-			else
-				return this.deferred.resolve(node);
-		}, "get "+key);
-		
-		this.getData.push(getData);
-		this.lastAdded = getData;
-		
-		$.when(this.fromData).then(function(){ getData.invoke.apply(getData, arguments); }, getData.deferred.reject );
-		
-		if( typeof this.insideJob != 'undefined' )
-			this.insideJob.push(getData);
-		
-		return this;
-	};
-	
-	/*!
-	 * execute operations and optionally execute a callback
-	 */
-	resource.prototype.done = function()
-	{
-		if( !this.getData.length )
-		{
-			var getInit = new chainable(function(data)
-			{
-				this.deferred.resolve(data);
-			}, 'getInit');
-			getInit.isInit = true;
-			this.getData = [getInit];
-			$.when(this.fromData).then(function(){ getInit.invoke.apply(getInit, arguments); }, getInit.deferred.reject );
-		}
 				
-		var self = this,
-			name = arguments[1];
-		
-		if( typeof arguments[0] == 'function' )
-		{
-			var callback = arguments[0],
-				failCallback = $.noop;
+			}, "from "+key);
 			
-			if(typeof arguments[1] == 'function')
-				failCallback = arguments[1];
+			var fromData = this.fromData;
+			this.lastAdded = fromData;
+	
+			if(!self.initXFrom)
+			{
+				self.iniXFrom = true;
+				$.when(this.initData).then(function(){ fromData.invoke.apply(fromData, arguments); }, fromData.deferred.reject );
+			}
 			
-			$.when.apply($, this.getData).then(function()
-			{
-				var args = $.makeArray(arguments);
-				if( typeof self.spawned != 'undefined' )
-					args = args.concat(self.spawned);
-				var result = callback.apply(self, args);
-			}, 
-			function()
-			{
-				failCallback.apply(self, arguments);
-			})
-			.always(function() // we need to reset at least initData for future chains..
-			{
-				self.initData = new chainable(self.initData.fn, 'reset');
-				self.fromData = new chainable(self.fromData.fn, 'reset');
-				//self.fromData = new chainable(self.fromData.fn);
-				self.initXFrom = true
-				$.when(self.initData).then(function()
-				{ 
-					self.fromData.invoke.apply(self.fromData, arguments); 
-				}, self.fromData.deferred.reject );
-			});	
-		}
-		
-		var trigger = $.Deferred();
-		trigger.resolve();
-		var initData = this.initData;
-		$.when(trigger).then(function(){ initData.invoke.apply( initData, arguments ); });
-		self.getData = [];
-		return this;
-	};
+			if( typeof this.insideJob != 'undefined' )
+				this.insideJob.push(fromData);
+			
+			return this;
+		},
 	
-	resource.prototype.resetJob = function()
-	{
-		if(typeof this.job == 'undefined') return this;
-		for(var i in this.job)
-			this.job[i].deferred.reject();
-		this.job = [];
-		return this;
-	};
-	
-	resource.prototype.registerToJob = function(job)
-	{
-		this.insideJob = job;
-		return this;
-	};
-	
-	/*!
-	 * execute this callback regardless of fail or done get operations
-	 */
-	resource.prototype.always = function(callback)
-	{
-		var self = this;
-		var dfd = $.Deferred();
-		$.when(dfd).then(function(data)
-		{ 
-			if(typeof callback == 'function')
-				callback.apply(self, data);
-		});
-		var progress = this.getData.length;
-		var args = [];
-		$(this.getData).each(function(i, fn)
+		/*!
+		 * register an operation to obtain a key value from an object node
+		 * obtained by the last operation either from or construct
+		 */
+		get: function(key)
 		{
-			fn.promise().always(function()
+			var self = this;
+			var args = arguments;
+			var getData = new chainable( function(data) 
 			{
-				progress--;
-				if(arguments.length > 1) // if more than 1 argument put them in an array
-					args.splice(i, 0, arguments);
-				else // else just the single one 
-					args.splice(i, 0, arguments[0]);
-				if(!progress) 
-					dfd.resolve(args);
-			});	
-		})
-		return this;
-	};
+				var node;
+				if( !Array.isArray(data) ) 
+					if( Object.keys(data).length == 1 )
+					{
+						for( var i in data )
+							if( key in data[i] )
+								node = data[i][key]
+					}
+					else if(typeof data[key] != 'undefined') node = data[key];
 	
-	/*!
-	 * spawn a new resource rom the last get method called
-	 */
-	resource.prototype.spawn = function()
-	{
-		var self = this;
-		//if(this.getData.length)
-		//	$.when(this.getData[this.getData.length-1]).pipe(function(data)
-			$.when(this.lastAdded).pipe(function(data)
+				if(typeof node == 'undefined') 
+				{
+					this.deferred.reject();
+					return false;
+				}
+	
+				// assume that we only have a href property provided and we need to follow it to get the entity
+				if(typeof node.href == 'string' && Object.keys(node).length == 1)
+				{
+					var dfd = this.deferred;
+					if(typeof args[1] != 'undefined' )
+						self.request(args[1]);
+					
+					if( typeof this.request != 'undefined' )
+						self.request(this.request);
+					
+					var ajax = self.doRequest(node.href)
+						//.pipe(function(data){ return data; })
+						.then(this.deferred.resolve, this.deferred.reject);
+					return ajax;
+				}
+				// assume we have all/the filtered properties
+				else
+					return this.deferred.resolve(node);
+			}, "get "+key);
+			
+			this.getData.push(getData);
+			this.lastAdded = getData;
+			
+			$.when(this.fromData).then(function(){ getData.invoke.apply(getData, arguments); }, getData.deferred.reject );
+			
+			if( typeof this.insideJob != 'undefined' )
+				this.insideJob.push(getData);
+			
+			return this;
+		},
+		
+		/*!
+		 * execute operations and optionally execute a callback
+		 */
+		done: function()
+		{
+			if( !this.getData.length )
 			{
-				self.spawned = new resource(data, 'spawned');
-				// TODO add backreference or not?
-				return data;
+				var getInit = new chainable(function(data)
+				{
+					this.deferred.resolve(data);
+				}, 'getInit');
+				getInit.isInit = true;
+				this.getData = [getInit];
+				$.when(this.fromData).then(function(){ getInit.invoke.apply(getInit, arguments); }, getInit.deferred.reject );
+			}
+					
+			var self = this,
+				name = arguments[1];
+			
+			if( typeof arguments[0] == 'function' )
+			{
+				var callback = arguments[0],
+					failCallback = $.noop;
+				
+				if(typeof arguments[1] == 'function')
+					failCallback = arguments[1];
+				
+				$.when.apply($, this.getData).then(function()
+				{
+					var args = $.makeArray(arguments);
+					if( typeof self.spawned != 'undefined' )
+						args = args.concat(self.spawned);
+					var result = callback.apply(self, args);
+				}, 
+				function()
+				{
+					failCallback.apply(self, arguments);
+				})
+				.always(function() // we need to reset at least initData for future chains..
+				{
+					self.initData = new chainable(self.initData.fn, 'reset');
+					self.fromData = new chainable(self.fromData.fn, 'reset');
+					//self.fromData = new chainable(self.fromData.fn);
+					self.initXFrom = true
+					$.when(self.initData).then(function()
+					{ 
+						self.fromData.invoke.apply(self.fromData, arguments); 
+					}, self.fromData.deferred.reject );
+				});	
+			}
+			
+			var trigger = $.Deferred();
+			trigger.resolve();
+			var initData = this.initData;
+			$.when(trigger).then(function(){ initData.invoke.apply( initData, arguments ); });
+			self.getData = [];
+			return this;
+		},
+		
+		resetJob: function()
+		{
+			if(typeof this.job == 'undefined') return this;
+			for(var i in this.job)
+				this.job[i].deferred.reject();
+			this.job = [];
+			return this;
+		},
+		
+		registerToJob: function(job)
+		{
+			this.insideJob = job;
+			return this;
+		},
+		
+		/*!
+		 * execute this callback regardless of fail or done get operations
+		 */
+		always: function(callback)
+		{
+			var self = this;
+			var dfd = $.Deferred();
+			$.when(dfd).then(function(data)
+			{ 
+				if(typeof callback == 'function')
+					callback.apply(self, data);
 			});
-		return this;
-	};
-	
-	/*!
-	 * make the request
-	 * @param string url
-	 */
-	resource.prototype.doRequest = function()
-	{
-		if(typeof arguments[0] == 'string') this.request({url : arguments[0]});
-		var ajax = $.ajax(this.requestOptions);
-		delete this.requestOptions.headers['X-Filter'];
-		return ajax;
-	};
-	
-	/*!
-	 * extend request options
-	 */
-	resource.prototype.request = function(options)
-	{
-		$.extend(true, this.requestOptions, options);
-		return this;
-	};
-	
-	resource.prototype.xfilter = function(value)
-	{
-		this.lastAdded.request = { headers: { 'X-Filter' : value } };
-		return this;
+			var progress = this.getData.length;
+			var args = [];
+			$(this.getData).each(function(i, fn)
+			{
+				fn.promise().always(function()
+				{
+					progress--;
+					if(arguments.length > 1) // if more than 1 argument put them in an array
+						args.splice(i, 0, arguments);
+					else // else just the single one 
+						args.splice(i, 0, arguments[0]);
+					if(!progress) 
+						dfd.resolve(args);
+				});	
+			})
+			return this;
+		},
+		
+		/*!
+		 * spawn a new resource rom the last get method called
+		 */
+		spawn: function()
+		{
+			var self = this;
+			//if(this.getData.length)
+			//	$.when(this.getData[this.getData.length-1]).pipe(function(data)
+				$.when(this.lastAdded).pipe(function(data)
+				{
+					self.spawned = new resource(data, 'spawned');
+					// TODO add backreference or not?
+					return data;
+				});
+			return this;
+		},
+		
+		/*!
+		 * make the request
+		 * @param string url
+		 */
+		doRequest: function()
+		{
+			if(typeof arguments[0] == 'string') this.request({url: arguments[0]});
+			var ajax = $.ajax(this.requestOptions);
+			delete this.requestOptions.headers['X-Filter'];
+			return ajax;
+		},
+		
+		insert: function(url, data)
+		{
+			this.request({type: 'post', headers: {'X-HTTP-Method-Override': 'PUT'}, data: data});
+			return this.doRequest(url);
+		},
+		
+		/*!
+		 * extend request options
+		 */
+		request: function(options)
+		{
+			$.extend(true, this.requestOptions, options);
+			return this;
+		},
+		
+		xfilter: function(value)
+		{
+			this.lastAdded.request = { headers: { 'X-Filter' : value } };
+			return this;
+		}
 	};
 	
 	$.extend($, {rest : resource});
