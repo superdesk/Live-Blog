@@ -1,5 +1,5 @@
 '''
-Created on Mar 13, 2012
+Created on Mar 9, 2012
 
 @package: internationalization
 @copyright: 2012 Sourcefabric o.p.s.
@@ -9,14 +9,16 @@ Created on Mar 13, 2012
 API specifications for PO file management.
 '''
 
+from ally.api.config import service
 from introspection.api.plugin import Plugin
 from introspection.api.component import Component
 
 # --------------------------------------------------------------------
 
-class IPOFileManager:
+@service
+class IPOFileService:
     '''
-    The PO file manager.
+    The PO file management service.
     '''
 
     def getGlobalPOFile(self, locale:str) -> str:
