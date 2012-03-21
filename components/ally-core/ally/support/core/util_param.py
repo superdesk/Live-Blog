@@ -95,7 +95,7 @@ def parseStr(theString):
             [key, value] = paramPair.split('=')
         except:
             [key, value] = [paramPair, None]
-        print(value)
+
         value = unquote(compile(r'\+').sub(' ', value)) if value is not None else value # also replace the + with space
         key = unquote(key).strip()
         
