@@ -3,27 +3,14 @@ app = function()
 {
 	$('#area-main').html(layout)
 
-	var form = function(){}
-	form.prototype = 
-	{
-		add: function(html, nodeName)
-		{
-			if(!nodeName) return html;
-			
-			$(html).find('input, textarea, select').each(function()
-			{
-				var name = $(this).attr('name');
-				$(this).attr('name', name.replace(/^([^\[]+)/, nodeName+'[$1]'))
-			})
-			return html
-		}
-	};
-	
+	var userForm;
+	// get user and display its form
 	args.users.from({Id: args.userId})
 		.done(function(data)
 		{
-			var userForm = (new form).add($($.tmpl($("#tpl-user-update-main", superdesk.tmplRepo), data)), 'User');
-			$('#area-content', layout).html(userForm)	
+			var userFormHtml = presentation.view.render("#tpl-user-update-main", data);
+			userForm = presentation.form.add(userFormHtml, 'User');
+			$('#area-content', layout).html(userForm);
 		});
 		
 	var d = $.Deferred($.noop).then(function(data)
@@ -32,6 +19,7 @@ app = function()
 	});
 	d.resolve({logs: [{date: (new Date).toLocaleString(), event: 'logged in'}]})
 	
+	// run user.update's subsequent actions 
 	superdesk.getActions('modules.user.update.*')
 	.done(function(actions)
 	{
@@ -45,15 +33,9 @@ app = function()
 	.off('click.superdesk', '#submit-main')
 	.on('click.superdesk', '#submit-main', function(event)
 	{
-		$.ajax
-		({ 
-			type: 'post',
-			headers: {'X-HTTP-Method-Override': 'PUT'},
-			data: { User: { Name: $('#area-content', layout).find('#data-user-name').val() } },
-			url: superdesk.apiUrl + '/resources/Superdesk/User/'+args.userId,
-		})
-		.success(function(){ console.log(arguments) })
-		.error(function(){ console.log('error', arguments) })
+		args.users.insert( superdesk.apiUrl + '/resources/Superdesk/User/'+args.userId, userForm.serialize())
+			.success(function(){ console.log(arguments) })
+			.error(function(){ console.log('error', arguments) })
 		event.preventDefault();
 	})
 }
