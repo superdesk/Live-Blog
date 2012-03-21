@@ -162,6 +162,25 @@ superdesk.presentation.prototype =
 		load: function(template)
 		{
 			return superdesk.getTmpl( (typeof this.prefix == 'function' ? this.prefix() : this.prefix) + template);
+		},
+		render: function(selector, data)
+		{
+			if(typeof selector == 'string') var tmpl = $(selector, superdesk.tmplRepo);
+			else var tmpl = selector;
+			return $($.tmpl(tmpl, data));
+		}
+	},
+	form:
+	{
+		add: function(html, nodeName)
+		{
+			if(!nodeName) return html;
+			$(html).find('input, textarea, select').each(function()
+			{
+				var name = $(this).attr('name') || '';
+				$(this).attr('name', name.replace(/^([^\[]+)/, nodeName+'[$1]'));
+			});
+			return $(html);
 		}
 	}
 };
