@@ -86,6 +86,19 @@ class ICDM(metaclass = abc.ABCMeta):
         @rtype: string
         '''
 
+    @abc.abstractmethod
+    def getTimestamp(self, path):
+        '''
+        Returns the timestamp of a certain content identified by the unique
+        path.
+
+        @param path: string
+                The path of the content item. This is a unique
+                     identifier of the item.
+        @return: timestamp
+        @rtype: string
+        '''
+
 class PathNotFound(Exception):
     '''
     Exception thrown when a path was not found in the repository
