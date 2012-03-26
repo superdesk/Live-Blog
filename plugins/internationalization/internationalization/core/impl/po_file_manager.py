@@ -29,7 +29,7 @@ from io import StringIO
 # --------------------------------------------------------------------
 
 @injected
-class POFileManagerAlchemy(IPOFileManager):
+class POFileManagerDB(IPOFileManager):
     '''
     Implementation for @see: IPOFileManager
     '''

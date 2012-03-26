@@ -16,7 +16,8 @@ from introspection.api.component import Component
 
 class IPOFileManager:
     '''
-    The PO file manager.
+    The PO file manager: processes and returns the PO global, component or plugin
+    PO files.
     '''
 
     def poFileTimestamp(self, locale:str, component:Component.Id=None, plugin:Plugin.Id=None):
