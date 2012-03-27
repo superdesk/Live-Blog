@@ -1,35 +1,37 @@
 '''
 Created on Jan 4, 2012
 
-@package Newscoop
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: ally core sql alchemy
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides support for SQL alchemy mapper that is able to link the alchemy with REST models.
 '''
 
-from ..util import Attribute
-from .session import openSession
-from ally.api.configure import modelFor, queryFor
-from ally.api.operator import Model, Property, Query, CriteriaEntry
+from ally.api.operator.container import Model
+from ally.api.operator.descriptor import ContainerSupport
+from ally.api.operator.type import TypeModel, TypeModelProperty
 from ally.api.type import typeFor
+from ally.container.binder import indexAfter
+from ally.container.binder_op import INDEX_PROP, validateAutoId, \
+    validateRequired, validateMaxLength, validateProperty, validateManaged
 from ally.exception import Ref
 from ally.internationalization import _
-from ally.listener.binder import indexAfter
-from ally.listener.binder_op import validateAutoId, validateRequired, \
-    validateMaxLength, validateProperty, validateManaged, validateModelProperties, \
-    INDEX_PROP, createQueryMapping, createModelMapping
+from ally.support.sqlalchemy.mapper_descriptor import MappedSupport, \
+    MappedReference, MappedProperty
+from ally.support.sqlalchemy.session import openSession
+from ally.support.util import UnextendableMeta
+from functools import partial
 from inspect import isclass
 from sqlalchemy import event
 from sqlalchemy.orm import mapper
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty
-from sqlalchemy.schema import Table, Column, ForeignKey, MetaData
+from sqlalchemy.schema import Table, MetaData, Column, ForeignKey
 from sqlalchemy.sql.expression import Join
 from sqlalchemy.types import String
-import functools
 
 # --------------------------------------------------------------------
 
@@ -45,12 +47,12 @@ class MappingError(Exception):
 
 # --------------------------------------------------------------------
 
-def mapperSimple(modelClass, sql, **keyargs):
+def mapperSimple(clazz, sql, **keyargs):
     '''
     Maps a table to a ally REST model. Use this instead of the classical SQL alchemy mapper since this will
     also provide to the model additional information extracted from the SQL alchemy configurations.
     
-    @param modelClass: class
+    @param clazz: class
         The model class to be mapped with the provided sql table.
     @param sql: Table|Join|Select
         The table or join to map the model with.
@@ -59,111 +61,62 @@ def mapperSimple(modelClass, sql, **keyargs):
     @return: class
         The obtained mapped class.
     '''
-    assert isclass(modelClass), 'Invalid model class %s' % modelClass
-    model = modelFor(modelClass)
-    assert isinstance(model, Model), 'Invalid class %s is not a model' % modelClass
-    assert mapperFor(modelClass) is None, 'The class %s is already mapped ' % modelClass
-    assert isinstance(sql, Table) or isinstance(sql, Join), 'Invalid SQL alchemy table/join %s' % sql
-    
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    typeModel = typeFor(clazz)
+    assert isinstance(typeModel, TypeModel), 'Invalid model class %s' % clazz
+    model = typeModel.container
+    assert isinstance(model, Model)
+    if isinstance(sql, Table):
+        metadata = sql.metadata
+    elif isinstance(sql, Join):
+        metadata = keyargs.pop('metadata', None)
+        assert metadata is not None, \
+        'For a join mapping you need to specify the metadata in the key words arguments \'metadata=?\''
+    assert isinstance(metadata, MetaData), 'Invalid metadata %s' % metadata
     # We need to treat the case when a model inherits another, since the provided inherited model class is actually the 
-    # mapped class the provided model class will not be seen as inheriting the provided mapped class/
+    # mapped class the provided model class will not be seen as inheriting the provided mapped class
     inherits = keyargs.get('inherits')
     if inherits is not None:
         assert isclass(inherits), 'Invalid class %s' % inherits
         if __debug__:
-            inhModel = modelFor(inherits)
-            assert isinstance(inhModel, Model), 'Invalid inheritance class %s, has no model' % inherits
-            assert issubclass(modelClass, inhModel.modelClass), \
-            'Invalid inherited mapped class %s, for model class %s' % (inherits, inhModel.modelClass)
-        mappedClass = createModelMapping(type(modelClass.__name__, (modelClass, inherits), {}))
-    else:    
-        mappedClass = createModelMapping(modelClass)
+            assert issubclass(inherits, ContainerSupport), 'Invalid model inheritance class %s' % inherits
+            assert isinstance(inherits, MappedSupport), 'Invalid inherit class %s, is not mapped' % inherits
+            assert issubclass(clazz, inherits._ally_type.baseClass), \
+            'Invalid inherited mapped class %s, for model class %s' % (inherits._ally_type.baseClass, clazz)
 
-    mapper_ = mapperFor(mappedClass, mapper(mappedClass, sql, **keyargs))
-    mappings = mappingsOf(mapper_.tables[0].metadata)
-    assert model not in mappings, 'The model %s is already mapped' % model
-    mappings[modelClass] = mappedClass
-    
-    for name, typ in model.typeProperties.items():
-        col = getattr(mappedClass, name, None)
-        if col is not None:
-            if typeFor(col) is None: typeFor(col, typ)
-            mapperFor(col, mapper_)
-            mappedClassFor(col, mappedClass)
+        basses = (clazz, inherits)
+    else:
+        basses = (clazz,)
 
-    event.listen(mapper_, 'load', _eventLoad)
-    event.listen(mapper_, 'after_insert', _eventInsert)
-    
-    return mappedClass
+    attributes = {'__module__': clazz.__module__}
+    attributes['_ally_listeners'] = {} # Added so the mapped class has binding support
+    mapped = type.__new__(UnextendableMeta, clazz.__name__ + '$Mapped', basses, attributes)
+    mapped._ally_mapping = mapper(mapped, sql, **keyargs)
 
-def mapperModelProperties(mappedClass, exclude=None):
-    '''
-    Maps the model class properties to the provided SQL alchemy mapping.
-    
-    @param modelClass: class
-        The mapped model class.
-    @param exclude: list[string]|tuple(string)
-        A list of column names to be excluded from automatic validation.
-    @return: Property
-        The property id of the model.
-    '''
-    assert isclass(mappedClass), 'Invalid mapped model class %s' % mappedClass
-    model = modelFor(mappedClass)
-    assert isinstance(model, Model), 'Invalid class %s is not a model' % mappedClass
-    mapper = mapperFor(mappedClass)
-    assert isinstance(mapper, Mapper), 'Invalid mapped class %s, no mapper present' % mappedClass
-    assert not exclude or isinstance(exclude, (list, tuple)), 'Invalid exclude %s' % exclude
-    
-    properties, propertyId = dict(model.properties), None
-    for cp in mapper.iterate_properties:
-        assert isinstance(cp, ColumnProperty)
-        if cp.key:
-            prop = properties.pop(cp.key, None)
-            if prop:
-                assert isinstance(prop, Property)
-                propMapping = getattr(mappedClass, prop.name)
-                
-                isExclude = False if exclude is None else prop.name in exclude
-                column = cp.columns[0]
-                assert isinstance(column, Column), 'Invalid column %s' % column
-                #TODO: add checking if the column type is the same with the property, meaning that the alchemy
-                # specification is same with REST
-                if column.primary_key and column.autoincrement:
-                    if propertyId:
-                        raise MappingError('Found another property id %s for model %s' % (prop, model))
-                    propertyId = prop
-                if not isExclude:
-                    if propertyId == prop: validateAutoId(propMapping)
-                    elif not column.nullable: validateRequired(propMapping)
-                    if isinstance(column.type, String) and column.type.length:
-                        validateMaxLength(propMapping, column.type.length)
-                    if column.unique: validateProperty(propMapping, onPropertyUnique)
-                    if column.foreign_keys:
-                        for fk in column.foreign_keys:
-                            assert isinstance(fk, ForeignKey)
-                            try: fkcol = fk.column
-                            except AttributeError:
-                                raise MappingError('Invalid foreign column for %s, maybe you are not using the meta class' 
-                                                   % prop)
-                            validateProperty(propMapping, functools.partial(onPropertyForeignKey, fkcol),
-                                             index=INDEX_PROP_FK)
-    if not propertyId: raise MappingError('No id found for model %s' % model)
-    propertyIdFor(mappedClass, propertyId)
-    
-    for prop in properties.values():
-        if exclude is None or prop.name not in exclude: validateManaged(getattr(mappedClass, prop.name))
-    
-    validateModelProperties(mappedClass)
-    
-    return propertyId
+    mappedModelType = TypeModel(mapped, model, clazz)
+    for prop, typ in model.properties.items():
+        instrumented = getattr(mapped, prop)
+        if isinstance(instrumented, InstrumentedAttribute):
+            propType = propRefType = TypeModelProperty(mappedModelType, prop, typ)
+            if isinstance(typ, TypeModel):
+                propType = TypeModelProperty(mappedModelType, prop, model.properties[model.propertyId])
 
-def mapperModel(modelClass, sql, exclude=None, **keyargs):
+            reference = MappedReference(propRefType, instrumented)
+            setattr(mapped, prop, MappedProperty(propType, reference, instrumented))
+
+    mapped._ally_type = mappedModelType
+    try: metadata.__ally_mappings__.append(mapped)
+    except AttributeError: metadata.__ally_mappings__ = [mapped]
+
+    return mapped
+
+def mapperModel(clazz, sql, exclude=None, **keyargs):
     '''
     Maps a table to a ally REST model. Use this instead of the classical SQL alchemy mapper since this will
     also provide to the model additional information extracted from the SQL alchemy configurations. Use
     this mapper to also add validations for updating and inserting on the model.
     
-    @param modelClass: class
+    @param clazz: class
         The model class to be mapped with the provided sql table.
     @param sql: Table|Join|Select
         The table or join to map the model with.
@@ -174,283 +127,203 @@ def mapperModel(modelClass, sql, exclude=None, **keyargs):
     @return: class
         The mapped class, basically a model derived class that also contains the mapping data.
     '''
-    mappedClass = mapperSimple(modelClass, sql, **keyargs)
-    mapperModelProperties(mappedClass, exclude=exclude)
-    
-    return mappedClass
+    mapped = mapperSimple(clazz, sql, **keyargs)
+    registerValidation(mapped, exclude=exclude)
+
+    return mapped
 
 # --------------------------------------------------------------------
 
-def mapperQuery(queryClass, sql):
+def registerValidation(mapped, exclude=None):
     '''
-    Maps a table to a ally REST query. This will provide the ability to use the 
+    Register to mapped class all the validations that can be performed based on the SQL alchemy mapping.
     
-    @param queryClass: class
-        The query class to be mapped with the provided sql table.
-    @param sql: Table|Join|Mapped Model
-        The table, join or a mapped model class to map the query with.
+    @param mapped: class
+        The mapped model class.
+    @param exclude: list[string]|tuple(string)
+        A list of column names to be excluded from automatic validation.
+    @return: Property
+        The property id of the model.
     '''
-    assert isclass(queryClass), 'Invalid query class %s' % queryClass
-    if isinstance(modelFor(sql), Model):
-        sql = mapperFor(sql)
-        assert isinstance(sql, Mapper), 'Invalid mapped model %s, no mapper present' % sql
-    if isinstance(sql, Mapper):
-        columns = [(cp.key, cp.columns[0]) for cp in sql.iterate_properties if cp.key]
-    else:
-        assert isinstance(sql, Table) or isinstance(sql, Join), 'Invalid SQL alchemy table/join %s' % sql
-        columns = [(column.key, column) for column in sql.columns if column.key]
-        
-    query = queryFor(queryClass)
-    assert isinstance(query, Query), 'Invalid class %s is not a query' % queryClass
-    criteriaEntries = {name.lower():crtEntry for name, crtEntry in query.criteriaEntries.items()}
+    assert isclass(mapped), 'Invalid class %s' % mapped
+    assert isinstance(mapped, MappedSupport), 'Invalid mapped class %s' % mapped
+    typeModel = typeFor(mapped)
+    assert isinstance(typeModel, TypeModel), 'Invalid model class %s' % mapped
+    assert not exclude or isinstance(exclude, (list, tuple)), 'Invalid exclude %s' % exclude
+    model = typeModel.container
+    assert isinstance(model, Model)
+
+    properties = set(model.properties)
+    for cp in mapped._ally_mapping.iterate_properties:
+        assert isinstance(cp, ColumnProperty)
+        if cp.key:
+            prop = cp.key
+            try: properties.remove(prop)
+            except KeyError: continue
+
+            if not (exclude and prop in exclude):
+                propRef = getattr(mapped, prop)
+                column = cp.columns[0]
+                assert isinstance(column, Column), 'Invalid column %s' % column
+                if __debug__:
+                    propType = typeFor(propRef)
+                    assert isinstance(propType, TypeModelProperty), 'Invalid property %s with type %s' % (prop, propType)
+                    #TODO: Check if the property type is matching the column type
+                    #assert propType.isOf(column.type), 'Invalid column type %s for property type %s' % \
+                    #(column.type, propType)
+
+                if column.primary_key and column.autoincrement:
+                    if prop != model.propertyId:
+                        raise MappingError('The primary key is expected to be %s, but got SQL primary key for %s' %
+                                           (model.propertyId, prop))
+                    validateAutoId(propRef)
+                elif not column.nullable:
+                    validateRequired(propRef)
+
+                if isinstance(column.type, String) and column.type.length:
+                    validateMaxLength(propRef, column.type.length)
+                if column.unique:
+                    validateProperty(propRef, partial(onPropertyUnique, mapped))
+                if column.foreign_keys:
+                    for fk in column.foreign_keys:
+                        assert isinstance(fk, ForeignKey)
+                        try: fkcol = fk.column
+                        except AttributeError:
+                            raise MappingError('Invalid foreign column for %s, maybe you are not using the meta class'
+                                               % prop)
+                        validateProperty(propRef, partial(onPropertyForeignKey, mapped, fkcol), index=INDEX_PROP_FK)
+
+    for prop in properties:
+        if not (exclude and prop in exclude):
+            validateManaged(getattr(mapped, prop))
+
+def mappingsOf(metadata):
+    '''
+    Provides the mapping dictionary of the provided meta.
     
-    mappedClass = createQueryMapping(queryClass)
-    for name, column in columns:
-        assert isinstance(column, Column)
-        crtEntry = criteriaEntries.get(name.lower(), None)
-        if crtEntry:
-            assert isinstance(crtEntry, CriteriaEntry)
-            mapping = getattr(mappedClass, crtEntry.name, None)
-            if mapping is not None:
-                if typeFor(mapping) is None: typeFor(mapping, query.typeCriteriaEntries[crtEntry.name])
-                columnFor(mapping, column)
-        
-    return mappedClass
+    @param metadata: MetaData
+        The meta to get the mappings for.
+    @return: dictionary{class,class}
+        A dictionary containing as a key the model API class and as a value the mapping class for the model.
+    '''
+    assert isinstance(metadata, MetaData), 'Invalid meta data %s' % metadata
+
+    try: mappings = metadata.__ally_mappings__
+    except AttributeError: return {}
+
+    return {typeFor(mapped).baseClass:mapped for mapped in mappings}
 
 # --------------------------------------------------------------------
 
-def onPropertyUnique(entity, mappedClass, prop, errors):
+def onPropertyUnique(mapped, prop, obj, errors):
     '''
     Validation of a sql alchemy unique property.
     
-    @param entity: object
+    @param mapped: class
+        The mapped model class.
+    @param prop: string
+        The property name to be checked if unique.
+    @param obj: object
         The entity to check for the property value.
-    @param mappedClass: class
-        The model mapped class of the entity.
-    @param prop: Property
-        The property that is unwanted.
     @param errors: list[Ref]
         The list of errors.
     '''
-    assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
-    model = modelFor(mappedClass)
-    assert isinstance(model, Model), 'Invalid mapped class %s, has no model' % mappedClass
-    assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
-    propertyId = propertyIdFor(mappedClass)
-    assert isinstance(propertyId, Property), 'Cannot find any property id for class %s' % mappedClass
-    assert isinstance(prop, Property), 'Invalid property %s' % prop
+    assert isclass(mapped), 'Invalid class %s' % mapped
+    assert isinstance(prop, str), 'Invalid property name %s' % prop
+    assert obj is not None, 'None is not a valid object'
     assert isinstance(errors, list), 'Invalid errors list %s' % errors
-    if prop.has(entity):
-        column = getattr(mappedClass, prop.name)
+
+    propRef = getattr(mapped, prop)
+    if propRef in obj:
         try:
-            db = openSession().query(mappedClass).filter(column == prop.get(entity)).one()
-        except NoResultFound: return
-        if propertyId.get(db) != propertyId.get(entity):
-            errors.append(Ref(_('Already an entry with this value'), ref=column))
+            db = openSession().query(mapped).filter(propRef == getattr(obj, prop)).one()
+        except NoResultFound:
+            return
+        propId = typeFor(mapped).container.propertyId
+        if getattr(obj, propId) != getattr(db, propId):
+            errors.append(Ref(_('Already an entry with this value'), ref=propRef))
             return False
-    
-def onPropertyForeignKey(foreignColumn, entity, mappedClass, prop, errors):
+
+def onPropertyForeignKey(mapped, foreignColumn, prop, obj, errors):
     '''
     Validation of a sql alchemy fpreign key property.
     
+    @param mapped: class
+        The mapped model class.
     @param foreignColumn: Column
         The foreign column used for checking.
-    @param entity: object
+    @param prop: string
+        The property name tthat contains the foreign key.
+    @param obj: object
         The entity to check for the property value.
-    @param mappedClass: class
-        The model mapped class of the entity.
-    @param prop: Property
-        The property that is unwanted.
     @param errors: list[Ref]
         The list of errors.
     '''
+    assert isclass(mapped), 'Invalid class %s' % mapped
     assert isinstance(foreignColumn, Column), 'Invalid foreign column %s' % foreignColumn
-    assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
-    model = modelFor(mappedClass)
-    assert isinstance(model, Model), 'Invalid mapped class %s, has no model' % mappedClass
-    assert isinstance(entity, model.modelClass), 'Invalid entity %s for model %s' % (entity, model)
-    assert isinstance(prop, Property), 'Invalid property %s' % prop
+    assert isinstance(prop, str), 'Invalid property name %s' % prop
+    assert obj is not None, 'None is not a valid object'
     assert isinstance(errors, list), 'Invalid errors list %s' % errors
-    if prop.has(entity):
-        val = prop.get(entity)
+
+    propRef = getattr(mapped, prop)
+    if propRef in obj:
+        val = getattr(obj, prop)
         if val is not None:
             count = openSession().query(foreignColumn).filter(foreignColumn == val).count()
             if count == 0:
-                errors.append(Ref(_('Unknown foreign id'), model=modelFor(mappedClass), property=prop))
+                errors.append(Ref(_('Unknown foreign id'), ref=propRef))
                 return False
-        
+
 # --------------------------------------------------------------------
 
-def addLoadListener(mappedClass, listener):
+def addLoadListener(mapped, listener):
     '''
     Adds a load listener that will get notified every time the mapped class entity is loaded.
     
-    @param mappedClass: class
+    @param mapped: class
         The model mapped class to add the listener to.
     @param listener: callable(object)
         A function that has to take as parameter the model instance that has been loaded.
     '''
-    assert isclass(mappedClass), 'Invalid mapped class %s' % mappedClass
+    assert isclass(mapped), 'Invalid class %s' % mapped
     assert callable(listener), 'Invalid listener %s' % listener
     def onLoad(target, *args): listener(target)
-    event.listen(mappedClass, 'load', onLoad)
-    
-def addInsertListener(mappedClass, listener, before=True):
+    event.listen(mapped, 'load', onLoad)
+
+def addInsertListener(mapped, listener, before=True):
     '''
     Adds an insert listener that will get notified every time the mapped class entity is inserted.
     
-    @param mappedClass: class
+    @param mapped: class
         The model mapped class to add the listener to.
     @param listener: callable(object)
         A function that has to take as parameter the model instance that will be or has been inserted.
     @param before: boolean
         If True the listener will be notified before the insert occurs, if False will be notified after.
     '''
-    mapper = mapperFor(mappedClass)
-    assert isinstance(mapper, Mapper), 'Invalid mapped class %s, has no valid mapper %s' % (mappedClass, mapper)
+    assert isclass(mapped), 'Invalid class %s' % mapped
+    assert isinstance(mapped, MappedSupport), 'Invalid mapped class %s' % mapped
     assert callable(listener), 'Invalid listener %s' % listener
     assert isinstance(before, bool), 'Invalid before flag %s' % before
     def onInsert(mapper, conn, target): listener(target)
-    if before: event.listen(mapper, 'before_insert', onInsert)
-    else: event.listen(mapper, 'after_insert', onInsert)
-    
-def addUpdateListener(mappedClass, listener, before=True):
+    if before: event.listen(mapped._ally_mapping, 'before_insert', onInsert)
+    else: event.listen(mapped._ally_mapping, 'after_insert', onInsert)
+
+def addUpdateListener(mapped, listener, before=True):
     '''
     Adds an update listener that will get notified every time the mapped class entity is update.
     
-    @param mappedClass: class
+    @param mapped: class
         The model mapped class to add the listener to.
     @param listener: callable(object)
         A function that has to take as parameter the model instance that will be or has been update.
     @param before: boolean
         If True the listener will be notified before the update occurs, if False will be notified after.
     '''
-    mapper = mapperFor(mappedClass)
-    assert isinstance(mapper, Mapper), 'Invalid mapped class %s, has no valid mapper %s' % (mappedClass, mapper)
+    assert isclass(mapped), 'Invalid class %s' % mapped
+    assert isinstance(mapped, MappedSupport), 'Invalid mapped class %s' % mapped
     assert callable(listener), 'Invalid listener %s' % listener
     assert isinstance(before, bool), 'Invalid before flag %s' % before
     def onUpdate(mapper, conn, target): listener(target)
-    if before: event.listen(mapper, 'before_update', onUpdate)
-    else: event.listen(mapper, 'after_update', onUpdate)
-
-ATTR_SQL_MAPPINGS = Attribute(__name__, 'mappings', dict)
-# Attribute used to store the meta mappings.
-def mappingsOf(meta):
-    '''
-    Provides the mapping dictionary of the provided meta.
-    
-    @param meta: MetaData
-        The meta to get the mappings for.
-    @return: dictionary{class,class}
-        A dictionary containing as a key the model API class and as a value the mapping class for the model.
-    '''
-    assert isinstance(meta, MetaData), 'Invalid meta %s' % meta
-    if ATTR_SQL_MAPPINGS.hasOwn(meta): return ATTR_SQL_MAPPINGS.get(meta)
-    return ATTR_SQL_MAPPINGS.set(meta, {})
-
-ATTR_SQL_MAPPER = Attribute(__name__, 'mapper', Mapper)
-# Attribute used to store the mapper.
-def mapperFor(obj, mapper=None):
-    '''
-    If the mapper is provided it will be associate with the obj, if the mapper is not provided than this function
-    will try to provide if it exists the mapper associated with the obj, or check if the obj is not a mapper itself and
-    provide that.
-    
-    @param obj: object
-        The class to associate or extract the mapper.
-    @param mapper: Mapper|None
-        The mapper to associate with the obj.
-    @return: Mapper|None
-        If the mapper has been associate then the return will be the associated mapper, if the mapper is being extracted 
-        it can return either the Mapper or None if is not found.
-    '''
-    if mapper is None:
-        if isinstance(obj, Mapper): return obj
-        return ATTR_SQL_MAPPER.getOwn(obj, None)
-    assert not ATTR_SQL_MAPPER.hasOwn(obj), 'Already has a mapper %s' % obj
-    return ATTR_SQL_MAPPER.set(obj, mapper)
-
-ATTR_SQL_MAPPED = Attribute(__name__, 'mapped', type)
-# Attribute used to store the mapped class.
-def mappedClassFor(obj, mappedClass=None):
-    '''
-    If the mapped class is provided it will be associate with the obj, if the mapped class is not provided than this 
-    function will try to provide if it exists the mapped class associated with the obj, or check if the obj is not a
-    mapped class itself and provide that.
-    
-    @param obj: object
-        The class to associate or extract the mapped class.
-    @param mappedClass: class|None
-        The mapped class to associate with the obj.
-    @return: class|None
-        If the mapped class has been associate then the return will be the associated mapped class, if the mapped class
-        is being extracted it can return either the mapped class or None if is not found.
-    '''
-    if mappedClass is None:
-        if isclass(obj): return obj
-        return ATTR_SQL_MAPPED.get(obj, None)
-    assert not ATTR_SQL_MAPPED.hasOwn(obj), 'Already has a mapped class %s' % obj
-    return ATTR_SQL_MAPPED.set(obj, mappedClass)
-
-ATTR_SQL_PROPERTY_ID = Attribute(__name__, 'propertyId', Property)
-# Attribute used to store the property id.
-def propertyIdFor(obj, propertyId=None):
-    '''
-    If the property id is provided it will be associate with the obj, if the property id is not provided than this 
-    function will try to provide if it exists the property id associated with the obj, or check if the obj.
-    
-    @param obj: object
-        The class to associate or extract the property id.
-    @param propertyId: Property|None
-        The property id to associate with the obj.
-    @return: Property|None
-        If the property id has been associate then the return will be the associated property id, if the property id is
-        being extracted it can return either the property id or None if is not found.
-    '''
-    if propertyId is None: return ATTR_SQL_PROPERTY_ID.get(obj, None)
-    assert not ATTR_SQL_PROPERTY_ID.hasOwn(obj), 'Already has a property id %s' % obj
-    return ATTR_SQL_PROPERTY_ID.set(obj, propertyId)
-
-ATTR_SQL_COLUMN = Attribute(__name__, 'column', Column)
-# Attribute used to store the column.
-def columnFor(obj, column=None):
-    '''
-    If the column is provided it will be associate with the obj, if the column is not provided than this function
-    will try to provide if it exists the column associated with the obj, or check if the obj is not a column itself and
-    provide that.
-    
-    @param obj: object
-        The class to associate or extract the mapper.
-    @param column: Column|None
-        The column to associate with the obj.
-    @return: Column|None
-        If the column has been associate then the return will be the associated column, if the column is being extracted 
-        it can return either the column or None if is not found.
-    '''
-    if column is None:
-        if isinstance(obj, Column): return obj
-        return ATTR_SQL_COLUMN.get(obj, None)
-    assert not ATTR_SQL_COLUMN.hasOwn(obj), 'Already has a column %s' % obj
-    return ATTR_SQL_COLUMN.set(obj, column)
-
-# --------------------------------------------------------------------
-
-def _eventDBUpdate(targetIndex, *args):
-    '''
-    FOR INTERNAL USE!
-    Listener method called when an database mapped instance is updated by SQL alchemy. This will change on the target
-    entity the has set flag for all properties that have a value.
-    '''
-    target = args[targetIndex]
-    model = modelFor(target)
-    if model:
-        assert isinstance(model, Model)
-        for name, prop in model.properties.items():
-            if name in target.__dict__:
-                assert isinstance(prop, Property)
-                if not prop.has(target): prop.hasSet(target)
-
-_eventLoad = functools.partial(_eventDBUpdate, 0)
-# FOR INTERNAL USE! listener method called when an database mapped instance is loaded by SQL alchemy.
-_eventInsert = functools.partial(_eventDBUpdate, 2)
-# FOR INTERNAL USE! listener method called when an database mapped instance is inserted by SQL alchemy.
+    if before: event.listen(mapped._ally_mapping, 'before_update', onUpdate)
+    else: event.listen(mapped._ally_mapping, 'after_update', onUpdate)

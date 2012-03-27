@@ -1,25 +1,21 @@
 '''
 Created on Jun 8, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally api
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
-@author: Nistor Gabriel
+@author: Gabriel Nistor
 
 Provides the types used for APIs.
 '''
 
 from .. import type_legacy as numbers
-from ..support.util import Uninstantiable, Singletone, Attribute, immutable
+from ..support.util import Uninstantiable, Singletone
 from ..type_legacy import Iterable, Sized
+from .model import Part
 from datetime import datetime, date, time
 from inspect import isclass
-import logging
-from ally.api.model import Part
-
-# --------------------------------------------------------------------
-
-log = logging.getLogger(__name__)
+from abc import ABCMeta
 
 # --------------------------------------------------------------------
 
@@ -30,13 +26,12 @@ formattedType = []
 
 # --------------------------------------------------------------------
 
-@immutable
 class Type:
     '''
     The class that represents the API types used for mapping data.
     '''
 
-    __slots__ = __immutable__ = ('forClass', 'isPrimitive', 'isContainable')
+    __slots__ = ('forClass', 'isPrimitive', 'isContainable')
 
     def __init__(self, forClass, isPrimitive=False, isContainable=True):
         '''
@@ -78,13 +73,15 @@ class Type:
         '''
         return isinstance(obj, self.forClass)
 
-    def __hash__(self): return hash(self.forClass)
+    def __hash__(self):
+        return hash(self.forClass)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__): return self.forClass == other.forClass
         return False
 
-    def __str__(self): return self.forClass.__name__
+    def __str__(self):
+        return '%s.%s' % (self.forClass.__module__, self.forClass.__name__)
 
 class TypeNone(Singletone, Type):
     '''
@@ -97,7 +94,8 @@ class TypeNone(Singletone, Type):
         '''
         @see: Type.__init__
         '''
-        self.isPrimitive = True
+        self.isPrimitive = False
+        self.isContainable = False
         self.forClass = None
 
     def isOf(self, type):
@@ -133,26 +131,6 @@ class TypePercentage(Singletone, Type):
         Type.__init__(self, float, True)
 
 # --------------------------------------------------------------------
-# Id types
-
-class TypeId(Type):
-    '''
-    Provides the type for the id. This type has to be a primitive type always.
-    '''
-
-    __slots__ = Type.__slots__
-
-    def __init__(self, forClass):
-        '''
-        Constructs the id type for the provided class.
-        @see: Type.__init__
-        
-        @param forClass: class
-            The class that this type id is constructed on.
-        '''
-        Type.__init__(self, forClass, True)
-
-# --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
 
 class TypeFrontLanguage(Singletone, Type):
@@ -167,7 +145,7 @@ class TypeFrontLanguage(Singletone, Type):
         Constructs the front language type.
         @see: Type.__init__
         '''
-        Type.__init__(self, str, True)
+        Type.__init__(self, str, False, True)
 
 # --------------------------------------------------------------------
 
@@ -179,7 +157,7 @@ class Iter(Type):
     not be able to validate also the elements.
     '''
 
-    __slots__ = __immutable__ = Type.__immutable__ + ('itemType',)
+    __slots__ = Type.__slots__ + ('itemType',)
 
     def __init__(self, itemType):
         '''
@@ -207,13 +185,15 @@ class Iter(Type):
         '''
         return isinstance(iter, Iterable)
 
-    def __hash__(self): return hash(self.itemType)
+    def __hash__(self):
+        return hash(self.itemType)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__): return self.itemType == other.itemType
         return False
 
-    def __str__(self): return '%s(%s)' % (self.__class__.__name__, self.itemType)
+    def __str__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.itemType)
 
 class IterPart(Iter):
     '''
@@ -223,7 +203,7 @@ class IterPart(Iter):
     not be able to validate also the elements.
     '''
 
-    __slots__ = __immutable__ = Type.__immutable__ + ('itemType',)
+    __slots__ = Type.__slots__ + ('itemType',)
 
     def __init__(self, itemType):
         '''
@@ -270,155 +250,12 @@ class List(Iter):
 
 # --------------------------------------------------------------------
 
-class TypeModel(Type):
-    '''
-    Provides the type for the model.
-    '''
-
-    __slots__ = __immutable__ = Type.__immutable__ + ('model',)
-
-    def __init__(self, model):
-        '''
-        Constructs the model type for the provided model.
-        @see: Type.__init__
-        
-        @param model: Model
-            The model that this type is constructed on.
-        '''
-        from .operator import Model
-        assert isinstance(model, Model), 'Invalid model provided %s' % model
-        self.model = model
-        Type.__init__(self, model.modelClass)
-
-class TypeQuery(Type):
-    '''
-    Provides the type for the query.
-    '''
-
-    __slots__ = __immutable__ = Type.__immutable__ + ('query',)
-
-    def __init__(self, query):
-        '''
-        Constructs the query type for the provided query.
-        @see: Type.__init__
-        
-        @param query: Query
-            The query that this type is constructed on.
-        '''
-        from .operator import Query
-        assert isinstance(query, Query), 'Invalid query provided %s' % query
-        self.query = query
-        Type.__init__(self, query.queryClass)
-
-class TypeProperty(Type):
-    '''
-    This type is used to wrap model property as types. So whenever a type is provided based on a Model property
-    this type will be used. Contains the type that is reflected based on the property type also contains the 
-    Property and the Model that is constructed on. This type behaves as the type assigned to the property 
-    and also contains the references to the property and model class.
-    '''
-
-    __slots__ = __immutable__ = Type.__immutable__ + ('model', 'property')
-
-    def __init__(self, model, property):
-        '''
-        Constructs the property type for the provided property and model.
-        @see: Type.__init__
-        
-        @param model: Model
-            The model of the type.
-        @param property: Property
-            The property that this type is constructed on.
-        '''
-        from .operator import Property, Model
-        assert isinstance(model, Model), 'Invalid model %s' % model
-        assert isinstance(property, Property), 'Invalid property %s' % property
-        self.model = model
-        self.property = property
-        Type.__init__(self, property.type.forClass, property.type.isPrimitive)
-
-    def isOf(self, type):
-        '''
-        @see: Type.isOf
-        '''
-        return self == type or self.property.type.isOf(type)
-
-    def isValid(self, obj):
-        '''
-        Checks if the provided object instance is represented by this API type.
-        
-        @param obj: object
-                The object instance to check.
-        '''
-        return self.property.type.isValid(obj)
-
-    def __hash__(self): return hash((self.model, self.property))
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__): return self.model == other.model and self.property == other.property
-        return False
-
-    def __str__(self): return '%s.%s' % (self.model.name, self.property.name)
-
-class TypeCriteriaEntry(Type):
-    '''
-    This type is used to wrap query criteria as types. So whenever a type is provided based on a Query criteria
-    this type will be used. Contains the type that is reflected based on the criteria entry type also contains the 
-    CriteriaEntry and the Query that is constructed on. 
-    '''
-
-    __slots__ = __immutable__ = Type.__immutable__ + ('query', 'criteriaEntry')
-
-    def __init__(self, query, criteriaEntry):
-        '''
-        Constructs the criteria entry type for the provided criteria entry and query.
-        @see: Type.__init__
-        
-        @param query: Query
-            The query of the type.
-        @param criteriaEntry: CriteriaEntry
-            The criteria entry that this type is constructed on.
-        '''
-        from .operator import CriteriaEntry, Query
-        assert isinstance(query, Query), 'Invalid query %s' % query
-        assert isinstance(criteriaEntry, CriteriaEntry), 'Invalid criteria entry %s' % criteriaEntry
-        self.query = query
-        self.criteriaEntry = criteriaEntry
-        Type.__init__(self, criteriaEntry.type.forClass, criteriaEntry.type.isPrimitive)
-
-    def isOf(self, type):
-        '''
-        @see: Type.isOf
-        '''
-        return self == type or self.criteriaEntry.type.isOf(type)
-
-    def isValid(self, obj):
-        '''
-        Checks if the provided object instance is represented by this API type.
-        
-        @param obj: object
-                The object instance to check.
-        '''
-        return self.criteriaEntry.type.isValid(obj)
-
-    def __hash__(self): return hash((self.query, self.criteriaEntry))
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__): return self.query == other.query and \
-        self.criteriaEntry == other.criteriaEntry
-        return False
-
-    def __str__(self): return '%s.%s' % (self.query.queryClass.__name__, self.criteriaEntry.name)
-
-# --------------------------------------------------------------------
-
-@immutable
 class Input:
     '''
     Provides an input entry for a call, this is used for keeping the name and also the type of a call parameter.
     '''
 
-    __slots__ = __immutable__ = ('name', 'type', 'hasDefault', 'default')
+    __slots__ = ('name', 'type', 'hasDefault', 'default')
 
     def __init__(self, name, type, hasDefault=False, default=None):
         '''
@@ -450,136 +287,82 @@ class Input:
 
 # --------------------------------------------------------------------
 
-ATTR_TYPE = Attribute(__name__, 'type', Type)
-# Provides attribute for type.
-
-def typeFor(obj, type=None):
-    '''
-    If the type is provided it will be associate with the obj, if the type is not provided than this function
-    will try to provide if it exists the type associated with the obj, or check if the obj is not a type itself and
-    provide that.
-    
-    @param obj: object
-        The class to associate or extract the model.
-    @param type: Type
-        The type to associate with the obj.
-    @return: Type|None
-        If the type has been associate then the return will be none, if the type is being extracted it can return
-        either the Type or None if is not found.
-    '''
-    if type is None:
-        if obj is None: return ATTR_TYPE.get(Non)
-        type = ATTR_TYPE.get(obj, None)
-        if type is None:
-            if isclass(obj):
-                typ = _classType.get(obj)
-                if typ is not None: return typ
-            if isinstance(obj, Type): return obj
-        return type
-    assert not ATTR_TYPE.hasOwn(obj), 'Already has a type %s' % obj
-    return ATTR_TYPE.set(obj, type)
-
-# --------------------------------------------------------------------
-
 class Non(Uninstantiable):
     '''
     Maps the None type.
     '''
-typeFor(Non, TypeNone())
+_classType[Non] = TypeNone()
 
 class Boolean(Uninstantiable):
     '''
     Maps the boolean values.
     Only used as a class, do not create an instance.
     '''
-typeFor(Boolean, Type(bool, True))
-_classType[bool] = typeFor(Boolean)
+_classType[Boolean] = _classType[bool] = Type(bool, True)
 
-
-class Integer(Uninstantiable):
+class Integer(Uninstantiable, int):
     '''
     Maps the integer values.
     Only used as a class, do not create an instance.
     '''
-typeFor(Integer, Type(int, True))
-_classType[int] = typeFor(Integer)
+_classType[Integer] = _classType[int] = Type(int, True)
 
-class Number(Uninstantiable):
+class Number(Uninstantiable, float):
     '''
     Maps the numbers, this includes integer and float.
     Only used as a class, do not create an instance.
     '''
-typeFor(Number, Type(numbers.Number, True))
-_classType[float] = typeFor(Number)
-_classType[numbers.Number] = typeFor(Number)
+_classType[Number] = _classType[numbers.Number] = _classType[float] = Type(numbers.Number, True)
 formattedType.append(Number)
 
-class Percentage(Uninstantiable):
+class Percentage(Uninstantiable, float):
     '''
     Maps the percentage numbers.
     Only used as a class, do not create an instance.
     '''
-typeFor(Percentage, TypePercentage())
+_classType[Percentage] = TypePercentage()
 formattedType.append(Percentage)
 
-class String(Uninstantiable):
+class String(Uninstantiable, str):
     '''
     Maps the string values.
     Only used as a class, do not create an instance.
     '''
-typeFor(String, Type(str, True))
-_classType[str] = typeFor(String)
+_classType[String] = _classType[str] = Type(str, True)
 
-class Date(Uninstantiable):
+class Date(Uninstantiable, date):
     '''
     Maps the date time values.
     Only used as a class, do not create an instance.
     '''
-typeFor(Date, Type(date, True))
-_classType[date] = typeFor(Date)
+_classType[Date] = _classType[date] = Type(date, True)
 formattedType.append(Date)
 
-class Time(Uninstantiable):
+class Time(Uninstantiable, time):
     '''
     Maps the date time values.
     Only used as a class, do not create an instance.
     '''
-typeFor(Time, Type(time, True))
-_classType[time] = typeFor(Time)
+_classType[Time] = _classType[time] = Type(time, True)
 formattedType.append(Time)
 
-class DateTime(Uninstantiable):
+class DateTime(Uninstantiable, datetime):
     '''
     Maps the date time values.
     Only used as a class, do not create an instance.
     '''
-typeFor(DateTime, Type(datetime, True))
-_classType[datetime] = typeFor(DateTime)
+_classType[DateTime] = _classType[datetime] = Type(datetime, True)
 formattedType.append(DateTime)
 
 # --------------------------------------------------------------------
-# Id and special types
+# Special types
 
-class Id(Uninstantiable, int):
-    '''
-    Maps the integer id values.
-    Only used as a class, do not create an instance.
-    '''
-typeFor(Id, TypeId(int))
-
-class IdString(Uninstantiable):
-    '''
-    Maps the string id values.
-    Only used as a class, do not create an instance.
-    '''
-typeFor(IdString, TypeId(str))
-
-class Count(Uninstantiable):
+class Count(Uninstantiable, int):
     '''
     Maps the total count for a collection. 
     Only used as a class, do not create an instance.
     '''
-typeFor(Count, Type(int, True, False))
+_classType[Count] = Type(int, True, False)
 
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
@@ -589,5 +372,55 @@ class FrontLanguage(Uninstantiable):
     Maps the type representing the user requested language for presentation.
     Only used as a class, do not create an instance.
     '''
-typeFor(FrontLanguage, TypeFrontLanguage())
+_classType[FrontLanguage] = TypeFrontLanguage()
 
+# --------------------------------------------------------------------
+
+class TypeSupportMeta(ABCMeta):
+    '''
+    Meta class for type support that allows for instance check base on the '_ally_type' attribute.
+    '''
+
+    def __instancecheck__(self, instance):
+        '''
+        @see: ABCMeta.__instancecheck__
+        '''
+        if ABCMeta.__instancecheck__(self, instance): return True
+        return isinstance(getattr(instance, '_ally_type', None), Type)
+
+class TypeSupport(metaclass=TypeSupportMeta):
+    '''
+    Class that provides the support for containing types.
+    '''
+    __slots__ = ('_ally_type',)
+
+    def __init__(self, type):
+        '''
+        Construct the type support with the provided type.
+        
+        @param type: Type
+            The type of the support.
+        '''
+        assert isinstance(type, Type), 'Invalid type %s' % type
+        self._ally_type = type # This specified the detected type by using 'typeFor'
+
+def typeFor(obj):
+    '''
+    Provides the type of the object. The type extraction is performed as follow:
+        - if the object is a class then search in the _classType for the associated type, return None if not found.
+        - in case is not a class then check if the _ally_type attribute exists and provide the type, None otherwise.
+    
+    @param obj: object|class
+        The class or object to extract the type.
+    @return: Type|None
+        The obtained type or None if there is not type.
+    '''
+    if isinstance(obj, Type): return obj
+    if obj is not None:
+        try: return obj._ally_type
+        except AttributeError: pass
+
+        try:
+            return _classType.get(obj)
+        except TypeError:
+            return None

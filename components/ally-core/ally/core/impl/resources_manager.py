@@ -1,24 +1,24 @@
 '''
 Created on Jun 28, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Module containing the implementation for the resources manager.
 '''
 
-from ally.api.configure import serviceFor
-from ally.api.operator import Service, Model, Call
-from ally.api.type import List, Type, Input
+from ally.api.operator.container import Service, Call, Model
+from ally.api.operator.type import TypeService
+from ally.api.type import List, Type, Input, typeFor
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
 from ally.core.impl.node import NodeRoot, NodePath, NodeModel, NodeProperty
 from ally.core.spec.resources import Node, Path, ConverterPath, Assembler, \
     ResourcesManager, PathExtended
+from ally.exception import DevelError
 from ally.support.core.util_resources import pushMatch, findNodeModel
-from inspect import isclass
 import logging
 
 # --------------------------------------------------------------------
@@ -32,7 +32,7 @@ class ResourcesManagerImpl(ResourcesManager):
     '''
     @see: ResourcesManager container implementation.
     '''
-    
+
     assemblers = list
     # The list of assemblers to be used by this resources manager in order to register nodes.
     services = list
@@ -41,7 +41,7 @@ class ResourcesManagerImpl(ResourcesManager):
     def __init__(self):
         assert isinstance(self.assemblers, list), 'Invalid assemblers list %s' % self.assemblers
         assert isinstance(self.services, list), 'Invalid services list %s' % self.services
-        
+
         self._hintsCall, self._hintsModel = {}, {}
         for asm in self.assemblers:
             assert isinstance(asm, Assembler), 'Invalid assembler %s' % asm
@@ -49,38 +49,39 @@ class ResourcesManagerImpl(ResourcesManager):
             if known: self._hintsCall.update(known)
             known = asm.knownModelHints()
             if known: self._hintsModel.update(known)
-            
-        self._root = NodeRoot(InvokerFunction(List(Type(Path)), self.findGetAllAccessible, [], 0))
+
+        self._root = NodeRoot(InvokerFunction(List(Type(Path)), self.findGetAllAccessible, []))
         self._rootPath = Path([], self._root)
-        
+
         for service in self.services:
-            try: self.register(serviceFor(service), service)
-            except: raise Exception('Cannot register service instance %s' % service)
-    
+            try: self.register(service)
+            except: raise DevelError('Cannot register service instance %s' % service)
+
     def getRoot(self):
         '''
         @see: ResourcesManager.getRoot
         '''
         return self._root
-    
-    def register(self, service, implementation):
-        #TODO: there is still stuff to do here, for instance the implementation is not mandatory
-        # at this point.
+
+    def register(self, implementation):
         '''
         @see: ResourcesManager.register
         '''
-        if isclass(service): service = serviceFor(service)
-        assert isinstance(service, Service), 'Invalid service %s' % service
         assert implementation is not None, 'A implementation is required'
+        typeService = typeFor(implementation)
+        assert isinstance(typeService, TypeService), 'Invalid service implementation %s' % implementation
+        service = typeService.service
+        assert isinstance(service, Service), 'Invalid service %s' % service
+
         log.info('Assembling node structure for service %s', service)
         invokers = []
-        for call in service.calls.values():
+        for call in service.calls:
             assert isinstance(call, Call), 'Invalid call %s' % call
             if __debug__:
                 unknown = set(call.hints.keys()).difference(self._hintsCall.keys())
                 assert not unknown, 'Invalid call hints %r for %s in service %s, the allowed call hints are:\n\t%s' % \
                 (', '.join(unknown), call, service, '\n\t'.join('"%s": %s' % item for item in self._hintsCall.items()))
-                
+
                 for inp in call.inputs:
                     assert isinstance(inp, Input), 'Invalid input %s' % inp
                     try: model = inp.type.model
@@ -90,8 +91,8 @@ class ResourcesManagerImpl(ResourcesManager):
                         assert not unknown, 'Invalid model hints %r for %s in %s, %s, the allowed model hints are:'\
                         '\n\t%s' % (', '.join(unknown), model, call, service, '\n\t'.join('"%s": %s' % item
                                                                                     for item in self._hintsModel.items()))
-                                            
-            invokers.append(InvokerCall(service, implementation, call))
+
+            invokers.append(InvokerCall(implementation, call))
         for asm in self.assemblers:
             assert isinstance(asm, Assembler)
             asm.assemble(self._root, invokers)
@@ -123,7 +124,7 @@ class ResourcesManagerImpl(ResourcesManager):
         if len(paths) == 0:
             return Path(matches, node)
         return Path(matches)
-    
+
     def findGetModel(self, fromPath, model):
         '''
         @see: ResourcesManager.findGetModel
@@ -152,13 +153,13 @@ class ResourcesManagerImpl(ResourcesManager):
                         return path
             index -= 1
         return None
-        
+
     def findGetAllAccessible(self, fromPath=None):
         '''
         @see: ResourcesManager.findGetAllAccessible
         '''
         if fromPath is None: fromPath = self._rootPath
-        
+
         assert isinstance(fromPath, Path), 'Invalid from path %s' % fromPath
         assert isinstance(fromPath.node, Node), 'Invalid from path Node %s' % fromPath.node
         paths = []
@@ -171,7 +172,7 @@ class ResourcesManagerImpl(ResourcesManager):
                 if child.get: paths.append(extended)
                 paths.extend(self.findGetAllAccessible(extended))
         return paths
-    
+
     def findGetAccessibleByModel(self, model, modelObject=None):
         '''
         @see: ResourcesManager.findGetAccessibleByModel
@@ -193,13 +194,13 @@ class ResourcesManagerImpl(ResourcesManager):
                         if not pushMatch(matches, child.newMatch()): continue
                         path = Path(matches, child)
                         paths.extend(self.findGetAllAccessible(path))
-        
+
         if modelObject:
             for path in paths: path.update(modelObject, model)
         return paths
 
     # ----------------------------------------------------------------
-    
+
     def _findGetNode(self, node, model):
         '''
         Utility method to extract the get property node.
@@ -210,4 +211,4 @@ class ResourcesManagerImpl(ResourcesManager):
             for nodeId in node.childrens():
                 if isinstance(nodeId, NodeProperty):
                     assert isinstance(nodeId, NodeProperty)
-                    if nodeId.get is not None and nodeId.typeProperty.model == model: return nodeId
+                    if nodeId.get is not None and nodeId.type.container == model: return nodeId

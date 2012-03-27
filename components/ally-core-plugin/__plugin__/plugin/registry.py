@@ -1,16 +1,16 @@
 '''
 Created on Jan 12, 2012
 
-@package Newscoop
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: ally core plugin
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides the setup registry for the plugins.
 '''
 
 from ally.container import ioc
-from ally.container.proxy import proxyWrapForImpl
+from ally.container.proxy import proxyWrapFor
 from ally.core.spec.resources import ResourcesManager
 from cdm.impl.local_filesystem import LocalFileSystemLinkCDM, HTTPDelivery
 from cdm.spec import ICDM
@@ -28,7 +28,7 @@ def registerService(service, binders=None):
     @param binders: list[Callable]|tuple(Callable)
         The binders used for the registered services.
     '''
-    proxy = proxyWrapForImpl(service)
+    proxy = proxyWrapFor(service)
     if binders:
         for binder in binders: binder(proxy)
     services().append(proxy)

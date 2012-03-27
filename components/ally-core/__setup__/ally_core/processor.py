@@ -2,7 +2,7 @@
 Created on Nov 24, 2011
 
 @package: ally core
-@copyright: 2011 Sourcefabric o.p.s.
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -81,7 +81,7 @@ def decoding() -> Processor:
 @ioc.entity
 def invokingHandler() -> Processor: return InvokingHandler()
 
-@ioc.entity   
+@ioc.entity
 def encoding() -> Processor:
     b = EncodingProcessorsHandler()
     b.encodings = Processors(*handlersEncoding())

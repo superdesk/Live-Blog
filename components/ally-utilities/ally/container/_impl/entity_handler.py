@@ -9,7 +9,6 @@ Created on Jan 12, 2012
 Provides handlers for entities.
 '''
 
-from ally.support.util import Attribute
 from functools import partial
 from inspect import isclass
 import logging
@@ -24,12 +23,7 @@ class Initializer:
     '''
     Class used as the initializer for the entities classes.
     '''
-    
-    ATTR_INITIALIZED = Attribute(__name__, 'initialized', bool)
-    # Provides the attribute for the initialized flag.
-    ATTR_ARGUMENTS = Attribute(__name__, 'arguments')
-    # Provides the attribute for the arguments for initialization.
-    
+
     @staticmethod
     def initializerFor(entity):
         '''
@@ -44,7 +38,7 @@ class Initializer:
         else: clazz = entity
         initializer = clazz.__dict__.get('__init__')
         if isinstance(initializer, Initializer): return initializer
-    
+
     @classmethod
     def initialize(cls, entity):
         '''
@@ -52,16 +46,19 @@ class Initializer:
         '''
         assert entity is not None, 'Need to provide an entity to be initialized'
         initializer = Initializer.initializerFor(entity)
-        if initializer and not cls.ATTR_INITIALIZED.get(entity, False):
+        if initializer is not None:
             assert isinstance(initializer, Initializer)
             if entity.__class__ == initializer._entityClazz:
-                args, keyargs = cls.ATTR_ARGUMENTS.getOwn(entity)
-                cls.ATTR_ARGUMENTS.deleteOwn(entity)
-                cls.ATTR_INITIALIZED.set(entity, True)
-                if initializer._entityInit:
-                    initializer._entityInit(entity, *args, **keyargs)
-                    log.info('Initialized entity %s' % entity)
-    
+                try:
+                    if entity.__ally_ioc_initialized__: return
+                except AttributeError:
+                    args, keyargs = entity.__ally_ioc_arguments__
+                    entity.__ally_ioc_initialized__ = True
+                    del entity.__ally_ioc_arguments__
+                    if initializer._entityInit:
+                        initializer._entityInit(entity, *args, **keyargs)
+                        log.info('Initialized entity %s' % entity)
+
     def __init__(self, clazz):
         '''
         Create a entity initializer for the specified class.
@@ -73,16 +70,20 @@ class Initializer:
         self._entityClazz = clazz
         self._entityInit = getattr(clazz, '__init__', None)
         setattr(clazz, '__init__', self)
-        
+
     def __call__(self, entity, *args, **keyargs):
         '''
         @see: Callable.__call__
         '''
         assert isinstance(entity, self._entityClazz), 'Invalid entity %s for class %s' % (entity, self._entityClazz)
-        if self.ATTR_INITIALIZED.get(entity, False):
-            return self._entityInit(entity, *args, **keyargs)
-        assert not self.ATTR_ARGUMENTS.hasOwn(entity), 'Cannot initialize twice the entity %s' % entity
-        self.ATTR_ARGUMENTS.setOwn(entity, (args, keyargs))
+        try:
+            if entity.__ally_ioc_initialized__: self._entityInit(entity, *args, **keyargs)
+        except AttributeError:
+            try: entity.__ally_ioc_arguments__
+            except AttributeError:
+                entity.__ally_ioc_arguments__ = (args, keyargs)
+            else:
+                raise TypeError('Cannot initialize twice the entity %s' % entity)
 
     def __get__(self, entity, owner=None):
         '''
@@ -102,7 +103,7 @@ class WireEntity:
     '''
     Provides the container for data in order to wire an entity.
     '''
-    
+
     def __init__(self, name, type):
         '''
         Construct the entity wiring.
@@ -121,7 +122,7 @@ class WireConfig:
     '''
     Provides the container for data in order to wire a configuration.
     '''
-    
+
     def __init__(self, name, type=None, hasValue=False, value=None, description=None):
         '''
         Construct the entity wiring.
@@ -146,17 +147,12 @@ class WireConfig:
         self.hasValue = hasValue
         self.value = value
         self.description = description
-    
+
 class Wiring:
     '''
     Provides the context for wiring.
     '''
-    
-    ATTR_WIRE = Attribute(__name__, 'wiring')
-    # The attribute for the wiring.
-    ATTR_WIRE_COMPILED = Attribute(__name__, 'compiled')
-    # The attribute for the wiring.
-    
+
     @classmethod
     def wiringFor(cls, register):
         '''
@@ -168,15 +164,13 @@ class Wiring:
             The register wiring or newly created wiring object for the registry.
         '''
         assert isinstance(register, dict), 'Invalid register %s' % register
-        wiring = cls.ATTR_WIRE.getDict(register, None)
-        if not wiring:
-            wiring = Wiring()
-            cls.ATTR_WIRE.setDict(register, wiring)
-            # We also add a default __init__ that will validate the wiring
+        wiring = register.get('__ally_wiring__')
+        if wiring is None:
+            wiring = register['__ally_wiring__'] = Wiring()
             from ally.container.wire import validateWiring
             if '__init__' not in register: register['__init__'] = validateWiring
         return wiring
-    
+
     @classmethod
     def wiringOf(cls, clazz):
         '''
@@ -188,10 +182,10 @@ class Wiring:
             The compiled wiring for the class, or None if there is no wiring available.
         '''
         assert isclass(clazz), 'Invalid class %s' % clazz
-        compiled = cls.ATTR_WIRE_COMPILED.getOwn(clazz, None)
+        compiled = clazz.__dict__.get('__ally_wiring_compiled__')
         if compiled is None:
             wirings = []
-            if cls.ATTR_WIRE.hasOwn(clazz): wirings.append(cls.ATTR_WIRE.getOwn(clazz))
+            if '__ally_wiring__' in clazz.__dict__: wirings.append(clazz.__ally_wiring__)
             for claz in clazz.__bases__:
                 if claz == object: continue
                 wiring = cls.wiringOf(claz)
@@ -204,8 +198,8 @@ class Wiring:
                         assert isinstance(wiring, Wiring), 'Invalid wiring %s' % wiring
                         compiled._entities.update(wiring._entities)
                         compiled._configurations.update(wiring._configurations)
-                cls.ATTR_WIRE_COMPILED.set(clazz, compiled)
-            else: cls.ATTR_WIRE_COMPILED.set(clazz, False)
+                clazz.__ally_wiring_compiled__ = compiled
+            else: clazz.__ally_wiring_compiled__ = False
         elif compiled is False:
             # No compiled wiring available for class
             compiled = None
@@ -217,7 +211,7 @@ class Wiring:
         '''
         self._entities = {}
         self._configurations = {}
-        
+
     configurations = property(lambda self: self._configurations.values(), doc=
 '''
 @type configurations: Iterable[WireConfig]
@@ -228,7 +222,7 @@ class Wiring:
 @type entities: Iterable[WireEntity]
     The wired entities.
 ''')
-        
+
     def addEntity(self, name, type):
         '''
         Adds a new entity attribute.
@@ -244,7 +238,7 @@ class Wiring:
         if wentity.name in self._configurations:
             raise WireError('There is already a configuration attribute with name %r registered' % wentity.name)
         self._entities[wentity.name] = wentity
-        
+
     def addConfiguration(self, name, type=None, hasValue=False, value=None, description=None):
         '''
         Adds a new configuration attribute.

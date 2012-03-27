@@ -1,8 +1,8 @@
 '''
 Created on Jun 28, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -24,7 +24,7 @@ class Processor(metaclass=abc.ABCMeta):
     '''
     Provides the specifications for all processor classes that are involved in resolving the request to a response.
     '''
-    
+
     @abc.abstractmethod
     def process(self, request, response, chain):
         '''
@@ -43,7 +43,7 @@ class ProcessorsChain:
     A chain that contains a list of processors that are executed one by one. Each processor will have the duty
     to proceed with the processing if is the case by calling the chain.
     '''
-    
+
     def __init__(self, processors):
         '''
         Initializes the chain with the processors to be executed.
@@ -57,7 +57,7 @@ class ProcessorsChain:
             for processor in processors: assert isinstance(processor, Processor), 'Invalid processor %s' % processor
         self._processors = deque(processors)
         self._consumed = False
-    
+
     def proceed(self):
         '''
         Indicates to the chain that it should proceed with the chain execution after a processor has returned. The proceed
@@ -65,7 +65,7 @@ class ProcessorsChain:
         response.
         '''
         self._proceed = True
-    
+
     def process(self, request, response):
         '''
         Called in order to execute the next processors in the chain. This method will stop processing when all
@@ -91,7 +91,7 @@ class ProcessorsChain:
             else:
                 assert log.debug('Processing finalized by consuming') or True
                 self._consumed = True
-    
+
     def isConsumed(self):
         '''
         Checks if the chain is consumed.
@@ -106,7 +106,7 @@ class Processors:
     '''
     Container for processor's, also provides chains for their execution.
     '''
-    
+
     def __init__(self, *processors):
         '''
         @param processors: arguments[Processor]
@@ -116,7 +116,7 @@ class Processors:
             for processor in processors:
                 assert isinstance(processor, Processor), 'Invalid processor %s' % processor
         self.processors = list(processors)
-         
+
     def newChain(self):
         '''
         Constructs a new processors chain.
@@ -132,7 +132,7 @@ class Content:
     '''
     Provides the content data.
     '''
-    
+
     def __init__(self):
         '''
         Constructs the content instance.
@@ -162,7 +162,7 @@ class ContentRequest(Content):
     '''
     Provides the content of a request.
     '''
-    
+
     def __init__(self, file, keep=False):
         '''
         Constructs the content instance.
@@ -184,7 +184,7 @@ class ContentRequest(Content):
         self.length = None
         self._offset = 0
         self._closed = False
-    
+
     def read(self, nbytes=None):
         '''
         Reads nbytes from the content, attention the content can be read only once.
@@ -205,7 +205,7 @@ class ContentRequest(Content):
         bytes = self.file.read(count)
         self._offset += len(bytes)
         return bytes
-    
+
     def close(self):
         '''
         Closes the content stream.
@@ -219,7 +219,7 @@ class Request:
     '''
     Maps a request object based on a request path and action.
     '''
-    
+
     def __init__(self):
         '''
         @ivar method: integer
@@ -255,14 +255,14 @@ class Request:
         self.invoker = None
         self.params = []
         self.arguments = {}
-        
+
 # --------------------------------------------------------------------
 
 class Response(Content):
     '''
     Provides the response support.
     '''
-    
+
     def __init__(self):
         '''
         @see: Content.__init__
@@ -298,7 +298,7 @@ class Response(Content):
         self.objType = None
         self.objMeta = None
         self.content = None
-    
+
     def addAllows(self, method):
         '''
         Set the status of allowing get method. 
@@ -335,7 +335,7 @@ class DecoderParams(metaclass=abc.ABCMeta): #TODO: DEPRECATED: to be refactored 
     '''
     Provides the decoding for request parameters.
     '''
-    
+
     @abc.abstractmethod
     def decode(self, inputs, input, params, args):
         '''
@@ -362,7 +362,7 @@ class EncoderPath(metaclass=abc.ABCMeta):
     '''
     Provides the path encoding.
     '''
-    
+
     @abc.abstractmethod
     def encode(self, path, parameters=None):
         '''
@@ -381,7 +381,7 @@ class EncoderParams(metaclass=abc.ABCMeta):
     '''
     Provides the encoding from inputs to request parameters.
     '''
-    
+
     @abc.abstractmethod
     def encode(self, inputs, input, arg, params):
         '''
@@ -401,7 +401,7 @@ class EncoderParams(metaclass=abc.ABCMeta):
         @return: boolean
             True if this encoder has successful encoded the input, False otherwise.
         '''
-    
+
     @abc.abstractmethod
     def encodeModels(self, inputs, input, models):
         '''

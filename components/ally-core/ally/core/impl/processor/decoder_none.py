@@ -9,11 +9,11 @@ Created on Sep 20, 2011
 Provides the encoder/decoder whenever there is no content required for the invoker.
 '''
 
-from ally.api.operator import INSERT, UPDATE
 from ally.container.ioc import injected
 from ally.core.impl.processor.decoder_text_base import findLastModel
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
 import logging
+from ally.api.config import INSERT, UPDATE
 
 # --------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ class DecodingNoneHandler(Processor):
     Provides the decoder for no content. Used in order to signal that there is no decoding need rather than a
     decoding problem.
     '''
-        
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -36,7 +36,7 @@ class DecodingNoneHandler(Processor):
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert req.method in (INSERT, UPDATE), 'Invalid method %s for processor' % req.method
-        
+
         noDecoding = False
         if not findLastModel(req.invoker):
             noDecoding = True

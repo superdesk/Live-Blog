@@ -1,8 +1,8 @@
 '''
 Created on Nov 24, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core babel
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -23,7 +23,7 @@ def converterBabel() -> Processor:
     # Babel FIX: We need to adjust the dir name for locales since they need to be outside the .egg file
     localedata._dirname = localedata._dirname.replace('.egg', '')
     core._filename = core._filename.replace('.egg', '')
-    
+
     b = BabelConverterHandler()
     b.languageDefault = default_language()
     return b
