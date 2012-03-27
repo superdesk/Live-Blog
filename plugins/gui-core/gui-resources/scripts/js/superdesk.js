@@ -2,6 +2,7 @@ $.extend( $,
 {
 	
 });
+
 var superdesk = 
 {
 	/*!
@@ -54,21 +55,27 @@ var superdesk =
 			});
 	},
 	/*!
-	 * Loads and applies script to a layout object
-	 * 
-	 * @param string scriptPath 
-	 * @param object layoutObject 
-	 * @param object additional
-	 * 	additional parameters to be passed
+	 * cache repo
 	 */
-	applyScriptToLayout: function(scriptPath, layoutObject, additional)
+	cache: {actions: {}, scripts: {}},
+	/*!
+	 * @param string path 
+	 * @returns $.Deferred()
+	 */
+	getActions: function(path)
 	{
-		return $.ajax(superdesk.apiUrl + '/' + scriptPath, {dataType: 'text'})
-			.done(function(data)
-			{
-				// TODO additional security checking here
-				(new Function('layout', 'args', data)).call(null, layoutObject.clone(), additional);
-			});
+		var dfd = $.Deferred();
+		if( !superdesk.cache.actions[path] )
+		{
+			new $.rest(superdesk.apiUrl + '/resources/GUI/Action?path='+path)
+				.done(function(actions)
+				{ 
+					superdesk.cache.actions[path] = actions;
+					dfd.resolve(actions);
+				});
+			return dfd;
+		}
+		return dfd.resolve(superdesk.cache.actions[path]);
 	},
 	/*!
 	 * 
@@ -91,7 +98,89 @@ var superdesk =
 		},
 		init: function()
 		{
-			$(window).on('popstate', function(){ console.log(history.state); })
+			$(window).on('popstate', function(){ console.log(history.state); });
+		}
+	},
+	presentation: function(script, layout, args)
+	{
+		var _setScript = function(value){ script = value; };
+		this.setScript = function(value){ _setScript(value); return this; };
+		this.getScript = function(){ return script; };
+		
+		var _setLayout = function(value){ layout = value; };
+		this.setLayout = function(value){ _setLayout(value); return this; };
+		this.getLayout = function(){ return layout; };
+		
+		var _setArgs = function(value){ args = value; };
+		this.setArgs = function(value){ _setArgs(value); return this; };
+		this.getArgs = function(){ return args; };
+		
+		var script = script,
+			layout = layout || null,
+			args = args || null,
+			self = this;
+		
+		/*!
+		 * Loads and applies script to a layout object
+		 * 
+		 * @param string scriptPath 
+		 * @param object layoutObject 
+		 * @param object additional
+		 * 	additional parameters to be passed
+		 */
+		this.run = function()
+		{
+			if(arguments[0]) _setScript(arguments[0]); // set script
+			if(arguments[1]) _setLayout(arguments[1]); // set layout
+			if(arguments[2]) _setArgs(arguments[2]); // set args
+			
+			var dfd = $.Deferred();
+			dfd.done(function(scriptText)
+			{
+				// TODO additional security checking here
+				(new Function('layout', 'args', scriptText)).call(self, layout, args);
+			});
+			if( !superdesk.cache.scripts[script] )
+			{
+				$.ajax(superdesk.apiUrl + '/' + script, {dataType: 'text'})
+					.done(function(data)
+					{
+						superdesk.cache.scripts[script] = data;
+						dfd.resolve(data);
+					});
+				return dfd;
+			}
+			return dfd.resolve(superdesk.cache.scripts[script]);
+		};
+	}
+};
+superdesk.presentation.prototype = 
+{
+	view:
+	{
+		prefix: function(){ return superdesk.apiUrl+'/content/gui/superdesk/'; },
+		load: function(template)
+		{
+			return superdesk.getTmpl( (typeof this.prefix == 'function' ? this.prefix() : this.prefix) + template);
+		},
+		render: function(selector, data)
+		{
+			if(typeof selector == 'string') var tmpl = $(selector, superdesk.tmplRepo);
+			else var tmpl = selector;
+			return $($.tmpl(tmpl, data));
+		}
+	},
+	form:
+	{
+		add: function(html, nodeName)
+		{
+			if(!nodeName) return html;
+			$(html).find('input, textarea, select').each(function()
+			{
+				var name = $(this).attr('name') || '';
+				$(this).attr('name', name.replace(/^([^\[]+)/, nodeName+'[$1]'));
+			});
+			return $(html);
 		}
 	}
 };

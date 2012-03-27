@@ -7,9 +7,9 @@ $(function()
 			{
 				if(this.Path == 'modules.request.list' && this.ScriptPath)
 				{
-					superdesk.applyScriptToLayout(this.ScriptPath, superdesk.layouts.list)
+					superdesk.applyScriptToLayout(this.ScriptPath, superdesk.layouts.list.clone())
 					return false;
 				}
-			})
+			});
 		});
 });

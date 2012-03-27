@@ -38,6 +38,14 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     encodersHeader = list
     # The header encoders
+    
+    methods = {
+              'DELETE' : DELETE,
+              'GET' : GET,
+              'POST' : INSERT,
+              'PUT' : UPDATE,
+              'OPTIONS' : METHOD_OPTIONS
+              }
 
     def do_GET(self):
         self._process(GET)
@@ -87,7 +95,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             return
 
         req.headers.update(self.headers)
-        req.content = ContentRequest(self.rfile)
+        req.content = ContentRequest(self.rfile, True)
+        
+        #TODO: implement proper processor for this quickfix
+        ovrd = req.headers.get('X-HTTP-Method-Override')
+        if ovrd: req.method = self.methods[ovrd.upper()]
+        
         rsp = Response()
         chain.process(req, rsp)
         self._dispatch(rsp)

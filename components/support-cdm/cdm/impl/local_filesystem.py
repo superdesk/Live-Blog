@@ -212,6 +212,16 @@ class LocalFileSystemCDM(ICDM):
             raise UnsupportedProtocol(protocol)
         return self.delivery.getURI(path)
 
+    def getTimestamp(self, path):
+        '''
+        @see ICDM.getTimestamp
+        '''
+        assert isinstance(path, str), 'Invalid content path %s' % path
+        path, itemPath = self._validatePath(path)
+        if not isdir(itemPath) and not isfile(itemPath):
+            raise PathNotFound(path)
+        return os.stat(itemPath).st_mtime
+
     def _publishFromFileObj(self, path, fileObj):
         '''
         Publish content from a file object
@@ -318,9 +328,9 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         '''
         path, entryPath = self._validatePath(path)
         linkPath = entryPath
-        
+
         if isfile(linkPath): return os.remove(linkPath)
-            
+
         repPathLen = len(self.delivery.getRepositoryPath())
         while len(linkPath.lstrip(os.sep)) > repPathLen:
             linkFile = linkPath + self._linkExt
@@ -415,7 +425,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
                     if k > 0: links.insert(0, links.pop(k))
                     break
         else: links.insert(0, (self._zipHeader, zipFilePath, inFilePath))
-        
+
         with open(repFilePath, 'w') as f: json.dump(links, f)
 
     def _createLinkToFileOrDir(self, path, filePath):
@@ -429,7 +439,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
                     if k > 0: links.insert(0, links.pop(k))
                     break
         else: links.insert(0, (self._fsHeader, filePath))
-        
+
         with open(repFilePath, 'w') as f: json.dump(links, f)
 
     def _publishFromFile(self, path, filePath):
@@ -443,7 +453,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
             assert os.access(filePath, os.R_OK), 'Unable to read file path %s' % filePath
             self._createLinkToFileOrDir(path, filePath)
             return
-        
+
         # not a file, see if it's a entry in a zip file
         zipFilePath, inFilePath = getZipFilePath(filePath, self.delivery.getRepositoryPath())
         assert isfile(zipFilePath) and os.access(zipFilePath, os.R_OK), \
