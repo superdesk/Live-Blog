@@ -11,16 +11,16 @@ Provides the components introspection.
 
 from . import modelDevel
 from ally.api.config import service, call
-from ally.api.type import IdString, IterPart
+from ally.api.type import IterPart
 
 # --------------------------------------------------------------------
 
-@modelDevel
+@modelDevel(id='Id')
 class Plugin:
     '''
     Provides the component data.
     '''
-    Id = IdString
+    Id = str
     Name = str
     Group = str
     Version = str
@@ -29,7 +29,7 @@ class Plugin:
     Loaded = bool
     Path = str
     InEgg = bool
-    
+
 # --------------------------------------------------------------------
 
 @service
@@ -37,13 +37,13 @@ class IPluginService:
     '''
     Provides services for ally plugins.
     '''
-    
+
     @call
     def getById(self, id:Plugin.Id) -> Plugin:
         '''
         Provides the plugin based on the provided id.
         '''
-    
+
     @call
     def getPlugins(self, offset:int=None, limit:int=None) -> IterPart(Plugin):
         '''
