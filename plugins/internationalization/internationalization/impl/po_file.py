@@ -22,7 +22,7 @@ class POFileServiceCDM(IPOFileService):
     Implementation for @see: IPOService
     '''
 
-    poFileManager = IPOFileManager
+    poManager = IPOFileManager
 
     poCdm = ICDM
 
@@ -33,11 +33,13 @@ class POFileServiceCDM(IPOFileService):
         path = self._cdmPath(locale)
         try:
             cdmFileTimestamp = self.poCdm.getTimestamp(path)
+            mngFileTimestamp = self.poManager.getGlobalPOTimestamp(locale)
+            republish = cdmFileTimestamp < mngFileTimestamp
         except PathNotFound:
-            return self.poFileManager.getGlobalPOFile(locale)
-        mngFileTimestamp = self.poFileManager.poFileTimestamp(locale)
-        if cdmFileTimestamp < mngFileTimestamp:
-            return self.poFileManager.getGlobalPOFile(locale)
+            republish = True
+        if republish:
+            self.poCdm.publishFromFile(path, self.poManager.getGlobalPOFile(locale))
+        return self.poCdm.getURI(path, 'http')
 
     def getComponentPOFile(self, component, locale):
         '''
@@ -46,11 +48,13 @@ class POFileServiceCDM(IPOFileService):
         path = self._cdmPath(locale, component)
         try:
             cdmFileTimestamp = self.poCdm.getTimestamp(path)
+            mngFileTimestamp = self.poManager.getComponentPOTimestamp(component, locale)
+            republish = cdmFileTimestamp < mngFileTimestamp
         except PathNotFound:
-            return self.poFileManager.getComponentPOFile(component, locale)
-        mngFileTimestamp = self.poFileManager.poFileTimestamp(locale)
-        if cdmFileTimestamp < mngFileTimestamp:
-            return self.poFileManager.getComponentPOFile(component, locale)
+            republish = True
+        if republish:
+            self.poCdm.publishFromFile(path, self.poManager.getComponentPOFile(component, locale))
+        return self.poCdm.getURI(path, 'http')
 
     def getPluginPOFile(self, plugin, locale):
         '''
@@ -59,29 +63,31 @@ class POFileServiceCDM(IPOFileService):
         path = self._cdmPath(locale, plugin=plugin)
         try:
             cdmFileTimestamp = self.poCdm.getTimestamp(path)
+            mngFileTimestamp = self.poManager.getPluginPOTimestamp(plugin, locale)
+            republish = cdmFileTimestamp < mngFileTimestamp
         except PathNotFound:
-            return self.poFileManager.getPluginPOFile(plugin, locale)
-        mngFileTimestamp = self.poFileManager.poFileTimestamp(locale)
-        if cdmFileTimestamp < mngFileTimestamp:
-            return self.poFileManager.getPluginPOFile(plugin, locale)
+            republish = True
+        if republish:
+            self.poCdm.publishFromFile(path, self.poManager.getPluginPOFile(plugin, locale))
+        return self.poCdm.getURI(path, 'http')
 
     def updateGlobalPOFile(self, poFile, locale:str):
         '''
         @see: IPOService.updateGlobalPOFile
         '''
-        self.poFileManager.updateGlobalPOFile(poFile, locale)
+        self.poManager.updateGlobalPOFile(poFile, locale)
 
     def updateComponentPOFile(self, poFile, component, locale):
         '''
         @see: IPOService.updateComponentPOFile
         '''
-        self.poFileManager.updateComponentPOFile(poFile, component, locale)
+        self.poManager.updateComponentPOFile(poFile, component, locale)
 
     def updatePluginPOFile(self, poFile, plugin, locale):
         '''
         @see: IPOService.updatePluginPOFile
         '''
-        self.poFileManager.updatePluginPOFile(poFile, plugin, locale)
+        self.poManager.updatePluginPOFile(poFile, plugin, locale)
 
     def _cdmPath(self, locale=None, component=None, plugin=None):
         if component:
