@@ -10,7 +10,7 @@ API specifications for localized messages.
 '''
 
 from .source import Source
-from ally.api.config import service, call
+from ally.api.config import service, call, query
 from ally.api.criteria import AsLike
 from introspection.api import modelDevel
 from sql_alchemy.api.entity import Entity, QEntity, IEntityGetCRUDService
@@ -34,6 +34,7 @@ class Message(Entity):
 
 # --------------------------------------------------------------------
 
+@query
 class QMessage(QEntity):
     '''
     Provides the query for the message.

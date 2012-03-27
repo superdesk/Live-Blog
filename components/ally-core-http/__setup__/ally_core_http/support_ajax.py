@@ -1,8 +1,8 @@
 '''
 Created on Nov 24, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core http
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -26,7 +26,7 @@ def ajax_cross_domain() -> bool:
     return False
 
 @ioc.config
-def headers_ajax() -> dict: 
+def headers_ajax() -> dict:
     '''The ajax specific headers required by browser for cross domain calls'''
     return {
             'Access-Control-Allow-Origin':'*',

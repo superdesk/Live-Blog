@@ -9,14 +9,11 @@ Created on Aug 24, 2011
 Provides implementations for easy binding of listeners to any objects also provides the means of integrating with proxies.
 '''
 
-from ..container.proxy import IProxyHandler, Execution, ProxyCall, analyzeProxy, \
+from .proxy import IProxyHandler, Execution, ProxyCall, analyzeProxy, \
     registerProxyHandler, hasProxyHandler
-from ..support.util import Attribute
+from abc import ABCMeta
 
 # --------------------------------------------------------------------
-
-ATTR_LISTENERS = Attribute(__name__, 'listeners', dict)
-# The attribute used to store the listeners.
 
 INDEX_DEFAULT = 'default'
 # The default index where listeners that have not specified a index are added.
@@ -32,10 +29,36 @@ EVENT_AFTER_CALL = 'after'
 EVENT_EXCEPTION_CALL = 'exception'
 # Listener key that is triggered if a proxy method raises an exception.
 
-# --------------------------------------------------------------------
-
 indexes = [INDEX_LOCK_BEGIN, INDEX_DEFAULT, INDEX_LOCK_END]
 # The list of known indexes in their priority order.
+
+# --------------------------------------------------------------------
+
+class BindableSupportMeta(ABCMeta):
+    '''
+    Meta class for bindable support that allows for instance check base on the '_ally_listeners' attribute.
+    '''
+
+    def __instancecheck__(self, instance):
+        '''
+        @see: ABCMeta.__instancecheck__
+        '''
+        if super().__instancecheck__(instance): return True
+        return isinstance(getattr(instance, '_ally_listeners', None), dict)
+
+class BindableSupport(metaclass=BindableSupportMeta):
+    '''
+    Class that provides the support for bindable objects.
+    '''
+    __slots__ = ('_ally_listeners',)
+
+    def __init__(self):
+        '''
+        Construct the bineable class with empty listeners.
+        '''
+        self._ally_listeners = {} # This will allow the model class to be binded with listeners
+
+# --------------------------------------------------------------------
 
 def indexAfter(index, after):
     '''
@@ -81,25 +104,23 @@ def bindListener(to, key, listener, index=INDEX_DEFAULT):
     
     @param to: object
         The object to bind the listeners to.
-    @param key: object immutable|tuple(object immutable)
+    @param key: object immutable|list(object immutable)|tuple(object immutable)
         The key to associate with the listener, this key will be used to associate the listener to a group that
         will be used in different situations.
-    @param listener: Callable|tuple(Callable)
+    @param listener: callable|list(callable)|tuple(callable)
         A Callable that is called as listener.
     @param index: string
         The index at which to position the listener.
     '''
-    assert to, 'Provide a to object'
-    _listeners = ATTR_LISTENERS.getOwn(to, None)
-    if not _listeners: _listeners = ATTR_LISTENERS.set(to, {}) 
-    if isinstance(key, tuple):_keys = key
-    else: _keys = [key]
-    addlist = list(listener) if isinstance(listener, tuple) else [listener]
+    assert isinstance(to, BindableSupport), 'The object %s is not bindeable' % to
+
+    keys = key if isinstance(key, (list, tuple)) else [key]
+    addlist = list(listener) if isinstance(listener, (list, tuple)) else [listener]
     assert addlist, 'At least one listener is required'
     assert isinstance(index, str), 'Invalid index %s' % index
     if index not in indexes: raise ValueError('Unknown index %s' % index)
-    for key in _keys:
-        listeners = _listeners.get(key)
+    for key in keys:
+        listeners = to._ally_listeners.get(key)
         if listeners:
             l = listeners.get(index)
             if not l:
@@ -108,7 +129,7 @@ def bindListener(to, key, listener, index=INDEX_DEFAULT):
             else:
                 l.extend(addlist)
         else:
-            _listeners[key] = {index:addlist}
+            to._ally_listeners[key] = {index:addlist}
 
 def clearBindings(to, *keys):
     '''
@@ -119,13 +140,16 @@ def clearBindings(to, *keys):
     @param keys: arguments(object immutable)
         The keys to be cleared, if none specified than all listeners are removed.
     '''
-    assert to, 'Provide a to object'
-    if not keys: 
-        if ATTR_LISTENERS.hasOwn(to): ATTR_LISTENERS.deleteOwn(to)
+    assert isinstance(to, BindableSupport), 'The object %s is not bindeable' % to
+
+    if not keys:
+        try:
+            to._ally_listeners.clear()
+        except AttributeError: pass
     else:
-        listeners = ATTR_LISTENERS.getOwn(to, None)
-        if listeners:
-            for key in keys: listeners.pop(key, None)
+        try:
+            for key in keys: to._ally_listeners.pop(key, None)
+        except AttributeError: pass
 
 def callListeners(to, key, *args):
     '''
@@ -141,10 +165,11 @@ def callListeners(to, key, *args):
         the listeners execution is stopped and False value is returned.
     @raise Exception: Will raise exceptions for different situations dictated by the listeners. 
     '''
-    assert to, 'Provide a to object'
-    _listeners = ATTR_LISTENERS.getOwn(to, None)
-    if _listeners:
-        listeners = _listeners.get(key)
+    assert isinstance(to, BindableSupport), 'The object %s is not bindeable' % to
+
+    try: listeners = to._ally_listeners.get(key)
+    except AttributeError: pass
+    else:
         if listeners:
             for index in indexes:
                 listenersList = listeners.get(index)
@@ -165,7 +190,7 @@ def bindBeforeListener(to, listener, index=INDEX_DEFAULT):
     neither the after call listeners will not be invoked.
     '''
     bindListener(to, EVENT_BEFORE_CALL, listener, index)
-    
+
 def bindAfterListener(to, listener, index=INDEX_DEFAULT):
     '''
     @see: bindListener
@@ -173,7 +198,7 @@ def bindAfterListener(to, listener, index=INDEX_DEFAULT):
     will block the call to the rest of the exception listeners.
     '''
     bindListener(to, EVENT_AFTER_CALL, listener, index)
-    
+
 def bindExceptionListener(to, listener, index=INDEX_DEFAULT):
     '''
     @see: bindListener
@@ -200,7 +225,7 @@ class BindingHandler(IProxyHandler):
     '''
     Provides a @see: IProxyHandler implementation in order to execute binded listeners. 
     '''
-    
+
     def handle(self, execution):
         '''
         @see: IProxyHandler.handle
@@ -209,25 +234,26 @@ class BindingHandler(IProxyHandler):
         proxyCall = execution.proxyCall
         assert isinstance(proxyCall, ProxyCall)
         proxy = proxyCall.proxy
-        
-        if callListeners(proxy, EVENT_BEFORE_CALL, execution.args, execution.keyargs):
-            if callListeners(proxyCall, EVENT_BEFORE_CALL, execution.args, execution.keyargs):
-                try:
+
+        try:
+            if callListeners(proxy, EVENT_BEFORE_CALL, execution.args, execution.keyargs):
+                if callListeners(proxyCall, EVENT_BEFORE_CALL, execution.args, execution.keyargs):
                     value = execution.invoke()
-                except Exception as e:
-                    if callListeners(proxy, EVENT_EXCEPTION_CALL, e):
-                        callListeners(proxyCall, EVENT_EXCEPTION_CALL, e)
-                    raise
-                if callListeners(proxy, EVENT_AFTER_CALL, value):
-                    callListeners(proxyCall, EVENT_AFTER_CALL, value)
-                return value
+                    if callListeners(proxy, EVENT_AFTER_CALL, value):
+                        callListeners(proxyCall, EVENT_AFTER_CALL, value)
+                    return value
+        except Exception as e:
+            if callListeners(proxy, EVENT_EXCEPTION_CALL, e):
+                callListeners(proxyCall, EVENT_EXCEPTION_CALL, e)
+            raise
+
 
 BINDING_HANDLER = BindingHandler()
 # The single proxy binder handler that solver the listener calls.
 # This implementation is state less so it has to be considered a singletone.
 
 # --------------------------------------------------------------------
-    
+
 def bindLock(proxy, lock):
     '''
     Binds to the provided proxy the provided lock. Basically all proxies binded to the same lock will execute synchronous
@@ -240,10 +266,10 @@ def bindLock(proxy, lock):
     '''
     assert hasattr(lock, 'acquire') and hasattr(lock, 'release'), 'Invalid lock %s' % lock
     registerProxyBinder(proxy)
-    
+
     def acquire(*args): lock.acquire()
     def release(*args): lock.release()
-    
+
     bindBeforeListener(proxy, acquire, index=INDEX_LOCK_BEGIN)
     bindAfterListener(proxy, release, index=INDEX_LOCK_END)
     bindExceptionListener(proxy, release, index=INDEX_LOCK_END)

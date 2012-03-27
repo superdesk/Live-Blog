@@ -1,8 +1,8 @@
 '''
 Created on Jun 18, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -20,7 +20,7 @@ class Path:
     Provides the path container.
     The path is basically a immutable collection of matches. 
     '''
-    
+
     def __init__(self, matches, node=None):
         '''
         Initializes the path.
@@ -36,7 +36,7 @@ class Path:
             for match in matches: assert isinstance(match, Match), 'Invalid match %s' % match
         self.matches = matches
         self.node = node
-        
+
     def toArguments(self, invoker):
         '''
         Provides the list of arguments contained in this path.
@@ -56,7 +56,7 @@ class Path:
             assert isinstance(match, Match)
             match.asArgument(invoker, args)
         return args
-    
+
     def update(self, obj, objType):
         '''
         Updates all the matches in the path with the provided value. This method looks like a render method 
@@ -89,7 +89,7 @@ class Path:
                 valid &= match.isValid()
             return valid
         return False
-        
+
     def toPaths(self, converterPath):
         '''
         Converts the matches into path elements.
@@ -112,7 +112,7 @@ class Path:
                     paths.extend(path)
                 paths.append(path)
         return paths
-    
+
     def clone(self):
         '''
         Clones the path and all match content, any action on the cloned path will node affect the original path.
@@ -121,15 +121,15 @@ class Path:
             The cloned path.
         '''
         return Path([match.clone() for match in self.matches], self.node)
-    
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.matches == other.matches
         return False
-    
+
     def __str__(self):
         return '<%s[%s]>' % (self.__class__.__name__, '/'.join(str(match) for match in self.matches))
-        
+
 class PathExtended(Path):
     '''
     The extended path will be directly linked with the matches of the parent path. The basic idea is that if the
@@ -138,7 +138,7 @@ class PathExtended(Path):
     valid (to have a node for it self).
     @see: Path
     '''
-    
+
     def __init__(self, parent, matches, node, index=None):
         '''
         @see: Path.__init__
@@ -164,7 +164,7 @@ class PathExtended(Path):
         all = parent.matches[:index]
         all.extend(matches)
         super().__init__(all, node)
-        
+
     def clone(self):
         '''
         @see: Path.clone
@@ -184,7 +184,7 @@ class Assembler(metaclass=abc.ABCMeta):
     This class needs to be extended.
     Provides support for assembling the calls in the node structure.
     '''
-    
+
     def knownModelHints(self):
         '''
         Provides the known model hints for the assembler.
@@ -193,7 +193,7 @@ class Assembler(metaclass=abc.ABCMeta):
             A dictionary containing as a key the allowed hint name and as a value the hint description. 
         '''
         return None
-    
+
     def knownCallHints(self):
         '''
         Provides the known call hints for the assembler.
@@ -202,7 +202,7 @@ class Assembler(metaclass=abc.ABCMeta):
             A dictionary containing as a key the allowed hint name and as a value the hint description. 
         '''
         return None
-    
+
     @abc.abstractmethod
     def assemble(self, root, invokers):
         '''
@@ -222,9 +222,9 @@ class Normalizer:
     '''
     Provides the normalization for key type strings, like the ones used in paths and content key names.
     '''
-    
+
     regex_check = re.compile('([a-z_A-Z0-9]+)')
-    
+
     def normalize(self, name):
         '''
         Normalizes the provided string value as seen fit by the converter.
@@ -244,7 +244,7 @@ class Converter:
     Provides the conversion of primitive types to strings in vice versa.
     The converter provides basic conversion, please extend for more complex or custom transformation.
     '''
-    
+
     def asString(self, objValue, objType):
         '''
         Converts the provided object to a string. First it will detect the type and based on that it will call
@@ -260,7 +260,7 @@ class Converter:
         assert isinstance(objType, Type), 'Invalid object type %s' % objType
         assert objValue is not None, 'Provide an object value'
         return str(objValue)
-    
+
     def asValue(self, strValue, objType):
         '''
         Parses the string value into an object value depending on the provided object type.
@@ -287,14 +287,14 @@ class ConverterPath(Normalizer, Converter):
     '''
     Provides normalization and conversion for path elements.
     '''
-    
+
 # --------------------------------------------------------------------
 
 class Match(metaclass=abc.ABCMeta):
     '''
     Provides a matched path entry.
     '''
-    
+
     def __init__(self, node):
         '''
         Constructs a match.
@@ -304,7 +304,7 @@ class Match(metaclass=abc.ABCMeta):
         '''
         assert isinstance(node, Node), 'Invalid node %s' % node
         self.node = node
-    
+
     @abc.abstractmethod
     def asArgument(self, invoker, args):
         '''
@@ -319,7 +319,7 @@ class Match(metaclass=abc.ABCMeta):
         @param args: dictionary
             The dictionary where the argument(s) name and value(s) of this match will be populated.
         '''
-    
+
     @abc.abstractmethod
     def update(self, obj, objType):
         '''
@@ -333,7 +333,7 @@ class Match(metaclass=abc.ABCMeta):
         @return: boolean
             True if the updated was successful, false otherwise.
         '''
-    
+
     @abc.abstractmethod
     def isValid(self):
         '''
@@ -342,7 +342,7 @@ class Match(metaclass=abc.ABCMeta):
         @return: boolean
             True if the match can provide a path, false otherwise.
         '''
-    
+
     @abc.abstractmethod
     def toPath(self, converterPath, isFirst, isLast):
         '''
@@ -361,7 +361,7 @@ class Match(metaclass=abc.ABCMeta):
         @raise AssertionError:
             If the path cannot be represented, check first the 'isValid' method.
         '''
-    
+
     @abc.abstractmethod
     def clone(self):
         '''
@@ -370,7 +370,7 @@ class Match(metaclass=abc.ABCMeta):
         @return: Match
             The cloned match.
         '''
-        
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.node == other.node
@@ -380,35 +380,33 @@ class Invoker(metaclass=abc.ABCMeta):
     '''
     Contains all the data required for accessing a call.
     '''
-    
-    def __init__(self, outputType, name, inputs, mandatoryCount):
+
+    def __init__(self, output, name, inputs):
         '''
         Constructs an invoker.
         
-        @param outputType: Type
+        @param output: Type
             The output type of the invoker.
         @param name: string
             The name of the invoker.
         @param inputs: list[Input]|tuple(Input)
             The list of Inputs for the invoker, attention not all inputs are mandatory.
-        @param mandatoryCount: integer
-            Provides the count of the mandatory input types, if the mandatory count is two and we have three input
-            types it means that just the first two parameters need to be provided.
         '''
-        assert not outputType or isinstance(outputType, Type), 'Invalid output type %s' % outputType
+        assert not output or isinstance(output, Type), 'Invalid output type %s' % output
         assert isinstance(name, str), 'Invalid name %s' % name
         assert isinstance(inputs, (list, tuple)), 'Invalid inputs list %s' % inputs
-        assert isinstance(mandatoryCount, int), 'Invalid mandatory count <%s>, needs to be integer' % mandatoryCount
-        assert mandatoryCount >= 0 and mandatoryCount <= len(inputs), \
-        'Invalid mandatory count <%s>, needs to be greater than 0 and less than ' % (mandatoryCount, len(inputs))
-        if __debug__:
-            for inp in inputs:
-                assert isinstance(inp, Input), 'Invalid input %s' % inp
-        self.outputType = outputType
+
+        mandatory = 0
+        for inp in inputs:
+            assert isinstance(inp, Input), 'Not an input %s' % input
+            if inp.hasDefault: break
+            mandatory += 1
+
+        self.output = output
         self.name = name
         self.inputs = inputs
-        self.mandatoryCount = mandatoryCount
-    
+        self.mandatory = mandatory
+
     @abc.abstractmethod
     def invoke(self, *args):
         '''
@@ -419,8 +417,8 @@ class Invoker(metaclass=abc.ABCMeta):
         '''
 
     def __str__(self):
-        return '<%s[%s %s(%s)]>' % (self.__class__.__name__, self.outputType, self.name, ', '.join(
-                                ''.join((('defaulted:' if i >= self.mandatoryCount else ''), inp.name, '=', str(inp.type)))
+        return '<%s[%s %s(%s)]>' % (self.__class__.__name__, self.output, self.name, ', '.join(
+                                ''.join((('defaulted:' if i >= self.mandatory else ''), inp.name, '=', str(inp.type)))
                                 for i, inp in enumerate(self.inputs)))
 
 class Node(metaclass=abc.ABCMeta):
@@ -429,7 +427,7 @@ class Node(metaclass=abc.ABCMeta):
     acknowledge a path(s) as belonging to the node. All nodes implementations need to be exclusive by nature, 
     meaning that not two nodes should be valid for the same path.
     '''
-    
+
     def __init__(self, parent, isGroup, order):
         '''
         Constructs a resource node. 
@@ -464,7 +462,7 @@ class Node(metaclass=abc.ABCMeta):
         self.delete = None
         self._childrens = []
         if parent is not None: parent.addChild(self)
-        
+
     def addChild(self, child):
         '''
         Adds a new child node to this node.
@@ -477,7 +475,7 @@ class Node(metaclass=abc.ABCMeta):
         assert child not in self._childrens, 'Already contains children node %s' % child
         self._childrens.append(child)
         self._childrens.sort(key=lambda node: node.order)
-        
+
     def remChild(self, child):
         #TODO: make a better removal mechanism.
         '''
@@ -499,7 +497,7 @@ class Node(metaclass=abc.ABCMeta):
             The list of children nodes.
         '''
         return self._childrens
-    
+
     @abc.abstractmethod
     def tryMatch(self, converterPath, paths):
         '''
@@ -515,7 +513,7 @@ class Node(metaclass=abc.ABCMeta):
             If a match has occurred than a match or a list with match objects will be returned or True if there
             is no match to provide by this node, if not than None or False is returned.
         '''
-    
+
     @abc.abstractmethod
     def newMatch(self):
         '''
@@ -526,7 +524,7 @@ class Node(metaclass=abc.ABCMeta):
         @return: Match|list|None
             A match object or a list with match objects, None if there is no match needed by this node.
         '''
-    
+
     @abc.abstractmethod
     def __eq__(self, other):
         '''
@@ -542,7 +540,7 @@ class ResourcesManager(metaclass=abc.ABCMeta):
     abilities to update the tree and also to find resources.
     @attention: This class might require thread safety latter on the line when we are doing the model property update.
     '''
-    
+
     @abc.abstractmethod
     def getRoot(self):
         '''
@@ -551,18 +549,16 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         @return: Node
             The root Node.
         '''
-    
+
     @abc.abstractmethod
-    def register(self, service, implementation):
+    def register(self, implementation):
         '''
         Register the provided service class into the resource node tree.
     
-        @param service: class|Service
-            The service or service class to be registered.
         @param implementation: object
             The implementation for the provided service.
         '''
-        
+
     @abc.abstractmethod
     def findResourcePath(self, converterPath, paths):
         '''
@@ -575,7 +571,7 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         @return: Path
             The path leading to the node that provides the paths resource.
         '''
-    
+
     @abc.abstractmethod
     def findGetModel(self, fromPath, model):
         '''
@@ -591,7 +587,7 @@ class ResourcesManager(metaclass=abc.ABCMeta):
             The extended path pointing to the desired get method, attention some updates might be necessary on 
             the path to be available. None if the path could not be found.
         '''
-    
+
     @abc.abstractmethod
     def findGetAllAccessible(self, fromPath=None):
         '''

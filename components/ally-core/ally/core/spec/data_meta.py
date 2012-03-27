@@ -2,17 +2,17 @@
 Created on Jan 27, 2012
 
 @package: ally core
-@copyright: 2011 Sourcefabric o.p.s.
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides the data meta support. 
 '''
 
-from ally.api.operator import Model
-from ally.api.type import Type, TypeProperty, TypeModel
+from ally.api.type import Type
 from ally.core.spec.resources import Path
-from ally.support.util import immutable, immut
+from ally.api.operator.container import Model
+from ally.api.operator.type import TypeModelProperty, TypeModel
 
 # --------------------------------------------------------------------
 
@@ -21,14 +21,13 @@ returnSame = lambda obj: obj
 
 # --------------------------------------------------------------------
 
-@immutable
 class MetaModel:
     '''
     Provides the meta model object.
     '''
-    
-    __slots__ = __immutable__ = ('model', 'getModel', 'metaLink', 'properties')
-    
+
+    __slots__ = ('model', 'getModel', 'metaLink', 'properties')
+
     def __init__(self, model, getModel, metaLink=None, properties={}):
         '''
         Construct the object meta.
@@ -53,18 +52,17 @@ class MetaModel:
         self.model = model
         self.getModel = getModel
         self.metaLink = metaLink
-        self.properties = immut(properties)
-    
+        self.properties = properties
+
     def __str__(self): return '%s[%s, %s]' % (self.__class__.__name__, self.metaLink, self.properties)
 
-@immutable  
 class MetaCollection:
     '''
     Provides the list meta.
     '''
-    
-    __slots__ = __immutable__ = ('metaItem', 'getItems', 'getTotal')
-    
+
+    __slots__ = ('metaItem', 'getItems', 'getTotal')
+
     def __init__(self, metaItem, getItems, getTotal=None):
         '''
         Construct the list meta.
@@ -83,17 +81,16 @@ class MetaCollection:
         self.metaItem = metaItem
         self.getItems = getItems
         self.getTotal = getTotal
-    
+
     def __str__(self): return '%s[%s]' % (self.__class__.__name__, self.metaItem)
 
-@immutable
 class MetaLink:
     '''
     Provides the link meta.
     '''
-    
-    __slots__ = __immutable__ = ('getLink',)
-    
+
+    __slots__ = ('getLink',)
+
     def __init__(self, getLink):
         '''
         Construct the link meta.
@@ -104,14 +101,13 @@ class MetaLink:
         assert callable(getLink), 'Invalid get link callable %s' % getLink
         self.getLink = getLink
 
-@immutable
 class MetaValue:
     '''
     Provides the value meta.
     '''
-    
-    __slots__ = __immutable__ = ('type', 'getValue')
-    
+
+    __slots__ = ('type', 'getValue')
+
     def __init__(self, type, getValue):
         '''
         Construct the list meta.
@@ -125,7 +121,7 @@ class MetaValue:
         assert callable(getValue), 'Invalid get value callable %s' % getValue
         self.type = type
         self.getValue = getValue
-    
+
     def __str__(self): return '%s[%s]' % (self.__class__.__name__, self.type)
 
 class MetaFetch:
@@ -133,9 +129,9 @@ class MetaFetch:
     Provides a meta that just fetches a value that has to be used by the contained meta.
     This type of meta is not rendered.
     '''
-    
+
     __slots__ = __immutable__ = ('meta', 'getValue')
-    
+
     def __init__(self, meta, getValue):
         '''
         Construct the fetch meta.
@@ -149,7 +145,7 @@ class MetaFetch:
         assert callable(getValue), 'Invalid get value callable %s' % getValue
         self.meta = meta
         self.getValue = getValue
-    
+
     def __str__(self): return '%s[%s]' % (self.__class__.__name__, self.meta)
 
 # --------------------------------------------------------------------
@@ -158,27 +154,27 @@ class MetaPath(MetaLink):
     '''
     Provides the link on path meta.
     '''
-    
+
     __slots__ = __immutable__ = ('type', 'path', 'getValue')
-    
+
     def __init__(self, path, type, getValue):
         '''
         Construct the update path callable.
         
         @param path: Path
             The path to be updated and returned.
-        @param type: TypeProperty|TypeModel
+        @param type: TypeModelProperty|TypeModel
             The type of the object to be updated.
         @param getValue: Callable(object)
             A callable that takes as an argument the object to extract the value for the path.
         '''
         assert isinstance(path, Path), 'Invalid path %s' % path
-        assert isinstance(type, (TypeProperty, TypeModel)), 'Invalid type %s' % type
+        assert isinstance(type, (TypeModelProperty, TypeModel)), 'Invalid type %s' % type
         assert callable(getValue), 'Invalid get value callable %s' % getValue
         self.type = type
         self.path = path
         self.getValue = getValue
-        
+
     def getLink(self, obj):
         '''
         Provides the updated path.
@@ -191,5 +187,5 @@ class MetaPath(MetaLink):
         path = self.path.clone()
         path.update(value, self.type)
         if path.isValid(): return path
-        
+
     def __str__(self): return '%s[%s, %s]' % (self.__class__.__name__, self.path, self.type)

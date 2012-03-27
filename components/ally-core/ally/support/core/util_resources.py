@@ -1,17 +1,17 @@
 '''
 Created on Jan 4, 2012
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides utility methods based on the specifications.
 '''
 
-from ally.api.operator import Model
 from ally.core.impl.node import NodeModel, NodePath
 from ally.core.spec.resources import Match, Node, Path, ConverterPath
+from ally.api.operator.container import Model
 
 # --------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ def pushMatch(matches, match):
             raise AssertionError('Invalid match %s') % match
         return True
     return False
-    
+
 def matchesForNode(node):
     '''
     Provides all the matches that lead to the provided node. The node needs to be in a tree node to have valid matches
@@ -85,7 +85,7 @@ def toPaths(matches, converterPath):
     return paths
 
 # --------------------------------------------------------------------
-        
+
 def nodeLongName(node):
     '''
     Provides the fullest name that can be extracted for the provided node. This is done by appending all names of the

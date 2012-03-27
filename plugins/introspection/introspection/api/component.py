@@ -11,16 +11,16 @@ Provides the components introspection.
 
 from . import modelDevel
 from ally.api.config import service, call
-from ally.api.type import IdString, IterPart
+from ally.api.type import IterPart
 
 # --------------------------------------------------------------------
 
-@modelDevel
+@modelDevel(id='Id')
 class Component:
     '''
     Provides the component data.
     '''
-    Id = IdString
+    Id = str
     Name = str
     Group = str
     Version = str
@@ -29,7 +29,7 @@ class Component:
     Loaded = bool
     Path = str
     InEgg = bool
-    
+
 # --------------------------------------------------------------------
 
 @service
@@ -37,13 +37,13 @@ class IComponentService:
     '''
     Provides services for ally components.
     '''
-    
+
     @call
     def getById(self, id:Component.Id) -> Component:
         '''
         Provides the component based on the provided id.
         '''
-    
+
     @call
     def getComponents(self, offset:int=None, limit:int=None) -> IterPart(Component):
         '''

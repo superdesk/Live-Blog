@@ -1,8 +1,8 @@
 '''
 Created on Nov 15, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core http
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -25,10 +25,10 @@ class EncoderHeaderSet(EncoderHeader):
     '''
     Provides the setting of static header values.
     '''
-    
+
     headers = dict
     # The static header values to set on the response.
-   
+
     def __init__(self):
         assert isinstance(self.headers, dict), 'Invalid header dictionary %s' % self.header
         if __debug__:

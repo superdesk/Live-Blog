@@ -9,7 +9,7 @@ Created on Jul 14, 2011
 Provides the content delivery handler.
 '''
 
-from ally.api.operator import GET
+from ally.api.config import GET
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \

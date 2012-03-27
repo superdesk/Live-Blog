@@ -13,11 +13,11 @@ from ally.container.ioc import injected
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain, \
     EncoderPath
+from collections import Iterable
 from numbers import Number
 import abc
 import codecs
 import logging
-from collections import Iterable
 
 # --------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ class EncodingTextBaseHandler(Processor):
     Requires on request: NA
     Requires on response: contentType, encoderPath, contentConverter, obj, [objMeta]
     '''
-    
+
     charSetDefault = str
     # The default character set to be used if none provided for the content.
     contentTypes = dict
@@ -49,7 +49,7 @@ class EncodingTextBaseHandler(Processor):
         assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
         assert isinstance(self.contentTypes, dict), 'Invalid content types %s' % self.contentTypes
         assert isinstance(self.encodingError, str), 'Invalid string %s' % self.encodingError
-    
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -65,7 +65,7 @@ class EncodingTextBaseHandler(Processor):
             if contentType:
                 assert log.debug('Normalized content type %r to %r', rsp.contentType, contentType) or True
                 rsp.contentType = contentType
-            
+
             # Resolving the character set
             if rsp.charSet:
                 try: codecs.lookup(rsp.charSet)
@@ -77,7 +77,7 @@ class EncodingTextBaseHandler(Processor):
                     rsp.charSet = charSet
                     break
                 else: rsp.charSet = self.charSetDefault
-            
+
             if not rsp.objMeta:
                 if rsp.obj is None:
                     assert log.debug('Nothing to encode') or True
@@ -85,7 +85,7 @@ class EncodingTextBaseHandler(Processor):
                 elif isinstance(rsp.obj, dict):
                     # Expected a plain dictionary dictionary or list for rendering
                     assert isValid(rsp.obj), 'Invalid object for encoding %s' % rsp.obj
-                    
+
                     rsp.content = convertToBytes(self.encodeObject(rsp.charSet, rsp.obj), rsp.charSet,
                                                  self.encodingError)
                     return
@@ -106,11 +106,11 @@ class EncodingTextBaseHandler(Processor):
                     rsp.content = convertToBytes(self.encodeMeta(rsp.charSet, rsp.obj, rsp.objMeta,
                                 rsp.contentConverter.asString, rsp.encoderPath.encode), rsp.charSet, self.encodingError)
                     return
-        
+
         chain.proceed()
-    
+
     # ----------------------------------------------------------------
-    
+
     @abc.abstractclassmethod
     def encodeMeta(self, charSet, value, meta, asString, pathEncode):
         '''
@@ -129,7 +129,7 @@ class EncodingTextBaseHandler(Processor):
         @return: generator
             The generator that delivers the encoded content in string format.
         '''
-        
+
     @abc.abstractclassmethod
     def encodeObject(self, charSet, obj):
         '''
@@ -142,7 +142,7 @@ class EncodingTextBaseHandler(Processor):
         @return: generator
             The generator that delivers the encoded content in string format.
         '''
-        
+
 # --------------------------------------------------------------------
 
 def isValid(obj):

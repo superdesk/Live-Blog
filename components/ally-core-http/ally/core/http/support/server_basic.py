@@ -1,8 +1,8 @@
 '''
 Created on Jul 8, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core http
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -10,7 +10,7 @@ Provides the basic web server based on the python build in http server (this typ
 thread serving requests one at a time).
 '''
 
-from ally.api.operator import GET, INSERT, UPDATE, DELETE
+from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.core.http.spec import EncoderHeader, RequestHTTP, METHOD_OPTIONS
 from ally.core.spec.server import Response, Processors, ProcessorsChain, \
     ContentRequest
@@ -92,7 +92,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         chain.process(req, rsp)
         self._dispatch(rsp)
         assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
-        
+
     def _dispatch(self, rsp):
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         headers = OrderedDict()

@@ -9,11 +9,11 @@ Created on Jun 23, 2011
 SQL alchemy implementation for the generic entities API.
 '''
 
-from ally.api.configure import modelFor, ServiceSupport
-from ally.api.operator import Model
-from ally.exception import InputException, Ref
+from ally.exception import InputError, Ref
 from inspect import isclass
 import logging
+from ally.api.type import typeFor
+from ally.api.operator.type import TypeModel
 
 # --------------------------------------------------------------------
 
@@ -25,14 +25,14 @@ class EntitySupport:
     '''
     Provides support generic entity handling.
     '''
-    
-    def __init__(self, model):
-        if isclass(model): model = modelFor(model)
-        assert not model or isinstance(model, Model), 'Invalid model %s' % model
-        self.model = model
-        self.Entity = model.modelClass
-        if isinstance(self, ServiceSupport): ServiceSupport.__init__(self, self)
-        
+
+    def __init__(self, clazz):
+        assert isclass(clazz), 'Invalid class %s' % clazz
+        typeModel = typeFor(clazz)
+        assert isinstance(typeModel, TypeModel), 'Invalid model class %s' % clazz
+        self.model = typeModel.container
+        self.Entity = clazz
+
         self._entityById = {}
 
 # --------------------------------------------------------------------
@@ -41,20 +41,20 @@ class EntityGetService(EntitySupport):
     '''
     Generic implementation for @see: IEntityGetService
     '''
-    
+
     def getById(self, id):
         '''
         @see: IEntityGetService.getById
         '''
         entity = self._entityById.get(id)
-        if not entity: raise InputException(Ref('Unknown id', ref=self.Entity.Id))
+        if not entity: raise InputError(Ref('Unknown id', ref=self.Entity.Id))
         return entity
 
 class EntityFindService(EntitySupport):
     '''
     Generic implementation for @see: IEntityFindService
     '''
-    
+
     def getAll(self, offset=None, limit=None):
         '''
         @see: IEntityQueryService.getAll

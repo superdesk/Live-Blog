@@ -2,7 +2,7 @@
 Created on Feb 1, 2012
 
 @package: ally core http
-@copyright: 2011 Sourcefabric o.p.s.
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -17,10 +17,10 @@ from ally.core.spec.data_meta import MetaLink, MetaModel, MetaPath, MetaCollecti
     MetaFetch
 from ally.core.spec.resources import Normalizer
 from ally.core.spec.server import Request, Response, ProcessorsChain, Processors
-from ally.exception import DevelException
+from ally.exception import DevelError
 from collections import deque
 import logging
-from ally.api.operator import GET
+from ally.api.config import GET
 
 # --------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
     Requires on request: headers
     Requires on response: objMeta
     '''
-    
+
     normalizer = Normalizer
     # The normalizer used for matching property names with header values.
     fetching = Processors
@@ -48,7 +48,7 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
     # The header name for the filter.
     separatorNames = '.'
     # Separator used for filter names.
-    
+
     def __init__(self):
         MetaCreatorHandler.__init__(self)
         HeaderHTTPBase.__init__(self)
@@ -56,7 +56,7 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
         assert isinstance(self.fetching, Processors), 'Invalid fetching processors %s' % self.fetching
         assert isinstance(self.nameXFilter, str), 'Invalid filter header name %s' % self.nameXFilter
         assert isinstance(self.separatorNames, str), 'Invalid names separator %s' % self.separatorNames
-        
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -64,14 +64,14 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        
+
         try:
             filterBy = self._parse(self.nameXFilter, req.headers, req.params, VALUES)
-        except DevelException as e:
-            assert isinstance(e, DevelException)
+        except DevelError as e:
+            assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
-        
+
         if rsp.objMeta is None:
             if filterBy:
                 rsp.setCode(INVALID_HEADER_VALUE, 'Unknown filter properties %r' % ', '.join(filterBy))
@@ -85,13 +85,13 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                     fvalue = fdict.get(fname)
                     if not isinstance(fvalue, dict): fvalue = fdict[fname] = {}
                     fdict = fvalue
-            
+
             _hasFetcher = False
             def createFetcher(meta):
                 nonlocal _hasFetcher
                 _hasFetcher = True
                 return Fetcher(self.fetching, req, rsp, meta)
-            
+
             rsp.objMeta = self.filterMeta(rsp.objMeta, self.normalizer.normalize, createFetcher, filterTree, True)
             if filterTree:
                 unknown, process = [], deque()
@@ -101,10 +101,10 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                     for fname, fvalue in fdict.items():
                         if fvalue: process.append((fvalue, ''.join((name, fname, self.separatorNames))))
                         else: unknown.append(name + fname)
-                    
+
                 rsp.setCode(INVALID_HEADER_VALUE, 'Unknown filter(s) %r' % ', '.join(unknown))
                 return
-        
+
         if _hasFetcher:
             chain.process(req, rsp)
             if rsp.code.isSuccess:
@@ -116,9 +116,9 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                 except FetchError: rsp.content = None
                 else: rsp.content = iter(content)
         else: chain.proceed()
-                
+
     # ----------------------------------------------------------------
-    
+
     def filterMeta(self, meta, normalize, createFetcher, filterTree={}, first=False):
         '''
         Filters the provided meta based on the filter tree.
@@ -142,13 +142,13 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
         assert callable(createFetcher), 'Invalid create fetcher %s' % createFetcher
         assert isinstance(filterTree, dict), 'Invalid filter dictionary %s' % filterTree
         assert isinstance(first, bool), 'Invalid first flag %s' % first
-        
+
         if isinstance(meta, MetaCollection):
             if isinstance(meta.metaItem, MetaModel):
                 assert isinstance(meta, MetaCollection)
                 return MetaCollection(self.filterMeta(meta.metaItem, normalize, createFetcher, filterTree),
                                       meta.getItems, meta.getTotal)
-            
+
         elif isinstance(meta, MetaModel):
             assert isinstance(meta, MetaModel)
             if filterTree:
@@ -165,7 +165,7 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                             if not f: del filterTree[nname]
                         unknownNames.remove(nname)
                     elif first: metas[name] = pmeta
-                    
+
                 if unknownNames and isinstance(meta.metaLink, MetaPath):
                     # If there are unknown filter names we will try to see if there are in the full meta model.
                     metaModel = self.meta(meta.model.type, meta.metaLink.path)
@@ -195,11 +195,11 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                         metas.update(fmetas)
                         # The new 
                         return MetaModel(meta.model, createFetcher(meta), meta.metaLink, metas)
-                
+
                 return MetaModel(meta.model, meta.getModel, meta.metaLink, metas)
             elif not first and meta.metaLink:
                 return MetaModel(meta.model, meta.getModel, meta.metaLink)
-            
+
         return meta
 
 # --------------------------------------------------------------------
@@ -218,9 +218,9 @@ class Fetcher:
     '''
     The fetcher provides the ability to get the additional models to be presented.
     '''
-    
+
     __slots__ = ('processors', 'request', 'response', 'meta',)
-    
+
     def __init__(self, processors, request, response, meta):
         '''
         Constructs the fetcher base on the meta model
@@ -243,23 +243,23 @@ class Fetcher:
         self.request = request
         self.response = response
         self.meta = meta
-        
+
     def __call__(self, obj):
         model = self.meta.getModel(obj)
         if model is None: return
-        
+
         path = self.meta.metaLink.getLink(obj)
         if path is None: return (model, None)
-        
+
         req = Request()
         req.method = GET
         req.resourcePath = path
         req.accLanguages = self.request.accLanguages
         req.params.extend(self.request.params)
-        
+
         rsp = Response()
         rsp.contentLanguage = self.response.contentLanguage
-        
+
         chain = self.processors.newChain()
         assert isinstance(chain, ProcessorsChain)
         chain.process(req, rsp)
@@ -268,5 +268,5 @@ class Fetcher:
             self.response.codeText = rsp.codeText
             self.response.codeMessage = rsp.codeMessage
             raise FetchError()
-            
+
         return model, rsp.obj

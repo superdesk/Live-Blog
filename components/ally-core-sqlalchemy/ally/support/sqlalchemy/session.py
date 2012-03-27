@@ -1,17 +1,16 @@
 '''
 Created on Jan 5, 2012
 
-@package Newscoop
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: ally core sql alchemy
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides support for SQL alchemy automatic session handling.
 '''
 
-from ally.api.configure import ServiceSupport
-from ally.exception import DevelException
-from ally.listener.binder import registerProxyBinder, bindBeforeListener, \
+from ally.exception import DevelError
+from ally.container.binder import registerProxyBinder, bindBeforeListener, \
     bindAfterListener, bindExceptionListener, indexAfter, INDEX_LOCK_BEGIN, \
     indexBefore, INDEX_LOCK_END
 from ally.support.util import AttributeOnThread
@@ -44,16 +43,14 @@ class SessionSupport:
     All services that use SQLAlchemy have to extend this class in order to provide the sql alchemy session
     of the request, the session will be automatically handled by the session processor.
     '''
-    
+
     session = Session
-    
+
     def __init__(self):
         '''
         Bind the session method.
         '''
         self.session = openSession
-        if isinstance(self, ServiceSupport): ServiceSupport.__init__(self, self)
-
 
 # --------------------------------------------------------------------
 
@@ -77,7 +74,7 @@ def openSession():
     thread session creator if one is not already created.
     '''
     creators = ATTR_SESSION_CREATE.get(None)
-    if not creators: raise DevelException('Invalid call, it seems that the thread is not tagged with an SQL session')
+    if not creators: raise DevelError('Invalid call, it seems that the thread is not tagged with an SQL session')
     creator = creators[-1]
     creatorId = id(creator)
     sessions = ATTR_SESSION.get(None)
@@ -92,6 +89,17 @@ def openSession():
             assert log.debug('Created SQL Alchemy session %s', session) or True
     return session
 
+def hasSession():
+    '''
+    Function to check if there is a session on the current thread.
+    '''
+    creators = ATTR_SESSION_CREATE.get(None)
+    if not creators: raise DevelError('Invalid call, it seems that the thread is not tagged with an SQL session')
+    creatorId = id(creators[-1])
+    sessions = ATTR_SESSION.get(None)
+    if not sessions: return False
+    return creatorId in sessions
+
 def endCurrent(sessionCloser=None):
     '''
     Ends the transaction for the current thread session creator.
@@ -101,15 +109,15 @@ def endCurrent(sessionCloser=None):
     '''
     assert not sessionCloser or callable(sessionCloser), 'Invalid session closer %s' % sessionCloser
     creators = ATTR_SESSION_CREATE.get(None)
-    if not creators: raise DevelException('Illegal end transaction call, there is no transaction begun')
+    if not creators: raise DevelError('Illegal end transaction call, there is no transaction begun')
     assert isinstance(creators, deque)
-    
+
     creator = creators.pop()
     assert log.debug('End session creator %s', creator) or True
     if not creators:
         if not ATTR_KEEP_ALIVE.get(False): endSessions(sessionCloser)
         ATTR_SESSION_CREATE.clear()
-    
+
 def endSessions(sessionCloser=None):
     '''
     Ends all the transaction for the current thread session.
@@ -125,7 +133,7 @@ def endSessions(sessionCloser=None):
             if sessionCloser: sessionCloser(session)
     ATTR_SESSION.clear()
     assert log.debug('Ended all sessions') or True
-    
+
 # --------------------------------------------------------------------
 
 def commit(session):
@@ -169,11 +177,18 @@ def bindSession(proxy, sessionCreator):
     '''
     assert issubclass(sessionCreator, Session), 'Invalid session creator %s' % sessionCreator
     registerProxyBinder(proxy)
-    
-    def begin(*args): beginWith(sessionCreator)
-    def end(returned): endCurrent(commit)
-    def exception(exception): endCurrent(rollback)
-    
+
+    def begin(*args):
+        beginWith(sessionCreator)
+
+    def end(returned):
+        if hasSession():
+            openSession().expunge_all()
+        endCurrent(commit)
+
+    def exception(exception):
+        endCurrent(rollback)
+
     bindBeforeListener(proxy, begin, index=INDEX_SESSION_BEGIN)
     bindAfterListener(proxy, end, index=INDEX_SESSION_END)
     bindExceptionListener(proxy, exception, index=INDEX_SESSION_END)
