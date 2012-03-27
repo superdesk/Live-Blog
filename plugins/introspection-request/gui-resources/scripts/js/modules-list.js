@@ -52,6 +52,7 @@ $(function()
 					case 'delete':
 						tmplName = '#request-method-tmpl';
 						break;
+					case 'input':
 					case 'develinput':
 						tmplName = '#request-inputlist-tmpl';
 						break;

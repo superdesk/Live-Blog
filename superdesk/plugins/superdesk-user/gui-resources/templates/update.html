@@ -1,12 +1,16 @@
 <script type="text/x-jQuery-tmpl" id="tpl-user-update-main">
-<div class="well">
-	<label>Label name</label>
-	<input type="text" class="span3" placeholder="Username" value="{{Name}}">
-	<span class="help-inline">Unique on the system!</span>
-	<label class="checkbox">
-		<input type="checkbox"> Check me out
-    </label>
-</div>
+<fieldset>
+	<legend>User info.</legend>
+	<div class="control-group">
+		<label class="control-label" for="data-person-name">Username</label>
+		<div class="controls">
+			<input type="text" class="input-xlarge" id="data-user-name" 
+				name="Name" value="{{Name}}" />
+			<span class="help-inline">Associated help text!</span>
+			<p class="help-block"></p>
+		</div>
+	</div>
+</fieldset>
 </script>
 
 <script type="text/x-jQuery-tmpl" id="tpl-user-update-logs">

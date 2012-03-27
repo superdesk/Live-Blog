@@ -34,11 +34,10 @@
 </script><!--/#request-dialog-tmpl-->
 
 <script type="text/x-jQuery-tmpl" id="request-inputlist-tmpl">
-
 	{% for(var i in input.InputList) %}
 	<h3>
-		<small>#{{input[i].Id}}</small> {{input[i].Name}}
-		{% if(input[i].Mandatory) %}
+		<small>#{{input.InputList[i].Id}}</small> {{input.InputList[i].Name}}
+		{% if(input.InputList[i].Mandatory) %}
 			<span class="label label-important">Mandatory</span>
 		{% else %}
 			<span class="label label-info">Optional</span>
@@ -47,7 +46,7 @@
 	<p>
 		<strong>Description</strong>
 		<br />
-		{{input[i].Description}}
+		{{input.InputList[i].Description}}
 	</p>
 	{% endfor %}
 
