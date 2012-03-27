@@ -82,10 +82,17 @@ class RequestHandler:
                 req.params.extend([(name, v) for v in value])
             else:
                 req.params.append((name, value));
+        #TODO: check empty handling of request body
         req.content = ContentRequest(cherrypy.request.rfile, True)
+        
+        #TODO: implement proper processor for this quickfix
+        ovrd = cherrypy.request.headers.get('X-HTTP-Method-Override')
+        if ovrd: req.method = self.methods[ovrd.upper()]
+
         rsp = Response()
         chain.process(req, rsp)
         headers = cherrypy.response.headers
+        
         headers.pop('Content-Type', None)
         headers['Server'] = self.serverVersion
         for headerEncoder in self.encodersHeader:

@@ -54,6 +54,13 @@ def content_types_yaml() -> dict:
             'yaml':'text/yaml',
             }
 
+@ioc.config
+def content_types_urlencoded() -> dict:
+    '''The URLEncoded content type'''
+    return {
+            'application/x-www-form-urlencoded': None,
+            }
+
 @ioc.entity
 def encodingXML() -> Processor:
     from ally.core.impl.processor.encoder_xml import EncodingXMLHandler
@@ -144,6 +151,23 @@ def decodingYAML() -> Processor:
     b.charSetDefault = default_characterset()
     b.contentTypes = list(content_types_yaml().keys())
 
+@ioc.entity
+def decoderTextUrlencoded():
+    from ally.support.core.util_param import parseStr
+    import codecs
+    def decodeUrlencoded(content, charSet):
+        return parseStr(codecs.getreader(charSet)(content).read())
+    return decodeUrlencoded
+
+@ioc.entity
+def decodingUrlencoded() -> Processor:
+    b = DecodingTextHandler(); yield b
+    b.normalizer = contentNormalizer()
+    b.decoder = decoderTextUrlencoded()
+    b.converterId = converterPath()
+    b.charSetDefault = default_characterset()
+    b.contentTypes = list(content_types_urlencoded().keys())
+
 # ---------------------------------
 
 @ioc.entity
@@ -155,7 +179,7 @@ def handlersEncoding():
 
 @ioc.entity
 def handlersDecoding():
-    b = [decodingXML(), decodingJSON(), decodingNone()]
+    b = [decodingXML(), decodingJSON(), decodingUrlencoded(), decodingNone()]
     try: b.append(decodingYAML())
     except ImportError: pass
     return b
