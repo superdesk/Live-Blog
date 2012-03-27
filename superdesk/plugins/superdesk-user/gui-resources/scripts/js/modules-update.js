@@ -1,11 +1,16 @@
-var app = function()
+var presentation = this,
+app = function()
 {
 	$('#area-main').html(layout)
 
-	new $.rest(superdesk.apiUrl + '/resources/Superdesk/User/' + args.userId)
+	var userForm;
+	// get user and display its form
+	args.users.from({Id: args.userId})
 		.done(function(data)
 		{
-			$('#area-content', layout).tmpl($("#tpl-user-update-main", superdesk.tmplRepo), data)	
+			var userFormHtml = presentation.view.render("#tpl-user-update-main", data);
+			userForm = presentation.form.add(userFormHtml, 'User');
+			$('#area-content', layout).html(userForm);
 		});
 		
 	var d = $.Deferred($.noop).then(function(data)
@@ -14,14 +19,25 @@ var app = function()
 	});
 	d.resolve({logs: [{date: (new Date).toLocaleString(), event: 'logged in'}]})
 	
-	new $.rest(superdesk.apiUrl + '/resources/GUI/Action?path=modules.user.update.*')
-		.done(function(actions)
-		{
-			$(actions).each(function()
-			{ 
-				superdesk.applyScriptToLayout(this.ScriptPath, layout, {userId: args.userId})
-			});
+	// run user.update's subsequent actions 
+	superdesk.getActions('modules.user.update.*')
+	.done(function(actions)
+	{
+		$(actions).each(function()
+		{ 
+			presentation.run(this.ScriptPath, layout, {userId: args.userId, users: args.users})
 		});
+	});
+	
+	$(document)
+	.off('click.superdesk', '#submit-main')
+	.on('click.superdesk', '#submit-main', function(event)
+	{
+		args.users.insert( superdesk.apiUrl + '/resources/Superdesk/User/'+args.userId, userForm.serialize())
+			.success(function(){ console.log(arguments) })
+			.error(function(){ console.log('error', arguments) })
+		event.preventDefault();
+	})
 }
 
 superdesk.getTmpl(superdesk.apiUrl+'/content/gui/superdesk/user/templates/update.html').done(app)
