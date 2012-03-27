@@ -72,7 +72,7 @@ def poContentDeliveryManager() -> ICDM:
 @ioc.entity
 def poFileServiceCDM() -> IPOFileService:
     srv = POFileServiceCDM()
-    srv.poFileManager = POFileManagerDB()
+    srv.poManager = POFileManagerDB()
     srv.poCdm = poContentDeliveryManager()
     return srv
 
