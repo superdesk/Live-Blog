@@ -13,13 +13,14 @@ import unittest
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from os.path import join, dirname, isfile, isdir
 from shutil import rmtree
-from os import makedirs, remove, sep
+from os import makedirs, remove, sep, stat
 from cdm.spec import PathNotFound
 import re
 
 from cdm.impl.local_filesystem import HTTPDelivery, LocalFileSystemCDM, LocalFileSystemLinkCDM
-from ally.zip.util_zip import normOSPath, ZIPSEP
+from ally.zip.util_zip import normOSPath
 from io import BytesIO
+import json
 
 
 normpath = lambda txt: re.sub('[\\W]+', '', txt)
@@ -37,20 +38,22 @@ class TestHTTPDelivery(unittest.TestCase):
         d = HTTPDelivery()
         rootDir = TemporaryDirectory()
         d.serverURI = 'http://localhost/content/'
-#        d.repositoryPath = '/var/www/repository'
         d.repositoryPath = rootDir.name
+#        d.repositoryPath = '/var/www/repository'
 #        ioc.Initializer.initialize(d)
         cdm = LocalFileSystemCDM()
         cdm.delivery = d
 
         # test publish from a file from the file system
         try:
-            srcTmpFile = NamedTemporaryFile(delete = False)
+            srcTmpFile = NamedTemporaryFile(delete=False)
             srcTmpFile.close()
             dstFile = join('testdir1', 'tempfile.txt')
             cdm.publishFromFile(dstFile, srcTmpFile.name)
             dstFilePath = join(d.getRepositoryPath(), dstFile)
             self.assertTrue(isfile(dstFilePath))
+            self.assertEqual(stat(dstFilePath).st_mtime,
+                             cdm.getTimestamp('testdir1/tempfile.txt'))
         finally:
             rmtree(dirname(dstFilePath))
             remove(srcTmpFile.name)
@@ -79,6 +82,8 @@ class TestHTTPDelivery(unittest.TestCase):
             for dir in dirs:
                 dstFilePath = join(dstDirPath, dir, 'text.html')
                 self.assertTrue(isfile(dstFilePath))
+                self.assertEqual(stat(dstFilePath).st_mtime,
+                                 cdm.getTimestamp(join('testdir3', dir, 'text.html')))
             # test remove path
             filePath = 'testdir3/test1/subdir1/text.html'
             self.assertTrue(isfile(join(d.getRepositoryPath(), filePath)))
@@ -131,8 +136,8 @@ class TestHTTPDelivery(unittest.TestCase):
         d = HTTPDelivery()
         rootDir = TemporaryDirectory()
         d.serverURI = 'http://localhost/content/'
-#        d.repositoryPath = '/var/www/repository'
         d.repositoryPath = rootDir.name
+        d.repositoryPath = '/var/www/repository'
 #        ioc.Initializer.initialize(d)
         cdm = LocalFileSystemLinkCDM()
         cdm.delivery = d
@@ -142,7 +147,7 @@ class TestHTTPDelivery(unittest.TestCase):
             cdm.publishFromFile('a/../../b', 'somefile.txt')
         except PathNotFound:
             exceptionRaised = True
-        self.assertTrue(exceptionRaised, 'No exception was rased on out of repository path')
+        self.assertTrue(exceptionRaised, 'No exception was raised on out of repository path')
 
         # test publish from a file from the file system
         try:
@@ -152,10 +157,12 @@ class TestHTTPDelivery(unittest.TestCase):
             dstLinkPath = join(d.getRepositoryPath(), dstFile + cdm._linkExt)
             self.assertTrue(isfile(dstLinkPath))
             with open(dstLinkPath) as f:
-                type = f.readline().strip()
-                self.assertEqual(type, 'FS')
-                link = f.readline().strip()
-                self.assertEqual(srcTmpFile.name, link)
+                links = json.load(f)
+                self.assertIsInstance(links, list)
+                self.assertEqual(links[0][0], 'FS')
+                self.assertEqual(srcTmpFile.name, links[0][1])
+                self.assertEqual(stat(srcTmpFile.name).st_mtime,
+                                 cdm.getTimestamp('testdir7/tempfile.txt'))
         finally:
             rmtree(dirname(dstLinkPath))
 
@@ -168,12 +175,14 @@ class TestHTTPDelivery(unittest.TestCase):
             dstLinkPath = join(d.getRepositoryPath(), dstFile + cdm._linkExt)
             self.assertTrue(isfile(dstLinkPath))
             with open(dstLinkPath) as f:
-                type = f.readline().strip()
-                self.assertEqual(type, 'ZIP')
-                zipPath = normOSPath(f.readline().strip())
-                inPath = normOSPath(f.readline().strip())
-                link = join(zipPath, inPath)
-                self.assertEqual(normpath(link), normpath(srcFilePath))
+                links = json.load(f)
+                self.assertEqual(links[0][0], 'ZIP')
+                zipPath = links[0][1]
+                inPath = normOSPath(links[0][2], True)
+                linkPath = join(zipPath, inPath)
+                self.assertEqual(normpath(linkPath), normpath(srcFilePath))
+                self.assertEqual(stat(join(dirname(__file__), 'test.zip')).st_mtime,
+                                 cdm.getTimestamp('testdir8/tempfile2.txt'))
         finally:
             rmtree(dirname(dstLinkPath))
 
@@ -188,18 +197,20 @@ class TestHTTPDelivery(unittest.TestCase):
             dstLinkPath = join(d.getRepositoryPath(), 'testlink1' + cdm._linkExt)
             self.assertTrue(isfile(dstLinkPath))
             with open(dstLinkPath) as f:
-                type = f.readline().strip()
-                self.assertEqual(type, 'FS')
-                link = f.readline().strip()
-                self.assertEqual(srcTmpDir.name, link)
+                links = json.load(f)
+                self.assertEqual(links[0][0], 'FS')
+                self.assertEqual(srcTmpDir.name, links[0][1])
+                self.assertEqual(stat(join(srcTmpDir.name, 'test1/subdir1/text.html')).st_mtime,
+                                 cdm.getTimestamp('testlink1/test1/subdir1/text.html'))
             # test path remove
-            delPath = 'testlink1/test1/subdir1/text.html'
-            cdm.removePath(delPath)
-            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath + '.deleted')))
-            delPath = 'testlink1/test1'
-            cdm.removePath(delPath)
-            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath + '.deleted')))
+            delPath1 = 'testlink1/test1/subdir1/text.html'
+            cdm.removePath(delPath1)
+            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath1 + '.deleted')))
+            delPath2 = 'testlink1/test1'
+            cdm.removePath(delPath2)
+            self.assertTrue(isfile(join(d.getRepositoryPath(), delPath2 + '.deleted')))
         finally:
+            rmtree(join(d.getRepositoryPath(), 'testlink1'))
             remove(dstLinkPath)
 
         # test publish from a file from a zip archive
@@ -209,12 +220,14 @@ class TestHTTPDelivery(unittest.TestCase):
             dstLinkPath = join(d.getRepositoryPath(), 'testlink2' + cdm._linkExt)
             self.assertTrue(isfile(dstLinkPath))
             with open(dstLinkPath) as f:
-                type = f.readline().strip()
-                self.assertEqual(type, 'ZIP')
-                zipPath = normOSPath(f.readline().strip())
-                inPath = f.readline().strip().replace(ZIPSEP, sep)
+                links = json.load(f)
+                self.assertEqual(links[0][0], 'ZIP')
+                zipPath = links[0][1]
+                inPath = normOSPath(links[0][2], True)
                 link = join(zipPath, inPath)
                 self.assertEqual(link, srcFilePath)
+                self.assertEqual(stat(join(dirname(__file__), 'test.zip')).st_mtime,
+                                 cdm.getTimestamp('testlink2/subdir1/file1.txt'))
             # test path remove
             delPath1 = 'testlink2/subdir1/file1.txt'
             cdm.removePath(delPath1)
@@ -226,6 +239,7 @@ class TestHTTPDelivery(unittest.TestCase):
             self.assertFalse(isdir(join(d.getRepositoryPath(), delPath2)))
             self.assertFalse(isfile(join(d.getRepositoryPath(), delPath1 + '.deleted')))
         finally:
+            rmtree(join(d.getRepositoryPath(), 'testlink2'))
             remove(dstLinkPath)
 
 if __name__ == "__main__":
