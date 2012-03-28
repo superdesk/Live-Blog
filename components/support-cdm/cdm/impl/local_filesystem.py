@@ -329,27 +329,26 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         path, entryPath = self._validatePath(path)
         linkPath = entryPath
 
-        if isfile(linkPath): return os.remove(linkPath)
+        if isfile(linkPath.rstrip(os.sep)):
+            return os.remove(linkPath)
 
         repPathLen = len(self.delivery.getRepositoryPath())
-        #TODO: fix this
-        return
         while len(linkPath.lstrip(os.sep)) > repPathLen:
             linkFile = linkPath + self._linkExt
             if isfile(linkFile):
-                if (linkPath == entryPath.rstrip(os.sep)):
-                    os.remove(linkPath)
-                    break
                 subPath = entryPath[len(linkPath):].lstrip(os.sep)
                 with open(linkFile) as f:
                     links = json.load(f)
+                    count = 0
                     for link in links:
-                        if link[0] == self._fsHeader:
-                            self._removeFSLink(f, path, entryPath, subPath)
+                        if link[0] == self._fsHeader and self._isValidFSLink(link, subPath):
+                            self._removeFSLink(link, path, entryPath, subPath); count += 1
                             break
-                        elif link[0] == self._zipHeader:
-                            self._removeZiplink(f, path, entryPath, subPath)
+                        elif link[0] == self._zipHeader and self._isValidZIPLink(link, subPath):
+                            self._removeZiplink(link, path, entryPath, subPath); count += 1
                             break
+                    if count == 0:
+                        raise PathNotFound(path)
                 break
             nextLinkPath = dirname(linkPath)
             if nextLinkPath == linkPath: break
@@ -358,6 +357,35 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
             raise PathNotFound(path)
         if len(subPath.strip(os.sep)) == 0 and isdir(linkPath):
             rmtree(linkPath)
+
+    def getTimestamp(self, path):
+        '''
+        @see ICDM.getTimestamp
+        '''
+        assert isinstance(path, str), 'Invalid content path %s' % path
+        path, entryPath = self._validatePath(path)
+        if isdir(entryPath) or isfile(entryPath):
+            return os.stat(entryPath).st_mtime
+        linkPath = entryPath
+        repPathLen = len(self.delivery.getRepositoryPath())
+        while len(linkPath.lstrip(os.sep)) > repPathLen:
+            linkFile = linkPath + self._linkExt
+            if isfile(linkFile):
+                subPath = entryPath[len(linkPath):].lstrip(os.sep)
+                with open(linkFile) as f:
+                    links = json.load(f)
+                    for link in links:
+                        if link[0] == self._fsHeader and self._isValidFSLink(link, subPath):
+                            fullPath = join(link[1], subPath) if subPath else link[1]
+                            return os.stat(fullPath).st_mtime
+                        elif link[0] == self._zipHeader and self._isValidZIPLink(link, subPath):
+                            return os.stat(link[1]).st_mtime
+                    raise PathNotFound(path)
+            nextLinkPath = dirname(linkPath)
+            if nextLinkPath == linkPath: break
+            linkPath = nextLinkPath
+        else:
+            raise PathNotFound(path)
 
     def _createDelMark(self, path):
         '''
@@ -373,12 +401,41 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         if isdir(path):
             rmtree(path)
 
-    def _removeFSLink(self, fHandler, path, entryPath, subPath):
+    def _isValidFSLink(self, link, subPath):
+        '''
+        Returns true if the file identified by subpath exists in
+        the given link to a file / directory, false otherwise.
+
+        @param link: list
+            Link description in JSON format.
+        @param subPath: string
+            The path inside the linked directory (if needed)
+        '''
+        filePath = join(link[1], subPath) if subPath else link[1]
+        return (not subPath or isdir(link[1])) and (isfile(filePath) or isdir(filePath))
+
+    def _isValidZIPLink(self, link, subPath):
+        '''
+        Returns true if the file identified by subpath exists in
+        the given link to a ZIP archive, false otherwise.
+
+        @param link: list
+            Link description in JSON format.
+        @param subPath: string
+            The path inside the linked directory (if needed)
+        '''
+        zipFilePath = normOSPath(link[1])
+        inFilePath = normOSPath(link[2], True)
+        zipFile = ZipFile(zipFilePath)
+        inZipFile = normZipPath(join(inFilePath, subPath)) if subPath else normZipPath(inFilePath)
+        return inZipFile in zipFile.NameToInfo
+
+    def _removeFSLink(self, link, path, entryPath, subPath):
         '''
         Removes a link to a file or directory on the file system.
 
-        @param fHandler: file handler
-            Handler to the link file.
+        @param link: list
+            Link description in JSON format.
         @param path: string
             The repository path to remove.
         @param entryPath: string
@@ -386,21 +443,21 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         @param subPath: string
             The path inside the linked directory (if needed)
         '''
-        linkedPath = fHandler.readline().strip()
-        if isdir(linkedPath):
-            if isfile(join(linkedPath, subPath)) or isdir(join(linkedPath, subPath)):
+        if isdir(link[1]):
+            filePath = join(link[1], subPath)
+            if isfile(filePath) or isdir(filePath):
                 self._createDelMark(entryPath)
             else:
                 raise PathNotFound(path)
         elif subPath:
             raise PathNotFound(path)
 
-    def _removeZiplink(self, fHandler, path, entryPath, subPath):
+    def _removeZiplink(self, link, path, entryPath, subPath):
         '''
         Removes a link to a file or directory in a ZIP archive.
 
-        @param fHandler: file handler
-            Handler to the link file.
+        @param link: list
+            Link description in JSON format.
         @param path: string
             The repository path to remove.
         @param entryPath: string
@@ -408,8 +465,8 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         @param subPath: string
             The path inside the linked ZIP archive.
         '''
-        zipFilePath = normOSPath(fHandler.readline().strip())
-        inFilePath = normOSPath(fHandler.readline().strip(), True)
+        zipFilePath = normOSPath(link[1])
+        inFilePath = normOSPath(link[2], True)
         zipFile = ZipFile(zipFilePath)
         inZipFile = normZipPath(join(inFilePath, subPath))
         if not inZipFile in zipFile.NameToInfo:
