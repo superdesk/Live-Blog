@@ -166,7 +166,10 @@ class MatchProperty(Match):
         if objType == self.type:
             self.matchValue = obj
             return True
-        elif objType == self.type.parent:
+        if objType == self.type.container:
+            self.matchValue = getattr(obj, self.type.property)
+            return True
+        if objType == self.type.parent:
             self.matchValue = getattr(obj, self.type.property)
             return True
         return False

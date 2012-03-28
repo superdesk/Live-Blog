@@ -135,7 +135,7 @@ class MetaCreatorHandler(Processor):
             assert isinstance(typ, TypeModelProperty)
 
             if typ.container.propertyId == typ.property:
-                path = self.resourcesManager.findGetModel(resourcePath, typ.container)
+                path = self.resourcesManager.findGetModel(resourcePath, typ)
                 if path: metaLink = MetaPath(path, typ, getValue)
                 else: metaLink = None
             else: metaLink = None
@@ -147,7 +147,7 @@ class MetaCreatorHandler(Processor):
             assert isinstance(typ, TypeModel)
             typId = typeFor(getattr(typ.forClass, typ.container.propertyId))
             assert isinstance(typId, TypeModelProperty)
-            path = self.resourcesManager.findGetModel(resourcePath, typ.container)
+            path = self.resourcesManager.findGetModel(resourcePath, typ)
             if path: metaLink = MetaPath(path, typId, getValue)
             else: metaLink = None
 
@@ -177,16 +177,14 @@ class MetaCreatorHandler(Processor):
         model = typ.container
         assert isinstance(model, Model)
 
-        metas = {}
-        for prop, ptyp in model.properties.items():
-            metas[prop] = self.metaProperty(ptyp, resourcePath, partial(rgetattr, prop))
+        metas = {prop:self.metaProperty(ptyp, resourcePath, partial(rgetattr, prop)) for prop, ptyp in model.properties.items()}
 
         paths = self.resourcesManager.findGetAllAccessible(resourcePath)
         pathsModel = self.resourcesManager.findGetAccessibleByModel(model)
         paths.extend([path for path in pathsModel if path not in paths])
         metas.update({nodeLongName(path.node): MetaPath(path, typ, getModel) for path in paths})
 
-        path = self.resourcesManager.findGetModel(resourcePath, model)
+        path = self.resourcesManager.findGetModel(resourcePath, typ)
         if path: metaLink = MetaPath(path, typ, getModel)
         else: metaLink = None
 

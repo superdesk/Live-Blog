@@ -573,7 +573,7 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def findGetModel(self, fromPath, model):
+    def findGetModel(self, fromPath, modelType):
         '''
         Finds the path for the first Node that provides a get for the name. The search is made based
         on the from path. First the from path Node and is children's are searched for the get method if 
@@ -581,8 +581,8 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         
         @param fromPath: Path
             The path to make the search based on.
-        @param model: Model
-            The model to search the get for.
+        @param modelType: TypeModel
+            The type model to search the get for.
         @return: PathExtended|None
             The extended path pointing to the desired get method, attention some updates might be necessary on 
             the path to be available. None if the path could not be found.

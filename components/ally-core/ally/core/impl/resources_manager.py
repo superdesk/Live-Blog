@@ -10,7 +10,7 @@ Module containing the implementation for the resources manager.
 '''
 
 from ally.api.operator.container import Service, Call, Model
-from ally.api.operator.type import TypeService
+from ally.api.operator.type import TypeService, TypeModel
 from ally.api.type import List, Type, Input, typeFor
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
@@ -125,18 +125,18 @@ class ResourcesManagerImpl(ResourcesManager):
             return Path(matches, node)
         return Path(matches)
 
-    def findGetModel(self, fromPath, model):
+    def findGetModel(self, fromPath, modelType):
         '''
         @see: ResourcesManager.findGetModel
         '''
         assert isinstance(fromPath, Path), 'Invalid from path %s' % fromPath
         assert isinstance(fromPath.node, Node), 'Invalid from path Node %s' % fromPath.node
-        assert isinstance(model, Model), 'Invalid model %s' % model
+        assert isinstance(modelType, TypeModel), 'Invalid model type %s' % modelType
         index = len(fromPath.matches) - 1
         while index >= 0:
             node = fromPath.matches[index].node
             if isinstance(node, NodePath):
-                nodeProperty = self._findGetNode(node, model)
+                nodeProperty = self._findGetNode(node, modelType)
                 if nodeProperty:
                     matches = []
                     pushMatch(matches, nodeProperty.newMatch())
@@ -144,7 +144,7 @@ class ResourcesManagerImpl(ResourcesManager):
                     return path
             for child in node.childrens():
                 if isinstance(child, NodePath):
-                    nodeId = self._findGetNode(child, model)
+                    nodeId = self._findGetNode(child, modelType)
                     if nodeId:
                         matches = []
                         pushMatch(matches, child.newMatch())
@@ -201,14 +201,14 @@ class ResourcesManagerImpl(ResourcesManager):
 
     # ----------------------------------------------------------------
 
-    def _findGetNode(self, node, model):
+    def _findGetNode(self, node, modelType):
         '''
         Utility method to extract the get property node.
         '''
         assert isinstance(node, NodePath)
-        assert isinstance(model, Model)
-        if node.name == model.name:
+        assert isinstance(modelType, TypeModel)
+        if node.name == modelType.container.name:
             for nodeId in node.childrens():
                 if isinstance(nodeId, NodeProperty):
                     assert isinstance(nodeId, NodeProperty)
-                    if nodeId.get is not None and nodeId.type.container == model: return nodeId
+                    if nodeId.get is not None and nodeId.type.parent == modelType: return nodeId
