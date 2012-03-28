@@ -327,11 +327,10 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         @see ICDM.removePath
         '''
         path, entryPath = self._validatePath(path)
+        if isfile(entryPath.rstrip(os.sep)):
+            return os.remove(entryPath)
+
         linkPath = entryPath
-
-        if isfile(linkPath.rstrip(os.sep)):
-            return os.remove(linkPath)
-
         repPathLen = len(self.delivery.getRepositoryPath())
         while len(linkPath.lstrip(os.sep)) > repPathLen:
             linkFile = linkPath + self._linkExt
@@ -366,6 +365,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         path, entryPath = self._validatePath(path)
         if isdir(entryPath) or isfile(entryPath):
             return os.stat(entryPath).st_mtime
+
         linkPath = entryPath
         repPathLen = len(self.delivery.getRepositoryPath())
         while len(linkPath.lstrip(os.sep)) > repPathLen:
