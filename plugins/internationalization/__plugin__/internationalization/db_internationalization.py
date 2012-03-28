@@ -10,7 +10,7 @@ Provides the database settings for the newscoop database.
 '''
 
 from ally.container import ioc, support
-from ally.listener.binder_op import bindValidations
+from ally.container.binder_op import bindValidations
 from ally.support.sqlalchemy.mapper import mappingsOf
 from ally.support.sqlalchemy.session import bindSession
 from sql_alchemy import database_config

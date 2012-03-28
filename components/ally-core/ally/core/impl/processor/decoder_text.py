@@ -93,7 +93,7 @@ class DecodingTextHandler(DecodingTextBaseHandler):
                 if content is not None: content = content if isinstance(content, str) else str(content)
                 if model.propertyId == prop: converter = self.converterId
 
-                try: setattr(mi, prop, mi, converter.asValue(content, typ))
+                try: setattr(mi, prop, converter.asValue(content, typ))
                 except ValueError:
                     errors.append(Ref(_('Invalid value, expected %(type)s type') %
                                       dict(type=_(str(typ))), model=model, property=prop))

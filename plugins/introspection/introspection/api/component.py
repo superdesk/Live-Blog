@@ -15,7 +15,7 @@ from ally.api.type import IterPart
 
 # --------------------------------------------------------------------
 
-@modelDevel(id='Id')
+@modelDevel
 class Component:
     '''
     Provides the component data.

@@ -57,7 +57,7 @@ def createProxy(clazz):
     while classes:
         cls = classes.popleft()
         for name, function in cls.__dict__.items():
-            if isfunction(function):
+            if name not in ('__init__',) and isfunction(function):
                 if name not in attributes and (not name.startswith(PREFIX_HIDDEN_METHOD) or REGEX_SPECIAL.match(name)):
                     attributes[name] = update_wrapper(ProxyMethod(name), function)
         classes.extend(base for base in cls.__bases__ if base != object)

@@ -18,7 +18,7 @@ from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerCall, InvokerSetId, InvokerFunction
 from ally.core.impl.node import NodeModel, NodePath, NodeProperty, NodeRoot
 from ally.core.spec.resources import Assembler, Node, Normalizer, AssembleError
-from functools import partial
+from functools import partial, update_wrapper
 from inspect import isclass
 from itertools import combinations, chain
 import abc
@@ -459,7 +459,7 @@ def processHintCountMethod(invoker):
         positions = [k for k, input in enumerate(call.inputs) if input.name in available]
         iterator = getattr(invoker.implementation, call.name)
         count = getattr(invoker.implementation, countCall.name)
-        createPart = partial(callCreatePart, positions, iterator, count)
+        createPart = update_wrapper(partial(callCreatePart, positions, iterator, count), callCreatePart)
 
         return InvokerFunction(IterPart(call.output.itemType), createPart, call.inputs)
 
