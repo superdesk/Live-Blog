@@ -9,8 +9,8 @@ Created on Mar 5, 2012
 Implementation for the file API.
 '''
 
-from ..api.file import IFileService
-from ..meta.file import File, QFile
+from ..api.file import IFileService, QFile
+from ..meta.file import File
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 
 # --------------------------------------------------------------------
@@ -19,6 +19,6 @@ class FileServiceAlchemy(EntityServiceAlchemy, IFileService):
     '''
     Alchemy implementation for @see: IFileService
     '''
-    
+
     def __init__(self):
         EntityServiceAlchemy.__init__(self, File, QFile)

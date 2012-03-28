@@ -25,7 +25,7 @@ class Message(Entity):
     '''
     Model for a localized message.
     '''
-    Source = Source.Id
+    Source = Source
     Singular = str
     Plural = List(str)
     Context = str

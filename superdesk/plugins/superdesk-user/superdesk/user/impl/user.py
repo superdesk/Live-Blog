@@ -8,11 +8,11 @@ Created on Mar 6, 2012
 
 @author: Mihai Balaceanu
 '''
-from superdesk.user.api.user import IUserService
+
+from superdesk.user.api.user import IUserService, QUser
 from ally.container.ioc import injected
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from superdesk.user.meta.user import User, QUser
-from platform import python_version
+from superdesk.user.meta.user import User
 
 # --------------------------------------------------------------------
 

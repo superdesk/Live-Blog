@@ -10,9 +10,9 @@ Contains the SQL alchemy meta for message API.
 '''
 
 from . import meta
-from ..api.message import Message, QMessage
+from ..api.message import Message
 from .source import Source
-from ally.support.sqlalchemy.mapper import mapperModel, mapperQuery
+from ally.support.sqlalchemy.mapper import mapperModel
 from sqlalchemy.schema import Table, Column, ForeignKey
 from sqlalchemy.types import String
 from sqlalchemy.dialects.mysql.base import INTEGER, VARCHAR
@@ -34,4 +34,3 @@ table = Table('inter_message', meta,
               )
 
 Message = mapperModel(Message, table)
-QMessage = mapperQuery(QMessage, Message)

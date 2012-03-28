@@ -9,9 +9,9 @@ Created on Mar 5, 2012
 Implementation for the message API.
 '''
 
-from ..api.message import IMessageService
-from ..meta.message import Message, QMessage
-from ally.exception import InputException, Ref
+from ..api.message import IMessageService, QMessage
+from ..meta.message import Message
+from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.mapper import addLoadListener, addInsertListener, \
     addUpdateListener
@@ -92,7 +92,7 @@ class MessageServiceAlchemy(EntityGetCRUDServiceAlchemy, IMessageService):
         assert isinstance(message, Message), 'Invalid message %s' % message
         if message.Plural:
             if len(message.Plural) > 4:
-                raise InputException(Ref(_('Only a maximum of four plural forms is accepted, got %(nplurals)i') %
-                                         dict(nplurals=len(message.Plural))))
+                raise InputError(Ref(_('Only a maximum of four plural forms is accepted, got %(nplurals)i') %
+                                     dict(nplurals=len(message.Plural))))
             for k, plural in enumerate(message.Plural, 1):
                 setattr(message, 'plural%s' % k, plural)
