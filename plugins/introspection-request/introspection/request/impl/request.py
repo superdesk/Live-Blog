@@ -11,17 +11,14 @@ API specifications for the node presenter.
 
 from ..api.request import IRequestService, Request, Input, Method
 from ally.internationalization import _
-from ally.api.operator import Property, Model, Call, Service
-from ally.api.type import TypeProperty
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.proxy import proxiedClass
-from ally.core.impl.invoker import InvokerCall, InvokerFunction, \
-    InvokerSetProperties
+from ally.core.impl.invoker import InvokerCall, InvokerFunction, InvokerSetId
 from ally.core.impl.node import MatchProperty
 from ally.core.spec.resources import ResourcesManager, Node, Match, \
     ConverterPath
-from ally.exception import InputException, Ref, DevelException
+from ally.exception import InputError, Ref, DevelError
 from ally.support.api.util_service import trimIter
 from ally.support.core.util_resources import matchesForNode, toPaths
 from ally.support.util_sys import getAttrAndClass
@@ -29,6 +26,8 @@ from collections import OrderedDict
 from inspect import ismodule, ismethod, getdoc
 from introspection.api import DOMAIN
 import re
+from ally.api.operator.type import TypeModelProperty
+from ally.api.operator.container import Service, Call
 
 # --------------------------------------------------------------------
 
@@ -37,10 +36,10 @@ class RequestService(IRequestService):
     '''
     Provides the implementation for @see: IRequestIntrospectService.
     '''
-    
+
     resourcesManager = ResourcesManager; wire.entity('resourcesManager')
     converterPath = ConverterPath; wire.entity('converterPath')
-    
+
     def __init__(self):
         '''
         Constructs the request introspect service.
@@ -49,39 +48,39 @@ class RequestService(IRequestService):
         self._requestId = 1
         self._inputId = 1
         self._methodId = 1
-        
+
         self._nodeRequests = {}
         self._requests = OrderedDict()
         self._patternInputs = {}
         self._inputs = OrderedDict()
         self._requestMethods = {}
         self._methods = OrderedDict()
-        
+
     def getRequest(self, id):
         '''
         @see: IRequestService.getRequest
         '''
         self._refresh()
-        if id not in self._requests: raise InputException(Ref(_('Invalid request id'), ref=Request.Id))
+        if id not in self._requests: raise InputError(Ref(_('Invalid request id'), ref=Request.Id))
         return self._requests[id]
-    
+
     def getMethod(self, id):
         '''
         @see: IRequestService.getMethod
         '''
         self._refresh()
-        if id not in self._methods: raise InputException(Ref(_('Invalid method id'), ref=Method.Id))
+        if id not in self._methods: raise InputError(Ref(_('Invalid method id'), ref=Method.Id))
         return self._methods[id]
-    
+
     def getAllInputs(self, id, offset=None, limit=None):
         '''
         @see: IRequestService.getAllInputs
         '''
         self._refresh()
         if not id: return self._inputs.values()
-        if id not in self._patternInputs: raise InputException(Ref(_('Invalid request id'), ref=Request.Id))
-        return (self._inputs[inpId] for inpId in self._patternInputs[id]) 
-    
+        if id not in self._patternInputs: raise InputError(Ref(_('Invalid request id'), ref=Request.Id))
+        return (self._inputs[inpId] for inpId in self._patternInputs[id])
+
     def getAllRequests(self, offset=None, limit=None):
         '''
         @see: IRequestService.getAllRequests
@@ -89,15 +88,15 @@ class RequestService(IRequestService):
         self._refresh()
         values = self._requests.values()
         return trimIter(iter(values), len(values), offset, limit)
-    
+
     # ----------------------------------------------------------------
-    
+
     def _refresh(self):
         '''
         Refreshes the requests.
         '''
         self._process(self.resourcesManager.getRoot())
-        
+
     def _process(self, node):
         '''
         Processes the node and sub nodes requests.
@@ -108,7 +107,7 @@ class RequestService(IRequestService):
             if idNode not in self._nodeRequests:
                 r = Request()
                 r.Id = self._requestId
-                
+
                 patternInputs = set()
 
                 index, inputs = 0, []
@@ -119,22 +118,22 @@ class RequestService(IRequestService):
                         index += 1
                         matches[k] = '{%s}' % index
                         inputs.append((match, matches[k]))
-                        
+
                 r.Pattern = '/'.join(toPaths(matches, self.converterPath))
                 if r.Pattern.startswith(DOMAIN): return
-                
+
                 for match, name in inputs:
                     inp = self._toPatternInput(match, r)
                     patternInputs.add(inp.Id)
                     inp.Name = name
-                
+
                 self._requests[r.Id] = r
                 self._nodeRequests[idNode] = r.Id
                 self._patternInputs[r.Id] = patternInputs
                 requestMethods = self._requestMethods[r.Id] = set()
-                
+
                 self._requestId += 1
-                
+
                 if node.get:
                     m = self._toMethod(node.get, r); requestMethods.add(m.Id)
                     r.Get = m.Id
@@ -147,9 +146,9 @@ class RequestService(IRequestService):
                 if node.update:
                     m = self._toMethod(node.update, r); requestMethods.add(m.Id)
                     r.Update = m.Id
-                
+
         for child in node.childrens(): self._process(child)
-    
+
     def _toPatternInput(self, match, req):
         '''
         Processes the match as a pattern input.
@@ -158,26 +157,24 @@ class RequestService(IRequestService):
         inp = Input()
         inp.Id = self._inputId
         self._inputs[self._inputId] = inp
-        
+
         self._inputId += 1
 
         inp.Mandatory = True
         inp.ForRequest = req.Id
-        
+
         if isinstance(match, MatchProperty):
             assert isinstance(match, MatchProperty)
-            typProp = match.typeProperty
-            assert isinstance(typProp, TypeProperty)
-            assert isinstance(typProp.property, Property)
-            assert isinstance(typProp.model, Model)
+            typ = match.type
+            assert isinstance(typ, TypeModelProperty)
             inp.Description = _('The %(type)s of %(model)s %(description)s') % \
-                        dict(type=_(typProp.property.name), model=_(typProp.model.name),
-                        description=re.sub('[\s]+', ' ', getdoc(typProp.model.modelClass) or '...'))
+                        dict(type=_(typ.property), model=_(typ.container.name),
+                        description=re.sub('[\s]+', ' ', getdoc(typ.parent.forClass) or '...'))
         else:
-            raise DevelException('Unknown match %s' % match)
-            
+            raise DevelError('Unknown match %s' % match)
+
         return inp
-    
+
     def _toMethod(self, invoker, req):
         '''
         Processes the method based on the invoker.
@@ -186,31 +183,31 @@ class RequestService(IRequestService):
         m = Method()
         m.Id = self._methodId
         self._methods[self._methodId] = m
-        
+
         m.ForRequest = req.Id
-        
+
         self._methodId += 1
-        
-        if isinstance(invoker, InvokerSetProperties):
-            assert isinstance(invoker, InvokerSetProperties)
+
+        if isinstance(invoker, InvokerSetId):
+            assert isinstance(invoker, InvokerSetId)
             invoker = invoker.invoker
-        
+
         if isinstance(invoker, InvokerCall):
             assert isinstance(invoker, InvokerCall)
             assert isinstance(invoker.service, Service)
             assert isinstance(invoker.call, Call)
             m.Name = invoker.name
-            
+
             clazzApi = invoker.service.serviceClass
             methodApi, clazzApiDef = getAttrAndClass(clazzApi, invoker.name)
             m.APIDoc = getdoc(methodApi)
             m.APIClass = clazzApi.__module__ + '.' + clazzApi.__name__
             m.APIClassDefiner = clazzApiDef.__module__ + '.' + clazzApiDef.__name__
-            
+
             if ismodule(invoker.implementation):
                 m.IMPL = invoker.implementation.__name__
                 m.IMPLDoc = getdoc(getattr(invoker.implementation, invoker.call.name))
-            else: 
+            else:
                 clazzImpl = proxiedClass(invoker.implementation.__class__)
                 methodImpl, clazzImplDef = getAttrAndClass(clazzImpl, invoker.name)
                 m.IMPLDoc = getdoc(methodImpl)
@@ -219,7 +216,7 @@ class RequestService(IRequestService):
         elif isinstance(invoker, InvokerFunction):
             assert isinstance(invoker, InvokerFunction)
             m.Name = invoker.name
-            
+
             if ismethod(invoker.function):
                 clazzImpl = proxiedClass(invoker.function.__self__.__class__)
                 methodImpl, clazzImplDef = getAttrAndClass(clazzImpl, invoker.name)
@@ -231,6 +228,6 @@ class RequestService(IRequestService):
                 m.IMPLDoc = getdoc(invoker.function)
                 m.IMPLDefiner = invoker.function.__module__
         else:
-            raise DevelException('Unknown invoker %s' % invoker)
-            
+            raise DevelError('Unknown invoker %s' % invoker)
+
         return m

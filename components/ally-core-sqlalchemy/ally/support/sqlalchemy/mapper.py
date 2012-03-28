@@ -10,7 +10,7 @@ Provides support for SQL alchemy mapper that is able to link the alchemy with RE
 '''
 
 from ally.api.operator.container import Model
-from ally.api.operator.descriptor import ContainerSupport
+from ally.api.operator.descriptor import ContainerSupport, Property, Reference
 from ally.api.operator.type import TypeModel, TypeModelProperty
 from ally.api.type import typeFor
 from ally.container.binder import indexAfter
@@ -95,14 +95,16 @@ def mapperSimple(clazz, sql, **keyargs):
 
     mappedModelType = TypeModel(mapped, model, clazz)
     for prop, typ in model.properties.items():
+        propType = propRefType = TypeModelProperty(mappedModelType, prop, typ)
+        if isinstance(typ, TypeModel):
+            propType = TypeModelProperty(mappedModelType, prop, model.properties[model.propertyId])
+
         instrumented = getattr(mapped, prop)
         if isinstance(instrumented, InstrumentedAttribute):
-            propType = propRefType = TypeModelProperty(mappedModelType, prop, typ)
-            if isinstance(typ, TypeModel):
-                propType = TypeModelProperty(mappedModelType, prop, model.properties[model.propertyId])
-
             reference = MappedReference(propRefType, instrumented)
             setattr(mapped, prop, MappedProperty(propType, reference, instrumented))
+        else:
+            setattr(mapped, prop, Property(propType, Reference(propRefType)))
 
     mapped._ally_type = mappedModelType
     try: metadata.__ally_mappings__.append(mapped)

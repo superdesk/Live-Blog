@@ -332,6 +332,8 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         if isfile(linkPath): return os.remove(linkPath)
 
         repPathLen = len(self.delivery.getRepositoryPath())
+        #TODO: fix this
+        return
         while len(linkPath.lstrip(os.sep)) > repPathLen:
             linkFile = linkPath + self._linkExt
             if isfile(linkFile):
@@ -340,13 +342,14 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
                     break
                 subPath = entryPath[len(linkPath):].lstrip(os.sep)
                 with open(linkFile) as f:
-                    linkType = f.readline().strip()
-                    if linkType == self._fsHeader:
-                        self._removeFSLink(f, path, entryPath, subPath)
-                    elif linkType == self._zipHeader:
-                        self._removeZiplink(f, path, entryPath, subPath)
-                    else:
-                        raise Exception('Invalid link type found: %s in %s', linkType, entryPath)
+                    links = json.load(f)
+                    for link in links:
+                        if link[0] == self._fsHeader:
+                            self._removeFSLink(f, path, entryPath, subPath)
+                            break
+                        elif link[0] == self._zipHeader:
+                            self._removeZiplink(f, path, entryPath, subPath)
+                            break
                 break
             nextLinkPath = dirname(linkPath)
             if nextLinkPath == linkPath: break

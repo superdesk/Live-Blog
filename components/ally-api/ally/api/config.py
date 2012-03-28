@@ -271,7 +271,7 @@ def call(*args, types=None, **hints):
                 break
         else: raise DevelError('Cannot deduce method for function name "%s"' % name)
 
-    function.__ally_call__ = Call(name, method, output, inputs, hints)
+    function._ally_call = Call(name, method, output, inputs, hints)
     return abstractmethod(function)
 
 def service(*args, generic=None):
@@ -322,8 +322,8 @@ def service(*args, generic=None):
     for name, function in clazz.__dict__.items():
         if isfunction(function):
             try:
-                calls.append(function.__ally_call__)
-                del function.__ally_call__
+                calls.append(function._ally_call)
+                del function._ally_call
             except AttributeError:
                 assert log.debug('Function %s has no call, making it a unexposed call', name) or True
                 try: output, inputs = extractOuputInput(function)
@@ -347,7 +347,10 @@ def service(*args, generic=None):
                 names.add(call.name)
 
     if type(clazz) != ABCMeta:
-        clazz = ABCMeta(clazz.__name__, clazz.__bases__, dict(clazz.__dict__))
+        attributes = dict(clazz.__dict__)
+        del attributes['__dict__'] # Removing __dict__ since is a reference to the old class dictionary.
+        del attributes['__weakref__']
+        clazz = ABCMeta(clazz.__name__, clazz.__bases__, attributes)
     abstract = set(clazz.__abstractmethods__)
     abstract.update({call.name for call in calls})
     clazz.__abstractmethods__ = frozenset(abstract)

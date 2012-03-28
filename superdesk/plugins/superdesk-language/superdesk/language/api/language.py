@@ -11,18 +11,18 @@ API specifications for languages.
 
 from ally.api.config import service, call, query
 from ally.api.criteria import AsLike
-from ally.api.type import FrontLanguage, IdString, IterPart, List, Iter, Count
+from ally.api.type import FrontLanguage, IterPart, List, Iter, Count
 from sql_alchemy.api.entity import Entity, IEntityCRUDService
 from superdesk.api import modelSuperDesk
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk
+@modelSuperDesk(id='Code')
 class Language:
     '''    
     Provides the language model.
     '''
-    Code = IdString
+    Code = str
     Name = str
     Territory = str
     Script = str
