@@ -9,7 +9,7 @@ Created on Aug 23, 2011
 Contains the SQL alchemy meta for language API.
 '''
 
-from ..api.language import LanguageEntity
+from superdesk.language.api.language import LanguageEntity
 from ally.support.sqlalchemy.mapper import mapperModel
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Table, Column
