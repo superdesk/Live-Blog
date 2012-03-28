@@ -11,7 +11,7 @@ Contains the services for newscoop.
 
 from ..plugin.registry import addService
 from .db_superdesk import bindSuperdeskSession, bindSuperdeskValidations
-from ally.container import support, aop
+from ally.container import support
 
 # --------------------------------------------------------------------
 

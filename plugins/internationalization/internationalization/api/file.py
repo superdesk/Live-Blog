@@ -24,11 +24,11 @@ class File(Entity):
     '''
     Model for the files.
     '''
-    Component = Component.Id
-    Plugin = Plugin.Id
+    Component = Component
+    Plugin = Plugin
     Path = str
     LastModified = datetime
-    
+
 # --------------------------------------------------------------------
 
 @query

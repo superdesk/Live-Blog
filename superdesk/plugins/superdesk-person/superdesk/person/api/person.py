@@ -17,11 +17,11 @@ class Person(Entity):
     '''    
     Provides the person model.
     '''
-    User = User.Id
+    User = User
     FirstName = str
     LastName = str
     Address = str
-    
+
 @query
 class QPerson(QEntity):
     '''

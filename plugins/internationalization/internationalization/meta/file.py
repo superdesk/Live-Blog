@@ -10,8 +10,8 @@ Contains the SQL alchemy meta for source API.
 '''
 
 from . import meta
-from ..api.file import File, QFile
-from ally.support.sqlalchemy.mapper import mapperModel, mapperQuery
+from ..api.file import File
+from ally.support.sqlalchemy.mapper import mapperModel
 from sqlalchemy.schema import Table, Column, UniqueConstraint
 from sqlalchemy.types import String, DateTime
 from sqlalchemy.dialects.mysql.base import INTEGER
@@ -21,7 +21,7 @@ from sqlalchemy.dialects.mysql.base import INTEGER
 component = Column('component', String(255), nullable=True, key='Component')
 plugin = Column('plugin', String(255), nullable=True, key='Plugin')
 path = Column('path', String(255), nullable=False, key='Path')
-              
+
 table = Table('inter_file', meta,
               Column('id', INTEGER(unsigned=True), primary_key=True, key='Id'),
               component, plugin, path,
@@ -31,4 +31,3 @@ table = Table('inter_file', meta,
               )
 
 File = mapperModel(File, table)
-QFile = mapperQuery(QFile, File)

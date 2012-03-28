@@ -11,17 +11,17 @@ API specifications for languages.
 
 from ally.api.config import service, call, query
 from ally.api.criteria import AsLike
-from ally.api.type import FrontLanguage, IdString, IterPart, List
+from ally.api.type import FrontLanguage, IterPart, List
 from superdesk.api import modelSuperDesk
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk
+@modelSuperDesk(id='Code')
 class Country:
     '''    
     Provides the country model.
     '''
-    Code = IdString
+    Code = str
     Name = str
 
     def __init__(self, Code=None, Name=None):
