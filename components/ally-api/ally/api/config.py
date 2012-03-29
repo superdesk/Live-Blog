@@ -277,7 +277,6 @@ def call(*args, types=None, **hints):
 def service(*args, generic=None):
     '''
     Used for decorating classes that are API services.
-    @see: APIService
     
     ex:
         @service
