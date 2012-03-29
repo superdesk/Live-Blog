@@ -1,8 +1,8 @@
 '''
 Created on Nov 24, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -53,12 +53,14 @@ def content_types_yaml() -> dict:
             'application/yaml':None,
             'yaml':'text/yaml',
             }
-    
+
 @ioc.config
 def content_types_urlencoded() -> dict:
     '''The URLEncoded content type'''
-    return { 'application/x-www-form-urlencoded': None }
-    
+    return {
+            'application/x-www-form-urlencoded': None,
+            }
+
 @ioc.entity
 def encodingXML() -> Processor:
     from ally.core.impl.processor.encoder_xml import EncodingXMLHandler
@@ -69,7 +71,7 @@ def encodingXML() -> Processor:
     b.contentTypes = content_types_xml()
     b.encodingError = 'xmlcharrefreplace'
 
-@ioc.entity   
+@ioc.entity
 def encoderTextJSON():
     from json.encoder import JSONEncoder
     def encodeJSON(obj, charSet): return JSONEncoder().iterencode(obj)
@@ -85,7 +87,7 @@ def encodingJSON() -> Processor:
     b.encodingError = 'backslashreplace'
     b.encoder = encoderTextJSON()
 
-@ioc.entity   
+@ioc.entity
 def encoderTextYAML():
     import yaml
     def encodeYAML(obj, charSet): yield yaml.dump(obj, default_flow_style=False)
@@ -115,7 +117,7 @@ def decodingXML() -> Processor:
     b.charSetDefault = default_characterset()
     b.contentTypes = list(content_types_xml().keys())
 
-@ioc.entity   
+@ioc.entity
 def decoderTextJSON():
     import json
     import codecs
@@ -132,7 +134,7 @@ def decodingJSON() -> Processor:
     b.charSetDefault = default_characterset()
     b.contentTypes = list(content_types_json().keys())
 
-@ioc.entity   
+@ioc.entity
 def decoderTextYAML():
     import yaml
     import codecs
@@ -149,7 +151,7 @@ def decodingYAML() -> Processor:
     b.charSetDefault = default_characterset()
     b.contentTypes = list(content_types_yaml().keys())
 
-@ioc.entity   
+@ioc.entity
 def decoderTextUrlencoded():
     from ally.support.core.util_param import parseStr
     import codecs

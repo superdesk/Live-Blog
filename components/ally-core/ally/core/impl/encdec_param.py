@@ -1,22 +1,21 @@
 '''
 Created on Jul 4, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides the parameters decoders.
 '''
 
-from ally.api import configure
 from ally.api.criteria import AsOrdered, AsLike
-from ally.api.operator import Query, CriteriaEntry, Criteria, Property
-from ally.api.type import Input, Iter, Type, TypeQuery
+from ally.api.operator.type import TypeQuery, TypeCriteriaEntry, TypeProperty
+from ally.api.type import Input, Iter, Type, typeFor
 from ally.container.ioc import injected
 from ally.core.spec.resources import ConverterPath
 from ally.core.spec.server import EncoderParams, DecoderParams
-from ally.exception import DevelException
+from ally.exception import DevelError
 from ally.support.core.util_param import extractParamValues, extractParams, \
     containsParam
 
@@ -28,10 +27,10 @@ class EncDecPrimitives(EncoderParams, DecoderParams):
     Provides the parameters encoding and decoding based on inputs that are primitives or list of primitives.
     @see: EncoderParams, DecoderParams
     '''
-    
+
     converterPath = ConverterPath
     # The converter path used in parsing the parameter values.
-    
+
     def __init__(self):
         assert isinstance(self.converterPath, ConverterPath), 'Invalid ConverterPath object %s' % self.converterPath
 
@@ -43,8 +42,8 @@ class EncDecPrimitives(EncoderParams, DecoderParams):
         assert isinstance(params, list), 'Invalid parameters list %s' % params
         assert arg is not None, 'Provide an argument value'
         valid = self._validate(inp)
-        if not valid:
-            return False
+        if not valid: return False
+
         isList = valid[1]
         name = self.converterPath.normalize(inp.name)
         assert not containsParam(params, name), 'There is already a parameter with name %s' % name
@@ -54,7 +53,7 @@ class EncDecPrimitives(EncoderParams, DecoderParams):
         else:
             params.append((name, self.converterPath.asString(arg)))
         return True
-    
+
     def encodeModels(self, inputs, inp, models):
         '''
         @see: EncoderParams.encodeModels
@@ -62,13 +61,13 @@ class EncDecPrimitives(EncoderParams, DecoderParams):
         assert isinstance(inp, Input), 'Invalid input %s' % inp
         assert isinstance(models, dict), 'Invalid models dictionary %s' % models
         valid = self._validate(inp)
-        if not valid:
-            return
+        if not valid: return
+
         typ, isList = valid
         name = self.converterPath.normalize(inp.name)
         assert not name in models, 'There is already a model with name %s' % name
         models[name] = (isList, typ, None)
-        
+
     def decode(self, inputs, inp, params, args):
         '''
         @see: DecoderParams.decode
@@ -77,20 +76,20 @@ class EncDecPrimitives(EncoderParams, DecoderParams):
         assert isinstance(params, list), 'Invalid parameters list %s' % params
         assert isinstance(args, dict), 'Invalid arguments dictionary %s' % args
         valid = self._validate(inp)
-        if not valid:
-            return
+        if not valid: return
+
         typ, isList = valid
         name = self.converterPath.normalize(inp.name)
         values = extractParamValues(params, name)
         if len(values) > 1:
             if not isList:
-                raise DevelException('Parameter %r needs to be provided just once' % name)
+                raise DevelError('Parameter %r needs to be provided just once' % name)
             vals = []
             for value in values:
                 try:
                     vals.append(self.converterPath.asValue(value, typ))
                 except ValueError:
-                    raise DevelException('Invalid value %r for parameter %r, expected type %s' % (value, name, typ))
+                    raise DevelError('Invalid value %r for parameter %r, expected type %s' % (value, name, typ))
             args[inp.name] = vals
         elif len(values) == 1:
             value = values[0]
@@ -98,12 +97,12 @@ class EncDecPrimitives(EncoderParams, DecoderParams):
                 try:
                     arg = self.converterPath.asValue(value, typ)
                 except ValueError:
-                    raise DevelException('Invalid value %r for parameter %r, expected type %s' % (value, name, typ))
+                    raise DevelError('Invalid value %r for parameter %r, expected type %s' % (value, name, typ))
                 if isList:
                     args[inp.name] = [arg]
                 else:
                     args[inp.name] = arg
-                    
+
     def _validate(self, inp):
         assert isinstance(inp, Input)
         typ = inp.type
@@ -125,14 +124,14 @@ class EncDecQuery(EncoderParams, DecoderParams):
     existing parameters to deduce the encoding/decoding.
     @see: EncoderParams, DecoderParams 
     '''
-    
+
     converterPath = ConverterPath
     # The converter path used in parsing the parameter values.
     nameOrderAsc = 'asc'
     nameOrderDesc = 'desc'
     separatorName = '.'
     # The separator used in extending parameters from names.
-    
+
     def __init__(self):
         assert isinstance(self.converterPath, ConverterPath), 'Invalid ConverterPath object %s' % self.converterPath
         assert isinstance(self.nameOrderAsc, str), 'Invalid string %s' % self.nameOrderAsc
@@ -146,34 +145,36 @@ class EncDecQuery(EncoderParams, DecoderParams):
         assert isinstance(inp, Input), 'Invalid input %s' % inp
         assert isinstance(params, list), 'Invalid parameters list %s' % params
         assert arg is not None, 'Provide an argument value'
-        query = self._validate(inp)
-        if not query:
-            return 
-        groupByProp = _groupCriteriaEntriesByProperty(query)
+        queryType = self._validate(inp)
+        if not queryType: return
+
+        groupByProp = _groupCriteriaEntriesByProperty(queryType)
         #TODO: optimize, this processing's can be split into processing classes latter one as an example
         # we could have a OrderCriteriaHandler based on a generic criteria handler API.
-        for prop, crtEntrs in groupByProp:
-            if prop.name == 'orderAscending' and issubclass(crtEntrs[0].criteria.criteriaClass, AsOrdered):
-                self._encodeOrdering(prop, crtEntrs, inputs, query=arg, params=params)
+        for propType, criteriaEntriesTypes in groupByProp:
+            assert isinstance(propType, TypeProperty)
+            if propType.property == 'ascending' and issubclass(criteriaEntriesTypes[0].forClass, AsOrdered):
+                self._encodeOrdering(propType, criteriaEntriesTypes, inputs, query=arg, params=params)
             else:
-                self._encodeSimple(prop, crtEntrs, inputs, query=arg, params=params)
-    
+                self._encodeSimple(propType, criteriaEntriesTypes, inputs, query=arg, params=params)
+
     def encodeModels(self, inputs, inp, models):
         '''
         @see: EncoderParams.encodeModels
         '''
-        query = self._validate(inp)
-        if not query:
-            return 
-        groupByProp = _groupCriteriaEntriesByProperty(query)
-        for prop, crtEntrs in groupByProp:
-            if prop.name == 'orderAscending' and issubclass(crtEntrs[0].criteria.criteriaClass, AsOrdered):
-                self._encodeOrdering(prop, crtEntrs, inputs, models=models)
-            elif prop.name == 'like' and issubclass(crtEntrs[0].criteria.criteriaClass, AsLike):
-                self._encodeSimple(prop, crtEntrs, inputs, models=models, modelNone='')
+        queryType = self._validate(inp)
+        if not queryType: return
+
+        groupByProp = _groupCriteriaEntriesByProperty(queryType)
+        for propType, criteriaEntriesTypes in groupByProp:
+            assert isinstance(propType, TypeProperty)
+            if propType.property == 'ascending' and issubclass(criteriaEntriesTypes[0].forClass, AsOrdered):
+                self._encodeOrdering(propType, criteriaEntriesTypes, inputs, models=models)
+            elif propType.property == 'like' and issubclass(criteriaEntriesTypes[0].forClass, AsLike):
+                self._encodeSimple(propType, criteriaEntriesTypes, inputs, models=models, modelNone='')
             else:
-                self._encodeSimple(prop, crtEntrs, inputs, models=models)
-    
+                self._encodeSimple(propType, criteriaEntriesTypes, inputs, models=models)
+
     def decode(self, inputs, inp, params, args):
         '''
         @see: DecoderParams.decode
@@ -181,30 +182,27 @@ class EncDecQuery(EncoderParams, DecoderParams):
         assert isinstance(inp, Input), 'Invalid input %s' % inp
         assert isinstance(params, list), 'Invalid parameters list %s' % params
         assert isinstance(args, dict), 'Invalid arguments dictionary %s' % args
-        query = self._validate(inp)
-        if not query:
-            return
-        assert isinstance(query, Query)
-        groupByProp = _groupCriteriaEntriesByProperty(query)
+        queryType = self._validate(inp)
+        if not queryType: return
+
+        groupByProp = _groupCriteriaEntriesByProperty(queryType)
         q = None
-        for prop, crtEntrs in groupByProp:
-            if prop.name == 'orderAscending' and issubclass(crtEntrs[0].criteria.criteriaClass, AsOrdered):
-                q = self._decodeOrdering(prop, crtEntrs, inputs, query, q, params)
+        for propType, criteriaEntriesTypes in groupByProp:
+            assert isinstance(propType, TypeProperty)
+            if propType.property == 'ascending' and issubclass(criteriaEntriesTypes[0].forClass, AsOrdered):
+                q = self._decodeOrdering(propType, criteriaEntriesTypes, inputs, queryType, q, params)
             else:
-                q = self._decodeSimple(prop, crtEntrs, inputs, query, q, params)
+                q = self._decodeSimple(propType, criteriaEntriesTypes, inputs, queryType, q, params)
         if q is not None:
             args[inp.name] = q
-    
+
     def _validate(self, inp):
         assert isinstance(inp, Input)
-        typ = inp.type
-        if isinstance(typ, TypeQuery):
-            assert isinstance(typ, TypeQuery)
-            return typ.query
+        if isinstance(inp.type, TypeQuery): return inp.type
         return False
-    
-    def _encodeOrdering(self, prop, criteriaEntries, inputs, query=None, params=None, models=None):
-        assert isinstance(prop, Property)
+
+    def _encodeOrdering(self, propType, criteriaEntriesTypes, inputs, query=None, params=None, models=None):
+        assert isinstance(propType, TypeProperty)
         assert not _isNameInPrimitives(inputs, self.nameOrderAsc), \
         'The primitive inputs %s contain a variable called (%s)' % (inputs, self.nameOrderAsc)
         assert not _isNameInPrimitives(inputs, self.nameOrderDesc), \
@@ -215,54 +213,62 @@ class EncDecQuery(EncoderParams, DecoderParams):
             assert isinstance(models, dict)
             assert not nameAsc in models, 'There is already a model with name (%s)' % nameAsc
             assert not nameDesc in models, 'There is already a model with name (%s)' % nameDesc
-            names = [crtEnt.name for crtEnt in criteriaEntries]
+            names = [crtEntType.criteria for crtEntType in criteriaEntriesTypes]
             models[nameAsc] = (True, str, names)
             models[nameDesc] = (True, str, names)
         if params is not None:
             assert isinstance(params, list)
-            ordered = {}
-            for crtEnt in criteriaEntries:
-                assert isinstance(crtEnt, CriteriaEntry)
-                crit = crtEnt.get(query)
-                if crit is not None:
+            ordered, unordered = {}, []
+            for crtEntType in criteriaEntriesTypes:
+                assert isinstance(crtEntType, TypeCriteriaEntry)
+                if crtEntType in query:
+                    crit = getattr(query, crtEntType.name)
                     assert isinstance(crit, AsOrdered)
-                    asc = prop.get(crit)
+                    asc = getattr(crit, propType.property)
                     if asc is not None:
-                        ordered[crit.index()] = (asc, crtEnt.name)
-                for key in sorted(ordered.keys()):
-                    asc, name = ordered[key]
-                    if asc:
-                        params.append((nameAsc, name))
-                    else:
-                        params.append((nameDesc, name))
+                        if crit.priority:
+                            l = ordered.get(crit.priority)
+                            if not l: ordered[crit.priority] = [(asc, crtEntType.name)]
+                            else: l.append((asc, crtEntType.name))
+                        else:
+                            unordered.append((asc, crtEntType.name))
+                inorder = []
+                for priority in sorted(ordered.keys()):
+                    inorder.extend(ordered[priority])
+                inorder.extend(unordered)
+                for asc, name in inorder:
+                    if asc: params.append((nameAsc, name))
+                    else: params.append((nameDesc, name))
 
-    def _encodeSimple(self, prop, criteriaEntries, inputs, query=None, params=None, models=None, modelNone=None):
-        assert isinstance(prop, Property)
-        assert not isinstance(prop.type, Iter), \
+    def _encodeSimple(self, propType, criteriaEntriesTypes, inputs, query=None, params=None, models=None, modelNone=None):
+        assert isinstance(propType, TypeProperty)
+        assert not isinstance(propType.type, Iter), \
         'WTF, cannot encode list properties, the query supposed to have only primitives as properties'
-        if prop.name in configure.DEFAULT_CONDITIONS:
-            names = (prop.name + self.separatorName + crtEnt.name if _isNameInPrimitives(inputs, crtEnt.name) else \
-                     crtEnt.name for crtEnt in criteriaEntries)
+        defaults = [crtEntrType.criteria.main for crtEntrType in criteriaEntriesTypes]
+        if propType.property in defaults:
+            names = (propType.property + self.separatorName + crtEntrType.name
+                     if _isNameInPrimitives(inputs, crtEntrType.name)
+                     else crtEntrType.name for crtEntrType in criteriaEntriesTypes)
         else:
-            names = (crtEnt.name for crtEnt in criteriaEntries)
-        for name, crtEnt in zip(names, criteriaEntries):
-            assert isinstance(crtEnt, CriteriaEntry)
+            names = (propType.property + crtEntrType.name for crtEntrType in criteriaEntriesTypes)
+        for name, crtEntrType in zip(names, criteriaEntriesTypes):
+            assert isinstance(crtEntrType, TypeCriteriaEntry)
             name = self.converterPath.normalize(name)
             if models is not None:
                 assert isinstance(models, dict)
                 assert not name in models, 'There is already a model with name (%s)' % name
-                models[name] = (False, prop.type.forClass, modelNone)
+                models[name] = (False, propType.type.forClass, modelNone)
             if params is not None:
                 assert isinstance(params, list)
-                crit = crtEnt.get(query)
+                crit = getattr(query, crtEntrType.name)
                 if crit is not None:
-                    value = prop.get(crit)
+                    value = getattr(crit, propType.property)
                     if value is not None:
                         params.append((name, self.converterPath.asString(value)))
-    
-    def _decodeOrdering(self, prop, criteriaEntries, inputs, query, q, params):
-        assert isinstance(prop, Property)
-        assert isinstance(query, Query)
+
+    def _decodeOrdering(self, propType, criteriaEntriesTypes, inputs, queryType, q, params):
+        assert isinstance(propType, TypeProperty)
+        assert isinstance(queryType, TypeQuery)
         assert isinstance(params, list)
         assert not _isNameInPrimitives(inputs, self.nameOrderAsc), \
         'The primitive inputs %s contain a variable called (%s)' % (inputs, self.nameOrderAsc)
@@ -270,43 +276,47 @@ class EncDecQuery(EncoderParams, DecoderParams):
         'The primitive inputs %s contain a variable called (%s)' % (inputs, self.nameOrderDesc)
         nameAsc = self.converterPath.normalize(self.nameOrderAsc)
         orderParams = extractParams(params, nameAsc, self.converterPath.normalize(self.nameOrderDesc))
+        priority = 1
         for param in orderParams:
             order, name = param
-            crtEnt = _findCriteriaEntryByName(criteriaEntries, name)
-            if not crtEnt: params.append(param);
+            crtEntrType = _findCriteriaEntryByName(criteriaEntriesTypes, name)
+            if not crtEntrType: params.append(param);
             else:
-                assert isinstance(crtEnt, CriteriaEntry)
-                if q is None:
-                    q = query.createQuery()
-                crit = crtEnt.obtain(q)
-                prop.set(crit, order == nameAsc)
+                assert isinstance(crtEntrType, TypeCriteriaEntry)
+                if q is None: q = queryType.forClass()
+                crit = getattr(q, crtEntrType.name)
+                setattr(crit, propType.property, order == nameAsc)
+                setattr(crit, 'priority', priority)
+                priority += 1
         return q
-    
-    def _decodeSimple(self, prop, criteriaEntries, inputs, query, q, params):
-        assert isinstance(prop, Property)
-        assert not isinstance(prop.type, Iter), \
+
+    def _decodeSimple(self, propType, criteriaEntriesTypes, inputs, queryType, q, params):
+        assert isinstance(propType, TypeProperty)
+        assert isinstance(queryType, TypeQuery)
+        assert not isinstance(propType.type, Iter), \
         'WTF, cannot encode list properties, the query supposed to have only primitives as properties'
         assert isinstance(params, list)
-        if prop.name in configure.DEFAULT_CONDITIONS:
-            names = [prop.name + self.separatorName + crtEnt.name if _isNameInPrimitives(inputs, crtEnt.name) else \
-                     crtEnt.name for crtEnt in criteriaEntries]
+        defaults = [crtEntrType.criteria.main for crtEntrType in criteriaEntriesTypes]
+        if propType.property in defaults:
+            names = [propType.property + self.separatorName + crtEntrType.name
+                     if _isNameInPrimitives(inputs, crtEntrType.name)
+                     else crtEntrType.name for crtEntrType in criteriaEntriesTypes]
         else:
-            names = [prop.name + self.separatorName + crtEnt.name for crtEnt in criteriaEntries]
-        for name, crtEnt in zip(names, criteriaEntries):
-            assert isinstance(crtEnt, CriteriaEntry)
+            names = [propType.property + self.separatorName + crtEntrType.name for crtEntrType in criteriaEntriesTypes]
+        for name, crtEntrType in zip(names, criteriaEntriesTypes):
+            assert isinstance(crtEntrType, TypeCriteriaEntry)
             name = self.converterPath.normalize(name)
             values = extractParamValues(params, name)
             if len(values) > 1:
-                raise DevelException('Parameter %r needs to be provided just once' % name)
+                raise DevelError('Parameter %r needs to be provided just once' % name)
             elif len(values) == 1:
-                if q is None:
-                    q = query.createQuery()
-                crit = crtEnt.obtain(q)
-                prop.set(crit, self.converterPath.asValue(values[0], prop.type))
+                if q is None: q = queryType.forClass()
+                crit = getattr(q, crtEntrType.name)
+                setattr(crit, propType.property, self.converterPath.asValue(values[0], propType.type))
         return q
 
 # --------------------------------------------------------------------
-         
+
 def _isNameInPrimitives(inputs, name):
     '''
     FOR INTERNAL USE.
@@ -318,37 +328,36 @@ def _isNameInPrimitives(inputs, name):
             return True
     return False
 
-def _groupCriteriaEntriesByProperty(query):
+def _groupCriteriaEntriesByProperty(queryType):
     '''
     FOR INTERNAL USE.
-    Groups the query criteria entries based on properties, so if there are multiple criteria entries in a query
-    that have the same property than this will grouped them based on that.
+    Groups the query criterias based on properties, so if there are multiple criteria entries in a query that have the
+    same property then this will grouped them based on that.
+    
+    @param query: Query
+        The query to extract the grouping for.
+    @return: dictionary{TypeProperty, list[TypeCriteriaEntry]}
+        The groupings.
     '''
-    assert isinstance(query, Query)
+    assert isinstance(queryType, TypeQuery)
     #TODO: maybe cache the grouped structure
-    groupByProp = []
-    for crtEnt in query.criteriaEntries.values():
-        assert isinstance(crtEnt, CriteriaEntry)
-        crt = crtEnt.criteria
-        assert isinstance(crt, Criteria)
-        for prop in crt.properties.values():
-            assert isinstance(prop, Property)
-            found = False
-            for gr in groupByProp:
-                if gr[0] == prop:
-                    gr[1].append(crtEnt)
-                    found = True
-                    break
-            if not found:
-                groupByProp.append((prop, [crtEnt]))
+    groupByProp = {}
+    for criteria in queryType.query.criterias:
+        crtEntryType = typeFor(getattr(queryType.forClass, criteria))
+        assert isinstance(crtEntryType, TypeCriteriaEntry)
+        for prop in crtEntryType.criteria.properties:
+            propType = typeFor(getattr(crtEntryType.forClass, prop))
+            crtEntriesTypes = groupByProp.get(propType)
+            if crtEntriesTypes is None: groupByProp[propType] = [crtEntryType]
+            else: crtEntriesTypes.append(crtEntryType)
     return groupByProp
 
-def _findCriteriaEntryByName(criteriaEntries, name):
+def _findCriteriaEntryByName(criteriaEntriesTypes, name):
     '''
     FOR INTERNAL USE.
     Finds the criteria name with the specified name.
     '''
-    for crtEnt in criteriaEntries:
-        assert isinstance(crtEnt, CriteriaEntry)
-        if crtEnt.name == name:
-            return crtEnt
+    for crtEntrType in criteriaEntriesTypes:
+        assert isinstance(crtEntrType, TypeCriteriaEntry)
+        if crtEntrType.name == name:
+            return crtEntrType

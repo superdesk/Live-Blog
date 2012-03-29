@@ -1,20 +1,20 @@
 '''
 Created on Jul 9, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core http
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides the standard headers handling.
 '''
 
-from ally.api.operator import GET, DELETE, INSERT, UPDATE
+from ally.api.config import GET, DELETE, INSERT, UPDATE
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE
 from ally.core.spec.server import Processor, Response, ProcessorsChain, \
     ContentRequest
-from ally.exception import DevelException
+from ally.exception import DevelError
 from ally.support.core.util_param import extractParamValues
 from collections import OrderedDict
 import re
@@ -34,14 +34,14 @@ class HeaderHTTPBase:
     '''
     Provides basic methods for handling HTTP headers.
     '''
-    
+
     readFromParams = False
     # If true than if the data is not present in the header will try to find it in the parameters.
-    
+
     separatorMain = ','
     separatorAttr = ';'
     separatorValue = '='
-    
+
     def __init__(self):
         assert isinstance(self.readFromParams, bool), 'Invalid boolean %s' % self.readFromParams
         assert isinstance(self.separatorMain, str), 'Invalid string %s' % self.separatorMain
@@ -50,7 +50,7 @@ class HeaderHTTPBase:
         self._reSeparatorMain = re.compile(self.separatorMain)
         self._reSeparatorAttr = re.compile(self.separatorAttr)
         self._reSeparatorValue = re.compile(self.separatorValue)
-    
+
     def _parse(self, name, headers, parameters, what=ALL):
         '''
         Parses to a dictionary the requested header name.
@@ -92,7 +92,7 @@ class HeaderHTTPBase:
                     return [self.__parseValue(param, VALUE) for param in params]
                 elif what in (VALUE_ATTRIBUTES, VALUE, VALUE_NO_PARSE):
                     if len(params) > 1:
-                        raise DevelException('Invalid parameter header %r, expected only one value' % name)
+                        raise DevelError('Invalid parameter header %r, expected only one value' % name)
                     if what == VALUE_NO_PARSE:
                         return params[0]
                     if what == VALUE:
@@ -116,13 +116,13 @@ class HeaderHTTPBase:
                     else:
                         values = self._reSeparatorMain.split(header)
                         if len(values) > 1:
-                            raise DevelException('Invalid header %r, expected only one value' % name)
+                            raise DevelError('Invalid header %r, expected only one value' % name)
                         if what == VALUE:
                             return self.__parseValue(values[0], what)
                         return self.__parseValue(values[0], what)
                 else:
                     raise AssertionError('Invalid what value %r' % what)
-    
+
     def _encode(self, *values):
         '''
         Encodes the provided values to a header value.
@@ -141,9 +141,9 @@ class HeaderHTTPBase:
                 value, attrs = v
                 attrs = self.separatorValue.join(attrs)
                 c.append(self.separatorAttr.join((value, attrs)) if attrs else value)
-                
+
         return self.separatorMain.join(c)
-    
+
     def __parseValue(self, value, what):
         '''
         INTERNAL USE ONLY.
@@ -173,7 +173,7 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
     Requires on request: content, headers, params
     Requires on response: [contentType], [charSet], [contentLanguage], [allows], [contentLocation]
     '''
-        
+
     nameContentType = 'Content-Type'
     attrContentTypeCharSet = 'charset'
     nameContentLanguage = 'Content-Language'
@@ -184,7 +184,7 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
     nameAccept = 'Accept'
     nameAcceptCharset = 'Accept-Charset'
     nameAcceptLanguage = 'Accept-Language'
-    
+
     def __init__(self):
         super().__init__()
         assert isinstance(self.nameContentType, str), 'Invalid string %s' % self.nameContentType
@@ -197,7 +197,7 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
         assert isinstance(self.nameAccept, str), 'Invalid string %s' % self.nameAccept
         assert isinstance(self.nameAcceptCharset, str), 'Invalid string %s' % self.nameAcceptCharset
         assert isinstance(self.nameAcceptLanguage, str), 'Invalid string %s' % self.nameAcceptLanguage
-    
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -211,10 +211,10 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
             if p:
                 req.content.contentType, charset = p
                 req.content.charSet = charset.get(self.attrContentTypeCharSet, req.content.charSet)
-    
+
             p = self._parse(self.nameContentLanguage, req.headers, req.params, VALUE)
             if p: req.content.contentLanguage = p
-                
+
             p = self._parse(self.nameContentLength, req.headers, req.params, VALUE_NO_PARSE)
             if p:
                 try:
@@ -222,17 +222,17 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
                 except ValueError:
                     rsp.setCode(INVALID_HEADER_VALUE, 'Invalid value %r for header %r' % (p, self.nameContentLength))
                     return
-                
+
             p = self._parse(self.nameAccept, req.headers, req.params, VALUES)
             if p: req.accContentTypes.extend(p)
-                
+
             p = self._parse(self.nameAcceptCharset, req.headers, req.params, VALUES)
             if p: req.accCharSets.extend(p)
-                
+
             p = self._parse(self.nameAcceptLanguage, req.headers, req.params, VALUES)
             if p: req.accLanguages.extend(p)
-        except DevelException as e:
-            assert isinstance(e, DevelException)
+        except DevelError as e:
+            assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
         chain.proceed()
@@ -243,7 +243,7 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
         '''
         assert isinstance(headers, dict), 'Invalid headers dictionary %s' % headers
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        
+
         if rsp.allows != 0:
             values = [meth[1] for meth in self.methodsAllow if rsp.allows & meth[0] != 0]
             headers[self.nameAllow] = self._encode(*values)
@@ -251,7 +251,7 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
         if rsp.contentType:
             value = rsp.contentType, (self.attrContentTypeCharSet, rsp.charSet) if rsp.charSet else ()
             headers[self.nameContentType] = self._encode(value)
-        
+
         if rsp.contentLanguage: headers[self.nameContentLanguage] = rsp.contentLanguage
 
         if rsp.contentLocation: headers[self.nameContentLocation] = rsp.encoderPath.encode(rsp.contentLocation)

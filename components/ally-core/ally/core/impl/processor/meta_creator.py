@@ -9,17 +9,17 @@ Created on Jan 27, 2012
 Provides the meta creation processor handler.
 '''
 
-from ally.api.operator import Model, Property
-from ally.api.type import TypeModel, TypeNone, Iter, TypeProperty, Type, \
-    IterPart, List
+from ally.api.type import TypeNone, Iter, Type, IterPart, List, typeFor
 from ally.container.ioc import injected
 from ally.core.spec.data_meta import returnSame, MetaLink, MetaValue, MetaModel, \
     MetaPath, MetaCollection
 from ally.core.spec.resources import ResourcesManager, Path
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
-from ally.support.api.util_type import isPropertyTypeId
 from ally.support.core.util_resources import nodeLongName
 import logging
+from ally.api.operator.type import TypeModelProperty, TypeModel
+from ally.api.operator.container import Model
+from functools import partial
 
 # --------------------------------------------------------------------
 
@@ -27,6 +27,9 @@ log = logging.getLogger(__name__)
 
 returnTotal = lambda part: part.total
 # Function that returns the total count of a part.
+
+rgetattr = lambda prop, obj: getattr(obj, prop)
+# A simple lambda that just reverses the getattr parameters in order to be used with partial.
 
 # --------------------------------------------------------------------
 
@@ -41,14 +44,14 @@ class MetaCreatorHandler(Processor):
     Requires on request: resourcePath
     Requires on response: [objType]
     '''
-    
+
     resourcesManager = ResourcesManager
     # The resources manager used in locating the resource nodes for the id's presented.
 
     def __init__(self):
         assert isinstance(self.resourcesManager, ResourcesManager), \
         'Invalid resources manager %s' % self.resourcesManager
-        
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -56,12 +59,12 @@ class MetaCreatorHandler(Processor):
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        
+
         if req.resourcePath is not None and rsp.objType is not None:
             rsp.objMeta = self.meta(rsp.objType, req.resourcePath)
 
         chain.proceed()
-    
+
     # ----------------------------------------------------------------
 
     def meta(self, typ, resourcePath):
@@ -76,42 +79,42 @@ class MetaCreatorHandler(Processor):
             The meta object.
         '''
         assert isinstance(resourcePath, Path), 'Invalid resource path %s' % resourcePath
-        
+
         if isinstance(typ, Type):
             if isinstance(typ, Iter):
                 assert isinstance(typ, Iter)
-                
+
                 if isinstance(typ, IterPart): getTotal = returnTotal
                 else: getTotal = None
-                
+
                 itype = typ.itemType
-                
-                if isinstance(itype, TypeProperty):
+
+                if isinstance(itype, TypeModelProperty):
                     return MetaCollection(self.metaProperty(itype, resourcePath), returnSame, getTotal)
-                
+
                 elif isinstance(itype, TypeModel):
                     assert isinstance(itype, TypeModel)
-                    return MetaCollection(self.metaModel(itype.model, resourcePath), returnSame, getTotal)
-                    
+                    return MetaCollection(self.metaModel(itype, resourcePath), returnSame, getTotal)
+
                 elif itype.isOf(Path):
                     return MetaCollection(MetaLink(returnSame), returnSame, getTotal)
                 else:
-                    
+
                     assert log.debug('Cannot encode list item object type %r', itype) or True
-                    
+
             elif isinstance(typ, TypeNone):
                 assert log.debug('Nothing to encode') or True
-                
-            elif isinstance(typ, TypeProperty):
+
+            elif isinstance(typ, TypeModelProperty):
                 return self.metaProperty(typ, resourcePath)
-            
+
             elif isinstance(typ, TypeModel):
                 assert isinstance(typ, TypeModel)
-                return self.metaModel(typ.model, resourcePath)
-                
+                return self.metaModel(typ, resourcePath)
+
             else:
                 assert log.debug('Cannot encode object type %r', typ) or True
-    
+
     def metaProperty(self, typ, resourcePath, getValue=returnSame):
         '''
         Creates the meta for the provided property type.
@@ -127,30 +130,40 @@ class MetaCreatorHandler(Processor):
         '''
         assert isinstance(typ, Type), 'Invalid type %s' % typ
         assert isinstance(resourcePath, Path), 'Invalid resource path %s' % resourcePath
-        
-        if isinstance(typ, TypeProperty):
-            assert isinstance(typ, TypeProperty)
-            
-            if isPropertyTypeId(typ):
-                path = self.resourcesManager.findGetModel(resourcePath, typ.model)
+
+        if isinstance(typ, TypeModelProperty):
+            assert isinstance(typ, TypeModelProperty)
+
+            if typ.container.propertyId == typ.property:
+                path = self.resourcesManager.findGetModel(resourcePath, typ)
                 if path: metaLink = MetaPath(path, typ, getValue)
                 else: metaLink = None
             else: metaLink = None
-            
-            prop = typ.property
-            assert isinstance(prop, Property)
-            return MetaModel(typ.model, getValue, metaLink,
-                             {prop.name: self.metaProperty(prop.type, resourcePath)})
+
+            return MetaModel(typ.container, getValue, metaLink,
+                             {typ.property: self.metaProperty(typ.type, resourcePath)})
+
+        if isinstance(typ, TypeModel):
+            assert isinstance(typ, TypeModel)
+            typId = typeFor(getattr(typ.forClass, typ.container.propertyId))
+            assert isinstance(typId, TypeModelProperty)
+            path = self.resourcesManager.findGetModel(resourcePath, typ)
+            if path: metaLink = MetaPath(path, typId, getValue)
+            else: metaLink = None
+
+            return MetaModel(typ.container, getValue, metaLink,
+                             {typId.property: self.metaProperty(typId.type, resourcePath)})
+
         if isinstance(typ, List):
             assert isinstance(typ, List)
             return MetaCollection(MetaValue(typ.itemType, returnSame), getValue)
         return MetaValue(typ, getValue)
 
-    def metaModel(self, model, resourcePath, getModel=returnSame):
+    def metaModel(self, typ, resourcePath, getModel=returnSame):
         '''
         Creates the meta for the provided model.
         
-        @param model: Model
+        @param typ: TypeModel
             The model to convert to provide the meta for.
         @param resourcePath: Path
             The path reference to get the paths.
@@ -159,21 +172,20 @@ class MetaCreatorHandler(Processor):
         @return: MetaModel
             The meta object.
         '''
-        assert isinstance(model, Model), 'Invalid model %s' % model
+        assert isinstance(typ, TypeModel), 'Invalid type model %s' % typ
         assert isinstance(resourcePath, Path), 'Invalid resource path %s' % resourcePath
-        
-        metas = {}
-        for name, prop in model.properties.items():
-            assert isinstance(prop, Property)
-            metas[name] = self.metaProperty(prop.type, resourcePath, prop.get)
-        
+        model = typ.container
+        assert isinstance(model, Model)
+
+        metas = {prop:self.metaProperty(ptyp, resourcePath, partial(rgetattr, prop)) for prop, ptyp in model.properties.items()}
+
         paths = self.resourcesManager.findGetAllAccessible(resourcePath)
         pathsModel = self.resourcesManager.findGetAccessibleByModel(model)
         paths.extend([path for path in pathsModel if path not in paths])
-        metas.update({nodeLongName(path.node): MetaPath(path, model.type, getModel) for path in paths})
-        
-        path = self.resourcesManager.findGetModel(resourcePath, model)
-        if path: metaLink = MetaPath(path, model.type, getModel)
+        metas.update({nodeLongName(path.node): MetaPath(path, typ, getModel) for path in paths})
+
+        path = self.resourcesManager.findGetModel(resourcePath, typ)
+        if path: metaLink = MetaPath(path, typ, getModel)
         else: metaLink = None
-        
+
         return MetaModel(model, getModel, metaLink, metas)

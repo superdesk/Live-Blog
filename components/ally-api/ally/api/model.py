@@ -9,19 +9,17 @@ Created on Feb 29, 2012
 Provides standard model objects.
 '''
 
-from ally.support.util import immutable
 from ally.type_legacy import Iterable
 
 # --------------------------------------------------------------------
 
-@immutable
 class Part:
     '''
     Provides a wrapping for iterable objects that represent a part of a bigger collection. Basically beside the actual
     items this class objects also contain a total count of the big item collection that this iterable is part of.
     '''
 
-    __slots__ = __immutable__ = ('iter', 'total')
+    __slots__ = ('iter', 'total')
 
     def __init__(self, iter, total):
         '''

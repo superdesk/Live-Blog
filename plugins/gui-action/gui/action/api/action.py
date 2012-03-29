@@ -10,14 +10,13 @@ Action manager interface and action model
 '''
 
 from gui.api import modelGui
-from ally.api.config import service, call
-from ally.api.operator import INSERT
+from ally.api.config import service, call, INSERT
 from ally.api.type import Iter
 import re
 
 # --------------------------------------------------------------------
 
-@modelGui
+@modelGui(id='Path')
 class Action:
     '''
     The object used to create and group actions 
@@ -25,7 +24,7 @@ class Action:
     Path = str
     Label = str
     ScriptPath = str
-    
+
     def __init__(self, Path=None, Label=None, Parent=None, ScriptPath=None):
         self.Path = ''
         if Path:
@@ -37,7 +36,7 @@ class Action:
             self.Label = Label
         if ScriptPath:
             self.ScriptPath = ScriptPath
-    
+
 # --------------------------------------------------------------------
 
 @service
@@ -45,13 +44,13 @@ class IActionManagerService:
     '''
     Provides a container and manager for actions
     '''
-    
+
     @call(method=INSERT)
     def add(self, action:Action) -> Action.Path:
         '''
         Register an action here
         '''
-        
+
     @call
     def getAll(self, path:str=None) -> Iter(Action):
         '''

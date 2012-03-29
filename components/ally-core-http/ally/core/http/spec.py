@@ -1,8 +1,8 @@
 '''
 Created on Jul 8, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core http
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -40,7 +40,7 @@ class EncoderHeader(metaclass=abc.ABCMeta):
     '''
     Provides the API for encoding the headers from response.
     '''
-    
+
     @abc.abstractmethod
     def encode(self, headers, response):
         '''

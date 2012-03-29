@@ -1,7 +1,7 @@
 '''
 Created on May 26, 2011
 
-@package: Newscoop
+@package: ally api
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -34,7 +34,7 @@ def _(msg):
         The translated message.
     '''
     return gettext(msg)
-    
+
 def ngettext(msg, msgp, count):
     '''
     Like @see: gettext, but consider plural forms. If a translation is found, apply the plural formula to n, and return

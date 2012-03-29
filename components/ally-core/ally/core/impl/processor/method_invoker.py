@@ -9,7 +9,7 @@ Created on Jul 14, 2011
 Provides the requested method validation handler.
 '''
 
-from ally.api.operator import GET, INSERT, UPDATE, DELETE
+from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.container.ioc import injected
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE
 from ally.core.spec.resources import Path, Node
@@ -31,7 +31,7 @@ class MethodInvokerHandler(Processor):
     Requires on request: method, resourcePath
     Requires on response: NA
     '''
-    
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -67,7 +67,7 @@ class MethodInvokerHandler(Processor):
         else:
             self._sendNotAvailable(node, rsp, 'Path not available for this method')
             return
-        rsp.objType = req.invoker.outputType
+        rsp.objType = req.invoker.output
         chain.proceed()
 
     def _processAllow(self, node, rsp):
@@ -84,7 +84,7 @@ class MethodInvokerHandler(Processor):
             rsp.addAllows(UPDATE)
         if node.delete is not None:
             rsp.addAllows(DELETE)
-            
+
     def _sendNotAvailable(self, node, rsp, message):
         self._processAllow(node, rsp)
         rsp.setCode(METHOD_NOT_AVAILABLE, message)

@@ -14,7 +14,7 @@ from ally.container.ioc import injected
 from ally.core.spec.data_meta import MetaModel, MetaValue, MetaLink, MetaCollection, \
     MetaFetch
 from ally.core.spec.resources import Normalizer, Converter, Path
-from ally.exception import DevelException
+from ally.exception import DevelError
 from ally.support.core.util_resources import nodeLongName
 from io import StringIO
 from numbers import Number
@@ -33,7 +33,7 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
     Provides the text XML encoding.
     @see: EncodingTextBaseHandler
     '''
-    
+
     normalizer = Normalizer
     # The normalizer used by the encoding for the XML tag names.
     converterId = Converter
@@ -58,7 +58,7 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
         assert isinstance(self.nameList, str), 'Invalid name list %s' % self.nameList
         assert isinstance(self.nameTotal, str), 'Invalid name total %s' % self.nameTotal
         assert isinstance(self.nameValue, str), 'Invalid name value %s' % self.nameValue
-    
+
     def encodeMeta(self, charSet, value, meta, asString, pathEncode):
         '''
         @see: EncodingTextBaseHandler.encodeMeta
@@ -69,7 +69,7 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
         self.encodeMetaXML(xml, value, meta, asString, pathEncode, self.normalizer.normalize, None, True)
         xml.endDocument()
         yield out.getvalue()
-        
+
     def encodeObject(self, charSet, obj):
         '''
         @see: EncodingTextBaseHandler.encodeObject
@@ -80,9 +80,9 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
         self.encodeDictXML(xml, obj, self.normalizer.normalize)
         xml.endDocument()
         yield out.getvalue()
-    
+
     # ----------------------------------------------------------------
-    
+
     def encodeMetaXML(self, xml, value, meta, asString, pathEncode, normalize, name=None, first=False):
         '''
         Encodes the provided value into the xml based on the meta data.
@@ -112,15 +112,15 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
         assert callable(normalize), 'Invalid normalize %s' % normalize
         assert name is None or isinstance(name, str), 'Invalid name %s' % name
         assert isinstance(first, bool), 'Invalid first flag %s' % first
-        
+
         if isinstance(meta, MetaModel):
             assert isinstance(meta, MetaModel)
-            
+
             model = meta.getModel(value)
             if model is None: return
-            
+
             assert log.debug('Encoding instance %s of %s', model, meta.model) or True
-            
+
             attrs = {}
             if meta.metaLink and (not first or len(meta.properties) < len(meta.model.properties)):
                 path = meta.metaLink.getLink(value)
@@ -139,26 +139,26 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
             assert log.debug('Encoding list of %s', meta.metaItem) or True
             items = meta.getItems(value)
             if items is None: return
-            
+
             nameItem = None
             if name:
                 tag = normalize(name)
                 if isinstance(meta.metaItem, MetaValue): nameItem = self.nameValue
             elif isinstance(meta.metaItem, MetaModel): tag = normalize(self.nameList % meta.metaItem.model.name)
             elif isinstance(meta.metaItem, MetaLink): tag = normalize(self.nameResources)
-            else: raise DevelException('Illegal item meta %s for meta list %s' % (meta.metaItem, meta)) 
-            
+            else: raise DevelError('Illegal item meta %s for meta list %s' % (meta.metaItem, meta))
+
             if meta.getTotal: xml.startElement(tag, {normalize(self.nameTotal):str(meta.getTotal(value))})
             else: xml.startElement(tag, {})
             for item in items:
                 self.encodeMetaXML(xml, item, meta.metaItem, asString, pathEncode, normalize, name=nameItem)
             xml.endElement(tag)
-            
+
         elif isinstance(meta, MetaValue):
             assert isinstance(meta, MetaValue)
             assert isinstance(name, str), 'Expected a name for meta value'
             assert log.debug('Encoding meta value %s of instance %s', meta, value) or True
-            
+
             value = meta.getValue(value)
             if value is None: return
             tag = normalize(name)
@@ -169,7 +169,7 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
         elif isinstance(meta, MetaLink):
             assert isinstance(meta, MetaLink)
             assert log.debug('Encoding meta link %s of instance %s', meta, value) or True
-            
+
             path = meta.getLink(value)
             if path is None: return
             assert isinstance(path, Path)
@@ -177,15 +177,15 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
             else: tag = normalize(nodeLongName(path.node))
             xml.startElement(tag, {normalize(self.namePath): pathEncode(path)})
             xml.endElement(tag)
-            
+
         elif isinstance(meta, MetaFetch):
             assert isinstance(meta, MetaFetch)
             value = meta.getValue(value)
             if value is None: return
             return self.encodeMetaXML(xml, value, meta.meta, asString, pathEncode, normalize, name)
-        
+
         else:
-            raise DevelException('Unknown meta object %s' % meta)
+            raise DevelError('Unknown meta object %s' % meta)
 
     def encodeDictXML(self, xml, value, normalize):
         '''
@@ -201,7 +201,7 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
         assert isinstance(xml, XMLGenerator), 'Invalid XML %s' % xml
         assert isinstance(value, dict), 'Invalid value %s' % value
         assert callable(normalize), 'Invalid normalize %s' % normalize
-        
+
         for name, v in value.items():
             name = normalize(name)
             if isinstance(v, list):
@@ -215,7 +215,7 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
                 elif isinstance(v, (str, Number)):
                     xml.characters(v)
                 else:
-                    raise DevelException('Cannot encode value %r' % v)
+                    raise DevelError('Cannot encode value %r' % v)
                 xml.endElement(name)
 
     def encodeListXML(self, xml, value, normalize):
@@ -232,11 +232,11 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
         assert isinstance(xml, XMLGenerator), 'Invalid XML %s' % xml
         assert isinstance(value, (list, tuple)), 'Invalid value %s' % value
         assert callable(normalize), 'Invalid normalize %s' % normalize
-        
+
         for v in value:
             if isinstance(v, dict):
                 self.encodeDictXML(xml, v, normalize)
             elif isinstance(v, (str, Number)):
                 xml.characters(v)
             else:
-                raise DevelException('Cannot encode value %r' % value)
+                raise DevelError('Cannot encode value %r' % value)

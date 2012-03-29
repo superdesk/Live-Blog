@@ -10,17 +10,17 @@ General specifications for the entities API.
 '''
 
 from ally.api.config import model, service, call
-from ally.api.type import Id, Iter
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
-@model
+@model(id='Id')
 class Entity:
     '''
     Provides the basic container for an entity that has a primary key.
     '''
-    Id = Id
-    
+    Id = int
+
 # --------------------------------------------------------------------
 
 # The Entity model will be replaced by the specific model when the API will be inherited.
@@ -29,7 +29,7 @@ class IEntityGetService:
     '''
     Provides the basic entity service. This means locate by id.
     '''
-    
+
     @call
     def getById(self, id:Entity.Id) -> Entity:
         '''
@@ -45,7 +45,7 @@ class IEntityFindService:
     '''
     Provides the basic entity find service.
     '''
-    
+
     @call
     def getAll(self, offset:int=None, limit:int=None) -> Iter(Entity):
         '''
@@ -62,9 +62,9 @@ class IEntityCRUDService:
     '''
     Provides the entity the CRUD services.
     '''
-    
+
     @call
-    def insert(self, entity:Entity)->Entity.Id:
+    def insert(self, entity:Entity) -> Entity.Id:
         '''
         Insert the entity.
         
@@ -74,18 +74,18 @@ class IEntityCRUDService:
         @return: The id of the entity
         @raise InputException: If the entity is not valid. 
         '''
-        
+
     @call
-    def update(self, entity:Entity)->None:
+    def update(self, entity:Entity) -> None:
         '''
         Update the entity.
         
         @param entity: Entity
             The entity to be updated.
         '''
-        
+
     @call
-    def delete(self, id:Entity.Id)->bool:
+    def delete(self, id:Entity.Id) -> bool:
         '''
         Delete the entity for the provided id.
         
@@ -94,7 +94,7 @@ class IEntityCRUDService:
             
         @return: True if the delete is successful, false otherwise.
         '''
-        
+
 @service
 class IEntityService(IEntityGetService, IEntityFindService, IEntityCRUDService):
     '''

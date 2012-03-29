@@ -9,8 +9,8 @@ Created on Mar 5, 2012
 Implementation for the source API.
 '''
 
-from ..api.source import ISourceService
-from ..meta.source import Source, QSource
+from ..api.source import ISourceService, QSource
+from ..meta.source import Source
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 
 # --------------------------------------------------------------------
@@ -19,6 +19,6 @@ class SourceServiceAlchemy(EntityServiceAlchemy, ISourceService):
     '''
     Alchemy implementation for @see: ISourceService
     '''
-    
+
     def __init__(self):
         EntityServiceAlchemy.__init__(self, Source, QSource)

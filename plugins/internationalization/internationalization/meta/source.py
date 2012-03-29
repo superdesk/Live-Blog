@@ -10,9 +10,9 @@ Contains the SQL alchemy meta for source API.
 '''
 
 from . import meta
-from ..api.source import Source, QSource, TYPE_PYTHON, TYPE_JAVA_SCRIPT
+from ..api.source import Source, TYPE_PYTHON, TYPE_JAVA_SCRIPT
 from .file import File
-from ally.support.sqlalchemy.mapper import mapperModel, mapperQuery
+from ally.support.sqlalchemy.mapper import mapperModel
 from sqlalchemy.schema import Table, Column, ForeignKey
 from sqlalchemy.types import Enum
 
@@ -25,4 +25,3 @@ table = Table('inter_source', meta,
               )
 
 Source = mapperModel(Source, table, inherits=File)
-QSource = mapperQuery(QSource, Source)

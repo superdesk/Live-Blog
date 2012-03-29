@@ -14,6 +14,13 @@ from .db_internationalization import bindInternationalizationSession, \
     bindInternationalizationValidations, createTables
 from ally.container import support, ioc
 from internationalization.scanner import Scanner
+from internationalization.core.impl.po_file_manager import POFileManagerDB
+from os import path
+from cdm.impl.local_filesystem import IDelivery, HTTPDelivery, LocalFileSystemCDM
+from ally.container._impl.ioc_setup import ConfigError
+from cdm.spec import ICDM
+from internationalization.api.po_file import IPOFileService
+from internationalization.impl.po_file import POFileServiceCDM
 
 # --------------------------------------------------------------------
 
@@ -32,10 +39,42 @@ def scan_localized_messages():
     '''Flag indicating that the application should be scanned for localized messages'''
     return False
 
+@ioc.config
+def po_server_uri():
+    ''' The HTTP server URI, basically the URL where the content should be fetched from'''
+    return '/po/'
+
+@ioc.config
+def po_repository_path():
+    ''' The PO repository absolute or relative (to the distribution folder) path '''
+    return path.join('workspace', 'po_cdm')
+
 # --------------------------------------------------------------------
 
 @ioc.entity
 def scanner(): return Scanner()
+
+@ioc.entity
+def poDelivery() -> IDelivery:
+    if not po_repository_path():
+        raise ConfigError('Missing repository path configuration')
+    d = HTTPDelivery()
+    d.serverURI = po_server_uri()
+    d.repositoryPath = po_repository_path()
+    return d
+
+@ioc.entity
+def poContentDeliveryManager() -> ICDM:
+    cdm = LocalFileSystemCDM();
+    cdm.delivery = poDelivery()
+    return cdm
+
+@ioc.entity
+def poFileServiceCDM() -> IPOFileService:
+    srv = POFileServiceCDM()
+    srv.poManager = POFileManagerDB()
+    srv.poCdm = poContentDeliveryManager()
+    return srv
 
 # --------------------------------------------------------------------
 

@@ -1,9 +1,9 @@
 '''
 Created on Jan 5, 2012
 
-@package Newscoop
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: ally core sql alchemy
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides support for SQL alchemy a processor for automatic session handling.
@@ -34,7 +34,7 @@ class AlchemySessionHandler(Processor):
             raise
         if not rsp.code.isSuccess: endSessions(rollback)
         ATTR_KEEP_ALIVE.clear()
-            
+
 class AlchemySessionCommitHandler(Processor):
     '''
     Implementation for a processor that provides the SQLAlchemy session commit handling, usually the commit handler is

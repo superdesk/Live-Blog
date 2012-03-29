@@ -1,18 +1,19 @@
 '''
 Created on Jun 19, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides the nodes used in constructing the resources node tree.
 '''
 
-from ally.api.operator import Model
-from ally.api.type import TypeProperty, TypeModel, Input
+from ally.api.type import Input
 from ally.core.spec.resources import ConverterPath, Match, Node, Invoker
 import logging
+from ally.api.operator.type import TypeModelProperty
+from ally.api.operator.container import Model
 
 # --------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ class MatchRoot(Match):
     
     @see: Match
     '''
-    
+
     def __init__(self, node):
         '''
         @see: Match.__init__
@@ -40,37 +41,37 @@ class MatchRoot(Match):
             The string value of the match.
         '''
         super().__init__(node)
-    
+
     def asArgument(self, invoker, args):
         '''
         @see: Match.asArgument
         '''
         # Nothing to do here
-    
+
     def isValid(self):
         '''
         @see: Match.isValid
         '''
         return True
-    
+
     def update(self, obj, objType):
         '''
         @see: Match.update
         '''
         return False
-    
+
     def toPath(self, converterPath, isFirst, isLast):
         '''
         @see: Match.toPath
         '''
         return None
-    
+
     def clone(self):
         '''
         @see: Match.clone
         '''
         return self
-    
+
     def __str__(self): return 'ROOT'
 
 class MatchString(Match):
@@ -79,7 +80,7 @@ class MatchString(Match):
     
     @see: Match
     '''
-    
+
     def __init__(self, node, matchValue):
         '''
         @see: Match.__init__
@@ -90,38 +91,38 @@ class MatchString(Match):
         super().__init__(node)
         assert isinstance(matchValue, str), 'Invalid string match value %s' % matchValue
         self.matchValue = matchValue
-    
+
     def asArgument(self, invoker, args):
         '''
         @see: Match.asArgument
         '''
         # Nothing to do here
-    
+
     def isValid(self):
         '''
         @see: Match.isValid
         '''
         return True
-    
+
     def update(self, obj, objType):
         '''
         @see: Match.update
         '''
         return False
-    
+
     def toPath(self, converterPath, isFirst, isLast):
         '''
         @see: Match.toPath
         '''
         assert isinstance(converterPath, ConverterPath)
         return converterPath.normalize(self.matchValue)
-    
+
     def clone(self):
         '''
         @see: Match.clone
         '''
         return self
-    
+
     def __str__(self): return self.matchValue
 
 class MatchProperty(Match):
@@ -130,21 +131,21 @@ class MatchProperty(Match):
     
     @see: Match
     '''
-    
-    def __init__(self, node, typeProperty, matchValue=None):
+
+    def __init__(self, node, type, matchValue=None):
         '''
         @see: Match.__init__
         
-        @param typeProperty: TypeProperty
+        @param type: TypeModelProperty
             The type property represented by the matcher.
         @param matchValue: string|None
             The match string value, none if the match will expect updates.
         '''
         super().__init__(node)
-        assert isinstance(typeProperty, TypeProperty), 'Invalid type property %s' % typeProperty
+        assert isinstance(type, TypeModelProperty), 'Invalid type property %s' % type
         self.matchValue = matchValue
-        self.typeProperty = typeProperty
-    
+        self.type = type
+
     def asArgument(self, invoker, args):
         '''
         @see: Match.value
@@ -154,49 +155,46 @@ class MatchProperty(Match):
         assert self.matchValue != None, 'This match %s has not value' % self
         for inp in invoker.inputs:
             assert isinstance(inp, Input)
-            if inp.type == self.typeProperty:
+            if inp.type == self.type:
                 args[inp.name] = self.matchValue
                 return
-    
+
     def update(self, obj, objType):
         '''
         @see: Match.update
         '''
-        if objType == self.typeProperty.model:
-            self.matchValue = self.typeProperty.property.get(obj)
+        if objType == self.type:
+            self.matchValue = obj
             return True
-        elif isinstance(objType, TypeModel):
-            assert isinstance(objType, TypeModel)
-            if objType.model == self.typeProperty.model:
-                self.matchValue = self.typeProperty.property.get(obj)
-                return True
-        elif isinstance(objType, TypeProperty):
-            if objType == self.typeProperty:
-                self.matchValue = obj
-                return True
+        if objType == self.type.container:
+            self.matchValue = getattr(obj, self.type.property)
+            return True
+        if objType == self.type.parent:
+            self.matchValue = getattr(obj, self.type.property)
+            return True
         return False
-    
+
     def isValid(self):
         '''
         @see: Match.isValid
         '''
         return self.matchValue is not None
-    
+
     def toPath(self, converterPath, isFirst, isLast):
         '''
         @see: Match.toPath
         '''
         assert isinstance(converterPath, ConverterPath)
         assert self.matchValue is not None, \
-        'Cannot represent the path element for %s because there is no value' % self.typeProperty
-        return converterPath.asString(self.matchValue, self.typeProperty)
-    
+        'Cannot represent the path element for %s because there is no value' % self.type
+        return converterPath.asString(self.matchValue, self.type)
+
     def clone(self):
         '''
         @see: Match.clone
         '''
-        return MatchProperty(self.node, self.typeProperty, self.matchValue)
-    
+        return MatchProperty(self.node, self.type, self.matchValue)
+
     def __str__(self): return '*' if self.matchValue is None else self.matchValue
 
 # --------------------------------------------------------------------
@@ -207,7 +205,7 @@ class NodeRoot(Node):
     
     @see: Node
     '''
-    
+
     def __init__(self, get):
         '''
         @see: Match.__init__
@@ -235,7 +233,7 @@ class NodeRoot(Node):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__)
-    
+
     def __str__(self):
         return '<Node Root>'
 
@@ -247,7 +245,7 @@ class NodePath(Node):
     
     @see: Node
     '''
-    
+
     def __init__(self, parent, isGroup, name):
         '''
         @see: Node.__init__
@@ -284,7 +282,7 @@ class NodePath(Node):
         if isinstance(other, NodePath):
             return self.name == other.name
         return False
-    
+
     def __str__(self):
         return '<%s[%s]>' % (self.__class__.__name__, self.name)
 
@@ -294,7 +292,7 @@ class NodeModel(NodePath):
     
     @see: Node
     '''
-    
+
     def __init__(self, parent, model):
         '''
         @see: Node.__init__
@@ -314,19 +312,20 @@ class NodeProperty(Node):
     
     @see: Node
     '''
-    
-    def __init__(self, parent, typeProperty):
+
+    def __init__(self, parent, type):
         '''
         @see: Node.__init__
         
-        @param type: TypeProperty
+        @param type: TypeModelProperty
             The type property represented by the node.
         '''
-        assert isinstance(typeProperty, TypeProperty), 'Invalid type property %s' % typeProperty
-        assert typeProperty.isOf(int) or typeProperty.isOf(str), \
-        'Invalid property type class %s needs to be an integer or string' % typeProperty
-        self.typeProperty = typeProperty
-        super().__init__(parent, False, ORDER_INTEGER if typeProperty.isOf(int) else ORDER_STRING)
+        assert isinstance(type, TypeModelProperty), 'Invalid type property %s' % type
+        assert type.isOf(int) or type.isOf(str), \
+        'Invalid property type class %s needs to be an integer or string' % type
+        self.type = type
+        self.model = type.container
+        super().__init__(parent, False, ORDER_INTEGER if type.isOf(int) else ORDER_STRING)
 
     def tryMatch(self, converterPath, paths):
         '''
@@ -336,9 +335,9 @@ class NodeProperty(Node):
         assert len(paths) > 0, 'No path element in paths %s' % paths
         assert isinstance(converterPath, ConverterPath), 'Invalid converter path %s' % converterPath
         try:
-            value = converterPath.asValue(paths[0], self.typeProperty)
+            value = converterPath.asValue(paths[0], self.type)
             del paths[0]
-            return MatchProperty(self, self.typeProperty, value)
+            return MatchProperty(self, self.type, value)
         except ValueError:
             return False
 
@@ -346,12 +345,12 @@ class NodeProperty(Node):
         '''
         @see: Node.newMatch
         '''
-        return MatchProperty(self, self.typeProperty)
+        return MatchProperty(self, self.type)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self.typeProperty == other.typeProperty
+            return self.type == other.type
         return False
 
     def __str__(self):
-        return '<%s[%s]>' % (self.__class__.__name__, self.typeProperty)
+        return '<%s[%s]>' % (self.__class__.__name__, self.type)

@@ -12,7 +12,7 @@ Provides the text encoder processor handler that creates text objects to be enco
 from .encoder_text_base import EncodingTextBaseHandler
 from ally.container.ioc import injected
 from ally.core.spec.resources import Normalizer, Converter, Path
-from ally.exception import DevelException
+from ally.exception import DevelError
 from ally.support.core.util_resources import nodeLongName
 import logging
 from ally.core.spec.data_meta import MetaModel, MetaCollection, MetaLink, MetaValue, \
@@ -30,7 +30,7 @@ class EncodingTextHandler(EncodingTextBaseHandler):
     Provides the text object encoding.
     @see: EncodingTextBaseHandler
     '''
-    
+
     normalizer = Normalizer
     # The normalizer used by the encoding for the XML tag names.
     converterId = Converter
@@ -56,22 +56,22 @@ class EncodingTextHandler(EncodingTextBaseHandler):
         assert isinstance(self.nameResources, str), 'Invalid name resources %s' % self.nameResources
         assert isinstance(self.nameList, str), 'Invalid name list %s' % self.nameList
         assert isinstance(self.nameTotal, str), 'Invalid name total %s' % self.nameTotal
-    
+
     def encodeMeta(self, charSet, value, meta, asString, pathEncode):
         '''
         @see: EncodingTextBaseHandler.encodeMeta
         '''
         return self.encoder(self.convertMeta(value, meta, asString, pathEncode, self.normalizer.normalize, True),
                             charSet)
-        
+
     def encodeObject(self, charSet, obj):
         '''
         @see: EncodingTextBaseHandler.encodeObject
         '''
         return self.encoder(obj, charSet)
-    
+
     # ----------------------------------------------------------------
-    
+
     def convertMeta(self, value, meta, asString, pathEncode, normalize, first=False):
         '''
         Convert the provided value to a text object based on the  meta data.
@@ -95,22 +95,22 @@ class EncodingTextHandler(EncodingTextBaseHandler):
         assert callable(pathEncode), 'Invalid path encoder %s' % pathEncode
         assert callable(normalize), 'Invalid normalize %s' % normalize
         assert isinstance(first, bool), 'Invalid first flag %s' % first
-        
+
         if isinstance(meta, MetaModel):
             assert isinstance(meta, MetaModel)
-            
+
             model = meta.getModel(value)
             if model is None: return
-            
+
             assert log.debug('Encoding instance %s of %s', model, meta.model) or True
-            
+
             obj = {}
             if meta.metaLink and (not first or len(meta.properties) < len(meta.model.properties)):
                 path = meta.metaLink.getLink(value)
                 if path: obj[normalize(self.namePath)] = pathEncode(path)
                 elif not meta.properties: return
             elif not meta.properties: return
-            
+
             for pname, pmeta in meta.properties.items():
                 if isinstance(pmeta, MetaLink):
                     path = pmeta.getLink(value)
@@ -119,44 +119,44 @@ class EncodingTextHandler(EncodingTextBaseHandler):
                 if pobj is not None: obj[pname] = pobj
 
             return obj
-            
+
         elif isinstance(meta, MetaCollection):
             assert isinstance(meta, MetaCollection)
             assert log.debug('Encoding list of %s', meta.metaItem) or True
             items = meta.getItems(value)
             if items is None: return
-            
+
             if isinstance(meta.metaItem, MetaValue):
                 return [self.convertMeta(item, meta.metaItem, asString, pathEncode, normalize) for item in items]
             elif isinstance(meta.metaItem, MetaModel): name = normalize(self.nameList % meta.metaItem.model.name)
             elif isinstance(meta.metaItem, MetaLink): name = normalize(self.nameResources)
-            else: raise DevelException('Illegal item meta %s for meta list %s' % (meta.metaItem, meta)) 
-            
+            else: raise DevelError('Illegal item meta %s for meta list %s' % (meta.metaItem, meta))
+
             obj = {name:[self.convertMeta(item, meta.metaItem, asString, pathEncode, normalize) for item in items]}
             if meta.getTotal: obj[normalize(self.nameTotal)] = str(meta.getTotal(value))
             return obj
-        
+
         elif isinstance(meta, MetaValue):
             assert isinstance(meta, MetaValue)
             assert log.debug('Encoding meta value %s of instance %s', meta, value) or True
             value = meta.getValue(value)
             if value is None: return
             return asString(value, meta.type)
-        
+
         elif isinstance(meta, MetaLink):
             assert isinstance(meta, MetaLink)
             assert log.debug('Encoding meta link %s of instance %s', meta, value) or True
-            
+
             path = meta.getLink(value)
             if path is None: return
             assert isinstance(path, Path)
             return {normalize(nodeLongName(path.node)): {normalize(self.namePath): pathEncode(path)}}
-        
+
         elif isinstance(meta, MetaFetch):
             assert isinstance(meta, MetaFetch)
             value = meta.getValue(value)
             if value is None: return
             return self.convertMeta(value, meta.meta, asString, pathEncode, normalize)
-            
+
         else:
-            raise DevelException('Unknown meta object %s' % meta)
+            raise DevelError('Unknown meta object %s' % meta)

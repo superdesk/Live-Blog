@@ -1,15 +1,15 @@
 '''
 Created on Nov 23, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core http
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Provides the cherry py web werver support.
 '''
 
-from ally.api.operator import UPDATE, INSERT, GET, DELETE
+from ally.api.config import UPDATE, INSERT, GET, DELETE
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, EncoderHeader, METHOD_OPTIONS
 from ally.core.spec.server import Processors, ProcessorsChain, ContentRequest, \
@@ -62,7 +62,7 @@ class RequestHandler:
         req = RequestHTTP()
         req.method = self.methods.get(cherrypy.request.method, self.methodUnknown)
         path = '/'.join(vpath)
-        
+
         for pathRegex, processors in self.requestPaths:
             match = pathRegex.match(path)
             if match:

@@ -14,7 +14,7 @@ from ally.core.spec.codes import ILLEGAL_PARAM, UNKNOWN_PARAMS
 from ally.core.spec.resources import Invoker
 from ally.core.spec.server import Processor, ProcessorsChain, Response, Request, \
     DecoderParams
-from ally.exception import DevelException
+from ally.exception import DevelError
 
 # --------------------------------------------------------------------
 
@@ -30,16 +30,16 @@ class ParametersHandler(Processor):
     Requires on request: method, invoker, params
     Requires on response: NA
     '''
-    
+
     decoders = list
     # The parameters decoders used for obtaining the arguments.
-    
+
     def __init__(self):
         assert isinstance(self.decoders, list), 'Invalid decoders list %s' % self.decoders
         if __debug__:
             for decoder in self.decoders:
                 assert isinstance(decoder, DecoderParams), 'Invalid parameters decoder %s' % decoder
-    
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -51,13 +51,13 @@ class ParametersHandler(Processor):
             assert isinstance(req.invoker, Invoker)
             # We only consider as parameters the not mandatory primitive inputs.
             params = list(req.params)
-            inputs = [req.invoker.inputs[k] for k in range(req.invoker.mandatoryCount, len(req.invoker.inputs))]
+            inputs = [req.invoker.inputs[k] for k in range(req.invoker.mandatory, len(req.invoker.inputs))]
             for inp in inputs:
                 for decoder in self.decoders:
                     assert isinstance(decoder, DecoderParams)
                     try:
                         decoder.decode(inputs, inp, params, req.arguments)
-                    except DevelException as e:
+                    except DevelError as e:
                         rsp.setCode(ILLEGAL_PARAM, e.message)
                         return
             if params:
