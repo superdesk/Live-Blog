@@ -71,7 +71,9 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
             assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
-
+        
+        _hasFetcher = False
+        
         if rsp.objMeta is None:
             if filterBy:
                 rsp.setCode(INVALID_HEADER_VALUE, 'Unknown filter properties %r' % ', '.join(filterBy))

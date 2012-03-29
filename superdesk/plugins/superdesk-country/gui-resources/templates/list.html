@@ -1,0 +1,34 @@
+<script type="text/x-jQuery-tmpl" id="tpl-country-list-body">
+<tbody>
+	{% for(var i in data) %}
+	<tr>
+		<td>{{data[i].Code}}</td>
+    	<td>{{data[i].Name}}</td>
+		<td>
+			<p>
+				<button href="/modules/country/update#top" class="btn btn-primary">edit</button> 
+				<button href="/modules/country/delete#top" class="btn btn-danger">delete</button>
+				</p>
+		</td>
+    </tr>
+	{% endfor %}
+</tbody>
+</script>
+
+<script type="text/x-jQuery-tmpl" id="tpl-country-list-header">
+<thead>
+<tr>
+	<th>Code</th>
+	<th>Name</th>
+	<th>&nbsp;</th>
+</tr>
+</thead>
+</script>
+
+<script type="text/x-jQuery-tmpl" id="tpl-country-list-footer">
+<tfoot>
+<tr>
+	<td colspan="3"></td>
+</tr>
+</tfoot>
+</script>

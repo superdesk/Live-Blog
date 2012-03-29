@@ -3,11 +3,13 @@ app = function()
 {
 	$('#area-main').html(layout)
 
-	var userForm;
+	var userForm, selectedUser;
 	// get user and display its form
 	args.users.from({Id: args.userId})
-		.done(function(data)
+		.spawn()
+		.done(function(data, user)
 		{
+			selectedUser = user;
 			var userFormHtml = presentation.view.render("#tpl-user-update-main", data);
 			userForm = presentation.form.add(userFormHtml, 'User');
 			$('#area-content', layout).html(userForm);
@@ -30,10 +32,10 @@ app = function()
 	});
 	
 	$(document)
-	.off('click.superdesk', '#submit-main')
-	.on('click.superdesk', '#submit-main', function(event)
+	.off('click.superdesk-user', '#submit-main')
+	.on('click.superdesk-user', '#submit-main', function(event)
 	{
-		args.users.insert( superdesk.apiUrl + '/resources/Superdesk/User/'+args.userId, userForm.serialize())
+		selectedUser.update(userForm.serialize())
 			.success(function(){ console.log(arguments) })
 			.error(function(){ console.log('error', arguments) })
 		event.preventDefault();
