@@ -3,6 +3,7 @@ var users,
 var app = function()
 {
 	$('#area-main').html(layout);
+	
 	users = new $.rest(superdesk.apiUrl + '/resources/Superdesk/User').xfilter('Id, Name')
 		.done(function(users)
 		{
@@ -11,17 +12,28 @@ var app = function()
 		})
 }
 
-this.view.load('user/templates/list.html').done(function(){ app() })
+this.view.load('user/templates/list.html').done(app)
 
 // edit button functionality 
 $(document)
-.off('click.superdesk', '.user-list .btn-edit')
-.on('click.superdesk', '.user-list .btn-edit', function(event)
+.off('click.superdesk-user-list', '.user-list .btn-primary')
+.on('click.superdesk-user-list', '.user-list .btn-primary', function(event)
 {
 	presentation
 		.setScript(args.updateScript)
 		.setLayout(superdesk.layouts.update.clone())
 		.setArgs({users: users, userId: $(this).attr('user-id')})
-		.run()
+		.run();
 	event.preventDefault();
 });
+
+$(document)
+.off('click.superdesk-user-list', '#btn-add-user')
+.on('click.superdesk-user-list', '#btn-add-user', function(event)
+{
+	presentation
+		.setScript(args.addScript)
+		.setLayout(superdesk.layouts.update.clone())
+		.setArgs({users: users})
+		.run()
+})

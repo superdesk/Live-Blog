@@ -12,7 +12,6 @@ from superdesk.user.api.user import IUserService
 from ally.container.ioc import injected
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from superdesk.user.meta.user import User, QUser
-from platform import python_version
 
 # --------------------------------------------------------------------
 

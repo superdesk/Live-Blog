@@ -17,7 +17,7 @@ from superdesk.user.meta.user import User
 # --------------------------------------------------------------------
 
 @injected
-class UserServiceAlchemy(EntityServiceAlchemy, IPersonService):
+class PersonServiceAlchemy(EntityServiceAlchemy, IPersonService):
     '''
     @see: IUserService
     '''
@@ -25,5 +25,8 @@ class UserServiceAlchemy(EntityServiceAlchemy, IPersonService):
         EntityServiceAlchemy.__init__(self, Person, QPerson)
         
     def getByUser(self, idUser):
+        '''
+        @see: IUserService.getByUser
+        '''
         sqlQuery = self.session().query(Person).join(User)
         return self._getAll(User.Id == idUser, sqlQuery=sqlQuery)
