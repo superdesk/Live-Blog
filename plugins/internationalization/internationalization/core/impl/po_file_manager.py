@@ -22,6 +22,7 @@ from introspection.api.plugin import Plugin
 from ally.api.type import Iter
 from internationalization.api.message import Message
 from babel.messages.pofile import read_po, write_po
+from babel.messages.mofile import write_mo
 from os.path import join
 from time import localtime, strptime
 from io import StringIO
@@ -29,7 +30,7 @@ from io import StringIO
 # --------------------------------------------------------------------
 
 @injected
-class POFileManagerAlchemy(IPOFileManager):
+class POFileManagerDB(IPOFileManager):
     '''
     Implementation for @see: IPOFileManager
     '''
@@ -48,124 +49,166 @@ class POFileManagerAlchemy(IPOFileManager):
         if not isdir(self.locale_dir_path) or not os.access(self.locale_dir_path, os.W_OK):
             raise Exception('Unable to access the repository directory %s' % self.locale_dir_path)
 
-    def poFileTimestamp(self, locale, component, plugin):
-        '''
-        @see: IPOFileManager.poFileTimestamp
-        '''
-        path = self._poFilePath(locale, component, plugin)
-        if not isfile(path):
-            return None
-        fileMTime = localtime(os.stat(path).st_mtime)
-        lastMsgTimestamp = strptime(self._messagesLastModified(component, plugin))
-        if fileMTime >= lastMsgTimestamp:
-            return fileMTime
-        else:
-            return lastMsgTimestamp
+    def getGlobalPOTimestamp(self, locale):
+        return self._poFileTimestamp(locale=locale)
+
+    def getComponentPOTimestamp(self, component, locale):
+        assert isinstance(component, Component.Id), 'Invalid component identifier %s' % Component.Id
+        return self._poFileTimestamp(component=component, locale=locale)
+
+    def getPluginPOTimestamp(self, plugin, locale):
+        assert isinstance(plugin, Plugin.Id), 'Invalid plugin identifier %s' % Plugin.Id
+        return self._poFileTimestamp(plugin=plugin, locale=locale)
 
     def getGlobalPOFile(self, locale):
         '''
         @see: IPOFileManager.getGlobalPOFile
         '''
-        keys = self.messageService.getMessages()
-        return self._buildPOFile(locale, keys)
+        assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
+        template = self._buildCatalog(self.messageService.getMessages(), locale)
+        self._updateFile(None, None, locale, None, template)
+        return self._buildPOFile(locale, template)
 
     def getComponentPOFile(self, component, locale):
         '''
         @see: IPOFileManager.getComponentPOFile
         '''
-        keys = self.messageService.getComponentMessages(component)
-        exceptionsCatalog = self._readPOFile(self._poFilePath(locale, component), locale)
-        return self._buildPOFile(locale, keys, exceptionsCatalog)
+        assert isinstance(component, Component.Id), 'Invalid component identifier %s' % Component.Id
+        assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
+        globalTemplate = self._buildCatalog(self.messageService.getMessages(), locale)
+        self._updateFile(None, None, locale, None, globalTemplate)
+        template = self._buildCatalog(self.messageService.getComponentMessages(component), locale)
+        self._updateFile(component, None, locale, None, template)
+        exceptionsCatalog = self._readPOFile(self._filePath(locale, component)['po'], locale)
+        return self._buildPOFile(locale, template, exceptionsCatalog)
 
     def getPluginPOFile(self, plugin, locale):
         '''
         @see: IPOFileManager.getPluginPOFile
         '''
-        keys = self.messageService.getPluginMessages(plugin)
-        exceptionsCatalog = self._readPOFile(self._poFilePath(locale, plugin=plugin), locale)
-        return self._buildPOFile(locale, keys, exceptionsCatalog)
+        assert isinstance(plugin, Plugin.Id), 'Invalid plugin identifier %s' % Plugin.Id
+        assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
+        globalTemplate = self._buildCatalog(self.messageService.getMessages(), locale)
+        self._updateFile(None, None, locale, None, globalTemplate)
+        template = self._buildCatalog(self.messageService.getPluginMessages(plugin), locale)
+        self._updateFile(None, plugin, locale, None, template)
+        exceptionsCatalog = self._readPOFile(self._filePath(locale, plugin=plugin)['po'], locale)
+        return self._buildPOFile(locale, template, exceptionsCatalog)
 
     def updateGlobalPOFile(self, poFile, locale):
         '''
         @see: IPOFileManager.updateGlobalPOFile
         '''
+        assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
+        assert isinstance(locale, str), 'Invalid locale %s' % locale
         keys = self.messageService.getMessages()
         templateCatalog = self._buildCatalog(keys, locale)
-        self._updatePOFile(self._poFilePath(locale), poFile, templateCatalog, locale)
+        self._updateFile(None, None, locale, poFile, templateCatalog)
 
     def updateComponentPOFile(self, poFile, component, locale):
         '''
         @see: IPOFileManager.updateComponentPOFile
         '''
-        exceptionsCatalog = self._readPOFile(self._poFilePath(locale, component), locale)
+        assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
+        assert isinstance(component, Component.Id), 'Invalid component identifier %s' % Component.Id
+        assert isinstance(locale, str), 'Invalid locale %s' % locale
+        exceptionsCatalog = self._readPOFile(self._filePath(locale, component)['po'], locale)
 
         keys = self.messageService.getComponentMessages(component)
         templateCatalog = self._buildCatalog(keys, locale)
         for msg in exceptionsCatalog:
             templateCatalog.delete(msg.id, msg.context)
 
-        self._updatePOFile(self._poFilePath(locale), poFile, templateCatalog, locale)
-        self._updatePOFile(self._poFilePath(locale, component), poFile, exceptionsCatalog, locale)
+        self._updateFile(None, None, locale, poFile, templateCatalog)
+        self._updateFile(component, None, locale, poFile, exceptionsCatalog)
 
     def updatePluginPOFile(self, poFile, plugin, locale):
         '''
         @see: IPOFileManager.updatePluginPOFile
         '''
-        exceptionsCatalog = self._readPOFile(self._poFilePath(locale, plugin=plugin), locale)
+        assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
+        assert isinstance(plugin, Plugin.Id), 'Invalid plugin identifier %s' % Plugin.Id
+        assert isinstance(locale, str), 'Invalid locale %s' % locale
+        exceptionsCatalog = self._readPOFile(self._filePath(locale, plugin=plugin)['po'], locale)
 
         keys = self.messageService.getPluginMessages(plugin)
         templateCatalog = self._buildCatalog(keys, locale)
         for msg in exceptionsCatalog:
             templateCatalog.delete(msg.id, msg.context)
 
-        self._updatePOFile(self._poFilePath(locale), poFile, templateCatalog, locale)
-        self._updatePOFile(self._poFilePath(locale, plugin=plugin), poFile, exceptionsCatalog, locale)
+        self._updateFile(None, None, locale, poFile, templateCatalog)
+        self._updateFile(None, plugin, locale, poFile, exceptionsCatalog)
 
-    def _updatePOFile(self, path:str, newPOFile, templateCatalog:Catalog, locale:str):
+    def _poFileTimestamp(self, component:Component.Id=None, plugin:Plugin.Id=None, locale:str=None):
+        '''
+        @see: IPOFileManager.poFileTimestamp
+        '''
+        assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
+        lastMsgTimestamp = strptime(self._messagesLastModified(component, plugin))
+        if not locale:
+            return lastMsgTimestamp
+        path = self._filePath(locale, component, plugin)['po']
+        if not isfile(path):
+            return None
+        fileMTime = localtime(os.stat(path).st_mtime)
+        if fileMTime >= lastMsgTimestamp:
+            return fileMTime
+        else:
+            return lastMsgTimestamp
+
+    def _updateFile(self, component:Component.Id, plugin:Plugin.Id, locale:str, newPOFile,
+                    templateCatalog:Catalog):
         '''
         Update a PO file from the given file like object.
 
-        @param path: str
-            The path of the PO file to be updated
+        @param component: Component.Id
+            The component identifying the translation file.
+        @param plugin: Plugin.Id
+            The plugin identifying the translation file.
         @param newPOFile: file like object
             The PO file containing the updates
         @param templateCatalog: Catalog
             Catalog containing allowed keys. Keys not existent in this catalog
             will be discarded from the PO file.
         '''
-        catalog = self._readPOFile(path, locale)
-        newCatalog = read_po(newPOFile, locale)
-        for msg in newCatalog:
-            if msg not in templateCatalog:
-                newCatalog.delete(msg.id, msg.context)
+        paths = self._filePath(locale, component, plugin)
+        catalog = self._readPOFile(paths['po'], locale)
+        if newPOFile:
+            newCatalog = read_po(newPOFile, locale)
+            for msg in newCatalog:
+                if msg not in templateCatalog:
+                    newCatalog.delete(msg.id, msg.context)
+        else:
+            newCatalog = templateCatalog
         catalog.update(newCatalog)
-        with open(path) as globalPo:
+        with open(paths['po']) as globalPo:
             write_po(globalPo, catalog)
+        with open(paths['mo']) as globalMo:
+            write_mo(globalMo, catalog)
 
-    def _buildPOFile(self, locale:str=None, keys:Iter(Message)=Iter(Message),
+    def _buildPOFile(self, locale:str=None, templateCatalog:Catalog=Catalog(),
                      exceptionsCat:Catalog=Catalog()):
         '''
         Builds a PO file from the given file (as file object) to read from, for the
-        given locale, using the given template (keys) and exceptions catalog.
-        Messages not in the keys list will be discarded while messages from the
+        given locale, using the given template and exceptions catalogs.
+        Messages not in the template will be discarded while messages from the
         exceptions catalog will overwrite the messages with the same keys that
         existed in the given PO file.
         
         @param locale: str
             The locale code
-        @param keys: Iter(Message)
-            The keys used to filter the messages. Only keys from this list will
-            be kept in the catalog.
+        @param templateCatalog: Catalog
+            The template catalog used to filter the messages. Only keys from this
+            template will be kept in the catalog.
         @param exceptionsCat: Catalog
             Messages that override the generic translations.
         @return: file like object
             File like object that contains the PO file content
         '''
-        globalCatalog = self._readPOFile(self._poFilePath(locale), locale)
+        globalCatalog = self._readPOFile(self._filePath(locale)['po'], locale)
         for msg in exceptionsCat:
             globalCatalog.add(msg.id, msg.string, msg.locations, msg.flags, msg.auto_comments,
                               msg.user_comments, msg.previous_id, msg.lineno, msg.context)
-        templateCatalog = self._buildCatalog(keys, locale)
         globalCatalog.update(templateCatalog)
         fileObj = StringIO()
         write_po(fileObj)
@@ -184,7 +227,7 @@ class POFileManagerAlchemy(IPOFileManager):
         with path as fObj:
             return read_po(fObj, locale)
 
-    def _poFileName(self, locale:str=None, component:Component.Id=None, plugin:Plugin.Id=None):
+    def _fileName(self, locale:str=None, component:Component.Id=None, plugin:Plugin.Id=None):
         '''
         Returns the name of the PO file corresponding to the given locale and/or
         component / plugin. If no component of plugin was specified it returns the
@@ -197,13 +240,14 @@ class POFileManagerAlchemy(IPOFileManager):
         '''
         fileLocale = '_' + locale if locale else ''
         if component:
-            return 'component_' + component + fileLocale + '.po'
+            name = 'components' + os.sep + component + fileLocale
         elif plugin:
-            return 'plugins' + plugin + fileLocale + '.po'
+            name = 'plugins' + os.sep + plugin + fileLocale
         else:
-            return 'global' + fileLocale + '.po'
+            name = 'global' + fileLocale
+        return {'po':name + '.po', 'mo':name + '.mo'}
 
-    def _poFilePath(self, locale:str=None, component:Component.Id=None, plugin:Plugin.Id=None):
+    def _filePath(self, locale:str=None, component:Component.Id=None, plugin:Plugin.Id=None):
         '''
         Returns the path to the internal PO file corresponding to the given locale and / or
         component / plugin. If no component of plugin was specified it returns the
@@ -214,7 +258,8 @@ class POFileManagerAlchemy(IPOFileManager):
         @param component: Component.Id
         @param plugin: Plugin.Id
         '''
-        return join(self.locale_dir_path, self._poFileName(locale, component, plugin))
+        names = self._fileName(locale, component, plugin)
+        return {'po':join(self.locale_dir_path, names['po']), 'mo':join(self.locale_dir_path, names['mo'])}
 
     def _messagesLastModified(self, component:Component.Id=None, plugin:Plugin.Id=None):
         '''
