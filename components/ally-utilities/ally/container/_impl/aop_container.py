@@ -13,6 +13,11 @@ from .ioc_setup import Assembly
 from inspect import isclass
 import re
 import sys
+import logging
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -30,7 +35,7 @@ class Matcher:
                 root path location.
         **.api.** - just like the previous example but matches all the paths and sub paths.
     '''
-    
+
     def __init__(self, patterns):
         '''
         Constructs the filter based on the provided patterns.
@@ -65,7 +70,7 @@ class AOP:
     '''
     Provides the basic AOP container.
     '''
-    
+
     def __init__(self, paths):
         '''
         Initialize the AOP paths container.
@@ -77,7 +82,7 @@ class AOP:
         if __debug__:
             for path in paths.keys(): assert isinstance(path, str), 'Invalid path %s' % path
         self._paths = paths
-        
+
     def filter(self, *patterns):
         '''
         Keep in the container only the paths that respect the patterns.
@@ -90,7 +95,7 @@ class AOP:
         matcher = Matcher(patterns)
         self._paths = {path:value for path, value in self._paths.items() if matcher.match(path)}
         return self
-        
+
     def exclude(self, *patterns):
         '''
         Remove from the container the paths that respect the patterns.
@@ -103,7 +108,7 @@ class AOP:
         matcher = Matcher(patterns)
         self._paths = {path:value for path, value in self._paths.items() if not matcher.match(path)}
         return self
-        
+
     def asList(self):
         '''
         Provides the path values as a list.
@@ -117,7 +122,7 @@ class AOPModules(AOP):
     '''
     Container for module paths.
     '''
-    
+
     def __init__(self, paths):
         '''
         Initialize the module paths container.
@@ -131,7 +136,7 @@ class AOPModules(AOP):
                 assert isinstance(path, str), 'Invalid path %s' % path
                 assert value == path, 'Invalid value %s should be the same as path %r' % (value, path)
         super().__init__(paths)
-    
+
     def load(self):
         '''
         Loads all the modules from this AOP.
@@ -143,13 +148,16 @@ class AOPModules(AOP):
         # I have tried using importlib.import_module instead of __import__ but it creates a _FileFinder in the import
         # cache that will not provide the loaded modules again, basically once the modules are loaded they cannot
         # be found again.
+        broken = set()
         for path in self._paths:
             if path not in sys.modules:
                 try: __import__(path)
-                except ImportError: raise ImportError('Cannot import module %r' % path)
-        self._paths = {path:sys.modules[path] for path in self._paths}
+                except:
+                    log.exception('Cannot import module %r' % path)
+                    broken.add(path)
+        self._paths = {path:sys.modules[path] for path in self._paths if path not in broken}
         return self
-    
+
     def classes(self):
         '''
         Provides all the classes from the container module.
@@ -169,7 +177,7 @@ class AOPClasses(AOP):
     '''
     Container for classes paths.
     '''
-    
+
     def __init__(self, paths):
         '''
         Initialize the classes paths container.
@@ -183,12 +191,12 @@ class AOPClasses(AOP):
                 assert isinstance(path, str), 'Invalid path %s' % path
                 assert isclass(clazz), 'Invalid class %s' % clazz
         super().__init__(paths)
-        
+
 class AOPResources(AOP):
     '''
     Container for setup entities.
     '''
-    
+
     def __init__(self, resources):
         '''
         Initialize the setups paths container.
@@ -202,7 +210,7 @@ class AOPResources(AOP):
                 assert isinstance(path, str), 'Invalid path %s' % path
                 assert isinstance(value, str) or callable(value), 'Invalid value %s' % value
         super().__init__(resources)
-        
+
     def load(self):
         '''
         Loads all the resources from this AOP.

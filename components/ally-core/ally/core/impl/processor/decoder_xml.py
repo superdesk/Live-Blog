@@ -9,8 +9,9 @@ Created on Jul 11, 2011
 Provides the XML encoding/decoding processor handler.
 '''
 
-from ally.internationalization import _
-from ally.api.operator import Model, Property
+from ally.api.operator.container import Model
+from ally.api.operator.type import TypeModel
+from ally.api.type import Type
 from ally.container.ioc import injected
 from ally.core.impl.processor.decoder_text_base import DecodingTextBaseHandler, \
     findLastModel
@@ -18,8 +19,8 @@ from ally.core.spec.codes import BAD_CONTENT
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Request, Response, ProcessorsChain, \
     ContentRequest
-from ally.exception import DevelException, InputException, Ref
-from ally.support.api.util_type import isPropertyTypeId, isTypeIntId
+from ally.exception import DevelError, InputError, Ref
+from ally.internationalization import _
 from ally.xml.digester import Rule, RuleRoot, Digester, Node
 import logging
 
@@ -42,10 +43,10 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
     Requires on request: invoker, content, [content.contentConverter], [content.charSet]
     Requires on response: contentConverter
     '''
-    
+
     def __init__(self):
         super().__init__()
-        
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -55,43 +56,43 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         if self._isValidRequest(req):
             root = None
-            
-            nameModel = findLastModel(req.invoker)
-            if nameModel:
-                name, model = nameModel
+
+            nameModelType = findLastModel(req.invoker)
+            if nameModelType:
+                name, modelType = nameModelType
                 assert isinstance(req.content, ContentRequest)
-                root = self._ruleModel(model, req.content.contentConverter or rsp.contentConverter)
-                assert log.debug('Decoding model %s', model) or True
+                root = self._ruleModel(modelType, req.content.contentConverter or rsp.contentConverter)
+                assert log.debug('Decoding model %s', modelType) or True
             else:
                 assert log.debug('Expected a model for decoding the content, could not find one') or True
-            
+
             if root:
                 digester = Digester(root, False, False)
                 try:
                     value = digester.parse(req.content.charSet or self.charSetDefault, req.content)
-                    if len(digester.errors) > 0: raise InputException(*digester.errors)
+                    if len(digester.errors) > 0: raise InputError(*digester.errors)
                     req.arguments[name] = value
                     assert log.debug('Successfully decoded for input (%s) value %s', name, value) or True
-                except DevelException as e:
+                except DevelError as e:
                     rsp.setCode(BAD_CONTENT, e.message)
-                except InputException as e:
+                except InputError as e:
                     rsp.setCode(BAD_CONTENT, e, 'Invalid data')
                 return
         else:
             assert log.debug('Invalid request for the XML decoder') or True
         chain.proceed()
-        
-    def _ruleModel(self, model, converter):
+
+    def _ruleModel(self, modelType, converter):
+        assert isinstance(modelType, TypeModel)
+        model = modelType.container
         assert isinstance(model, Model)
         root = RuleRoot()
-        rmodel = root.addRule(RuleModel(model), self.normalizer.normalize(model.name))
-        for prop in model.properties.values():
-            if isTypeIntId(prop.type) or isPropertyTypeId(prop.type):
-                rmodel.addRule(RuleSetProperty(model, prop, self.converterId), \
-                           self.normalizer.normalize(prop.name))
+        rmodel = root.addRule(RuleModel(modelType), self.normalizer.normalize(model.name))
+        for prop, typ in model.properties.items():
+            if prop == model.propertyId:
+                rmodel.addRule(RuleSetProperty(model, prop, typ, self.converterId), self.normalizer.normalize(prop))
             else:
-                rmodel.addRule(RuleSetProperty(model, prop, converter), \
-                               self.normalizer.normalize(prop.name))
+                rmodel.addRule(RuleSetProperty(model, prop, typ, converter), self.normalizer.normalize(prop))
         return root
 
 # --------------------------------------------------------------------
@@ -100,22 +101,22 @@ class RuleModel(Rule):
     '''
     Rule implementation that provides the creation of an object at begin.
     '''
-    
-    def __init__(self, model):
+
+    def __init__(self, modelType):
         '''
-        @param model: Model
+        @param model: TypeModel
             The model to create instances for.
         '''
-        assert isinstance(model, Model), 'Invalid model %s' % model
-        self._model = model
-        
+        assert isinstance(modelType, TypeModel), 'Invalid model type %s' % modelType
+        self._modelType = modelType
+
     def begin(self, digester):
         '''
         @see: Rule.begin
         '''
         assert isinstance(digester, Digester)
-        digester.stack.append(self._model.createModel())
-        
+        digester.stack.append(self._modelType.forClass())
+
     def end(self, node, digester):
         '''
         @see: Rule.end
@@ -129,30 +130,34 @@ class RuleSetProperty(Rule):
     '''
     Rule implementation that sets the content of an element to the closest stack object.
     '''
-    
-    def __init__(self, model, property, converter):
+
+    def __init__(self, model, property, type, converter):
         '''
         @param model: Model
             The model of the property.
-        @param property: Property
+        @param property: string
             The property to be used in setting the value, this will receive as the first argument the
             last stack object and as a second the value to set.
+        @param type: Type
+            The property type.
         @param converter: Converter
             The converter to be used in transforming the content to the required value type.
         '''
         assert isinstance(model, Model), 'Invalid model %s' % model
-        assert isinstance(property, Property), 'Invalid property %s' % property
+        assert isinstance(property, str), 'Invalid property %s' % property
+        assert isinstance(type, Type), 'Invalid type %s' % type
         assert isinstance(converter, Converter), 'Invalid value converter %s' % converter
         self._model = model
         self._property = property
+        self._type = type
         self._converter = converter
-    
+
     def begin(self, digester):
         '''
         @see: Rule.begin
         '''
         digester.stack.append(None)
-        
+
     def content(self, digester, content):
         '''
         @see: Rule.content
@@ -161,7 +166,7 @@ class RuleSetProperty(Rule):
         assert len(digester.stack) > 0, \
         'Invalid structure there is no stack object to use for setting value on path %s' % digester.currentPath()
         digester.stack[-1] = content
-            
+
     def end(self, node, digester):
         '''
         @see: Rule.end
@@ -171,8 +176,8 @@ class RuleSetProperty(Rule):
         'Invalid structure there is no stack object to use for setting value on path %s' % digester.currentPath()
         content = digester.stack.pop()
         try:
-            self._property.set(digester.stack[-1], self._converter.asValue(content, self._property.type))
+            setattr(digester.stack[-1], self._property, self._converter.asValue(content, self._type))
         except ValueError:
-            digester.errors.append(Ref(_('Invalid value, expected %{type}s type') % 
-                                    dict(type=_(str(self._property.type))), model=self._model, property=self._property))
-            assert log.debug('Problems setting property %r from XML value %s', self._property.name, content) or True
+            digester.errors.append(Ref(_('Invalid value, expected %{type}s type') %
+                                    dict(type=_(str(self._type))), model=self._model, property=self._property))
+            assert log.debug('Problems setting property %r from XML value %s', self._property, content) or True

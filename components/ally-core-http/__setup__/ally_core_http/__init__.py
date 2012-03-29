@@ -1,9 +1,9 @@
 '''
 Created on Jul 15, 2011
 
-@package Newscoop
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: ally core http
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Contains setup and configuration files for the HTTP REST server.
@@ -40,4 +40,4 @@ def server_version() -> str:
 @ioc.config
 def server_pattern_rest():
     ''' The pattern used for matching the rest resources paths in HTTP URL's'''
-    return '^resources(/|$)'
+    return '^resources(/|(?=\\.)|$)'

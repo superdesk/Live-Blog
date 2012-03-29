@@ -8,21 +8,15 @@ Created on Jan 3, 2012
 Provides utility functions for creating and managing proxies.
 '''
 
-from ..support.util import Attribute
+from ally.support.util import UnextendableMeta
 from collections import deque
 from functools import update_wrapper
 from inspect import isclass, isfunction
 import abc
 import re
+from abc import ABCMeta
 
 # --------------------------------------------------------------------
-
-ATTR_PROXY = Attribute(__name__, 'proxy')
-# The attribute used for storing the proxy.
-ATTR_HANDLERS = Attribute(__name__, 'handlers', list)
-# The attribute used for storing the proxy handlers.
-ATTR_CALLS = Attribute(__name__, 'calls', dict)
-# The attribute used for storing the proxy calls.
 
 PREFIX_HIDDEN_METHOD = '_'
 # Provides the prefix for hidden methods (that will not have a proxy method created for)
@@ -30,6 +24,11 @@ REGEX_SPECIAL = re.compile('__[\w]+__$')
 # Provides the regex that detects special methods
 
 # --------------------------------------------------------------------
+
+class UnextendableMeta(UnextendableMeta, ABCMeta):
+    '''
+    Meta describing an unextedable class that also contains abstract base class metas.
+    '''
 
 class ProxyError(Exception):
     '''
@@ -45,58 +44,31 @@ def createProxy(clazz):
     only the methods are exposed so the proxy must be used on API type classes. The class attributes will be exposed since
     the proxy will actually inherit the class.
     
-    I haven't created an actual Proxy class to have this __init__ because if that class had any attributes it might lead
-    to name overlapping, so this way there is no Proxy class just proxy attributes that are much safer.
-    
     @param clazz: class
         The class to create a proxy for.
     '''
     assert isclass(clazz), 'Invalid class %s' % clazz
-    if isProxyClass(clazz): return clazz
-    if ATTR_PROXY.has(clazz): return ATTR_PROXY.get(clazz)
-    
-    methods, classes = {'__init__': _proxy__init__}, deque()
+    if issubclass(clazz, Proxy): return clazz
+    try: return clazz._ally_proxy
+    except AttributeError: pass
+
+    attributes, classes = {}, deque()
     classes.append(clazz)
     while classes:
         cls = classes.popleft()
         for name, function in cls.__dict__.items():
-            if isfunction(function):
-                if name not in methods:
-                    methods[name] = update_wrapper(ProxyMethod(name), function)
+            if name not in ('__init__',) and isfunction(function):
+                if name not in attributes and (not name.startswith(PREFIX_HIDDEN_METHOD) or REGEX_SPECIAL.match(name)):
+                    attributes[name] = update_wrapper(ProxyMethod(name), function)
         classes.extend(base for base in cls.__bases__ if base != object)
-    proxy = type(clazz.__name__ + '$Proxy', (clazz,), methods)
-    proxy.__module__ = clazz.__module__
-    return ATTR_PROXY.set(clazz, proxy)
 
-def createProxyOfImpl(clazz):
-    '''
-    @see: createProxy
-    Create a proxy class for the provided implementation clazz. Since the proxy is created for an API implementation
-    the proxy will inherit all super classes of the provided class, but not the actual class. All methods that start
-    with _ that are not special methods will not have a proxy created for.
-    
-    @param clazz: class
-        The implementation class to create a proxy for.
-    '''
-    assert isclass(clazz), 'Invalid class %s' % clazz
-    if isProxyClass(clazz): return clazz
-    if ATTR_PROXY.has(clazz): return ATTR_PROXY.get(clazz)
-    
-    methods, classes = {'__init__': _proxy__init__}, deque()
-    classes.append(clazz)
-    while classes:
-        cls = classes.popleft()
-        if cls == object: continue
-        for name, function in cls.__dict__.items():
-            if isfunction(function):
-                if name not in methods and (not name.startswith(PREFIX_HIDDEN_METHOD) or REGEX_SPECIAL.match(name)):
-                    methods[name] = update_wrapper(ProxyMethod(name), function)
-        classes.extend(cls.__bases__)
-    proxy = type(clazz.__name__ + '$Proxy', (clazz,), methods)
-    proxy.__module__ = clazz.__module__
-    return ATTR_PROXY.set(clazz, proxy)
+    attributes['__module__'] = clazz.__module__
+    attributes['__slots__'] = ('_proxy_handlers', '_proxy_calls')
+    clazz._ally_proxy = type.__new__(UnextendableMeta, clazz.__name__ + '$Proxy', (Proxy, clazz), attributes)
 
-def proxyWrapForImpl(impl):
+    return clazz._ally_proxy
+
+def proxyWrapFor(obj):
     '''
     Creates a proxy that will wrap the provided implementation.
     
@@ -105,29 +77,9 @@ def proxyWrapForImpl(impl):
     @return: Proxy object
         The proxy instance that is wrapping the provided implementation.
     '''
-    assert impl is not None, 'A impl object is required'
-    proxy = createProxyOfImpl(impl.__class__)
-    return proxy(ProxyWrapper(impl))
-
-def isProxyClass(clazz):
-    '''
-    Checks if the provided class is a proxy class.
-    
-    @param clazz: class
-        The class to check if is a proxy class.
-    '''
-    assert isclass(clazz), 'Invalid class %s' % clazz
-    return clazz.__name__.endswith('$Proxy')
-
-def isProxy(obj):
-    '''
-    Checks if the provided object is a proxy instance.
-    
-    @param obj: object
-        The object to check if is a proxy.
-    '''
-    assert obj, 'Invalid object %s' % obj
-    return obj.__class__.__name__.endswith('$Proxy')
+    assert obj is not None, 'An object is required'
+    proxy = createProxy(obj.__class__)
+    return proxy(ProxyWrapper(obj))
 
 def proxiedClass(clazz):
     '''
@@ -139,7 +91,7 @@ def proxiedClass(clazz):
         The proxied class or the provided clazz if is not a proxy.
     '''
     assert isclass(clazz), 'Invalid class %s' % clazz
-    if isProxyClass(clazz): return clazz.__bases__[0]
+    if issubclass(clazz, Proxy): return clazz.__bases__[1]
     return clazz
 
 def analyzeProxy(proxy):
@@ -155,9 +107,10 @@ def analyzeProxy(proxy):
     if isinstance(proxy, ProxyCall):
         assert isinstance(proxy, ProxyCall)
         return proxy.proxy, proxy.proxyMethod.name
-    else:
-        if not isProxy(proxy): raise ProxyError('The provided object %r is not a proxy' % proxy)
+    elif isinstance(proxy, Proxy):
         return proxy, None
+    else:
+        raise ProxyError('The provided object %r is not a proxy' % proxy)
 
 def registerProxyHandler(proxyHandler, proxy):
     '''
@@ -171,7 +124,8 @@ def registerProxyHandler(proxyHandler, proxy):
     assert isinstance(proxyHandler, IProxyHandler), 'Invalid proxy handler %s' % proxyHandler
     proxy, method = analyzeProxy(proxy)
     if method: proxyHandler = ProxyFilter(proxyHandler, method)
-    ATTR_HANDLERS.getOwn(proxy).insert(0, proxyHandler)
+    assert isinstance(proxy, Proxy)
+    proxy._proxy_handlers.insert(0, proxyHandler)
 
 def hasProxyHandler(proxyHandler, proxy):
     '''
@@ -184,17 +138,18 @@ def hasProxyHandler(proxyHandler, proxy):
     '''
     assert isinstance(proxyHandler, IProxyHandler), 'Invalid proxy handler %s' % proxyHandler
     proxy, _method = analyzeProxy(proxy)
-    return proxyHandler in ATTR_HANDLERS.getOwn(proxy)
-    
+    assert isinstance(proxy, Proxy)
+    return proxyHandler in proxy._proxy_handlers
+
 # --------------------------------------------------------------------
 
 class Execution:
     '''
     Provides the container for the execution of the proxied method.
     '''
-    
-    __slots__ = ['proxyCall', 'handlers', 'args', 'keyargs']
-    
+
+    __slots__ = ('proxyCall', 'handlers', 'args', 'keyargs')
+
     def __init__(self, proxyCall, handlers, args, keyargs):
         '''
         Construct the execution chain.
@@ -221,7 +176,7 @@ class Execution:
         self.handlers = handlers
         self.args = args
         self.keyargs = keyargs
-        
+
     def invoke(self):
         '''
         Continues with the invoking of the execution.
@@ -235,11 +190,56 @@ class Execution:
         assert isinstance(handler, IProxyHandler), 'Invalid handler %s' % handler
         return handler.handle(self)
 
+class Proxy:
+    '''
+    Provides the base class for proxy classes.
+    '''
+
+    def __init__(self, *handlers):
+        '''
+        Initialize the proxy with the provided handlers.
+        
+        @param handlers: arguments[IProxyHandler]
+            The handlers to construct the proxy based on.
+        '''
+        assert handlers, 'At least on handler is required to construct the proxy'
+        if __debug__:
+            for handler in handlers: assert isinstance(handler, IProxyHandler), 'Invalid handler %s' % handler
+        self._proxy_handlers = list(handlers)
+        self._proxy_calls = {}
+
+        self._ally_listeners = {} # This will allow the proxy class to be binded with listeners
+
+class ProxyCall:
+    '''
+    Handles the proxy calls.
+    '''
+
+    def __init__(self, proxy, proxyMethod):
+        '''
+        Construct the proxy call.
+        
+        @param proxy: Proxy
+            The proxy that made the call.
+        @param proxyMethod: ProxyMethod
+            The proxy method of the call.
+        '''
+        assert isinstance(proxy, Proxy), 'Invalid proxy %s' % proxy
+        assert isinstance(proxyMethod, ProxyMethod), 'Invalid proxy method %s' % proxyMethod
+        self.proxy = proxy
+        self.proxyMethod = proxyMethod
+
+    def __call__(self, *args, **keyargs):
+        '''
+        @see: Callable.__call__
+        '''
+        return Execution(self, deque(self.proxy._proxy_handlers), args, keyargs).invoke()
+
 class ProxyMethod:
     '''
     Handles the proxy method calls.
     '''
-    
+
     def __init__(self, name):
         '''
         Construct the proxy method.
@@ -249,55 +249,31 @@ class ProxyMethod:
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
         self.name = name
-    
+
+        self._ally_listeners = {} # This will allow the proxy method to be binded with listeners
+
     def __call__(self, proxy, *args, **keyargs):
         '''
         @see: Callable.__call__
         '''
         return self.__get__(proxy).__call__(*args, **keyargs)
-    
+
     def __get__(self, proxy, owner=None):
         '''
         @see: http://docs.python.org/reference/datamodel.html
         '''
         if proxy is not None:
-            calls = ATTR_CALLS.getOwn(proxy, None)
-            if not calls: calls = ATTR_CALLS.setOwn(proxy, {})
-            call = calls.get(self.name)
-            if not call: call = calls[self.name] = update_wrapper(ProxyCall(proxy, self), self)
+            assert isinstance(proxy, Proxy), 'Invalid proxy %s' % proxy
+            call = proxy._proxy_calls.get(self.name)
+            if not call: call = proxy._proxy_calls[self.name] = update_wrapper(ProxyCall(proxy, self), self)
             return call
         return self
-
-class ProxyCall:
-    '''
-    Handles the proxy calls.
-    '''
-    
-    def __init__(self, proxy, proxyMethod):
-        '''
-        Construct the proxy call.
-        
-        @param proxy: object
-            The proxy that made the call.
-        @param proxyMethod: ProxyMethod
-            The proxy method of the call.
-        '''
-        assert isProxy(proxy), 'Invalid proxy %s' % proxy
-        assert isinstance(proxyMethod, ProxyMethod), 'Invalid proxy method %s' % proxyMethod
-        self.proxy = proxy
-        self.proxyMethod = proxyMethod
-        
-    def __call__(self, *args, **keyargs):
-        '''
-        @see: Callable.__call__
-        '''
-        return Execution(self, deque(ATTR_HANDLERS.getOwn(self.proxy)), args, keyargs).invoke()
 
 class IProxyHandler(metaclass=abc.ABCMeta):
     '''
     API class that provides the proxy handling.
     '''
-    
+
     @abc.abstractclassmethod
     def handle(self, execution):
         '''
@@ -313,7 +289,7 @@ class ProxyWrapper(IProxyHandler):
     '''
     Provides a @see: IProxyHandler implementation that just delegates the functionality to a wrapped object.
     '''
-    
+
     def __init__(self, wrapped):
         '''
         Construct the wrapper proxy.
@@ -323,7 +299,7 @@ class ProxyWrapper(IProxyHandler):
         '''
         assert wrapped, 'A wrapped object is required'
         self._wrapped = wrapped
-        
+
     def handle(self, execution):
         '''
         @see: IProxyHandler.handle
@@ -340,7 +316,7 @@ class ProxyFilter(IProxyHandler):
     Provides a @see: IProxyHandler implementation that filters the execution based on the method name and delivers the
     execution to proxy handlers assigned to that method name.
     '''
-    
+
     def __init__(self, proxyHandler, *methodNames):
         '''
         Construct the filter proxy.
@@ -356,7 +332,7 @@ class ProxyFilter(IProxyHandler):
             for name in methodNames: assert isinstance(name, str), 'Invalid method name %s' % name
         self._proxyHandler = proxyHandler
         self._methodNames = methodNames
-        
+
     def handle(self, execution):
         '''
         @see: IProxyHandler.handle
@@ -367,19 +343,4 @@ class ProxyFilter(IProxyHandler):
             assert isinstance(execution.handlers, deque)
             execution.handlers.appendleft(self._proxyHandler)
         return execution.invoke()
-
-# --------------------------------------------------------------------
-
-def _proxy__init__(proxy, *handlers):
-    '''
-    FOR INTERNAL USE ONLY!
-    Initialize the proxy with the provided handlers.
-    
-    @param handlers: arguments[IProxyHandler]
-        The handlers to construct the proxy based on.
-    '''
-    assert handlers, 'At least on handler is required to construct the proxy'
-    if __debug__:
-        for handler in handlers: assert isinstance(handler, IProxyHandler), 'Invalid handler %s' % handler
-    ATTR_HANDLERS.setOwn(proxy, list(handlers))
 

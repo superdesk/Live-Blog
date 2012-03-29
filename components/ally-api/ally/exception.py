@@ -1,25 +1,26 @@
 '''
 Created on May 31, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally api
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
-@author: Nistor Gabriel
+@author: Gabriel Nistor
 
 Provides the exceptions that are used in communicating issues in the API.
 The internal errors (the ones that are made by the implementation and not data) are AssertionError.
 '''
 
-from .api.operator import Model, Property
-from .api.type import typeFor, TypeProperty, TypeModel
+from .api.operator.type import TypeModelProperty, TypeModel
+from .api.type import typeFor
+from .api.operator.container import Model
 
 # --------------------------------------------------------------------
 
-class DevelException(Exception):
+class DevelError(Exception):
     '''
     Wraps exceptions that are related to wrong development usage from the client.
     '''
-    
+
     def __init__(self, message):
         assert isinstance(message, str), 'Invalid string message %s' % message
         self.message = message
@@ -27,11 +28,11 @@ class DevelException(Exception):
 
 # --------------------------------------------------------------------
 
-class InputException(Exception):
+class InputError(Exception):
     '''
     Wraps exceptions that are related to input data.
     '''
-    
+
     def __init__(self, *message):
         '''
         Initializes the exception based on the message(s) which will be used as a key.
@@ -42,7 +43,7 @@ class InputException(Exception):
         assert message, 'Expected at least one message'
         self.message = []
         for msg in message:
-            if isinstance(msg, InputException):
+            if isinstance(msg, InputError):
                 self.message.extend(msg.message)
             else:
                 if isinstance(msg, Ref): self.message.append(msg)
@@ -66,32 +67,36 @@ class Ref:
     '''
     Maps a reference for an exception message.
     '''
-    
+
     def __init__(self, message, model=None, property=None, ref=None):
         '''
         Provides a wrapping of the message which will be used as a key.
         
         @param message: string
             A message to be referenced.
-        @param model: string|None 
+        @param model: Model|None 
             The model associated with the message.
         @param property: string|None 
             The property associated with the message.
-        @param ref: TypeProperty|TypeModel|None 
+        @param ref: TypeModelProperty|TypeModel|None 
             The property type associated with the message.
         '''
         assert isinstance(message, str), 'Invalid message %s' % message
         assert not model or isinstance(model, Model), 'Invalid model %s' % model
-        assert not property or isinstance(property, Property), 'Invalid property %s' % property
+        assert not property or isinstance(property, str), 'Invalid property %s' % property
         if ref:
             typ = typeFor(ref)
-            if isinstance(typ, TypeProperty):
-                model = typ.model
-                property = typ.property
+            if isinstance(typ, TypeModelProperty):
+                assert isinstance(typ, TypeModelProperty)
+                self.model = typ.container.name
+                self.property = typ.property
             elif isinstance(typ, TypeModel):
-                model = typ.model
+                assert isinstance(typ, TypeModel)
+                self.model = typ.container.name
+                self.property = None
             else:
                 raise AssertionError('Invalid reference %s, cannot extract any type' % ref)
+        else:
+            self.model = model.name if model else None
+            self.property = property
         self.message = message
-        self.model = model.name if model is not None else None
-        self.property = property.name if property is not None else None

@@ -17,14 +17,17 @@
 - To add a thread resource manager. (Done by making a thread based attribute)
 - To change the cherrypy server implementation so it will directly stream the content and not sore it in memory first 
   than send it. (Done by using generators)
-
+- Add to the model the id it is used to uniquelly identify it, at this point the id is not mandatory. The id property
+  is not mandatory to be exposed but it has to be there, see sql_alcehmy support. (Done)
+  
+  
+  
+  
 - Refactor parameters decoders.
 - For pyro protocol add security and validation, at this point the implementation just delegates to service, a more
   complex system is needed in order to prevent malicious data and access.
 - Make the criteria listeners obsolete by using the in build property listeners.
 - Add criteria for boolean search and date time search.
-- Add to the model the id it is used to uniquelly identify it, at this point the id is not mandatory. The id property
-  is not mandatory to be exposed but it has to be there, see sql_alcehmy support.
 - Instead of the Hinter a extension to the URL like /parameters should present the options.
 - Refactor in order to rename all classes that are as interfaces to start with I see the spec package for instance
   for assamblers.

@@ -9,11 +9,11 @@ Created on Jul 8, 2011
 Provides the decoding handler.
 '''
 
-from ally.api.operator import INSERT, UPDATE
 from ally.container.ioc import injected
 from ally.core.spec.codes import UNKNOWN_DECODING
 from ally.core.spec.server import Processor, ProcessorsChain, Request, Response, \
     Processors, ContentRequest
+from ally.api.config import INSERT, UPDATE
 
 # --------------------------------------------------------------------
 
@@ -30,14 +30,14 @@ class DecodingHandler(Processor):
     Requires on request: method, [content.contentType], accContentTypes
     Requires on response: [code]
     '''
-    
+
     decodings = Processors
     # The decodings processors, if a processor is successful in the decoding process it has to stop the chain
     # execution.
-    
+
     def __init__(self):
         assert isinstance(self.decodings, Processors), 'Invalid decodings processors %s' % self.decodings
-    
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process

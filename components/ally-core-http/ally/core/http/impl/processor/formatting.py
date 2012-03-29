@@ -2,7 +2,7 @@
 Created on Feb 1, 2012
 
 @package: ally core http
-@copyright: 2011 Sourcefabric o.p.s.
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -15,7 +15,7 @@ from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE
 from ally.core.spec.server import Processor, ProcessorsChain, Response, \
     ContentRequest
-from ally.exception import DevelException
+from ally.exception import DevelError
 
 # --------------------------------------------------------------------
 
@@ -32,10 +32,10 @@ class FormattingProviderHandler(HeaderHTTPBase, Processor, EncoderHeader):
     Requires on request: headers, params, content
     Requires on response: NA
     '''
-    
+
     nameXFormat = 'X-Format-%s'
     nameXFormatContent = 'X-FormatContent-%s'
-    
+
     def __init__(self):
         super().__init__()
         assert isinstance(self.nameXFormat, str), 'Invalid name format %s' % self.nameXFormat
@@ -49,7 +49,7 @@ class FormattingProviderHandler(HeaderHTTPBase, Processor, EncoderHeader):
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(req.content, ContentRequest), 'Invalid content on request %s' % req.content
-        
+
         try:
 
             for clsTyp in formattedType:
@@ -57,19 +57,19 @@ class FormattingProviderHandler(HeaderHTTPBase, Processor, EncoderHeader):
                 if p: rsp.objFormat[clsTyp] = p
                 p = self._parse(self.nameXFormatContent % clsTyp.__name__, req.headers, req.params, VALUE_NO_PARSE)
                 if p: req.content.objFormat[clsTyp] = p
-                    
-        except DevelException as e:
-            assert isinstance(e, DevelException)
+
+        except DevelError as e:
+            assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
         chain.proceed()
-        
+
     def encode(self, headers, rsp):
         '''
         @see: EncoderHeader.encode
         '''
         assert isinstance(headers, dict), 'Invalid headers dictionary %s' % headers
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-            
+
         for clsTyp, value in rsp.objFormat.items():
             headers[self.nameXFormat % clsTyp.__name__] = value

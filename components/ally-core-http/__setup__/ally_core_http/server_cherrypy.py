@@ -1,8 +1,8 @@
 '''
 Created on Nov 23, 2011
 
-@package: Newscoop
-@copyright: 2011 Sourcefabric o.p.s.
+@package: ally core http
+@copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
@@ -34,7 +34,7 @@ def server_content_folder() -> str:
     return None
 
 @ioc.config
-def server_content_index() -> str: 
+def server_content_index() -> str:
     '''The static folder index file'''
     return 'index.html'
 
@@ -47,14 +47,14 @@ def requestHandler():
     b.serverVersion = server_version()
 
 # --------------------------------------------------------------------
-                             
+
 @ioc.start
 def runServer():
     if server_type() == 'cherrypy':
         import cherrypy
         from ally.core.http.support import server_cherrypy
-        
+
         cherrypy.config.update({'engine.autoreload.on': False})
-                
+
         args = requestHandler(), server_host(), server_port(), server_thread_pool()
         Thread(target=server_cherrypy.run, args=args).start()

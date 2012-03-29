@@ -13,7 +13,7 @@ from ally.container.ioc import injected
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Response, Processor, ProcessorsChain, \
     Processors
-from ally.exception import InputException, Ref
+from ally.exception import InputError, Ref
 import logging
 
 # --------------------------------------------------------------------
@@ -35,7 +35,7 @@ class ExplainDetailedErrorHandler(Processor):
     Requires on request: NA
     Requires on response: code
     '''
-    
+
     encodings = Processors
     # The encoding processors used for presenting the error, if a processor is successful in the encoding 
     # process it has to stop the chain execution.
@@ -43,7 +43,7 @@ class ExplainDetailedErrorHandler(Processor):
     # The default language to use, if none available
     contentConverterDefault = Converter
     # The converter used by default if none is fount on the response.
-    
+
     def __init__(self):
         assert isinstance(self.encodings, Processors), 'Invalid encodings processors %s' % self.encodings
         assert isinstance(self.languageDefault, str), 'Invalid string %s' % self.languageDefault
@@ -62,9 +62,9 @@ class ExplainDetailedErrorHandler(Processor):
             error = {'code':str(rsp.code.code)}
             if isinstance(rsp.codeMessage, str):
                 messages.append(rsp.codeMessage)
-            elif isinstance(rsp.codeMessage, InputException):
+            elif isinstance(rsp.codeMessage, InputError):
                 iexc = rsp.codeMessage
-                assert isinstance(iexc, InputException)
+                assert isinstance(iexc, InputError)
                 for msg in iexc.message:
                     assert isinstance(msg, Ref)
                     if not msg.model:
