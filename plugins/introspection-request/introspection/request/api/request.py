@@ -10,19 +10,17 @@ API specifications for the node presenter.
 '''
 
 from ally.api.config import service, call
-from ally.api.type import Iter, Id
-from ally.api import configure
+from ally.api.type import Iter
 from introspection.api import modelDevel
 
 # --------------------------------------------------------------------
 
-@modelDevel
-class Method:
+@modelDevel(name='Method')
+class Method_:
     '''
     Provides a call method of a request.
     '''
-    Id = Id
-    ForRequest = int
+    Id = int
     Name = str
     Type = str
     APIClass = str
@@ -37,26 +35,31 @@ class Request:
     '''
     Provides the request.
     '''
-    Id = Id
+    Id = int
     Pattern = str
-    Get = Method.Id
-    Delete = Method.Id
-    Insert = Method.Id
-    Update = Method.Id
-    
-configure.update(Method.ForRequest, Request.Id)
+    Get = Method_
+    Delete = Method_
+    Insert = Method_
+    Update = Method_
+
+@modelDevel
+class Method(Method_):
+    '''
+    Provides a call method of a request.
+    '''
+    ForRequest = Request
 
 @modelDevel
 class Input:
     '''
     Provides the input.
     '''
-    Id = Id
-    ForRequest = Request.Id
+    Id = int
+    ForRequest = Request
     Name = str
     Mandatory = bool
     Description = str
-    
+
 # --------------------------------------------------------------------
 
 @service
@@ -64,13 +67,13 @@ class IRequestService:
     '''
     Provides services for the request nodes.
     '''
-    
+
     @call
     def getRequest(self, id:Request.Id) -> Request:
         '''
         Provides the request for the provided id.
         '''
-            
+
     @call
     def getMethod(self, id:Method.Id) -> Method:
         '''
@@ -82,7 +85,7 @@ class IRequestService:
         '''
         Provides all the pattern inputs.
         '''
-        
+
     @call
     def getAllRequests(self, offset:int=None, limit:int=None) -> Iter(Request):
         '''

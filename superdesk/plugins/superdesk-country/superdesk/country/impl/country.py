@@ -13,7 +13,7 @@ from ..api.country import Country, QCountry, ICountryService
 from ally.api.model import Part
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.exception import InputException, Ref
+from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.api.util_service import trimIter, likeAsRegex
 from babel.core import Locale
@@ -51,7 +51,7 @@ class CountryServiceBabelAlchemy(ICountryService):
         @see: ICountryService.getByCode
         '''
         if not translate: translate = self.default_language
-        if code not in self.countries: raise InputException(Ref(_('Unknown country code'), ref=Country.Code))
+        if code not in self.countries: raise InputError(Ref(_('Unknown country code'), ref=Country.Code))
         return Country(code, self._translate(code, self._localesOf(translate)))
 
     def getAllAvailable(self, offset=None, limit=None, q=None, translate=None):

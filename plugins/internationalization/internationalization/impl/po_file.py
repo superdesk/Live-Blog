@@ -12,24 +12,19 @@ Implementation for the PO file management.
 from internationalization.api.po_file import IPOFileService
 from ally.container.ioc import injected
 from internationalization.core.spec import IPOFileManager
-from ally.container import wire
 from cdm.spec import ICDM, PathNotFound
 
 # --------------------------------------------------------------------
 
 @injected
-class POFileServiceAlchemy(IPOFileService):
+class POFileServiceCDM(IPOFileService):
     '''
     Implementation for @see: IPOService
     '''
 
-    po_file_manager = IPOFileManager; wire.entity('po_file_manager')
+    poManager = IPOFileManager
 
-    po_cdm = ICDM; wire.entity('po_cdm')
-
-    def __init__(self):
-        '''
-        '''
+    poCdm = ICDM
 
     def getGlobalPOFile(self, locale):
         '''
@@ -37,12 +32,14 @@ class POFileServiceAlchemy(IPOFileService):
         '''
         path = self._cdmPath(locale)
         try:
-            cdmFileTimestamp = self.po_cdm.getTimestamp(path)
+            cdmFileTimestamp = self.poCdm.getTimestamp(path)
+            mngFileTimestamp = self.poManager.getGlobalPOTimestamp(locale)
+            republish = cdmFileTimestamp < mngFileTimestamp
         except PathNotFound:
-            return self.po_file_manager.getGlobalPOFile(locale)
-        mngFileTimestamp = self.po_file_manager.poFileTimestamp(locale)
-        if cdmFileTimestamp < mngFileTimestamp:
-            return self.po_file_manager.getGlobalPOFile(locale)
+            republish = True
+        if republish:
+            self.poCdm.publishFromFile(path, self.poManager.getGlobalPOFile(locale))
+        return self.poCdm.getURI(path, 'http')
 
     def getComponentPOFile(self, component, locale):
         '''
@@ -50,12 +47,14 @@ class POFileServiceAlchemy(IPOFileService):
         '''
         path = self._cdmPath(locale, component)
         try:
-            cdmFileTimestamp = self.po_cdm.getTimestamp(path)
+            cdmFileTimestamp = self.poCdm.getTimestamp(path)
+            mngFileTimestamp = self.poManager.getComponentPOTimestamp(component, locale)
+            republish = cdmFileTimestamp < mngFileTimestamp
         except PathNotFound:
-            return self.po_file_manager.getComponentPOFile(component, locale)
-        mngFileTimestamp = self.po_file_manager.poFileTimestamp(locale)
-        if cdmFileTimestamp < mngFileTimestamp:
-            return self.po_file_manager.getComponentPOFile(component, locale)
+            republish = True
+        if republish:
+            self.poCdm.publishFromFile(path, self.poManager.getComponentPOFile(component, locale))
+        return self.poCdm.getURI(path, 'http')
 
     def getPluginPOFile(self, plugin, locale):
         '''
@@ -63,30 +62,32 @@ class POFileServiceAlchemy(IPOFileService):
         '''
         path = self._cdmPath(locale, plugin=plugin)
         try:
-            cdmFileTimestamp = self.po_cdm.getTimestamp(path)
+            cdmFileTimestamp = self.poCdm.getTimestamp(path)
+            mngFileTimestamp = self.poManager.getPluginPOTimestamp(plugin, locale)
+            republish = cdmFileTimestamp < mngFileTimestamp
         except PathNotFound:
-            return self.po_file_manager.getPluginPOFile(plugin, locale)
-        mngFileTimestamp = self.po_file_manager.poFileTimestamp(locale)
-        if cdmFileTimestamp < mngFileTimestamp:
-            return self.po_file_manager.getPluginPOFile(plugin, locale)
+            republish = True
+        if republish:
+            self.poCdm.publishFromFile(path, self.poManager.getPluginPOFile(plugin, locale))
+        return self.poCdm.getURI(path, 'http')
 
     def updateGlobalPOFile(self, poFile, locale:str):
         '''
         @see: IPOService.updateGlobalPOFile
         '''
-        self.po_file_manager.updateGlobalPOFile(poFile, locale)
+        self.poManager.updateGlobalPOFile(poFile, locale)
 
     def updateComponentPOFile(self, poFile, component, locale):
         '''
         @see: IPOService.updateComponentPOFile
         '''
-        self.po_file_manager.updateComponentPOFile(poFile, component, locale)
+        self.poManager.updateComponentPOFile(poFile, component, locale)
 
     def updatePluginPOFile(self, poFile, plugin, locale):
         '''
         @see: IPOService.updatePluginPOFile
         '''
-        self.po_file_manager.updatePluginPOFile(poFile, plugin, locale)
+        self.poManager.updatePluginPOFile(poFile, plugin, locale)
 
     def _cdmPath(self, locale=None, component=None, plugin=None):
         if component:
