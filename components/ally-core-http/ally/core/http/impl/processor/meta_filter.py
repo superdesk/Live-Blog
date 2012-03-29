@@ -72,6 +72,8 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
         
+        _hasFetcher = False
+        
         if rsp.objMeta is None:
             if filterBy:
                 rsp.setCode(INVALID_HEADER_VALUE, 'Unknown filter properties %r' % ', '.join(filterBy))
@@ -86,7 +88,6 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                     if not isinstance(fvalue, dict): fvalue = fdict[fname] = {}
                     fdict = fvalue
             
-            _hasFetcher = False
             def createFetcher(meta):
                 nonlocal _hasFetcher
                 _hasFetcher = True
