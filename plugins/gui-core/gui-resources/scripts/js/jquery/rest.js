@@ -47,6 +47,7 @@ $(function()
 		
 		this.getData = [];
 		this.lastAdded = {};
+		this.lastUrl = '';
 		this.job = [];
 		this.initXFrom = false;
 		
@@ -72,8 +73,9 @@ $(function()
 		
 		if( typeof arguments[0] == 'string' )
 		{
-			this.request({url : arguments[0] });
-			this.initData = new chainable( function()
+			self.lastUrl = arguments[0];
+			self.request({url : arguments[0] });
+			self.initData = new chainable( function()
 			{
 				if( typeof this.request != 'undefined' )
 					self.request(this.request);
@@ -148,7 +150,7 @@ $(function()
 				if( args.length > 1 ) 
 				{
 					if(typeof args[1] == 'function')
-						fromUrl = args[1](found);
+						fromUrl = args[1](found); // filter function for complex structures
 					if(typeof args[1] == 'object')
 						self.request(args[1]);
 					if(typeof args[2] == 'object')
@@ -158,6 +160,7 @@ $(function()
 				if( typeof this.request != 'undefined' )
 					self.request(this.request);
 				
+				self.lastUrl = fromUrl;
 				return self
 					.doRequest(fromUrl)
 					.pipe(function(data)
@@ -224,8 +227,8 @@ $(function()
 					if( typeof this.request != 'undefined' )
 						self.request(this.request);
 					
+					self.lastUrl = node.href;
 					var ajax = self.doRequest(node.href)
-						//.pipe(function(data){ return data; })
 						.then(this.deferred.resolve, this.deferred.reject);
 					return ajax;
 				}
@@ -355,14 +358,13 @@ $(function()
 		spawn: function()
 		{
 			var self = this;
-			//if(this.getData.length)
-			//	$.when(this.getData[this.getData.length-1]).pipe(function(data)
-				$.when(this.lastAdded).pipe(function(data)
-				{
-					self.spawned = new resource(data, 'spawned');
-					// TODO add backreference or not?
-					return data;
-				});
+			$.when(this.lastAdded).pipe(function(data)
+			{
+				self.spawned = new resource(data, 'spawned');
+				self.spawned.lastUrl = self.lastUrl;
+				// TODO add backreference or not?
+				return data;
+			});
 			return this;
 		},
 		
@@ -377,11 +379,29 @@ $(function()
 			delete this.requestOptions.headers['X-Filter'];
 			return ajax;
 		},
-		
-		insert: function(url, data)
+		/*!
+		 * 
+		 */
+		update: function(data, url)
 		{
 			this.request({type: 'post', headers: {'X-HTTP-Method-Override': 'PUT'}, data: data});
-			return this.doRequest(url);
+			return this.doRequest(url ? url : this.lastUrl);
+		},
+		/*!
+		 * 
+		 */
+		insert: function(data, url)
+		{
+			this.request({type: 'post', data: data});
+			return this.doRequest(url ? url : this.lastUrl);
+		},
+		/*!
+		 * 
+		 */
+		delete: function(data, url)
+		{
+			this.request({type: 'post', headers: {'X-HTTP-Method-Override': 'DELETE'}, data: data});
+			return this.doRequest(url ? url : this.lastUrl);
 		},
 		
 		/*!
