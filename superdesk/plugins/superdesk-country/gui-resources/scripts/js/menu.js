@@ -16,7 +16,7 @@
  *
  * @todo maybe add some default templates or escape errors on none found at data request..
  */
-
+var XYZ = 'abc';
 (function( $, undefined )
 {
 	$.widget( "ui.datatable", 
@@ -45,9 +45,13 @@
 				{
 					var self = this._self;
 					if(this._request)
-						return this._request.done(function(data)
+						return this._request.done(function()
 						{
-							self.plugins.body.render(data)
+							$(self).trigger('data-request-success.datatable', arguments);
+						},
+						function()
+						{
+							$(self).trigger('data-request-error.datatable', arguments);
 						});
 				},
 				setup: function(settings)
@@ -83,25 +87,19 @@
 				this._create = function()
 				{
 					var self = this; // datatable
-					var thead = self.plugins.lib.core.getDatatable().find('thead');
-					if(!thead.length) 
-					{
-						thead = $('<thead />');
-						self.plugins.lib.core.getDatatable().append(thead)
-					}
-					
 					if( self.plugins.templates.header )
-						thead.tmpl( $(self.plugins.templates.header).wrap('<thead />').parent() );
+						self.plugins.lib.core.getDatatable().append( $.tmpl(self.plugins.templates.header) );
 					
+					return;
 					// bind header columns actions
 					thead.find('th').each( function()
 					{
-						// breaks sort functionallity
+						// breaks sort functionality
 						if ($(this).hasClass('unsortable'))
 							return true;
 
 						var thisX = this;
-						// set filter functionallity
+						// set filter functionality
 						if ($(this).hasClass('filterable'))
 						{
 							// hide, bind close event for filter box
@@ -133,38 +131,37 @@
 					$(self).trigger('datatable-setheader');
 				};
 			},
-			body: function()
+			body:
 			{
-				this._self = null;
-				this._create = function()
+				_element: null,
+				_create: function()
 				{
-					this.plugins.body._self = this;
-					var tbody = this.plugins.lib.core.getDatatable().find('tbody');
-					if( !tbody.length ) 
+					if( this.plugins.templates.body )
 					{
-						tfoot = $('<tbody />');
-						this.plugins.lib.core.getDatatable().append(tbody)
+						this.plugins.body._element = $.tmpl(this.plugins.templates.body, {data: {}});
+						this.plugins.lib.core.getDatatable().append( this.plugins.body._element );
 					}
-				};
-				this.render = function(data)
+					
+					$(this).on('data-request-success.datatable', function(event, data)
+					{
+						this.plugins.body.render.call(this, this.plugins.lib.core.getDatatable(), data)
+					})
+				},
+				/*!
+				 * this = plugin - this.plugins.body.render.apply(this, [...])
+				 */
+				render: function(datatable, data)
 				{
-					var self = this._self
-					if( self.plugins.templates.body )
-						tbody.tmpl( $(this.plugins.templates.body).wrap('<tbody />').parent(), data );
+					$(datatable.find('tbody')).replaceWith($.tmpl( this.plugins.templates.body, {data: data} ))
+					//tbody.
 				}
 			},
 			footer: function()
 			{
 				this._create = function()
 				{
-					var tfoot = this.plugins.lib.core.getDatatable().find('tfoot');
-					if( !tfoot.length ) 
-					{
-						tfoot = $('<tfoot />');
-						this.plugins.lib.core.getDatatable().append(tfoot)
-					}
 					if( this.plugins.templates.footer )
-						tfoot.tmpl( $(this.plugins.templates.footer).wrap('<tfoot />').parent() );
+						this.plugins.lib.core.getDatatable().append( $.tmpl(this.plugins.templates.footer) );
 					
 					if( this.plugins.footer.setPagination )
 						this.plugins.footer.setPagination.call(this);
@@ -204,7 +201,11 @@
 		},
 		_create : function()
 		{
-			$(this.element).append(this.plugins.lib.core.getDatatable());
+			//if( this.element.is('table') )
+			//	this.plugins.lib.core._element = this.element;
+			//else
+			// after plugins constuct
+				$(this.element).append(this.plugins.lib.core.getDatatable());
 			this.plugins.dataAdapter.createRequest().executeRequest();
 		},
 		_init: function() 
@@ -223,16 +224,7 @@
 
 //-----
 
-	$('#area-main').html($('<div />').datatable(
-	{
-		templates: 
-		{
-			header: '<tr><th>x</th><th>y</th><th>z</th></tr>',
-			footer: '<tr><td colspan="3"></td></tr>',
-		},
-		resource: superdesk.apiUrl + '/resources/Superdesk/User'
-	}));
-	
+
 	var listPath, updatePath, addPath;
 	superdesk.getActions('modules.country.*')
 	.done(function(actions)
@@ -241,11 +233,12 @@
 		{  
 			switch(this.Path)
 			{
-				case 'modules.counrty.list': listPath = this.scriptPath; break;
-				case 'modules.counrty.update': updatePath = this.scriptPath; break;
-				case 'modules.counrty.add': addPath = this.scriptPath; break;
+				case 'modules.country.list': listPath = this.ScriptPath; break;
+				case 'modules.country.update': updatePath = this.ScriptPath; break;
+				case 'modules.country.add': addPath = this.ScriptPath; break;
 			}
 		});
+
 		(new superdesk.presentation)
 			.setScript(listPath)
 			.setLayout(superdesk.layouts.list.clone())
