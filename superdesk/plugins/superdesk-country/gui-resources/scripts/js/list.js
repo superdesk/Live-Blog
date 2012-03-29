@@ -4,15 +4,21 @@ var app = function()
 {
 	$('#area-main').html(layout);
 	
-	countries = new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Id, Name')
-		.done(function(users)
+	$('#area-main').html( $('<table class="table table-bordered table-striped country-list" />').datatable
+	({
+		templates: 
 		{
-			$('#area-content', layout)
-				.tmpl($("#tpl-country-list", superdesk.tmplRepo), {users: users, scriptPath: args.updateScript});
-		})
+			header: $("#tpl-country-list-header", superdesk.tmplRepo),
+			footer: $("#tpl-country-list-footer", superdesk.tmplRepo),
+			body: $("#tpl-country-list-body", superdesk.tmplRepo)
+		},
+		resource: new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Code, Name')
+	}));
 }
 
-this.view.load('country/templates/list.html').done(app)
+presentation.view.load('country/templates/list.html').done(app);
+
+return;
 
 // edit button functionality 
 $(document)
