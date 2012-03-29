@@ -37,4 +37,5 @@ class IPersonService(IEntityService):
     @call
     def getByUser(self, idUser:User.Id) -> Iter(Person):
         '''
+        Select person by user id
         '''

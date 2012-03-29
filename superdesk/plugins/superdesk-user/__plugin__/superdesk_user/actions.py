@@ -33,9 +33,14 @@ def modulesUpdateAction():
 def modulesListAction():
     return Action('list', Parent=modulesAction(), ScriptPath=getPublishedGui('superdesk/user/scripts/js/modules-list.js'))
 
+@ioc.entity   
+def modulesAddAction():
+    return Action('add', Parent=modulesAction(), ScriptPath=getPublishedGui('superdesk/user/scripts/js/modules-add.js'))
+
 @ioc.start
 def registerActions():
     actionManagerService().add(menuAction())
     actionManagerService().add(modulesAction())
     actionManagerService().add(modulesUpdateAction())
     actionManagerService().add(modulesListAction())
+    actionManagerService().add(modulesAddAction())
