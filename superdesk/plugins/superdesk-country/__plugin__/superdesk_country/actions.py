@@ -1,5 +1,5 @@
 '''
-Created on Feb 23, 2012
+Created on March 23, 2012
 
 @package: ally actions gui 
 @copyright: 2011 Sourcefabric o.p.s.
@@ -8,34 +8,37 @@ Created on Feb 23, 2012
 '''
 
 from ally.container import ioc
+from ally.internationalization import NC_
 from gui.action.api.action import Action
 from ..gui_action.service import actionManagerService
 from ..gui_action import defaults
 from ..gui_core.gui_core import getPublishedGui
-from ally.internationalization import NC_
 
 # --------------------------------------------------------------------
 
 @ioc.entity   
 def menuAction():
-    return Action('user', Parent=defaults.menuAction(), Label=NC_('Menu', 'Users'),
-                  ScriptPath=getPublishedGui('superdesk/user/scripts/js/menu.js'))
+    return Action('country', Parent=defaults.menuAction(), Label=NC_('Menu', 'Countries'),
+                  ScriptPath=getPublishedGui('superdesk/country/scripts/js/menu.js'))
 
 @ioc.entity   
 def modulesAction():
-    return Action('user', Parent=defaults.modulesAction())
+    return Action('country', Parent=defaults.modulesAction())
 
 @ioc.entity   
 def modulesUpdateAction():
-    return Action('update', Parent=modulesAction(), ScriptPath=getPublishedGui('superdesk/user/scripts/js/modules-update.js'))
+    return Action('update', Parent=modulesAction(), 
+                  ScriptPath=getPublishedGui('superdesk/country/scripts/js/update.js'))
 
 @ioc.entity   
 def modulesListAction():
-    return Action('list', Parent=modulesAction(), ScriptPath=getPublishedGui('superdesk/user/scripts/js/modules-list.js'))
+    return Action('list', Parent=modulesAction(), 
+                  ScriptPath=getPublishedGui('superdesk/country/scripts/js/list.js'))
 
 @ioc.entity   
 def modulesAddAction():
-    return Action('add', Parent=modulesAction(), ScriptPath=getPublishedGui('superdesk/user/scripts/js/modules-add.js'))
+    return Action('add', Parent=modulesAction(), 
+                  ScriptPath=getPublishedGui('superdesk/country/scripts/js/add.js'))
 
 @ioc.start
 def registerActions():
