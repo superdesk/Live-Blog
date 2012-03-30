@@ -198,7 +198,7 @@ class RequestService(IRequestService):
             assert isinstance(invoker.call, Call)
             m.Name = invoker.name
 
-            clazzApi = invoker.service.serviceClass
+            clazzApi = invoker.clazz
             methodApi, clazzApiDef = getAttrAndClass(clazzApi, invoker.name)
             m.APIDoc = getdoc(methodApi)
             m.APIClass = clazzApi.__module__ + '.' + clazzApi.__name__
