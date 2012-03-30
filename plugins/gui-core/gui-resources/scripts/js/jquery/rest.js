@@ -50,6 +50,7 @@ $(function()
 		this.lastUrl = '';
 		this.job = [];
 		this.initXFrom = false;
+		this._responseArgs = null;
 		
 		this.requestOptions = 
 		{
@@ -375,9 +376,15 @@ $(function()
 		doRequest: function()
 		{
 			if(typeof arguments[0] == 'string') this.request({url: arguments[0]});
-			var ajax = $.ajax(this.requestOptions);
+			var self = this,
+				ajax = $.ajax(this.requestOptions)
+				.always(function(){ self._responseArgs = arguments[0]; });
 			delete this.requestOptions.headers['X-Filter'];
 			return ajax;
+		},
+		responseArgs: function()
+		{
+			return this._responseArgs;
 		},
 		/*!
 		 * 
