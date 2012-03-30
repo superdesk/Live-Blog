@@ -66,6 +66,7 @@ class InvokerFunction(Invoker):
         '''
         assert callable(function), 'Invalid input callable provided %s' % function
         super().__init__(output, function.__name__, inputs)
+        self.function = function
         self.invoke = function
 
     def invoke(self, *args):
