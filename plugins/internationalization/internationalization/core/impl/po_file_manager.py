@@ -16,7 +16,7 @@ from ally.container.ioc import injected
 from internationalization.core.spec import IPOFileManager
 from genericpath import isdir, isfile
 import os
-from internationalization.api.source import ISourceService, QSource
+from internationalization.api.source import ISourceService, QSource, Source
 from introspection.api.component import Component
 from introspection.api.plugin import Plugin
 from ally.api.type import Iter
@@ -24,8 +24,8 @@ from internationalization.api.message import Message
 from babel.messages.pofile import read_po, write_po
 from babel.messages.mofile import write_mo
 from os.path import join
-from time import localtime, strptime
 from io import StringIO
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -49,49 +49,50 @@ class POFileManagerDB(IPOFileManager):
         if not isdir(self.locale_dir_path) or not os.access(self.locale_dir_path, os.W_OK):
             raise Exception('Unable to access the repository directory %s' % self.locale_dir_path)
 
-    def getGlobalPOTimestamp(self, locale):
+    def getGlobalPOTimestamp(self, locale=None):
         return self._poFileTimestamp(locale=locale)
 
-    def getComponentPOTimestamp(self, component, locale):
-        assert isinstance(component, Component.Id), 'Invalid component identifier %s' % Component.Id
+    def getComponentPOTimestamp(self, component, locale=None):
         return self._poFileTimestamp(component=component, locale=locale)
 
-    def getPluginPOTimestamp(self, plugin, locale):
-        assert isinstance(plugin, Plugin.Id), 'Invalid plugin identifier %s' % Plugin.Id
+    def getPluginPOTimestamp(self, plugin, locale=None):
         return self._poFileTimestamp(plugin=plugin, locale=locale)
 
-    def getGlobalPOFile(self, locale):
+    def getGlobalPOFile(self, locale=None):
         '''
         @see: IPOFileManager.getGlobalPOFile
         '''
         assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
         template = self._buildCatalog(self.messageService.getMessages(), locale)
-        self._updateFile(None, None, locale, None, template)
+        if locale:
+            self._updateFile(None, None, locale, None, template)
         return self._buildPOFile(locale, template)
 
-    def getComponentPOFile(self, component, locale):
+    def getComponentPOFile(self, component, locale=None):
         '''
         @see: IPOFileManager.getComponentPOFile
         '''
         assert isinstance(component, Component.Id), 'Invalid component identifier %s' % Component.Id
         assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
-        globalTemplate = self._buildCatalog(self.messageService.getMessages(), locale)
-        self._updateFile(None, None, locale, None, globalTemplate)
-        template = self._buildCatalog(self.messageService.getComponentMessages(component), locale)
-        self._updateFile(component, None, locale, None, template)
+        if locale:
+            globalTemplate = self._buildCatalog(self.messageService.getMessages(), locale)
+            self._updateFile(None, None, locale, None, globalTemplate)
+            template = self._buildCatalog(self.messageService.getComponentMessages(component), locale)
+            self._updateFile(component, None, locale, None, template)
         exceptionsCatalog = self._readPOFile(self._filePath(locale, component)['po'], locale)
         return self._buildPOFile(locale, template, exceptionsCatalog)
 
-    def getPluginPOFile(self, plugin, locale):
+    def getPluginPOFile(self, plugin, locale=None):
         '''
         @see: IPOFileManager.getPluginPOFile
         '''
         assert isinstance(plugin, Plugin.Id), 'Invalid plugin identifier %s' % Plugin.Id
         assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
-        globalTemplate = self._buildCatalog(self.messageService.getMessages(), locale)
-        self._updateFile(None, None, locale, None, globalTemplate)
-        template = self._buildCatalog(self.messageService.getPluginMessages(plugin), locale)
-        self._updateFile(None, plugin, locale, None, template)
+        if locale:
+            globalTemplate = self._buildCatalog(self.messageService.getMessages(), locale)
+            self._updateFile(None, None, locale, None, globalTemplate)
+            template = self._buildCatalog(self.messageService.getPluginMessages(plugin), locale)
+            self._updateFile(None, plugin, locale, None, template)
         exceptionsCatalog = self._readPOFile(self._filePath(locale, plugin=plugin)['po'], locale)
         return self._buildPOFile(locale, template, exceptionsCatalog)
 
@@ -144,13 +145,13 @@ class POFileManagerDB(IPOFileManager):
         @see: IPOFileManager.poFileTimestamp
         '''
         assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
-        lastMsgTimestamp = strptime(self._messagesLastModified(component, plugin))
+        lastMsgTimestamp = self._messagesLastModified(component, plugin)
         if not locale:
             return lastMsgTimestamp
         path = self._filePath(locale, component, plugin)['po']
         if not isfile(path):
             return None
-        fileMTime = localtime(os.stat(path).st_mtime)
+        fileMTime = datetime.fromtimestamp(os.stat(path).st_mtime)
         if fileMTime >= lastMsgTimestamp:
             return fileMTime
         else:
@@ -261,7 +262,7 @@ class POFileManagerDB(IPOFileManager):
         names = self._fileName(locale, component, plugin)
         return {'po':join(self.locale_dir_path, names['po']), 'mo':join(self.locale_dir_path, names['mo'])}
 
-    def _messagesLastModified(self, component:Component.Id=None, plugin:Plugin.Id=None):
+    def _messagesLastModified(self, component:Component.Id=None, plugin:Plugin.Id=None) -> datetime:
         '''
         Returns the timestamp of the last modified message from the messages table.
 
@@ -291,15 +292,23 @@ class POFileManagerDB(IPOFileManager):
             The locale code
         @return: Catalog
         '''
-        assert isinstance(messages, Iter(Message)) or isinstance(messages, tuple), \
+        assert isinstance(messages, Iter) or isinstance(messages, tuple) or isinstance(messages, list), \
                 'Invalid messages list %s' % messages
         catalog = Catalog(locale)
-        if isinstance(messages, Iter(Message)):
+        if isinstance(messages, Iter):
             messages = (messages,)
         for grp in messages:
-            for msg in grp:
-                assert isinstance(msg, Message), 'Invalid message %s in list' % msg
-                msgId = msg.Singular if not msg.Plural else (msg.Singular,) + msg.Plural
-                catalog.add(id=msgId, locations=((msg.Source.Path, msg.LineNumber),), flags=(),
-                            auto_comments=(msg.Comments), user_comments=(), context=msg.Context)
+            if isinstance(grp, Message):
+                catalog = self._addMsgToCatalog(grp, catalog)
+            elif isinstance(grp, tuple) or isinstance(grp, list):
+                for msg in grp:
+                    catalog = self._addMsgToCatalog(msg, catalog)
+        return catalog
+
+    def _addMsgToCatalog(self, msg, catalog):
+        msgId = msg.Singular if not msg.Plural else (msg.Singular,) + msg.Plural
+        src = Source(msg.Source)
+        msg.Comments = msg.Comments if msg.Comments else ''
+        catalog.add(id=msgId, locations=((src.Path, msg.LineNumber),), flags=(),
+                    auto_comments=(msg.Comments), user_comments=(), context=msg.Context)
         return catalog
