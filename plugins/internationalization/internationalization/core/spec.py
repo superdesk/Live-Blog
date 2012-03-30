@@ -11,6 +11,7 @@ API specifications for PO file management.
 
 from introspection.api.plugin import Plugin
 from introspection.api.component import Component
+from datetime import datetime
 import abc
 
 # --------------------------------------------------------------------
@@ -22,7 +23,7 @@ class IPOFileManager(metaclass=abc.ABCMeta):
     '''
 
     @abc.abstractmethod
-    def getGlobalPOTimestamp(self, locale:str=None):
+    def getGlobalPOTimestamp(self, locale:str=None) -> datetime:
         '''
         Returns the timestamp of the last update for the PO file identified by
         the given locale.
@@ -32,7 +33,7 @@ class IPOFileManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def getComponentPOTimestamp(self, component:Component.Id, locale:str=None):
+    def getComponentPOTimestamp(self, component:Component.Id, locale:str=None) -> datetime:
         '''
         Returns the timestamp of the last update for the PO file identified by
         the given component and locale.
@@ -44,7 +45,7 @@ class IPOFileManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def getPluginPOTimestamp(self, plugin:Plugin.Id, locale:str=None):
+    def getPluginPOTimestamp(self, plugin:Plugin.Id, locale:str=None) -> datetime:
         '''
         Returns the timestamp of the last update for the PO file identified by
         the given plugin and locale.
