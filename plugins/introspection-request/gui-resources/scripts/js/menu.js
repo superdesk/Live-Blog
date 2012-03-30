@@ -7,7 +7,7 @@ $(function()
 			{
 				if(this.Path == 'modules.request.list' && this.ScriptPath)
 				{
-					superdesk.applyScriptToLayout(this.ScriptPath, superdesk.layouts.list.clone())
+					(new superdesk.presentation).run(this.ScriptPath, superdesk.layouts.list.clone());
 					return false;
 				}
 			});
