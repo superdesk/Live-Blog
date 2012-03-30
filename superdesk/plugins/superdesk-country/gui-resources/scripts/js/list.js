@@ -4,7 +4,7 @@ var app = function()
 {
 	$('#area-main').html(layout);
 	
-	$('#area-main').html( $('<table class="table table-bordered table-striped country-list" />').datatable
+	$('#area-content').html( $('<table class="table table-bordered table-striped country-list" />').datatable
 	({
 		templates: 
 		{
