@@ -138,7 +138,7 @@
         	// for direct compiled template passed as argument use
         	if( typeof tmpl == 'function' ) return tmpl(data); 
 
-        	tmplObj = $(tmpl)
+        	tmplObj = $(tmpl);
             if( !tmplObj.data('compiled-template') ) 
             	tmplObj.data('compiled-template', doT.template( tmplObj.html(), undefined, defs ));
             
