@@ -1,9 +1,24 @@
+<script type="text/x-jQuery-tmpl" id="tpl-country-list-header">
+<colgroup>
+    <col class="span1">
+    <col class="span6">
+	<col class="span2">
+</colgroup>
+<thead>
+	<tr>
+		<th>Code</th>
+		<th>Name</th>
+		<th>&nbsp;</th>
+	</tr>
+</thead>
+</script>
+
 <script type="text/x-jQuery-tmpl" id="tpl-country-list-body">
 <tbody>
 	{% for(var i in data) %}
 	<tr>
 		<td>{{data[i].Code}}</td>
-    	<td>{{data[i].Name}}</td>
+    	<td class="sortable">{{data[i].Name}}</td>
 		<td>
 			<p>
 				<button href="/modules/country/update#top" class="btn btn-primary">edit</button> 
@@ -15,20 +30,18 @@
 </tbody>
 </script>
 
-<script type="text/x-jQuery-tmpl" id="tpl-country-list-header">
-<thead>
-<tr>
-	<th>Code</th>
-	<th>Name</th>
-	<th>&nbsp;</th>
-</tr>
-</thead>
-</script>
-
 <script type="text/x-jQuery-tmpl" id="tpl-country-list-footer">
 <tfoot>
 <tr>
-	<td colspan="3"></td>
+	<td colspan="3">
+	{? pagination }
+	<ul class="the-icons">
+		<li><a class="previous"><i class="icon-chevron-right"></i></a></li>
+		<li>{{pagination.offset}} - {{pagination.limit}} of {{pagination.total}}</li>
+		<li><a class="next"><i class="icon-chevron-left"></i></a></li>
+	</ul>
+	{?}
+	</td>
 </tr>
 </tfoot>
 </script>
