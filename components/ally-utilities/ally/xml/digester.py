@@ -67,7 +67,7 @@ class Digester(ContentHandler):
         inpsrc = InputSource()
         inpsrc.setByteStream(file)
         inpsrc.setEncoding(charSet)
-        self.parseInputSource(inpsrc)
+        return self.parseInputSource(inpsrc)
 
     def parseInputSource(self, source):
         '''
