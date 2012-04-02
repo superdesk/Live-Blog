@@ -50,7 +50,8 @@ $(function()
 		this.lastUrl = '';
 		this.job = [];
 		this.initXFrom = false;
-		this._responseArgs = null;
+		this.respArgs = null;
+		this.dataChanged = false;
 		
 		this.requestOptions = 
 		{
@@ -69,7 +70,7 @@ $(function()
 				break;
 			}
 			return ret;
-		}
+		};
 		this.extractListData = extractListData;
 		
 		if( typeof arguments[0] == 'string' )
@@ -78,13 +79,19 @@ $(function()
 			self.request({url : arguments[0] });
 			self.initData = new chainable( function()
 			{
-				if( typeof this.request != 'undefined' )
-					self.request(this.request);
+				if( resolve && !self.dataChanged ) 
+				{
+					this.deferred.resolve(resolve); 
+					return ret;
+				};
+				
+				if( typeof this.request != 'undefined' ) self.request(this.request);
 				return self.doRequest()
 					.pipe(function(data)
 					{
 						var ret = extractListData(data);
-						self.initData.fn = function(){ this.deferred.resolve(ret); return ret; };
+						self.dataChanged = false;
+						//self.initData.fn = function(){ this.deferred.resolve(ret); return ret; };
 						return ret;
 					})
 					.then(this.deferred.resolve, this.deferred.reject);
@@ -291,8 +298,7 @@ $(function()
 				{
 					self.initData = new chainable(self.initData.fn, 'reset');
 					self.fromData = new chainable(self.fromData.fn, 'reset');
-					//self.fromData = new chainable(self.fromData.fn);
-					self.initXFrom = true
+					self.initXFrom = true;
 					$.when(self.initData).then(function()
 					{ 
 						self.fromData.invoke.apply(self.fromData, arguments); 
@@ -378,13 +384,14 @@ $(function()
 			if(typeof arguments[0] == 'string') this.request({url: arguments[0]});
 			var self = this,
 				ajax = $.ajax(this.requestOptions)
-				.always(function(){ self._responseArgs = arguments[0]; });
-			delete this.requestOptions.headers['X-Filter'];
+				.always(function(){ self.respArgs = arguments[0]; });
+			if(!this.keepXFilter)
+				delete this.requestOptions.headers['X-Filter'];
 			return ajax;
 		},
 		responseArgs: function()
 		{
-			return this._responseArgs;
+			return this.respArgs;
 		},
 		/*!
 		 * 
@@ -416,6 +423,7 @@ $(function()
 		 */
 		request: function(options)
 		{
+			if( options.hasOwnProperty('data') ) this.dataChanged = true;
 			$.extend(true, this.requestOptions, options);
 			return this;
 		},

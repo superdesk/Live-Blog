@@ -16,7 +16,6 @@
  *
  * @todo maybe add some default templates or escape errors on none found at data request..
  */
-var XYZ = 'abc';
 (function( $, undefined )
 {
 	$.widget( "ui.datatable", 
@@ -33,7 +32,8 @@ var XYZ = 'abc';
 					if(typeof this.options.resource == 'string')
 						this.plugins.dataAdapter._request = new $.rest(this.options.resource);
 					else
-						this.plugins.dataAdapter._request = this.options.resource; 
+						this.plugins.dataAdapter._request = this.options.resource;
+					this.plugins.dataAdapter._request.keepXFilter = true;
 				},
 				createRequest: function()
 				{
@@ -55,9 +55,20 @@ var XYZ = 'abc';
 						{
 							$(self).trigger('data-request-error.datatable', arguments);
 						});
+					return this;
 				},
 				setup: function(settings)
 				{
+					for( var i in settings )
+					{
+						switch(i)
+						{
+							case 'params':
+								this._request.request({data: settings[i]});
+								this.executeRequest();
+								break;
+						}
+					}
 					return this;
 				},
 				sort: function(column, dir, index)
@@ -185,6 +196,7 @@ var XYZ = 'abc';
 					
 					$(this).on('data-request-success.datatable', function(event, data)
 					{
+						console.log(data);
 						this.plugins.body.render.call(this, data)
 					})
 				},
@@ -219,28 +231,43 @@ var XYZ = 'abc';
 				{
 					var self = this,
 						offset = 0,
-						limit = 10;
-					$(self).bind( 'data-request-success.datatable', function(event, response)
-					{
-						var args = this.plugins.dataAdapter.getRequest().responseArgs()
-						// make pagination
-						if( typeof response != 'undefined' )
+						limit = 10,
+						next, prev,
+						
+						prevNextHandler = function(evt)
 						{
-							var paginationObject = {pagination: { total: args.total, offset: offset, limit: limit }}
-							var newFooter = $($.tmpl( this.plugins.templates.footer, paginationObject ));
-							$(this.plugins.footer._element).replaceWith(newFooter);
-							this.plugins.footer._element = newFooter;
-						}
-					});
-					$(self).find('tfoot a').live( 'click', function(evt)
-					{
-						var params = $(this).attr('href').split("/");
-						for( var i = 0; i < params.length; i++ )
-							_requestData[params[i]] = params[++i];
+							var params = $(this).attr('href').split("/"), 
+								_requestData = {};
+							for( var i = 0; i < params.length; i++ )
+								_requestData[params[i]] = params[++i];
 
-						$(self).datatable().refresh();
-						evt.preventDefault();
+							self.plugins.dataAdapter.setup({ params: _requestData }).executeRequest();
+							evt.preventDefault();
+						};
+						
+					$(this).bind( 'data-request-success.datatable', function(event, response)
+					{
+						// make pagination
+						if( typeof response == 'undefined' ) return;
+						
+						var args = this.plugins.dataAdapter.getRequest().responseArgs()
+						next = offset + limit <= args.total ? offset + limit : offset;
+						prev = offset - limit >= 0 ? offset - limit : 0;
+						var paginationObject = { pagination: 
+						{ 
+							total: args.total, offset: offset, limit: limit, next: 'offset/'+next, prev: 'offset/'+prev,
+							prevElement: "prev-ctrl='1'", nextElement: "next-ctrl='1'"
+						}};
+						
+						var newFooter = $($.tmpl( this.plugins.templates.footer, paginationObject ));
+						$(this.plugins.footer._element).replaceWith(newFooter);
+						this.plugins.footer._element = newFooter;
+						
+						$(this.plugins.footer._element).on("click.datatable", "[prev-ctrl]", prevNextHandler);
+						$(this.plugins.footer._element).on("click.datatable", "[next-ctrl]", prevNextHandler);
+						
 					});
+					
 				}
 			}
 		},
