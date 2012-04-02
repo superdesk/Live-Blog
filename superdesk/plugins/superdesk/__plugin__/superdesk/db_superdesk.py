@@ -6,7 +6,7 @@ Created on Jan 17, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the database settings for the newscoop database.
+Provides the database settings for the superdesk database.
 '''
 
 from ally.container import ioc, support
