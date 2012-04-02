@@ -36,9 +36,17 @@
 	<td colspan="3">
 	{? pagination }
 	<ul class="the-icons">
-		<li><a class="previous"><i class="icon-chevron-right"></i></a></li>
+		<li>
+			<a class="previous" href="{{pagination.prev}}" {{pagination.prevElement}}>
+				x <i class="icon-chevron-right"></i>
+			</a>
+		</li>
 		<li>{{pagination.offset}} - {{pagination.limit}} of {{pagination.total}}</li>
-		<li><a class="next"><i class="icon-chevron-left"></i></a></li>
+		<li>
+			<a class="next" href="{{pagination.next}}" {{pagination.nextElement}}>
+				x <i class="icon-chevron-left"></i>
+			</a>
+		</li>
 	</ul>
 	{?}
 	</td>
