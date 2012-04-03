@@ -1,13 +1,22 @@
 <script type="text/x-jQuery-tmpl" id="tpl-country-list-header">
 <colgroup>
-    <col class="span1">
-    <col class="span6">
+    <col class="span2">
+    <col class="span5">
 	<col class="span2">
 </colgroup>
 <thead>
 	<tr>
-		<th>Code</th>
-		<th>Name</th>
+		<th filterable filter="code">
+			<label>Code</label>
+			<input class="span2" />
+			<a class="filter-hide-ctrl close">&times;</a>
+		</th>
+		<th sort="name" filterable>
+			<label>Name</label>
+			<input class="span4" />
+			<a class="filter-hide-ctrl close">&times;</a>
+			<a class="sort-ctrl"><></a>
+		</th>
 		<th>&nbsp;</th>
 	</tr>
 </thead>
