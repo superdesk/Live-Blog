@@ -10,6 +10,15 @@ Provides unit testing for the PO file manager.
 '''
 
 from datetime import datetime
+import unittest
+from tempfile import NamedTemporaryFile, TemporaryDirectory
+from os.path import join, dirname, isfile, isdir
+from shutil import rmtree
+from os import makedirs, remove, sep
+from cdm.spec import PathNotFound
+from babel.core import Locale
+
+from internationalization.core.impl.po_file_manager import POFileManagerDB
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, Source
 from internationalization.core.impl.po_file_manager import POFileManagerDB
@@ -89,7 +98,7 @@ class TestMessageService(IMessageService):
             else:
                 msg.Singular = 'message %i' % m
                 msg.Context = ''
-            msg.Source = int(plugin)
+            msg.Source = int(plugin) + 10
             msg.LineNumber = 100 + 2 * m
             messages.append(msg)
         return messages
@@ -108,11 +117,15 @@ class TestMessageService(IMessageService):
     def delete(self, id):
         pass
 
-
 class TestSourceService(ISourceService):
     def getById(self, id):
         src = Source()
         src.Id = id
+        if id < 10:
+            src.Component = str(id)
+        else:
+            src.Plugin = str(id)
+        src.Path = 'component/src%d.py' % id
         return src
 
     def getAll(self, offset=None, limit=None, q=None):
