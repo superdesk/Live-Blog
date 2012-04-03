@@ -15,3 +15,8 @@ NAME = 'Superdesk languages'
 GROUP = 'Superdesk'
 VERSION = '1.0'
 DESCRIPTION = 'Provides the the Superdesk languages'
+
+from babel import localedata, core
+# Babel FIX: We need to adjust the dir name for locales since they need to be outside the .egg file
+localedata._dirname = localedata._dirname.replace('.egg', '')
+core._filename = core._filename.replace('.egg', '')

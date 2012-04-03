@@ -9,18 +9,12 @@ Created on Mar 27, 2012
 Provides unit testing for the PO file manager.
 '''
 
-import unittest
-from tempfile import NamedTemporaryFile, TemporaryDirectory
-from os.path import join, dirname, isfile, isdir
-from shutil import rmtree
-from os import makedirs, remove, sep
-from cdm.spec import PathNotFound
-
-from internationalization.core.impl.po_file_manager import POFileManagerDB
+from datetime import datetime
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, Source
-from datetime import datetime
-from introspection.api.component import Component
+from internationalization.core.impl.po_file_manager import POFileManagerDB
+from tempfile import TemporaryDirectory
+import unittest
 
 class TestMessageService(IMessageService):
     '''
