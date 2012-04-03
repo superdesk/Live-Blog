@@ -135,7 +135,7 @@ class MetaCreatorHandler(Processor):
             assert isinstance(typ, TypeModelProperty)
 
             if typ.container.propertyId == typ.property:
-                path = self.resourcesManager.findGetModel(resourcePath, typ)
+                path = self.resourcesManager.findGetModel(resourcePath, typ.parent)
                 if path: metaLink = MetaPath(path, typ, getValue)
                 else: metaLink = None
             else: metaLink = None

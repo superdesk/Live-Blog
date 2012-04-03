@@ -84,7 +84,7 @@ def wireEntities(*classes, setupModule=None):
         if value and not isclass(value): return deepcopy(value)
         if wconfig.hasValue: return deepcopy(wconfig.value)
         raise ConfigError('A configuration value is required for %r in class %r' % (wconfig.name, clazz.__name__))
-    
+
     if setupModule:
         assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
         registry = setupModule.__dict__
@@ -116,14 +116,15 @@ def wireEntities(*classes, setupModule=None):
             assert isinstance(wire, SetupEntityWire)
             wire.update(wirings)
         else: register(SetupEntityWire(group, wirings), registry)
-    
+
 def listenToEntities(*classes, listeners=None, setupModule=None):
     '''
     Listens for entities defined in the provided module that are of the provided classes. The listening is done at the 
     moment of the entity creation so the listen is not dependent of the declared entity return type.
     
     @param classes: arguments(string|class|AOPClasses)
-        The classes to be proxied.
+        The classes to listen to, this classes can be either the same class or a super class of the instances generated
+        by the entity setup functions.
     @param listeners: None|Callable|list[Callable]|tuple(Callable)
         The listeners to be invoked. The listeners Callable's will take one argument that is the instance.
     @param setupModule: module|None
@@ -142,7 +143,7 @@ def listenToEntities(*classes, listeners=None, setupModule=None):
             raise SetupError('The create proxy call needs to be made directly from the module')
         group = registry['__name__']
     register(SetupEntityListen(group, _classes(classes), listeners), registry)
- 
+
 def bindToEntities(*classes, binders=None, setupModule=None):
     '''
     Creates entity implementation proxies for the provided entities classes found in the provided module. The binding is
@@ -169,7 +170,7 @@ def bindToEntities(*classes, binders=None, setupModule=None):
             raise SetupError('The create proxy call needs to be made directly from the module')
         group = registry['__name__']
     register(SetupEntityProxy(group, _classes(classes), binders), registry)
-    
+
 def loadAllEntities(*classes, setupModule=None):
     '''
     Loads all entities that have the type in the provided classes.
@@ -194,7 +195,7 @@ def loadAllEntities(*classes, setupModule=None):
         if '__name__' not in registry:
             raise SetupError('The create proxy call needs to be made directly from the module')
         group = registry['__name__']
-    
+
     loader = partial(loadAll, group + '.', _classes(classes))
     register(SetupStart(loader, name='loader_%s' % id(loader)), registry)
 
@@ -209,7 +210,7 @@ def include(module, setupModule=None):
         If the setup module is not provided than the calling module will be considered.
     '''
     assert ismodule(module), 'Invalid module %s' % module
-    
+
     if setupModule:
         assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
         registry = setupModule.__dict__
@@ -261,13 +262,13 @@ def entityFor(clazz, assembly=None):
     assert isclass(clazz), 'Invalid class %s' % clazz
     assembly = assembly or Assembly.current()
     assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-    
+
     entities = [name for name, call in assembly.calls.items()
                 if isinstance(call, CallEntity) and call.type and (call.type == clazz or issubclass(call.type, clazz))]
     if not entities:
         raise SetupError('There is no entity setup function having a return type of class or subclass %s' % clazz)
     if len(entities) > 1:
-        raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' % 
+        raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' %
                          (', '.join(entities), clazz))
     return assembly.processForName(entities[0])
 

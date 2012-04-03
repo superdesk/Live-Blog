@@ -16,7 +16,6 @@
  *
  * @todo maybe add some default templates or escape errors on none found at data request..
  */
-var XYZ = 'abc';
 (function( $, undefined )
 {
 	$.widget( "ui.datatable", 
@@ -30,16 +29,19 @@ var XYZ = 'abc';
 				_create: function()
 				{
 					this.plugins.dataAdapter._self = this
+					if(typeof this.options.resource == 'string')
+						this.plugins.dataAdapter._request = new $.rest(this.options.resource);
+					else
+						this.plugins.dataAdapter._request = this.options.resource;
+					this.plugins.dataAdapter._request.keepXFilter = true;
 				},
 				createRequest: function()
 				{
-					var self = this._self;
-					if(typeof self.options.resource == 'string')
-						this._request = new $.rest(self.options.resource);
-					else
-						this._request = self.options.resource;
-					
 					return this;
+				},
+				getRequest: function()
+				{
+					return this._request;
 				},
 				executeRequest: function()
 				{
@@ -53,10 +55,25 @@ var XYZ = 'abc';
 						{
 							$(self).trigger('data-request-error.datatable', arguments);
 						});
+					return this;
 				},
 				setup: function(settings)
 				{
-					
+					for( var i in settings )
+					{
+						switch(i)
+						{
+							case 'params':
+								this._request.request({data: settings[i]});
+								this.executeRequest();
+								break;
+						}
+					}
+					return this;
+				},
+				sort: function(column, dir, index)
+				{
+					return this.setup('sort', {column: column, dir: dir, index: index});
 				}
 			},
 			lib:
@@ -82,17 +99,18 @@ var XYZ = 'abc';
 				},
 				header: null, footer: null, row: null,
 			},
-			header: function()
+			header: 
 			{
-				this._create = function()
+				_create: function()
 				{
 					var self = this; // datatable
-					if( self.plugins.templates.header )
-						self.plugins.lib.core.getDatatable().append( $.tmpl(self.plugins.templates.header) );
+					if( !self.plugins.templates.header ) return;
+
+					var head = $($.tmpl(self.plugins.templates.header))
+					self.plugins.lib.core.getDatatable().append(head);
 					
-					return;
 					// bind header columns actions
-					thead.find('th').each( function()
+					head.find('th').each( function()
 					{
 						// breaks sort functionality
 						if ($(this).hasClass('unsortable'))
@@ -122,14 +140,48 @@ var XYZ = 'abc';
 								function(evt){ plugins.header.performSort.call(thisX, evt); } );
 							$(this).bind( 'click', {'datatable': self}, plugins.header.initFilter );
 						}
-						else {
-							$(this).bind( 'click', {'datatable': self},
-								function(evt){ plugins.header.performSort.call(thisX, evt); } );
-						}
+						else 
+							$(this).on('click', {'datatable': self}, function(evt)
+							{ 
+								self.plugins.header.performSort.call(thisX, evt); 
+							});
 					});
 					
-					$(self).trigger('datatable-setheader');
-				};
+					$(self).trigger('set-header.datatable');
+				},
+				/*!
+				 * provides sorting functionality per column
+				 */
+				performSort : function(evt)
+				{
+					if( typeof evt.data.datatable == 'undefined' )
+						return false;
+
+					var sortIdx = $(this).siblings().andSelf().index(this), 
+						sort = $(this).attr('sort') ? $(this).attr('sort') : sortIdx;
+
+					if (!$(this).data('datatable-sort-dir')) 
+						$(this).data('datatable-sort-dir','desc');
+					
+					if ($(this).hasClass('desc'))
+					{
+						$(this).data('datatable-sort-dir','asc');
+						$(this).siblings().removeClass('desc').removeClass('asc');
+						$(this).removeClass('desc').addClass('asc');
+					}
+					else 
+					{
+						$(this).data('datatable-sort-dir', 'desc');
+						$(this).siblings().removeClass('desc').removeClass('asc');
+						$(this).removeClass('asc').addClass('desc');
+					}
+
+					var sortDir = $(this).data('datatable-sort-dir');
+					evt.data.datatable.plugins.dataAdapter.sort( sort, sortDir, sortIdx ).executeRequest()
+
+					$(evt.data.datatable).trigger('sorting.datatable');
+					evt.stopImmediatePropagation();
+				}
 			},
 			body:
 			{
@@ -138,60 +190,84 @@ var XYZ = 'abc';
 				{
 					if( this.plugins.templates.body )
 					{
-						this.plugins.body._element = $.tmpl(this.plugins.templates.body, {data: {}});
+						this.plugins.body._element = $($.tmpl(this.plugins.templates.body, {data: {}}));
 						this.plugins.lib.core.getDatatable().append( this.plugins.body._element );
 					}
 					
 					$(this).on('data-request-success.datatable', function(event, data)
 					{
-						this.plugins.body.render.call(this, this.plugins.lib.core.getDatatable(), data)
+						console.log(data);
+						this.plugins.body.render.call(this, data)
 					})
 				},
 				/*!
 				 * this = plugin - this.plugins.body.render.apply(this, [...])
 				 */
-				render: function(datatable, data)
+				render: function(data)
 				{
-					$(datatable.find('tbody')).replaceWith($.tmpl( this.plugins.templates.body, {data: data} ))
-					//tbody.
+					var newBody = $($.tmpl( this.plugins.templates.body, {data: data} ));
+					$(this.plugins.body._element).replaceWith(newBody);
+					this.plugins.body._element = newBody;
 				}
 			},
-			footer: function()
+			footer: 
 			{
-				this._create = function()
+				_element: null,
+				_create: function()
 				{
-					if( this.plugins.templates.footer )
-						this.plugins.lib.core.getDatatable().append( $.tmpl(this.plugins.templates.footer) );
+					if( !this.plugins.templates.footer ) return;
+						
+					this.plugins.footer._element = $($.tmpl(this.plugins.templates.footer))
+					this.plugins.lib.core.getDatatable().append( this.plugins.footer._element );
 					
 					if( this.plugins.footer.setPagination )
 						this.plugins.footer.setPagination.call(this);
 
 				},
-				this.setPagination = function()
+				/*!
+				 * this = plugin - this.plugins.body.render.apply(this, [...])
+				 */
+				setPagination: function()
 				{
-					var self = this;
-					$(self).bind( 'datatable-data-success', function(event, response)
+					var self = this,
+						offset = 0,
+						limit = 10,
+						next, prev,
+						
+						prevNextHandler = function(evt)
+						{
+							var params = $(this).attr('href').split("/"), 
+								_requestData = {};
+							for( var i = 0; i < params.length; i++ )
+								_requestData[params[i]] = params[++i];
+
+							self.plugins.dataAdapter.setup({ params: _requestData }).executeRequest();
+							evt.preventDefault();
+						};
+						
+					$(this).bind( 'data-request-success.datatable', function(event, response)
 					{
 						// make pagination
-						if( typeof response.pagination != 'undefined' )
-						{
-							var footerBox = $(self).find('tfoot');
-							footerBox.tmpl
-							(
-								$('#'+options.footerTemplate), $.extend( {}, { 'data' : response.data }, response.pagination )
-							);
-							$(self).find('tfoot tr td').attr( 'colspan', $(self).find('thead tr td').length );
-						}
+						if( typeof response == 'undefined' ) return;
+						
+						var args = this.plugins.dataAdapter.getRequest().responseArgs()
+						next = offset + limit <= args.total ? offset + limit : offset;
+						prev = offset - limit >= 0 ? offset - limit : 0;
+						var paginationObject = { pagination: 
+						{ 
+							total: args.total, offset: offset, limit: limit, next: 'offset/'+next, prev: 'offset/'+prev,
+							prevElement: "prev-ctrl='1'", nextElement: "next-ctrl='1'"
+						}};
+						
+						var newFooter = $($.tmpl( this.plugins.templates.footer, paginationObject ));
+						$(this.plugins.footer._element).replaceWith(newFooter);
+						this.plugins.footer._element = newFooter;
+						
+						$(this.plugins.footer._element).on("click.datatable", "[prev-ctrl]", prevNextHandler);
+						$(this.plugins.footer._element).on("click.datatable", "[next-ctrl]", prevNextHandler);
+						
 					});
-					$(self).find('tfoot a').live( 'click', function(evt)
-					{
-						var params = $(this).attr('href').split("/");
-						for( var i = 0; i < params.length; i++ )
-							_requestData[params[i]] = params[++i];
-
-						$(self).datatable().refresh();
-						evt.preventDefault();
-					});
+					
 				}
 			}
 		},
@@ -201,10 +277,9 @@ var XYZ = 'abc';
 		},
 		_create : function()
 		{
-			//if( this.element.is('table') )
-			//	this.plugins.lib.core._element = this.element;
-			//else
-			// after plugins constuct
+			if(this.element.is('table'))
+				$(this.element).append(this.plugins.lib.core.getDatatable().contents())
+			else
 				$(this.element).append(this.plugins.lib.core.getDatatable());
 			this.plugins.dataAdapter.createRequest().executeRequest();
 		},
