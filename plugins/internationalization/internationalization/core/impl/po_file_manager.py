@@ -29,6 +29,11 @@ from datetime import datetime
 
 # --------------------------------------------------------------------
 
+from babel import localedata, core
+# Babel FIX: We need to adjust the dir name for locales since they need to be outside the .egg file
+localedata._dirname = localedata._dirname.replace('.egg', '')
+core._filename = core._filename.replace('.egg', '')
+
 @injected
 class POFileManagerDB(IPOFileManager):
     '''
