@@ -42,8 +42,6 @@ def addService(*binders):
     '''
     return partial(registerService, binders=binders)
 
-
-
 # --------------------------------------------------------------------
 @ioc.config
 def gui_server_url():

@@ -187,7 +187,7 @@ class EncDecQuery(EncoderParams, DecoderParams):
 
         groupByProp = _groupCriteriaEntriesByProperty(queryType)
         q = None
-        for propType, criteriaEntriesTypes in groupByProp:
+        for propType, criteriaEntriesTypes in groupByProp.items():
             assert isinstance(propType, TypeProperty)
             if propType.property == 'ascending' and issubclass(criteriaEntriesTypes[0].forClass, AsOrdered):
                 q = self._decodeOrdering(propType, criteriaEntriesTypes, inputs, queryType, q, params)
