@@ -67,11 +67,13 @@ class CountryServiceBabelAlchemy(ICountryService):
             for code in self.countries:
                 name = self._translate(code, locales)
                 if name and nameRegex.match(name): countries.append(Country(code, name))
+        else:
+            countries = [Country(code, self._translate(code, locales)) for code in self.countries]
 
-            return Part(trimIter(iter(countries), len(countries), offset, limit), len(countries))
+        if q and QCountry.name.ascending in q:
+            countries.sort(key=lambda country: country.Name, reverse=not q.name.ascending)
 
-        countries = (Country(code, self._translate(code, locales)) for code in self.countries)
-        return Part(trimIter(countries, len(self.countries), offset, limit), len(self.countries))
+        return Part(trimIter(iter(countries), len(countries), offset, limit), len(countries))
 
     # ----------------------------------------------------------------
 
