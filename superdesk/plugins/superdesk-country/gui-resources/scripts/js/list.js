@@ -1,45 +1,52 @@
-var countries,
-	presentation = this;
-var app = function()
-{
-	$('#area-main').html(layout);
-	
-	$('#area-content').html( $('<table class="table table-bordered table-striped country-list" />').datatable
-	({
-		templates: 
-		{
-			header: $("#tpl-country-list-header", superdesk.tmplRepo),
-			footer: $("#tpl-country-list-footer", superdesk.tmplRepo),
-			body: $("#tpl-country-list-body", superdesk.tmplRepo)
-		},
-		resource: new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Code, Name')
-	}));
-}
+/*!
+ * @author Mihai Balaceanu <mihai.balaceanu@sourcefabric.org>
+ * @package 
+ * @subpackage 
+ * @copyright 2012 Sourcefabric o.p.s.
+ * @license http://www.gnu.org/licenses/gpl.txt
+ */
 
+var countries,
+	presentation = this,
+	app = function()
+	{
+		$('#area-main').html(layout);
+		
+		$('#area-content').html( $('<table class="table table-bordered table-striped country-list" />').datatable
+		({
+			templates: 
+			{
+				header: $("#tpl-country-list-header", superdesk.tmplRepo),
+				footer: $("#tpl-country-list-footer", superdesk.tmplRepo),
+				body: $("#tpl-country-list-body", superdesk.tmplRepo)
+			},
+			resource: new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Code, Name')
+		}));
+	};
+	
 presentation.view.load('country/templates/list.html').done(app);
 
-return;
-
-// edit button functionality 
+// details button functionality 
 $(document)
-.off('click.superdesk-user-list', '.user-list .btn-primary')
-.on('click.superdesk-user-list', '.user-list .btn-primary', function(event)
+.off('click.superdesk-country-list', '.country-list .btn-info')
+.on('click.superdesk-country-list', '.country-list .btn-info', function(event)
 {
-	presentation
-		.setScript(args.updateScript)
-		.setLayout(superdesk.layouts.update.clone())
-		.setArgs({users: users, userId: $(this).attr('user-id')})
-		.run();
+	new $.rest(this.href).done(function(data)
+	{
+		$( $.tmpl($('#tpl-country-details', superdesk.tmplRepo), data) )
+			.dialog({ 
+				draggable: false,
+				resizable: false,
+				modal: true,
+				width: "40.1709%",
+				close: function(){ $(this).dialog('destroy').remove(); },
+				buttons: [{
+					text: "Close",
+					click: function(){ $(this).dialog('close'); },
+					class: "btn btn-primary"
+				}]
+			});
+	});
 	event.preventDefault();
 });
 
-$(document)
-.off('click.superdesk-user-list', '#btn-add-user')
-.on('click.superdesk-user-list', '#btn-add-user', function(event)
-{
-	presentation
-		.setScript(args.addScript)
-		.setLayout(superdesk.layouts.update.clone())
-		.setArgs({users: users})
-		.run()
-})

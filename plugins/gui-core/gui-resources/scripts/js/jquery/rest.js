@@ -77,6 +77,7 @@ $(function()
 		{
 			self.lastUrl = arguments[0];
 			self.request({url : arguments[0] });
+			var resolve = null;
 			self.initData = new chainable( function()
 			{
 				if( resolve && !self.dataChanged ) 
@@ -427,7 +428,24 @@ $(function()
 			$.extend(true, this.requestOptions, options);
 			return this;
 		},
+
+		/*!
+		 * reset request option data, optionally by key
+		 */
+		resetData: function(key)
+		{
+			if( !this.requestOptions.data ) return this;
+			if( typeof key == 'undefined' ) {
+				delete this.requestOptions.data;
+				return this;
+			}
+			delete this.requestOptions.data[key];
+			return this;
+		},
 		
+		/*!
+		 * 
+		 */
 		xfilter: function(value)
 		{
 			this.lastAdded.request = { headers: { 'X-Filter' : value } };

@@ -24,7 +24,7 @@ from internationalization.api.message import Message
 from babel.messages.pofile import read_po, write_po
 from babel.messages.mofile import write_mo
 from os.path import join
-from io import StringIO
+from io import BytesIO
 from datetime import datetime
 
 # --------------------------------------------------------------------
@@ -216,8 +216,8 @@ class POFileManagerDB(IPOFileManager):
             globalCatalog.add(msg.id, msg.string, msg.locations, msg.flags, msg.auto_comments,
                               msg.user_comments, msg.previous_id, msg.lineno, msg.context)
         globalCatalog.update(templateCatalog)
-        fileObj = StringIO()
-        write_po(fileObj)
+        fileObj = BytesIO()
+        write_po(fileObj, globalCatalog)
         return fileObj
 
     def _readPOFile(self, path:str, locale:str=None) -> Catalog:
@@ -312,7 +312,7 @@ class POFileManagerDB(IPOFileManager):
 
     def _addMsgToCatalog(self, msg, catalog):
         msgId = msg.Singular if not msg.Plural else (msg.Singular,) + msg.Plural
-        src = Source(msg.Source)
+        src = self.sourceService.getById(msg.Source)
         msg.Comments = msg.Comments if msg.Comments else ''
         catalog.add(id=msgId, locations=((src.Path, msg.LineNumber),), flags=(),
                     auto_comments=(msg.Comments), user_comments=(), context=msg.Context)
