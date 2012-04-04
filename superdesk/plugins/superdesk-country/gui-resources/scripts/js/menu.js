@@ -47,6 +47,24 @@
 				{
 					var self = this._self;
 					if(this._request)
+					{
+						var data = {};
+						for( var i in this._data )
+						{
+							switch(i)
+							{
+								case 'filter-name':
+									data[this._data[i]] = this._data['filter-value'];
+									break;
+								case 'sort':
+									data[this._data['sort-dir']] = this._data[i];
+									break;
+							}
+						};
+						this._request.resetData('asc').resetData('desc');
+						$.extend(data, this._data['params']);
+						this._request.request({data: data});
+						
 						return this._request.done(function()
 						{
 							$(self).trigger('data-request-success.datatable', arguments);
@@ -55,25 +73,31 @@
 						{
 							$(self).trigger('data-request-error.datatable', arguments);
 						});
+					}
 					return this;
 				},
+				_data: {params: {}},
 				setup: function(settings)
 				{
+					if( typeof settings == 'string' ) settings = [settings];
 					for( var i in settings )
 					{
 						switch(i)
 						{
 							case 'params':
-								this._request.request({data: settings[i]});
-								this.executeRequest();
+								$.extend(this._data['params'], settings[i]);
+								break;
+							case 'filter':
+								this._data['filter-name'] = settings[i].name;
+								this._data['filter-value'] = settings[i].value;
+								break;
+							case 'sort':
+								this._data['sort'] = settings[i].sort;
+								this._data['sort-dir'] = settings[i].sortDir;
 								break;
 						}
 					}
 					return this;
-				},
-				sort: function(column, dir, index)
-				{
-					return this.setup('sort', {column: column, dir: dir, index: index});
 				}
 			},
 			lib:
@@ -97,7 +121,7 @@
 					for( var i in optTpl )
 						this.plugins.templates[i] = optTpl[i];
 				},
-				header: null, footer: null, row: null,
+				header: null, footer: null, row: null
 			},
 			header: 
 			{
@@ -110,44 +134,119 @@
 					self.plugins.lib.core.getDatatable().append(head);
 					
 					// bind header columns actions
+					// TODO fix th lookup
 					head.find('th').each( function()
 					{
 						// breaks sort functionality
-						if ($(this).hasClass('unsortable'))
-							return true;
+						if ($(this).hasClass('unsortable') || typeof $(this).attr('unsortable') != 'undefined') return true;
 
 						var thisX = this;
 						// set filter functionality
-						if ($(this).hasClass('filterable'))
+						if ($(this).hasClass('filterable') || typeof $(this).attr('filterable') != 'undefined')
 						{
 							// hide, bind close event for filter box
-							$(this).find('input').hide().bind( 'hide-filter', {'datatable': thisObj}, function(evt)
+							$(this).find('input').hide().on( 'hide-filter.datatable', {'datatable': self}, function(evt)
 							{
-								plugins.header.closeFilter.call(thisX, evt);
+								self.plugins.header.closeFilter.call(thisX, evt);
 							});
 
 							// bind close filter to hide control
 							$(this).find('.filter-hide-ctrl')
 								.hide()
-								.bind( 'click', function(evt)
+								.on( 'click', function(evt)
 								{
 									evt.stopImmediatePropagation();
-									$(thisX).find('input').trigger('hide-filter');
+									$(thisX).find('input').trigger('hide-filter.datatable');
 								});
 
 							$(this).find('.filter-ctrl').hide();
-							$(this).delegate( 'a.sort-ctrl', 'click', {'datatable': self},
-								function(evt){ plugins.header.performSort.call(thisX, evt); } );
-							$(this).bind( 'click', {'datatable': self}, plugins.header.initFilter );
+							$(this).on( 'click', 'a.sort-ctrl', {'datatable': self},
+								function(evt){ self.plugins.header.performSort.call(thisX, evt); } );
+							$(this).on( 'click', {'datatable': self}, self.plugins.header.initFilter );
 						}
-						else 
+						else
+						{
 							$(this).on('click', {'datatable': self}, function(evt)
 							{ 
 								self.plugins.header.performSort.call(thisX, evt); 
 							});
+						}
 					});
 					
 					$(self).trigger('set-header.datatable');
+				},
+				/*!
+				 * show filter interface
+				 */
+				initFilter : function(evt)
+				{
+					if( typeof evt.data.datatable == 'undefined' ) 
+						return false;
+					
+					var thisX = this;
+					$(this).find('label').hide();
+					$(this).find('.filter-hide-ctrl').show();
+
+					var filterInput = $(this).find('input').show().focus()
+						.on( 'keyup.datatable', evt.data,  function(evt) 
+						{ 
+							evt.data.datatable.plugins.header.performFilter.call(thisX, evt); 
+						});
+
+					$(this).find('.filter-ctrl').show()
+						// simulate keyup on filter ctrl click
+						.bind( 'click.datatable', evt.data,
+							function(evt)
+							{
+								evt.keyCode = 13;
+								evt.type = 'keyup';
+								filterInput.trigger(evt).focus();
+							});
+
+					$(this).trigger('filter-open.datatable');
+				},
+				/*!
+				 * close column filter
+				 */
+				closeFilter : function(evt)
+				{
+					if( typeof evt.data.datatable == 'undefined' ) return false;
+
+					$(this).find('label').show();
+					$(this).find('.filter-hide-ctrl').hide();
+					$(this).find('.filter-ctrl').hide();
+					$(this).find('input').val('').hide().unbind( 'keyup.datatable' );
+
+					evt.data.datatable.plugins.dataAdapter.setup('remove-filter').executeRequest();
+					$(this).trigger('filter-closed.datatable');
+				},
+				/*!
+				 * perform the actual filter
+				 *
+				 * this = header dom elem
+				 */
+				performFilter : function(evt)
+				{
+					if( typeof evt.data.datatable == 'undefined' ) return false;
+
+					// hide on escape key
+					if( evt.keyCode==27 )
+					{
+						evt.data.datatable.plugins.header.closeFilter.call(this, evt);
+						return;
+					}
+					// return on empty value
+					if( $.trim($(this).find('input').val())=='' ) return false;
+
+					// perform filter
+					if( evt.keyCode==13 )
+					{
+						evt.data.datatable.plugins.dataAdapter
+							.setup({filter: {name: $(this).attr('filter'), value: $(this).find('input').val()}})
+							.executeRequest();
+					}
+					$(this).trigger('filtering.datatable');
+					evt.stopImmediatePropagation();
 				},
 				/*!
 				 * provides sorting functionality per column
@@ -177,7 +276,8 @@
 					}
 
 					var sortDir = $(this).data('datatable-sort-dir');
-					evt.data.datatable.plugins.dataAdapter.sort( sort, sortDir, sortIdx ).executeRequest()
+					evt.data.datatable.plugins.dataAdapter
+						.setup({ sort: {sort: sort, sortDir: sortDir, sortIdx: sortIdx} }).executeRequest();
 
 					$(evt.data.datatable).trigger('sorting.datatable');
 					evt.stopImmediatePropagation();
@@ -185,6 +285,7 @@
 			},
 			body:
 			{
+				// dom element
 				_element: null,
 				_create: function()
 				{
@@ -196,7 +297,6 @@
 					
 					$(this).on('data-request-success.datatable', function(event, data)
 					{
-						console.log(data);
 						this.plugins.body.render.call(this, data)
 					})
 				},
@@ -212,6 +312,7 @@
 			},
 			footer: 
 			{
+				// dom obj
 				_element: null,
 				_create: function()
 				{
@@ -224,16 +325,13 @@
 						this.plugins.footer.setPagination.call(this);
 
 				},
+				_args: { offset: 0, limit: null, next: null, prev: null },
 				/*!
 				 * this = plugin - this.plugins.body.render.apply(this, [...])
 				 */
 				setPagination: function()
 				{
 					var self = this,
-						offset = 0,
-						limit = 10,
-						next, prev,
-						
 						prevNextHandler = function(evt)
 						{
 							var params = $(this).attr('href').split("/"), 
@@ -241,22 +339,39 @@
 							for( var i = 0; i < params.length; i++ )
 								_requestData[params[i]] = params[++i];
 
+							self.plugins.footer._args.offset = _requestData.offset;
 							self.plugins.dataAdapter.setup({ params: _requestData }).executeRequest();
 							evt.preventDefault();
 						};
+					
+					$(this).one( 'data-request-success.datatable', function(event, response)
+					{
+						this.plugins.footer._args.limit = response.length;
+					});
 						
-					$(this).bind( 'data-request-success.datatable', function(event, response)
+					$(this).on( 'data-request-success.datatable', function(event, response)
 					{
 						// make pagination
 						if( typeof response == 'undefined' ) return;
 						
-						var args = this.plugins.dataAdapter.getRequest().responseArgs()
-						next = offset + limit <= args.total ? offset + limit : offset;
-						prev = offset - limit >= 0 ? offset - limit : 0;
+						var _args = this.plugins.footer._args,
+							args = this.plugins.dataAdapter.getRequest().responseArgs();
+
+						var	nextCheck = parseInt(_args.offset) + parseInt(_args.limit),
+							prevCheck = parseInt(_args.offset) - parseInt(_args.limit);
+						
+						_args.next = nextCheck <= args.total ? nextCheck : _args.offset;
+						_args.prev = prevCheck >= 0 ? prevCheck : 0;
+						
 						var paginationObject = { pagination: 
 						{ 
-							total: args.total, offset: offset, limit: limit, next: 'offset/'+next, prev: 'offset/'+prev,
-							prevElement: "prev-ctrl='1'", nextElement: "next-ctrl='1'"
+							total: args.total, 
+							offset: _args.offset, 
+							limit: _args.limit, 
+							next: 'offset/' + _args.next, 
+							prev: 'offset/' + _args.prev,
+							prevElement: "prev-ctrl='1'", 
+							nextElement: "next-ctrl='1'"
 						}};
 						
 						var newFooter = $($.tmpl( this.plugins.templates.footer, paginationObject ));
