@@ -6,16 +6,15 @@
 </colgroup>
 <thead>
 	<tr>
-		<th filterable filter="code">
+		<th sort="name">
 			<label>Code</label>
-			<input class="span2" />
-			<a class="filter-hide-ctrl close">&times;</a>
+			<a class="icon-chevron-up sort-ctrl"></a>
 		</th>
-		<th sort="name" filterable>
+		<th sort="name" filterable filter="name">
 			<label>Name</label>
-			<input class="span4" />
-			<a class="filter-hide-ctrl close">&times;</a>
-			<a class="sort-ctrl"><></a>
+			<input style="width: 300px" />
+			<a class="icon-remove filter-hide-ctrl"></a>
+			<a class="icon-chevron-up sort-ctrl"></a>
 		</th>
 		<th>&nbsp;</th>
 	</tr>
@@ -29,10 +28,9 @@
 		<td>{{data[i].Code}}</td>
     	<td class="sortable">{{data[i].Name}}</td>
 		<td>
-			<p>
-				<button href="/modules/country/update#top" class="btn btn-primary">edit</button> 
-				<button href="/modules/country/delete#top" class="btn btn-danger">delete</button>
-				</p>
+			<a href="{{data[i].href}}" class="btn btn-info">
+				<i class="icon-info-sign icon-white"></i> Details
+			</a>
 		</td>
     </tr>
 	{% endfor %}
@@ -61,4 +59,26 @@
 	</td>
 </tr>
 </tfoot>
+</script>
+
+
+<script type="text/x-jQuery-tmpl" id="tpl-country-details">
+<div title="{{Name}}">
+	<form class="form-horizontal">
+		<fieldset>
+			<div class="control-group">
+            	<label class="control-label">Country Code</label>
+            	<div class="controls">
+            		<span class="input-small uneditable-input"><strong>{{Code}}</strong></span>
+            	</div>
+          	</div>
+			<div class="control-group">
+            	<label class="control-label">Country Name</label>
+            	<div class="controls">
+            		<span class="input-large uneditable-input"><strong>{{Name}}</strong></span>
+            	</div>
+          	</div>
+        </fieldset>
+      </form>
+</div>
 </script>

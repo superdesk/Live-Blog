@@ -1,37 +1,9 @@
-/**
+/*!
  * @author Mihai Balaceanu <mihai.balaceanu@sourcefabric.org>
- * @package Newscoop
+ * @package Superdesk
  * @subpackage Components
- * @copyright 2011 Sourcefabric o.p.s.
+ * @copyright 2012 Sourcefabric o.p.s.
  * @license http://www.gnu.org/licenses/gpl.txt
- *
- * After the first call with at least some blank options object
- * you will be able to call it without any arguments and retrieve the datatable object
- * having available:
- * 		- addOption method to extend the first options
- * 		- addPlugin method to extend the plugins
- * 		- refresh method to recall the last data request
- * 		- options object
- * 		- plugins object
- *
- * @todo maybe add some default templates or escape errors on none found at data request..
- */
-
-/**
- * @author Mihai Balaceanu <mihai.balaceanu@sourcefabric.org>
- * @package Newscoop
- * @subpackage Components
- * @copyright 2011 Sourcefabric o.p.s.
- * @license http://www.gnu.org/licenses/gpl.txt
- *
- * After the first call with at least some blank options object
- * you will be able to call it without any arguments and retrieve the datatable object
- * having available:
- * 		- addOption method to extend the first options
- * 		- addPlugin method to extend the plugins
- * 		- refresh method to recall the last data request
- * 		- options object
- * 		- plugins object
  *
  * @todo maybe add some default templates or escape errors on none found at data request..
  */
@@ -203,8 +175,11 @@
 						return false;
 					
 					var thisX = this;
+					// add class for cell filtering
+					$(this).addClass(evt.data.datatable.options.filterClass);
+					
 					$(this).find('label').hide();
-					$(this).find('.filter-hide-ctrl').show();
+					$(this).find('.filter-hide-ctrl').css({display: 'inline-block'});
 
 					var filterInput = $(this).find('input').show().focus()
 						.on( 'keyup.datatable', evt.data,  function(evt) 
@@ -231,6 +206,8 @@
 				{
 					if( typeof evt.data.datatable == 'undefined' ) return false;
 
+					$(this).removeClass(evt.data.datatable.options.filterClass);
+					
 					$(this).find('label').show();
 					$(this).find('.filter-hide-ctrl').hide();
 					$(this).find('.filter-ctrl').hide();
@@ -407,7 +384,7 @@
 		},
 		options: 
 		{
-			
+			filterClass: 'filtering'
 		},
 		_create : function()
 		{
@@ -415,6 +392,9 @@
 				$(this.element).append(this.plugins.lib.core.getDatatable().contents())
 			else
 				$(this.element).append(this.plugins.lib.core.getDatatable());
+			
+			$(this.element).addClass('datatable');
+			
 			this.plugins.dataAdapter.createRequest().executeRequest();
 		},
 		_init: function() 
