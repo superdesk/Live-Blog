@@ -36,6 +36,7 @@ class QCountry:
     Provides the country query model.
     '''
     name = AsLike
+    code = AsLike
 
 # --------------------------------------------------------------------
 
