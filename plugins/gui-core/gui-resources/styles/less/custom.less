@@ -99,15 +99,57 @@
 	text-decoration: underline;
 }
 
-th input
+.datatable th input
 {
-	margin: 0;
 	width: auto; 
+	margin: 0;
+}
+.datatable th input:focus
+{
+	@shadow: inset 1px 1px 3px rgba(82,168,236,.6);
+  	.box-shadow(@shadow);
 }
 
-th label
+.datatable th label
 {
 	font-weight: bold;
 	margin: 0;
 	color: @textColor;
+	display: inline-block;
 }
+
+.datatable th .sort-ctrl
+{
+	float: right;
+	.opacity(50);
+}
+.datatable th.desc .sort-ctrl
+{
+	.icon-chevron-down;
+	.opacity(100);
+}
+
+.datatable th.asc .sort-ctrl
+{
+	.icon-chevron-up;
+	.opacity(100);
+}
+
+.datatable th .filter-hide-ctrl
+{
+	display: inline-block;
+	float: none;
+	margin: 3px 5px;
+}
+
+.datatable th.filtering
+{
+	padding: 3px;
+}
+
+.datatable th.filtering .sort-ctrl
+{
+	margin: 5px 5px 0 0;
+}
+
+
