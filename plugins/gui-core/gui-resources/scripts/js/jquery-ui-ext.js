@@ -32,6 +32,8 @@ Function.prototype.inherits = function( parentClassOrObject )
 				pluginsClass.prototype[i] = object.prototype.plugins[i];
 		}
 		
+		var prototypeOptions = object.prototype.options;
+		
 		$.fn[ name ] = function( options ) 
 		{ 
 			var isMethodCall = typeof options === "string",
@@ -57,7 +59,7 @@ Function.prototype.inherits = function( parentClassOrObject )
 
 				// extend with user plugins from options
 				objectModel.plugins = $.extend( objectModel.plugins, extendPlugins);
-				objectModel.options = $.extend( true, {}, options, objectModel._getCreateOptions() );
+				objectModel.options = $.extend( true, {}, options, prototypeOptions, objectModel._getCreateOptions() );
 				
 				var extendPlugins = (applyPlugins ? applyPlugins : objectModel.plugins);
 				if( typeof objectModel.plugins != 'undefined' )
