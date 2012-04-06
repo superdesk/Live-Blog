@@ -32,6 +32,8 @@ def handle(e, entity):
         raise InputError(Ref(_('A foreign key is not valid'), model=typeFor(entity).container))
     raise e
 
+# --------------------------------------------------------------------
+
 def buildLimits(sqlQuery, offset=None, limit=None):
     '''
     Builds limiting on the SQL alchemy query.
@@ -100,3 +102,5 @@ def buildQuery(sqlQuery, query, mapped):
                 else: sqlQuery = sqlQuery.order_by(column.desc())
 
     return sqlQuery
+
+# --------------------------------------------------------------------
