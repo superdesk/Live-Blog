@@ -82,7 +82,7 @@ class EntitySupportAlchemy(SessionSupport):
         if query:
             assert self.QEntity, 'No query provided for the entity service'
             assert self.queryType.isValid(query), 'Invalid query %s, expected %s' % (query, self.QEntity)
-            sqlQuery = buildQuery(sqlQuery, query, self.Entity, self.QEntity)
+            sqlQuery = buildQuery(sqlQuery, query, self.Entity)
         sqlQuery = buildLimits(sqlQuery, offset, limit)
         return (entity for entity in sqlQuery.all())
 
@@ -105,7 +105,7 @@ class EntitySupportAlchemy(SessionSupport):
         if query:
             assert self.QEntity, 'No query provided for the entity service'
             assert self.queryType.isValid(query), 'Invalid query %s, expected %s' % (query, self.QEntity)
-            sqlQuery = buildQuery(sqlQuery, query, self.Entity, self.QEntity)
+            sqlQuery = buildQuery(sqlQuery, query, self.Entity)
         return sqlQuery.count()
 
     def _getAllWithCount(self, filter=None, query=None, offset=None, limit=None, sqlQuery=None):
@@ -131,7 +131,7 @@ class EntitySupportAlchemy(SessionSupport):
         if query:
             assert self.QEntity, 'No query provided for the entity service'
             assert self.queryType.isValid(query), 'Invalid query %s, expected %s' % (query, self.QEntity)
-            sqlQuery = buildQuery(sqlQuery, query, self.Entity, self.QEntity)
+            sqlQuery = buildQuery(sqlQuery, query, self.Entity)
         sql = buildLimits(sqlQuery, offset, limit)
         if limit == 0: return [], sqlQuery.count()
         return (entity for entity in sql.all()), sqlQuery.count()
