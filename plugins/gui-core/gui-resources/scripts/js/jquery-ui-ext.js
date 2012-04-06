@@ -59,8 +59,7 @@ Function.prototype.inherits = function( parentClassOrObject )
 
 				// extend with user plugins from options
 				objectModel.plugins = $.extend( objectModel.plugins, extendPlugins);
-				objectModel.options = $.extend( true, {}, options, prototypeOptions, objectModel._getCreateOptions() );
-				
+				objectModel.options = $.extend( true, {}, objectModel._getCreateOptions(), prototypeOptions, options);
 				var extendPlugins = (applyPlugins ? applyPlugins : objectModel.plugins);
 				if( typeof objectModel.plugins != 'undefined' )
 					for( i in extendPlugins ) 
