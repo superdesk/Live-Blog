@@ -63,8 +63,8 @@ class IPOFileManager(metaclass=abc.ABCMeta):
 
         @param locale: string
             The locale for which to return the translation.
-        @return: string
-            The path to the temporary PO file.
+        @return: file like object
+            The PO file containing the translation.
         '''
 
     @abc.abstractmethod
@@ -76,8 +76,8 @@ class IPOFileManager(metaclass=abc.ABCMeta):
             The component for which to return the translation.
         @param locale: string
             The locale for which to return the translation.
-        @return: string
-            The path to the temporary PO file.
+        @return: file like object
+            The PO file containing the translation.
         '''
 
     @abc.abstractmethod
@@ -89,8 +89,8 @@ class IPOFileManager(metaclass=abc.ABCMeta):
             The plugin for which to return the translation.
         @param locale: string
             The locale for which to return the translation.
-        @return: string
-            The path to the temporary PO file.
+        @return: file like object
+            The PO file containing the translation.
         '''
 
     @abc.abstractmethod
