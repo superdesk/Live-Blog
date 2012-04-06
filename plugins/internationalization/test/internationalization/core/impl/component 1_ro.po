@@ -25,7 +25,7 @@ msgstr "mesaj 1"
 
 #: component_1/src.py:104
 msgid "message 2"
-msgstr "mesaj 2 exceptie"
+msgstr "mesaj 2 exceptie (component)"
 
 #: component_1/src.py:106
 msgctxt "component"
