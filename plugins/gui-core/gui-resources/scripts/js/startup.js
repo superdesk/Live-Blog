@@ -1,6 +1,8 @@
 // TODO set automatically on server startup
 superdesk.apiUrl = "http://localhost:8080";
 
+superdesk.navigation.init();
+
 $(function()
 {
 	var buildMenu = function()
@@ -8,8 +10,6 @@ $(function()
 		superdesk.getActions('menu')
 		.done(function(menu)
 		{
-			// superdesk.navigation.bind(menu);
-
 			var displayMenu = [];
 			$(menu).each(function()
 			{ 
@@ -19,9 +19,10 @@ $(function()
 				this.Name = path.join('-');
 				displayMenu.push(this);
 				var scriptPath = this.ScriptPath;
+				$(document).off('click', 'a[href^="'+this.Href+'"]');
 				$(document).on('click', 'a[href^="'+this.Href+'"]', function(event)
 				{
-					$.ajax(superdesk.apiUrl+'/'+scriptPath, {dataType: 'script'});
+				    $.ajax(superdesk.apiUrl+'/'+scriptPath, {dataType: 'script'}); 
 					event.preventDefault();
 				});
 			});
