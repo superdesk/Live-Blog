@@ -22,12 +22,15 @@ from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, Source
 from internationalization.core.impl.po_file_manager import POFileManagerDB
 
+
 class TestMessageService(IMessageService):
-    '''
-    '''
+    _componentStartId = 0
+
     _components = 3
 
     _componentMessages = 5
+
+    _pluginStartId = 10000
 
     _plugins = 3
 
@@ -63,7 +66,7 @@ class TestMessageService(IMessageService):
         messages = []
         for m in range(self._componentMessages):
             msg = Message()
-            msg.Id = int(component) * 10 + m
+            msg.Id = self._componentStartId + int(component) * self._componentMessages + m
             if m > 2:
                 msg.Singular = 'component %s message %d' % (component, m)
                 msg.Context = 'component'
@@ -88,7 +91,7 @@ class TestMessageService(IMessageService):
         messages = []
         for m in range(self._pluginMessages):
             msg = Message()
-            msg.Id = int(plugin) * 10 + m
+            msg.Id = self._pluginStartId + int(plugin) * self._pluginMessages + m
             if m > 3:
                 msg.Singular = 'plugin %s message %d' % (plugin, m)
                 msg.Context = 'plugin'
@@ -149,7 +152,7 @@ class TestHTTPDelivery(unittest.TestCase):
         poManager.sourceService = TestSourceService()
         poRepDir = TemporaryDirectory()
         poManager.locale_dir_path = poRepDir.name
-#        poManager.locale_dir_path = dirname(abspath(__file__))
+        poManager.locale_dir_path = dirname(abspath(__file__))
 
         srcService = TestSourceService()
         self.assertEqual(srcService.getAll()[0].LastModified,
@@ -192,8 +195,14 @@ class TestHTTPDelivery(unittest.TestCase):
             if msg and msg.id != '':
                 self.assertEqual(msg, pluginTestCat.get(msg.id, msg.context))
 
-        with open(join(dirname(abspath(__file__)), 'component 1_ro.po')) as f:
+        with open(join(dirname(abspath(__file__)), 'global-_ro.po')) as f:
             poManager.updateGlobalPOFile(f, 'ro')
+
+        with open(join(dirname(abspath(__file__)), 'component 1_ro.po')) as f:
+            poManager.updateComponentPOFile(f, '1', 'ro')
+
+#        with open(join(dirname(abspath(__file__)), 'plugin 1_ro.po')) as f:
+#            poManager.updatePluginPOFile(f, '1', 'ro')
 
 #        tmpFile = NamedTemporaryFile()
 #        tmpFile.delete = False
