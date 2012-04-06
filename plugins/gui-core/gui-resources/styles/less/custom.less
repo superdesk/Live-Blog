@@ -1,3 +1,6 @@
+@iconSpritePath:          "../../images/glyphicons-halflings.png";
+@iconWhiteSpritePath:     "../../images/glyphicons-halflings-white.png";
+
 #gradient 
 {
 	.horizontal-three-colors(@startColor: #000, @midColor: #FFF, @colorStop: 50%, @endColor: #000)
@@ -41,15 +44,6 @@
 {
 	margin: 0 @gridGutterWidth / 2;
 }
-.navbar .search-query
-{
-	#gridSystem > .columns(@gridGutterWidth, @gridColumnWidth, @gridRowWidth, 2);
-	.transition(all 0.2s);
-}
-.navbar .search-query:focus
-{
-	#gridSystem > .columns(@gridGutterWidth, @gridColumnWidth, @gridRowWidth, 3);
-} 
 
 @-webkit-keyframes loader {
   from  { background-position: -940px 0; }
@@ -152,4 +146,9 @@
 	margin: 5px 5px 0 0;
 }
 
+.datatable tfoot li
+{
+	float: left;
+	margin:0 5px;
+}
 
