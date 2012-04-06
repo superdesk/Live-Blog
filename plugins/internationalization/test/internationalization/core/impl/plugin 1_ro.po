@@ -21,7 +21,7 @@ msgstr "mesaj 0"
 
 #: plugin_11/src.py:102
 msgid "message 1"
-msgstr "mesaj 1"
+msgstr "mesaj 1 exceptie (plugin)"
 
 #: plugin_11/src.py:104
 msgid "message 2"
@@ -29,7 +29,7 @@ msgstr "mesaj 2"
 
 #: plugin_11/src.py:106
 msgid "message 3"
-msgstr "mesaj 3 exceptie"
+msgstr "mesaj 3 exceptie (plugin)"
 
 #: plugin_11/src.py:108
 msgctxt "plugin"
