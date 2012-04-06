@@ -42,16 +42,16 @@
 <tr>
 	<td colspan="3">
 	{? pagination }
-	<ul class="the-icons">
+	<ul class="the-icons unstyled">
 		<li>
 			<a class="previous" href="{{pagination.prev}}" {{pagination.prevElement}}>
-				x <i class="icon-chevron-right"></i>
+				<i class="icon-chevron-left"></i>
 			</a>
 		</li>
-		<li>{{pagination.offset}} - {{pagination.limit}} of {{pagination.total}}</li>
+		<li>{{pagination.offset}} - {{pagination.range}} of {{pagination.total}}</li>
 		<li>
 			<a class="next" href="{{pagination.next}}" {{pagination.nextElement}}>
-				x <i class="icon-chevron-left"></i>
+				<i class="icon-chevron-right"></i>
 			</a>
 		</li>
 	</ul>
@@ -61,24 +61,17 @@
 </tfoot>
 </script>
 
-
 <script type="text/x-jQuery-tmpl" id="tpl-country-details">
 <div title="{{Name}}">
-	<form class="form-horizontal">
-		<fieldset>
-			<div class="control-group">
-            	<label class="control-label">Country Code</label>
-            	<div class="controls">
-            		<span class="input-small uneditable-input"><strong>{{Code}}</strong></span>
-            	</div>
-          	</div>
-			<div class="control-group">
-            	<label class="control-label">Country Name</label>
-            	<div class="controls">
-            		<span class="input-large uneditable-input"><strong>{{Name}}</strong></span>
-            	</div>
-          	</div>
-        </fieldset>
-      </form>
+	<dl class="dl-horizontal">
+        <dt>Country Code</dt>
+        <dd>{{Code}}</dd>
+        <dt>Country Name</dt>
+        <dd>{{Name}}</dd>
+	</dl>
 </div>
+</script>
+
+<script type="text/x-jQuery-tmpl" id="tpl-country-add">
+	<a href="/country/add" class="country-add btn"><i class="icon-plus-sign"></i> Add</a>
 </script>
