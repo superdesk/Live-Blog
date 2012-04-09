@@ -90,10 +90,9 @@ $(function()
 				return self.doRequest()
 					.pipe(function(data)
 					{
-						var ret = extractListData(data);
-						self.dataChanged = false;
-						//self.initData.fn = function(){ this.deferred.resolve(ret); return ret; };
-						return ret;
+					    resolve = extractListData(data);
+                        self.dataChanged = false;
+                        return resolve;
 					})
 					.then(this.deferred.resolve, this.deferred.reject);
 			}, 'initData from ajax');

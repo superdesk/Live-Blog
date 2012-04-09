@@ -138,7 +138,7 @@
 					
 					// bind header columns actions
 					// TODO fix th lookup
-					head.find('th').each( function()
+					head.find(self.options.headerColumnSelector).each( function()
 					{
 						// breaks sort functionality
 						if ($(this).hasClass('unsortable') || typeof $(this).attr('unsortable') !== 'undefined') return true;
@@ -398,6 +398,7 @@
 		options: 
 		{
 			filterCellClass: 'filtering',
+			headerColumnSelector: 'th',
 			templateMarks:
 			{
 			    prevAttr: 'prev-ctrl',

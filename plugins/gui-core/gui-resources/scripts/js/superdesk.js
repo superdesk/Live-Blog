@@ -82,25 +82,34 @@ var superdesk =
 	    _titlePrefix: '',
         bind: function(href, callback, title)
         {
+            if(typeof callback !== 'function') return false;
+            
             var History = window.History;
             this._repository[href] = callback;
             History.pushState({href: href}, title ? this._titlePrefix + title : null, this._base + href);
             return callback;
         },
-        init: function()
+        init: function(callback)
         {
             var History = window.History, 
                 State = History.getState(),
                 self = this;
             
-                History.options.debug = true;
-                this._base = History.getPageUrl().split('#')[0];
-                console.log( History.getPageUrl().split('#') )
-                History.Adapter.bind( window, 'statechange', function()
-                {
-                    var State = History.getState();
-                    (self._repository[State.data.href])();
-                });
+            History.options.debug = true;
+            this._base = History.getPageUrl().split('#')[0];
+                
+            History.Adapter.bind( window, 'statechange', function()
+            {
+                var State = History.getState();
+                (self._repository[State.data.href])();
+            });
+                
+            if( typeof callback === 'function' )
+            {
+                this._repository[''] = callback;
+                History.pushState( {href: ''}, $(document).prop('title'), this._base );
+                History.Adapter.trigger( window, 'statechange' );
+            }
         }
 	},
 	/*!
@@ -123,7 +132,8 @@ var superdesk =
 		var script = script,
 			layout = layout || null,
 			args = args || null,
-			self = this;
+			self = this,
+			t$ = function(selector){ return $(selector, superdesk.tmplRepo); };
 		
 		/*!
 		 * Loads and applies script to a layout object
@@ -143,7 +153,8 @@ var superdesk =
 			dfd.done(function(scriptText)
 			{
 				// TODO additional security checking here
-				(new Function('layout', 'args', scriptText)).call(self, layout, args);
+			    (new Function('$', 't$', 'layout', 'args', scriptText))
+                    .call(self, $, t$, layout, args);
 			});
 			if( !superdesk.cache.scripts[script] )
 			{
@@ -156,6 +167,30 @@ var superdesk =
 				return dfd;
 			}
 			return dfd.resolve(superdesk.cache.scripts[script]);
+		};
+		
+		this.direct = function(href, script, layout, args, title)
+		{
+		    if( typeof href === 'object' )
+		    {
+		        switch(true)
+		        {
+		            case typeof href.script !== 'undefined': script = href.script; 
+                    case typeof href.layout !== 'undefined': layout = href.layout;
+                    case typeof href.args !== 'undefined': args = href.args;
+                    case typeof href.title !== 'undefined': title = href.title;
+                    case typeof href.href !== 'undefined': href = href.href;
+		        }
+		    }
+		    var self = this,
+		        fnc = function(){ self.setScript(script).setLayout(layout).setArgs(args).run(); };
+		        
+		    if( typeof href === 'string' )
+		    {
+		        superdesk.navigation.bind( href, fnc, title );
+		        return;
+		    }
+		    (fnc)();
 		};
 	}
 };
@@ -172,7 +207,13 @@ superdesk.presentation.prototype =
 		{
 			if(typeof selector == 'string') var tmpl = $(selector, superdesk.tmplRepo);
 			else var tmpl = selector;
-			return $($.tmpl(tmpl, data));
+
+			// TODO tpl
+			var compiled = $($.tmpl(tmpl, data));
+
+			console.log(compiled);
+			
+			return compiled;
 		}
 	},
 	form:
