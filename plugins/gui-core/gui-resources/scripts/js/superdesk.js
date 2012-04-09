@@ -1,8 +1,3 @@
-$.extend( $, 
-{
-	
-});
-
 var superdesk = 
 {
 	/*!
@@ -82,25 +77,35 @@ var superdesk =
 	 */
 	navigation: 
 	{
-		bind: function(actions)
-		{
-			$(actions).each(function()
-			{
-				var action = this,
-					slashedPath = this.Path.replace(/\./g, '/');
-				$(document).on('click', 'a[href^="/'+slashedPath+'"]', function(event)
-				{
-					history.pushState(action, action.Label, slashedPath);
-					$.ajax(superdesk.apiUrl+'/'+action.ScriptPath, {dataType: 'script'});
-					event.preventDefault();
-				});
-			});
-		},
-		init: function()
-		{
-			$(window).on('popstate', function(){ console.log(history.state); });
-		}
+	    _repository: {},
+	    _base: '',
+	    _titlePrefix: '',
+        bind: function(href, callback, title)
+        {
+            var History = window.History;
+            this._repository[href] = callback;
+            History.pushState({href: href}, title ? this._titlePrefix + title : null, this._base + href);
+            return callback;
+        },
+        init: function()
+        {
+            var History = window.History, 
+                State = History.getState(),
+                self = this;
+            
+                History.options.debug = true;
+                this._base = History.getPageUrl().split('#')[0];
+                console.log( History.getPageUrl().split('#') )
+                History.Adapter.bind( window, 'statechange', function()
+                {
+                    var State = History.getState();
+                    (self._repository[State.data.href])();
+                });
+        }
 	},
+	/*!
+	 * 
+	 */
 	presentation: function(script, layout, args)
 	{
 		var _setScript = function(value){ script = value; };
