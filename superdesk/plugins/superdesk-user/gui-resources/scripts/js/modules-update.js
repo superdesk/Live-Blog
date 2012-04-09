@@ -17,9 +17,9 @@ app = function()
 		
 	var d = $.Deferred($.noop).then(function(data)
 	{
-		$('#area-sidebar-right', layout).tmpl($("#tpl-user-update-logs", superdesk.tmplRepo), data)
+		$('#area-sidebar-right', layout).tmpl($("#tpl-user-update-logs", superdesk.tmplRepo), data);
 	});
-	d.resolve({logs: [{date: (new Date).toLocaleString(), event: 'logged in'}]})
+	d.resolve({logs: [{date: (new Date).toLocaleString(), event: 'logged in'}]});
 	
 	// run user.update's subsequent actions 
 	superdesk.getActions('modules.user.update.*')
@@ -27,7 +27,7 @@ app = function()
 	{
 		$(actions).each(function()
 		{ 
-			presentation.run(this.ScriptPath, layout, {userId: args.userId, users: args.users})
+			presentation.run(this.ScriptPath, layout, {userId: args.userId, users: args.users});
 		});
 	});
 	
@@ -36,11 +36,11 @@ app = function()
 	.on('click.superdesk-user', '#submit-main', function(event)
 	{
 		selectedUser.update(userForm.serialize())
-			.success(function(){ console.log(arguments) })
-			.error(function(){ console.log('error', arguments) })
+			.success(function(){ console.log(arguments); })
+			.error(function(){ console.log('error', arguments); });
 		event.preventDefault();
-	})
-}
+	});
+};
 
-superdesk.getTmpl(superdesk.apiUrl+'/content/gui/superdesk/user/templates/update.html').done(app)
+superdesk.getTmpl(superdesk.apiUrl+'/content/gui/superdesk/user/templates/update.html').done(app);
 		
