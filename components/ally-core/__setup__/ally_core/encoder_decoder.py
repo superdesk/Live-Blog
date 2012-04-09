@@ -157,8 +157,6 @@ def decoderTextUrlencoded():
     import codecs
     def decodeUrlencoded(content, charSet):
         a = parseStr(codecs.getreader(charSet)(content).read())
-        #TODO: remove
-        print(a)
         return a
     return decodeUrlencoded
 
