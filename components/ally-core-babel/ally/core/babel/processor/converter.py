@@ -115,8 +115,7 @@ class BabelConverterHandler(Processor):
                     bn.parse_pattern(format)
                 elif clsTyp in self.formats:
                     if format not in self.formats[clsTyp]:
-                        f = bd.parse_pattern(format)
-                        print(f)
+                        bd.parse_pattern(format)
                 else:
                     raise
                 formats[clsTyp] = format
