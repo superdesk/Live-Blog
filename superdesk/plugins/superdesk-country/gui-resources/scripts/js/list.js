@@ -16,14 +16,14 @@ var countries,
 		({
 			tpl: 
 			{
-				header: $("#tpl-country-list-header", superdesk.tmplRepo),
-				footer: $("#tpl-country-list-footer", superdesk.tmplRepo),
-				body: $("#tpl-country-list-body", superdesk.tmplRepo)
+				header: t$("#tpl-country-list-header"),
+				footer: t$("#tpl-country-list-footer"),
+				body: t$("#tpl-country-list-body")
 			},
 			resource: new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Code, Name')
 		}));
 		
-		$('#area-content').append( $($.tmpl($("#tpl-country-add", superdesk.tmplRepo))) );
+		$('#area-content').append( $($.tmpl( t$("#tpl-country-add") )) );
 	};
 	
 presentation.view.load('country/templates/list.html').done(app);
@@ -35,7 +35,7 @@ $(document)
 {
 	new $.rest($(this).attr('href')).done(function(data)
 	{
-		$( $.tmpl($('#tpl-country-details', superdesk.tmplRepo), data) )
+		$( $.tmpl( t$('#tpl-country-details'), data) )
 			.dialog
 			({ 
 				draggable: false,
