@@ -19,9 +19,9 @@ from ally.core.spec.codes import BAD_CONTENT
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Request, Response, ProcessorsChain, \
     ContentRequest
-from ally.exception import DevelError, InputError, Ref
+from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.xml.digester import Rule, RuleRoot, Digester, Node
+from ally.xml.digester import Rule, RuleRoot, Digester, Node, DigesterError
 import logging
 
 # --------------------------------------------------------------------
@@ -73,8 +73,8 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
                     if len(digester.errors) > 0: raise InputError(*digester.errors)
                     req.arguments[name] = value
                     assert log.debug('Successfully decoded for input (%s) value %s', name, value) or True
-                except DevelError as e:
-                    rsp.setCode(BAD_CONTENT, e.message)
+                except DigesterError as e:
+                    rsp.setCode(BAD_CONTENT, str(e))
                 except InputError as e:
                     rsp.setCode(BAD_CONTENT, e, 'Invalid data')
                 return
