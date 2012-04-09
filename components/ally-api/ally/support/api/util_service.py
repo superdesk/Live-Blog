@@ -53,7 +53,7 @@ def likeAsRegex(like, caseInsensitive=True):
     assert isinstance(like, str), 'Invalid like %s' % like
     assert isinstance(caseInsensitive, bool), 'Invalid case insensitive %s' % caseInsensitive
     likeRegex = like.split('%')
-    likeRegex = '.+'.join(re.escape(n) for n in likeRegex)
+    likeRegex = '.*'.join(re.escape(n) for n in likeRegex)
     likeRegex += '$'
     if caseInsensitive: likeRegex = re.compile(likeRegex, re.IGNORECASE)
     else: likeRegex = re.compile(likeRegex)

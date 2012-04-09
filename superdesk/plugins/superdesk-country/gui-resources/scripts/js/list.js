@@ -14,7 +14,7 @@ var countries,
 		
 		$('#area-content').html( $('<table class="table table-bordered table-striped country-list" />').datatable
 		({
-			templates: 
+			tpl: 
 			{
 				header: $("#tpl-country-list-header", superdesk.tmplRepo),
 				footer: $("#tpl-country-list-footer", superdesk.tmplRepo),
@@ -22,6 +22,8 @@ var countries,
 			},
 			resource: new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Code, Name')
 		}));
+		
+		$('#area-content').append( $($.tmpl($("#tpl-country-add", superdesk.tmplRepo))) );
 	};
 	
 presentation.view.load('country/templates/list.html').done(app);
@@ -31,16 +33,18 @@ $(document)
 .off('click.superdesk-country-list', '.country-list .btn-info')
 .on('click.superdesk-country-list', '.country-list .btn-info', function(event)
 {
-	new $.rest(this.href).done(function(data)
+	new $.rest($(this).attr('href')).done(function(data)
 	{
 		$( $.tmpl($('#tpl-country-details', superdesk.tmplRepo), data) )
-			.dialog({ 
+			.dialog
+			({ 
 				draggable: false,
 				resizable: false,
 				modal: true,
 				width: "40.1709%",
 				close: function(){ $(this).dialog('destroy').remove(); },
-				buttons: [{
+				buttons: 
+				[{
 					text: "Close",
 					click: function(){ $(this).dialog('close'); },
 					class: "btn btn-primary"
@@ -48,5 +52,17 @@ $(document)
 			});
 	});
 	event.preventDefault();
+});
+
+
+$(document)
+.off('click.superdesk-country-list', '.country-add.btn')
+.on('click.superdesk-country-list', '.country-add.btn', function(event)
+{
+    superdesk.navigation.bind('/country/add', function()
+    {
+        console.log('add country');
+    });
+    event.preventDefault();
 });
 
