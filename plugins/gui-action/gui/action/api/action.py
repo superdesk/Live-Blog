@@ -22,10 +22,15 @@ class Action:
     The object used to create and group actions 
     '''
     Path = str
+    # path to register in 
     Label = str
+    # display label
     ScriptPath = str
+    # ui script path
+    Href = str
+    # href to use for ui controls
 
-    def __init__(self, Path=None, Label=None, Parent=None, ScriptPath=None):
+    def __init__(self, Path=None, Label=None, Parent=None, ScriptPath=None, Href=None):
         self.Path = ''
         if Path:
             self.Path = re.compile('[^\w\-\.]', re.ASCII).sub('', Path)
@@ -36,6 +41,8 @@ class Action:
             self.Label = Label
         if ScriptPath:
             self.ScriptPath = ScriptPath
+        if Href:
+            self.Href = Href;
 
 # --------------------------------------------------------------------
 
