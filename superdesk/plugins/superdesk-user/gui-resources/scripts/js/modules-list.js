@@ -9,10 +9,10 @@ var app = function()
 		{
 			$('#area-content', layout)
 				.tmpl($("#tpl-user-list", superdesk.tmplRepo), {users: users, scriptPath: args.updateScript});
-		})
-}
+		});
+};
 
-this.view.load('user/templates/list.html').done(app)
+this.view.load('user/templates/list.html').done(app);
 
 // edit button functionality 
 $(document)
