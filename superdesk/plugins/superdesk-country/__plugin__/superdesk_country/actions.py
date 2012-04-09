@@ -19,7 +19,7 @@ from ..gui_core.gui_core import getPublishedGui
 @ioc.entity   
 def menuAction():
     return Action('country', Parent=defaults.menuAction(), Label=NC_('Menu', 'Countries'),
-                  ScriptPath=getPublishedGui('superdesk/country/scripts/js/menu.js'))
+                  ScriptPath=getPublishedGui('superdesk/country/scripts/js/menu.js'), Href='/country/list')
 
 @ioc.entity   
 def modulesAction():
