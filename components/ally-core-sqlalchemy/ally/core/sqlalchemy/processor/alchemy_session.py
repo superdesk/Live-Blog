@@ -32,20 +32,6 @@ class AlchemySessionHandler(Processor):
         except:
             endSessions(rollback)
             raise
-        if not rsp.code.isSuccess: endSessions(rollback)
-        ATTR_KEEP_ALIVE.clear()
-
-class AlchemySessionCommitHandler(Processor):
-    '''
-    Implementation for a processor that provides the SQLAlchemy session commit handling, usually the commit handler is
-    processed before encoding.
-    '''
-
-    def process(self, req, rsp, chain):
-        '''
-        @see: Processor.process
-        '''
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         if rsp.code.isSuccess: endSessions(commit)
-        chain.process(req, rsp)
+        else: endSessions(rollback)
+        ATTR_KEEP_ALIVE.clear()

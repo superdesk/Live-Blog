@@ -196,7 +196,7 @@ class ContentRequest(Content):
         count = nbytes
         if self.length is not None:
             if self._offset >= self.length:
-                return ''
+                return b''
             delta = self.length - self._offset
             if count is None:
                 count = delta
