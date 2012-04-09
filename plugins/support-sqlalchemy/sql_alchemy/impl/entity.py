@@ -190,8 +190,7 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
             self.session().add(mentity)
             self.session().flush((mentity,))
         except SQLAlchemyError as e: handle(e, mentity)
-        entity.Id = mentity.Id
-        return entity
+        return mentity.Id
 
     def update(self, entity):
         '''
