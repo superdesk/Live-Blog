@@ -18,6 +18,7 @@ from babel import localedata, core
 from babel.messages.catalog import Catalog
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po, write_po
+from babel.util import odict
 
 from ally.api.type import Iter
 from ally.container import wire
@@ -82,12 +83,13 @@ class POFileManagerDB(IPOFileManager):
         assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
         template = self._buildCatalog(self.messageService.getComponentMessages(component), locale)
         if locale:
-            globalTemplate = self._buildCatalog(self.messageService.getMessages(), locale)
-            self._updateFile(None, None, locale, None, globalTemplate)
-            self._updateFile(component, None, locale, None, template)
-        try:
+            try:
+                exceptionsCatalog = self._readPOFile(self._filePath(locale, component)['po'], locale)
+            except PathNotFound:
+                exceptionsCatalog = Catalog(locale)
+            self._processPOFile(component, None, locale, exceptionsCatalog)
             exceptionsCatalog = self._readPOFile(self._filePath(locale, component)['po'], locale)
-        except PathNotFound:
+        else:
             exceptionsCatalog = Catalog(locale)
         return self._buildPOFile(locale, template, exceptionsCatalog)
 
@@ -98,12 +100,13 @@ class POFileManagerDB(IPOFileManager):
         assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
         template = self._buildCatalog(self.messageService.getPluginMessages(plugin), locale)
         if locale:
-            globalTemplate = self._buildCatalog(self.messageService.getMessages(), locale)
-            self._updateFile(None, None, locale, None, globalTemplate)
-            self._updateFile(None, plugin, locale, None, template)
-        try:
+            try:
+                exceptionsCatalog = self._readPOFile(self._filePath(locale, plugin=plugin)['po'], locale)
+            except PathNotFound:
+                exceptionsCatalog = Catalog(locale)
+            self._processPOFile(None, plugin, locale, exceptionsCatalog)
             exceptionsCatalog = self._readPOFile(self._filePath(locale, plugin=plugin)['po'], locale)
-        except PathNotFound:
+        else:
             exceptionsCatalog = Catalog(locale)
         return self._buildPOFile(locale, template, exceptionsCatalog)
 
@@ -123,7 +126,23 @@ class POFileManagerDB(IPOFileManager):
         '''
         assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
         assert isinstance(locale, str), 'Invalid locale %s' % locale
-        keys = self.messageService.getComponentMessages(component)
+        poFile.seek(0)
+        self._processPOFile(component, None, locale, read_po(poFile))
+
+    def updatePluginPOFile(self, poFile, plugin, locale):
+        '''
+        @see: IPOFileManager.updatePluginPOFile
+        '''
+        assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
+        assert isinstance(locale, str), 'Invalid locale %s' % locale
+        poFile.seek(0)
+        self._processPOFile(None, plugin, locale, read_po(poFile))
+
+    def _processPOFile(self, component, plugin, locale, newCatalog):
+        if component:
+            keys = self.messageService.getComponentMessages(component)
+        elif plugin:
+            keys = self.messageService.getPluginMessages(plugin)
         exceptTemplateCatalog = self._buildCatalog(keys, locale)
         exceptionsCatalog = Catalog(locale)
         keys = self.messageService.getMessages()
@@ -133,41 +152,25 @@ class POFileManagerDB(IPOFileManager):
         except PathNotFound:
             globalCatalog = globalTemplateCatalog
 
-        poFile.seek(0)
-        newCatalog = read_po(poFile)
         for msg in newCatalog:
             if not msg or msg.id == '':
                 continue
             globalMsg = globalCatalog.get(msg.id, msg.context)
-            if globalMsg and msg.string != globalMsg.string and msg.string != '':
+            if not globalMsg:
+                continue
+            excMsg = exceptTemplateCatalog.get(msg.id, msg.context)
+            if not excMsg:
+                continue
+            if msg.string != globalMsg.string:
                 exceptionsCatalog.add(msg.id, msg.string, msg.locations, msg.flags, msg.auto_comments,
                                       msg.user_comments, msg.previous_id, msg.lineno, msg.context)
             else:
                 exceptTemplateCatalog.delete(msg.id, msg.context)
-                globalCatalog.add(msg.id, msg.string, msg.locations, msg.flags, msg.auto_comments,
+                globalCatalog.add(msg.id, msg.string, [], msg.flags, msg.auto_comments,
                                   msg.user_comments, msg.previous_id, msg.lineno, msg.context)
 
         self._updateFile(None, None, locale, globalCatalog, globalTemplateCatalog)
-        self._updateFile(component, None, locale, exceptionsCatalog, exceptTemplateCatalog)
-
-    def updatePluginPOFile(self, poFile, plugin, locale):
-        '''
-        @see: IPOFileManager.updatePluginPOFile
-        '''
-        assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
-        assert isinstance(locale, str), 'Invalid locale %s' % locale
-        try:
-            exceptionsCatalog = self._readPOFile(self._filePath(locale, plugin=plugin)['po'], locale)
-        except PathNotFound:
-            exceptionsCatalog = Catalog(locale)
-
-        keys = self.messageService.getPluginMessages(plugin)
-        templateCatalog = self._buildCatalog(keys, locale)
-        for msg in exceptionsCatalog:
-            templateCatalog.delete(msg.id, msg.context)
-
-        self._updateFile(None, None, locale, read_po(poFile), templateCatalog)
-        self._updateFile(None, plugin, locale, read_po(poFile), exceptionsCatalog)
+        self._updateFile(component, plugin, locale, None, exceptionsCatalog)
 
     def _poFileTimestamp(self, component:Component.Id=None, plugin:Plugin.Id=None, locale:str=None):
         '''
@@ -212,6 +215,7 @@ class POFileManagerDB(IPOFileManager):
             catalog.update(newCatalog)
         except PathNotFound:
             catalog = newCatalog
+            catalog.obsolete = odict()
 
         if not isdir(dirname(paths['po'])):
             os.makedirs(dirname(paths['po']))
@@ -220,8 +224,8 @@ class POFileManagerDB(IPOFileManager):
         with open(paths['mo'], 'wb') as globalMo:
             write_mo(globalMo, catalog)
 
-    def _buildPOFile(self, locale:str=None, templateCatalog:Catalog=Catalog(),
-                     exceptionsCat:Catalog=Catalog()):
+    def _buildPOFile(self, locale:str=None, templateCatalog:Catalog=None,
+                     exceptionsCat:Catalog=None):
         '''
         Builds a PO file from the given file (as file object) to read from, for the
         given locale, using the given template and exceptions catalogs.
@@ -239,16 +243,23 @@ class POFileManagerDB(IPOFileManager):
         @return: file like object
             File like object that contains the PO file content
         '''
+        if not templateCatalog:
+            templateCatalog = Catalog(locale)
+        if not exceptionsCat:
+            exceptionsCat = Catalog(locale)
         try:
             globalCatalog = self._readPOFile(self._filePath(locale)['po'], locale)
         except PathNotFound:
             globalCatalog = Catalog(locale)
-        for msg in exceptionsCat:
-            globalCatalog.add(msg.id, msg.string, msg.locations, msg.flags, msg.auto_comments,
-                              msg.user_comments, msg.previous_id, msg.lineno, msg.context)
-        globalCatalog.update(templateCatalog)
+        for msg in globalCatalog:
+            if not msg or msg.id == '':
+                continue
+            exceptionsCat.add(msg.id, msg.string, msg.locations, msg.flags, msg.auto_comments,
+                              msg.user_comments, msg.id, msg.lineno, msg.context)
+        exceptionsCat.update(templateCatalog)
+        exceptionsCat.obsolete = odict()
         fileObj = BytesIO()
-        write_po(fileObj, globalCatalog)
+        write_po(fileObj, exceptionsCat)
         return fileObj
 
     def _readPOFile(self, path:str, locale:str=None) -> Catalog:
