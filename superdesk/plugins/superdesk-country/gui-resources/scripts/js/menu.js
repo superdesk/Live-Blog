@@ -20,6 +20,8 @@ superdesk.getActions('modules.country.*')
 		}
 	});
 
+	/*
+	//sample 1:
 	superdesk.navigation.bind('/country/list', function()
 	{
 	    (new superdesk.presentation)
@@ -27,7 +29,19 @@ superdesk.getActions('modules.country.*')
 		    .setLayout(superdesk.layouts.list.clone())
 		    .setArgs({updateScript: updatePath, addScript: addPath})
 		    .run();
+	}, 'Country list');
+	
+	//sample 2:
+	(new superdesk.presentation).direct
+	({ 
+	    href: '/country/list', 
+	    script: listPath, 
+	    layout: superdesk.layouts.list.clone(), 
+	    args: {updateScript: updatePath, addScript: addPath}, 
+	    title 'Country list'
 	});
 	
-	// superdesk.presentation.direct('/country/list', superdesk.layouts.list.clone(), {updateScript: updatePath, addScript: addPath});  
+	sample 3:
+	*/
+	(new superdesk.presentation).direct( '/country/list', listPath, superdesk.layouts.list.clone(), {updateScript: updatePath, addScript: addPath}, 'Country list' );  
 });
