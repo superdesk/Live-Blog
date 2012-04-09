@@ -12,25 +12,25 @@ Provides unit testing for the PO file manager.
 from datetime import datetime
 import unittest
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from os.path import join, dirname, isfile, isdir
+from os.path import join, dirname, isfile, isdir, abspath
 from shutil import rmtree
 from os import makedirs, remove, sep
 from cdm.spec import PathNotFound
-from babel.core import Locale
+from babel.messages.pofile import read_po, write_po
 
-from internationalization.core.impl.po_file_manager import POFileManagerDB
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, Source
 from internationalization.core.impl.po_file_manager import POFileManagerDB
-from tempfile import TemporaryDirectory
-import unittest
+
 
 class TestMessageService(IMessageService):
-    '''
-    '''
+    _componentStartId = 0
+
     _components = 3
 
     _componentMessages = 5
+
+    _pluginStartId = 10000
 
     _plugins = 3
 
@@ -66,7 +66,7 @@ class TestMessageService(IMessageService):
         messages = []
         for m in range(self._componentMessages):
             msg = Message()
-            msg.Id = int(component) * 10 + m
+            msg.Id = self._componentStartId + int(component) * self._componentMessages + m
             if m > 2:
                 msg.Singular = 'component %s message %d' % (component, m)
                 msg.Context = 'component'
@@ -91,7 +91,7 @@ class TestMessageService(IMessageService):
         messages = []
         for m in range(self._pluginMessages):
             msg = Message()
-            msg.Id = int(plugin) * 10 + m
+            msg.Id = self._pluginStartId + int(plugin) * self._pluginMessages + m
             if m > 3:
                 msg.Singular = 'plugin %s message %d' % (plugin, m)
                 msg.Context = 'plugin'
@@ -123,9 +123,10 @@ class TestSourceService(ISourceService):
         src.Id = id
         if id < 10:
             src.Component = str(id)
+            src.Path = 'component_%d/src.py' % id
         else:
             src.Plugin = str(id)
-        src.Path = 'component/src%d.py' % id
+            src.Path = 'plugin_%d/src.py' % id
         return src
 
     def getAll(self, offset=None, limit=None, q=None):
@@ -151,6 +152,7 @@ class TestHTTPDelivery(unittest.TestCase):
         poManager.sourceService = TestSourceService()
         poRepDir = TemporaryDirectory()
         poManager.locale_dir_path = poRepDir.name
+        poManager.locale_dir_path = dirname(abspath(__file__))
 
         srcService = TestSourceService()
         self.assertEqual(srcService.getAll()[0].LastModified,
@@ -160,11 +162,53 @@ class TestHTTPDelivery(unittest.TestCase):
         self.assertEqual(srcService.getAll()[0].LastModified,
                          poManager.getPluginPOTimestamp('1'))
 
-        poFile = poManager.getGlobalPOFile()
-        print(poFile)
+        poFile = poManager.getGlobalPOFile(); poFile.seek(0)
+        globalTestCat = read_po(poFile)
 
-        src = poManager.sourceService.getAll()[0]
-        print(src)
+        with open(join(dirname(abspath(__file__)), 'global-template.po')) as f:
+            globalCat = read_po(f)
+
+        self.assertEqual(len(globalCat), len(globalTestCat))
+        for msg in globalCat:
+            if msg and msg.id != '':
+                self.assertEqual(msg, globalTestCat.get(msg.id, msg.context))
+
+        poFile = poManager.getComponentPOFile('1'); poFile.seek(0)
+        componentTestCat = read_po(poFile)
+
+        with open(join(dirname(abspath(__file__)), 'component-template.po')) as f:
+            componentCat = read_po(f)
+
+        self.assertEqual(len(componentCat), len(componentTestCat))
+        for msg in componentCat:
+            if msg and msg.id != '':
+                self.assertEqual(msg, componentTestCat.get(msg.id, msg.context))
+
+        poFile = poManager.getPluginPOFile('1'); poFile.seek(0)
+        pluginTestCat = read_po(poFile)
+
+        with open(join(dirname(abspath(__file__)), 'plugin-template.po')) as f:
+            pluginCat = read_po(f)
+
+        self.assertEqual(len(pluginCat), len(pluginTestCat))
+        for msg in pluginCat:
+            if msg and msg.id != '':
+                self.assertEqual(msg, pluginTestCat.get(msg.id, msg.context))
+
+        with open(join(dirname(abspath(__file__)), 'global-_ro.po')) as f:
+            poManager.updateGlobalPOFile(f, 'ro')
+
+        with open(join(dirname(abspath(__file__)), 'component 1_ro.po')) as f:
+            poManager.updateComponentPOFile(f, '1', 'ro')
+
+#        with open(join(dirname(abspath(__file__)), 'plugin 1_ro.po')) as f:
+#            poManager.updatePluginPOFile(f, '1', 'ro')
+
+#        tmpFile = NamedTemporaryFile()
+#        tmpFile.delete = False
+#        print(tmpFile.name)
+#
+#        write_po(tmpFile, pluginTestCat)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
