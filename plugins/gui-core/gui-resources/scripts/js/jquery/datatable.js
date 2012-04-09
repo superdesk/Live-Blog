@@ -9,6 +9,7 @@
  */
 (function( $, undefined )
 {
+	"use strict";
 	$.widget( "ui.datatable", 
 	{
 		plugins : 
@@ -19,11 +20,10 @@
 				_request: null,
 				_create: function()
 				{
-					this.plugins.dataAdapter._self = this
-					if(typeof this.options.resource == 'string')
-						this.plugins.dataAdapter._request = new $.rest(this.options.resource);
-					else
-						this.plugins.dataAdapter._request = this.options.resource;
+					this.plugins.dataAdapter._self = this;
+					this.plugins.dataAdapter._request = typeof this.options.resource === 'string' ?
+						new $.rest(this.options.resource) :
+						this.options.resource;
 					this.plugins.dataAdapter._request.keepXFilter = true;
 				},
 				createRequest: function()
@@ -42,18 +42,22 @@
 						var data = {};
 						for( var i in this._data )
 						{
-							switch(i)
+							if(this._data.hasOwnProperty(i)) switch(i)
 							{
-								case 'filter-name':
-									data[this._data[i]] = this._data['filter-value'];
+								case 'filterDelete':
+									this._request.resetData(this._data[i]);
+									break;
+								case 'filterName':
+									data[this._data[i]] = '%'+this._data.filterValue+'%';
 									break;
 								case 'sort':
-									data[this._data['sort-dir']] = this._data[i];
+									data[this._data.sortDir] = this._data[i];
 									break;
 							}
-						};
+						}
+						
 						this._request.resetData('asc').resetData('desc');
-						$.extend(data, this._data['params']);
+						$.extend(data, this._data.params);
 						this._request.request({data: data});
 						
 						return this._request.done(function()
@@ -70,21 +74,32 @@
 				_data: {params: {}},
 				setup: function(settings)
 				{
-					if( typeof settings == 'string' ) settings = [settings];
+					if( typeof settings === 'string' ) 
+					{
+						var x = settings;
+						settings = [];
+						settings[x] = true;
+					}
+					
 					for( var i in settings )
 					{
-						switch(i)
+						if( settings.hasOwnProperty(i) ) switch(i)
 						{
 							case 'params':
-								$.extend(this._data['params'], settings[i]);
+								$.extend(this._data.params, settings[i]);
+								break;
+							case 'removeFilter':
+								this._data.filterDelete = this._data.filterName;
+								delete this._data.filterName;
+								delete this._data.filterValue;
 								break;
 							case 'filter':
-								this._data['filter-name'] = settings[i].name;
-								this._data['filter-value'] = settings[i].value;
+								this._data.filterName = settings[i].name;
+								this._data.filterValue = settings[i].value;
 								break;
 							case 'sort':
-								this._data['sort'] = settings[i].sort;
-								this._data['sort-dir'] = settings[i].sortDir;
+								this._data.sort = settings[i].sort;
+								this._data.sortDir = settings[i].sortDir;
 								break;
 						}
 					}
@@ -98,30 +113,27 @@
 					_element: null,
 					getDatatable: function()
 					{
-						if( !this._element ) this._element = $('<table />')
+						if( !this._element ) this._element = $('<table />');
 						return this._element;
 					}
 				}
 			},
-			templates:
+			other: 
 			{
-				_create: function()
-				{
-					var optTpl = this.options.templates || this.options.tpl;
-					if( !optTpl ) return;
-					for( var i in optTpl )
-						this.plugins.templates[i] = optTpl[i];
-				},
-				header: null, footer: null, row: null
+			    _create: function()
+			    { 
+			        if( typeof this.options.tpl === 'object' ) 
+			            $.extend(true, this.options.templates, this.options.tpl);
+			    }  
 			},
 			header: 
 			{
 				_create: function()
 				{
 					var self = this; // datatable
-					if( !self.plugins.templates.header ) return;
+					if( !self.options.templates.header ) return;
 
-					var head = $($.tmpl(self.plugins.templates.header))
+					var head = $($.tmpl(self.options.templates.header));
 					self.plugins.lib.core.getDatatable().append(head);
 					
 					// bind header columns actions
@@ -129,11 +141,11 @@
 					head.find('th').each( function()
 					{
 						// breaks sort functionality
-						if ($(this).hasClass('unsortable') || typeof $(this).attr('unsortable') != 'undefined') return true;
+						if ($(this).hasClass('unsortable') || typeof $(this).attr('unsortable') !== 'undefined') return true;
 
 						var thisX = this;
 						// set filter functionality
-						if ($(this).hasClass('filterable') || typeof $(this).attr('filterable') != 'undefined')
+						if ($(this).hasClass('filterable') || typeof $(this).attr('filterable') !== 'undefined')
 						{
 							// hide, bind close event for filter box
 							$(this).find('input').hide().on( 'hide-filter.datatable', {'datatable': self}, function(evt)
@@ -176,7 +188,7 @@
 					
 					var thisX = this;
 					// add class for cell filtering
-					$(this).addClass(evt.data.datatable.options.filterClass);
+					$(this).addClass(evt.data.datatable.options.filterCellClass);
 					
 					$(this).find('label').hide();
 					$(this).find('.filter-hide-ctrl').css({display: 'inline-block'});
@@ -206,14 +218,14 @@
 				{
 					if( typeof evt.data.datatable == 'undefined' ) return false;
 
-					$(this).removeClass(evt.data.datatable.options.filterClass);
+					$(this).removeClass(evt.data.datatable.options.filterCellClass);
 					
 					$(this).find('label').show();
 					$(this).find('.filter-hide-ctrl').hide();
 					$(this).find('.filter-ctrl').hide();
 					$(this).find('input').val('').hide().unbind( 'keyup.datatable' );
 
-					evt.data.datatable.plugins.dataAdapter.setup('remove-filter').executeRequest();
+					evt.data.datatable.plugins.dataAdapter.setup('removeFilter').executeRequest();
 					$(this).trigger('filter-closed.datatable');
 				},
 				/*!
@@ -226,7 +238,7 @@
 					if( typeof evt.data.datatable == 'undefined' ) return false;
 
 					// hide on escape key
-					if( evt.keyCode==27 )
+					if( evt.keyCode === 27 )
 					{
 						evt.data.datatable.plugins.header.closeFilter.call(this, evt);
 						return;
@@ -235,7 +247,7 @@
 					if( $.trim($(this).find('input').val())=='' ) return false;
 
 					// perform filter
-					if( evt.keyCode==13 )
+					if( evt.keyCode === 13 )
 					{
 						evt.data.datatable.plugins.dataAdapter
 							.setup({filter: {name: $(this).attr('filter'), value: $(this).find('input').val()}})
@@ -249,7 +261,7 @@
 				 */
 				performSort : function(evt)
 				{
-					if( typeof evt.data.datatable == 'undefined' )
+					if( typeof evt.data.datatable === 'undefined' )
 						return false;
 
 					var sortIdx = $(this).siblings().andSelf().index(this), 
@@ -285,23 +297,23 @@
 				_element: null,
 				_create: function()
 				{
-					if( this.plugins.templates.body )
+					if( this.options.templates.body )
 					{
-						this.plugins.body._element = $($.tmpl(this.plugins.templates.body, {data: {}}));
+						this.plugins.body._element = $($.tmpl(this.options.templates.body, {data: {}}));
 						this.plugins.lib.core.getDatatable().append( this.plugins.body._element );
 					}
 					
 					$(this).on('data-request-success.datatable', function(event, data)
 					{
-						this.plugins.body.render.call(this, data)
-					})
+						this.plugins.body.render.call(this, data);
+					});
 				},
 				/*!
 				 * this = plugin - this.plugins.body.render.apply(this, [...])
 				 */
 				render: function(data)
 				{
-					var newBody = $($.tmpl( this.plugins.templates.body, {data: data} ));
+					var newBody = $($.tmpl( this.options.templates.body, {data: data} ));
 					$(this.plugins.body._element).replaceWith(newBody);
 					this.plugins.body._element = newBody;
 				}
@@ -312,9 +324,9 @@
 				_element: null,
 				_create: function()
 				{
-					if( !this.plugins.templates.footer ) return;
+					if( !this.options.templates.footer ) return;
 						
-					this.plugins.footer._element = $($.tmpl(this.plugins.templates.footer))
+					this.plugins.footer._element = $($.tmpl(this.options.templates.footer));
 					this.plugins.lib.core.getDatatable().append( this.plugins.footer._element );
 					
 					if( this.plugins.footer.setPagination )
@@ -335,20 +347,20 @@
 							for( var i = 0; i < params.length; i++ )
 								_requestData[params[i]] = params[++i];
 
-							self.plugins.footer._args.offset = _requestData.offset;
+							self.plugins.footer._args.offset = parseInt(_requestData.offset);
 							self.plugins.dataAdapter.setup({ params: _requestData }).executeRequest();
 							evt.preventDefault();
 						};
 					
 					$(this).one( 'data-request-success.datatable', function(event, response)
 					{
-						this.plugins.footer._args.limit = response.length;
+						this.plugins.footer._args.limit = parseInt(response.length);
 					});
 						
 					$(this).on( 'data-request-success.datatable', function(event, response)
 					{
 						// make pagination
-						if( typeof response == 'undefined' ) return;
+						if( typeof response === 'undefined' ) return;
 						
 						var _args = this.plugins.footer._args,
 							args = this.plugins.dataAdapter.getRequest().responseArgs();
@@ -363,19 +375,20 @@
 						{ 
 							total: args.total, 
 							offset: _args.offset, 
-							limit: _args.limit, 
+							limit: _args.limit,
+							range: _args.offset + _args.limit,
 							next: 'offset/' + _args.next, 
 							prev: 'offset/' + _args.prev,
-							prevElement: "prev-ctrl='1'", 
-							nextElement: "next-ctrl='1'"
+							prevElement: this.options.templateMarks.prevAttr+"='1'", 
+							nextElement: this.options.templateMarks.nextAttr+"='1'"
 						}};
 						
-						var newFooter = $($.tmpl( this.plugins.templates.footer, paginationObject ));
+						var newFooter = $($.tmpl( this.options.templates.footer, paginationObject ));
 						$(this.plugins.footer._element).replaceWith(newFooter);
 						this.plugins.footer._element = newFooter;
 						
-						$(this.plugins.footer._element).on("click.datatable", "[prev-ctrl]", prevNextHandler);
-						$(this.plugins.footer._element).on("click.datatable", "[next-ctrl]", prevNextHandler);
+						$(this.plugins.footer._element).on("click.datatable", '['+this.options.templateMarks.prevAttr+']', prevNextHandler);
+						$(this.plugins.footer._element).on("click.datatable", '['+this.options.templateMarks.nextAttr+']', prevNextHandler);
 						
 					});
 					
@@ -384,12 +397,19 @@
 		},
 		options: 
 		{
-			filterClass: 'filtering'
+			filterCellClass: 'filtering',
+			templateMarks:
+			{
+			    prevAttr: 'prev-ctrl',
+			    nextAttr: 'next-ctrl'
+			},
+			// can also use as "tpl" 
+			templates: { header: null, footer: null, body: null }
 		},
 		_create : function()
 		{
 			if(this.element.is('table'))
-				$(this.element).append(this.plugins.lib.core.getDatatable().contents())
+				$(this.element).append(this.plugins.lib.core.getDatatable().contents());
 			else
 				$(this.element).append(this.plugins.lib.core.getDatatable());
 			
