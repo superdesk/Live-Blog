@@ -11,12 +11,10 @@ Provides unit testing for the PO file manager.
 
 from datetime import datetime
 import unittest
-from tempfile import NamedTemporaryFile, TemporaryDirectory
-from os.path import join, dirname, isfile, isdir, abspath
-from shutil import rmtree
-from os import makedirs, remove, sep
-from cdm.spec import PathNotFound
-from babel.messages.pofile import read_po, write_po
+from tempfile import TemporaryDirectory
+from os.path import join, dirname, abspath
+from os import makedirs
+from babel.messages.pofile import read_po
 
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, Source
@@ -153,7 +151,7 @@ class TestHTTPDelivery(unittest.TestCase):
         poManager.sourceService = TestSourceService()
         poRepDir = TemporaryDirectory()
         poManager.locale_dir_path = poRepDir.name
-        poManager.locale_dir_path = join(dirname(abspath(__file__)), 'repo')
+#        poManager.locale_dir_path = join(dirname(abspath(__file__)), 'repo'); makedirs(poManager.locale_dir_path)
 
         # test timestamp API methods
         srcService = TestSourceService()
@@ -223,23 +221,26 @@ class TestHTTPDelivery(unittest.TestCase):
                 self.assertEqual(msg.string, pluginCat.get(msg.id, msg.context).string)
                 self.assertNotEqual(msg.string, globalCat.get(msg.id, msg.context).string)
 
-        poFile = poManager.getGlobalPOFile('ro')
-        tmpFile = NamedTemporaryFile()
-        tmpFile.delete = False
-        tmpFile.write(poFile.getbuffer())
-        print(tmpFile.name)
+        poFile = poManager.getGlobalPOFile('ro'); poFile.seek(0)
+        globalTestCat = read_po(poFile)
+        self.assertEqual(len(globalCat), len(globalTestCat))
+        for msg in globalCat:
+            if msg and msg.id != '':
+                self.assertEqual(msg.string, globalTestCat.get(msg.id, msg.context).string)
 
-        poFile = poManager.getComponentPOFile('1', 'ro')
-        tmpFile = NamedTemporaryFile()
-        tmpFile.delete = False
-        tmpFile.write(poFile.getbuffer())
-        print(tmpFile.name)
+        poFile = poManager.getComponentPOFile('1', 'ro'); poFile.seek(0)
+        componentTestCat = read_po(poFile)
+        self.assertEqual(len(componentCat), len(componentTestCat))
+        for msg in componentCat:
+            if msg and msg.id != '':
+                self.assertEqual(msg.string, componentTestCat.get(msg.id, msg.context).string)
 
-        poFile = poManager.getPluginPOFile('1', 'ro')
-        tmpFile = NamedTemporaryFile()
-        tmpFile.delete = False
-        tmpFile.write(poFile.getbuffer())
-        print(tmpFile.name)
+        poFile = poManager.getPluginPOFile('1', 'ro'); poFile.seek(0)
+        pluginTestCat = read_po(poFile)
+        self.assertEqual(len(pluginCat), len(pluginTestCat))
+        for msg in pluginCat:
+            if msg and msg.id != '':
+                self.assertEqual(msg.string, pluginTestCat.get(msg.id, msg.context).string)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
