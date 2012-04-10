@@ -118,6 +118,7 @@ class POFileManagerDB(IPOFileManager):
         assert isinstance(locale, str), 'Invalid locale %s' % locale
         keys = self.messageService.getMessages()
         templateCatalog = self._buildCatalog(keys, locale)
+        poFile.seek(0)
         self._updateFile(None, None, locale, read_po(poFile), templateCatalog)
 
     def updateComponentPOFile(self, poFile, component, locale):
