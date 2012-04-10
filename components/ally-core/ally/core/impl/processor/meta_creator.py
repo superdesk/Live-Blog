@@ -9,17 +9,19 @@ Created on Jan 27, 2012
 Provides the meta creation processor handler.
 '''
 
-from ally.api.type import TypeNone, Iter, Type, IterPart, List, typeFor
+from ally.api.operator.container import Model
+from ally.api.operator.type import TypeModelProperty, TypeModel
+from ally.api.type import TypeNone, Iter, Type, IterPart, List, typeFor, Boolean, \
+    Integer, Number, Percentage, String, Time, Date, DateTime
 from ally.container.ioc import injected
 from ally.core.spec.data_meta import returnSame, MetaLink, MetaValue, MetaModel, \
     MetaPath, MetaCollection
 from ally.core.spec.resources import ResourcesManager, Path
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
 from ally.support.core.util_resources import nodeLongName
-import logging
-from ally.api.operator.type import TypeModelProperty, TypeModel
-from ally.api.operator.container import Model
+from ally.type_legacy import OrderedDict
 from functools import partial
+import logging
 
 # --------------------------------------------------------------------
 
@@ -188,4 +190,40 @@ class MetaCreatorHandler(Processor):
         if path: metaLink = MetaPath(path, typ, getModel)
         else: metaLink = None
 
-        return MetaModel(model, getModel, metaLink, metas)
+        return MetaModel(model, getModel, metaLink, sortProperties(model, metas))
+
+# --------------------------------------------------------------------
+
+
+def sortProperties(model, metas):
+    '''
+    Used for sorting the metas properties dictionary.
+    '''
+    assert isinstance(model, Model), 'Invalid model %s' % model
+    assert isinstance(metas, dict), 'Invalid metas dictionary %s' % metas
+
+    idName = model.propertyId
+    ordered = [(name, meta) for name, meta in metas.items() if isinstance(meta, MetaValue) and name != idName]
+    ordered.sort(key=__sortKey)
+    if idName in metas:
+        ordered.insert(0, (idName, metas[model.propertyId]))
+
+    sortedByName = [(name, meta) for name, meta in metas.items() if name not in ordered]
+    sortedByName.sort(key=lambda pack: pack[0])
+
+    ordered.extend((name, meta) for name, meta in sortedByName if isinstance(meta, MetaCollection))
+    ordered.extend((name, meta) for name, meta in sortedByName if not isinstance(meta, (MetaValue, MetaCollection)))
+    return OrderedDict(ordered)
+
+TYPE_ORDER = [Boolean, Integer, Number, Percentage, String, Time, Date, DateTime]
+def __sortKey(item):
+    '''
+    FOR INTERNAL USE.
+    Provides the sorting key.
+    '''
+    name, meta = item
+    assert isinstance(meta, MetaValue)
+    for k, ord in enumerate(TYPE_ORDER, 1):
+        if typeFor(ord) == meta.type:
+            break
+    return '%02d%s' % (k, name)

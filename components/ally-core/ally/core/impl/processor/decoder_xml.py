@@ -82,7 +82,7 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
             assert log.debug('Invalid request for the XML decoder') or True
         chain.proceed()
 
-    def _ruleModel(self, modelType, converter):
+    def _ruleModel(self, modelType, converterValue):
         assert isinstance(modelType, TypeModel)
         model = modelType.container
         assert isinstance(model, Model)
@@ -90,9 +90,13 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
         rmodel = root.addRule(RuleModel(modelType), self.normalizer.normalize(model.name))
         for prop, typ in model.properties.items():
             if prop == model.propertyId:
-                rmodel.addRule(RuleSetProperty(model, prop, typ, self.converterId), self.normalizer.normalize(prop))
+                converter = self.converterId
+            elif isinstance(typ, TypeModel):
+                assert isinstance(typ, TypeModel)
+                converter, typ = self.converterId, typ.container.properties[typ.container.propertyId]
             else:
-                rmodel.addRule(RuleSetProperty(model, prop, typ, converter), self.normalizer.normalize(prop))
+                converter = converterValue
+            rmodel.addRule(RuleSetProperty(model, prop, typ, converter), self.normalizer.normalize(prop))
         return root
 
 # --------------------------------------------------------------------

@@ -132,12 +132,25 @@ class TestMapping(unittest.TestCase):
         session = self.sessionCreate()
         users = session.query(UserWithParent).filter(UserWithParent.Name == 'Hello world').all()
         self.assertEqual(len(users), 1)
-        self.assertTrue(UserWithParent.Id in users[0])
-        self.assertTrue(UserWithParent.Name in users[0])
-        self.assertTrue(UserWithParent.Parent in users[0])
-        self.assertEqual(users[0].Name, 'Hello world')
-        self.assertEqual(users[0].Id, 1)
-        self.assertEqual(users[0].Parent, 1)
+        user = users[0]
+        self.assertTrue(UserWithParent.Id in user)
+        self.assertTrue(UserWithParent.Name in user)
+        self.assertTrue(UserWithParent.Parent in user)
+        self.assertEqual(user.Name, 'Hello world')
+        self.assertEqual(user.Id, 1)
+        self.assertEqual(user.Parent, 1)
+        session.close()
+
+        session = self.sessionCreate()
+        users = session.query(UserWithParent).filter(UserWithParent.Parent == 1).all()
+        self.assertEqual(len(users), 1)
+        user = users[0]
+        self.assertTrue(UserWithParent.Id in user)
+        self.assertTrue(UserWithParent.Name in user)
+        self.assertTrue(UserWithParent.Parent in user)
+        self.assertEqual(user.Name, 'Hello world')
+        self.assertEqual(user.Id, 1)
+        self.assertEqual(user.Parent, 1)
         session.close()
 
     # ----------------------------------------------------------------
