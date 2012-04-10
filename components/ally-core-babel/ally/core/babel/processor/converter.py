@@ -115,8 +115,7 @@ class BabelConverterHandler(Processor):
                     bn.parse_pattern(format)
                 elif clsTyp in self.formats:
                     if format not in self.formats[clsTyp]:
-                        f = bd.parse_pattern(format)
-                        print(f)
+                        bd.parse_pattern(format)
                 else:
                     raise
                 formats[clsTyp] = format
@@ -181,7 +180,7 @@ class ConverterBabel(Converter):
         if objType.isOf(str):
             return strValue
         if objType.isOf(bool):
-            return strValue.strip().lower() == _('true')
+            return strValue.strip().lower() == _('true').lower()
         if objType.isOf(Percentage):
             return float(strValue) / 100
         if objType.isOf(Number):

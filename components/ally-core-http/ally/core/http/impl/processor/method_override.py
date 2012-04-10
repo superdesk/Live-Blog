@@ -9,16 +9,18 @@ Created on Aug 9, 2011
 Provides the X headers handling.
 '''
 
-from .header import HeaderHTTPBase, VALUES, VALUE_NO_PARSE
-from ally.api.operator.container import Model
-from ally.api.operator.type import TypeModel
-from ally.api.type import formattedType, Iter
+from .header import HeaderHTTPBase, VALUE_NO_PARSE
+from ally.api.config import DELETE, GET, INSERT, UPDATE
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, INVALID_HEADER_VALUE
-from ally.core.spec.resources import Normalizer
 from ally.core.spec.server import Processor, ProcessorsChain, Response, \
     ContentRequest
 from ally.exception import DevelError
+import logging
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -34,15 +36,25 @@ class MethodOverrideHandler(HeaderHTTPBase, Processor):
     Requires on response: NA
     '''
 
-    normalizer = Normalizer
-    # The normalizer used for matching property names with header values.
     nameXMethodOverride = 'X-HTTP-Method-Override'
     # The header name for the method override.
+    methods = {
+              'DELETE' : DELETE,
+              'GET' : GET,
+              'POST' : INSERT,
+              'PUT' : UPDATE,
+              }
+    methodsOverride = {
+                       GET:{GET, DELETE},
+                       INSERT:{INSERT, UPDATE},
+                       }
+    # A dictionary containing as a key the original method and as a value the methods that are allowed for override.
 
     def __init__(self):
         super().__init__()
-        assert isinstance(self.normalizer, Normalizer), 'Invalid normalizer %s' % self.normalizer
         assert isinstance(self.nameXMethodOverride, str), 'Invalid method override name %s' % self.nameXMethodOverride
+        assert isinstance(self.methods, dict), 'Invalid methods %s' % self.methods
+        assert isinstance(self.methodsOverride, dict), 'Invalid methods override %s' % self.methodsOverride
 
     def process(self, req, rsp, chain):
         '''
@@ -54,26 +66,28 @@ class MethodOverrideHandler(HeaderHTTPBase, Processor):
         assert isinstance(req.content, ContentRequest), 'Invalid content on request %s' % req.content
 
         try:
-            p = self._parse(self.nameXMethodOverride, req.headers, req.params, VALUES)
-            if p:
-                if req.method:
-                    m =
-
+            p = self._parse(self.nameXMethodOverride, req.headers, req.params, VALUE_NO_PARSE)
         except DevelError as e:
             assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
+
+        if p:
+            over = self.methods.get(p.upper())
+            if not over:
+                rsp.setCode(INVALID_HEADER_VALUE, 'Invalid method \'%s\'' % p)
+                return
+
+            allowed = self.methodsOverride.get(req.method)
+            if not allowed:
+                rsp.setCode(INVALID_HEADER_VALUE, 'The current method cannot be overridden')
+                return
+
+            if over not in allowed:
+                rsp.setCode(INVALID_HEADER_VALUE, 'The current method cannot be overridden by \'%s\'' % p)
+                return
+
+            assert log.debug('Successfully overridden method %s with %s', req.method, over) or True
+            req.method = over
+
         chain.proceed()
-
-    def encode(self, headers, rsp):
-        '''
-        @see: EncoderHeader.encode
-        '''
-        assert isinstance(headers, dict), 'Invalid headers dictionary %s' % headers
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-
-        if rsp.objInclude:
-            headers[self.nameXFilter] = self._encode(*[self.normalizer.normalize(prop) for prop in rsp.objInclude])
-
-        for clsTyp, value in rsp.objFormat.items():
-            headers[self.nameXFormat % clsTyp.__name__] = value

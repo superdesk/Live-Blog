@@ -9,11 +9,10 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from ..ally_core.processor import handlersResources, invokingHandler, encoding
+from ..ally_core.processor import handlersResources, invokingHandler
 from ally.container import ioc
 from ally.core.spec.server import Processor
-from ally.core.sqlalchemy.processor.alchemy_session import AlchemySessionHandler, \
-    AlchemySessionCommitHandler
+from ally.core.sqlalchemy.processor.alchemy_session import AlchemySessionHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the sql alchemy session
@@ -21,12 +20,8 @@ from ally.core.sqlalchemy.processor.alchemy_session import AlchemySessionHandler
 @ioc.entity
 def alchemySessionHandler() -> Processor: return AlchemySessionHandler()
 
-@ioc.entity
-def alchemySessionCommitHandler() -> Processor: return AlchemySessionCommitHandler()
-
 # ---------------------------------
 
 @ioc.before(handlersResources)
 def updateHandlers():
     handlersResources().insert(handlersResources().index(invokingHandler()), alchemySessionHandler())
-    handlersResources().insert(handlersResources().index(encoding()), alchemySessionCommitHandler())

@@ -83,13 +83,12 @@ class DecodingTextHandler(DecodingTextBaseHandler):
         model = modelType.container
         assert isinstance(model, Model)
         assert isinstance(converter, Converter)
-        obj = modelObj
         mi = modelType.forClass()
         errors = []
         for prop, typ in model.properties.items():
             propName = self.normalizer.normalize(prop)
-            if propName in obj:
-                content = obj.pop(propName)
+            if propName in modelObj:
+                content = modelObj.pop(propName)
                 if content is not None: content = content if isinstance(content, str) else str(content)
                 if model.propertyId == prop: converter = self.converterId
 
@@ -98,6 +97,6 @@ class DecodingTextHandler(DecodingTextBaseHandler):
                     errors.append(Ref(_('Invalid value, expected %(type)s type') %
                                       dict(type=_(str(typ))), model=model, property=prop))
                     assert log.debug('Problems setting property %r from value %s', propName, content) or True
-        if len(obj) > 0: raise DevelError('Unknown keys %r' % ', '.join(str(key) for key in obj.keys()))
+        if len(modelObj) > 0: raise DevelError('Unknown keys %r' % ', '.join(str(key) for key in modelObj.keys()))
         if len(errors) > 0: raise DevelError(*errors)
         return mi

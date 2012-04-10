@@ -145,8 +145,6 @@ def commit(session):
     '''
     assert isinstance(session, Session), 'Invalid session %s' % session
     try:
-        session.flush()
-        session.expunge_all()
         session.commit()
         assert log.debug('Committed SQL Alchemy session transactions') or True
     except InvalidRequestError:
@@ -183,7 +181,9 @@ def bindSession(proxy, sessionCreator):
 
     def end(returned):
         if hasSession():
-            openSession().expunge_all()
+            session = openSession()
+            session.flush()
+            session.expunge_all()
         endCurrent(commit)
 
     def exception(exception):

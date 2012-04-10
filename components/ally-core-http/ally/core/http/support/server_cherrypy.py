@@ -6,7 +6,7 @@ Created on Nov 23, 2011
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the cherry py web werver support.
+Provides the cherry py web server support.
 '''
 
 from ally.api.config import UPDATE, INSERT, GET, DELETE
@@ -59,8 +59,9 @@ class RequestHandler:
 
     @cherrypy.expose
     def default(self, *vpath, **params):
+        request, response = cherrypy.request, cherrypy.response
         req = RequestHTTP()
-        req.method = self.methods.get(cherrypy.request.method, self.methodUnknown)
+        req.method = self.methods.get(request.method, self.methodUnknown)
         path = '/'.join(vpath)
 
         for pathRegex, processors in self.requestPaths:
@@ -72,44 +73,43 @@ class RequestHandler:
                 req.rootURI = path[:match.end()]
                 if not req.rootURI.endswith('/'): req.rootURI += '/'
                 break
-        else:
-            cherrypy.response.status = 404
-            return ''
+        else: raise cherrypy.HTTPError(404)
 
-        req.headers.update(cherrypy.request.headers)
+        req.headers.update(request.headers)
         for name, value in params.items():
             if isinstance(value, list):
                 req.params.extend([(name, v) for v in value])
             else:
-                req.params.append((name, value));
-        #TODO: check empty handling of request body
-        req.content = ContentRequest(cherrypy.request.rfile, True)
-        
-        #TODO: implement proper processor for this quickfix
-        ovrd = cherrypy.request.headers.get('X-HTTP-Method-Override')
-        if ovrd: req.method = self.methods[ovrd.upper()]
+                req.params.append((name, value))
+
+        req.content = ContentRequest(request.rfile, True)
 
         rsp = Response()
         chain.process(req, rsp)
-        headers = cherrypy.response.headers
-        
-        headers.pop('Content-Type', None)
-        headers['Server'] = self.serverVersion
+
+        response.headers.pop('Content-Type', None)
+        response.headers['Server'] = self.serverVersion
         for headerEncoder in self.encodersHeader:
             assert isinstance(headerEncoder, EncoderHeader)
-            headerEncoder.encode(headers, rsp)
-        cherrypy.response.status = rsp.code.code
+            headerEncoder.encode(response.headers, rsp)
+        response.status = '%s %s' % (rsp.code.code, rsp.codeText)
         assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
         return rsp.content
-    default._cp_config = {'response.stream': True} # We make sure that streaming occurs and is not cached
+    default._cp_config = {
+                          'response.stream': True, # We make sure that streaming occurs and is not cached
+                          'request.process_request_body': False
+                          }
 
 # --------------------------------------------------------------------
 
 def run(requestHandler, host='127.0.0.1', port=80, threadPool=10):
-    cherrypy.config.update({
-                            'server.socket_port': port,
-                            'server.socket_host': host,
-                            'server.thread_pool': threadPool
-                            })
     print('=' * 50, 'Started HTTP REST API server...')
-    cherrypy.quickstart(requestHandler, config={'global':{'engine.autoreload.on': False}})
+    config = {
+              'global':{
+                        'engine.autoreload.on': False,
+                        'server.socket_port': port,
+                        'server.socket_host': host,
+                        'server.thread_pool': threadPool,
+                        },
+              }
+    cherrypy.quickstart(requestHandler, config=config)
