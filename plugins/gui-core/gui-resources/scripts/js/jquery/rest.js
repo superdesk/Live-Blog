@@ -221,7 +221,7 @@ $(function()
 	
 				if(typeof node == 'undefined') 
 				{
-					this.deferred.reject();
+				    this.deferred.resolve(null);
 					return false;
 				}
 	
