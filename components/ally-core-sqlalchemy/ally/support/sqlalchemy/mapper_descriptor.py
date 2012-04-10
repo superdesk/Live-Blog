@@ -44,22 +44,23 @@ class MappedReference(InstrumentedAttribute):
     @see: Reference
     '''
 
-    __slots__ = TypeSupport.__slots__ + ('_ally_ref_parent', '__ally_instrumented__')
+    __slots__ = TypeSupport.__slots__ + ('_ally_ref_parent', '_ally_instrumented')
 
     def __init__(self, type, instrumented, parent=None):
         '''
         Constructs the container property descriptor.
         
-        @param type: TypeProperty
-            The property type represented by the property.
+        @param type: TypeModelProperty
+            The property type represented by the mapped reference.
         '''
+        assert isinstance(type, TypeModelProperty), 'Invalid type %s' % type
         assert parent is None or isinstance(parent, TypeSupport), \
         'Invalid parent %s, needs to be a type support' % parent
         assert isinstance(instrumented, InstrumentedAttribute), 'Invalid instrumented attribute %s' % instrumented
         TypeSupport.__init__(self, type)
 
         self._ally_ref_parent = parent
-        self.__ally_instrumented__ = instrumented
+        self._ally_instrumented = instrumented
 
     def __getattr__(self, name):
         '''
@@ -69,11 +70,13 @@ class MappedReference(InstrumentedAttribute):
             The property to get from the contained container.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
-        typ = self._ally_type.type
-        if isinstance(typ, TypeContainer):
-            assert isinstance(typ, TypeContainer)
-            return MappedReference(typeFor(getattr(typ.forClass, name)), self.__ally_instrumented__, self)
-        return getattr(self.__ally_instrumented__, name)
+        try:
+            return getattr(self._ally_instrumented, name)
+        except AttributeError:
+            typ = self._ally_type.type
+            if isinstance(typ, TypeContainer):
+                assert isinstance(typ, TypeContainer)
+                return MappedReference(typeFor(getattr(typ.forClass, name)), self._ally_instrumented, self)
 
     def __repr__(self):
         r = []
@@ -95,6 +98,9 @@ class MappedProperty(Property):
     def __init__(self, type, reference, instrumented):
         '''
         Construct the mapped property.
+        
+        @param type: TypeModelProperty
+            The property type represented by the mapped property.
         @see: Property.__init__
         '''
         assert isinstance(type, TypeModelProperty), 'Invalid type %s' % type

@@ -153,20 +153,6 @@ class TestEncoderText(unittest.TestCase):
         {'ArticleList':
         [{'Type': {'href': 'ArticleType/1', 'Id': '1'}, 'Id': '1', 'href': 'Article/1', 'Name': 'Article 1'},
          {'Type': {'href': 'ArticleType/2', 'Id': '2'}, 'Id': '2', 'href': 'Article/2', 'Name': 'Article 2'}]})
-
-#            processorMeta.newChain().process(req, rsp)
-#            del rsp.objMeta.metaItem['Type']
-#            del rsp.objMeta.metaItem['Name']
-#            processorText.newChain().process(req, rsp)
-#            self.assertTrue(encoder.obj == 
-#                            [{'href': 'Article/1', 'Id': '1'}, {'href': 'Article/2', 'Id': '2'}])
-#            
-#            processorMeta.newChain().process(req, rsp)
-#            del rsp.objMeta.metaItem['Id']
-#            del rsp.objMeta.metaItem['Name']
-#            processorText.newChain().process(req, rsp)
-#            self.assertTrue(encoder.obj == 
-#                        [{'Type': {'href': 'ArticleType/1', 'Id': '1'}}, {'Type': {'href': 'ArticleType/2', 'Id': '2'}}])
         finally: ioc.close()
 
 # --------------------------------------------------------------------

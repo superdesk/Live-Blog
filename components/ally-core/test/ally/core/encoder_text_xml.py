@@ -83,7 +83,7 @@ class TestEncoderXML(unittest.TestCase):
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
-<Article><Type href="ArticleType/2"><Id>2</Id></Type><Id>1</Id><Name>Article 1</Name></Article>'''))
+<Article><Id>1</Id><Name>Article 1</Name><Type href="ArticleType/2"><Id>2</Id></Type></Article>'''))
 
             a = Article()
             a.Id, a.Name, a.Type = 3, 'Article 3', 4
@@ -93,7 +93,7 @@ class TestEncoderXML(unittest.TestCase):
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
-<Article><Type href="ArticleType/4"><Id>4</Id></Type><Id>3</Id><Name>Article 3</Name></Article>'''))
+<Article><Id>3</Id><Name>Article 3</Name><Type href="ArticleType/4"><Id>4</Id></Type></Article>'''))
 
             at = ArticleType()
             at.Id, at.Name = 1, 'Article Type 1'
@@ -103,7 +103,7 @@ class TestEncoderXML(unittest.TestCase):
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
-<ArticleType><Article href="ArticleType/1/Article"/><Id>1</Id><Name>Article Type 1</Name>'''\
+<ArticleType><Id>1</Id><Name>Article Type 1</Name><Article href="ArticleType/1/Article"/>'''\
 '</ArticleType>'))
 
             # Test list paths encoding
@@ -153,8 +153,8 @@ class TestEncoderXML(unittest.TestCase):
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
 '''<?xml version="1.0" encoding="UTF-8"?>
 <ArticleList>'''\
-'<Article href="Article/1"><Type href="ArticleType/1"><Id>1</Id></Type><Id>1</Id><Name>Article 1</Name></Article>'\
-'<Article href="Article/2"><Type href="ArticleType/2"><Id>2</Id></Type><Id>2</Id><Name>Article 2</Name></Article>'\
+'<Article href="Article/1"><Id>1</Id><Name>Article 1</Name><Type href="ArticleType/1"><Id>1</Id></Type></Article>'\
+'<Article href="Article/2"><Id>2</Id><Name>Article 2</Name><Type href="ArticleType/2"><Id>2</Id></Type></Article>'\
 '</ArticleList>'))
 
             rsp.obj, rsp.objType = {'Type': {'href': 'ArticleType/2', 'Id': '2'}, 'Id': '1'}, None

@@ -12,6 +12,7 @@ Special module that is targeted by the application loader in order to deploy the
 # --------------------------------------------------------------------
 
 import os
+import package_extender
 import sys
 import traceback
 
@@ -26,15 +27,14 @@ assembly = None
 # --------------------------------------------------------------------
 
 def deploy():
-    from package_extender import PACKAGE_EXTENDER
-    PACKAGE_EXTENDER.addFreezedPackage('__setup__.')
+    package_extender.PACKAGE_EXTENDER.addFreezedPackage('__setup__.')
     from ally.container import ioc, aop
     from ally.container.ioc import ConfigError, SetupError
     from ally.container.config import save, load
 
     global assembly
     if assembly: raise ImportError('The application is already deployed')
-    
+
     try:
         isConfig = os.path.isfile(configurationsFilePath)
         if isConfig:

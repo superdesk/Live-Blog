@@ -180,7 +180,7 @@ class ConverterBabel(Converter):
         if objType.isOf(str):
             return strValue
         if objType.isOf(bool):
-            return strValue.strip().lower() == _('true')
+            return strValue.strip().lower() == _('true').lower()
         if objType.isOf(Percentage):
             return float(strValue) / 100
         if objType.isOf(Number):

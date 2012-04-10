@@ -37,7 +37,7 @@ def default_language():
 
 @ioc.config
 def explain_detailed_error():
-    '''If True will provide as an error response a detailed XML providing info about where the problem originated'''
+    '''If True will provide as an error response a detailed response containing info about where the problem originated'''
     return False
 
 @ioc.entity
