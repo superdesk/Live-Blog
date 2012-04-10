@@ -34,43 +34,38 @@ if __name__ == '__main__':
     # Loading the libraries
     for path in findLibraries(os.path.join(os.path.dirname(__file__), 'libraries')):
         if path not in sys.path: sys.path.append(path)
+
+    try: __import__('application_logging')
+    except Exception as e: print('=' * 50, 'No logging configuration available: %s' % e)
+
     # Loading the components.
     for path in findLibraries(os.path.join(os.path.dirname(__file__), 'components')):
         if path not in sys.path: sys.path.append(path)
-    
-    try: __import__('application_logging')
-    except Exception as e: print('=' * 50, 'No logging configuration available: %s' % e)
-    
-    # register the package extender.
-    try: __import__('package_extender')
-    except:
-        print('=' * 50, 'Application cannot be started, no package extender available')
-        traceback.print_exc()
+
+    try: import ally_deploy_application
+    except ImportError: print('=' * 50, 'Application cannot be started, no application deploy available')
     else:
-        try: import ally_deploy_application
-        except ImportError: print('=' * 50, 'Application cannot be started, no application deploy available')
+        try:
+            file = os.path.join(os.path.dirname(__file__), ally_deploy_application.configurationsFilePath)
+            ally_deploy_application.configurationsFilePath = file
+            ally_deploy_application.deploy()
+            print('=' * 50, 'Application deployed')
+        except:
+            print('=' * 50, 'Problems while deploying application')
+            traceback.print_exc()
         else:
-            try:
-                file = os.path.join(os.path.dirname(__file__), ally_deploy_application.configurationsFilePath)
-                ally_deploy_application.configurationsFilePath = file
-                ally_deploy_application.deploy()
-                print('=' * 50, 'Application deployed')
-            except:
-                print('=' * 50, 'Problems while deploying application')
-                traceback.print_exc()
+            # Loading the plugins.
+            try: import ally_deploy_plugin
+            except ImportError: print('=' * 50, 'No plugins deploy available, proceed without any plugin')
             else:
-                # Loading the plugins.
-                try: import ally_deploy_plugin
-                except ImportError: print('=' * 50, 'No plugins deploy available, proceed without any plugin')
-                else:
-                    for path in findLibraries(os.path.join(os.path.dirname(__file__), 'plugins')):
-                        if path not in sys.path: sys.path.append(path)
-                    try:
-                        file = os.path.join(os.path.dirname(__file__), ally_deploy_plugin.configurationsFilePath)
-                        ally_deploy_plugin.configurationsFilePath = file
-                        ally_deploy_plugin.deploy()
-                        print('=' * 50, 'Plugins deployed')
-                    except:
-                        print('=' * 50, 'Problems while deploying plugins')
-                        traceback.print_exc()
-            print('=' * 50, 'Application fully started')
+                for path in findLibraries(os.path.join(os.path.dirname(__file__), 'plugins')):
+                    if path not in sys.path: sys.path.append(path)
+                try:
+                    file = os.path.join(os.path.dirname(__file__), ally_deploy_plugin.configurationsFilePath)
+                    ally_deploy_plugin.configurationsFilePath = file
+                    ally_deploy_plugin.deploy()
+                    print('=' * 50, 'Plugins deployed')
+                except:
+                    print('=' * 50, 'Problems while deploying plugins')
+                    traceback.print_exc()
+        print('=' * 50, 'Application fully started')
