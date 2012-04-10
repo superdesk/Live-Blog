@@ -50,11 +50,11 @@ class Initializer:
             assert isinstance(initializer, Initializer)
             if entity.__class__ == initializer._entityClazz:
                 try:
-                    if entity.__ally_ioc_initialized__: return
+                    if entity._ally_ioc_initialized: return
                 except AttributeError:
-                    args, keyargs = entity.__ally_ioc_arguments__
-                    entity.__ally_ioc_initialized__ = True
-                    del entity.__ally_ioc_arguments__
+                    args, keyargs = entity._ally_ioc_arguments
+                    entity._ally_ioc_initialized = True
+                    del entity._ally_ioc_arguments
                     if initializer._entityInit:
                         initializer._entityInit(entity, *args, **keyargs)
                         log.info('Initialized entity %s' % entity)
@@ -77,11 +77,11 @@ class Initializer:
         '''
         assert isinstance(entity, self._entityClazz), 'Invalid entity %s for class %s' % (entity, self._entityClazz)
         try:
-            if entity.__ally_ioc_initialized__: self._entityInit(entity, *args, **keyargs)
+            if entity._ally_ioc_initialized: self._entityInit(entity, *args, **keyargs)
         except AttributeError:
-            try: entity.__ally_ioc_arguments__
+            try: entity._ally_ioc_arguments
             except AttributeError:
-                entity.__ally_ioc_arguments__ = (args, keyargs)
+                entity._ally_ioc_arguments = (args, keyargs)
             else:
                 raise TypeError('Cannot initialize twice the entity %s' % entity)
 

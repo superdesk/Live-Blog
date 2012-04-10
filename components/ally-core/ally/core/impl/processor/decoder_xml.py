@@ -19,9 +19,9 @@ from ally.core.spec.codes import BAD_CONTENT
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Request, Response, ProcessorsChain, \
     ContentRequest
-from ally.exception import DevelError, InputError, Ref
+from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.xml.digester import Rule, RuleRoot, Digester, Node
+from ally.xml.digester import Rule, RuleRoot, Digester, Node, DigesterError
 import logging
 
 # --------------------------------------------------------------------
@@ -73,8 +73,8 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
                     if len(digester.errors) > 0: raise InputError(*digester.errors)
                     req.arguments[name] = value
                     assert log.debug('Successfully decoded for input (%s) value %s', name, value) or True
-                except DevelError as e:
-                    rsp.setCode(BAD_CONTENT, e.message)
+                except DigesterError as e:
+                    rsp.setCode(BAD_CONTENT, str(e))
                 except InputError as e:
                     rsp.setCode(BAD_CONTENT, e, 'Invalid data')
                 return
@@ -82,7 +82,7 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
             assert log.debug('Invalid request for the XML decoder') or True
         chain.proceed()
 
-    def _ruleModel(self, modelType, converter):
+    def _ruleModel(self, modelType, converterValue):
         assert isinstance(modelType, TypeModel)
         model = modelType.container
         assert isinstance(model, Model)
@@ -90,9 +90,13 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
         rmodel = root.addRule(RuleModel(modelType), self.normalizer.normalize(model.name))
         for prop, typ in model.properties.items():
             if prop == model.propertyId:
-                rmodel.addRule(RuleSetProperty(model, prop, typ, self.converterId), self.normalizer.normalize(prop))
+                converter = self.converterId
+            elif isinstance(typ, TypeModel):
+                assert isinstance(typ, TypeModel)
+                converter, typ = self.converterId, typ.container.properties[typ.container.propertyId]
             else:
-                rmodel.addRule(RuleSetProperty(model, prop, typ, converter), self.normalizer.normalize(prop))
+                converter = converterValue
+            rmodel.addRule(RuleSetProperty(model, prop, typ, converter), self.normalizer.normalize(prop))
         return root
 
 # --------------------------------------------------------------------

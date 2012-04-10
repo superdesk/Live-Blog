@@ -21,9 +21,29 @@ from ally.core.http.impl.processor.meta_filter import MetaFilterHandler
 from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.spec.server import Processor, Processors
 import re
+from ally.core.http.impl.processor.method_override import MethodOverrideHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
+
+@ioc.config
+def read_from_params():
+    '''If true will also read header values that are provided as query parameters'''
+    return True
+
+@ioc.config
+def allow_method_override():
+    '''
+    If true will allow the method override by using the header 'X-HTTP-Method-Override', the GET can be override with
+    DELETE and the POST with PUT.
+    '''
+    return True
+
+@ioc.entity
+def methodOverride() -> Processor:
+    b = MethodOverrideHandler()
+    b.readFromParams = read_from_params()
+    return b
 
 @ioc.entity
 def uri() -> Processor:
@@ -31,11 +51,6 @@ def uri() -> Processor:
     b.resourcesManager = resourcesManager()
     b.converterPath = converterPath()
     return b
-
-@ioc.config
-def read_from_params():
-    '''If true will also read header values that are provided as query parameters'''
-    return True
 
 @ioc.entity
 def headerStandard() -> Processor:
@@ -72,11 +87,11 @@ def updateHandlersExplainError():
 
 @ioc.before(handlersResources)
 def updateHandlersResources():
-    rscH = handlersResources()
-    rscH.insert(rscH.index(methodInvoker()), headerStandard())
-    rscH.insert(rscH.index(headerStandard()), uri())
-    rscH.insert(rscH.index(methodInvoker()), formattingProvider())
-    rscH.insert(rscH.index(converter()), metaFilter())
+    handlers = [uri(), headerStandard(), formattingProvider()]
+    if allow_method_override(): handlers.insert(0, methodOverride())
+    for proc in handlers: handlersResources().insert(handlersResources().index(methodInvoker()), proc)
+
+    handlersResources().insert(handlersResources().index(converter()), metaFilter())
 
 @ioc.entity
 def pathProcessors():

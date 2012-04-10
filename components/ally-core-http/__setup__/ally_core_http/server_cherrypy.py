@@ -51,10 +51,7 @@ def requestHandler():
 @ioc.start
 def runServer():
     if server_type() == 'cherrypy':
-        import cherrypy
         from ally.core.http.support import server_cherrypy
-
-        cherrypy.config.update({'engine.autoreload.on': False})
 
         args = requestHandler(), server_host(), server_port(), server_thread_pool()
         Thread(target=server_cherrypy.run, args=args).start()

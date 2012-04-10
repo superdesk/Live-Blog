@@ -10,17 +10,18 @@ Provides the meta creation processor handler that also makes filtering on the me
 '''
 
 from .header import HeaderHTTPBase, VALUES
+from ally.api.config import GET
 from ally.container.ioc import injected
 from ally.core.http.spec import INVALID_HEADER_VALUE
-from ally.core.impl.processor.meta_creator import MetaCreatorHandler
-from ally.core.spec.data_meta import MetaLink, MetaModel, MetaPath, MetaCollection, \
-    MetaFetch
+from ally.core.impl.processor.meta_creator import MetaCreatorHandler, \
+    sortProperties
+from ally.core.spec.data_meta import MetaLink, MetaModel, MetaPath, \
+    MetaCollection, MetaFetch
 from ally.core.spec.resources import Normalizer
 from ally.core.spec.server import Request, Response, ProcessorsChain, Processors
 from ally.exception import DevelError
 from collections import deque
 import logging
-from ally.api.config import GET
 
 # --------------------------------------------------------------------
 
@@ -71,9 +72,9 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
             assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
-        
+
         _hasFetcher = False
-        
+
         if rsp.objMeta is None:
             if filterBy:
                 rsp.setCode(INVALID_HEADER_VALUE, 'Unknown filter properties %r' % ', '.join(filterBy))
@@ -195,10 +196,10 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                         metas = {name: MetaFetch(pmeta, fetchFirst) for name, pmeta in metas.items()}
                         # We can now join the original metas with the fetched metas.
                         metas.update(fmetas)
-                        # The new 
-                        return MetaModel(meta.model, createFetcher(meta), meta.metaLink, metas)
+                        return MetaModel(meta.model, createFetcher(meta), meta.metaLink,
+                                         sortProperties(meta.model, metas))
 
-                return MetaModel(meta.model, meta.getModel, meta.metaLink, metas)
+                return MetaModel(meta.model, meta.getModel, meta.metaLink, sortProperties(meta.model, metas))
             elif not first and meta.metaLink:
                 return MetaModel(meta.model, meta.getModel, meta.metaLink)
 

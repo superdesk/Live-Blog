@@ -156,7 +156,8 @@ def decoderTextUrlencoded():
     from ally.support.core.util_param import parseStr
     import codecs
     def decodeUrlencoded(content, charSet):
-        return parseStr(codecs.getreader(charSet)(content).read())
+        a = parseStr(codecs.getreader(charSet)(content).read())
+        return a
     return decodeUrlencoded
 
 @ioc.entity

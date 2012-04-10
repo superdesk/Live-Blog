@@ -105,7 +105,7 @@ class InvokerSetId(Invoker):
         model = typeModel.container
         assert isinstance(model, Model)
 
-        inputs = list(invoker.inputs[:invoker.mandatory - 1])
+        inputs = list(invoker.inputs[:invoker.mandatory])
         inputId = Input(model.name + model.propertyId, typeFor(getattr(typeModel.forClass, model.propertyId)))
         inputs.insert(invoker.mandatory - 1, inputId)
         super().__init__(invoker.output, invoker.name, inputs)
@@ -121,11 +121,10 @@ class InvokerSetId(Invoker):
         obj = args[self.mandatory - 1]
         arg = args[self.invoker.mandatory - 1]
         val = getattr(obj, self.propertyId)
-        if val is not None:
-            if val != arg:
-                raise DevelError('Cannot have two distinct values %r and %r for %r' %
-                                 (arg, val, self.normalizer.normalize(self.propertyId)))
-            setattr(obj, self.propertyId, arg)
+        if val is not None and val != arg:
+            raise DevelError('Cannot have two distinct values %r and %r for %r' %
+                             (arg, val, self.normalizer.normalize(self.propertyId)))
+        setattr(obj, self.propertyId, arg)
 
         wargs = list(args[:self.invoker.mandatory - 1])
         wargs.append(obj)
