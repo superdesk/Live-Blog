@@ -25,11 +25,6 @@ REGEX_SPECIAL = re.compile('__[\w]+__$')
 
 # --------------------------------------------------------------------
 
-class UnextendableMeta(UnextendableMeta, ABCMeta):
-    '''
-    Meta describing an unextedable class that also contains abstract base class metas.
-    '''
-
 class ProxyError(Exception):
     '''
     Exception thrown when there is a proxy problem.
@@ -58,15 +53,20 @@ def createProxy(clazz):
         cls = classes.popleft()
         for name, function in cls.__dict__.items():
             if name not in ('__init__',) and isfunction(function):
-                if name not in attributes and (not name.startswith(PREFIX_HIDDEN_METHOD) or REGEX_SPECIAL.match(name)):
-                    attributes[name] = update_wrapper(ProxyMethod(name), function)
+                if name not in attributes:
+                    if name.startswith(PREFIX_HIDDEN_METHOD) and not REGEX_SPECIAL.match(name):
+                        attributes[name] = update_wrapper(ProxyMethodInvalid(), function)
+                    else:
+                        attributes[name] = update_wrapper(ProxyMethod(name), function)
         classes.extend(base for base in cls.__bases__ if base != object)
 
     attributes['__module__'] = clazz.__module__
     attributes['__slots__'] = ('_proxy_handlers', '_proxy_calls')
-    clazz._ally_proxy = type.__new__(UnextendableMeta, clazz.__name__ + '$Proxy', (Proxy, clazz), attributes)
+    proxy = type.__new__(ProxyMeta, clazz.__name__ + '$Proxy', (Proxy, clazz), attributes)
 
-    return clazz._ally_proxy
+    proxy._ally_proxied = clazz
+    clazz._ally_proxy = proxy
+    return proxy
 
 def proxyWrapFor(obj):
     '''
@@ -190,6 +190,11 @@ class Execution:
         assert isinstance(handler, IProxyHandler), 'Invalid handler %s' % handler
         return handler.handle(self)
 
+class ProxyMeta(UnextendableMeta, ABCMeta):
+    '''
+    Meta describing an unextedable class that also contains abstract base class metas.
+    '''
+
 class Proxy:
     '''
     Provides the base class for proxy classes.
@@ -229,6 +234,8 @@ class ProxyCall:
         self.proxy = proxy
         self.proxyMethod = proxyMethod
 
+        self._ally_listeners = {} # This will allow the proxy method to be binded with listeners
+
     def __call__(self, *args, **keyargs):
         '''
         @see: Callable.__call__
@@ -250,8 +257,6 @@ class ProxyMethod:
         assert isinstance(name, str), 'Invalid name %s' % name
         self.name = name
 
-        self._ally_listeners = {} # This will allow the proxy method to be binded with listeners
-
     def __call__(self, proxy, *args, **keyargs):
         '''
         @see: Callable.__call__
@@ -268,6 +273,17 @@ class ProxyMethod:
             if not call: call = proxy._proxy_calls[self.name] = update_wrapper(ProxyCall(proxy, self), self)
             return call
         return self
+
+class ProxyMethodInvalid:
+    '''
+    Raises an exception whenever an attempt is made to retrieve the call method.
+    '''
+
+    def __get__(self, proxy, owner=None):
+        '''
+        @see: http://docs.python.org/reference/datamodel.html
+        '''
+        raise AttributeError('Method not available for proxy')
 
 class IProxyHandler(metaclass=abc.ABCMeta):
     '''

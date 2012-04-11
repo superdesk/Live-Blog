@@ -6,10 +6,8 @@ Created on Jul 15, 2011
 @license http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Contains sql alchemy setup files.
+Contains content delivery manager setup files.
 '''
-
-from .. import ally_api
 
 # --------------------------------------------------------------------
 

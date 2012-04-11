@@ -13,7 +13,9 @@ import logging
 #logging.basicConfig(format='%(asctime)s %(levelname)s (%(threadName)s %(module)s.%(funcName)s %(lineno)d): %(message)s')
 logging.basicConfig(format='%(module)s.%(funcName)s %(lineno)d: %(message)s')
 
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+#logging.getLogger('ally.core.impl.assembler').setLevel(logging.DEBUG)
+#logging.getLogger('newscoop').setLevel(logging.WARN)
+
 #logging.getLogger('internationalization.scanner').setLevel(logging.DEBUG)
 #logging.getLogger('ally.support.sqlalchemy.mapper').setLevel(logging.DEBUG)
 #logging.getLogger('__plugin__').setLevel(logging.DEBUG)
@@ -29,8 +31,6 @@ logging.getLogger('ally').setLevel(logging.WARN)
 #logging.getLogger('ally.container').setLevel(logging.INFO)
 #logging.getLogger('ally.container._impl.support_setup').setLevel(logging.DEBUG)
 #logging.getLogger('ally.support.sqlalchemy.session').setLevel(logging.DEBUG)
-
-#logging.getLogger('newscoop').setLevel(logging.WARN)
 
 #logging.getLogger('print_desk').setLevel(logging.WARN)
 

@@ -70,8 +70,6 @@ class POFileManagerDB(IPOFileManager):
         '''
         assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
         template = self._buildCatalog(self.messageService.getMessages(), locale)
-        if locale:
-            self._updateFile(None, None, locale, None, template)
         return self._buildPOFile(locale, template)
 
     def getComponentPOFile(self, component, locale=None):
@@ -171,19 +169,27 @@ class POFileManagerDB(IPOFileManager):
         self._updateFile(None, None, locale, globalCatalog, globalTemplateCatalog)
         self._updateFile(component, plugin, locale, None, exceptionsCatalog)
 
-    def _poFileTimestamp(self, component:Component.Id=None, plugin:Plugin.Id=None, locale:str=None):
+    def _poFileTimestamp(self, component=None, plugin=None, locale=None):
         '''
         @see: IPOFileManager.poFileTimestamp
         '''
         assert not locale or isinstance(locale, str), 'Invalid locale %s' % locale
-        lastMsgTimestamp = self._messagesLastModified(component, plugin)
-        if not locale:
-            return lastMsgTimestamp
+
+        q = QSource()
+        q.lastModified.orderDesc()
+        if component: q.component = component
+        elif plugin: q.plugin = plugin
+        sources = self.sourceService.getAll(0, 1, q)
+        try: lastMsgTimestamp = next(iter(sources)).LastModified
+        except StopIteration: lastMsgTimestamp = None
+
+        if not locale: return lastMsgTimestamp
+
         path = self._filePath(locale, component, plugin)['po']
-        if not isfile(path):
-            return None
+        if not isfile(path): return lastMsgTimestamp
+
         fileMTime = datetime.fromtimestamp(os.stat(path).st_mtime)
-        if fileMTime >= lastMsgTimestamp:
+        if not lastMsgTimestamp or fileMTime >= lastMsgTimestamp:
             return fileMTime
         else:
             return lastMsgTimestamp
@@ -223,8 +229,7 @@ class POFileManagerDB(IPOFileManager):
         with open(paths['mo'], 'wb') as globalMo:
             write_mo(globalMo, catalog)
 
-    def _buildPOFile(self, locale:str=None, templateCatalog:Catalog=None,
-                     exceptionsCat:Catalog=None):
+    def _buildPOFile(self, locale=None, templateCatalog=None, exceptionsCat=None):
         '''
         Builds a PO file from the given file (as file object) to read from, for the
         given locale, using the given template and exceptions catalogs.
@@ -259,6 +264,7 @@ class POFileManagerDB(IPOFileManager):
         exceptionsCat.obsolete = odict()
         fileObj = BytesIO()
         write_po(fileObj, exceptionsCat)
+        fileObj.seek(0)
         return fileObj
 
     def _readPOFile(self, path:str, locale:str=None) -> Catalog:
@@ -274,9 +280,9 @@ class POFileManagerDB(IPOFileManager):
         with open(path) as fObj:
             return read_po(fObj, locale)
 
-    def _fileName(self, locale:str=None, component:Component.Id=None, plugin:Plugin.Id=None):
+    def _filePath(self, locale=None, component=None, plugin=None):
         '''
-        Returns the name of the PO file corresponding to the given locale and/or
+        Returns the path to the internal PO file corresponding to the given locale and / or
         component / plugin. If no component of plugin was specified it returns the
         name of the global PO file.
         
@@ -292,42 +298,8 @@ class POFileManagerDB(IPOFileManager):
             name = 'plugin' + os.sep + plugin + fileLocale
         else:
             name = 'global' + fileLocale
-        return {'po':name + '.po', 'mo':name + '.mo'}
 
-    def _filePath(self, locale:str=None, component:Component.Id=None, plugin:Plugin.Id=None):
-        '''
-        Returns the path to the internal PO file corresponding to the given locale and / or
-        component / plugin. If no component of plugin was specified it returns the
-        name of the global PO file.
-        
-        @param locale: str
-            The locale code
-        @param component: Component.Id
-        @param plugin: Plugin.Id
-        '''
-        names = self._fileName(locale, component, plugin)
-        return {'po':join(self.locale_dir_path, names['po']), 'mo':join(self.locale_dir_path, names['mo'])}
-
-    def _messagesLastModified(self, component:Component.Id=None, plugin:Plugin.Id=None) -> datetime:
-        '''
-        Returns the timestamp of the last modified message from the messages table.
-
-        @param component: Component.Id
-            Filters by component
-        @param plugin: Plugin.Id
-            Filters by plugin
-        @return: timestamp
-        '''
-        q = QSource()
-        q.lastModified.orderDesc()
-        if component:
-            q.component = component
-        elif plugin:
-            q.plugin = plugin
-        sources = self.sourceService.getAll(0, 1, q)
-        if sources:
-            return sources[0].LastModified
-        return None
+        return {'po':join(self.locale_dir_path, name + '.po'), 'mo':join(self.locale_dir_path, name + '.mo')}
 
     def _buildCatalog(self, messages, locale:str=None) -> Catalog:
         '''

@@ -90,12 +90,12 @@ class IEntityCRUDService:
     @call
     def insert(self, entity:Entity) -> Entity.Id:
         '''
-        Insert the entity.
+        Insert the entity, also the entity will have automatically assigned the Id to it.
         
         @param entity: Entity
             The entity to be inserted.
         
-        @return: The id of the entity
+        @return: The id assigned to the entity
         @raise InputException: If the entity is not valid. 
         '''
 

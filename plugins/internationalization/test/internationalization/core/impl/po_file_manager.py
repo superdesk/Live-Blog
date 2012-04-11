@@ -13,7 +13,6 @@ from datetime import datetime
 import unittest
 from tempfile import TemporaryDirectory
 from os.path import join, dirname, abspath
-from os import makedirs
 from babel.messages.pofile import read_po
 
 from internationalization.api.message import IMessageService, Message
