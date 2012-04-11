@@ -1,0 +1,22 @@
+<div class="row-fluid">
+	<div class="page-header">
+		<h2><small>#{{Request.Id}}</small> {{Request.Pattern}}</h2>	
+	</div>
+</div>
+
+{% for( var prop in Request ) %}
+	{?Request[prop].href}
+	<article class="row-fluid well">
+		<header>
+			<h3>
+				{{prop}}
+				<a class="btn btn-info btn-small request-method pull-right" 
+					api-method="{{prop}}" href="{{Request[prop].href}}">info</a>
+			</h3>
+		</header>
+		<div class="box hide">
+						
+		</div>
+	</article>
+	{?}
+{% endfor %} 
