@@ -142,7 +142,7 @@ class MetaCreatorHandler(Processor):
                 else: metaLink = None
             else: metaLink = None
 
-            return MetaModel(typ, getValue, metaLink, {typ.property: self.metaProperty(typ.type, resourcePath)})
+            return MetaModel(typ.parent, getValue, metaLink, {typ.property: self.metaProperty(typ.type, resourcePath)})
 
         if isinstance(typ, TypeModel):
             assert isinstance(typ, TypeModel)
