@@ -203,11 +203,12 @@ $(function()
 		 * register an operation to obtain a key value from an object node
 		 * obtained by the last operation either from or construct
 		 */
-		get: function(key)
+		get: function(key, followHref)
 		{
-			var self = this;
-			var args = arguments;
-			var getData = new chainable( function(data) 
+		    var self = this,
+                args = arguments;
+        
+		    var getData = new chainable( function(data)  
 			{
 				var node;
 				if( !Array.isArray(data) ) 
@@ -218,7 +219,7 @@ $(function()
 								node = data[i][key]
 					}
 					else if(typeof data[key] != 'undefined') node = data[key];
-	
+				
 				if(typeof node == 'undefined') 
 				{
 				    this.deferred.resolve(null);
@@ -226,7 +227,7 @@ $(function()
 				}
 	
 				// assume that we only have a href property provided and we need to follow it to get the entity
-				if(typeof node.href == 'string' && Object.keys(node).length == 1)
+				if( (typeof node.href == 'string' && Object.keys(node).length == 1) || followHref)
 				{
 					var dfd = this.deferred;
 					if(typeof args[1] != 'undefined' )
@@ -237,6 +238,7 @@ $(function()
 					
 					self.lastUrl = node.href;
 					var ajax = self.doRequest(node.href)
+					    .pipe(function(){ return arguments[0] })
 						.then(this.deferred.resolve, this.deferred.reject);
 					return ajax;
 				}
