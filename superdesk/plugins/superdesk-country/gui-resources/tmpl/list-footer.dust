@@ -1,0 +1,21 @@
+<tfoot>
+<tr>
+	<td colspan="3">
+	{? pagination }
+	<ul class="the-icons unstyled">
+		<li>
+			<a class="previous" href="{{pagination.prev}}" {{pagination.prevElement}}>
+				<i class="icon-chevron-left"></i>
+			</a>
+		</li>
+		<li>{{pagination.offset}} - {{pagination.range}} of {{pagination.total}}</li>
+		<li>
+			<a class="next" href="{{pagination.next}}" {{pagination.nextElement}}>
+				<i class="icon-chevron-right"></i>
+			</a>
+		</li>
+	</ul>
+	{?}
+	</td>
+</tr>
+</tfoot>

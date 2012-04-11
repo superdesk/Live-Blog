@@ -2,104 +2,27 @@
 <html>
 <head>
 	<title>Superdesk</title>
-	<script src="http://localhost:8080/content/lib/core/scripts/js/startup.js"></script>
+	<script>
+	config = new function(){
+		this.domain = 'localhost:8080';
+		this.rest_url = '//' + this.domain + '/resources';
+		this.api_url = '//' + this.domain;
+		this.content_url =  '//' + this.domain + '/content';
+		this.lib_url = this.content_url + '/lib/core';
+		this.js_url = this.lib_url + '/scripts/js';
+		this.gui_url = this.content_url + '/gui';
+	};
+	</script>		
+	<script>document.write('<script data-main="' + config.js_url + '/main" src="' + config.js_url + '/libs/require/1.0.7/require.js"><'+'/script>')</script>
 	<style>
 		@IMPORT url("http://localhost:8080/content/lib/core/styles/css/bootstrap.css");
 		@IMPORT url("http://localhost:8080/content/lib/core/styles/css/responsive.css");
 		body { margin-top: 60px } 
 		.sidebar-nav { padding: 9px 0 }
 	</style>
-	<script>
-	$(function()
-	{
-		superdesk.apiUrl = "http://localhost:8080";
-		
-		var menu = new $.rest(superdesk.apiUrl + '/resources/GUI/Action?path=menu')
-		.done(function(menu)
-		{
-			var displayMenu = []
-			$(menu).each(function()
-			{ 
-				if( this.Path == 'menu' ) return true;
-				displayMenu.push($.extend({}, this, { Path: this.Path.split('.'), DisplayName: this.Path.replace('.', '-') })) 
-			});
-			$('#navbar-top').tmpl( '#navbar-tmpl', {superdesk: {menu: displayMenu}} );
-			$(document).on('click', '.nav a', function()
-			{
-				$.ajax(superdesk.apiUrl+'/'+$(this).attr('href'), {dataType: 'script'})
-				return false 
-			});
-		});
-		
-		$.when
-		(
-			superdesk.loadLayout('/content/lib/core/layouts/dashboard.html', 'dashboard'),
-			superdesk.loadLayout('/content/lib/core/layouts/update.html', 'update'),
-			superdesk.loadLayout('/content/lib/core/layouts/list.html', 'list')
-		)
-		.then(function()
-		{
-			$('#area-main').append( $.tmpl(superdesk.layouts.dashboard) )	
-		})
-			
-		$('.navbar .loader')
-		.ajaxStart(function()
-		{ 
-			var self = this;
-			if($(this).prop('complete-animation-to'))
-			{
-				clearTimeout($(this).prop('complete-animation-to'));
-				$(this).removeClass('complete');
-			}
-			$(this).addClass('active');
-		})
-		.ajaxComplete(function()
-		{
-			var self = this;
-			$(this).removeClass('active').addClass('complete');
-			$(this).prop('complete-animation-to', setTimeout( function(){ $(self).removeClass('complete'); }, 2000 ));
-		})
-	})
-	</script>
 </head>
 <body>
-
-<div class="navbar navbar-fixed-top" id="navbar-top">
-
-<script type="text/x-jQuery-tmpl" id="navbar-tmpl">
-
-	<div class="navbar-inner">
-    	<div class="container-fluid">
-	        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-	        	<span class="icon-bar">...</span>
-				<span class="icon-bar">...</span>
-				<span class="icon-bar">...</span>
-			</a>
-			<a class="brand" href="#">Superdesk</a>
-			<div class="nav-collapse">
-				<ul class="nav">
-				{% for(var k in superdesk.menu) %}
-					<li>
-						<a href="{{superdesk.menu[k].ScriptPath}}#area-{{superdesk.menu[k].DisplayName}}" 
-							class="menu-{{superdesk.menu[k].DisplayName}}">
-							{{superdesk.menu[k].Label}}
-						</a>
-					</li>
-				{% endfor %}
-				</ul>
-				<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>
-			</div>
-		</div>
-		<div class="loader"></div>
-	</div>
-
-</script>
-
-</div>
-
-<div class="container-fluid" id="area-main">
-	
-</div><!--/.fluid-container-->
-
+<div class="navbar navbar-fixed-top" id="navbar-top"></div>
+<div class="container-fluid" id="area-main"></div><!--/.fluid-container-->
 </body>	
 </html>
