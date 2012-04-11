@@ -1,0 +1,8 @@
+<div title="{Name}">
+	<dl class="dl-horizontal">
+        <dt>Country Code</dt>
+        <dd>{Code}</dd>
+        <dt>Country Name</dt>
+        <dd>{Name}</dd>
+	</dl>
+</div>

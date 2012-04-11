@@ -1,0 +1,35 @@
+<h3><small>#{{Id}}</small> {{Name}}</h3>
+
+<section>
+	{?APIClass}<p>
+		<strong>API Class:</strong> 
+		<code>{{APIClass}}</code>
+	</p>{?}
+
+	{?APIClassDefiner}<p>
+		<strong>API Class Definer:</strong> 
+		<code>{{APIClassDefiner}}</code>
+	</p>{?}
+
+	{?APIDoc}<p>
+		<strong>API Class Documentation:</strong>
+		<pre>{{APIDoc}}</pre>
+	</p>{?}
+</section>
+
+<section>
+	{?IMPL}<p>
+		<strong>Implementation:</strong> 
+		<code>{{IMPL}}</code>
+	</p>{?}
+
+	{?IMPLDefiner}<p>	
+		<strong>Implementation Definer:</strong> 
+		<code>{{IMPLDefiner}}</code>
+	</p>{?}
+
+	{?IMPLDoc}<p>
+		<strong>Implementation Documentation:</strong> 
+		<pre>{{IMPLDoc}}</pre>
+	</p>{?}
+</section>

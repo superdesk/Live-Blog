@@ -1,0 +1,21 @@
+<div class="navbar-inner">
+	<div class="container-fluid">
+		<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+			<span class="icon-bar">...</span>
+			<span class="icon-bar">...</span>
+			<span class="icon-bar">...</span>
+		</a>
+		<a class="brand" href="#">Superdesk</a>
+		<div class="nav-collapse">
+			<ul class="nav">
+			{#superdesk.menu}
+				<li>
+					<a href="{ScriptPath}" class="menu-{DisplayName}">{Label}</a>
+				</li>
+			{/superdesk.menu}
+			</ul>
+			<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>
+		</div>
+	</div>
+	<div class="loader"></div>
+</div>

@@ -1,0 +1,10 @@
+<ul class="nav nav-list">
+	<li class="nav-header">Sidebar</li>
+	{#request}
+	<li>
+		<a request-id="{Id}" href="{href}">
+			{#Pattern}{.}{:else}[root]{/Pattern}
+		</a>
+	</li>
+	{/request}
+</ul>
