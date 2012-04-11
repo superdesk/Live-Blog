@@ -1,0 +1,13 @@
+<tbody>
+	{% for(var i in data) %}
+	<tr>
+		<td>{{data[i].Code}}</td>
+    	<td class="sortable">{{data[i].Name}}</td>
+		<td>
+			<a href="{{data[i].href}}" class="btn btn-info">
+				<i class="icon-info-sign icon-white"></i> Details
+			</a>
+		</td>
+    </tr>
+	{% endfor %}
+</tbody>
