@@ -9,27 +9,26 @@ Created on Mar 13, 2012
 Implementation for the PO file management.
 '''
 
-import os
-from genericpath import isdir, isfile
-from os.path import dirname, join
-from io import BytesIO
-from datetime import datetime
+from ally.container import wire
+from ally.container.ioc import injected
 from babel import localedata, core
 from babel.messages.catalog import Catalog
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po, write_po
 from babel.util import odict
-
-from ally.api.type import Iter
-from ally.container import wire
-from ally.container.ioc import injected
+from cdm.spec import PathNotFound
+from datetime import datetime
+from genericpath import isdir, isfile
+from internationalization.api.message import IMessageService, Message
+from internationalization.api.source import ISourceService, QSource
+from internationalization.core.spec import IPOFileManager
 from introspection.api.component import Component
 from introspection.api.plugin import Plugin
-from cdm.spec import PathNotFound
-from internationalization.api.message import IMessageService
-from internationalization.api.source import ISourceService, QSource
-from internationalization.api.message import Message
-from internationalization.core.spec import IPOFileManager
+from io import BytesIO
+from os.path import dirname, join
+import os
+from collections import Iterable
+
 
 # --------------------------------------------------------------------
 
@@ -44,16 +43,15 @@ class POFileManagerDB(IPOFileManager):
     '''
 
     messageService = IMessageService; wire.entity('messageService')
-
     sourceService = ISourceService; wire.entity('sourceService')
-
-    locale_dir_path = str; wire.config('locale_dir_path', doc=
-                                       'The locale repository path')
+    locale_dir_path = join('workspace', 'locale'); wire.config('locale_dir_path', doc='''
+    The locale repository path''')
 
     def __init__(self):
         assert isinstance(self.messageService, IMessageService), 'Invalid message service %s' % self.messageService
         assert isinstance(self.sourceService, ISourceService), 'Invalid source file service %s' % self.sourceService
         assert isinstance(self.locale_dir_path, str), 'Invalid locale directory %s' % self.locale_dir_path
+        if not os.path.exists(self.locale_dir_path): os.makedirs(self.locale_dir_path)
         if not isdir(self.locale_dir_path) or not os.access(self.locale_dir_path, os.W_OK):
             raise Exception('Unable to access the repository directory %s' % self.locale_dir_path)
 
@@ -340,11 +338,8 @@ class POFileManagerDB(IPOFileManager):
             The locale code
         @return: Catalog
         '''
-        assert isinstance(messages, Iter) or isinstance(messages, tuple) or isinstance(messages, list), \
-                'Invalid messages list %s' % messages
+        assert isinstance(messages, Iterable), 'Invalid messages list %s' % messages
         catalog = Catalog(locale)
-        if isinstance(messages, Iter):
-            messages = (messages,)
         for grp in messages:
             if isinstance(grp, Message):
                 catalog = self._addMsgToCatalog(grp, catalog)
