@@ -63,13 +63,13 @@ class Scanner:
     '''
     The class that provides the scanner.
     '''
-    
+
     componentService = IComponentService; wire.entity('componentService')
     pluginService = IPluginService; wire.entity('pluginService')
     fileService = IFileService; wire.entity('fileService')
     sourceService = ISourceService; wire.entity('sourceService')
     messageService = IMessageService; wire.entity('messageService')
-    
+
     def __init__(self):
         '''
         Construct the scanner.
@@ -107,10 +107,10 @@ class Scanner:
                 scanner = scanZip(component.Path)
             else:
                 lastModified, scanner = None, scanFolder(component.Path)
-            
+
             files.update({source.Path: source for source in self.sourceService.getAll(q=QSource(component=component.Id))})
             self._persist(files, scanner, component.Path, lastModified, component.Id, None)
-            
+
     def scanPlugins(self):
         '''
         Scan the current application plugins for the localized text messages.
@@ -137,11 +137,11 @@ class Scanner:
                 scanner = scanZip(plugin.Path)
             else:
                 lastModified, scanner = None, scanFolder(plugin.Path)
-            
-            
+
+
             files.update({source.Path: source for source in self.sourceService.getAll(q=QSource(plugin=plugin.Id))})
             self._persist(files, scanner, plugin.Path, lastModified, None, plugin.Id)
-            
+
     # ----------------------------------------------------------------
 
     def _persist(self, files, scanner, path, lastModified, componentId, pluginId):
@@ -152,7 +152,7 @@ class Scanner:
         processModified = lastModified is None
         for filePath, method, extractor in scanner:
             assert method in TYPES, 'Invalid method %s' % method
-            
+
             file = files.get(filePath)
             if processModified:
                 lastModified = modificationTimeFor(filePath)
@@ -163,7 +163,7 @@ class Scanner:
                         continue
                     file.LastModified = lastModified
                     self.fileService.update(file)
-            
+
             if isinstance(file, Source): source = file
             else: source = None
             messages = None
@@ -178,13 +178,13 @@ class Scanner:
                     source.LastModified = lastModified
                     files[filePath] = source
                     self.sourceService.insert(source)
-                    
+
                 if messages is None: messages = {msg.Singular:msg for msg in self.messageService.getMessages(source.Id)}
-                
+
                 if isinstance(text, str): singular, plurals = text, None
                 elif len(text) == 1: singular, plurals = text[0], None
                 else: singular, plurals = text[0], list(text[1:])
-                
+
                 msg = messages.get(singular)
                 if not msg:
                     msg = Message()
@@ -194,7 +194,7 @@ class Scanner:
                     msg.Context = context
                     msg.LineNumber = lineno
                     msg.Comments = '\n'.join(comments)
-                    
+
                     self.messageService.insert(msg)
                     messages[singular] = msg
                 else:
@@ -212,7 +212,7 @@ class Scanner:
                 file.LastModified = lastModified
                 files[filePath] = file
                 self.fileService.insert(file)
-    
+
 # --------------------------------------------------------------------
 
 modificationTimeFor = lambda path: datetime.fromtimestamp(os.stat(path).st_mtime).replace(microsecond=0)
@@ -272,13 +272,13 @@ def process(openFile, method):
     '''
     assert callable(openFile), 'Invalid open file function %s' % openFile
     assert isinstance(method, str), 'Invalid method %s' % method
-    
+
     with openFile() as fileObj:
         for fname, lineno, message, comments in extract(method, TextIOWrapper(fileObj)):
             if fname in ('pgettext', 'C_', 'NC_'): cntxt, message = message
             elif fname == 'npgettext': cntxt, *message = message
             else: cntxt = None
-        
+
             assert log.debug('%s (%s) #%s' % (message, cntxt, comments)) or True
             yield message, cntxt, lineno, comments
 
@@ -317,7 +317,7 @@ def extract(method, fileobj, keywords=KEYWORDS, comment_tags=COMMENT_TAGS, optio
         else:
             spec = (1,)
         if not isinstance(messages, (list, tuple)): messages = [messages]
-            
+
         if not messages: continue
 
         # Validate the messages against the keyword's specification
@@ -349,5 +349,5 @@ def extract(method, fileobj, keywords=KEYWORDS, comment_tags=COMMENT_TAGS, optio
         if len(messages) == 1: messages = messages[0]
 
         if strip_comment_tags: _strip_comment_tags(comments, comment_tags)
-        
+
         yield funcname, lineno, messages, comments
