@@ -73,7 +73,7 @@ class MetaCreatorHandler(Processor):
         '''
         Create the meta object for the provided type.
         
-        @param typ: object
+        @param typ: Type
             The type of the object to create the meta for.
         @param resourcePath: Path
             The resource path from where the value originated.
@@ -142,8 +142,7 @@ class MetaCreatorHandler(Processor):
                 else: metaLink = None
             else: metaLink = None
 
-            return MetaModel(typ.container, getValue, metaLink,
-                             {typ.property: self.metaProperty(typ.type, resourcePath)})
+            return MetaModel(typ, getValue, metaLink, {typ.property: self.metaProperty(typ.type, resourcePath)})
 
         if isinstance(typ, TypeModel):
             assert isinstance(typ, TypeModel)
@@ -153,8 +152,7 @@ class MetaCreatorHandler(Processor):
             if path: metaLink = MetaPath(path, typId, getValue)
             else: metaLink = None
 
-            return MetaModel(typ.container, getValue, metaLink,
-                             {typId.property: self.metaProperty(typId.type, resourcePath)})
+            return MetaModel(typ, getValue, metaLink, {typId.property: self.metaProperty(typId.type, resourcePath)})
 
         if isinstance(typ, List):
             assert isinstance(typ, List)
@@ -179,7 +177,8 @@ class MetaCreatorHandler(Processor):
         model = typ.container
         assert isinstance(model, Model)
 
-        metas = {prop:self.metaProperty(ptyp, resourcePath, partial(rgetattr, prop)) for prop, ptyp in model.properties.items()}
+        metas = {prop:self.metaProperty(ptyp, resourcePath, partial(rgetattr, prop))
+                 for prop, ptyp in model.properties.items()}
 
         paths = self.resourcesManager.findGetAllAccessible(resourcePath)
         pathsModel = self.resourcesManager.findGetAccessibleByModel(model)
@@ -190,7 +189,7 @@ class MetaCreatorHandler(Processor):
         if path: metaLink = MetaPath(path, typ, getModel)
         else: metaLink = None
 
-        return MetaModel(model, getModel, metaLink, sortProperties(model, metas))
+        return MetaModel(typ, getModel, metaLink, sortProperties(model, metas))
 
 # --------------------------------------------------------------------
 

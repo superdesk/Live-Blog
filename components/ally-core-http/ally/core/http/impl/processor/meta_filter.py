@@ -171,7 +171,7 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
 
                 if unknownNames and isinstance(meta.metaLink, MetaPath):
                     # If there are unknown filter names we will try to see if there are in the full meta model.
-                    metaModel = self.meta(meta.model.type, meta.metaLink.path)
+                    metaModel = self.meta(meta.type, meta.metaLink.path)
                     addAll = filterTree.get('*', None)
                     if addAll is not None:
                         if not addAll: del filterTree['*']
@@ -196,12 +196,12 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                         metas = {name: MetaFetch(pmeta, fetchFirst) for name, pmeta in metas.items()}
                         # We can now join the original metas with the fetched metas.
                         metas.update(fmetas)
-                        return MetaModel(meta.model, createFetcher(meta), meta.metaLink,
+                        return MetaModel(meta.type, createFetcher(meta), meta.metaLink,
                                          sortProperties(meta.model, metas))
 
-                return MetaModel(meta.model, meta.getModel, meta.metaLink, sortProperties(meta.model, metas))
+                return MetaModel(meta.type, meta.getModel, meta.metaLink, sortProperties(meta.model, metas))
             elif not first and meta.metaLink:
-                return MetaModel(meta.model, meta.getModel, meta.metaLink)
+                return MetaModel(meta.type, meta.getModel, meta.metaLink)
 
         return meta
 

@@ -10,8 +10,27 @@ Provides standard model objects.
 '''
 
 from ally.type_legacy import Iterable
+import abc
 
 # --------------------------------------------------------------------
+
+class Content(metaclass=abc.ABCMeta):
+    '''
+    Class that provides a bytes content, usually the raw content provided in a request.
+    '''
+
+    @abc.abstractclassmethod
+    def read(self, size=None):
+        '''
+        To read a file's contents, call f.read(size), which reads some quantity of data and returns it as a string.
+        @param size: integer
+            Is an optional numeric argument. When size is omitted or negative, the entire contents of the file will be
+            read and returned; it's your problem if the file is twice as large as your machine's memory.
+            Otherwise, at most size bytes are read and returned. If the end of the file has been reached, f.read()
+            will return an empty string ("").
+        @return: bytes
+            The content.
+        '''
 
 class Part:
     '''

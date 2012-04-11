@@ -15,8 +15,8 @@ from introspection.api import modelDevel
 
 # --------------------------------------------------------------------
 
-@modelDevel(name='Method')
-class Method_:
+@modelDevel
+class MethodPrototype:
     '''
     Provides a call method of a request.
     '''
@@ -37,13 +37,13 @@ class Request:
     '''
     Id = int
     Pattern = str
-    Get = Method_
-    Delete = Method_
-    Insert = Method_
-    Update = Method_
+    Get = MethodPrototype
+    Delete = MethodPrototype
+    Insert = MethodPrototype
+    Update = MethodPrototype
 
-@modelDevel
-class Method(Method_):
+@modelDevel(replace=MethodPrototype)
+class Method(MethodPrototype):
     '''
     Provides a call method of a request.
     '''

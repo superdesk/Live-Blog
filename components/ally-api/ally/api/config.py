@@ -79,6 +79,11 @@ def model(*args, name=None, **hints):
         Provide a name under which the model will be known. If not provided the name of the model is the class name.
     @param hints: key word arguments
         Provides hints for the model.
+        @keyword id: string
+            The name of the property to be considered the model id.
+        @keyword replace: class
+            The model class to be replaced by this model class, should only be used whenever you need to prototype a
+            model in order to be fully defined latter.
     '''
     if not args: return partial(model, name=name, **hints)
     assert len(args) == 1, 'Expected only one argument that is the decorator class, got %s arguments' % len(args)
@@ -104,7 +109,7 @@ def model(*args, name=None, **hints):
         if not (isinstance(typ, TypeModel) or typ.isPrimitive):
             raise DevelError('Invalid type %s for property \'%s\', only primitives or models allowed' % (typ, prop))
 
-    propertyId = hints.pop('id', None)
+    propertyId, replace = hints.pop('id', None), hints.pop('replace', None)
     if propertyId is not None:
         assert isinstance(propertyId, str), 'Invalid property id %s' % propertyId
         assert propertyId in properties, 'Invalid property id %s is not in model properties' % propertyId
@@ -115,6 +120,15 @@ def model(*args, name=None, **hints):
         propertyId = typ.container.propertyId
 
     modelType = TypeModel(clazz, Model(properties, propertyId, name, hints))
+    if replace:
+        assert isclass(replace), 'Invalid class %s' % replace
+        typ = typeFor(replace)
+        if not isinstance(typ, TypeModel): raise DevelError('Invalid replace class %s, not a model class' % replace)
+        if clazz.__module__ != replace.__module__:
+            raise DevelError('Replace is available only for classes in the same API module invalid replace class '
+                             '%s for replaced class' % (replace, clazz))
+        typ.forClass = clazz
+        typ.container = modelType.container
 
     for prop, typ in properties.items():
         propType = propRefType = TypeModelProperty(modelType, prop)

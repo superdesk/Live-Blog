@@ -73,14 +73,12 @@ class HTTPDelivery(IDelivery):
     # The directory where the file repository is
 
     def __init__(self):
-        assert isinstance(self.serverURI, str), \
-            'Invalid server URI value %s' % self.serverURI
-        assert isinstance(self.repositoryPath, str), \
-            'Invalid repository directory value %s' % self.repositoryPath
-        assert isdir(self.repositoryPath) \
-            and os.access(self.repositoryPath, os.W_OK), \
-            'Unable to access the repository directory %s' % self.repositoryPath
+        assert isinstance(self.serverURI, str), 'Invalid server URI value %s' % self.serverURI
+        assert isinstance(self.repositoryPath, str), 'Invalid repository directory value %s' % self.repositoryPath
         self.repositoryPath = normOSPath(self.repositoryPath)
+        if not os.path.exists(self.repositoryPath): os.makedirs(self.repositoryPath)
+        assert isdir(self.repositoryPath) and os.access(self.repositoryPath, os.W_OK), \
+        'Unable to access the repository directory %s' % self.repositoryPath
 
     def getRepositoryPath(self):
         '''
