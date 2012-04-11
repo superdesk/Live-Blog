@@ -11,7 +11,6 @@ Provides the data meta support.
 
 from ally.api.type import Type
 from ally.core.spec.resources import Path
-from ally.api.operator.container import Model
 from ally.api.operator.type import TypeModelProperty, TypeModel
 
 # --------------------------------------------------------------------
@@ -26,14 +25,14 @@ class MetaModel:
     Provides the meta model object.
     '''
 
-    __slots__ = ('model', 'getModel', 'metaLink', 'properties')
+    __slots__ = ('type', 'model', 'getModel', 'metaLink', 'properties')
 
-    def __init__(self, model, getModel, metaLink=None, properties={}):
+    def __init__(self, type, getModel, metaLink=None, properties={}):
         '''
         Construct the object meta.
     
-        @param model: Model
-            The model of the meta.
+        @param type: TypeModel
+            The type model of the meta.
         @param getModel: Callable(object)
             A callable that takes as an argument the object to extract the model instance.
         @param metaLink: MetaLink|None
@@ -43,13 +42,14 @@ class MetaModel:
         @param properties: dictionary{string, meta object}
             The properties of the meta model.
         '''
-        assert isinstance(model, Model), 'Invalid model %s' % model
+        assert isinstance(type, TypeModel), 'Invalid type model %s' % type
         assert callable(getModel), 'Invalid get model callable %s' % getModel
         assert metaLink is None or isinstance(metaLink, MetaLink), 'Invalid meta link %s' % metaLink
         assert isinstance(properties, dict), 'Invalid properties %s' % properties
         if __debug__:
             for name in properties: assert isinstance(name, str), 'Invalid property name %s' % name
-        self.model = model
+        self.type = type
+        self.model = type.container
         self.getModel = getModel
         self.metaLink = metaLink
         self.properties = properties

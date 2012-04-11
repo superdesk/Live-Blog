@@ -16,6 +16,7 @@ from .model import Part
 from datetime import datetime, date, time
 from inspect import isclass
 from abc import ABCMeta
+from ally.api.model import Content
 
 # --------------------------------------------------------------------
 
@@ -133,7 +134,21 @@ class TypePercentage(Singletone, Type):
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
 
-class TypeFrontLanguage(Singletone, Type):
+class TypeReference(Singletone, Type):
+    '''
+    Provides the type representing a reference path.
+    '''
+
+    __slots__ = Type.__slots__
+
+    def __init__(self):
+        '''
+        Constructs the reference path type.
+        @see: Type.__init__
+        '''
+        Type.__init__(self, str, True, True)
+
+class TypeLocale(Singletone, Type):
     '''
     Provides the type representing the user requested language for presentation.
     '''
@@ -367,12 +382,22 @@ _classType[Count] = Type(int, True, False)
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
 
-class FrontLanguage(Uninstantiable):
+class Reference(Uninstantiable, str):
     '''
-    Maps the type representing the user requested language for presentation.
+    Maps the type representing the reference path.
     Only used as a class, do not create an instance.
     '''
-_classType[FrontLanguage] = TypeFrontLanguage()
+_classType[Reference] = TypeReference()
+
+# Provides the request raw content type.
+_classType[Content] = Type(Content, False, False)
+
+class Locale(Uninstantiable, str):
+    '''
+    Maps the type representing the user requested locale for presentation.
+    Only used as a class, do not create an instance.
+    '''
+_classType[Locale] = TypeLocale()
 
 # --------------------------------------------------------------------
 

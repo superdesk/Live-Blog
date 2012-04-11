@@ -131,7 +131,7 @@ class AssembleGet(AssembleInvokers):
         if isinstance(typ, (TypeModel, TypeModelProperty)):
             model = typ.container
         else:
-            log.warning('Cannot extract model from output type %s for call %s', typ, call)
+            log.info('Cannot extract model from output type %s for call %s', typ, call)
             return False
         assert isinstance(model, Model)
 

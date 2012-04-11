@@ -13,6 +13,7 @@ from internationalization.api.po_file import IPOFileService
 from ally.container.ioc import injected
 from internationalization.core.spec import IPOFileManager
 from cdm.spec import ICDM, PathNotFound
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -22,9 +23,12 @@ class POFileServiceCDM(IPOFileService):
     Implementation for @see: IPOService
     '''
 
-    poManager = IPOFileManager
+    poManager = IPOFileManager; wire.entity('poManager')
+    poCdm = ICDM; wire.entity('poCdm')
 
-    poCdm = ICDM
+    def __init__(self):
+        assert isinstance(self.poManager, IPOFileManager), 'Invalid PO file manager %s' % self.poManager
+        assert isinstance(self.poCdm, ICDM), 'Invalid PO CDM %s' % self.poCdm
 
     def getGlobalPOFile(self, locale):
         '''

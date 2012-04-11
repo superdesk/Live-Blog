@@ -6,10 +6,10 @@ Created on Aug 8, 2011
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the special types like @see: TypeFrontLanguage based from the request/response.
+Provides the special types like @see: TypeLocale based from the request/response.
 '''
 
-from ally.api.type import Input, FrontLanguage, List
+from ally.api.type import Input, Locale, List
 from ally.container.ioc import injected
 from ally.core.spec.resources import Invoker
 from ally.core.spec.server import Processor, ProcessorsChain, Request, Response
@@ -19,7 +19,7 @@ from ally.core.spec.server import Processor, ProcessorsChain, Request, Response
 @injected
 class RequestTypesHandler(Processor):
     '''
-    Implementation for a processor that provides the special request type arguments like @see: TypeFrontLanguage.
+    Implementation for a processor that provides the special request type arguments like @see: TypeLocale.
     
     Provides on request: arguments
     Provides on response: NA
@@ -38,7 +38,7 @@ class RequestTypesHandler(Processor):
         assert isinstance(req.invoker, Invoker)
         for inp in req.invoker.inputs:
             assert isinstance(inp, Input)
-            if inp.type.isOf(FrontLanguage):
+            if inp.type.isOf(Locale):
                 if isinstance(inp.type, List):
                     req.arguments[inp.name] = list(req.accLanguages)
                 else:
