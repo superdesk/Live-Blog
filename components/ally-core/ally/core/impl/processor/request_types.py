@@ -9,7 +9,7 @@ Created on Aug 8, 2011
 Provides the special types like @see: TypeLocale based from the request/response.
 '''
 
-from ally.api.type import Input, Locale, List
+from ally.api.type import Input, List, TypeLocale
 from ally.container.ioc import injected
 from ally.core.spec.resources import Invoker
 from ally.core.spec.server import Processor, ProcessorsChain, Request, Response
@@ -27,7 +27,7 @@ class RequestTypesHandler(Processor):
     Requires on request: invoker, accLanguages
     Requires on response: contentLanguage
     '''
-    
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -38,9 +38,8 @@ class RequestTypesHandler(Processor):
         assert isinstance(req.invoker, Invoker)
         for inp in req.invoker.inputs:
             assert isinstance(inp, Input)
-            if inp.type.isOf(Locale):
-                if isinstance(inp.type, List):
-                    req.arguments[inp.name] = list(req.accLanguages)
-                else:
-                    req.arguments[inp.name] = rsp.contentLanguage
+            if isinstance(inp.type, TypeLocale):
+                req.arguments[inp.name] = rsp.contentLanguage
+            elif isinstance(inp.type, List) and isinstance(inp.type.itemType, TypeLocale):
+                req.arguments[inp.name] = list(req.accLanguages)
         chain.proceed()

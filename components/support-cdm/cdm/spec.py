@@ -13,7 +13,7 @@ import abc
 
 # --------------------------------------------------------------------
 
-class ICDM(metaclass = abc.ABCMeta):
+class ICDM(metaclass=abc.ABCMeta):
     '''
     Content Delivery Manager (CDM) interface
 
@@ -96,7 +96,6 @@ class ICDM(metaclass = abc.ABCMeta):
                 The path of the content item. This is a unique
                      identifier of the item.
         @return: timestamp
-        @rtype: string
         '''
 
 class PathNotFound(Exception):

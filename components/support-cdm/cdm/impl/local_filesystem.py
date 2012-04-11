@@ -9,19 +9,20 @@ Created on Jan 5, 2012
 Contains the Content Delivery Manager implementation for local file system
 '''
 
-from cdm.spec import ICDM, UnsupportedProtocol, PathNotFound
 from ally.container.ioc import injected
-
-import abc
-import os
-from zipfile import ZipFile
-from shutil import copyfile, copyfileobj, move, rmtree
-from os.path import isdir, isfile, join, dirname, normpath, relpath
-from io import StringIO
-from tempfile import TemporaryDirectory
 from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath, getZipFilePath
-import logging
+from cdm.spec import ICDM, UnsupportedProtocol, PathNotFound
+from datetime import datetime
+from io import StringIO
+from os.path import isdir, isfile, join, dirname, normpath, relpath
+from shutil import copyfile, copyfileobj, move, rmtree
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile
+import abc
 import json
+import logging
+import os
+
 
 # --------------------------------------------------------------------
 
@@ -100,7 +101,7 @@ class LocalFileSystemCDM(ICDM):
     @ivar delivery: IDelivery
         The delivery protocol
 
-    @see ICDM (Content Delivery Manager interface)
+    @see: ICDM (Content Delivery Manager interface)
     '''
 
     delivery = IDelivery
@@ -218,7 +219,7 @@ class LocalFileSystemCDM(ICDM):
         path, itemPath = self._validatePath(path)
         if not isdir(itemPath) and not isfile(itemPath):
             raise PathNotFound(path)
-        return os.stat(itemPath).st_mtime
+        return datetime.fromtimestamp(os.stat(itemPath).st_mtime)
 
     def _publishFromFileObj(self, path, fileObj):
         '''

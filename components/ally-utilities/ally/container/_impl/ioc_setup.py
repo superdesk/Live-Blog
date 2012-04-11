@@ -580,7 +580,7 @@ class CallEntity(WithCall, WithType, WithListeners):
         value and as the second value the follow up Callable of the value and returns the value for the entity and the
         new follow up.
         
-        @param interceptor: Callable
+        @param interceptor: Callable(object, Callable)
             The interceptor.
         '''
         assert callable(interceptor), 'Invalid interceptor %s' % interceptor
