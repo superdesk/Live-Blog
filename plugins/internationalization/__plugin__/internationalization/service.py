@@ -29,7 +29,7 @@ API, IMPL = 'internationalization.api.**.I*Service', 'internationalization.impl.
 support.createEntitySetup(API, IMPL)
 support.bindToEntities(IMPL, binders=bindInternationalizationSession)
 support.listenToEntities(IMPL, listeners=addService(bindInternationalizationSession, bindInternationalizationValidations))
-support.wireEntities(Scanner)
+support.wireEntities(Scanner, POFileManagerDB)
 support.loadAllEntities(API)
 
 # --------------------------------------------------------------------
@@ -70,9 +70,12 @@ def poContentDeliveryManager() -> ICDM:
     return cdm
 
 @ioc.entity
+def poFileManager(): return POFileManagerDB()
+
+@ioc.entity
 def poFileServiceCDM() -> IPOFileService:
     srv = POFileServiceCDM()
-    srv.poManager = POFileManagerDB()
+    srv.poManager = poFileManager()
     srv.poCdm = poContentDeliveryManager()
     return srv
 
