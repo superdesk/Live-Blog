@@ -23,7 +23,7 @@ from ally.core.impl.processor.encoder_text import EncodingTextHandler
 @ioc.config
 def default_characterset() -> str:
     '''The default character set to use if none is provided in the request'''
-    return 'ISO-8859-1'
+    return 'UTF-8'
 
 @ioc.config
 def content_types_xml() -> dict:

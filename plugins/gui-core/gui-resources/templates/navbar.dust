@@ -10,7 +10,7 @@
 			<ul class="nav">
 			{#superdesk.menu}
 				<li>
-					<a href="{ScriptPath}" class="menu-{DisplayName}">{Label}</a>
+					<a href="{Href}" script-path="{ScriptPath}" class="menu-{DisplayName}">{Label}</a>
 				</li>
 			{/superdesk.menu}
 			</ul>
