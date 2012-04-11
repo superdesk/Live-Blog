@@ -1,0 +1,17 @@
+{#input.InputList}
+<h3>
+	<small>#{Id}</small> {Name}
+	{#Mandatory}
+		<span class="label label-important">Mandatory</span>
+	{:else}
+		<span class="label label-info">Optional</span>
+	{/Mandatory}
+</h3>
+<p>
+	<strong>Description</strong>
+	<br />
+	{Description}
+</p>
+{:else}
+<em>nothing here</em>
+{/input.InputList}
