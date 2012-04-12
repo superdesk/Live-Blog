@@ -190,6 +190,7 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
             self.session().add(mentity)
             self.session().flush((mentity,))
         except SQLAlchemyError as e: handle(e, mentity)
+        entity.Id = mentity.Id
         return mentity.Id
 
     def update(self, entity):
@@ -197,6 +198,7 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
         @see: IEntityCRUDService.update
         '''
         assert self.modelType.isValid(entity), 'Invalid entity %s, expected %s' % (entity, self.Entity)
+        assert isinstance(entity.Id, int), 'Invalid entity %s, with id %s' % (entity, entity.Id)
         entityDb = self.session().query(self.Entity).get(entity.Id)
         if not entityDb: raise InputError(Ref(_('Unknown id'), ref=self.Entity.Id))
         try:

@@ -9,13 +9,12 @@ Created on Jan 12, 2012
 Provides the setup registry for the plugins.
 '''
 
+from ..cdm.local_cdm import contentDeliveryManager
 from ally.container import ioc
 from ally.container.proxy import proxyWrapFor
 from ally.core.spec.resources import ResourcesManager
-from cdm.impl.local_filesystem import LocalFileSystemLinkCDM, HTTPDelivery
 from cdm.spec import ICDM
 from functools import partial
-from os import path
 
 # --------------------------------------------------------------------
 
@@ -43,30 +42,13 @@ def addService(*binders):
     return partial(registerService, binders=binders)
 
 # --------------------------------------------------------------------
-@ioc.config
-def gui_server_url():
-    ''' The HTTP server URL for javascript content - prefixed '''
-    # http://en.wikipedia.org/wiki/Uniform_resource_identifier
-    return 'content/'
-
-@ioc.config
-def gui_repository_path():
-    ''' The repository absolute or relative (to the distribution folder) path '''
-    return path.join('workspace', 'cdm')
-
-# --------------------------------------------------------------------
 
 @ioc.entity
 def cdmGUI() -> ICDM:
     '''
     The content delivery manager (CDM) for the plugin's static resources
     '''
-    delivery = HTTPDelivery()
-    delivery.serverURI = gui_server_url()
-    delivery.repositoryPath = gui_repository_path()
-    cdm = LocalFileSystemLinkCDM()
-    cdm.delivery = delivery
-    return cdm
+    return contentDeliveryManager()
 
 @ioc.entity
 def resourcesManager() -> ResourcesManager:
