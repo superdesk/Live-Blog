@@ -13,9 +13,8 @@ from .encoder_text_base import EncodingTextBaseHandler
 from ally.container.ioc import injected
 from ally.core.spec.data_meta import MetaModel, MetaValue, MetaLink, MetaCollection, \
     MetaFetch
-from ally.core.spec.resources import Normalizer, Converter, Path
+from ally.core.spec.resources import Normalizer, Converter
 from ally.exception import DevelError
-from ally.support.core.util_resources import nodeLongName
 from io import StringIO
 from numbers import Number
 from xml.sax.saxutils import XMLGenerator
@@ -172,9 +171,8 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
 
             path = meta.getLink(value)
             if path is None: return
-            assert isinstance(path, Path)
             if name: tag = normalize(name)
-            else: tag = normalize(nodeLongName(path.node))
+            else: tag = normalize(meta.getName(value))
             xml.startElement(tag, {normalize(self.namePath): pathEncode(path)})
             xml.endElement(tag)
 

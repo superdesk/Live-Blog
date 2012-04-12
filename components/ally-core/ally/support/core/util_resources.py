@@ -104,6 +104,18 @@ def nodeLongName(node):
     names.reverse() # We need to reverse since we started from the child to parent
     return ''.join(names)
 
+def pathLongName(path):
+    '''
+    Provides the name of a Path @see: nodeLongName.
+    
+    @param path: Path
+        The path to get the name for.
+    @return: string
+        The path long name.
+    '''
+    assert isinstance(path, Path), 'Invalid path %s' % path
+    return nodeLongName(path.node)
+
 def findNodeModel(root, model):
     '''
     Finds the node model in the provided node, None if there is no such node model.

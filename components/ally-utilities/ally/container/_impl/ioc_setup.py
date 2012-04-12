@@ -602,7 +602,8 @@ class CallEntity(WithCall, WithType, WithListeners):
 
             assert log.debug('Processed entity %r with value %s', self._name, value) or True
             v = self.validate(value)
-            for inter in self._interceptors: v, followUp = inter(value, followUp)
+            for inter in self._interceptors:
+                v, followUp = inter(v, followUp)
 
             self._hasValue = True
             self._value = v
@@ -894,6 +895,7 @@ def normalizeConfigType(clazz):
     @return: class
         The normalized type.
     '''
-    assert isclass(clazz), 'Invalid class %s' % clazz
-    if clazz == float: return Number
+    if clazz:
+        assert isclass(clazz), 'Invalid class %s' % clazz
+        if clazz == float: return Number
     return clazz
