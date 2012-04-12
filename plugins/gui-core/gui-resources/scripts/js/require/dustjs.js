@@ -97,7 +97,7 @@
                 path = parentRequire.toUrl( prefix + name + '.dust');
             fetchText(path, function(data){
 
-                var text = dust.compile(data, name);
+                var text = dust.compile(data, name.replace("/", "_"));
 
                 if (config.isBuild) {
                     buildMap[name] = text;

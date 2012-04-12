@@ -1,35 +1,36 @@
-<h3><small>#{{Id}}</small> {{Name}}</h3>
-
-<section>
-	{?APIClass}<p>
-		<strong>API Class:</strong> 
-		<code>{{APIClass}}</code>
-	</p>{?}
-
-	{?APIClassDefiner}<p>
-		<strong>API Class Definer:</strong> 
-		<code>{{APIClassDefiner}}</code>
-	</p>{?}
-
-	{?APIDoc}<p>
-		<strong>API Class Documentation:</strong>
-		<pre>{{APIDoc}}</pre>
-	</p>{?}
-</section>
-
-<section>
-	{?IMPL}<p>
-		<strong>Implementation:</strong> 
-		<code>{{IMPL}}</code>
-	</p>{?}
-
-	{?IMPLDefiner}<p>	
-		<strong>Implementation Definer:</strong> 
-		<code>{{IMPLDefiner}}</code>
-	</p>{?}
-
-	{?IMPLDoc}<p>
-		<strong>Implementation Documentation:</strong> 
-		<pre>{{IMPLDoc}}</pre>
-	</p>{?}
-</section>
+<header>
+	<h3>
+		<small>#{Id}</small> {Name}
+		<a class="btn btn-info btn-small request-method pull-right" api-method="get" href="{href}">info</a>
+	</h3>
+</header>
+<div class="box hide">
+	<section>
+		<p>
+			<strong>API Class:</strong> 
+			<code>{APIClass}</code>
+		</p>
+		<p>
+			<strong>API Class Definer:</strong> 
+			<code>{APIClassDefiner}</code>
+		</p>
+		<p>
+			<strong>API Class Documentation:</strong>
+			<pre>{APIDoc}</pre>
+		</p>
+	</section>
+	<section>
+		<p>
+			<strong>Implementation:</strong> 
+			<code>{IMPL}</code>
+		</p>
+		<p>	
+			<strong>Implementation Definer:</strong> 
+			<code>{IMPLDefiner}</code>
+		</p>
+		<p>
+			<strong>Implementation Documentation:</strong> 
+			<pre>{IMPLDoc}</pre>
+		</p>
+	</section>				
+</div>
