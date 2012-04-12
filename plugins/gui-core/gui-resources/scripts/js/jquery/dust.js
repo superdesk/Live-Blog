@@ -22,11 +22,11 @@ define(['jquery'], function ($) {
     $.extend
     ({
         tmpl: function(selector, data, callback)
-        {        	
+        {
 			dust.render(selector, data, callback);
         },
 		tmplFn: function(selector) {
-			return dustcompileFn(selector);
+			return dust.compileFn(selector);
 		}
 	});
 });

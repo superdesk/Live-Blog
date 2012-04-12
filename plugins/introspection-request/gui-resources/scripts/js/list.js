@@ -4,7 +4,8 @@ define([
     'tmpl!request>list',
 ], function($, superdesk)
 { 
-    URL = superdesk.apiUrl+'/resources/Devel/';
+    URL = config.api_url+'/resources/Devel/';
+    
 	var requests = new $.rest(URL+'Request').xfilter('Pattern, Id'),
 	/*!
 	 * Display methods available for a request pattern
@@ -17,13 +18,11 @@ define([
 			else
 				var index = {Id: $(this).find('a[request-id]').attr('request-id')};
 			
-			console.log(index);
 			requests.from(index)
 				.get('Get')
 				.get('Update')
 				.get('Delete')
 				.get('Insert')					
-				//.xfilter('Get.*, Update.*, Delete.*, Insert.*')
 				.spawn()
 			.done(function( request, requestResource )
 			{
@@ -82,8 +81,9 @@ define([
 	// generate list of available requests
 	requests.done(function(request)
 	{
-		$('#area-main').tmpl('layouts/list', {request: request})
-		.find('ul').children().off('click').on('click', displayPattern);
+		$('#area-main').tmpl('list', {request: request})
+		    .find('ul').children()
+		        .off('click.superdesk').on('click.superdesk', displayPattern);
 	});
 });
 

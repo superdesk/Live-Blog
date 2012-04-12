@@ -1,6 +1,7 @@
 requirejs.config
 ({
 	baseUrl: config.content_url,
+	urlArgs: "bust=" +  (new Date).getTime(),
 	templatePaths: 
 	{
 	    'default': 'lib/core/templates/',
@@ -14,13 +15,16 @@ requirejs.config
 		'dust': config.js_url + '/dust',
 		'jquery.tmpl': config.js_url + '/jquery/dust',
 		'jquery.rest': config.js_url + '/jquery/rest',
+		'history': config.js_url + '/history',
+		'history.adapter': config.js_url + '/history/adapter.jquery',
 		'jquery.superdesk': config.js_url + '/jquery/superdesk',
 		'tmpl': config.js_url + '/require/dustjs'
 	}
 });
 
-require(['jquery','dust','jquery.tmpl', 'lib/core/scripts/js/views/menu'], 
-function($, dust, jqueryDust, MenuView)
+require(['jquery','dust','jquery.tmpl', 'jquery.superdesk', 'lib/core/scripts/js/views/menu'], 
+function($, dust, jqueryDust, superdesk, MenuView)
 {  
+    superdesk.navigation.init();
     var menuView = new MenuView;
 }); 
