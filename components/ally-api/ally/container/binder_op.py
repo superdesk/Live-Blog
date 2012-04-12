@@ -147,12 +147,13 @@ def bindValidations(proxy, mappings=None):
     @param proxy: proxy service
         The proxy of the service to bind the validations to.
     @param mappings: dictionary{class, class}
-        A dictionary containing mapping classes, as a kry the class to be replaced and as a value the replacing class.
+        A dictionary containing mapping classes, as a key the class to be replaced and as a value the replacing class.
     '''
     typ = typeFor(proxy)
     assert isinstance(typ, TypeService), 'Invalid service proxy %s' % proxy
     if mappings is None: mappings = {}
     else: assert isinstance(mappings, dict), 'Invalid mappings %s' % mappings
+    assert isinstance(proxy, typ.forClass), 'Invalid proxy %s for service %s' % (proxy, typ.forClass)
     registerProxyBinder(proxy)
 
     for call in typ.service.calls:

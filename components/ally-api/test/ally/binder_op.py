@@ -10,11 +10,11 @@ Provides unit testing for the operators listener binders.
 '''
 
 from ally.api.config import model, service, call
-from ally.container.proxy import createProxy, ProxyWrapper
 from ally.container.binder_op import validateAutoId, validateMaxLength, \
     validateManaged, bindValidations, validateRequired
-import unittest
+from ally.container.proxy import proxyWrapFor
 from ally.exception import InputError
+import unittest
 
 # --------------------------------------------------------------------
 
@@ -51,6 +51,9 @@ class DummyServiceEntity(IServiceEntity):
         '''
         return 'inserted'
 
+    def _hidden(self):
+        return 'Hidden'
+
 # --------------------------------------------------------------------
 
 class TestBinderOp(unittest.TestCase):
@@ -63,13 +66,17 @@ class TestBinderOp(unittest.TestCase):
         validateMaxLength(Entity.WithLength, 5)
         validateManaged(Entity.Managed)
 
-        proxySrv = createProxy(IServiceEntity)(ProxyWrapper(DummyServiceEntity()))
+        dummyService = DummyServiceEntity()
+        proxySrvNonValid = proxyWrapFor(dummyService)
+        proxySrv = proxyWrapFor(dummyService)
         bindValidations(proxySrv)
         assert isinstance(proxySrv, IServiceEntity)
 
         e = Entity()
         self.assertRaisesRegex(InputError, "(Entity.Required='Expected a value')", proxySrv.insert, e)
+        self.assertEqual(proxySrvNonValid.insert(e), 'inserted')
         self.assertRaisesRegex(InputError, "(Entity.Id='Expected a value')", proxySrv.update, e)
+        self.assertEqual(proxySrvNonValid.update(e), 'updated')
 
         e.Id = 'custom id'
         self.assertRaisesRegex(InputError, "(Entity.Id='No value expected')", proxySrv.insert, e)
@@ -99,6 +106,8 @@ class TestBinderOp(unittest.TestCase):
         self.assertRaisesRegex(InputError, "(Entity.Managed='No value expected')", proxySrv.insert, e)
         e.Id = 'id'
         self.assertRaisesRegex(InputError, "(Entity.Managed='No value expected')", proxySrv.update, e)
+
+        self.assertRaises(AttributeError, getattr, proxySrv, '_hidden')
 
 # --------------------------------------------------------------------
 
