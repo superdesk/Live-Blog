@@ -52,7 +52,7 @@ Function.prototype.inherits = function( parentClassOrObject )
 				var objectModel = new object;
 				objectModel.plugins = new pluginsClass;
 				
-				if( !applyPlugins) 
+				if(!applyPlugins) 
 					extendPlugins = options && options.plugins ? options.plugins : {};	
 				else 
 					extendPlugins = applyPlugins;
