@@ -273,6 +273,8 @@ class Response(Content):
             A message for the code, do not update this directly use a one of the methods.
         @ivar codeText: string
             A text message for the code, do not update this directly use a one of the methods.
+        @ivar location: string
+            The location where a request content can be found, used for redirects.
         @ivar allows: integer
             Contains the allow flags for the methods.
         @ivar encoderPath: EncoderPath
@@ -291,7 +293,7 @@ class Response(Content):
         self.code = None
         self.codeMessage = None
         self.codeText = None
-        self.contentLocation = None
+        self.location = None
         self.allows = 0
         self.encoderPath = None
         self.obj = None
@@ -368,8 +370,9 @@ class EncoderPath(metaclass=abc.ABCMeta):
         '''
         Encodes the provided path to a full request path.
         
-        @param path: Path
-            The path to be encoded.
+        @param path: Path|string
+            The path to be encoded, for a local REST resource it will be a Path object, also it can be a string that will
+            be interpreted as a path.
         @param parameters: list
             A list of tuples containing on the first position the parameter string name and on the second the string
             parameter value as to be represented in the request path.

@@ -9,8 +9,10 @@ Created on Jan 23, 2012
 API specifications for the node presenter.
 '''
 
+from ..api import DOMAIN
 from ..api.request import IRequestService, Request, Input, Method
-from ally.internationalization import _
+from ally.api.operator.container import Service, Call
+from ally.api.operator.type import TypeModelProperty
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.proxy import proxiedClass
@@ -19,15 +21,13 @@ from ally.core.impl.node import MatchProperty
 from ally.core.spec.resources import ResourcesManager, Node, Match, \
     ConverterPath
 from ally.exception import InputError, Ref, DevelError
+from ally.internationalization import _
 from ally.support.api.util_service import trimIter
 from ally.support.core.util_resources import matchesForNode, toPaths
 from ally.support.util_sys import getAttrAndClass
 from collections import OrderedDict
 from inspect import ismodule, ismethod, getdoc
-from introspection.api import DOMAIN
 import re
-from ally.api.operator.type import TypeModelProperty
-from ally.api.operator.container import Service, Call
 
 # --------------------------------------------------------------------
 

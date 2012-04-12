@@ -14,5 +14,4 @@ from ally.api.config import model
 
 # --------------------------------------------------------------------
 
-DOMAIN = 'Devel/'
-modelDevel = partial(model, id='Id', domain=DOMAIN)
+modelAdmin = partial(model, id='Id', domain='Admin/')

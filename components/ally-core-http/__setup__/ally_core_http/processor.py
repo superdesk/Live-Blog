@@ -39,6 +39,8 @@ def allow_method_override():
     '''
     return True
 
+# --------------------------------------------------------------------
+
 @ioc.entity
 def methodOverride() -> Processor:
     b = MethodOverrideHandler()
@@ -77,13 +79,15 @@ def formattingProvider() -> Processor:
     b.readFromParams = read_from_params()
     return b
 
-# ---------------------------------
+@ioc.entity
+def pathProcessors():
+    return [(re.compile(server_pattern_rest()), Processors(*handlersResources()))]
+
+# --------------------------------------------------------------------
 
 @ioc.before(handlersExplainError)
 def updateHandlersExplainError():
     handlersExplainError().insert(0, headerStandard())
-
-# ---------------------------------
 
 @ioc.before(handlersResources)
 def updateHandlersResources():
@@ -92,7 +96,3 @@ def updateHandlersResources():
     for proc in handlers: handlersResources().insert(handlersResources().index(methodInvoker()), proc)
 
     handlersResources().insert(handlersResources().index(converter()), metaFilter())
-
-@ioc.entity
-def pathProcessors():
-    return [(re.compile(server_pattern_rest()), Processors(*handlersResources()))]

@@ -12,11 +12,10 @@ Provides the types used for APIs.
 from .. import type_legacy as numbers
 from ..support.util import Uninstantiable, Singletone
 from ..type_legacy import Iterable, Sized
-from .model import Part
+from .model import Part, Content
 from datetime import datetime, date, time
 from inspect import isclass
 from abc import ABCMeta
-from ally.api.model import Content
 
 # --------------------------------------------------------------------
 

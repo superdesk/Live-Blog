@@ -79,7 +79,7 @@ class ExplainDetailedErrorHandler(Processor):
             rsp.obj = {'error':error}
             rsp.objType = None
             rsp.objMeta = None
-            rsp.contentLocation = None
+            rsp.location = None
             if not rsp.contentConverter:
                 rsp.contentConverter = self.contentConverterDefault
             encodingChain = self.encodings.newChain()

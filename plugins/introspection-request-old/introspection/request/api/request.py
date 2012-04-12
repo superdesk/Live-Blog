@@ -11,7 +11,7 @@ API specifications for the node presenter.
 
 from ally.api.config import service, call
 from ally.api.type import Iter
-from introspection.api import modelDevel
+from . import modelDevel
 
 # --------------------------------------------------------------------
 

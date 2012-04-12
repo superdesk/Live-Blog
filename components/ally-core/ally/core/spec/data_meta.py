@@ -12,11 +12,7 @@ Provides the data meta support.
 from ally.api.type import Type
 from ally.core.spec.resources import Path
 from ally.api.operator.type import TypeModelProperty, TypeModel
-
-# --------------------------------------------------------------------
-
-returnSame = lambda obj: obj
-# Function that just returns the same value received.
+from ally.support.core.util_resources import pathLongName
 
 # --------------------------------------------------------------------
 
@@ -89,16 +85,20 @@ class MetaLink:
     Provides the link meta.
     '''
 
-    __slots__ = ('getLink',)
+    __slots__ = ('getName', 'getLink')
 
-    def __init__(self, getLink):
+    def __init__(self, getName, getLink):
         '''
         Construct the link meta.
         
+        @param getName: Callable(object)
+            A callable that takes as an argument the object to extract the name of the link.
         @param getLink: Callable(object)
             A callable that takes as an argument the object to extract the path.
         '''
+        assert callable(getName), 'Invalid get name callable %s' % getName
         assert callable(getLink), 'Invalid get link callable %s' % getLink
+        self.getName = getName
         self.getLink = getLink
 
 class MetaValue:
@@ -174,6 +174,15 @@ class MetaPath(MetaLink):
         self.type = type
         self.path = path
         self.getValue = getValue
+
+    def getName(self, obj=None):
+        '''
+        Provides the path name.
+        
+        @return: string
+            The path name.
+        '''
+        return pathLongName(self.path)
 
     def getLink(self, obj):
         '''
