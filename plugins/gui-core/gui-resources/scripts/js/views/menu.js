@@ -24,7 +24,7 @@ define([
     		});
     		
         });
-        $('#area-main').tmpl( 'layouts/dashboard' );
+        $('#area-main').tmpl( 'layouts_dashboard' );
     }
 
     return MenuView;
