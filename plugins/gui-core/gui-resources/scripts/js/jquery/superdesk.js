@@ -1,7 +1,8 @@
-define(['jquery','jquery.rest'], function ($) {
+define(['jquery','jquery.rest','history','history.adapter'], function ($) {
 
 var superdesk = 
 {
+    apiUrl: config.api_url, 
 	/*!
 	 * repository for templates
 	 */
@@ -97,7 +98,6 @@ var superdesk =
             
                 History.options.debug = true;
                 this._base = History.getPageUrl().split('#')[0];
-                console.log( History.getPageUrl().split('#') )
                 History.Adapter.bind( window, 'statechange', function()
                 {
                     var State = History.getState();
