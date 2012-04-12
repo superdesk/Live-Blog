@@ -13,7 +13,7 @@ from .file import File, QFile
 from ally.api.config import service, query
 from ally.api.criteria import AsEqual
 from ally.internationalization import N_
-from introspection.api import modelDevel
+from introspection.api import modelAdmin
 from sql_alchemy.api.entity import Entity, QEntity, IEntityService
 
 # --------------------------------------------------------------------
@@ -28,13 +28,13 @@ TYPES = (TYPE_PYTHON, TYPE_JAVA_SCRIPT)
 
 # --------------------------------------------------------------------
 
-@modelDevel
+@modelAdmin
 class Source(File):
     '''
     Model for the source of the message, basically a file reference.
     '''
     Type = str
-    
+
 # --------------------------------------------------------------------
 
 @query

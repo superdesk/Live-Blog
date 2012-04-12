@@ -14,8 +14,8 @@ from ally.api.model import Part
 from ally.container.aop import modulesIn
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
-from ally.support.api.util_service import trimIter
-from introspection.api.component import IComponentService, Component
+from ally.support.api.util_service import trimIter, processQuery
+from introspection.api.component import IComponentService, Component, QComponent
 from os import path
 import sys
 
@@ -48,14 +48,19 @@ class ComponentService(IComponentService):
         if len(modules) != 1: raise InputError(Ref(_('Invalid component id'), ref=Component.Id))
         return self.componentFor(modules[0])
 
-    def getComponents(self, offset=None, limit=None):
+    def getComponents(self, offset=None, limit=None, q=None):
         '''
         @see: IComponentService.getComponents
         '''
         modules = modulesIn('%s.*' % self.package).asList()
         modules.sort()
         components = (self.componentFor(module) for module in modules)
-        return Part(trimIter(components, len(modules), offset, limit), len(modules))
+        length = len(modules)
+        if q:
+            assert isinstance(q, QComponent), 'Invalid query %s' % q
+            components = processQuery(components, q, Component)
+            length = len(components)
+        return Part(trimIter(components, len(modules), offset, limit), length)
 
     # ----------------------------------------------------------------
 

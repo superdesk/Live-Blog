@@ -11,7 +11,7 @@ API specifications for localized files.
 
 from ally.api.config import service, query
 from ally.api.criteria import AsLike, AsDateTime
-from introspection.api import modelDevel
+from introspection.api import modelAdmin
 from introspection.api.plugin import Plugin
 from sql_alchemy.api.entity import Entity, QEntity, IEntityService
 from introspection.api.component import Component
@@ -19,7 +19,7 @@ from datetime import datetime
 
 # --------------------------------------------------------------------
 
-@modelDevel
+@modelAdmin
 class File(Entity):
     '''
     Model for the files.
