@@ -2,9 +2,11 @@
 <div class="row-fluid" id="main-container">
 	<div class="span3">
     	<div class="sidebar-nav">
-		{>list/}
+		{+list/}
 		</div>
 	</div>
-	<div class="span9" id="area-content">&nbsp;</div>
+	<div class="span9" id="area-content">
+		{+body/}
+	</div>
 </div>
 <hr>
