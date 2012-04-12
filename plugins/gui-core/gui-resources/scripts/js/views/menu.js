@@ -6,9 +6,7 @@ define([
 {
     var MenuView = function() 
     {
-        superdesk.apiUrl = config.api_url;
-        
-        var menu = new $.rest(superdesk.apiUrl + '/resources/GUI/Action?path=menu.*')
+        var menu = new $.rest(config.api_url + '/resources/GUI/Action?path=menu.*')
         .done(function(menu)
         {  
     		var displayMenu = []
@@ -21,10 +19,7 @@ define([
     		.tmpl( 'navbar', {superdesk: {menu: displayMenu}} )
     		.on('click', '.nav a', function(event)
     		{
-    		    superdesk.navigation.bind($(this).attr('href'), function()
-    		    {
-    		        require([superdesk.apiUrl+'/'+$(this).attr('href')]);
-    		    });
+    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url+'/'+$(this).attr('script-path')]) );
     			event.preventDefault(); 
     		});
     		

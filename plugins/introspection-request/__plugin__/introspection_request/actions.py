@@ -20,7 +20,7 @@ from gui.action.api.action import Action
 
 @ioc.entity    
 def menuAction():
-    return Action('request', N_('Request'), Parent=defaults.menuAction(), 
+    return Action('request', N_('Request'), Parent=defaults.menuAction(), Href='/api-requests',
                ScriptPath=getPublishedGui('superdesk/request/scripts/js/menu.js'))
 
 @ioc.entity   
@@ -30,7 +30,7 @@ def modulesAction():
 @ioc.entity    
 def modulesListAction():
     return Action('list', N_('Request'), Parent=modulesAction(),
-               ScriptPath=getPublishedGui('superdesk/request/scripts/js/modules-list.js'))
+               ScriptPath=getPublishedGui('superdesk/request/scripts/js/list.js'))
     
 @ioc.start
 def actionRegister():
