@@ -9,13 +9,14 @@ Created on Mar 4, 2012
 Provides the components introspection.
 '''
 
-from . import modelDevel
+from . import modelAdmin
 from ally.api.config import service, call
 from ally.api.type import IterPart
+from introspection.api.component import Component
 
 # --------------------------------------------------------------------
 
-@modelDevel
+@modelAdmin
 class Plugin:
     '''
     Provides the component data.
@@ -29,6 +30,7 @@ class Plugin:
     Loaded = bool
     Path = str
     InEgg = bool
+    Component = Component
 
 # --------------------------------------------------------------------
 

@@ -24,7 +24,7 @@ from ally.support.core.util_resources import matchesForNode, toPaths
 from ally.support.util_sys import getAttrAndClass
 from collections import OrderedDict
 from inspect import ismodule, ismethod, getdoc
-from introspection.api import DOMAIN
+from ..api import DOMAIN
 import re
 from ally.api.operator.type import TypeModelProperty
 from ally.api.operator.container import Service, Call

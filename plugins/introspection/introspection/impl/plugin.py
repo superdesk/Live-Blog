@@ -18,6 +18,8 @@ from ally.support.api.util_service import trimIter
 from introspection.api.plugin import IPluginService, Plugin
 from os import path
 import sys
+from introspection.api.component import IComponentService, QComponent
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -32,12 +34,15 @@ class PluginService(IPluginService):
     default_locale = 'en'
     # The default locale in which the plugins are defined.
 
+    componentService = IComponentService; wire.entity('componentService')
+
     def __init__(self):
         '''
         Constructs the plugins service.
         '''
         assert isinstance(self.package, str), 'Invalid package pattern %s' % self.package
         assert isinstance(self.default_locale, str), 'Invalid locale %s' % self.default_locale
+        assert isinstance(self.componentService, IComponentService), 'Invalid component service %s' % self.componentService
 
     def getById(self, id):
         '''
@@ -54,20 +59,27 @@ class PluginService(IPluginService):
         '''
         modules = modulesIn('%s.*' % self.package).asList()
         modules.sort()
-        plugins = (self.pluginFor(module) for module in modules)
+
+        components = {cmp.Path:cmp.Id for cmp in self.componentService.getComponents()}
+        plugins = (self.pluginFor(module, components) for module in modules)
+
         return Part(trimIter(plugins, len(modules), offset, limit), len(modules))
 
     # ----------------------------------------------------------------
 
-    def pluginFor(self, module):
+    def pluginFor(self, module, components=None):
         '''
         Create a plugin based on the provided module.
         
         @param module: string
             The module to create a plugin for.
+        @param components: dictionary{string, string}|None
+            A dictionary having as a key the compoenent path and as a value the compoenent id.
         @return: Plugin
             The plugin reflecting the module.
         '''
+        assert isinstance(module, str), 'Invalid module %s' % module
+
         c = Plugin()
         c.Id = module[len(self.package) + 1:]
 
@@ -83,5 +95,11 @@ class PluginService(IPluginService):
             c.InEgg = not path.isfile(m.__file__)
         else:
             c.Loaded = False
+        if components is None:
+            try: c.Component = next(iter(self.componentService.getComponents(limit=1, q=QComponent(path=c.Path)))).Id
+            except StopIteration: pass
+        else:
+            assert isinstance(components, dict), 'Invalid components %s' % components
+            c.Component = components.get(c.Path, None)
 
         return c
