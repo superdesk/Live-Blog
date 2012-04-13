@@ -274,7 +274,7 @@ def process(openFile, method):
     assert isinstance(method, str), 'Invalid method %s' % method
 
     with openFile() as fileObj:
-        for fname, lineno, message, comments in extract(method, TextIOWrapper(fileObj)):
+        for fname, lineno, message, comments in extract(method, TextIOWrapper(fileObj, encoding='UTF-8')):
             if fname in ('pgettext', 'C_', 'NC_'): cntxt, message = message
             elif fname == 'npgettext': cntxt, *message = message
             else: cntxt = None
