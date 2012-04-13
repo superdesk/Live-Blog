@@ -38,21 +38,26 @@ var ListApp = function( paths ) {
 	{
 		new $.rest($(this).attr('href')).done(function(data)
 		{
-			$( $.tmpl($('#tpl-country-details', superdesk.tmplRepo), data) )
-				.dialog
-				({ 
-					draggable: false,
-					resizable: false,
-					modal: true,
-					width: "40.1709%",
-					close: function(){ $(this).dialog('destroy').remove(); },
-					buttons: 
-					[{
-						text: "Close",
-						click: function(){ $(this).dialog('close'); },
-						class: "btn btn-primary"
-					}]
+			require(['tmpl!country>details','jqueryui/dialog'], function() {
+				$.tmpl('details', data, function(error, output) {
+					$(output)
+					.dialog
+					({ 
+						draggable: false,
+						resizable: false,
+						modal: true,
+						width: "40.1709%",
+						close: function(){ $(this).dialog('destroy').remove(); },
+						buttons: 
+						[{
+							text: "Close",
+							click: function(){ $(this).dialog('close'); },
+							class: "btn btn-primary"
+						}]
+					});
+
 				});
+			});
 		});
 		event.preventDefault();
 	});
