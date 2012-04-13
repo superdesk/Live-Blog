@@ -10,8 +10,9 @@ requirejs.config
 	paths: 
 	{
 		'jquery': '//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min',
-		'jquery.ui': '//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min',
-		'jquery.ui.ext': config.js_url + '/jquery/ui-ext',
+		'jqueryui': config.js_url + '/jquery/ui/1.8.14',
+		'jqueryui.ext': config.js_url + '/jquery/ui/ui-ext',
+		'jqueryui.datatable': config.js_url + '/jquery/ui/datatable',
 		'dust': config.js_url + '/dust',
 		'jquery.tmpl': config.js_url + '/jquery/dust',
 		'jquery.rest': config.js_url + '/jquery/rest',
