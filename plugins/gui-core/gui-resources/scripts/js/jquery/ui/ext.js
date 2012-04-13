@@ -4,7 +4,6 @@
  */
 // TODO move into some general js lib
 define('jqueryui/ext',['jquery', 'jqueryui/widget', 'jqueryui/dialog'], function($) {
-	console.log('here');
 	Function.prototype.inherits = function( parentClassOrObject )
 	{ 
 		if( parentClassOrObject.constructor == Function ) //Normal Inheritance 
@@ -29,14 +28,10 @@ define('jqueryui/ext',['jquery', 'jqueryui/widget', 'jqueryui/dialog'], function
 			// prepare plugins for 'per-selector' instances
 			if( typeof object.prototype.plugins != 'undefined' )
 			{
-				console.log('defined');
 				var pluginsClass = function(){};
 				for( var i in object.prototype.plugins )
 					pluginsClass.prototype[i] = object.prototype.plugins[i];
-			} else {
-				console.log('undefined');
 			}
-			console.log('plugin class: ',pluginsClass.toString());
 			var prototypeOptions = object.prototype.options;
 			
 			$.fn[ name ] = function( options ) 
