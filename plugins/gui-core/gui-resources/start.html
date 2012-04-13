@@ -4,7 +4,7 @@
 	<title>Superdesk</title>
 	<script>
 	config = new function(){
-		this.domain = 'localhost:8080';
+		this.domain = 'pertama.pp:8082';
 		this.rest_url = '//' + this.domain + '/resources';
 		this.api_url = '//' + this.domain;
 		this.content_url =  '//' + this.domain + '/content';
@@ -13,10 +13,10 @@
 		this.gui_url = this.content_url + '/gui';
 	};
 	</script>		
-	<script>document.write('<script data-main="' + config.js_url + '/main" src="' + config.js_url + '/libs/require/1.0.7/require.js"><'+'/script>')</script>
+	<script>document.write('<script data-main="' + config.js_url + '/main" src="' + config.js_url + '/require.js"><'+'/script>')</script>
 	<style>
-		@IMPORT url("http://localhost:8080/content/lib/core/styles/css/bootstrap.css");
-		@IMPORT url("http://localhost:8080/content/lib/core/styles/css/responsive.css");
+		@IMPORT url("http://pertama.pp:8082/content/lib/core/styles/css/bootstrap.css");
+		@IMPORT url("http://pertama.pp:8082/content/lib/core/styles/css/responsive.css");
 		body { margin-top: 60px } 
 		.sidebar-nav { padding: 9px 0 }
 	</style>
