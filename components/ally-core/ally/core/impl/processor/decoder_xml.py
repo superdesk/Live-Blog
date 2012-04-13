@@ -1,12 +1,12 @@
 '''
 Created on Jul 11, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the XML encoding/decoding processor handler.
+Provides the XML decoding processor handler.
 '''
 
 from ally.api.operator.container import Model
@@ -40,7 +40,7 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
     Provides on request: arguments
     Provides on response: NA
     
-    Requires on request: invoker, content, [content.contentConverter], [content.charSet]
+    Requires on request: method, invoker, content, content.contentType, [content.contentConverter], [content.charSet] 
     Requires on response: contentConverter
     '''
 
@@ -54,7 +54,9 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        if self._isValidRequest(req):
+        assert isinstance(req.content, ContentRequest), 'Invalid content on request %s' % req.content
+
+        if req.content.contentType in self.contentTypes:
             root = None
 
             nameModelType = findLastModel(req.invoker)

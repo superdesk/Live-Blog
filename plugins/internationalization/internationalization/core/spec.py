@@ -66,6 +66,8 @@ class IPOFileManager(metaclass=abc.ABCMeta):
             The last modification.
         '''
 
+    # ----------------------------------------------------------------
+
     @abc.abstractmethod
     def getGlobalPOFile(self, locale):
         '''
@@ -73,7 +75,7 @@ class IPOFileManager(metaclass=abc.ABCMeta):
 
         @param locale: string
             The locale for which to return the translation.
-        @return: file like object
+        @return: bytes file like object
             The PO file containing the translation.
         '''
 
@@ -86,11 +88,9 @@ class IPOFileManager(metaclass=abc.ABCMeta):
             The component id for which to return the translation.
         @param locale: string
             The locale for which to return the translation.
-        @return: file like object
+        @return: bytes file like object
             The PO file containing the translation.
         '''
-
-    # ----------------------------------------------------------------
 
     @abc.abstractmethod
     def getPluginPOFile(self, locale, plugin):
@@ -101,9 +101,11 @@ class IPOFileManager(metaclass=abc.ABCMeta):
             The plugin id for which to return the translation.
         @param locale: string
             The locale for which to return the translation.
-        @return: file like object
+        @return: bytes  file like object
             The PO file containing the translation.
         '''
+
+    # ----------------------------------------------------------------
 
     @abc.abstractmethod
     def updateGlobalPOFile(self, locale, poFile):
@@ -112,7 +114,7 @@ class IPOFileManager(metaclass=abc.ABCMeta):
         
         @param locale: string
             The locale for which to update the translation.
-        @param poFile: file like object
+        @param poFile: text file like object
             The source PO file from which to read the translation.
         '''
 
@@ -121,12 +123,12 @@ class IPOFileManager(metaclass=abc.ABCMeta):
         '''
         Updates the messages for the given component and the given locale.
 
-        @param poFile: file like object
-            The source PO file from which to read the translation.
-        @param locale: string
-            The locale for which to update the translation.
         @param component: Component.Id
             The component for which to update the translation.
+        @param locale: string
+            The locale for which to update the translation.
+        @param poFile: text file like object
+            The source PO file from which to read the translation.
         '''
 
     @abc.abstractmethod
@@ -138,6 +140,6 @@ class IPOFileManager(metaclass=abc.ABCMeta):
             The plugin id for which to update the translation.
         @param locale: string
             The locale for which to update the translation.
-        @param poFile: file like object
+        @param poFile: text file like object
             The source PO file from which to read the translation.
         '''

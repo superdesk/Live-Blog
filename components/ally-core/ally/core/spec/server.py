@@ -13,6 +13,7 @@ from ally.core.spec.codes import Code
 from collections import deque
 import abc
 import logging
+from ally.api import model
 
 # --------------------------------------------------------------------
 
@@ -158,7 +159,7 @@ class Content:
 
 # --------------------------------------------------------------------
 
-class ContentRequest(Content):
+class ContentRequest(Content, model.Content):
     '''
     Provides the content of a request.
     '''
@@ -184,6 +185,12 @@ class ContentRequest(Content):
         self.length = None
         self._offset = 0
         self._closed = False
+
+    def getCharSet(self):
+        '''
+        @see: model.Content.getCharSet
+        '''
+        return self.charSet
 
     def read(self, nbytes=None):
         '''
