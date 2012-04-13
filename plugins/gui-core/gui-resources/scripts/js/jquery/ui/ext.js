@@ -3,7 +3,7 @@
  * addon to jQuery UI 1.8.16 
  */
 // TODO move into some general js lib
-define(['jquery', 'jqueryui/widget', 'jqueryui/dialog'], function($) {
+define('jqueryui/ext',['jquery', 'jqueryui/widget', 'jqueryui/dialog'], function($) {
 	console.log('here');
 	Function.prototype.inherits = function( parentClassOrObject )
 	{ 
