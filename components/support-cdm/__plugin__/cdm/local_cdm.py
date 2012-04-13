@@ -10,8 +10,8 @@ Provides the configurations for a local file system content manager.
 '''
 
 from ally.container import ioc
-from cdm.impl.local_filesystem import IDelivery, LocalFileSystemCDM, \
-    HTTPDelivery
+from cdm.impl.local_filesystem import IDelivery, HTTPDelivery, \
+    LocalFileSystemLinkCDM
 from cdm.spec import ICDM
 from os import path
 
@@ -39,7 +39,7 @@ def delivery() -> IDelivery:
 
 @ioc.entity
 def contentDeliveryManager() -> ICDM:
-    cdm = LocalFileSystemCDM();
+    cdm = LocalFileSystemLinkCDM();
     cdm.delivery = delivery()
     return cdm
 
