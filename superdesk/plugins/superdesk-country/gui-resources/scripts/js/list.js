@@ -6,34 +6,30 @@
  * @license http://www.gnu.org/licenses/gpl.txt
  */
 define([
-  'jquery','jquery.superdesk','jquery.tmpl','jquery.rest',
+  'jquery','jquery.superdesk','jquery.tmpl','jquery.rest', 'jqueryui.datatable', 
   'tmpl!layouts/list',
+  'tmpl!country>add',
   'tmpl!country>list',
   'tmpl!country>list-head',
   'tmpl!country>list-body',
   'tmpl!country>list-footer',
   ], function($, superdesk){ 
 var ListApp = function( paths ) {
-	var countries,
-		presentation = this,
-		app = function()
-		{
-			$('#area-main').tmpl('layouts/list');
-			
-			$('#area-content').html( $('<table class="table table-bordered table-striped country-list" />').datatable
-			({
-				tpl: 
-				{
-					header: 'list-head',
-					footer: 'list-footer',
-					body: 'list-body'
-				},
-				resource: new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Code, Name')
-			}));
-			
-			//$('#area-content').append( $($.tmpl($("#tpl-country-add", superdesk.tmplRepo))) );
-		};
-		
+		$('#area-main').tmpl('list');
+		console.log('Loved');
+		$('#area-content').html( $('<table class="table table-bordered table-striped country-list" />').datatable
+		({
+			tpl: 
+			{
+				header: 'list-head',
+				footer: 'list-footer',
+				body: 'list-body'
+			},
+			resource: new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Code, Name')
+		}));
+		$.tmpl('add', {}, function(error, output){
+			$('#area-content').append(output);
+		});
 		//presentation.view.load('country/templates/list.html').done(app);
 
 	// details button functionality 
