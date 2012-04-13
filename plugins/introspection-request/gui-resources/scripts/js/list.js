@@ -1,5 +1,5 @@
 define([
-    'jquery','jquery.superdesk','jquery.tmpl','jquery.rest', 
+    'jquery','jquery/superdesk','jquery/tmpl','jquery/rest', 
     'tmpl!layouts/list',
     'tmpl!request>list',
 ], function($, superdesk)
