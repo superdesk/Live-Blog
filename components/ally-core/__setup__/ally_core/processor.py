@@ -24,6 +24,7 @@ from ally.core.impl.processor.invoking import InvokingHandler
 from ally.core.impl.processor.meta_creator import MetaCreatorHandler
 from ally.core.impl.processor.method_invoker import MethodInvokerHandler
 from ally.core.impl.processor.parameters import ParametersHandler
+from ally.core.impl.processor.redirect import RedirectHandler
 from ally.core.impl.processor.request_types import RequestTypesHandler
 from ally.core.spec.server import Processors, Processor
 
@@ -41,9 +42,6 @@ def explain_detailed_error():
     return False
 
 @ioc.entity
-def handlersExplainError(): return [encoding()]
-
-@ioc.entity
 def explainError() -> Processor:
     b = ExplainDetailedErrorHandler() if explain_detailed_error() else ExplainErrorHandler()
     b.encodings = Processors(*handlersExplainError())
@@ -53,6 +51,12 @@ def explainError() -> Processor:
 
 @ioc.entity
 def methodInvoker() -> Processor: return MethodInvokerHandler()
+
+@ioc.entity
+def redirect() -> Processor:
+    b = RedirectHandler()
+    b.redirects = Processors(*handlersRedirect())
+    return b
 
 @ioc.entity
 def metaCreator() -> Processor:
@@ -90,6 +94,23 @@ def encoding() -> Processor:
 # ---------------------------------
 
 @ioc.entity
+def handlersExplainError():
+    '''
+    The handlers used for rendering an error message.
+    '''
+    return [encoding()]
+
+@ioc.entity
+def handlersRedirect():
+    '''
+    The handlers that will be used in processing a redirect.
+    '''
+    return [converter(), requestTypes(), parameters(), decoding(), invokingHandler()]
+
+@ioc.entity
 def handlersResources():
-    return [explainError(), methodInvoker(), metaCreator(), converter(), requestTypes(), parameters(), decoding(),
-                invokingHandler(), encoding()]
+    '''
+    All the handlers that will be used in processing a REST request.
+    '''
+    return [explainError(), methodInvoker(), redirect(), metaCreator(), converter(), requestTypes(), parameters(),
+            decoding(), invokingHandler(), encoding()]

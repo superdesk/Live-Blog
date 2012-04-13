@@ -14,11 +14,11 @@ from introspection.api.plugin import Plugin
 from introspection.api.component import Component
 from ally.api.type import Reference
 from ally.api.model import Content
-from introspection.api import modelDevel
+from introspection.api import modelAdmin
 
 # --------------------------------------------------------------------
 
-@modelDevel(id='Locale')
+@modelAdmin(id='Locale')
 class PO:
     '''
     Model for a PO file.
@@ -72,38 +72,38 @@ class IPOFileService:
         '''
 
     @call
-    def updateGlobalPOFile(self, poFile:Content, locale:PO.Locale):
+    def updateGlobalPOFile(self, locale:PO.Locale, poFile:Content):
         '''
         Updates the messages for all components / plugins and the given locale.
 
-        @param poFile: file like object
-            The source PO file from which to read the translation.
         @param locale: string
             The locale for which to update the translation.
+        @param poFile: file like object
+            The source PO file from which to read the translation.
         '''
 
     @call
-    def updateComponentPOFile(self, poFile:Content, component:Component.Id, locale:PO.Locale):
+    def updateComponentPOFile(self, component:Component.Id, locale:PO.Locale, poFile:Content):
         '''
         Updates the messages for the given component and the given locale.
 
-        @param poFile: file like object
-            The source PO file from which to read the translation.
-        @param locale: string
-            The locale for which to update the translation.
         @param component: Component.Id
             The component for which to update the translation.
+        @param locale: string
+            The locale for which to update the translation.
+        @param poFile: file like object
+            The source PO file from which to read the translation.
         '''
 
     @call
-    def updatePluginPOFile(self, poFile:Content, plugin:Plugin.Id, locale:PO.Locale):
+    def updatePluginPOFile(self, plugin:Plugin.Id, locale:PO.Locale, poFile:Content):
         '''
         Updates the messages for the given plugin and the given locale.
 
-        @param poFile: file like object
-            The source PO file from which to read the translation.
-        @param locale: string
-            The locale for which to update the translation.
         @param plugin: Plugin.Id
             The plugin for which to update the translation.
+        @param locale: string
+            The locale for which to update the translation.
+        @param poFile: file like object
+            The source PO file from which to read the translation.
         '''

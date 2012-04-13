@@ -173,6 +173,9 @@ def decodingUrlencoded() -> Processor:
 
 @ioc.entity
 def handlersEncoding():
+    '''
+    The handlers used for encoding.
+    '''
     b = [encodingXML(), encodingJSON()]
     try: b.append(encodingYAML())
     except ImportError: pass
@@ -180,6 +183,9 @@ def handlersEncoding():
 
 @ioc.entity
 def handlersDecoding():
+    '''
+    The handlers used for decoding.
+    '''
     b = [decodingXML(), decodingJSON(), decodingUrlencoded(), decodingNone()]
     try: b.append(decodingYAML())
     except ImportError: pass
