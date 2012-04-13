@@ -19,6 +19,7 @@ from internationalization.core.spec import IPOFileManager, InvalidLocaleError
 from introspection.api.plugin import IPluginService, Plugin
 from ally.api.model import Content
 import codecs
+from introspection.api.component import IComponentService
 
 # --------------------------------------------------------------------
 
@@ -35,12 +36,14 @@ class POFileServiceCDM(IPOFileService):
     poFileManager = IPOFileManager; wire.entity('poFileManager')
     cdmPO = ICDM; wire.entity('cdmPO')
     pluginService = IPluginService; wire.entity('pluginService')
+    componentService = IComponentService; wire.entity('componentService')
 
     def __init__(self):
         assert isinstance(self.default_charset, str), 'Invalid default charset %s' % self.default_charset
         assert isinstance(self.poFileManager, IPOFileManager), 'Invalid PO file manager %s' % self.poFileManager
         assert isinstance(self.cdmPO, ICDM), 'Invalid PO CDM %s' % self.cdmPO
         assert isinstance(self.pluginService, IPluginService), 'Invalid plugin service %s' % self.pluginService
+        assert isinstance(self.componentService, IComponentService), 'Invalid component service %s' % self.componentService
 
     def getGlobalPOFile(self, locale):
         '''
@@ -63,6 +66,7 @@ class POFileServiceCDM(IPOFileService):
         '''
         @see: IPOService.getComponentPOFile
         '''
+        self.componentService.getById(component)
         path = self._cdmPath(locale, component=component)
         try:
             try: cdmFileTimestamp = self.cdmPO.getTimestamp(path)
@@ -114,6 +118,7 @@ class POFileServiceCDM(IPOFileService):
         '''
         @see: IPOService.updateComponentPOFile
         '''
+        self.componentService.getById(component)
         assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
         # Convert the byte file to text file
         poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
