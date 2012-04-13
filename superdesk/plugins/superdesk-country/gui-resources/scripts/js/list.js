@@ -16,7 +16,6 @@ define([
   ], function($, superdesk){ 
 var ListApp = function( paths ) {
 		$('#area-main').tmpl('list');
-		console.log('Loved');
 		$('#area-content').html( $('<table class="table table-bordered table-striped country-list" />').datatable
 		({
 			tpl: 
