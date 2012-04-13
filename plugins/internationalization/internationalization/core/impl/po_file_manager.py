@@ -161,8 +161,10 @@ class POFileManagerDB(IPOFileManager):
             with open(path) as fObj: catalog = read_po(fObj, locale)
         else:
             catalog = Catalog(locale, **self.catalog_config)
+            catalog.creation_date = datetime.now()
 
         self._processCatalog(catalog, self.messageService.getMessages())
+        catalog.revision_date = datetime.now()
 
         return self._toPOFile(catalog)
 
@@ -178,12 +180,14 @@ class POFileManagerDB(IPOFileManager):
             with open(path) as fObj: catalog = read_po(fObj, locale)
         else:
             catalog = Catalog(locale, **self.catalog_config)
+            catalog.creation_date = datetime.now()
         if isfile(pathGlobal):
             with open(pathGlobal) as fObj: catalogGlobal = read_po(fObj, locale)
         else:
             catalogGlobal = None
 
         self._processCatalog(catalog, messages, fallBack=catalogGlobal)
+        catalog.revision_date = datetime.now()
 
         return self._toPOFile(catalog)
 
@@ -200,12 +204,14 @@ class POFileManagerDB(IPOFileManager):
             with open(path) as fObj: catalog = read_po(fObj, locale)
         else:
             catalog = Catalog(locale, **self.catalog_config)
+            catalog.creation_date = datetime.now()
         if isfile(pathGlobal):
             with open(pathGlobal) as fObj: catalogGlobal = read_po(fObj, locale)
         else:
             catalogGlobal = None
 
         self._processCatalog(catalog, messages, fallBack=catalogGlobal)
+        catalog.revision_date = datetime.now()
 
         return self._toPOFile(catalog)
 
@@ -216,21 +222,20 @@ class POFileManagerDB(IPOFileManager):
         assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
         try: locale = Locale.parse(locale)
         except UnknownLocaleError: raise InvalidLocaleError(locale)
-        update = read_po(poFile)
-        assert isinstance(update, Catalog), 'Invalid catalog %s' % update
+        catalog = read_po(poFile, locale=locale)
+        assert isinstance(catalog, Catalog), 'Invalid catalog %s' % catalog
 
         path = self._filePath(locale)
         if isfile(path):
-            with open(path) as fObj: catalog = read_po(fObj, locale)
+            with open(path) as fObj: catalogOld = read_po(fObj, locale)
+            catalog.update(catalogOld)
+            catalog.creation_date = catalogOld.creation_date
+        else:
             pathDir = dirname(path)
             if not isdir(pathDir): os.makedirs(pathDir)
-        else:
-            catalog = Catalog(locale, **self.catalog_config)
-        self._processCatalog(catalog, self.messageService.getMessages())
 
-        for msg in update:
-            msgC = catalog.get(msg.id, msg.context)
-            if msgC: msgC.string = msg.string
+        self._processCatalog(catalog, self.messageService.getMessages())
+        catalog.revision_date = datetime.now()
 
         with open(path, 'wb') as fObj: write_po(fObj, catalog, **self.write_po_config)
         with open(self._filePath(locale, format=FORMAT_MO), 'wb') as fObj: write_mo(fObj, catalog)

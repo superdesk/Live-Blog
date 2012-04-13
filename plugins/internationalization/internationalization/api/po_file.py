@@ -71,6 +71,8 @@ class IPOFileService:
             The path to the temporary PO file.
         '''
 
+    # ----------------------------------------------------------------
+
     @call
     def updateGlobalPOFile(self, locale:PO.Locale, poFile:Content):
         '''
