@@ -1,3 +1,4 @@
+define('history/adapter', ['jquery', 'history'], function(jQuery) {
 /**
  * History.js jQuery Adapter
  * @author Benjamin Arthur Lupton <contact@balupton.com>
@@ -75,3 +76,4 @@
 
 })(window);
 
+});
