@@ -1,7 +1,7 @@
 '''
 Created on Jul 11, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -33,6 +33,14 @@ log = logging.getLogger(__name__)
 class DecodingTextHandler(DecodingTextBaseHandler):
     '''
     Provides the decoder for JSON content.
+    
+    @see: DecodingBaseHandler
+        
+    Provides on request: arguments
+    Provides on response: NA
+    
+    Requires on request: method, invoker, content, content.contentType, [content.contentConverter], [content.charSet] 
+    Requires on response: contentConverter
     '''
 
     decoder = None
@@ -50,14 +58,16 @@ class DecodingTextHandler(DecodingTextBaseHandler):
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert req.method in (INSERT, UPDATE), 'Invalid method %s for processor' % req.method
-        if self._isValidRequest(req):
+        assert isinstance(req.content, ContentRequest), 'Invalid content on request %s' % req.content
+
+        if req.content.contentType in self.contentTypes:
             nameModelType = findLastModel(req.invoker)
 
             if nameModelType:
                 try:
                     obj = self.decoder(req.content, req.content.charSet or self.charSetDefault)
                 except ValueError as e:
-                    rsp.setCode(BAD_CONTENT, 'Invalid JSON content')
+                    rsp.setCode(BAD_CONTENT, 'Invalid content  for %s' % req.content.contentType)
                     return
 
                 name, modelType = nameModelType
@@ -75,7 +85,7 @@ class DecodingTextHandler(DecodingTextBaseHandler):
             else:
                 assert log.debug('Expected a model for decoding the content, could not find one') or True
         else:
-            assert log.debug('Invalid request for the JSON decoder') or True
+            assert log.debug('Invalid request for the text decoder') or True
         chain.proceed()
 
     def _decodeModel(self, modelObj, modelType, converter):

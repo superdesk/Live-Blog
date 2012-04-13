@@ -16,6 +16,7 @@ from ally.core.impl.processor.decoder_text import DecodingTextHandler
 from ally.core.impl.processor.decoder_xml import DecodingXMLHandler
 from ally.core.spec.server import Processor
 from ally.core.impl.processor.encoder_text import EncodingTextHandler
+from ally.core.impl.processor.decoder_content import DecodingContentHandler
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
@@ -110,6 +111,9 @@ def encodingYAML() -> Processor:
 def decodingNone() -> Processor: return DecodingNoneHandler()
 
 @ioc.entity
+def decodingContent() -> Processor: return DecodingContentHandler()
+
+@ioc.entity
 def decodingXML() -> Processor:
     b = DecodingXMLHandler(); yield b
     b.normalizer = contentNormalizer()
@@ -186,7 +190,7 @@ def handlersDecoding():
     '''
     The handlers used for decoding.
     '''
-    b = [decodingXML(), decodingJSON(), decodingUrlencoded(), decodingNone()]
+    b = [decodingContent(), decodingXML(), decodingJSON(), decodingUrlencoded(), decodingNone()]
     try: b.append(decodingYAML())
     except ImportError: pass
     return b

@@ -17,6 +17,8 @@ from cdm.spec import ICDM, PathNotFound
 from internationalization.api.po_file import IPOFileService
 from internationalization.core.spec import IPOFileManager, InvalidLocaleError
 from introspection.api.plugin import IPluginService, Plugin
+from ally.api.model import Content
+import codecs
 
 # --------------------------------------------------------------------
 
@@ -26,11 +28,16 @@ class POFileServiceCDM(IPOFileService):
     Implementation for @see: IPOService
     '''
 
+    default_charset = 'UTF-8'; wire.config('default_charset', doc='''
+    The default character set to use whenever a PO file is uploaded ant the character set of the content is not
+    specified''')
+
     poFileManager = IPOFileManager; wire.entity('poFileManager')
     cdmPO = ICDM; wire.entity('cdmPO')
     pluginService = IPluginService; wire.entity('pluginService')
 
     def __init__(self):
+        assert isinstance(self.default_charset, str), 'Invalid default charset %s' % self.default_charset
         assert isinstance(self.poFileManager, IPOFileManager), 'Invalid PO file manager %s' % self.poFileManager
         assert isinstance(self.cdmPO, ICDM), 'Invalid PO CDM %s' % self.cdmPO
         assert isinstance(self.pluginService, IPluginService), 'Invalid plugin service %s' % self.pluginService
@@ -90,11 +97,16 @@ class POFileServiceCDM(IPOFileService):
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmPO.getURI(path, 'http')
 
-    def updateGlobalPOFile(self, poFile, locale):
+    # ----------------------------------------------------------------
+
+    def updateGlobalPOFile(self, locale, poFile):
         '''
         @see: IPOService.updateGlobalPOFile
         '''
-        self.poFileManager.updateGlobalPOFile(poFile, locale)
+        assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
+        # Convert the byte file to text file
+        poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
+        self.poFileManager.updateGlobalPOFile(locale, poFile)
 
     def updateComponentPOFile(self, poFile, component, locale):
         '''
@@ -136,4 +148,5 @@ class POFileServiceCDM(IPOFileService):
             path.append(plugin)
         else:
             path.append('global')
+        path.append(locale)
         return '%s.po' % '-'.join(path)

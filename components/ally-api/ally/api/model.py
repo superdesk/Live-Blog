@@ -20,6 +20,15 @@ class Content(metaclass=abc.ABCMeta):
     '''
 
     @abc.abstractclassmethod
+    def getCharSet(self):
+        '''
+        Provides the character set specified for the content.
+        
+        @return: string
+            The specified character set for the content or None.
+        '''
+
+    @abc.abstractclassmethod
     def read(self, size=None):
         '''
         To read a file's contents, call f.read(size), which reads some quantity of data and returns it as a string.
