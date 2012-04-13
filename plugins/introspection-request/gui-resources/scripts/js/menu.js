@@ -1,4 +1,4 @@
-define(['jquery','jquery.superdesk','jquery.rest'], function ($,superdesk)
+define(['jquery','jquery/superdesk','jquery/rest'], function ($,superdesk)
 {
 	new $.rest(superdesk.apiUrl + '/resources/GUI/Action?path=modules.request')
 		.done(function(actions)

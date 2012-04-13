@@ -6,7 +6,7 @@
  * @license http://www.gnu.org/licenses/gpl.txt
  */
 
-define(['jquery','jquery.superdesk','jquery.rest'], function ($,superdesk)
+define(['jquery','jquery/superdesk','jquery/rest'], function ($,superdesk)
 {
 	superdesk.getActions('modules.country.*')
 	.done(function(actions){
