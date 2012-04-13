@@ -13,10 +13,10 @@ from ally.container import wire
 from ally.container.ioc import injected
 from ally.exception import InputError
 from ally.internationalization import _
-from babel.core import Locale, UnknownLocaleError
 from cdm.spec import ICDM, PathNotFound
 from internationalization.api.po_file import IPOFileService
-from internationalization.core.spec import IPOFileManager
+from internationalization.core.spec import IPOFileManager, InvalidLocaleError
+from introspection.api.plugin import IPluginService, Plugin
 
 # --------------------------------------------------------------------
 
@@ -28,95 +28,112 @@ class POFileServiceCDM(IPOFileService):
 
     poFileManager = IPOFileManager; wire.entity('poFileManager')
     cdmPO = ICDM; wire.entity('cdmPO')
+    pluginService = IPluginService; wire.entity('pluginService')
 
     def __init__(self):
         assert isinstance(self.poFileManager, IPOFileManager), 'Invalid PO file manager %s' % self.poFileManager
         assert isinstance(self.cdmPO, ICDM), 'Invalid PO CDM %s' % self.cdmPO
+        assert isinstance(self.pluginService, IPluginService), 'Invalid plugin service %s' % self.pluginService
 
     def getGlobalPOFile(self, locale):
         '''
         @see: IPOService.getGlobalPOFile
         '''
-        self._validateLocale(locale)
         path = self._cdmPath(locale)
         try:
-            cdmFileTimestamp = self.cdmPO.getTimestamp(path)
-            mngFileTimestamp = self.poFileManager.getGlobalPOTimestamp(locale)
-            republish = cdmFileTimestamp < mngFileTimestamp
-        except PathNotFound:
-            republish = True
+            try: cdmFileTimestamp = self.cdmPO.getTimestamp(path)
+            except PathNotFound: republish = True
+            else:
+                mngFileTimestamp = self.poFileManager.getGlobalPOTimestamp(locale)
+                republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
-        if republish: self.cdmPO.publishFromFile(path, self.poFileManager.getGlobalPOFile(locale))
-
+            if republish:
+                self.cdmPO.publishFromFile(path, self.poFileManager.getGlobalPOFile(locale))
+        except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmPO.getURI(path, 'http')
 
     def getComponentPOFile(self, component, locale):
         '''
         @see: IPOService.getComponentPOFile
         '''
-        self._validateLocale(locale)
-        path = self._cdmPath(locale, component)
+        path = self._cdmPath(locale, component=component)
         try:
-            cdmFileTimestamp = self.cdmPO.getTimestamp(path)
-            mngFileTimestamp = self.poFileManager.getComponentPOTimestamp(component, locale)
-            republish = cdmFileTimestamp < mngFileTimestamp
-        except PathNotFound:
-            republish = True
-        if republish:
-            self.cdmPO.publishFromFile(path, self.poFileManager.getComponentPOFile(component, locale))
+            try: cdmFileTimestamp = self.cdmPO.getTimestamp(path)
+            except PathNotFound: republish = True
+            else:
+                mngFileTimestamp = self.poFileManager.getComponentPOTimestamp(component, locale)
+                republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
+
+            if republish:
+                self.cdmPO.publishFromFile(path, self.poFileManager.getComponentPOFile(component, locale))
+        except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmPO.getURI(path, 'http')
 
     def getPluginPOFile(self, plugin, locale):
         '''
         @see: IPOService.getPluginPOFile
         '''
-        self._validateLocale(locale)
+        pluginObj = self.pluginService.getById(plugin)
+        assert isinstance(pluginObj, Plugin)
+        if pluginObj.Component: return self.getComponentPOFile(pluginObj.Component, locale)
+
         path = self._cdmPath(locale, plugin=plugin)
         try:
-            cdmFileTimestamp = self.cdmPO.getTimestamp(path)
-            mngFileTimestamp = self.poFileManager.getPluginPOTimestamp(plugin, locale)
-            republish = cdmFileTimestamp < mngFileTimestamp
-        except PathNotFound:
-            republish = True
-        if republish:
-            self.cdmPO.publishFromFile(path, self.poFileManager.getPluginPOFile(plugin, locale))
+            try: cdmFileTimestamp = self.cdmPO.getTimestamp(path)
+            except PathNotFound: republish = True
+            else:
+                mngFileTimestamp = self.poFileManager.getPluginPOTimestamp(plugin, locale)
+                republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
+
+            if republish:
+                self.cdmPO.publishFromFile(path, self.poFileManager.getPluginPOFile(plugin, locale))
+        except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmPO.getURI(path, 'http')
 
     def updateGlobalPOFile(self, poFile, locale):
         '''
         @see: IPOService.updateGlobalPOFile
         '''
-        self._validateLocale(locale)
         self.poFileManager.updateGlobalPOFile(poFile, locale)
 
     def updateComponentPOFile(self, poFile, component, locale):
         '''
         @see: IPOService.updateComponentPOFile
         '''
-        self._validateLocale(locale)
         self.poFileManager.updateComponentPOFile(poFile, component, locale)
 
     def updatePluginPOFile(self, poFile, plugin, locale):
         '''
         @see: IPOService.updatePluginPOFile
         '''
-        self._validateLocale(locale)
         self.poFileManager.updatePluginPOFile(poFile, plugin, locale)
 
     # ----------------------------------------------------------------
 
-    def _validateLocale(self, locale):
-        try: Locale.parse(locale)
-        except UnknownLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
+    def _cdmPath(self, locale, component=None, plugin=None):
+        '''
+        Returns the path to the CDM PO file corresponding to the given locale and / or
+        component / plugin. If no component of plugin was specified it returns the
+        name of the global PO file.
+        
+        @param locale: string
+            The locale.
+        @param component: string
+            The component id.
+        @param plugin: string
+            The plugin id.
+        @return: string
+            The file path.
+        '''
+        assert isinstance(locale, str), 'Invalid locale %s' % locale
 
-    def _cdmPath(self, locale=None, component=None, plugin=None):
+        path = []
         if component:
-            path = component
+            path.append('component')
+            path.append(component)
         elif plugin:
-            path = plugin
+            path.append('plugin')
+            path.append(plugin)
         else:
-            path = 'global'
-        if locale:
-            path = path + '-' + locale
-        path = path + '.po'
-        return path
+            path.append('global')
+        return '%s.po' % '-'.join(path)

@@ -1,5 +1,5 @@
 define([
-    'jquery','jquery.superdesk','jquery.tmpl','jquery.rest',
+    'jquery','jquery.superdesk','jquery.tmpl','jquery.rest', 
     'tmpl!layouts/list',
     'tmpl!request>list',
 ], function($, superdesk)
@@ -7,10 +7,10 @@ define([
     URL = config.api_url+'/resources/Devel/';
     
 	var requests = new $.rest(URL+'Request').xfilter('Pattern, Id'),
-	/*!
-	 * Display methods available for a request pattern
-	 */
-	displayPattern = function()
+    	/*!
+    	 * Display methods available for a request pattern
+    	 */
+	    displayPattern = function()
 		{
 			// desired request index
 			if(typeof arguments[0] == 'string')
@@ -18,26 +18,26 @@ define([
 			else
 				var index = {Id: $(this).find('a[request-id]').attr('request-id')};
 			
-			requests.from(index)
-				.get('Get')
-				.get('Update')
-				.get('Delete')
-				.get('Insert')					
+			requests.from(index).xfilter('Get.*, Update.*, Delete.*, Insert.*')
+				/*.get('Get').get('Update').get('Delete').get('Insert')*/					
 				.spawn()
 			.done(function( request, requestResource )
 			{
-				console.log(arguments);
-/*					$('#area-content', '#area-main')
-						.tmpl( 'description', {Request: request} ); // need object for iteration
-					// attach spawned resource to the info button
-					$('header', '#area-content')
-						.prop('api-resource', requestResource)
-						.eq(0).trigger('click');
-*/						
+			    require(['tmpl!request>method', 'tmpl!request>description'], function()
+			    {
+			        console.log(request);
+    			    var content = $('[is-content]', '#area-main')
+    						.tmpl( 'description', {Request: request} ); // need object for iteration
+    					// attach spawned resource to the info button
+    			    $('header', content)
+    					.prop('api-resource', requestResource)
+    					.eq(0).trigger('click');
+			    });
 			});
 			return false;
 		},		 
-	displayMethod = function()
+		
+		displayMethod = function(evt)
 		{
 			var displayBox = $(this).nextAll('.box');
 			if( displayBox.is(':visible') )
@@ -46,42 +46,41 @@ define([
 				return false;	
 			}
 			
-			var apiMethod = $(this).find('a').attr('api-method'),
-				tmpl;
+			var apiMethod = $(this).find('a').attr('api-method'), tmpl;
+			
 			switch(apiMethod.toLowerCase())
 			{
 				case 'get':
 				case 'insert':
 				case 'update':
 				case 'delete':
-					tmplName = '#request-method-tmpl';
+				    displayBox.slideDown('fast');
 					break;
 				case 'input':
 				case 'develinput':
-					tmplName = '#request-inputlist-tmpl';
+				    require(['tmpl!request>inputlist'], function()
+				    {
+				        $(this).prop('api-resource').get(apiMethod).done(function(methodData)
+			            {
+				            displayBox.tmpl('inpulist').slideDown('fast');
+			            });
+				    });
 					break;
 				default:
 					console.error(apiMethod);
 			}
-			
-			$(this).prop('api-resource')
-			// or like this: var methodResource = new $.rest($(this).attr('href'));
-			.get(apiMethod)
-			.done(function(methodData)
-			{
-				$.tmplOption({varname: 'input'});
-				displayBox.tmpl($(tmplName, superdesk.tmplRepo), methodData).slideDown('fast');
-			});
-			return false;
+			evt.preventDefault();
 		};		
+		
 	// the inputs available on the API
-	//$(document).off('click.superdesk', '#area-content article header');
-	//$(document).on('click.superdesk', '#area-content article header', displayMethod);
+	$(document)
+	    .off('click.superdesk', '[is-content] article header')
+	    .on('click.superdesk', '[is-content] article header', displayMethod);
 	
 	// generate list of available requests
 	requests.done(function(request)
 	{
-		$('#area-main').tmpl('list', {request: request})
+		$('#area-main').tmpl('list', {request: request, ui:{ content: 'is-content=1'}})
 		    .find('ul').children()
 		        .off('click.superdesk').on('click.superdesk', displayPattern);
 	});

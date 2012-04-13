@@ -9,13 +9,14 @@ Created on Mar 4, 2012
 Provides the components introspection.
 '''
 
-from . import modelDevel
-from ally.api.config import service, call
+from . import modelAdmin
+from ally.api.config import service, call, query
 from ally.api.type import IterPart
+from ally.api.criteria import AsLike, AsBoolean
 
 # --------------------------------------------------------------------
 
-@modelDevel
+@modelAdmin
 class Component:
     '''
     Provides the component data.
@@ -32,6 +33,21 @@ class Component:
 
 # --------------------------------------------------------------------
 
+@query
+class QComponent:
+    '''
+    Provides the component query.
+    '''
+    name = AsLike
+    group = AsLike
+    version = AsLike
+    locale = AsLike
+    loaded = AsBoolean
+    path = AsLike
+    inEgg = AsBoolean
+
+# --------------------------------------------------------------------
+
 @service
 class IComponentService:
     '''
@@ -45,7 +61,7 @@ class IComponentService:
         '''
 
     @call
-    def getComponents(self, offset:int=None, limit:int=None) -> IterPart(Component):
+    def getComponents(self, offset:int=None, limit:int=None, q:QComponent=None) -> IterPart(Component):
         '''
         Provides all the components.
         '''

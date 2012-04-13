@@ -9,10 +9,14 @@ Created on Mar 13, 2012
 API specifications for PO file management.
 '''
 
-from introspection.api.plugin import Plugin
-from introspection.api.component import Component
-from datetime import datetime
 import abc
+
+# --------------------------------------------------------------------
+
+class InvalidLocaleError(Exception):
+    '''
+    Raise whenever there is a invalid locale provided.
+    '''
 
 # --------------------------------------------------------------------
 
@@ -23,41 +27,47 @@ class IPOFileManager(metaclass=abc.ABCMeta):
     '''
 
     @abc.abstractmethod
-    def getGlobalPOTimestamp(self, locale:str=None) -> datetime:
+    def getGlobalPOTimestamp(self, locale):
         '''
         Returns the timestamp of the last update for the PO file identified by
         the given locale.
 
         @param locale: string
             The locale identifying the translation file.
+        @return: datetime
+            The last modification.
         '''
 
     @abc.abstractmethod
-    def getComponentPOTimestamp(self, component:Component.Id, locale:str=None) -> datetime:
+    def getComponentPOTimestamp(self, component, locale):
         '''
         Returns the timestamp of the last update for the PO file identified by
         the given component and locale.
 
-        @param component: Component.Id
-            The component identifying the translation file.
+        @param component: string
+            The component id identifying the translation file.
         @param locale: string
             The locale identifying the translation file.
+        @return: datetime
+            The last modification.
         '''
 
     @abc.abstractmethod
-    def getPluginPOTimestamp(self, plugin:Plugin.Id, locale:str=None) -> datetime:
+    def getPluginPOTimestamp(self, plugin, locale):
         '''
         Returns the timestamp of the last update for the PO file identified by
         the given plugin and locale.
 
-        @param plugin: Plugin.Id
-            The plugin identifying the translation file.
+        @param plugin: string
+            The plugin id identifying the translation file.
         @param locale: string
             The locale identifying the translation file.
+        @return: datetime
+            The last modification.
         '''
 
     @abc.abstractmethod
-    def getGlobalPOFile(self, locale:str=None) -> str:
+    def getGlobalPOFile(self, locale):
         '''
         Provides the messages for the whole application and the given locale.
 
@@ -68,25 +78,27 @@ class IPOFileManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def getComponentPOFile(self, component:Component.Id, locale:str=None) -> str:
+    def getComponentPOFile(self, component, locale):
         '''
         Provides the messages for the given component and the given locale.
 
-        @param component: Component.Id
-            The component for which to return the translation.
+        @param component: string
+            The component id for which to return the translation.
         @param locale: string
             The locale for which to return the translation.
         @return: file like object
             The PO file containing the translation.
         '''
 
+    # ----------------------------------------------------------------
+
     @abc.abstractmethod
-    def getPluginPOFile(self, plugin:Plugin.Id, locale:str=None) -> str:
+    def getPluginPOFile(self, locale, plugin):
         '''
         Provides the messages for the given plugin and the given locale.
 
-        @param plugin: Plugin.Id
-            The plugin for which to return the translation.
+        @param plugin: string
+            The plugin id for which to return the translation.
         @param locale: string
             The locale for which to return the translation.
         @return: file like object
@@ -94,38 +106,38 @@ class IPOFileManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def updateGlobalPOFile(self, poFile, locale:str):
+    def updateGlobalPOFile(self, locale, poFile):
         '''
         Updates the messages for all components / plugins and the given locale.
-
-        @param poFile: file like object
-            The source PO file from which to read the translation.
+        
         @param locale: string
             The locale for which to update the translation.
+        @param poFile: file like object
+            The source PO file from which to read the translation.
         '''
 
     @abc.abstractmethod
-    def updateComponentPOFile(self, poFile, component:Component.Id, locale:str):
+    def updateComponentPOFile(self, component, locale, poFile):
         '''
         Updates the messages for the given component and the given locale.
 
         @param poFile: file like object
             The source PO file from which to read the translation.
-        @param component: Component.Id
-            The component for which to update the translation.
         @param locale: string
             The locale for which to update the translation.
+        @param component: Component.Id
+            The component for which to update the translation.
         '''
 
     @abc.abstractmethod
-    def updatePluginPOFile(self, poFile, plugin:Plugin.Id, locale:str):
+    def updatePluginPOFile(self, plugin, locale, poFile):
         '''
         Updates the messages for the given plugin and the given locale.
-
-        @param poFile: file like object
-            The source PO file from which to read the translation.
-        @param plugin: Plugin.Id
-            The plugin for which to update the translation.
+        
+        @param plugin: string
+            The plugin id for which to update the translation.
         @param locale: string
             The locale for which to update the translation.
+        @param poFile: file like object
+            The source PO file from which to read the translation.
         '''

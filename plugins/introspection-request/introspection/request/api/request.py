@@ -9,9 +9,9 @@ Created on Jan 23, 2012
 API specifications for the node presenter.
 '''
 
+from . import modelDevel
 from ally.api.config import service, call
 from ally.api.type import Iter
-from introspection.api import modelDevel
 
 # --------------------------------------------------------------------
 
