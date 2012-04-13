@@ -68,7 +68,8 @@ class POFileServiceCDM(IPOFileService):
             try: cdmFileTimestamp = self.cdmPO.getTimestamp(path)
             except PathNotFound: republish = True
             else:
-                mngFileTimestamp = self.poFileManager.getComponentPOTimestamp(component, locale)
+                mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale),
+                                       self.poFileManager.getComponentPOTimestamp(component, locale))
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
@@ -89,7 +90,8 @@ class POFileServiceCDM(IPOFileService):
             try: cdmFileTimestamp = self.cdmPO.getTimestamp(path)
             except PathNotFound: republish = True
             else:
-                mngFileTimestamp = self.poFileManager.getPluginPOTimestamp(plugin, locale)
+                mngFileTimestamp = mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale),
+                                                          self.poFileManager.getPluginPOTimestamp(plugin, locale))
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
@@ -108,17 +110,26 @@ class POFileServiceCDM(IPOFileService):
         poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
         self.poFileManager.updateGlobalPOFile(locale, poFile)
 
-    def updateComponentPOFile(self, poFile, component, locale):
+    def updateComponentPOFile(self, component, locale, poFile):
         '''
         @see: IPOService.updateComponentPOFile
         '''
-        self.poFileManager.updateComponentPOFile(poFile, component, locale)
+        assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
+        # Convert the byte file to text file
+        poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
+        self.poFileManager.updateComponentPOFile(component, locale, poFile)
 
-    def updatePluginPOFile(self, poFile, plugin, locale):
+    def updatePluginPOFile(self, plugin, locale, poFile):
         '''
         @see: IPOService.updatePluginPOFile
         '''
-        self.poFileManager.updatePluginPOFile(poFile, plugin, locale)
+        assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
+        pluginObj = self.pluginService.getById(plugin)
+        assert isinstance(pluginObj, Plugin)
+        if pluginObj.Component: return self.updateComponentPOFile(pluginObj.Component, locale, poFile)
+        # Convert the byte file to text file
+        poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
+        self.poFileManager.updatePluginPOFile(plugin, locale, poFile)
 
     # ----------------------------------------------------------------
 
