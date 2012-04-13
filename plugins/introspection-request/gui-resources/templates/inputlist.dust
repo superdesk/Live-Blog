@@ -1,4 +1,4 @@
-{#input.InputList}
+{#InputList}
 <h3>
 	<small>#{Id}</small> {Name}
 	{#Mandatory}
@@ -7,11 +7,15 @@
 		<span class="label label-info">Optional</span>
 	{/Mandatory}
 </h3>
-<p>
-	<strong>Description</strong>
-	<br />
-	{Description}
-</p>
+<section>
+	<p>
+		<strong>Description</strong>
+		{~n}
+		{Description}
+	</p>
+<section>
 {:else}
-<em>nothing here</em>
-{/input.InputList}
+	<em>No INPUTS defined</em>
+{/InputList}
+
+
