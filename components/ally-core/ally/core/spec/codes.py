@@ -48,6 +48,8 @@ CANNOT_INSERT = Code(404, False) # HTTP code 404 Not Found
 INTERNAL_ERROR = Code(500, False) # HTTP code 500 Internal Server Error
 
 RESOURCE_FOUND = Code(200, True) # HTTP code 200 OK
+REDIRECT = Code(302, True) # HTTP code 302 originally temporary redirect, but now commonly used to specify redirection
+# for unspecified reason
 DELETED_SUCCESS = Code(204, True) # HTTP code 204 No Content
 UPDATE_SUCCESS = Code(200, True) # HTTP code 200 OK
 INSERT_SUCCESS = Code(201, True) # HTTP code 201 Created

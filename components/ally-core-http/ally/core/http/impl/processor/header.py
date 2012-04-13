@@ -180,7 +180,7 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
     nameContentLength = 'Content-Length'
     nameAllow = 'Allow'
     methodsAllow = ((GET, 'GET'), (DELETE, 'DELETE'), (INSERT, 'POST'), (UPDATE, 'PUT'))
-    nameContentLocation = 'Content-Location'
+    nameLocation = 'Location'
     nameAccept = 'Accept'
     nameAcceptCharset = 'Accept-Charset'
     nameAcceptLanguage = 'Accept-Language'
@@ -193,7 +193,7 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
         assert isinstance(self.nameContentLength, str), 'Invalid string %s' % self.nameContentLength
         assert isinstance(self.nameAllow, str), 'Invalid string %s' % self.nameAllow
         assert isinstance(self.methodsAllow, tuple), 'Invalid methods allow %s' % (self.methodsAllow,)
-        assert isinstance(self.nameContentLocation, str), 'Invalid string %s' % self.nameContentLocation
+        assert isinstance(self.nameLocation, str), 'Invalid string %s' % self.nameLocation
         assert isinstance(self.nameAccept, str), 'Invalid string %s' % self.nameAccept
         assert isinstance(self.nameAcceptCharset, str), 'Invalid string %s' % self.nameAcceptCharset
         assert isinstance(self.nameAcceptLanguage, str), 'Invalid string %s' % self.nameAcceptLanguage
@@ -254,4 +254,4 @@ class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
 
         if rsp.contentLanguage: headers[self.nameContentLanguage] = rsp.contentLanguage
 
-        if rsp.contentLocation: headers[self.nameContentLocation] = rsp.encoderPath.encode(rsp.contentLocation)
+        if rsp.location: headers[self.nameLocation] = rsp.encoderPath.encode(rsp.location)

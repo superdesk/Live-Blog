@@ -18,7 +18,6 @@ from ally.core.http.spec import METHOD_OPTIONS
 from ally.core.impl.processor.deliver_ok import DeliverOkHandler
 
 # --------------------------------------------------------------------
-# Service resourcesHandlers
 
 @ioc.config
 def ajax_cross_domain() -> bool:
@@ -34,6 +33,8 @@ def headers_ajax() -> dict:
             'Access-Control-Allow-Headers':'X-Filter, X-HTTP-Method-Override',
             }
 
+# --------------------------------------------------------------------
+
 @ioc.entity
 def encoderHeaderSet() -> EncoderHeaderSet:
     b = EncoderHeaderSet()
@@ -46,8 +47,10 @@ def deliverOkHandler() -> DeliverOkHandler:
     b.forMethod = METHOD_OPTIONS
     return b
 
+# --------------------------------------------------------------------
+
 @ioc.before(handlersResources)
-def updateHandlers():
+def updateHandlersResources():
     if ajax_cross_domain(): handlersResources().insert(handlersResources().index(methodInvoker()), deliverOkHandler())
 
 @ioc.before(encodersHeader)

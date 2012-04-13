@@ -10,7 +10,7 @@ Provides the call assemblers used in constructing the resources node.
 '''
 
 from ally.api.config import GET, DELETE, INSERT, UPDATE
-from ally.api.model import Part
+from ally.api.model import Part, Content
 from ally.api.operator.container import Call, Model
 from ally.api.operator.type import TypeService, TypeModel, TypeModelProperty
 from ally.api.type import Iter, IterPart, List, Count, typeFor
@@ -271,32 +271,63 @@ class AssembleUpdate(AssembleInvokers):
         if call.method != UPDATE:
             return False
         types = [inp.type for inp in invoker.inputs[:invoker.mandatory]]
-        typeModel = types[-1]
-        if not isinstance(typeModel, TypeModel):
-            log.info('The last input on the update is not a type model, received type %s', typeModel)
+        lastType = types[-1]
 
+        if isinstance(lastType, TypeModel):
+            log.info('The last input on the update is type model %s', lastType)
+            assert isinstance(lastType, TypeModel)
+            model = lastType.container
+            assert isinstance(model, Model)
+            # Removing the actual entity type since is not needed for node.
+            del types[-1]
+            if types:
+                # Since there are types it means that the entity reference is resolved by those
+                lastTyp = types[-1]
+                if isinstance(lastTyp, TypeModel) or isinstance(lastTyp, TypeModelProperty):
+                    if lastTyp.container != model:
+                        types.append(model)
+                else: types.append(model)
+
+                types = processTypesHints(types, call)
+
+                node = obtainNode(root, types)
+                if not node: return False
+                assert isinstance(node, Node)
+                node.update = processInvokerHints(invoker, node.update)
+                log.info('Resolved invoker %s as a update for node %s', invoker, node)
+                return True
+
+            types.append(typeFor(getattr(lastType.forClass, model.propertyId)))
             types = processTypesHints(types, call)
 
             node = obtainNode(root, types)
             if not node: return False
             assert isinstance(node, Node)
-            assert not node.update, 'There is already a update assigned for %s' % node
-            node.update = invoker
+
+            setInvoker = None
+            nodeUpdate = node.update
+            if nodeUpdate and isinstance(nodeUpdate, InvokerSetId):
+                setInvoker = nodeUpdate
+                nodeUpdate = setInvoker.invoker
+
+            nodeUpdate = processInvokerHints(invoker, nodeUpdate)
+
+            if setInvoker:
+                setInvoker.invoker = nodeUpdate
+                node.update = setInvoker
+            else:
+                node.update = InvokerSetId(nodeUpdate, self.normalizer)
+
             log.info('Resolved invoker %s as a update for node %s', invoker, node)
             return True
-        assert isinstance(typeModel, TypeModel)
-        model = typeModel.container
-        assert isinstance(model, Model)
-        # Removing the actual entity type since is not needed for node.
-        del types[-1]
-        if types:
-            # Since there are types it means that the entity reference is resolved by those
-            lastTyp = types[-1]
-            if isinstance(lastTyp, TypeModel) or isinstance(lastTyp, TypeModelProperty):
-                if lastTyp.container != model:
-                    types.append(model)
-            else: types.append(model)
 
+        if lastType.isOf(Content):
+            log.info('The last input on the update is content %s', lastType)
+            # Removing the actual entity type since is not needed for node.
+            del types[-1]
+            if not types:
+                log.info('Cannot index content update for invoker %s, need at least one model reference', invoker)
+                return False
             types = processTypesHints(types, call)
 
             node = obtainNode(root, types)
@@ -306,27 +337,13 @@ class AssembleUpdate(AssembleInvokers):
             log.info('Resolved invoker %s as a update for node %s', invoker, node)
             return True
 
-        types.append(typeFor(getattr(typeModel.forClass, model.propertyId)))
         types = processTypesHints(types, call)
 
         node = obtainNode(root, types)
         if not node: return False
         assert isinstance(node, Node)
-
-        setInvoker = None
-        nodeUpdate = node.update
-        if nodeUpdate and isinstance(nodeUpdate, InvokerSetId):
-            setInvoker = nodeUpdate
-            nodeUpdate = setInvoker.invoker
-
-        nodeUpdate = processInvokerHints(invoker, nodeUpdate)
-
-        if setInvoker:
-            setInvoker.invoker = nodeUpdate
-            node.update = setInvoker
-        else:
-            node.update = InvokerSetId(nodeUpdate, self.normalizer)
-
+        assert not node.update, 'There is already a update assigned for %s' % node
+        node.update = invoker
         log.info('Resolved invoker %s as a update for node %s', invoker, node)
         return True
 

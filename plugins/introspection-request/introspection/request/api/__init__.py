@@ -8,3 +8,11 @@ Created on May 26, 2011
 
 Specifications for the introspection of requests..
 '''
+
+from functools import partial
+from ally.api.config import model
+
+# --------------------------------------------------------------------
+
+DOMAIN = 'Devel/'
+modelDevel = partial(model, id='Id', domain=DOMAIN)

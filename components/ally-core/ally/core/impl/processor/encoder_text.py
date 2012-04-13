@@ -11,9 +11,8 @@ Provides the text encoder processor handler that creates text objects to be enco
 
 from .encoder_text_base import EncodingTextBaseHandler
 from ally.container.ioc import injected
-from ally.core.spec.resources import Normalizer, Converter, Path
+from ally.core.spec.resources import Normalizer, Converter
 from ally.exception import DevelError
-from ally.support.core.util_resources import nodeLongName
 import logging
 from ally.core.spec.data_meta import MetaModel, MetaCollection, MetaLink, MetaValue, \
     MetaFetch
@@ -149,8 +148,7 @@ class EncodingTextHandler(EncodingTextBaseHandler):
 
             path = meta.getLink(value)
             if path is None: return
-            assert isinstance(path, Path)
-            return {normalize(nodeLongName(path.node)): {normalize(self.namePath): pathEncode(path)}}
+            return {normalize(meta.getName(value)): {normalize(self.namePath): pathEncode(path)}}
 
         elif isinstance(meta, MetaFetch):
             assert isinstance(meta, MetaFetch)

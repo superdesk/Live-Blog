@@ -73,7 +73,7 @@ class ExplainErrorHandler(Processor):
             rsp.objType = None
             rsp.objMeta = None
             rsp.contentType = None
-            rsp.contentLocation = None
+            rsp.location = None
             if not rsp.contentConverter:
                 rsp.contentConverter = self.contentConverterDefault
             encodingChain = self.encodings.newChain()
