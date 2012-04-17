@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define('jquery/rest',['jquery'], function ($) {
 	var dfdManager = 
 	{
 		add: function(parentDfd, childDfd)
