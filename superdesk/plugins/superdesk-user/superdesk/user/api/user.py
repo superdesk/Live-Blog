@@ -1,6 +1,9 @@
 '''
 Created on Mar 6, 2012
 
+@package: superdesk user
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mihai Balaceanu
 '''
 
@@ -8,11 +11,12 @@ from superdesk.api import modelSuperDesk
 from ally.api.config import service, query
 from sql_alchemy.api.entity import Entity, IEntityService, QEntity
 from ally.api.criteria import AsLike
+from superdesk.person.api.person import Person, QPerson
 
 # --------------------------------------------------------------------
 
 @modelSuperDesk
-class User(Entity):
+class User(Person):
     '''    
     Provides the user model.
     '''
@@ -21,7 +25,7 @@ class User(Entity):
 # --------------------------------------------------------------------
 
 @query
-class QUser(QEntity):
+class QUser(QPerson):
     '''
     Query for user service
     '''
