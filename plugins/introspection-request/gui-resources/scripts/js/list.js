@@ -1,5 +1,5 @@
 define([
-    'jquery','jquery.superdesk','jquery.tmpl','jquery.rest', 
+    'jquery','jquery/superdesk','jquery/tmpl','jquery/rest', 
     'tmpl!layouts/list',
     'tmpl!request>list',
 ], function($, superdesk)
@@ -25,7 +25,6 @@ define([
 			{
 			    require(['tmpl!request>method', 'tmpl!request>description'], function()
 			    {
-			        console.log(request);
     			    var content = $('[is-content]', '#area-main')
     						.tmpl( 'description', {Request: request} ); // need object for iteration
     					// attach spawned resource to the info button
@@ -45,9 +44,7 @@ define([
 				displayBox.slideUp('fast');
 				return false;	
 			}
-			
-			var apiMethod = $(this).find('a').attr('api-method'), tmpl;
-			
+			var apiMethod = $(this).find('a').attr('api-method'), self = this, tmpl;
 			switch(apiMethod.toLowerCase())
 			{
 				case 'get':
@@ -60,9 +57,9 @@ define([
 				case 'develinput':
 				    require(['tmpl!request>inputlist'], function()
 				    {
-				        $(this).prop('api-resource').get(apiMethod).done(function(methodData)
+				        $(self).prop('api-resource').get(apiMethod).done(function(inputList)
 			            {
-				            displayBox.tmpl('inpulist').slideDown('fast');
+				            displayBox.tmpl('inputlist', inputList).slideDown('fast');
 			            });
 				    });
 					break;

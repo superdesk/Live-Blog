@@ -1,4 +1,4 @@
-define(['jquery','jquery.rest','history','history.adapter'], function ($) {
+define(['jquery','jquery/rest','history','history/adapter'], function ($) {
 
 var superdesk = 
 {

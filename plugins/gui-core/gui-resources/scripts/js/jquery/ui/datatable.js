@@ -7,7 +7,7 @@
  *
  * @todo maybe add some default templates or escape errors on none found at data request..
  */
-define(['jquery', 'dust', 'jquery.tmpl','jqueryui/widget', 'jqueryui.ext'], function ($,dust) {
+define('jqueryui/datatable',['jquery', 'dust', 'jquery/tmpl','jqueryui/widget', 'jqueryui/ext'], function ($,dust) {
     "use strict";
     $.widget( "ui.datatable", 
     {
