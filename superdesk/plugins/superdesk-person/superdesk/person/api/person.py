@@ -1,14 +1,17 @@
 '''
 Created on Mar 6, 2012
 
+@package: superdesk person
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mihai Balaceanu
+
+APIs for person.
 '''
 from superdesk.api import modelSuperDesk
-from ally.api.config import service, query, call
+from ally.api.config import service, query
 from sql_alchemy.api.entity import Entity, IEntityService, QEntity
 from ally.api.criteria import AsLike
-from superdesk.user.api.user import User
-from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
@@ -17,25 +20,24 @@ class Person(Entity):
     '''    
     Provides the person model.
     '''
-    User = User
     FirstName = str
     LastName = str
     Address = str
+
+# --------------------------------------------------------------------
 
 @query
 class QPerson(QEntity):
     '''
     Query for person service
     '''
-    name = AsLike
+    firstName = AsLike
+    lastName = AsLike
+
+# --------------------------------------------------------------------
 
 @service((Entity, Person), (QEntity, QPerson))
 class IPersonService(IEntityService):
     '''
     Person model service interface
     '''
-    @call
-    def getByUser(self, idUser:User.Id) -> Iter(Person):
-        '''
-        Select person by user id
-        '''
