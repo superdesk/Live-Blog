@@ -6,7 +6,7 @@
  * @license http://www.gnu.org/licenses/gpl.txt
  */
 define([
-  'jquery','jquery.superdesk','jquery.tmpl','jquery.rest', 'jqueryui.datatable', 
+  'jquery','jquery/superdesk','jquery/tmpl','jquery/rest', 'jqueryui/datatable', 
   'tmpl!layouts/list',
   'tmpl!country>add',
   'tmpl!country>list',
@@ -16,7 +16,6 @@ define([
   ], function($, superdesk){ 
 var ListApp = function( paths ) {
 		$('#area-main').tmpl('list');
-		console.log('Loved');
 		$('#area-content').html( $('<table class="table table-bordered table-striped country-list" />').datatable
 		({
 			tpl: 
@@ -39,21 +38,26 @@ var ListApp = function( paths ) {
 	{
 		new $.rest($(this).attr('href')).done(function(data)
 		{
-			$( $.tmpl($('#tpl-country-details', superdesk.tmplRepo), data) )
-				.dialog
-				({ 
-					draggable: false,
-					resizable: false,
-					modal: true,
-					width: "40.1709%",
-					close: function(){ $(this).dialog('destroy').remove(); },
-					buttons: 
-					[{
-						text: "Close",
-						click: function(){ $(this).dialog('close'); },
-						class: "btn btn-primary"
-					}]
+			require(['tmpl!country>details','jqueryui/dialog'], function() {
+				$.tmpl('details', data, function(error, output) {
+					$(output)
+					.dialog
+					({ 
+						draggable: false,
+						resizable: false,
+						modal: true,
+						width: "40.1709%",
+						close: function(){ $(this).dialog('destroy').remove(); },
+						buttons: 
+						[{
+							text: "Close",
+							click: function(){ $(this).dialog('close'); },
+							class: "btn btn-primary"
+						}]
+					});
+
 				});
+			});
 		});
 		event.preventDefault();
 	});
