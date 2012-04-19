@@ -7,30 +7,26 @@
 <div class="box hide">
 	<section>
 		<p>
-			<strong>API Class:</strong> 
+			<strong>API Class:{~s}</strong>
 			<code>{APIClass}</code>
 		</p>
 		<p>
-			<strong>API Class Definer:</strong> 
+			<strong>API Class Definer:{~s}</strong> 
 			<code>{APIClassDefiner}</code>
 		</p>
-		<p>
-			<strong>API Class Documentation:</strong>
-			<pre>{APIDoc}</pre>
-		</p>
+		<p><strong>API Class Documentation:{~s}</strong></p>
+		<pre>{APIDoc}</pre>
 	</section>
 	<section>
 		<p>
-			<strong>Implementation:</strong> 
+			<strong>Implementation:{~s}</strong> 
 			<code>{IMPL}</code>
 		</p>
 		<p>	
-			<strong>Implementation Definer:</strong> 
+			<strong>Implementation Definer:{~s}</strong>
 			<code>{IMPLDefiner}</code>
 		</p>
-		<p>
-			<strong>Implementation Documentation:</strong> 
-			<pre>{IMPLDoc}</pre>
-		</p>
+		<p><strong>Implementation Documentation:{~s}</strong></p> 
+		<pre>{IMPLDoc}</pre>
 	</section>				
 </div>
