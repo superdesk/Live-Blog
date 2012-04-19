@@ -1,7 +1,7 @@
 define
 ([
     'jquery','jquery/superdesk','jquery/tmpl','jquery/rest',
-    'layout!layouts/dashboard',
+    'tmpl!layouts/dashboard',
     'tmpl!navbar'
 ], 
 function($, superdesk)
@@ -21,12 +21,13 @@ function($, superdesk)
     		.tmpl( 'navbar', {superdesk: {menu: displayMenu}} )
     		.on('click', '.nav a', function(event)
     		{
-    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url + $(this).attr('script-path')]) );
+    		    var self = this;
+    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url + $(self).attr('script-path')]) );
     			event.preventDefault(); 
     		});
     		
         });
-        //$('#area-main').tmpl( 'layouts_dashboard' );
+        $('#area-main').tmpl( 'layouts_dashboard' );
     };
 
     return MenuView;
