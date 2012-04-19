@@ -1,6 +1,6 @@
 define(['jquery','jquery/superdesk','jquery/rest'], function ($, superdesk)
 {
-    return superdesk.getActions('modules.request.*')
+    return { init: function(){ superdesk.getActions('modules.request.*')
     .done(function(actions)
 	{
 		$(actions).each(function()
@@ -14,5 +14,5 @@ define(['jquery','jquery/superdesk','jquery/rest'], function ($, superdesk)
 				return false;*/
 			}
 		});
-	});
+	})}};
 });
