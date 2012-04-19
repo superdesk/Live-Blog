@@ -21,7 +21,7 @@ function($, superdesk)
     		.tmpl( 'navbar', {superdesk: {menu: displayMenu}} )
     		.on('click', '.nav a', function(event)
     		{
-    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url+$(this).attr('script-path')]) );
+    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url + $(this).attr('script-path')]) );
     			event.preventDefault(); 
     		});
     		
