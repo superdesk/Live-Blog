@@ -19,7 +19,7 @@ define(['jquery','jquery/superdesk','jquery/rest'], function ($,superdesk)
 				case 'modules.country.add': addPath = this.ScriptPath; break;
 			}
 		});
-		require([superdesk.apiUrl+'/'+listPath], function(ListApp) {
+		require([superdesk.apiUrl+listPath], function(ListApp) {
 			listApp = new ListApp({updateScript: updatePath, addScript: addPath});
 		});		
 	});
