@@ -8,7 +8,7 @@
 
 define(['jquery','jquery/superdesk','jquery/rest'], function ($,superdesk)
 {
-	superdesk.getActions('modules.country.*')
+	return superdesk.getActions('modules.country.*')
 	.done(function(actions){
 		$(actions).each(function()
 		{  
