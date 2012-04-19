@@ -22,7 +22,7 @@ function($, superdesk)
     		.on('click', '.nav a', function(event)
     		{
     		    var self = this;
-    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url + $(self).attr('script-path')]) );
+    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url + $(self).attr('script-path')], function(x){ console.log(x.init()); }) );
     			event.preventDefault(); 
     		});
     		
