@@ -60,7 +60,8 @@
         };
     }
 
-    define({
+    define
+    ({
         version: '0.0.1',
 
         write: function (pluginName, name, write) {
@@ -72,6 +73,7 @@
         },
 
         load: function (name, parentRequire, load, config) {
+            
 			var self = this;
 
             if (isBrowser) {

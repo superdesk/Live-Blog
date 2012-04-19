@@ -52,7 +52,6 @@ dust.helpers = {
     }
     return chunk;
   },
-  
   /**
    * temporary solution for text static i18n strings
    */
