@@ -1,8 +1,10 @@
-define([
-    'jquery','jquery/superdesk','jquery/tmpl','jquery/rest', 
-    'tmpl!layouts/dashboard',
+define
+([
+    'jquery','jquery/superdesk','jquery/tmpl','jquery/rest',
+    'layout!layouts/dashboard',
     'tmpl!navbar'
-], function($, superdesk)
+], 
+function($, superdesk)
 {
     var MenuView = function() 
     {
@@ -24,8 +26,8 @@ define([
     		});
     		
         });
-        $('#area-main').tmpl( 'layouts_dashboard' );
-    }
+        //$('#area-main').tmpl( 'layouts_dashboard' );
+    };
 
     return MenuView;
 });
