@@ -90,19 +90,26 @@ var superdesk =
             History.pushState({href: href}, title ? this._titlePrefix + title : null, this._base + href);
             return callback;
         },
-        init: function()
+        init: function(callback)
         {
             var History = window.History, 
                 State = History.getState(),
                 self = this;
             
-                History.options.debug = true;
-                this._base = History.getPageUrl().split('#')[0];
-                History.Adapter.bind( window, 'statechange', function()
-                {
-                    var State = History.getState();
-                    (self._repository[State.data.href])();
-                });
+            History.options.debug = true;
+            this._base = History.getPageUrl().split('#')[0];
+            History.Adapter.bind( window, 'statechange', function()
+            {
+                var State = History.getState();
+                (self._repository[State.data.href])();
+            });
+            
+            if( typeof callback === 'function' )
+            {
+                this._repository[''] = callback;
+                History.pushState( {href: ''}, $(document).prop('title'), this._base );
+                History.Adapter.trigger( window, 'statechange' );
+            }
         }
 	},
 	/*!
@@ -191,5 +198,7 @@ superdesk.presentation.prototype =
 		}
 	}
 };
+
+$.extend($, {superdesk: superdesk});
 return superdesk;
 });
