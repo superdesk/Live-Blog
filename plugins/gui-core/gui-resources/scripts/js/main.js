@@ -13,14 +13,11 @@ requirejs.config
 		'jqueryui': config.js_url + '/jquery/ui/',
 		'dust': config.js_url + '/dust',
 		'history': config.js_url + '/history',
-		'tmpl': config.js_url + '/require/tmpl',
-		'layout': config.js_url + '/require/layout'
-	},
-	autoLayout: '#area-main'
+		'tmpl': config.js_url + '/require/tmpl'
+	}
 });
-
 require(['jquery/superdesk', 'lib/core/scripts/js/views/menu'], 
 function(superdesk, MenuView)
 {
-    var menuView = new MenuView; 
+    superdesk.navigation.init(function(){ var menuView = new MenuView; });
 }); 
