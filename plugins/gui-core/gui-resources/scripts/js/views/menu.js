@@ -1,8 +1,10 @@
-define([
-    'jquery','jquery/superdesk','jquery/tmpl','jquery/rest', 
+define
+([
+    'jquery','jquery/superdesk','jquery/tmpl','jquery/rest',
     'tmpl!layouts/dashboard',
     'tmpl!navbar'
-], function($, superdesk)
+], 
+function($, superdesk)
 {
     var MenuView = function() 
     {
@@ -19,13 +21,14 @@ define([
     		.tmpl( 'navbar', {superdesk: {menu: displayMenu}} )
     		.on('click', '.nav a', function(event)
     		{
-    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url + $(this).attr('script-path')]) );
+    		    var self = this;
+    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url + $(self).attr('script-path')], function(x){ console.log(x.init()); }) );
     			event.preventDefault(); 
     		});
     		
         });
         $('#area-main').tmpl( 'layouts_dashboard' );
-    }
+    };
 
     return MenuView;
 });

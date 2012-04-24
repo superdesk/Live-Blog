@@ -16,10 +16,8 @@ requirejs.config
 		'tmpl': config.js_url + '/require/tmpl'
 	}
 });
-
-require(['jquery','dust','jquery/tmpl', 'jquery/superdesk', 'lib/core/scripts/js/views/menu'], 
-function($, dust, jqueryDust, superdesk, MenuView)
-{  
-	superdesk.navigation.init();
-    var menuView = new MenuView;
+require(['jquery/superdesk', 'lib/core/scripts/js/views/menu'], 
+function(superdesk, MenuView)
+{
+    superdesk.navigation.init(function(){ var menuView = new MenuView; });
 }); 
