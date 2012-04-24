@@ -2,7 +2,7 @@
 
 {<list}
 	<ul class="nav nav-list">
-		<li class="nav-header">Sidebar</li>
+		<li class="nav-header">Requests</li>
 		{#request}
 		<li>
 			<a request-id="{Id}" href="{href}">
