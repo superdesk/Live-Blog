@@ -8,10 +8,10 @@ Created on Mar 6, 2012
 
 APIs for person.
 '''
-from superdesk.api import modelSuperDesk
 from ally.api.config import service, query
-from sql_alchemy.api.entity import Entity, IEntityService, QEntity
-from ally.api.criteria import AsLike
+from ally.api.criteria import AsLikeOrdered
+from ally.support.api.entity import Entity, IEntityService, QEntity
+from superdesk.api.domain_superdesk import modelSuperDesk
 
 # --------------------------------------------------------------------
 
@@ -31,8 +31,8 @@ class QPerson(QEntity):
     '''
     Query for person service
     '''
-    firstName = AsLike
-    lastName = AsLike
+    firstName = AsLikeOrdered
+    lastName = AsLikeOrdered
 
 # --------------------------------------------------------------------
 

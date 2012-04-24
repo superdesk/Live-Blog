@@ -129,6 +129,7 @@ class ResourcesManagerImpl(ResourcesManager):
         '''
         @see: ResourcesManager.findGetModel
         '''
+        #TODO: make recursive finding for path, right now is not working for far elements
         assert isinstance(fromPath, Path), 'Invalid from path %s' % fromPath
         assert isinstance(fromPath.node, Node), 'Invalid from path Node %s' % fromPath.node
         assert isinstance(modelType, TypeModel), 'Invalid model type %s' % modelType
@@ -173,7 +174,7 @@ class ResourcesManagerImpl(ResourcesManager):
                 paths.extend(self.findGetAllAccessible(extended))
         return paths
 
-    def findGetAccessibleByModel(self, model, modelObject=None):
+    def findGetAccessibleByModel(self, model, instance=None):
         '''
         @see: ResourcesManager.findGetAccessibleByModel
         '''
@@ -195,8 +196,8 @@ class ResourcesManagerImpl(ResourcesManager):
                         path = Path(matches, child)
                         paths.extend(self.findGetAllAccessible(path))
 
-        if modelObject:
-            for path in paths: path.update(modelObject, model)
+        if instance:
+            for path in paths: path.update(instance, model)
         return paths
 
     # ----------------------------------------------------------------

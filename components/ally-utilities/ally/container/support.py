@@ -61,6 +61,16 @@ def createEntitySetup(api, *impl, formatter=lambda group, clazz: group + '.' + c
     for clazz in _classes(impl):
         apiClasses = [apiClass for apiClass in apis if issubclass(clazz, apiClass)]
         if apiClasses:
+            # We need to trim the API classes to the top ones.
+            while True:
+                topApis = []
+                for k in range(0, len(apiClasses) - 1):
+                    for j in range(k + 1, len(apiClasses)):
+                        if issubclass(apiClasses[j], apiClasses[k]): break
+                    else: topApis.append(apiClasses[k])
+                if not topApis: break
+                apiClasses = topApis
+
             wireClasses.append(clazz)
             create = CreateEntity(clazz)
             for apiClass in apiClasses:

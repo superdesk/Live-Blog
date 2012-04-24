@@ -1,12 +1,12 @@
 '''
-Created on Jul 15, 2011
+Created on Apr 19, 2012
 
-@package: superdesk archive
-@copyright: 2012 Sourcefabric o.p.s.
+@package: introspection
+@copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-APIs package.
+Provides the decorator to be used by the models in the admin domain.
 '''
 
 from functools import partial
@@ -14,4 +14,5 @@ from ally.api.config import model
 
 # --------------------------------------------------------------------
 
-modelArchive = partial(model, domain='Superdesk/Archive/')
+DOMAIN = 'Admin/'
+modelAdmin = partial(model, domain=DOMAIN)

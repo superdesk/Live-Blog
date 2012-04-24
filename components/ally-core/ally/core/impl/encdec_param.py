@@ -285,8 +285,9 @@ class EncDecQuery(EncoderParams, DecoderParams):
                 assert isinstance(crtEntrType, TypeCriteriaEntry)
                 if q is None: q = queryType.forClass()
                 crit = getattr(q, crtEntrType.name)
+                assert isinstance(crit, AsOrdered), 'Invalid ordered criteria %s' % crit
                 setattr(crit, propType.property, order == nameAsc)
-                setattr(crit, 'priority', priority)
+                crit.priority = priority
                 priority += 1
         return q
 

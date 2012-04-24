@@ -135,8 +135,7 @@ class AssembleGet(AssembleInvokers):
             return False
         assert isinstance(model, Model)
 
-        typesMandatory = [inp.type for inp in invoker.inputs[:invoker.mandatory]]
-        typesExtra = [inp.type for inp in invoker.inputs[invoker.mandatory:] if isinstance(inp.type, TypeModelProperty)]
+        typesMandatory, typesExtra = extractMandatoryTypes(invoker), extractOptionalTypes(invoker)
         typesExtra = chain(*(combinations(typesExtra, k) for k in range(0, len(typesExtra) + 1)))
 
         resolved = False
@@ -191,7 +190,7 @@ class AssembleDelete(AssembleInvokers):
         if not invoker.output.isOf(bool):
             log.warning('Invalid output type %s for a delete method, expected boolean', invoker.output)
             return False
-        types = processTypesHints([inp.type for inp in invoker.inputs[:invoker.mandatory]], call)
+        types = processTypesHints(extractMandatoryTypes(invoker), call)
 
         node = obtainNode(root, types)
         if not node: return False
@@ -270,7 +269,7 @@ class AssembleUpdate(AssembleInvokers):
         assert isinstance(call, Call)
         if call.method != UPDATE:
             return False
-        types = [inp.type for inp in invoker.inputs[:invoker.mandatory]]
+        types = extractMandatoryTypes(invoker)
         lastType = types[-1]
 
         if isinstance(lastType, TypeModel):
@@ -349,6 +348,24 @@ class AssembleUpdate(AssembleInvokers):
 
 # --------------------------------------------------------------------
 
+def extractMandatoryTypes(invoker):
+    '''
+    Extracts the relevant mandatory types for the provided invoker.
+    '''
+    assert isinstance(invoker, InvokerCall), 'Invalid invoker call %s' % invoker
+    return [inp.type for inp in invoker.inputs[:invoker.mandatory]
+            if isinstance(inp.type, (TypeModel, TypeModelProperty))]
+
+def extractOptionalTypes(invoker):
+    '''
+    Extracts the relevant optional types for the provided invoker.
+    '''
+    assert isinstance(invoker, InvokerCall), 'Invalid invoker call %s' % invoker
+    return [inp.type for inp in invoker.inputs[invoker.mandatory:]
+            if isinstance(inp.type, (TypeModel, TypeModelProperty))]
+
+# --------------------------------------------------------------------
+
 def processTypesHints(types, call, isGroup=False):
     '''
     Process the hints that affect the types used for constructing the node path.
@@ -423,8 +440,9 @@ def processHintReplace(invoker, prevInvoker=None):
 
         replace = invoker.call.hints.get('replaceFor')
         if replace is None:
-            assert isinstance(prevInvoker, InvokerCall), 'Invoker call expected %s' % prevInvoker
-            replace = prevInvoker.call.hints.get('replaceFor')
+            if isinstance(prevInvoker, InvokerCall):
+                assert isinstance(prevInvoker, InvokerCall)
+                replace = prevInvoker.call.hints.get('replaceFor')
             if replace is None:
                 raise AssembleError('Cannot assemble invoker %s because already has an invoker %s and either of them '
                                     'has a replace specified at:%s' % (invoker, prevInvoker, linkMessageTo(invoker)))

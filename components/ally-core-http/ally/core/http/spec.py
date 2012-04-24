@@ -10,8 +10,9 @@ Provides specifications for APIs used by the HTTP server.
 '''
 
 import abc
-from ally.core.spec.server import Request
+from ally.core.spec.server import Request, ContentRequest
 from ally.core.spec.codes import Code
+from collections import OrderedDict
 
 # --------------------------------------------------------------------
 
@@ -29,10 +30,30 @@ class RequestHTTP(Request):
         @ivar rootURI: string
             The root URI to be considered for constructing a request path, basically the relative path root.
         '''
+        super().__init__()
         self.path = None
         self.headers = {}
         self.rootURI = ''
+
+class ContentRequestHTTP(ContentRequest):
+    '''
+    Provides the content request extension with additional HTTP data.
+    '''
+
+    def __init__(self):
+        '''
+        @see: ContentRequest.__init__
+        
+        @ivar contentTypeAttributes: dictionary{string, string}
+            The content type extra attributes, this attributes will not include the standard attributes, for instance the
+            character set.
+        @ivar contentDisposition: string
+            The content disposition for the request content if available.
+        @ivar contentDispositionAttributes: dictionary{string, string}
+            The content disposition extra attributes.
+        '''
         super().__init__()
+        self.contentTypeAttributes = OrderedDict()
 
 # --------------------------------------------------------------------
 
@@ -62,6 +83,7 @@ METHOD_OPTIONS = 16
 
 MISSING_HEADER = Code(400, False) # HTTP code 400 Bad Request
 INVALID_HEADER_VALUE = Code(400, False) # HTTP code 400 Bad Request
+INVALID_CONTENT = Code(406, False) # HTTP code 400 Bad Request
 UNKNOWN_CONTENT_LENGHT = Code(411, False) # HTTP code 411 length required 
 UNKNOWN_CONTENT_TYPE = Code(406, False) # HTTP code 406 Not acceptable
 UNKNOWN_CHARSET = Code(406, False) # HTTP code 406 Not acceptable

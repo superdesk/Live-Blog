@@ -9,12 +9,12 @@ Created on Mar 5, 2012
 Contains the SQL alchemy meta for source API.
 '''
 
-from . import meta
 from ..api.file import File
+from .metadata_internationalization import meta
 from ally.support.sqlalchemy.mapper import mapperModel
+from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Table, Column, UniqueConstraint
 from sqlalchemy.types import String, DateTime
-from sqlalchemy.dialects.mysql.base import INTEGER
 
 # --------------------------------------------------------------------
 

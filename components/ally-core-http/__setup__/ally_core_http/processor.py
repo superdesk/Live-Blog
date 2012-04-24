@@ -18,10 +18,10 @@ from ally.container import ioc
 from ally.core.http.impl.processor.formatting import FormattingProviderHandler
 from ally.core.http.impl.processor.header import HeaderStandardHandler
 from ally.core.http.impl.processor.meta_filter import MetaFilterHandler
+from ally.core.http.impl.processor.method_override import MethodOverrideHandler
 from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.spec.server import Processor, Processors
 import re
-from ally.core.http.impl.processor.method_override import MethodOverrideHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -61,10 +61,6 @@ def headerStandard() -> Processor:
     return b
 
 @ioc.entity
-def handlersFetching():
-    return [methodInvoker(), requestTypes(), parameters(), invokingHandler()]
-
-@ioc.entity
 def metaFilter() -> Processor:
     b = MetaFilterHandler()
     b.resourcesManager = resourcesManager()
@@ -85,6 +81,16 @@ def pathProcessors():
 
 # --------------------------------------------------------------------
 
+@ioc.entity
+def handlersFetching():
+    '''
+    The specific handlers to be used for an actual invoking procedure, used by the meta filter to actually fetch entities
+    whenever the X-Filter is used and there is no compound method available.
+    '''
+    return [methodInvoker(), requestTypes(), parameters(), invokingHandler()]
+
+# --------------------------------------------------------------------
+
 @ioc.before(handlersExplainError)
 def updateHandlersExplainError():
     handlersExplainError().insert(0, headerStandard())
@@ -92,7 +98,7 @@ def updateHandlersExplainError():
 @ioc.before(handlersResources)
 def updateHandlersResources():
     handlers = [uri(), headerStandard(), formattingProvider()]
-    if allow_method_override(): handlers.insert(0, methodOverride())
+    if allow_method_override(): handlers.insert(0, methodOverride()) # Add also the method override if so configured
     for proc in handlers: handlersResources().insert(handlersResources().index(methodInvoker()), proc)
 
     handlersResources().insert(handlersResources().index(converter()), metaFilter())

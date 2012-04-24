@@ -9,16 +9,13 @@ Created on Jan 5, 2012
 Provides utility methods for SQL alchemy service implementations.
 '''
 
-from ally.internationalization import _
 from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual
-from ally.exception import InputError, Ref
-from sqlalchemy.exc import IntegrityError, OperationalError
 from ally.api.type import typeFor
-from ally.api.operator.type import TypeQuery, TypeModel
-from inspect import isclass
-from ally.support.sqlalchemy.mapper_descriptor import MappedSupport
-from ally.api.operator.container import Model
+from ally.exception import InputError, Ref
+from ally.internationalization import _
+from ally.support.api.util_service import namesForModel, namesForQuery
 from itertools import chain
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 # --------------------------------------------------------------------
 
@@ -60,18 +57,10 @@ def buildQuery(sqlQuery, query, mapped):
     '''
     assert query is not None, 'A query object is required'
     clazz = query.__class__
-    queryType = typeFor(clazz)
-    assert isinstance(queryType, TypeQuery), 'Invalid query %s' % query
-    assert isclass(mapped), 'Invalid class %s' % mapped
-    assert isinstance(mapped, MappedSupport), 'Invalid mapped class %s' % mapped
-    modelType = typeFor(mapped)
-    assert isinstance(modelType, TypeModel), 'Invalid model class %s' % mapped
-    model = modelType.container
-    assert isinstance(model, Model)
 
     ordered, unordered = [], []
-    properties = {prop.lower(): getattr(mapped, prop) for prop in model.properties}
-    for criteria in queryType.query.criterias:
+    properties = {prop.lower(): getattr(mapped, prop) for prop in namesForModel(mapped)}
+    for criteria in namesForQuery(clazz):
         column = properties.get(criteria.lower())
         if column is not None and getattr(clazz, criteria) in query:
             crt = getattr(query, criteria)
@@ -82,8 +71,8 @@ def buildQuery(sqlQuery, query, mapped):
             elif isinstance(crt, AsLike):
                 assert isinstance(crt, AsLike)
                 if AsLike.like in crt:
-                    if crt.caseInsensitive: sqlQuery = sqlQuery.filter(column.ilike(crt.like))
-                    else: sqlQuery = sqlQuery.filter(column.like(crt.like))
+                    if crt.caseSensitive: sqlQuery = sqlQuery.filter(column.like(crt.like))
+                    else: sqlQuery = sqlQuery.filter(column.ilike(crt.like))
             elif isinstance(crt, AsEqual):
                 assert isinstance(crt, AsEqual)
                 if AsEqual.equal in crt:

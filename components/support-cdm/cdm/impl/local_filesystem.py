@@ -363,7 +363,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         assert isinstance(path, str), 'Invalid content path %s' % path
         path, entryPath = self._validatePath(path)
         if isdir(entryPath) or isfile(entryPath):
-            return os.stat(entryPath).st_mtime
+            return datetime.fromtimestamp(os.stat(entryPath).st_mtime)
 
         linkPath = entryPath
         repPathLen = len(self.delivery.getRepositoryPath())

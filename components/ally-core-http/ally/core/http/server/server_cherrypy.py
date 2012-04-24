@@ -9,11 +9,11 @@ Created on Nov 23, 2011
 Provides the cherry py web server support.
 '''
 
+from .server_basic import ContentRequestData
 from ally.api.config import UPDATE, INSERT, GET, DELETE
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, EncoderHeader, METHOD_OPTIONS
-from ally.core.spec.server import Processors, ProcessorsChain, ContentRequest, \
-    Response
+from ally.core.spec.server import Processors, ProcessorsChain, Response
 import cherrypy
 import logging
 import re
@@ -82,7 +82,7 @@ class RequestHandler:
             else:
                 req.params.append((name, value))
 
-        req.content = ContentRequest(request.rfile, True)
+        req.content = ContentRequestData(request.rfile)
 
         rsp = Response()
         chain.process(req, rsp)

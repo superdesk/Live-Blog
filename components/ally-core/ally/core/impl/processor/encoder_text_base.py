@@ -16,7 +16,6 @@ from ally.core.spec.server import Processor, Request, Response, ProcessorsChain,
 from collections import Iterable
 from numbers import Number
 import abc
-import codecs
 import logging
 
 # --------------------------------------------------------------------
@@ -37,8 +36,6 @@ class EncodingTextBaseHandler(Processor):
     Requires on response: contentType, encoderPath, contentConverter, obj, [objMeta]
     '''
 
-    charSetDefault = str
-    # The default character set to be used if none provided for the content.
     contentTypes = dict
     # The dictionary{string:string} containing as a key the content types specific for this encoder and as a value
     # the content type to set on the response, if None will use the key for the content type response. 
@@ -46,7 +43,6 @@ class EncodingTextBaseHandler(Processor):
     # The encoding error resolving.
 
     def __init__(self):
-        assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
         assert isinstance(self.contentTypes, dict), 'Invalid content types %s' % self.contentTypes
         assert isinstance(self.encodingError, str), 'Invalid string %s' % self.encodingError
 
@@ -65,18 +61,6 @@ class EncodingTextBaseHandler(Processor):
             if contentType:
                 assert log.debug('Normalized content type %r to %r', rsp.contentType, contentType) or True
                 rsp.contentType = contentType
-
-            # Resolving the character set
-            if rsp.charSet:
-                try: codecs.lookup(rsp.charSet)
-                except LookupError: rsp.charSet = None
-            if not rsp.charSet:
-                for charSet in req.accCharSets:
-                    try: codecs.lookup(charSet)
-                    except LookupError: continue
-                    rsp.charSet = charSet
-                    break
-                else: rsp.charSet = self.charSetDefault
 
             if not rsp.objMeta:
                 if rsp.obj is None:

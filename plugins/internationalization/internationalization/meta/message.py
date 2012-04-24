@@ -9,13 +9,13 @@ Created on Mar 5, 2012
 Contains the SQL alchemy meta for message API.
 '''
 
-from . import meta
 from ..api.message import Message
+from .metadata_internationalization import meta
 from .source import Source
 from ally.support.sqlalchemy.mapper import mapperModel
+from sqlalchemy.dialects.mysql.base import INTEGER, VARCHAR
 from sqlalchemy.schema import Table, Column, ForeignKey
 from sqlalchemy.types import String
-from sqlalchemy.dialects.mysql.base import INTEGER, VARCHAR
 
 # --------------------------------------------------------------------
 

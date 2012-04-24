@@ -11,14 +11,15 @@ thread serving requests one at a time).
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
-from ally.core.http.spec import EncoderHeader, RequestHTTP, METHOD_OPTIONS
-from ally.core.spec.server import Response, Processors, ProcessorsChain, \
-    ContentRequest
+from ally.core.http.spec import EncoderHeader, RequestHTTP, METHOD_OPTIONS, \
+    ContentRequestHTTP
+from ally.core.spec.server import Response, Processors, ProcessorsChain
 from collections import OrderedDict
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
 import re
 from urllib.parse import urlparse, parse_qsl
+from ally.support.core.util_server import ContentLengthLimited
 
 # --------------------------------------------------------------------
 
@@ -87,7 +88,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             return
 
         req.headers.update(self.headers)
-        req.content = ContentRequest(self.rfile, True)
+        req.content = ContentRequestData(self.rfile)
 
         rsp = Response()
         chain.process(req, rsp)
@@ -113,6 +114,21 @@ class RequestHandler(BaseHTTPRequestHandler):
         # creates a big delay whenever the request is made from a non localhost client.
         assert log.debug(format, *args) or True
 
+
+class ContentRequestData(ContentLengthLimited, ContentRequestHTTP):
+    '''
+    Provides the request content.
+    '''
+
+    def __init__(self, content):
+        '''
+        Constructs the content data instance.
+        
+        @see: ContentLengthLimited.__init__
+        '''
+        ContentLengthLimited.__init__(self, content)
+        ContentRequestHTTP.__init__(self)
+
 # --------------------------------------------------------------------
 
 def run(requestHandlerClass, port=80):
@@ -131,4 +147,3 @@ def run(requestHandlerClass, port=80):
             try: server.socket.close()
             except: pass
             count -= 1
-

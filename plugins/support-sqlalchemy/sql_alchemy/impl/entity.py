@@ -84,7 +84,7 @@ class EntitySupportAlchemy(SessionSupport):
             assert self.queryType.isValid(query), 'Invalid query %s, expected %s' % (query, self.QEntity)
             sqlQuery = buildQuery(sqlQuery, query, self.Entity)
         sqlQuery = buildLimits(sqlQuery, offset, limit)
-        return (entity for entity in sqlQuery.all())
+        return sqlQuery.all()
 
     def _getCount(self, filter=None, query=None, sqlQuery=None):
         '''
@@ -134,7 +134,7 @@ class EntitySupportAlchemy(SessionSupport):
             sqlQuery = buildQuery(sqlQuery, query, self.Entity)
         sql = buildLimits(sqlQuery, offset, limit)
         if limit == 0: return [], sqlQuery.count()
-        return (entity for entity in sql.all()), sqlQuery.count()
+        return sql.all(), sqlQuery.count()
 
 # --------------------------------------------------------------------
 
@@ -226,6 +226,12 @@ class EntityNQServiceAlchemy(EntityGetServiceAlchemy, EntityFindServiceAlchemy, 
     '''
     Generic implementation for @see: IEntityService
     '''
+
+    def __init__(self, Entity):
+        '''
+        @see: EntitySupportAlchemy.__init__
+        '''
+        EntitySupportAlchemy.__init__(self, Entity)
 
 class EntityServiceAlchemy(EntityGetServiceAlchemy, EntityQueryServiceAlchemy, EntityCRUDServiceAlchemy):
     '''

@@ -31,35 +31,53 @@ class AsOrdered:
 # --------------------------------------------------------------------
 
 @criteria(main='like')
-class AsLike(AsOrdered):
+class AsLike:
     '''
     Provides query for properties that can be managed by a like function, this will only handle string types
     '''
     like = str
-    caseInsensitive = bool
+    caseSensitive = bool
+
+@criteria
+class AsLikeOrdered(AsLike, AsOrdered):
+    '''
+    Provides the like search and also the ordering.
+    '''
 
 # --------------------------------------------------------------------
 
 @criteria(main='equal')
-class AsEqual(AsOrdered):
+class AsEqual:
     '''
     Provides query for properties that can be managed by a equal function, this will only handle string types.
     '''
     equal = str
 
+@criteria
+class AsEqualOrdered(AsEqual, AsOrdered):
+    '''
+    Provides the equal search and also the ordering.
+    '''
+
 # --------------------------------------------------------------------
 
 @criteria(main='value')
-class AsBoolean(AsOrdered):
+class AsBoolean:
     '''
     Provides query for properties that can be managed as booleans.
     '''
     value = bool
 
+@criteria
+class AsBooleanOrdered(AsBoolean, AsOrdered):
+    '''
+    Provides the booleans search and also the ordering.
+    '''
+
 # --------------------------------------------------------------------
 
 @criteria
-class AsDate(AsOrdered):
+class AsDate:
     '''
     Provides query for properties that can be managed as date.
     '''
@@ -67,7 +85,15 @@ class AsDate(AsOrdered):
     end = Date
 
 @criteria
-class AsTime(AsOrdered):
+class AsDateOrdered(AsDate, AsOrdered):
+    '''
+    Provides the date search and also the ordering.
+    '''
+
+# --------------------------------------------------------------------
+
+@criteria
+class AsTime:
     '''
     Provides query for properties that can be managed as time.
     '''
@@ -75,9 +101,23 @@ class AsTime(AsOrdered):
     end = Time
 
 @criteria
-class AsDateTime(AsOrdered):
+class AsTimeOrdered(AsTime, AsOrdered):
+    '''
+    Provides the time search and also the ordering.
+    '''
+
+# --------------------------------------------------------------------
+
+@criteria
+class AsDateTime:
     '''
     Provides query for properties that can be managed as date time.
     '''
     start = DateTime
     end = DateTime
+
+@criteria
+class AsDateTimeOrdered(AsDateTime, AsOrdered):
+    '''
+    Provides the date time search and also the ordering.
+    '''

@@ -60,7 +60,7 @@ class ComponentService(IComponentService):
             assert isinstance(q, QComponent), 'Invalid query %s' % q
             components = processQuery(components, q, Component)
             length = len(components)
-        return Part(trimIter(components, len(modules), offset, limit), length)
+        return Part(trimIter(components, length, offset, limit), length)
 
     # ----------------------------------------------------------------
 

@@ -9,7 +9,7 @@ Created on Jan 23, 2012
 API specifications for the node presenter.
 '''
 
-from ..api import DOMAIN
+from ..api.domain_devel import DOMAIN
 from ..api.request import IRequestService, Request, Input, Method
 from ally.api.operator.container import Service, Call
 from ally.api.operator.type import TypeModelProperty
@@ -86,8 +86,7 @@ class RequestService(IRequestService):
         @see: IRequestService.getAllRequests
         '''
         self._refresh()
-        values = self._requests.values()
-        return trimIter(iter(values), len(values), offset, limit)
+        return trimIter(self._requests.values(), len(self._requests), offset, limit)
 
     # ----------------------------------------------------------------
 

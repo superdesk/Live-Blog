@@ -10,12 +10,12 @@ API specifications for localized files.
 '''
 
 from ally.api.config import service, query
-from ally.api.criteria import AsLike, AsDateTime
-from introspection.api import modelAdmin
-from introspection.api.plugin import Plugin
-from sql_alchemy.api.entity import Entity, QEntity, IEntityService
-from introspection.api.component import Component
+from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered
+from ally.support.api.entity import Entity, QEntity, IEntityService
 from datetime import datetime
+from introspection.api.component import Component
+from introspection.api.domain_admin import modelAdmin
+from introspection.api.plugin import Plugin
 
 # --------------------------------------------------------------------
 
@@ -36,10 +36,10 @@ class QFile(QEntity):
     '''
     Provides the query for the files.
     '''
-    component = AsLike
-    plugin = AsLike
-    path = AsLike
-    lastModified = AsDateTime
+    component = AsLikeOrdered
+    plugin = AsLikeOrdered
+    path = AsLikeOrdered
+    lastModified = AsDateTimeOrdered
 
 # --------------------------------------------------------------------
 

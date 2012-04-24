@@ -58,24 +58,23 @@ class DecodingTextHandler(DecodingTextBaseHandler):
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert req.method in (INSERT, UPDATE), 'Invalid method %s for processor' % req.method
-        assert isinstance(req.content, ContentRequest), 'Invalid content on request %s' % req.content
+        content = req.content
+        assert isinstance(content, ContentRequest), 'Invalid content on request %s' % req.content
 
-        if req.content.contentType in self.contentTypes:
+        if content.contentType in self.contentTypes:
             nameModelType = findLastModel(req.invoker)
 
             if nameModelType:
                 try:
-                    obj = self.decoder(req.content, req.content.charSet or self.charSetDefault)
+                    obj = self.decoder(content, content.charSet)
                 except ValueError as e:
-                    rsp.setCode(BAD_CONTENT, 'Invalid content  for %s' % req.content.contentType)
+                    rsp.setCode(BAD_CONTENT, 'Invalid content  for %s' % content.contentType)
                     return
 
                 name, modelType = nameModelType
-                assert isinstance(req.content, ContentRequest)
                 assert log.debug('Decoding model %s', modelType) or True
                 try:
-                    req.arguments[name] = self._decodeModel(obj, modelType,
-                                                            req.content.contentConverter or rsp.contentConverter)
+                    req.arguments[name] = self._decodeModel(obj, modelType, content.contentConverter)
                     assert log.debug('Successfully decoded for input (%s) value %s', name, req.arguments[name]) or True
                 except DevelError as e:
                     rsp.setCode(BAD_CONTENT, e.message)
