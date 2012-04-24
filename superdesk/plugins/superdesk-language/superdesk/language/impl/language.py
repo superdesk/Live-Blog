@@ -10,18 +10,16 @@ SQL alchemy implementation for language API.
 '''
 
 from ally.api.model import Part
-from ally.container import wire
 from ally.container.binder_op import validateProperty
 from ally.container.ioc import injected
 from ally.exception import InputError, DevelError, Ref
 from ally.internationalization import _
-from ally.support.api.util_service import trimIter, likeAsRegex
+from ally.support.api.util_service import trimIter, processQuery
 from babel.core import Locale
 from babel.localedata import locale_identifiers
 from collections import OrderedDict
 from sql_alchemy.impl.entity import EntityNQServiceAlchemy
-from superdesk.language.api.language import Language, QLanguage, \
-    ILanguageService
+from superdesk.language.api.language import Language, ILanguageService
 from superdesk.language.meta.language import LanguageEntity
 
 # --------------------------------------------------------------------
@@ -32,59 +30,47 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
     Implementation for @see: ILanguageService using Babel library.
     '''
 
-    default_language = 'en'; wire.config('default_language', doc=
-    'The default language to use in presenting the languages names')
-
     def __init__(self):
         '''
         Construct the language service.
         '''
-        assert isinstance(self.default_language, str), 'Invalid default language %s' % self.default_language
         EntityNQServiceAlchemy.__init__(self, LanguageEntity)
         locales = [(code, Locale.parse(code)) for code in locale_identifiers()]
         locales.sort(key=lambda pack: pack[0])
         self._locales = OrderedDict(locales)
         validateProperty(LanguageEntity.Code, self._validateCode)
 
-    def getByCode(self, code, translate=None):
+    def getByCode(self, code, locales):
         '''
         @see: ILanguageService.getByCode
         '''
-        if not translate: translate = self.default_language
         locale = self._localeOf(code)
         if not locale: raise InputError(Ref(_('Unknown language code'), ref=Language.Code))
-        return self._populate(Language(code), self._translator(locale, self._localesOf(translate)))
+        return self._populate(Language(code), self._translator(locale, self._localesOf(locales)))
 
-    def getAllAvailable(self, offset=None, limit=None, q=None, translate=None):
+    def getAllAvailable(self, locales, offset=None, limit=None, q=None):
         '''
         @see: ILanguageService.getAllAvailable
         '''
-        if not translate: translate = self.default_language
-        locales = self._localesOf(translate)
-        if q and QLanguage.name in q and q.name.like:
-            assert isinstance(q, QLanguage), 'Invalid query %s' % q
-            nameRegex = likeAsRegex(q.name.like)
-            languages = []
-            for code, locale in self._locales.items():
-                translator = self._translator(locale, locales)
-                assert isinstance(translator, Locale)
-                name = translator.languages.get(locale.language)
-                if name and nameRegex.match(name): languages.append((code, translator))
+        locales = self._localesOf(locales)
+        if q:
+            languages = (self._populate(Language(code), self._translator(locale, locales))
+                         for code, locale in self._locales.items())
+            languages = processQuery(languages, q, Language)
+            length = len(languages)
+            languages = trimIter(languages, length, offset, limit)
+        else:
+            length = len(self._locales)
+            languages = trimIter(self._locales.items(), length, offset, limit)
+            languages = (self._populate(Language(code), self._translator(locale, locales))
+                         for code, locale in languages)
+        return Part(languages, length)
 
-            trimLanguages = trimIter(iter(languages), len(languages), offset, limit)
-            return Part((self._populate(Language(code), translator) for code, translator in trimLanguages),
-                            len(languages))
-
-        languages = trimIter(iter(self._locales.items()), len(self._locales), offset, limit)
-        return Part((self._populate(Language(code), self._translator(locale, locales))
-                         for code, locale in languages), len(self._locales))
-
-    def getById(self, id, translate=None):
+    def getById(self, id, locales):
         '''
         @see: ILanguageService.getById
         '''
-        if not translate: translate = self.default_language
-        locales = self._localesOf(translate)
+        locales = self._localesOf(locales)
         language = super().getById(id)
         return self._populate(language, self._translator(self._localeOf(language.Code), locales))
 
@@ -94,12 +80,11 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         '''
         return self._getCount()
 
-    def getAll(self, offset=None, limit=None, translate=None):
+    def getAll(self, locales, offset=None, limit=None):
         '''
         @see: ILanguageService.getAll
         '''
-        if not translate: translate = self.default_language
-        locales = self._localesOf(translate)
+        locales = self._localesOf(locales)
         languages = self._getAll(offset=offset, limit=limit)
         return (self._populate(language, self._translator(self._localeOf(language.Code), locales))
                 for language in languages)

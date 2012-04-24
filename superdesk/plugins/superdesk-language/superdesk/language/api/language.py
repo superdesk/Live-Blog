@@ -10,10 +10,10 @@ API specifications for languages.
 '''
 
 from ally.api.config import service, call, query
-from ally.api.criteria import AsLike
+from ally.api.criteria import AsLikeOrdered
 from ally.api.type import Locale, IterPart, List, Iter, Count
-from sql_alchemy.api.entity import Entity, IEntityCRUDService
-from superdesk.api import modelSuperDesk
+from ally.support.api.entity import Entity, IEntityCRUDService
+from superdesk.api.domain_superdesk import modelSuperDesk
 
 # --------------------------------------------------------------------
 
@@ -37,7 +37,6 @@ class LanguageEntity(Entity, Language):
     '''    
     Provides the language model.
     '''
-    Code = str
 
 # --------------------------------------------------------------------
 
@@ -46,7 +45,7 @@ class QLanguage:
     '''
     Provides the language query model.
     '''
-    name = AsLike
+    name = AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -57,20 +56,19 @@ class ILanguageService(IEntityCRUDService):
     '''
 
     @call
-    def getByCode(self, code:Language.Code, translate:List(Locale)=None) -> Language:
+    def getByCode(self, code:Language.Code, locales:List(Locale)) -> Language:
         '''
         Provides the language having the specified code.
         '''
 
     @call(webName='Available')
-    def getAllAvailable(self, offset:int=None, limit:int=10, q:QLanguage=None,
-                        translate:List(Locale)=None) -> IterPart(Language):
+    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10, q:QLanguage=None) -> IterPart(Language):
         '''
         Provides all the available languages.
         '''
 
     @call
-    def getById(self, id:LanguageEntity.Id, translate:List(Locale)=None) -> LanguageEntity:
+    def getById(self, id:LanguageEntity.Id, locales:List(Locale)) -> LanguageEntity:
         '''
         Provides the language based on the id.
         '''
@@ -81,7 +79,7 @@ class ILanguageService(IEntityCRUDService):
         '''
 
     @call(countMethod=getCount)
-    def getAll(self, offset:int=None, limit:int=None, translate:List(Locale)=None) -> Iter(LanguageEntity):
+    def getAll(self, locales:List(Locale), offset:int=None, limit:int=None) -> Iter(LanguageEntity):
         '''
         Provides all the languages available in the system.
         '''

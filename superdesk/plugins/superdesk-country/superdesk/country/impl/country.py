@@ -9,13 +9,13 @@ Created on Jun 23, 2011
 SQL alchemy implementation for language API.
 '''
 
-from ..api.country import Country, QCountry, ICountryService
+from ..api.country import Country, ICountryService
 from ally.api.model import Part
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.api.util_service import trimIter, likeAsRegex
+from ally.support.api.util_service import trimIter, processQuery
 from babel.core import Locale
 from babel.localedata import locale_identifiers
 
@@ -34,46 +34,36 @@ class CountryServiceBabelAlchemy(ICountryService):
     '''
 
     countries = Countries; wire.entity('countries')
-    default_language = 'en'; wire.config('default_language', doc=
-    'The default language to use in presenting the country names')
 
     def __init__(self):
         '''
         Construct the country service.
         '''
         assert isinstance(self.countries, Countries), 'Invalid countries %s' % self.countries
-        assert isinstance(self.default_language, str), 'Invalid default language %s' % self.default_language
         self._locales = {code:Locale.parse(code) for code in locale_identifiers()}
-        #validateProperty(Country.Code, self._validateCode)
 
-    def getByCode(self, code, translate=None):
+    def getByCode(self, code, locales):
         '''
         @see: ICountryService.getByCode
         '''
-        if not translate: translate = self.default_language
         if code not in self.countries: raise InputError(Ref(_('Unknown country code'), ref=Country.Code))
-        return Country(code, self._translate(code, self._localesOf(translate)))
+        return Country(code, self._translate(code, self._localesOf(locales)))
 
-    def getAllAvailable(self, offset=None, limit=None, q=None, translate=None):
+    def getAllAvailable(self, locales, offset=None, limit=None, q=None):
         '''
         @see: ILanguageService.getAllAvailable
         '''
-        if not translate: translate = self.default_language
-        locales = self._localesOf(translate)
-        if q and QCountry.name in q and q.name.like:
-            assert isinstance(q, QCountry), 'Invalid query %s' % q
-            nameRegex = likeAsRegex(q.name.like)
-            countries = []
-            for code in self.countries:
-                name = self._translate(code, locales)
-                if name and nameRegex.match(name): countries.append(Country(code, name))
+        locales = self._localesOf(locales)
+        if q:
+            countries = (Country(code, self._translate(code, locales)) for code in self.countries)
+            countries = processQuery(countries, q, Country)
+            length = len(countries)
+            countries = trimIter(countries, length, offset, limit)
         else:
-            countries = [Country(code, self._translate(code, locales)) for code in self.countries]
-
-        if q and QCountry.name.ascending in q:
-            countries.sort(key=lambda country: country.Name, reverse=not q.name.ascending)
-
-        return Part(trimIter(iter(countries), len(countries), offset, limit), len(countries))
+            length = len(self._locales)
+            countries = trimIter(self.countries, length, offset, limit)
+            countries = (Country(code, self._translate(code, locales)) for code in countries)
+        return Part(countries, length)
 
     # ----------------------------------------------------------------
 

@@ -14,7 +14,7 @@ from ally.support.sqlalchemy.mapper import mapperModel
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Table, Column
 from sqlalchemy.types import String
-from superdesk.meta import meta
+from superdesk.meta.metadata_superdesk import meta
 
 # --------------------------------------------------------------------
 

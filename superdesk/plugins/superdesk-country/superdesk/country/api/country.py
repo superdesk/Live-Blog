@@ -10,9 +10,9 @@ API specifications for languages.
 '''
 
 from ally.api.config import service, call, query
-from ally.api.criteria import AsLike
+from ally.api.criteria import AsLikeOrdered
 from ally.api.type import Locale, IterPart, List
-from superdesk.api import modelSuperDesk
+from superdesk.api.domain_superdesk import modelSuperDesk
 
 # --------------------------------------------------------------------
 
@@ -35,8 +35,8 @@ class QCountry:
     '''
     Provides the country query model.
     '''
-    name = AsLike
-    code = AsLike
+    name = AsLikeOrdered
+    code = AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -47,14 +47,13 @@ class ICountryService:
     '''
 
     @call
-    def getByCode(self, code:Country.Code, translate:List(Locale)=None) -> Country:
+    def getByCode(self, code:Country.Code, locales:List(Locale)) -> Country:
         '''
         Provides the countries having the specified code.
         '''
 
     @call
-    def getAllAvailable(self, offset:int=None, limit:int=10, q:QCountry=None, \
-                        translate:List(Locale)=None) -> IterPart(Country):
+    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10, q:QCountry=None) -> IterPart(Country):
         '''
         Provides all the available countries.
         '''

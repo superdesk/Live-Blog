@@ -13,8 +13,8 @@ from .file import File, QFile
 from ally.api.config import service, query
 from ally.api.criteria import AsEqual
 from ally.internationalization import N_
-from introspection.api import modelAdmin
-from sql_alchemy.api.entity import Entity, QEntity, IEntityService
+from ally.support.api.entity import Entity, QEntity, IEntityService
+from introspection.api.domain_admin import modelAdmin
 
 # --------------------------------------------------------------------
 

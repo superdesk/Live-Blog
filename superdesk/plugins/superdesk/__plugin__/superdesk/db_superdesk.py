@@ -15,7 +15,7 @@ from ally.support.sqlalchemy.mapper import mappingsOf
 from ally.support.sqlalchemy.session import bindSession
 from sql_alchemy import database_config
 from sql_alchemy.database_config import alchemySessionCreator, metas
-from superdesk.meta import meta
+from superdesk.meta.metadata_superdesk import meta
 
 # --------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ support.include(database_config)
 
 @ioc.replace(database_url)
 def database_url():
-    '''The database URL for the supredesk tables'''
+    '''The database URL for the Superdesk tables'''
     return 'sqlite:///workspace/superdesk.db'
 
 @ioc.replace(metas)
