@@ -18,6 +18,8 @@ from babel.messages.pofile import read_po
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, Source
 from internationalization.core.impl.po_file_manager import POFileManagerDB
+from os import makedirs
+from genericpath import isdir
 
 
 class TestMessageService(IMessageService):
@@ -150,49 +152,15 @@ class TestHTTPDelivery(unittest.TestCase):
         poManager.sourceService = TestSourceService()
         poRepDir = TemporaryDirectory()
         poManager.locale_dir_path = poRepDir.name
-#        poManager.locale_dir_path = join(dirname(abspath(__file__)), 'repo'); makedirs(poManager.locale_dir_path)
+        poManager.locale_dir_path = join(dirname(abspath(__file__)), 'repo');
+        if not isdir(poManager.locale_dir_path):
+            makedirs(poManager.locale_dir_path)
 
-        # test timestamp API methods
-        srcService = TestSourceService()
-        self.assertEqual(srcService.getAll()[0].LastModified,
-                         poManager.getGlobalPOTimestamp())
-        self.assertEqual(srcService.getAll()[0].LastModified,
-                         poManager.getComponentPOTimestamp('1'))
-        self.assertEqual(srcService.getAll()[0].LastModified,
-                         poManager.getPluginPOTimestamp('1'))
-
-        # test get PO file API methods without locale
-        poFile = poManager.getGlobalPOFile(); poFile.seek(0)
-        globalTestCat = read_po(poFile)
-        with open(join(self._poDir, 'global-template.po')) as f:
-            globalCat = read_po(f)
-        self.assertEqual(len(globalCat), len(globalTestCat))
-        for msg in globalCat:
-            if msg and msg.id != '':
-                self.assertEqual(msg.string, globalTestCat.get(msg.id, msg.context).string)
-
-        poFile = poManager.getComponentPOFile('1'); poFile.seek(0)
-        componentTestCat = read_po(poFile)
-        with open(join(self._poDir, 'component-template.po')) as f:
-            componentCat = read_po(f)
-        self.assertEqual(len(componentCat), len(componentTestCat))
-        for msg in componentCat:
-            if msg and msg.id != '':
-                self.assertEqual(msg.string, componentTestCat.get(msg.id, msg.context).string)
-
-        poFile = poManager.getPluginPOFile('1'); poFile.seek(0)
-        pluginTestCat = read_po(poFile)
-        with open(join(self._poDir, 'plugin-template.po')) as f:
-            pluginCat = read_po(f)
-        self.assertEqual(len(pluginCat), len(pluginTestCat))
-        for msg in pluginCat:
-            if msg and msg.id != '':
-                self.assertEqual(msg.string, pluginTestCat.get(msg.id, msg.context).string)
-
-        # test update PO API methods
+        # ********************************************
+        # test updateGlobalPOFile
         with open(join(self._poDir, 'global_ro.po')) as f:
-            globalCat = read_po(f)
-            poManager.updateGlobalPOFile(f, 'ro')
+            globalCat = read_po(f); f.seek(0)
+            poManager.updateGlobalPOFile('ro', f)
         with open(join(poManager.locale_dir_path, 'global_ro.po')) as f:
             globalTestCat = read_po(f)
         self.assertEqual(len(globalCat), len(globalTestCat))
@@ -200,9 +168,11 @@ class TestHTTPDelivery(unittest.TestCase):
             if msg and msg.id != '':
                 self.assertEqual(msg.string, globalTestCat.get(msg.id, msg.context).string)
 
+        # ********************************************
+        # test updateComponentPOFile
         with open(join(self._poDir, 'component 1_ro.po')) as f:
-            componentCat = read_po(f)
-            poManager.updateComponentPOFile(f, '1', 'ro')
+            componentCat = read_po(f); f.seek(0)
+            poManager.updateComponentPOFile('1', 'ro', f)
         with open(join(poManager.locale_dir_path, 'component', '1_ro.po')) as f:
             componentTestCat = read_po(f)
         for msg in componentTestCat:
@@ -210,9 +180,11 @@ class TestHTTPDelivery(unittest.TestCase):
                 self.assertEqual(msg.string, componentCat.get(msg.id, msg.context).string)
                 self.assertNotEqual(msg.string, globalCat.get(msg.id, msg.context).string)
 
+        # ********************************************
+        # test updatePluginPOFile
         with open(join(self._poDir, 'plugin 1_ro.po')) as f:
-            pluginCat = read_po(f)
-            poManager.updatePluginPOFile(f, '1', 'ro')
+            pluginCat = read_po(f); f.seek(0)
+            poManager.updatePluginPOFile('1', 'ro', f)
         with open(join(poManager.locale_dir_path, 'plugin', '1_ro.po')) as f:
             pluginTestCat = read_po(f)
         for msg in pluginTestCat:
@@ -220,26 +192,47 @@ class TestHTTPDelivery(unittest.TestCase):
                 self.assertEqual(msg.string, pluginCat.get(msg.id, msg.context).string)
                 self.assertNotEqual(msg.string, globalCat.get(msg.id, msg.context).string)
 
-        poFile = poManager.getGlobalPOFile('ro'); poFile.seek(0)
+        # ********************************************
+        # test getGlobalPOFile
+        poFile = poManager.getGlobalPOFile('ro')
         globalTestCat = read_po(poFile)
         self.assertEqual(len(globalCat), len(globalTestCat))
+        self._checkHeader(globalTestCat, globalCat)
         for msg in globalCat:
             if msg and msg.id != '':
                 self.assertEqual(msg.string, globalTestCat.get(msg.id, msg.context).string)
 
-        poFile = poManager.getComponentPOFile('1', 'ro'); poFile.seek(0)
+        # ********************************************
+        # test getComponentPOFile
+        poFile = poManager.getComponentPOFile('1', 'ro')
         componentTestCat = read_po(poFile)
         self.assertEqual(len(componentCat), len(componentTestCat))
+        self._checkHeader(componentTestCat, componentCat)
         for msg in componentCat:
             if msg and msg.id != '':
                 self.assertEqual(msg.string, componentTestCat.get(msg.id, msg.context).string)
 
-        poFile = poManager.getPluginPOFile('1', 'ro'); poFile.seek(0)
+        # ********************************************
+        # test getPluginPOFile
+        poFile = poManager.getPluginPOFile('1', 'ro')
         pluginTestCat = read_po(poFile)
         self.assertEqual(len(pluginCat), len(pluginTestCat))
+        self._checkHeader(pluginTestCat, pluginCat)
         for msg in pluginCat:
             if msg and msg.id != '':
                 self.assertEqual(msg.string, pluginTestCat.get(msg.id, msg.context).string)
+
+    def _checkHeader(self, testCat, witnessCat):
+        self.assertEqual(testCat.domain, witnessCat.domain)
+        self.assertEqual(testCat.locale, witnessCat.locale)
+        self.assertEqual(testCat.project, witnessCat.project)
+        self.assertEqual(testCat.version, witnessCat.version)
+        self.assertEqual(testCat.copyright_holder, witnessCat.copyright_holder)
+        self.assertEqual(testCat.msgid_bugs_address, witnessCat.msgid_bugs_address)
+        self.assertEqual(testCat.last_translator, witnessCat.last_translator)
+        self.assertEqual(testCat.language_team, witnessCat.language_team)
+        self.assertEqual(testCat.charset, witnessCat.charset)
+        self.assertEqual(testCat.fuzzy, witnessCat.fuzzy)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -184,7 +184,8 @@ class POFileManagerDB(IPOFileManager):
         except UnknownLocaleError: raise InvalidLocaleError(locale)
         assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
 
-        return self._update(locale, self.messageService.getMessages(), poFile, self._filePath(locale))
+        return self._update(locale, self.messageService.getMessages(), poFile, self._filePath(locale),
+                            self._filePath(locale, format=FORMAT_MO))
 
     def updateComponentPOFile(self, component, locale, poFile):
         '''
@@ -195,7 +196,8 @@ class POFileManagerDB(IPOFileManager):
         assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
 
         return self._update(locale, self.messageService.getComponentMessages(component), poFile,
-                            self._filePath(locale, component=component), False)
+                            self._filePath(locale, component=component),
+                            self._filePath(locale, component=component, format=FORMAT_MO), False)
 
     def updatePluginPOFile(self, plugin, locale, poFile):
         '''
@@ -206,7 +208,8 @@ class POFileManagerDB(IPOFileManager):
         assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
 
         return self._update(locale, self.messageService.getPluginMessages(plugin), poFile,
-                            self._filePath(locale, plugin=plugin), False)
+                            self._filePath(locale, plugin=plugin),
+                            self._filePath(locale, plugin=plugin, format=FORMAT_MO), False)
 
     # --------------------------------------------------------------------
 
@@ -293,21 +296,21 @@ class POFileManagerDB(IPOFileManager):
         assert isinstance(catalog, Catalog), 'Invalid catalog %s' % catalog
         assert isinstance(messages, Iterable), 'Invalid messages list %s' % messages
 
-        template = Catalog()
         for msg in messages:
             assert isinstance(msg, Message)
             id = msg.Singular if not msg.Plural else (msg.Singular,) + tuple(msg.Plural)
             src = self.sourceService.getById(msg.Source)
-            msgT = template.add(id, context=msg.Context, locations=((src.Path, msg.LineNumber),),
-                                user_comments=(msg.Comments if msg.Comments else '',))
-            msgC = catalog.get(msgT.id, msgT.context)
+            context = msg.Context if msg.Context != '' else None
+            msgC = catalog.get(id, context)
             if msgC is None and fallBack is not None:
                 assert isinstance(fallBack, Catalog), 'Invalid fall back catalog %s' % fallBack
-                msgC = fallBack.get(msgT.id, msgT.context)
-                if msgC is not None: catalog[msgT.id] = msgC
+                msgC = fallBack.get(id, context)
+                if msgC is not None: catalog[id] = msgC
+            catalog.add(id, context=msg.Context if msg.Context != '' else None,
+                        locations=((src.Path, msg.LineNumber),),
+                        user_comments=(msg.Comments if msg.Comments else '',))
 
         creationDate = catalog.creation_date # We need to make sure that the catalog keeps its creation date.
-        catalog.update(template)
         catalog.creation_date = creationDate
         return catalog
 
@@ -361,11 +364,12 @@ class POFileManagerDB(IPOFileManager):
 
         return catalog
 
-    def _update(self, locale, messages, poFile, path, isGlobal=True):
+    def _update(self, locale, messages, poFile, path, pathMO, isGlobal=True):
         assert isinstance(locale, Locale), 'Invalid locale %s' % locale
         assert isinstance(messages, Iterable), 'Invalid messages %s' % messages
         assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
         assert isinstance(path, str), 'Invalid path %s' % path
+        assert isinstance(pathMO, str), 'Invalid path MO %s' % pathMO
         assert isinstance(isGlobal, bool), 'Invalid is global flag %s' % isGlobal
 
         catalog = read_po(poFile, locale=locale)
@@ -388,7 +392,7 @@ class POFileManagerDB(IPOFileManager):
             with open(path) as fObj: catalogOld = read_po(fObj, locale)
             for msg in catalog:
                 msgO = catalogOld.get(msg.id, msg.context)
-                if msgO and msgO.string: msg.string = msgO.string
+                if not msg.string and msgO and msgO.string: msg.string = msgO.string
             catalog.creation_date = catalogOld.creation_date
         else:
             pathDir = dirname(path)
@@ -428,4 +432,4 @@ class POFileManagerDB(IPOFileManager):
 
         catalog.revision_date = datetime.now()
         with open(path, 'wb') as fObj: write_po(fObj, catalog, **self.write_po_config)
-        with open(self._filePath(locale, format=FORMAT_MO), 'wb') as fObj: write_mo(fObj, catalog)
+        with open(pathMO, 'wb') as fObj: write_mo(fObj, catalog)
