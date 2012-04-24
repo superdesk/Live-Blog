@@ -9,14 +9,14 @@ Created on Mar 4, 2012
 Provides the components introspection.
 '''
 
-from . import modelAdmin
+from .domain_admin import modelAdmin
 from ally.api.config import service, call
 from ally.api.type import IterPart
 from introspection.api.component import Component
 
 # --------------------------------------------------------------------
 
-@modelAdmin
+@modelAdmin(id='Id')
 class Plugin:
     '''
     Provides the component data.

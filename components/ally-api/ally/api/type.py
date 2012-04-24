@@ -133,6 +133,21 @@ class TypePercentage(Singletone, Type):
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
 
+#TODO: check if needed for automatic translation or not.
+class TypeTranslated(Singletone, Type):
+    '''
+    Provides the string type that contains as a value a message that should be translated.
+    '''
+
+    __slots__ = Type.__slots__
+
+    def __init__(self):
+        '''
+        Constructs the translated type.
+        @see: Type.__init__
+        '''
+        Type.__init__(self, str, True, True)
+
 class TypeReference(Singletone, Type):
     '''
     Provides the type representing a reference path.
@@ -160,6 +175,20 @@ class TypeLocale(Singletone, Type):
         @see: Type.__init__
         '''
         Type.__init__(self, str, False, True)
+
+class TypeScheme(Singletone, Type):
+    '''
+    Provides the type representing the used scheme.
+    '''
+
+    __slots__ = Type.__slots__
+
+    def __init__(self):
+        '''
+        Constructs the schema type.
+        @see: Type.__init__
+        '''
+        Type.__init__(self, str, False, False)
 
 # --------------------------------------------------------------------
 
@@ -381,6 +410,14 @@ _classType[Count] = Type(int, True, False)
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
 
+#TODO: check if needed for automatic translation or not.
+class Translated(Uninstantiable, str):
+    '''
+    Maps the type representing the translated messages.
+    Only used as a class, do not create an instance.
+    '''
+_classType[Translated] = TypeTranslated()
+
 class Reference(Uninstantiable, str):
     '''
     Maps the type representing the reference path.
@@ -397,6 +434,13 @@ class Locale(Uninstantiable, str):
     Only used as a class, do not create an instance.
     '''
 _classType[Locale] = TypeLocale()
+
+class Scheme(Uninstantiable, str):
+    '''
+    Maps the type representing the scheme.
+    Only used as a class, do not create an instance.
+    '''
+_classType[Scheme] = TypeScheme()
 
 # --------------------------------------------------------------------
 

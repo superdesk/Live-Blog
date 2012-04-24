@@ -9,7 +9,7 @@ Created on Mar 5, 2012
 Contains the SQL alchemy meta for source API.
 '''
 
-from . import meta
+from .metadata_internationalization import meta
 from ..api.source import Source, TYPE_PYTHON, TYPE_JAVA_SCRIPT
 from .file import File
 from ally.support.sqlalchemy.mapper import mapperModel

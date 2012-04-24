@@ -14,13 +14,14 @@ from ally.core.spec.codes import UNKNOWN_ENCODING
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain, \
     Processors
 import logging
+import codecs
 
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
-        
+
 @injected
 class EncodingProcessorsHandler(Processor):
     '''
@@ -34,14 +35,17 @@ class EncodingProcessorsHandler(Processor):
     Requires on request: accCharSets, accContentTypes
     Requires on response: [contentType]
     '''
-    
+
+    charSetDefault = str
+    # The default character set to be used if none provided for the content.
     encodings = Processors
     # The encoding processors, if a processor is successful in the encoding process it has to stop the 
     # chain execution.
-    
+
     def __init__(self):
         assert isinstance(self.encodings, Processors), 'Invalid encodings processors %s' % self.encodings
-    
+        assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
+
     def process(self, req, rsp, chain):
         '''
         @see: Processor.process
@@ -49,6 +53,19 @@ class EncodingProcessorsHandler(Processor):
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
+
+        # Resolving the character set
+        if rsp.charSet:
+            try: codecs.lookup(rsp.charSet)
+            except LookupError: rsp.charSet = None
+        if not rsp.charSet:
+            for charSet in req.accCharSets:
+                try: codecs.lookup(charSet)
+                except LookupError: continue
+                rsp.charSet = charSet
+                break
+            else: rsp.charSet = self.charSetDefault
+
         if rsp.contentType:
             encodingChain = self.encodings.newChain()
             assert isinstance(encodingChain, ProcessorsChain)

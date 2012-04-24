@@ -9,6 +9,7 @@ Created on Jun 28, 2011
 Provides support for explaining the errors in the content of the request.
 '''
 
+from .explain_error import process
 from ally.container.ioc import injected
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Response, Processor, ProcessorsChain, \
@@ -56,7 +57,9 @@ class ExplainDetailedErrorHandler(Processor):
         '''
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        chain.process(req, rsp)
+
+        process(chain, req, rsp)
+
         if not rsp.code.isSuccess:
             messages = []
             error = {'code':str(rsp.code.code)}

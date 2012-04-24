@@ -14,7 +14,7 @@ from introspection.api.plugin import Plugin
 from introspection.api.component import Component
 from ally.api.type import Reference
 from ally.api.model import Content
-from introspection.api import modelAdmin
+from introspection.api.domain_admin import modelAdmin
 
 # --------------------------------------------------------------------
 

@@ -15,7 +15,7 @@ from ally.support.sqlalchemy.mapper import mappingsOf
 from ally.support.sqlalchemy.session import bindSession
 from sql_alchemy import database_config
 from sql_alchemy.database_config import alchemySessionCreator, metas, database_url, createTables
-from internationalization.meta import meta
+from internationalization.meta.metadata_internationalization import meta
 
 # --------------------------------------------------------------------
 

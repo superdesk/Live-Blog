@@ -8,10 +8,3 @@ Created on Jul 15, 2011
 
 Meta data definition package.
 '''
-
-from sqlalchemy.schema import MetaData
-
-# --------------------------------------------------------------------
-
-meta = MetaData()
-# Provides the meta object for SQL alchemy.

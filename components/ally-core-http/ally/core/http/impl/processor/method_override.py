@@ -6,7 +6,7 @@ Created on Aug 9, 2011
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the X headers handling.
+Provides the method override header handling.
 '''
 
 from .header import HeaderHTTPBase, VALUE_NO_PARSE

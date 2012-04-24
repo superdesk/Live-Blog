@@ -22,11 +22,6 @@ from ally.core.impl.processor.decoder_content import DecodingContentHandler
 # Creating the encoding processors
 
 @ioc.config
-def default_characterset() -> str:
-    '''The default character set to use if none is provided in the request'''
-    return 'UTF-8'
-
-@ioc.config
 def content_types_xml() -> dict:
     '''The XML content types'''
     return {
@@ -55,20 +50,12 @@ def content_types_yaml() -> dict:
             'yaml':'text/yaml',
             }
 
-@ioc.config
-def content_types_urlencoded() -> dict:
-    '''The URLEncoded content type'''
-    return {
-            'application/x-www-form-urlencoded': None,
-            }
-
 @ioc.entity
 def encodingXML() -> Processor:
     from ally.core.impl.processor.encoder_xml import EncodingXMLHandler
     b = EncodingXMLHandler(); yield b
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
-    b.charSetDefault = default_characterset()
     b.contentTypes = content_types_xml()
     b.encodingError = 'xmlcharrefreplace'
 
@@ -83,7 +70,6 @@ def encodingJSON() -> Processor:
     b = EncodingTextHandler(); yield b
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
-    b.charSetDefault = default_characterset()
     b.contentTypes = content_types_json()
     b.encodingError = 'backslashreplace'
     b.encoder = encoderTextJSON()
@@ -99,7 +85,6 @@ def encodingYAML() -> Processor:
     b = EncodingTextHandler(); yield b
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
-    b.charSetDefault = default_characterset()
     b.contentTypes = content_types_yaml()
     b.encodingError = 'backslashreplace'
     b.encoder = encoderTextYAML()
@@ -118,7 +103,6 @@ def decodingXML() -> Processor:
     b = DecodingXMLHandler(); yield b
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
-    b.charSetDefault = default_characterset()
     b.contentTypes = list(content_types_xml().keys())
 
 @ioc.entity
@@ -135,7 +119,6 @@ def decodingJSON() -> Processor:
     b.normalizer = contentNormalizer()
     b.decoder = decoderTextJSON()
     b.converterId = converterPath()
-    b.charSetDefault = default_characterset()
     b.contentTypes = list(content_types_json().keys())
 
 @ioc.entity
@@ -152,28 +135,9 @@ def decodingYAML() -> Processor:
     b.normalizer = contentNormalizer()
     b.decoder = decoderTextYAML()
     b.converterId = converterPath()
-    b.charSetDefault = default_characterset()
     b.contentTypes = list(content_types_yaml().keys())
 
-@ioc.entity
-def decoderTextUrlencoded():
-    from ally.support.core.util_param import parseStr
-    import codecs
-    def decodeUrlencoded(content, charSet):
-        a = parseStr(codecs.getreader(charSet)(content).read())
-        return a
-    return decodeUrlencoded
-
-@ioc.entity
-def decodingUrlencoded() -> Processor:
-    b = DecodingTextHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.decoder = decoderTextUrlencoded()
-    b.converterId = converterPath()
-    b.charSetDefault = default_characterset()
-    b.contentTypes = list(content_types_urlencoded().keys())
-
-# ---------------------------------
+# --------------------------------------------------------------------
 
 @ioc.entity
 def handlersEncoding():
@@ -190,7 +154,7 @@ def handlersDecoding():
     '''
     The handlers used for decoding.
     '''
-    b = [decodingContent(), decodingXML(), decodingJSON(), decodingUrlencoded(), decodingNone()]
+    b = [decodingContent(), decodingXML(), decodingJSON(), decodingNone()]
     try: b.append(decodingYAML())
     except ImportError: pass
     return b

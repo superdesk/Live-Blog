@@ -13,8 +13,9 @@ from ally.container.ioc import injected
 from ally.core.spec.resources import Converter
 from ally.core.spec.server import Response, Processor, ProcessorsChain, \
     Processors
-from ally.exception import InputError, Ref
+from ally.exception import InputError, Ref, DevelError
 import logging
+from ally.core.spec.codes import BAD_CONTENT, RESOURCE_NOT_FOUND, INTERNAL_ERROR
 
 # --------------------------------------------------------------------
 
@@ -56,7 +57,9 @@ class ExplainErrorHandler(Processor):
         '''
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        chain.process(req, rsp)
+
+        process(chain, req, rsp)
+
         if not rsp.code.isSuccess:
             messages = []
             error = {'code':str(rsp.code.code)}
@@ -79,3 +82,24 @@ class ExplainErrorHandler(Processor):
             encodingChain = self.encodings.newChain()
             assert isinstance(encodingChain, ProcessorsChain)
             encodingChain.process(req, rsp)
+
+# --------------------------------------------------------------------
+
+def process(chain, req, rsp):
+    '''
+    Processes the chain in a safe manner by catching any known or unknown exceptions.
+    @see: Processor.process
+    '''
+    assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+    assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
+
+    try: chain.process(req, rsp)
+    except DevelError as e:
+        rsp.setCode(BAD_CONTENT, e.message)
+        log.info('Problems with the invoked content: %s', e.message, exc_info=True)
+    except InputError as e:
+        rsp.setCode(RESOURCE_NOT_FOUND, e, 'Invalid resource')
+        assert log.debug('User input exception: %s', e, exc_info=True) or True
+    except:
+        rsp.setCode(INTERNAL_ERROR, 'Upps, it seems I am in a pickle, please consult the server logs')
+        log.exception('An exception occurred while trying to process request %s and response %s', req, rsp)

@@ -7,10 +7,10 @@ Created on Mar 6, 2012
 @author: Mihai Balaceanu
 '''
 
-from superdesk.api import modelSuperDesk
 from ally.api.config import service, query
-from sql_alchemy.api.entity import Entity, IEntityService, QEntity
-from ally.api.criteria import AsLike
+from ally.api.criteria import AsLikeOrdered
+from ally.support.api.entity import Entity, IEntityService, QEntity
+from superdesk.api.domain_superdesk import modelSuperDesk
 from superdesk.person.api.person import Person, QPerson
 
 # --------------------------------------------------------------------
@@ -29,7 +29,7 @@ class QUser(QPerson):
     '''
     Query for user service
     '''
-    name = AsLike
+    name = AsLikeOrdered
 
 # --------------------------------------------------------------------
 

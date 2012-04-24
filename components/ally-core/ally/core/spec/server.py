@@ -9,11 +9,11 @@ Created on Jun 28, 2011
 Module containing specifications for the server processing.
 '''
 
+from ally.api import model
 from ally.core.spec.codes import Code
 from collections import deque
 import abc
 import logging
-from ally.api import model
 
 # --------------------------------------------------------------------
 
@@ -140,21 +140,21 @@ class Content:
         
         @ivar contentType: string
             The content type for the content if known.
+        @ivar charSet: string
+            The character set of the content.
         @ivar contentLanguage: string
             The content language for the content if known.
         @ivar contentConverter: Converter
             The content converter to use on decoding the content. 
-        @ivar charSet: string
-            The character set of the content.
         @ivar objFormat: dictionary{Type, string}
             Dictionary containing object formating specifications. The key is represent object types for formatting
             like: Number, Date, DateTime, Time, ... As a general rule this are the classes that are found in the 
             'type.formatted' module.
         '''
         self.contentType = None
+        self.charSet = None
         self.contentLanguage = None
         self.contentConverter = None
-        self.charSet = None
         self.objFormat = {}
 
 # --------------------------------------------------------------------
@@ -164,27 +164,20 @@ class ContentRequest(Content, model.Content):
     Provides the content of a request.
     '''
 
-    def __init__(self, file, keep=False):
+    def __init__(self):
         '''
-        Constructs the content instance.
+        Constructs the content request instance.
         
         @see: Content.__init__
-        
-        @param file: object
-            The object with the 'read(nbytes)' method to provide the content bytes.
-        @param keep: boolean
-            Flag indicating that the used file handler should be kept open even if this content request is closed.
-        @ivar length: integer|None
-            The number of available bytes in the content, if None it means that is not known.
         '''
         super().__init__()
-        assert file is not None and getattr(file, 'read') is not None, 'Invalid file object %s' % file
-        assert isinstance(keep, bool), 'Invalid keep flag %s' % keep
-        self.file = file
-        self.keep = keep
         self.length = None
-        self._offset = 0
-        self._closed = False
+
+    def getName(self):
+        '''
+        @see: model.Content.getName
+        '''
+        return None
 
     def getCharSet(self):
         '''
@@ -192,33 +185,23 @@ class ContentRequest(Content, model.Content):
         '''
         return self.charSet
 
-    def read(self, nbytes=None):
+    def getLength(self):
         '''
-        Reads nbytes from the content, attention the content can be read only once.
-        
-        @param nbytes: integer|None
-            The number of bytes to read, or None to read all remaining available bytes from the content.
+        @see: model.Content.getLength
         '''
-        if self._closed: raise ValueError('I/O operation on a closed file')
-        count = nbytes
-        if self.length is not None:
-            if self._offset >= self.length:
-                return b''
-            delta = self.length - self._offset
-            if count is None:
-                count = delta
-            elif count > delta:
-                count = delta
-        bytes = self.file.read(count)
-        self._offset += len(bytes)
-        return bytes
+        return self.length
 
+    @abc.abstractclassmethod
     def close(self):
         '''
         Closes the content stream.
         '''
-        self._closed = True
-        if not self.keep: self.file.close()
+
+    def next(self):
+        '''
+        @see: model.Content.next
+        '''
+        return None
 
 # --------------------------------------------------------------------
 
@@ -280,6 +263,8 @@ class Response(Content):
             A message for the code, do not update this directly use a one of the methods.
         @ivar codeText: string
             A text message for the code, do not update this directly use a one of the methods.
+        @ivar scheme: string
+            The scheme URI protocol name to be used for the response.
         @ivar location: string
             The location where a request content can be found, used for redirects.
         @ivar allows: integer
@@ -300,6 +285,7 @@ class Response(Content):
         self.code = None
         self.codeMessage = None
         self.codeText = None
+        self.scheme = None
         self.location = None
         self.allows = 0
         self.encoderPath = None

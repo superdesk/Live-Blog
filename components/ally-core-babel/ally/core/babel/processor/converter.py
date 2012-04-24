@@ -61,6 +61,8 @@ class BabelConverterHandler(Processor):
 
     def __init__(self):
         assert isinstance(self.languageDefault, str), 'Invalid string %s' % self.languageDefault
+        assert isinstance(self.formats, dict), 'Invalid formats %s' % self.formats
+        assert isinstance(self.defaults, dict), 'Invalid defaults %s' % self.defaults
 
     def process(self, req, rsp, chain):
         '''

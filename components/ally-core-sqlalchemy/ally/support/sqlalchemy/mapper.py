@@ -72,6 +72,8 @@ def mapperSimple(clazz, sql, **keyargs):
         metadata = keyargs.pop('metadata', None)
         assert metadata is not None, \
         'For a join mapping you need to specify the metadata in the key words arguments \'metadata=?\''
+    else:
+        raise MappingError('Invalid sql source %s' % sql)
     assert isinstance(metadata, MetaData), 'Invalid metadata %s' % metadata
     # We need to treat the case when a model inherits another, since the provided inherited model class is actually the 
     # mapped class the provided model class will not be seen as inheriting the provided mapped class

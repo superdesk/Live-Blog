@@ -248,6 +248,7 @@ def scanFolder(folderPath):
     @return: tuple(string, string, generator)
         Returns a tuple containing: (filePath, method, generator(@see: process))
     '''
+    assert isinstance(folderPath, str), 'Invalid folder path %s' % folderPath
     for root, _dirnames, filenames in os.walk(folderPath):
         filenames.sort()
         for name in filenames:

@@ -20,7 +20,7 @@ class replaceInFile:
     Provides the file read replacing.
     '''
 
-    __slots__ = ['__fileObj', '__replacements', '__maxKey', '__leftOver']
+    __slots__ = ['_fileObj', '_replacements', '_maxKey', '_leftOver']
 
     def __init__(self, fileObj, replacements):
         '''
@@ -41,43 +41,43 @@ class replaceInFile:
             for key, value in replacements.items():
                 assert isinstance(key, (str, bytes)), 'Invalid key %s' % key
                 assert isinstance(value, (str, bytes)), 'Invalid value %s' % value
-        self.__fileObj = fileObj
-        self.__replacements = replacements
+        self._fileObj = fileObj
+        self._replacements = replacements
 
-        self.__maxKey = len(max(replacements.keys(), key=lambda v: len(v)))
-        self.__leftOver = None
+        self._maxKey = len(max(replacements.keys(), key=lambda v: len(v)))
+        self._leftOver = None
 
     def read(self, count=None):
         '''
         Perform the data read. 
         '''
-        data = self.__fileObj.read(count)
+        data = self._fileObj.read(count)
 
         if not data:
-            if self.__leftOver:
-                data = self.__leftOver
-                self.__leftOver = None
+            if self._leftOver:
+                data = self._leftOver
+                self._leftOver = None
             else: return data
 
         toIndex = None
-        if self.__leftOver:
+        if self._leftOver:
             toIndex = len(data)
-            data = self.__leftOver + data
+            data = self._leftOver + data
         else:
-            extra = self.__fileObj.read(self.__maxKey - 1)
+            extra = self._fileObj.read(self._maxKey - 1)
             if extra:
                 toIndex = len(data)
                 data = data + extra
 
-        for key, value in self.__replacements.items(): data = data.replace(key, value)
+        for key, value in self._replacements.items(): data = data.replace(key, value)
 
         if toIndex:
-            self.__leftOver = data[toIndex:]
+            self._leftOver = data[toIndex:]
             data = data[:toIndex]
 
         return data
 
-    def __getattr__(self, name): return getattr(self.__fileObj, name)
+    def __getattr__(self, name): return getattr(self._fileObj, name)
 
 def pipe(srcFileObj, dstFileObj, bufferSize=1024):
     '''
@@ -138,7 +138,7 @@ class keepOpen:
     Keeps opened a file object, basically blocks the close calls.
     '''
 
-    __slots__ = ['__fileObj']
+    __slots__ = ['_fileObj']
 
     def __init__(self, fileObj):
         '''
@@ -148,12 +148,12 @@ class keepOpen:
             A file type object to keep open.
         '''
         assert fileObj, 'A file object is required %s' % fileObj
-        self.__fileObj = fileObj
+        self._fileObj = fileObj
 
     def close(self):
         '''
         Block the close action.
         '''
 
-    def __getattr__(self, name): return getattr(self.__fileObj, name)
+    def __getattr__(self, name): return getattr(self._fileObj, name)
 

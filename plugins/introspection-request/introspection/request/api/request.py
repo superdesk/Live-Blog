@@ -9,13 +9,13 @@ Created on Jan 23, 2012
 API specifications for the node presenter.
 '''
 
-from . import modelDevel
+from .domain_devel import modelDevel
 from ally.api.config import service, call
 from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
-@modelDevel
+@modelDevel(id='Id')
 class MethodPrototype:
     '''
     Provides a call method of a request.
@@ -30,7 +30,7 @@ class MethodPrototype:
     IMPLDefiner = str
     IMPLDoc = str
 
-@modelDevel
+@modelDevel(id='Id')
 class Request:
     '''
     Provides the request.
@@ -49,7 +49,7 @@ class Method(MethodPrototype):
     '''
     ForRequest = Request
 
-@modelDevel
+@modelDevel(id='Id')
 class Input:
     '''
     Provides the input.

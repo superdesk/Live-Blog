@@ -9,14 +9,14 @@ Created on Mar 4, 2012
 Provides the components introspection.
 '''
 
-from . import modelAdmin
+from .domain_admin import modelAdmin
 from ally.api.config import service, call, query
 from ally.api.type import IterPart
 from ally.api.criteria import AsLike, AsBoolean
 
 # --------------------------------------------------------------------
 
-@modelAdmin
+@modelAdmin(id='Id')
 class Component:
     '''
     Provides the component data.

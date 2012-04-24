@@ -25,22 +25,19 @@ log = logging.getLogger(__name__)
 @injected
 class DecodingTextBaseHandler(Processor):
     '''
-    Provides the base decoder for request content.
+    Provides the base decoder for request content that contain model data.
     '''
 
     normalizer = Normalizer
     # The normalizer used by the encoding for the XML tag names.
     converterId = Converter
     # The converter to use on the id's of the models.
-    charSetDefault = str
-    # The default character set to be used if none provided for the content.
     contentTypes = list
     # The list[string] of content types known by this decoding.
 
     def __init__(self):
         assert isinstance(self.normalizer, Normalizer), 'Invalid Normalizer object %s' % self.normalizer
         assert isinstance(self.converterId, Converter), 'Invalid Converter object %s' % self.converterId
-        assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
         assert isinstance(self.contentTypes, list), 'Invalid content types list %s' % self.contentTypes
 
 # --------------------------------------------------------------------
@@ -51,14 +48,16 @@ def findLastModel(invoker):
     
     @param invoker: Invoker
         The invoker to find the model for.
-    @return: tuple(string, Model)
-        A tuple containing the name of the input and the model. None if there is no such input.
+    @return: tuple(string, TypeModel)
+        A tuple containing the name of the input and the type model, None if there is no such input.
     '''
     assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
     if invoker.inputs:
-        inp = invoker.inputs[invoker.mandatory - 1]
-        assert isinstance(inp, Input)
-        if isinstance(inp.type, TypeModel):
-            return inp.name, inp.type
+        # We search the right most type model from the input, the rest of type models are ignored.
+        for k in range(invoker.mandatory - 1, 0, -1):
+            inp = invoker.inputs[k]
+            assert isinstance(inp, Input)
+            if isinstance(inp.type, TypeModel):
+                return inp.name, inp.type
     return None
 

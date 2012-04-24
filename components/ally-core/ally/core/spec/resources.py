@@ -8,6 +8,7 @@ Created on Jun 18, 2011
 
 Module containing specifications for the resources tree.
 '''
+#TODO: rename the interfaces as IResourcesManager, IAssembler
 
 from ally.api.type import Type, Input
 import abc
@@ -602,7 +603,7 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def findGetAccessibleByModel(self, model, modelObject=None):
+    def findGetAccessibleByModel(self, model, instance=None):
         '''
         Finds all GET paths that can be directly accessed without the need of any path update. The returned paths
         are basically linked with the provided model and values extracted from the model object. So all paths that
@@ -610,8 +611,8 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         
         @param model: Model
             The model of the object.
-        @param modelObject: object|None
-            The model object, if None the path has to be updated by the consumer.
+        @param instance: object|None
+            The model instance object, if None the path has to be updated by the consumer.
         @return: list
             A list of Path's from the provided model object, empty list if none found.
         '''

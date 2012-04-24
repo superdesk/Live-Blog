@@ -54,16 +54,16 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        assert isinstance(req.content, ContentRequest), 'Invalid content on request %s' % req.content
+        content = req.content
+        assert isinstance(content, ContentRequest), 'Invalid content on request %s' % content
 
-        if req.content.contentType in self.contentTypes:
+        if content.contentType in self.contentTypes:
             root = None
 
             nameModelType = findLastModel(req.invoker)
             if nameModelType:
                 name, modelType = nameModelType
-                assert isinstance(req.content, ContentRequest)
-                root = self._ruleModel(modelType, req.content.contentConverter or rsp.contentConverter)
+                root = self._ruleModel(modelType, content.contentConverter)
                 assert log.debug('Decoding model %s', modelType) or True
             else:
                 assert log.debug('Expected a model for decoding the content, could not find one') or True
@@ -71,7 +71,7 @@ class DecodingXMLHandler(DecodingTextBaseHandler):
             if root:
                 digester = Digester(root, False, False)
                 try:
-                    value = digester.parse(req.content.charSet or self.charSetDefault, req.content)
+                    value = digester.parse(content.charSet, content)
                     if len(digester.errors) > 0: raise InputError(*digester.errors)
                     req.arguments[name] = value
                     assert log.debug('Successfully decoded for input (%s) value %s', name, value) or True

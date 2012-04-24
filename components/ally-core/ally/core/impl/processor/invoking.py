@@ -10,15 +10,13 @@ Provides the invoking handler.
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
+from ally.api.operator.type import TypeModelProperty
 from ally.container.ioc import injected
-from ally.core.spec.codes import INTERNAL_ERROR, RESOURCE_NOT_FOUND, \
-    DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS, CANNOT_UPDATE, INSERT_SUCCESS, \
-    CANNOT_INSERT, BAD_CONTENT
+from ally.core.spec.codes import DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS, \
+    CANNOT_UPDATE, INSERT_SUCCESS, CANNOT_INSERT
 from ally.core.spec.resources import Path, Invoker
 from ally.core.spec.server import Processor, ProcessorsChain, Response, Request
-from ally.exception import DevelError, InputError
 import logging
-from ally.api.operator.type import TypeModelProperty
 
 # --------------------------------------------------------------------
 
@@ -184,18 +182,7 @@ class InvokingHandler(Processor):
         '''
         assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        try:
-            value = invoker.invoke(*(arguments[inp.name] if inp.name in arguments else inp.default
-                                     for inp in invoker.inputs))
-            assert log.debug('Successful on calling invoker %s with values %s', invoker, args) or True
-            return callback(value, invoker, rsp, *args)
-        except DevelError as e:
-            rsp.setCode(BAD_CONTENT, e.message)
-            log.info('Problems with the invoked content: %s', e.message, exc_info=True)
-        except InputError as e:
-            rsp.setCode(RESOURCE_NOT_FOUND, e, 'Invalid resource')
-            assert log.debug('User input exception: %s', e, exc_info=True) or True
-        except:
-            rsp.setCode(INTERNAL_ERROR, 'Upps, it seems I am in a pickle, please consult the server logs')
-            log.exception('An exception occurred while trying to invoke %s with values %s', invoker, args)
-        return False
+        value = invoker.invoke(*(arguments[inp.name] if inp.name in arguments else inp.default
+                                 for inp in invoker.inputs))
+        assert log.debug('Successful on calling invoker %s with values %s', invoker, args) or True
+        return callback(value, invoker, rsp, *args)

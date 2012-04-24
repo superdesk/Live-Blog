@@ -6,7 +6,7 @@ Created on Jan 4, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides utility methods based on the specifications.
+Provides utility methods based on the API specifications.
 '''
 
 from ally.core.impl.node import NodeModel, NodePath

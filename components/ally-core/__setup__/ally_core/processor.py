@@ -37,6 +37,11 @@ def default_language():
     return 'en'
 
 @ioc.config
+def default_characterset() -> str:
+    '''The default character set to use if none is provided in the request'''
+    return 'UTF-8'
+
+@ioc.config
 def explain_detailed_error():
     '''If True will provide as an error response a detailed response containing info about where the problem originated'''
     return False
@@ -80,6 +85,7 @@ def parameters() -> Processor:
 def decoding() -> Processor:
     b = DecodingHandler()
     b.decodings = Processors(*handlersDecoding())
+    b.charSetDefault = default_characterset()
     return b
 
 @ioc.entity
@@ -89,6 +95,7 @@ def invokingHandler() -> Processor: return InvokingHandler()
 def encoding() -> Processor:
     b = EncodingProcessorsHandler()
     b.encodings = Processors(*handlersEncoding())
+    b.charSetDefault = default_characterset()
     return b
 
 # ---------------------------------
