@@ -8,7 +8,7 @@
 
 define(['jquery','jquery/superdesk','jquery/rest'], function ($,superdesk)
 {
-	superdesk.getActions('modules.country.*')
+	return { init: function(){ superdesk.getActions('modules.country.*')
 	.done(function(actions){
 		$(actions).each(function()
 		{  
@@ -22,5 +22,5 @@ define(['jquery','jquery/superdesk','jquery/rest'], function ($,superdesk)
 		require([superdesk.apiUrl+listPath], function(ListApp) {
 			listApp = new ListApp({updateScript: updatePath, addScript: addPath});
 		});		
-	});
+	})}};
 });
