@@ -11,8 +11,8 @@ Implementation for the PO file management.
 
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.exception import InputError
-from ally.internationalization import _
+from ally.exception import InputError, DevelError
+from ally.internationalization import _, C_
 from cdm.spec import ICDM, PathNotFound
 from internationalization.api.po_file import IPOFileService
 from internationalization.core.spec import IPOFileManager, InvalidLocaleError
@@ -112,7 +112,9 @@ class POFileServiceCDM(IPOFileService):
         assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
         # Convert the byte file to text file
         poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
-        self.poFileManager.updateGlobalPOFile(locale, poFile)
+        try: self.poFileManager.updateGlobalPOFile(locale, poFile)
+        except UnicodeDecodeError: raise InvalidPOFile(poFile)
+        if poFile.next(): raise ToManyFiles()
 
     def updateComponentPOFile(self, component, locale, poFile):
         '''
@@ -122,7 +124,9 @@ class POFileServiceCDM(IPOFileService):
         assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
         # Convert the byte file to text file
         poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
-        self.poFileManager.updateComponentPOFile(component, locale, poFile)
+        try: self.poFileManager.updateComponentPOFile(component, locale, poFile)
+        except UnicodeDecodeError: raise InvalidPOFile(poFile)
+        if poFile.next(): raise ToManyFiles()
 
     def updatePluginPOFile(self, plugin, locale, poFile):
         '''
@@ -134,7 +138,9 @@ class POFileServiceCDM(IPOFileService):
         if pluginObj.Component: return self.updateComponentPOFile(pluginObj.Component, locale, poFile)
         # Convert the byte file to text file
         poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
-        self.poFileManager.updatePluginPOFile(plugin, locale, poFile)
+        try: self.poFileManager.updatePluginPOFile(plugin, locale, poFile)
+        except UnicodeDecodeError: raise InvalidPOFile(poFile)
+        if poFile.next(): raise ToManyFiles()
 
     # ----------------------------------------------------------------
 
@@ -166,3 +172,13 @@ class POFileServiceCDM(IPOFileService):
             path.append('global')
         path.append(locale)
         return '%s.po' % '-'.join(path)
+
+
+# --------------------------------------------------------------------
+
+# Raised when there is an invalid PO content
+InvalidPOFile = lambda poFile:InputError(_('Invalid content for PO file %(file)s') % dict(file=poFile.getName() or
+                                                                                    C_('Unknown file name', 'unknown')))
+
+# Raised if there are to many files provided in content.
+ToManyFiles = lambda :DevelError('To many PO files, only one accepted')

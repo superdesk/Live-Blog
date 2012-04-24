@@ -12,11 +12,11 @@ API specifications for localized messages.
 from .source import Source
 from ally.api.config import service, call, query
 from ally.api.criteria import AsLike
-from introspection.api import modelAdmin
-from sql_alchemy.api.entity import Entity, QEntity, IEntityGetCRUDService
 from ally.api.type import Iter, Count, List
-from introspection.api.plugin import Plugin
+from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
+from introspection.api.domain_admin import modelAdmin
 from introspection.api.component import Component
+from introspection.api.plugin import Plugin
 
 # --------------------------------------------------------------------
 

@@ -8,10 +8,3 @@ Created on Jul 15, 2011
 
 APIs package.
 '''
-
-from functools import partial
-from ally.api.config import model
-
-# --------------------------------------------------------------------
-
-modelSuperDesk = partial(model, domain='Superdesk/')

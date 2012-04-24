@@ -13,13 +13,13 @@ from ..api.user import User
 from ally.support.sqlalchemy.mapper import mapperModel
 from sqlalchemy.schema import Table, Column, ForeignKey
 from sqlalchemy.types import String
-from superdesk.meta import meta
+from superdesk.meta.metadata_superdesk import meta
 from superdesk.person.meta.person import Person
 
 # --------------------------------------------------------------------
 
 table = Table('user', meta,
-               Column('fk_person_id', ForeignKey(Person.Id), nullable=False, primary_key=True, key='Id'),
+               Column('fk_person_id', ForeignKey(Person.Id), primary_key=True, key='Id'),
                Column('name', String(20), nullable=False, unique=True, key='Name'),
                mysql_engine='InnoDB', mysql_charset='utf8')
 
