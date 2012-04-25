@@ -14,7 +14,7 @@ from .meta_type import MetaType
 from ally.api.config import query, service, call
 from ally.api.criteria import AsDateTimeOrdered
 from ally.api.type import Reference, Iter, Count
-from ally.support.api.entity import Entity, QEntity, IEntityGetService
+from ally.support.api.entity import Entity, QEntity
 from datetime import datetime
 
 # --------------------------------------------------------------------
@@ -27,6 +27,7 @@ class MetaData(Entity):
     Type = MetaType
     Content = Reference
     Thumbnail = Reference
+    IsAvailable = bool
     SizeInBytes = int
     CreatedOn = datetime
 
@@ -41,11 +42,17 @@ class QMetaData(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, MetaData))
-class IMetaDataService(IEntityGetService):
+@service
+class IMetaDataService:
     '''
     Provides the service methods for the meta data.
     '''
+
+    @call
+    def getById(self, id:MetaData.Id, thumbSize:str=None) -> MetaData:
+        '''
+        Provides the meta data based on the id.
+        '''
 
     def getMetaDatasCount(self, typeId:MetaType.Id=None, q:QMetaData=None) -> Count:
         '''
@@ -53,7 +60,8 @@ class IMetaDataService(IEntityGetService):
         '''
 
     @call(countMethod=getMetaDatasCount)
-    def getMetaDatas(self, typeId:MetaType.Id=None, offset:int=None, limit:int=10, q:QMetaData=None) -> Iter(MetaData):
+    def getMetaDatas(self, typeId:MetaType.Id=None, offset:int=None, limit:int=10, q:QMetaData=None,
+                     thumbSize:str=None) -> Iter(MetaData):
         '''
         Provides the meta data's.
         '''

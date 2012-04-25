@@ -21,9 +21,8 @@ from superdesk.meta.metadata_superdesk import meta
 
 table = Table('archive_meta_data', meta,
               Column('id', INTEGER(unsigned=True), primary_key=True, key='Id'),
-              Column('type', ForeignKey(MetaType.Id), nullable=False, key='Type'),
-              Column('content', String(255), unique=True, nullable=False, key='Content'),
-              Column('thumbnail', String(255), unique=True, nullable=False, key='Thumbnail'),
+              Column('type', ForeignKey(MetaType.Id, ondelete='RESTRICT'), nullable=False, key='Type'),
+              Column('reference', String(255), nullable=False, key='reference'),
               Column('size_in_bytes', Integer, nullable=False, key='SizeInBytes'),
               Column('created_on', DateTime, nullable=False, key='CreatedOn'),
               mysql_engine='InnoDB', mysql_charset='utf8')

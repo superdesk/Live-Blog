@@ -78,6 +78,7 @@ def proxyWrapFor(obj):
         The proxy instance that is wrapping the provided implementation.
     '''
     assert obj is not None, 'An object is required'
+    if isinstance(obj, Proxy): return obj
     proxy = createProxy(obj.__class__)
     return proxy(ProxyWrapper(obj))
 

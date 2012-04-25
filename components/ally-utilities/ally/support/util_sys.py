@@ -11,7 +11,7 @@ Provides utility functions for handling system packages/modules/classes.
 
 from collections import deque
 from inspect import isclass, ismodule, stack
-from os.path import dirname
+from os.path import dirname, relpath
 from pkgutil import iter_modules, get_importer, iter_importers, \
     iter_importer_modules
 import re
@@ -128,6 +128,21 @@ def callerLocals(level=1):
     else: raise Exception('There is no other module than the current one')
     return frame.f_locals
 
+def pythonPath(level=1):
+    '''
+    Provides the python path where the calling module is defined
+    
+    @param level: integer
+        The level from where to start finding the module.
+    @return: string
+        The relative python path of the calling module.
+    '''
+    gl = callerGlobals(level)
+    moduleName, modulePath = gl['__name__'], gl['__file__']
+    for _k in range(0, moduleName.count('.') + 1):
+        modulePath = dirname(modulePath)
+    return relpath(modulePath)
+
 def searchModules(pattern):
     '''
     Finds all modules available in the sys.path that respect the provided pattern. The search is done directly on the
@@ -179,7 +194,7 @@ def searchModules(pattern):
             for pckg, pckgPaths in parent.items():
                 for path in pckgPaths:
                     moduleLoader = get_importer(dirname(path)).find_module(pckg)
-                    if moduleLoader and moduleLoader.is_package(pckg): 
+                    if moduleLoader and moduleLoader.is_package(pckg):
                         moduleImporter = get_importer(path)
                         for modulePath, isPkg in iter_importer_modules(moduleImporter):
                             if matcher.match(modulePath):
@@ -191,7 +206,7 @@ def searchModules(pattern):
     else:
         name = pattern
         importers = [('', imp) for imp in iter_importers()]
-    
+
     for package, importer in importers:
         moduleLoader = importer.find_module(name)
         if moduleLoader:

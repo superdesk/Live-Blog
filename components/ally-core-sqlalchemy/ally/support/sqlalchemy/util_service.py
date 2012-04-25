@@ -91,5 +91,3 @@ def buildQuery(sqlQuery, query, mapped):
                 else: sqlQuery = sqlQuery.order_by(column.desc())
 
     return sqlQuery
-
-# --------------------------------------------------------------------

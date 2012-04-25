@@ -17,7 +17,8 @@ from ._impl.ioc_setup import ConfigError, register, SetupConfig, setupsOf, \
 from ._impl.support_setup import CreateEntity, SetupError, SetupEntityProxy, \
     SetupEntityWire, Assembly, CallEntity, SetupEntityCreate
 from .aop import classesIn
-from ally.container._impl.support_setup import SetupEntityListen
+from ally.container._impl.support_setup import SetupEntityListen, \
+    SetupEntityListenAfterBinding
 from copy import deepcopy
 from functools import partial
 from inspect import isclass, ismodule, getsource
@@ -127,7 +128,7 @@ def wireEntities(*classes, setupModule=None):
             wire.update(wirings)
         else: register(SetupEntityWire(group, wirings), registry)
 
-def listenToEntities(*classes, listeners=None, setupModule=None):
+def listenToEntities(*classes, listeners=None, setupModule=None, beforeBinding=True):
     '''
     Listens for entities defined in the provided module that are of the provided classes. The listening is done at the 
     moment of the entity creation so the listen is not dependent of the declared entity return type.
@@ -139,10 +140,14 @@ def listenToEntities(*classes, listeners=None, setupModule=None):
         The listeners to be invoked. The listeners Callable's will take one argument that is the instance.
     @param setupModule: module|None
         If the setup module is not provided than the calling module will be considered.
+    @param beforeBinding: boolean
+        Flag indicating that the listening should be performed before any binding occurs (True) or after the
+        bindings (False).
     '''
     if not listeners: listeners = []
     elif not isinstance(listeners, (list, tuple)): listeners = [listeners]
     assert isinstance(listeners, (list, tuple)), 'Invalid listeners %s' % listeners
+    assert isinstance(beforeBinding, bool), 'Invalid before binding flag %s' % beforeBinding
     if setupModule:
         assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
         registry = setupModule.__dict__
@@ -152,7 +157,10 @@ def listenToEntities(*classes, listeners=None, setupModule=None):
         if '__name__' not in registry:
             raise SetupError('The create proxy call needs to be made directly from the module')
         group = registry['__name__']
-    register(SetupEntityListen(group, _classes(classes), listeners), registry)
+
+    if beforeBinding: setup = SetupEntityListen(group, _classes(classes), listeners)
+    else: setup = SetupEntityListenAfterBinding(group, _classes(classes), listeners)
+    register(setup, registry)
 
 def bindToEntities(*classes, binders=None, setupModule=None):
     '''
@@ -254,6 +262,27 @@ def entitiesLocal():
     rsc = AOPResources({name:name for name, call in Assembly.current().calls.items() if isinstance(call, CallEntity)})
     rsc.filter(registry['__name__'] + '.**')
     return rsc
+
+def entitiesFor(clazz, assembly=None):
+    '''
+    !Attention this function is only available in an open assembly @see: ioc.open!
+    Provides the entities for the provided class (only if the setup function exposes a return type that is either the
+    provided class or a super class) found in the current assembly.
+    
+    @param clazz: class
+        The class to find the entities for.
+    @param assembly: Assembly|None
+        The assembly to find the entities in, if None the current assembly will be considered.
+    @return: list[object]
+        The instances for the provided class.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    assembly = assembly or Assembly.current()
+    assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+
+    entities = (name for name, call in assembly.calls.items()
+                if isinstance(call, CallEntity) and call.type and (call.type == clazz or issubclass(call.type, clazz)))
+    return [assembly.processForName(name) for name in entities]
 
 def entityFor(clazz, assembly=None):
     '''

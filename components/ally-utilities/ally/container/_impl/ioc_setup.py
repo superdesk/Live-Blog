@@ -568,6 +568,8 @@ class CallEntity(WithCall, WithType, WithListeners):
         WithType.__init__(self, type)
         WithListeners.__init__(self)
 
+        self.marks = []
+
         self._assembly = assembly
         self._name = name
         self._hasValue = False
