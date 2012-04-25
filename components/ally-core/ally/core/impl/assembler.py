@@ -229,7 +229,7 @@ class AssembleInsert(AssembleInvokers):
         call = invoker.call
         assert isinstance(call, Call)
         if call.method != INSERT: return False
-        types = processTypesHints([inp.type for inp in invoker.inputs[:invoker.mandatory]], call)
+        types = processTypesHints(extractMandatoryTypes(invoker), call)
 
         node = obtainNode(root, types)
         if not node: return False

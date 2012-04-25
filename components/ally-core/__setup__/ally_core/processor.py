@@ -44,7 +44,7 @@ def default_characterset() -> str:
 @ioc.config
 def explain_detailed_error():
     '''If True will provide as an error response a detailed response containing info about where the problem originated'''
-    return False
+    return True
 
 @ioc.entity
 def explainError() -> Processor:

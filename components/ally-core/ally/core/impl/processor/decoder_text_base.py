@@ -54,7 +54,7 @@ def findLastModel(invoker):
     assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
     if invoker.inputs:
         # We search the right most type model from the input, the rest of type models are ignored.
-        for k in range(invoker.mandatory - 1, 0, -1):
+        for k in range(invoker.mandatory - 1, -1, -1):
             inp = invoker.inputs[k]
             assert isinstance(inp, Input)
             if isinstance(inp.type, TypeModel):

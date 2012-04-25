@@ -83,7 +83,6 @@ METHOD_OPTIONS = 16
 
 MISSING_HEADER = Code(400, False) # HTTP code 400 Bad Request
 INVALID_HEADER_VALUE = Code(400, False) # HTTP code 400 Bad Request
-INVALID_CONTENT = Code(406, False) # HTTP code 400 Bad Request
 UNKNOWN_CONTENT_LENGHT = Code(411, False) # HTTP code 411 length required 
 UNKNOWN_CONTENT_TYPE = Code(406, False) # HTTP code 406 Not acceptable
 UNKNOWN_CHARSET = Code(406, False) # HTTP code 406 Not acceptable

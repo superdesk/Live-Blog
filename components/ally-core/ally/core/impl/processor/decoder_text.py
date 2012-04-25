@@ -19,7 +19,6 @@ from ally.core.spec.server import Request, Response, ProcessorsChain, \
     ContentRequest
 from ally.exception import DevelError, InputError, Ref
 import logging
-from ally.api.config import INSERT, UPDATE
 from ally.api.operator.type import TypeModel
 from ally.api.operator.container import Model
 
@@ -57,7 +56,6 @@ class DecodingTextHandler(DecodingTextBaseHandler):
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        assert req.method in (INSERT, UPDATE), 'Invalid method %s for processor' % req.method
         content = req.content
         assert isinstance(content, ContentRequest), 'Invalid content on request %s' % req.content
 

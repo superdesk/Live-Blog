@@ -15,7 +15,7 @@ from ally.core.spec.server import Response, Processor, ProcessorsChain, \
     Processors
 from ally.exception import InputError, Ref, DevelError
 import logging
-from ally.core.spec.codes import BAD_CONTENT, RESOURCE_NOT_FOUND, INTERNAL_ERROR
+from ally.core.spec.codes import BAD_CONTENT, INTERNAL_ERROR
 
 # --------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ class ExplainErrorHandler(Processor):
                 for msg in iexc.message:
                     assert isinstance(msg, Ref)
                     messages.append(msg.message)
-            if messages: error['message'] = messages
+            if messages: error['message'] = ', '.join(messages)
             rsp.obj = {'error':error}
             rsp.objType = None
             rsp.objMeta = None
@@ -98,7 +98,7 @@ def process(chain, req, rsp):
         rsp.setCode(BAD_CONTENT, e.message)
         log.info('Problems with the invoked content: %s', e.message, exc_info=True)
     except InputError as e:
-        rsp.setCode(RESOURCE_NOT_FOUND, e, 'Invalid resource')
+        rsp.setCode(BAD_CONTENT, e, 'Invalid resource')
         assert log.debug('User input exception: %s', e, exc_info=True) or True
     except:
         rsp.setCode(INTERNAL_ERROR, 'Upps, it seems I am in a pickle, please consult the server logs')
