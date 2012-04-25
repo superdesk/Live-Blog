@@ -1,12 +1,12 @@
 '''
 Created on Jan 9, 2012
 
-@package Newscoop
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: superdesk
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Contains the services for newscoop.
+Contains the services for superdesk.
 '''
 
 from ..plugin.registry import addService
