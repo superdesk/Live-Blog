@@ -92,7 +92,9 @@ class SetupEntityWire(Setup):
         for name, call in assembly.calls.items():
             if name.startswith(prefix) and isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
-                call.addInterceptor(partial(self._intercept, assembly))
+                if call.marks.count(self) == 0:
+                    call.addInterceptor(partial(self._intercept, assembly))
+                    call.marks.append(self)
 
     def _intercept(self, assembly, value, followUp):
         '''
@@ -157,7 +159,9 @@ class SetupEntityListen(Setup):
         for name, call in assembly.calls.items():
             if name.startswith(prefix) and isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
-                call.addInterceptor(self._intercept)
+                if call.marks.count(self) == 0:
+                    call.addInterceptor(self._intercept)
+                    call.marks.append(self)
 
     def _intercept(self, value, followUp):
         '''
@@ -214,7 +218,9 @@ class SetupEntityProxy(Setup):
         for name, call in assembly.calls.items():
             if name.startswith(prefix) and isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
-                call.addInterceptor(self._intercept)
+                if call.marks.count(self) == 0:
+                    call.addInterceptor(self._intercept)
+                    call.marks.append(self)
 
     def _intercept(self, value, followUp):
         '''
@@ -237,6 +243,19 @@ class SetupEntityProxy(Setup):
 
                 for binder in self._binders: binder(value)
         return value, followUp
+
+class SetupEntityListenAfterBinding(SetupEntityListen):
+    '''
+    Provides the setup entity listen by type but after the binding occurs.
+    '''
+
+    priority_assemble = 7
+
+    def __init__(self, group, classes, listeners):
+        '''
+        @see: SetupEntityListen.__init__
+        '''
+        super().__init__(group, classes, listeners)
 
 class SetupEntityCreate(SetupSource):
     '''
@@ -270,7 +289,8 @@ class SetupEntityCreate(SetupSource):
         else:
             if self._name in assembly.calls:
                 raise SetupError('There is already a setup call for name %r' % self._name)
-            assembly.calls[self._name] = CallEntity(assembly, self._name, self._function, self._type)
+            call = CallEntity(assembly, self._name, self._function, self._type)
+        assembly.calls[self._name] = call
 
 # --------------------------------------------------------------------
 
