@@ -149,7 +149,7 @@ class ContentMultipart(ContentRequestHTTP):
         super().__init__()
         self.contentLanguage = content.contentLanguage
         self.contentConverter = content.contentConverter
-        self.objFormat = content.objFormat
+        self.objFormat.update(content.objFormat)
 
         self.contentDisposition = None
         self.contentDispositionAttributes = OrderedDict()

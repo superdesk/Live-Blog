@@ -10,7 +10,7 @@ Provides the converters for the response content and request content.
 '''
 
 from ally.internationalization import _
-from ally.api.type import Type, Percentage, Number, Date, DateTime, Time
+from ally.api.type import Type, Percentage, Number, Date, DateTime, Time, Boolean
 from ally.container.ioc import injected
 from ally.core.spec.codes import INVALID_FORMATING
 from ally.core.spec.resources import Converter
@@ -21,6 +21,8 @@ from babel import numbers as bn, dates as bd
 from babel.core import Locale
 from datetime import datetime
 import logging
+from ally.api.operator.type import TypeModel
+from ally.api.operator.container import Model
 
 # --------------------------------------------------------------------
 
@@ -154,6 +156,11 @@ class ConverterBabel(Converter):
         @see: Converter.asString
         '''
         assert isinstance(objType, Type), 'Invalid object type %s' % objType
+        if isinstance(objType, TypeModel): # If type model is provided we consider the model property type
+            assert isinstance(objType, TypeModel)
+            container = objType.container
+            assert isinstance(container, Model)
+            objType = container.properties[container.propertyId]
         if objType.isOf(str):
             return objValue
         if objType.isOf(bool):
@@ -179,15 +186,20 @@ class ConverterBabel(Converter):
         '''
         assert isinstance(objType, Type), 'Invalid object type %s' % objType
         if strValue is None: return None
+        if isinstance(objType, TypeModel): # If type model is provided we consider the model property type 
+            assert isinstance(objType, TypeModel)
+            container = objType.container
+            assert isinstance(container, Model)
+            objType = container.properties[container.propertyId]
         if objType.isOf(str):
             return strValue
-        if objType.isOf(bool):
+        if objType.isOf(Boolean):
             return strValue.strip().lower() == _('true').lower()
         if objType.isOf(Percentage):
             return float(strValue) / 100
+        if objType.isOf(int):
+            return int(strValue)
         if objType.isOf(Number):
-            if objType.isOf(int):
-                return int(strValue)
             return bn.parse_decimal(strValue, self.language)
         if objType.isOf(Date):
             return datetime.strptime(strValue, '%Y-%m-%d').date()

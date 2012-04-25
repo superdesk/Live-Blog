@@ -82,16 +82,16 @@ class DecodingFormDataHandler(DecodingMultiPartHandler):
             name = content.contentDispositionAttributes.get(self.attrContentDispositionName)
             if not name: raise DevelError('No name in content disposition')
 
-            value = content.read()
-            parameters.append((name, str(value, content.charSet)))
+            value = str(content.read(), content.charSet)
+            name = name.strip('"') # We strip the commas if present
+            parameters.append((name, value))
 
             content = content.next()
             if not content: break
 
         if parameters:
             cnt = BytesIO(urlencode(parameters).encode(self.charSet, 'replace'))
-            content = ContentFormDataUrlEncoded(cnt, content)
-            content.contentLanguage, content.contentConverter, content.objFormat = heritage
+            content = ContentFormDataUrlEncoded(cnt, content, *heritage)
             content.contentType = self.contentTypeUrlEncoded
             content.charSet = self.charSet
 
@@ -104,7 +104,7 @@ class ContentFormDataUrlEncoded(ContentDelegate, ContentRequestHTTP):
     Provides the form data URL encoded content.
     '''
 
-    def __init__(self, content, nextContent):
+    def __init__(self, content, nextContent, contentLanguage, contentConverter, objFormat):
         '''
         Constructs the form data content instance.
         
@@ -116,6 +116,9 @@ class ContentFormDataUrlEncoded(ContentDelegate, ContentRequestHTTP):
         assert nextContent is None or isinstance(nextContent, ContentRequest), 'Invalid next content %s' % nextContent
         ContentDelegate.__init__(self, content)
         ContentRequestHTTP.__init__(self)
+        self.contentLanguage = contentLanguage
+        self.contentConverter = contentConverter
+        self.objFormat.update(objFormat)
 
         self._nextContent = nextContent
 
@@ -148,7 +151,7 @@ class ContentFormDataFile(ContentDelegate, ContentRequestHTTP):
 
         self.contentLanguage = content.contentLanguage
         self.contentConverter = content.contentConverter
-        self.objFormat = content.objFormat
+        self.objFormat.update(content.objFormat)
         self.name = None
 
         self._handler = handler

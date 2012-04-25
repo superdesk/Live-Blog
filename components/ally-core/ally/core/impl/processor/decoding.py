@@ -51,20 +51,20 @@ class DecodingHandler(Processor):
         content = req.content
         assert isinstance(content, ContentRequest), 'Invalid content on request %s' % content
         if req.method in (INSERT, UPDATE):
-            if not content.charSet:
-                content.charSet = self.charSetDefault
-            if not content.contentConverter:
-                content.contentConverter = rsp.contentConverter
+            if not content.charSet: content.charSet = self.charSetDefault
+            if not content.contentLanguage: content.contentLanguage = rsp.contentLanguage
+            if not content.contentConverter: content.contentConverter = rsp.contentConverter
 
             decodingChain = self.decodings.newChain()
             assert isinstance(decodingChain, ProcessorsChain)
             decodingChain.process(req, rsp)
-            if decodingChain.isConsumed():
-                rsp.setCode(UNKNOWN_DECODING, 'Content type %r not supported for decoding' % content.contentType)
-                return
 
             if rsp.code and not rsp.code.isSuccess:
                 # A failure occurred in decoding, stopping chain execution
+                return
+
+            if decodingChain.isConsumed():
+                rsp.setCode(UNKNOWN_DECODING, 'Content type %r not supported for decoding' % req.content.contentType)
                 return
 
         chain.proceed()
