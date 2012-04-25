@@ -12,7 +12,6 @@ Created on Feb 23, 2012
 from ally.container import ioc
 from gui.action.api.action import IActionManagerService
 from gui.action.impl.action import ActionManagerService
-from __plugin__.plugin.registry import registerService
 
 # --------------------------------------------------------------------
 
@@ -20,7 +19,3 @@ from __plugin__.plugin.registry import registerService
 def actionManagerService() -> IActionManagerService:
     b = ActionManagerService()
     return b
-
-@ioc.start
-def register():
-    registerService(actionManagerService())
