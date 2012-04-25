@@ -24,7 +24,7 @@ table = Table('archive_meta_info', meta,
               Column('id', INTEGER(unsigned=True), primary_key=True, key='Id'),
               Column('fk_metadata_id', ForeignKey(MetaData.Id), nullable=False, key='MetaData'),
               Column('fk_language_id', ForeignKey(LanguageEntity.Id), nullable=False, key='Language'),
-              Column('title', String(255), key='Title'),
+              Column('title', String(255), nullable=False, key='Title'),
               Column('keywords', String(255), key='Keywords'),
               Column('description', String(255), key='Description'),
               mysql_engine='InnoDB', mysql_charset='utf8')
