@@ -13,6 +13,7 @@ from ..api.message import IMessageService, QMessage
 from ..meta.message import Message
 from internationalization.meta.source import Source
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 
 # --------------------------------------------------------------------
 
@@ -24,46 +25,61 @@ class MessageServiceAlchemy(EntityGetCRUDServiceAlchemy, IMessageService):
     def __init__(self):
         EntityGetCRUDServiceAlchemy.__init__(self, Message, QMessage)
 
-    def getMessagesCount(self, sourceId=None, q=None):
+    def getMessagesCount(self, sourceId=None, qm=None, qs=None):
         '''
         @see: IMessageService.getMessagesCount
         '''
-        if sourceId: filter = Message.Source == sourceId
-        else: filter = None
-        return self._getCount(filter, q)
+        sqlQuery = self.session().query(Message)
+        if sourceId: sqlQuery = sqlQuery.filter(Message.Source == sourceId)
+        if qm: sqlQuery = buildQuery(sqlQuery, qm, Message)
+        if qs: sqlQuery = buildQuery(sqlQuery.join(Source), qs, Source)
+        return sqlQuery.count()
 
-    def getMessages(self, sourceId=None, offset=None, limit=None, q=None):
+    def getMessages(self, sourceId=None, offset=None, limit=None, qm=None, qs=None):
         '''
         @see: IMessageService.getMessages
         '''
-        if sourceId: filter = Message.Source == sourceId
-        else: filter = None
-        return self._getAll(filter, q, offset, limit)
+        sqlQuery = self.session().query(Message)
+        if sourceId: sqlQuery = sqlQuery.filter(Message.Source == sourceId)
+        if qm: sqlQuery = buildQuery(sqlQuery, qm, Message)
+        if qs: sqlQuery = buildQuery(sqlQuery.join(Source), qs, Source)
+        sqlQuery = buildLimits(sqlQuery, offset, limit)
+        return sqlQuery.all()
 
-    def getComponentMessagesCount(self, component, q=None):
+    def getComponentMessagesCount(self, component, qm=None, qs=None):
         '''
         @see: IMessageService.getComponentMessagesCount
         '''
-        sqlQuery = self.session().query(Message).join(Source)
-        return self._getCount(Source.Component == component, sqlQuery)
+        sqlQuery = self.session().query(Message).join(Source).filter(Source.Component == component)
+        if qm: sqlQuery = buildQuery(sqlQuery, qm, Message)
+        if qs: sqlQuery = buildQuery(sqlQuery, qs, Source)
+        return sqlQuery.count()
 
-    def getComponentMessages(self, component, offset=None, limit=None, q=None):
+    def getComponentMessages(self, component, offset=None, limit=None, qm=None, qs=None):
         '''
         @see: IMessageService.getComponentMessages
         '''
-        sqlQuery = self.session().query(Message).join(Source)
-        return self._getAll(Source.Component == component, q, offset, limit, sqlQuery)
+        sqlQuery = self.session().query(Message).join(Source).filter(Source.Component == component)
+        if qm: sqlQuery = buildQuery(sqlQuery, qm, Message)
+        if qs: sqlQuery = buildQuery(sqlQuery, qs, Source)
+        sqlQuery = buildLimits(sqlQuery, offset, limit)
+        return sqlQuery.all()
 
-    def getPluginMessagesCount(self, plugin, q=None):
+    def getPluginMessagesCount(self, plugin, qm=None, qs=None):
         '''
         @see: IMessageService.getPluginMessagesCount
         '''
-        sqlQuery = self.session().query(Message).join(Source)
-        return self._getCount(Source.Plugin == plugin, sqlQuery)
+        sqlQuery = self.session().query(Message).join(Source).filter(Source.Plugin == plugin)
+        if qm: sqlQuery = buildQuery(sqlQuery, qm, Message)
+        if qs: sqlQuery = buildQuery(sqlQuery, qs, Source)
+        return sqlQuery.count()
 
-    def getPluginMessages(self, plugin, offset=None, limit=None, q=None):
+    def getPluginMessages(self, plugin, offset=None, limit=None, qm=None, qs=None):
         '''
         @see: IMessageService.getPluginMessages
         '''
-        sqlQuery = self.session().query(Message).join(Source)
-        return self._getAll(Source.Plugin == plugin, q, offset, limit, sqlQuery)
+        sqlQuery = self.session().query(Message).join(Source).filter(Source.Plugin == plugin)
+        if qm: sqlQuery = buildQuery(sqlQuery, qm, Message)
+        if qs: sqlQuery = buildQuery(sqlQuery, qs, Source)
+        sqlQuery = buildLimits(sqlQuery, offset, limit)
+        return sqlQuery.all()

@@ -20,7 +20,7 @@ from collections import Iterable
 from datetime import datetime
 from genericpath import isdir, isfile
 from internationalization.api.message import IMessageService, Message
-from internationalization.api.source import ISourceService, QSource
+from internationalization.api.source import ISourceService, QSource, TYPE_JAVA_SCRIPT
 from internationalization.core.spec import IPOFileManager, InvalidLocaleError
 from io import BytesIO
 from os.path import dirname, join
@@ -141,7 +141,6 @@ class POFileManagerDB(IPOFileManager):
         assert isinstance(plugin, str), 'Invalid plugin id %s' % plugin
         try: locale = Locale.parse(locale)
         except UnknownLocaleError: raise InvalidLocaleError(locale)
-
         return self._lastModified(locale, plugin=plugin)
 
     # --------------------------------------------------------------------
@@ -155,6 +154,18 @@ class POFileManagerDB(IPOFileManager):
         catalog = self._build(locale, self.messageService.getMessages(), self._filePath(locale))
         return self._toPOFile(catalog)
 
+    def getGlobalAsDict(self, locale):
+        '''
+        @see: IPOFileManager.getGlobalAsDict
+        '''
+        try: locale = Locale.parse(locale)
+        except UnknownLocaleError: raise InvalidLocaleError(locale)
+
+#        messages = self.messageService.getMessages(qs=QSource(type=TYPE_JAVA_SCRIPT))
+        messages = self.messageService.getMessages()
+        catalog = self._build(locale, messages, self._filePath(locale))
+        return self._toDict('', catalog)
+
     def getComponentPOFile(self, component, locale):
         '''
         @see: IPOFileManager.getComponentPOFile
@@ -165,6 +176,18 @@ class POFileManagerDB(IPOFileManager):
                               self._filePath(locale, component=component), self._filePath(locale))
         return self._toPOFile(catalog)
 
+    def getComponentAsDict(self, component, locale):
+        '''
+        @see: IPOFileManager.getComponentAsDict
+        '''
+        try: locale = Locale.parse(locale)
+        except UnknownLocaleError: raise InvalidLocaleError(locale)
+#        messages = self.messageService.getComponentMessages(component, qs=QSource(type=TYPE_JAVA_SCRIPT))
+        messages = self.messageService.getComponentMessages(component)
+        catalog = self._build(locale, messages, self._filePath(locale, component=component),
+                              self._filePath(locale))
+        return self._toDict(component, catalog)
+
     def getPluginPOFile(self, plugin, locale):
         '''
         @see: IPOFileManager.getPluginPOFile
@@ -174,6 +197,18 @@ class POFileManagerDB(IPOFileManager):
         catalog = self._build(locale, self.messageService.getPluginMessages(plugin),
                               self._filePath(locale, plugin=plugin), self._filePath(locale))
         return self._toPOFile(catalog)
+
+    def getPluginAsDict(self, plugin, locale):
+        '''
+        @see: IPOFileManager.getPluginAsDict
+        '''
+        try: locale = Locale.parse(locale)
+        except UnknownLocaleError: raise InvalidLocaleError(locale)
+#        messages = self.messageService.getPluginMessages(plugin, qs=QSource(type=TYPE_JAVA_SCRIPT))
+        messages = self.messageService.getPluginMessages(plugin)
+        catalog = self._build(locale, messages, self._filePath(locale, plugin=plugin),
+                              self._filePath(locale))
+        return self._toDict(plugin, catalog)
 
     def updateGlobalPOFile(self, locale, poFile):
         '''
@@ -328,6 +363,32 @@ class POFileManagerDB(IPOFileManager):
         write_po(fileObj, catalog, **self.write_po_config)
         fileObj.seek(0)
         return fileObj
+
+    def _toDict(self, domain, catalog):
+        '''
+        Convert the catalog to a dictionary.
+        Format description: @see IPOFileManager.getGlobalAsDict
+        
+        @param catalog: Catalog
+            The catalog to convert to a dictionary.
+        @return: dict
+            The dictionary in the format specified above.
+        '''
+        assert isinstance(catalog, Catalog), 'Invalid catalog %s' % catalog
+
+        d = { }
+        d[''] = { 'lang' : catalog.locale, 'plural-forms' : catalog.plural_forms }
+        for msg in catalog:
+            if not msg or msg.id == '': continue
+            if isinstance(msg.id, (list, tuple)):
+                key, key_plural = msg.id
+                singular, plural = msg.string
+            else:
+                key, key_plural = msg.id, None
+                singular, plural = msg.string, None
+            key = msg.id if not msg.context else "%s:%s" % (msg.context, msg.id)
+            d[key] = [ key_plural, singular, plural ]
+        return { domain : d }
 
     def _build(self, locale, messages, path, pathGlobal=None):
         '''
