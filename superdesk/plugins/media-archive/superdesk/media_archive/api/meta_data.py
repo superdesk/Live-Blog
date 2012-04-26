@@ -13,7 +13,7 @@ from .domain_archive import modelArchive
 from .meta_type import MetaType
 from ally.api.config import query, service, call
 from ally.api.criteria import AsDateTimeOrdered
-from ally.api.type import Reference, Iter, Count
+from ally.api.type import Reference, Iter, Count, Scheme
 from ally.support.api.entity import Entity, QEntity
 from datetime import datetime
 
@@ -49,18 +49,18 @@ class IMetaDataService:
     '''
 
     @call
-    def getById(self, id:MetaData.Id, thumbSize:str=None) -> MetaData:
+    def getById(self, id:MetaData.Id, scheme:Scheme, thumbSize:str=None) -> MetaData:
         '''
         Provides the meta data based on the id.
         '''
 
-    def getMetaDatasCount(self, typeId:MetaType.Id=None, q:QMetaData=None) -> Count:
+    def getMetaDatasCount(self, typeKey:MetaType.Key=None, q:QMetaData=None) -> Count:
         '''
         Provides the meta data's count.
         '''
 
     @call(countMethod=getMetaDatasCount)
-    def getMetaDatas(self, typeId:MetaType.Id=None, offset:int=None, limit:int=10, q:QMetaData=None,
+    def getMetaDatas(self, scheme:Scheme, typeKey:MetaType.Key=None, offset:int=None, limit:int=10, q:QMetaData=None,
                      thumbSize:str=None) -> Iter(MetaData):
         '''
         Provides the meta data's.

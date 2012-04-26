@@ -21,10 +21,10 @@ from ally.internationalization import _
 from ally.support.sqlalchemy.mapper_descriptor import MappedSupport, \
     MappedReference, MappedProperty
 from ally.support.sqlalchemy.session import openSession
-from ally.support.util import UnextendableMeta
 from functools import partial
 from inspect import isclass
 from sqlalchemy import event
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.exc import NoResultFound
@@ -32,8 +32,11 @@ from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.schema import Table, MetaData, Column, ForeignKey
 from sqlalchemy.sql.expression import Join
 from sqlalchemy.types import String
+import logging
 
 # --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 INDEX_PROP_FK = indexAfter('propFk', INDEX_PROP)
 # Index for foreign key properties
@@ -47,13 +50,53 @@ class MappingError(Exception):
 
 # --------------------------------------------------------------------
 
+def merge(clazz, mapped, metadata):
+    '''
+    Merges the attributes for the API model class with the mapped class instrumented attributes.
+    
+    @param clazz: class
+        The model class to be merged with.
+    @param mapped: class
+        The mapped class to be merge with.
+    @param metadata: MetaData
+        The metadata that is owning the mapped class.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    assert isclass(mapped), 'Invalid mapped class %s' % mapped
+    assert isinstance(metadata, MetaData), 'Invalid metadata %s' % metadata
+    typeModel = typeFor(clazz)
+    assert isinstance(typeModel, TypeModel), 'Invalid model class %s' % clazz
+    model = typeModel.container
+    assert isinstance(model, Model)
+
+    mappedModelType = TypeModel(mapped, model, clazz)
+    for prop, typ in model.properties.items():
+        propType = propRefType = TypeModelProperty(mappedModelType, prop, typ)
+        if isinstance(typ, TypeModel):
+            md = typ.container
+            assert isinstance(md, Model)
+            propType = TypeModelProperty(mappedModelType, prop, md.properties[md.propertyId])
+
+        instrumented = getattr(mapped, prop)
+        if isinstance(instrumented, InstrumentedAttribute):
+            reference = MappedReference(propRefType, instrumented)
+            setattr(mapped, prop, MappedProperty(propType, reference, instrumented))
+        else:
+            setattr(mapped, prop, Property(propType, Reference(propRefType)))
+
+    mapped._ally_type = mappedModelType
+    try: metadata._ally_mappings.append(mapped)
+    except AttributeError: metadata._ally_mappings = [mapped]
+
+# --------------------------------------------------------------------
+
 def mapperSimple(clazz, sql, **keyargs):
     '''
     Maps a table to a ally REST model. Use this instead of the classical SQL alchemy mapper since this will
     also provide to the model additional information extracted from the SQL alchemy configurations.
     
     @param clazz: class
-        The model class to be mapped with the provided sql table.
+        The model class to be mapped with the provided sql.
     @param sql: Table|Join|Select
         The table or join to map the model with.
     @param keyargs: key arguments
@@ -62,10 +105,6 @@ def mapperSimple(clazz, sql, **keyargs):
         The obtained mapped class.
     '''
     assert isclass(clazz), 'Invalid class %s' % clazz
-    typeModel = typeFor(clazz)
-    assert isinstance(typeModel, TypeModel), 'Invalid model class %s' % clazz
-    model = typeModel.container
-    assert isinstance(model, Model)
     if isinstance(sql, Table):
         metadata = sql.metadata
     elif isinstance(sql, Join):
@@ -83,34 +122,30 @@ def mapperSimple(clazz, sql, **keyargs):
         if __debug__:
             assert issubclass(inherits, ContainerSupport), 'Invalid model inheritance class %s' % inherits
             assert isinstance(inherits, MappedSupport), 'Invalid inherit class %s, is not mapped' % inherits
-            assert issubclass(clazz, inherits._ally_type.baseClass), \
-            'Invalid inherited mapped class %s, for model class %s' % (inherits._ally_type.baseClass, clazz)
 
         basses = (clazz, inherits)
+
+        # We check to see if the inherited mapped class is not a declarative base
+        metaclass = type(inherits)
+        if issubclass(metaclass, DeclarativeMetaModel):
+            # If the inherited class is declarative then we need to create the mapped class differently.
+            attributes = {'__module__': clazz.__module__}
+            attributes['_ally_listeners'] = {} # Added so the mapped class has binding support
+            attributes['__table__'] = sql
+
+            mapped = type(clazz.__name__ + '$Mapped', basses, attributes)
+            mapped._ally_mapping = mapped.__mapper__
+
+            return mapped
     else:
         basses = (clazz,)
 
     attributes = {'__module__': clazz.__module__}
     attributes['_ally_listeners'] = {} # Added so the mapped class has binding support
-    mapped = type.__new__(UnextendableMeta, clazz.__name__ + '$Mapped', basses, attributes)
+    mapped = type(clazz.__name__ + '$Mapped', basses, attributes)
     mapped._ally_mapping = mapper(mapped, sql, **keyargs)
 
-    mappedModelType = TypeModel(mapped, model, clazz)
-    for prop, typ in model.properties.items():
-        propType = propRefType = TypeModelProperty(mappedModelType, prop, typ)
-        if isinstance(typ, TypeModel):
-            propType = TypeModelProperty(mappedModelType, prop, model.properties[model.propertyId])
-
-        instrumented = getattr(mapped, prop)
-        if isinstance(instrumented, InstrumentedAttribute):
-            reference = MappedReference(propRefType, instrumented)
-            setattr(mapped, prop, MappedProperty(propType, reference, instrumented))
-        else:
-            setattr(mapped, prop, Property(propType, Reference(propRefType)))
-
-    mapped._ally_type = mappedModelType
-    try: metadata.__ally_mappings__.append(mapped)
-    except AttributeError: metadata.__ally_mappings__ = [mapped]
+    merge(clazz, mapped, metadata)
 
     return mapped
 
@@ -135,6 +170,25 @@ def mapperModel(clazz, sql, exclude=None, **keyargs):
     registerValidation(mapped, exclude=exclude)
 
     return mapped
+
+class DeclarativeMetaModel(DeclarativeMeta):
+    '''
+    Extension for @see: DeclarativeMeta class that provides also the merging with the API model.
+    '''
+
+    def __init__(self, name, bases, namespace):
+        DeclarativeMeta.__init__(self, name, bases, namespace)
+
+        modelClasses = [cls for cls in bases if isinstance(typeFor(cls), TypeModel) and not hasattr(cls, '_ally_mapping')]
+        if not modelClasses:
+            assert log.debug('Cannot find any API model class for \'%s\', no merging will occur', name) or True
+            return
+        elif len(modelClasses) > 1: raise MappingError('To many API model classes %s' % modelClasses)
+
+        self._ally_mapping = self.__mapper__
+        self.__clause_element__ = lambda:self.__table__
+        # Just added so the expressions can recognize also the mapping as tables
+        merge(modelClasses[0], self, self.metadata)
 
 # --------------------------------------------------------------------
 
@@ -212,7 +266,7 @@ def mappingsOf(metadata):
     '''
     assert isinstance(metadata, MetaData), 'Invalid meta data %s' % metadata
 
-    try: mappings = metadata.__ally_mappings__
+    try: mappings = metadata._ally_mappings
     except AttributeError: return {}
 
     return {typeFor(mapped).baseClass:mapped for mapped in mappings}

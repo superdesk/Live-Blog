@@ -12,10 +12,12 @@ Contains the SQL alchemy meta for message API.
 from ..api.message import Message
 from .metadata_internationalization import meta
 from .source import Source
-from ally.support.sqlalchemy.mapper import mapperModel
+from ally.support.sqlalchemy.mapper import mapperModel, addLoadListener, \
+    addInsertListener, addUpdateListener
 from sqlalchemy.dialects.mysql.base import INTEGER, VARCHAR
 from sqlalchemy.schema import Table, Column, ForeignKey
 from sqlalchemy.types import String
+from ally.exception import InputError, Ref
 
 # --------------------------------------------------------------------
 
@@ -34,3 +36,29 @@ table = Table('inter_message', meta,
               )
 
 Message = mapperModel(Message, table)
+
+# --------------------------------------------------------------------
+
+def _onLoadMessage(message):
+    '''
+    Called when a message is loaded.
+    '''
+    assert isinstance(message, Message), 'Invalid message %s' % message
+    plurals = [plural for plural in (getattr(message, 'plural%s' % k) for k in range(1, 5)) if plural is not None]
+    if plurals: message.Plural = plurals
+
+def _onPersistMessage(message):
+    '''
+    Called when a message is persisted.
+    '''
+    assert isinstance(message, Message), 'Invalid message %s' % message
+    if message.Plural:
+        if len(message.Plural) > 4:
+            raise InputError(Ref(_('Only a maximum of four plural forms is accepted, got %(nplurals)i') %
+                                 dict(nplurals=len(message.Plural))))
+        for k, plural in enumerate(message.Plural, 1):
+            setattr(message, 'plural%s' % k, plural)
+
+addLoadListener(Message, _onLoadMessage)
+addInsertListener(Message, _onPersistMessage)
+addUpdateListener(Message, _onPersistMessage)

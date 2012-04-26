@@ -262,6 +262,7 @@ class Fetcher:
 
         rsp = Response()
         rsp.contentLanguage = self.response.contentLanguage
+        rsp.scheme = self.response.scheme
 
         chain = self.processors.newChain()
         assert isinstance(chain, ProcessorsChain)

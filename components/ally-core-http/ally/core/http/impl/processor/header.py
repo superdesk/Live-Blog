@@ -159,7 +159,7 @@ class HeaderHTTPBase:
         attr = {}
         for k in range(1, len(va)):
             vv = self._reSeparatorValue.split(va[k])
-            attr[vv[0].strip()] = vv[1] if len(vv) > 1 else None
+            attr[vv[0].strip()] = vv[1].strip().strip('"') if len(vv) > 1 else None
         return va[0].strip(), attr
 
 # --------------------------------------------------------------------

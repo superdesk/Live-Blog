@@ -10,13 +10,13 @@ API specifications for meta type.
 '''
 
 from .domain_archive import modelArchive
-from ally.api.config import service
-from ally.support.api.entity import Entity, IEntityNQService
+from ally.api.config import service, call
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
-@modelArchive
-class MetaType(Entity):
+@modelArchive(id='Key')
+class MetaType:
     '''
     Provides the meta types.
     '''
@@ -25,8 +25,20 @@ class MetaType(Entity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, MetaType))
-class IMetaTypeService(IEntityNQService):
+@service
+class IMetaTypeService:
     '''
     Provides the meta type services.
     '''
+
+    @call
+    def getByKey(self, key:MetaType.Key) -> MetaType:
+        '''
+        Provides the meta type based on the key.
+        '''
+
+    @call
+    def getMetaTypes(self, offset:int=None, limit:int=None) -> Iter(MetaType):
+        '''
+        Provides the meta type's.
+        '''

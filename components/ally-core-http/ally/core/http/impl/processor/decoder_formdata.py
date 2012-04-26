@@ -83,7 +83,6 @@ class DecodingFormDataHandler(DecodingMultiPartHandler):
             if not name: raise DevelError('No name in content disposition')
 
             value = str(content.read(), content.charSet)
-            name = name.strip('"') # We strip the commas if present
             parameters.append((name, value))
 
             content = content.next()
