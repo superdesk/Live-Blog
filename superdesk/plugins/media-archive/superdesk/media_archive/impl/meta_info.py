@@ -11,7 +11,7 @@ SQL Alchemy based implementation for the meta info API.
 
 from ..api.meta_data import QMetaData
 from ..api.meta_info import IMetaInfoService, QMetaInfo
-from ..meta.meta_data import MetaData
+from ..meta.meta_data import MetaDataMapped
 from ..meta.meta_info import MetaInfo
 from ally.container.ioc import injected
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
@@ -42,7 +42,7 @@ class MetaInfoServiceBaseAlchemy(EntityGetServiceAlchemy):
         'Invalid meta info class %s' % MetaInfoClass
         assert isclass(QMetaInfoClass) and issubclass(QMetaInfoClass, QMetaInfo), \
         'Invalid meta info query class %s' % QMetaInfoClass
-        assert isclass(MetaDataClass) and issubclass(MetaDataClass, MetaData), \
+        assert isclass(MetaDataClass) and issubclass(MetaDataClass, MetaDataMapped), \
         'Invalid meta data class %s' % MetaDataClass
         assert isclass(QMetaDataClass) and issubclass(QMetaDataClass, QMetaData), \
         'Invalid meta data query class %s' % QMetaDataClass
@@ -95,4 +95,4 @@ class MetaInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IMetaInfoService):
         '''
         Construct the meta info service.
         '''
-        MetaInfoServiceBaseAlchemy.__init__(self, MetaInfo, QMetaInfo, MetaData, QMetaData)
+        MetaInfoServiceBaseAlchemy.__init__(self, MetaInfo, QMetaInfo, MetaDataMapped, QMetaData)
