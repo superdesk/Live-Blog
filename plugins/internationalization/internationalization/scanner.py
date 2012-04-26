@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-METHOD_MAP = [('**.py', 'python'), ('**.js', 'javascript'), ('**.html', 'javascript')]
+METHOD_MAP = [('**.py', 'python'), ('**.js', 'javascript'), ('**.html', 'javascript'), ('**.dust', 'javascript')]
 # A list of ``(pattern, method)`` tuples that maps of extraction method names to extended global patterns
 METHOD_EXTRACTOR = {'ignore': extract_nothing, 'python': extract_python, 'javascript': extract_javascript}
 # The modethod extractors to be used.
