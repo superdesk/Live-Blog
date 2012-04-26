@@ -45,7 +45,7 @@ class POFileServiceCDM(IPOFileService):
         assert isinstance(self.pluginService, IPluginService), 'Invalid plugin service %s' % self.pluginService
         assert isinstance(self.componentService, IComponentService), 'Invalid component service %s' % self.componentService
 
-    def getGlobalPOFile(self, locale):
+    def getGlobalPOFile(self, locale, scheme):
         '''
         @see: IPOService.getGlobalPOFile
         '''
@@ -60,9 +60,9 @@ class POFileServiceCDM(IPOFileService):
             if republish:
                 self.cdmPO.publishFromFile(path, self.poFileManager.getGlobalPOFile(locale))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
-        return self.cdmPO.getURI(path, 'http')
+        return self.cdmPO.getURI(path, scheme)
 
-    def getComponentPOFile(self, component, locale):
+    def getComponentPOFile(self, component, locale, scheme):
         '''
         @see: IPOService.getComponentPOFile
         '''
@@ -79,9 +79,9 @@ class POFileServiceCDM(IPOFileService):
             if republish:
                 self.cdmPO.publishFromFile(path, self.poFileManager.getComponentPOFile(component, locale))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
-        return self.cdmPO.getURI(path, 'http')
+        return self.cdmPO.getURI(path, scheme)
 
-    def getPluginPOFile(self, plugin, locale):
+    def getPluginPOFile(self, plugin, locale, scheme):
         '''
         @see: IPOService.getPluginPOFile
         '''
@@ -101,7 +101,7 @@ class POFileServiceCDM(IPOFileService):
             if republish:
                 self.cdmPO.publishFromFile(path, self.poFileManager.getPluginPOFile(plugin, locale))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
-        return self.cdmPO.getURI(path, 'http')
+        return self.cdmPO.getURI(path, scheme)
 
     # ----------------------------------------------------------------
 
