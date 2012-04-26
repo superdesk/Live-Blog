@@ -152,7 +152,7 @@ class TestHTTPDelivery(unittest.TestCase):
         poManager.sourceService = TestSourceService()
         poRepDir = TemporaryDirectory()
         poManager.locale_dir_path = poRepDir.name
-        poManager.locale_dir_path = join(dirname(abspath(__file__)), 'repo');
+#        poManager.locale_dir_path = join(dirname(abspath(__file__)), 'repo');
         if not isdir(poManager.locale_dir_path):
             makedirs(poManager.locale_dir_path)
 
@@ -221,6 +221,21 @@ class TestHTTPDelivery(unittest.TestCase):
         for msg in pluginCat:
             if msg and msg.id != '':
                 self.assertEqual(msg.string, pluginTestCat.get(msg.id, msg.context).string)
+
+        # ********************************************
+        # test getGlobalAsDict
+        globalTestDict = poManager.getGlobalAsDict('ro')
+        print(globalTestDict)
+
+        # ********************************************
+        # test getComponentPOFile
+        componentTestDict = poManager.getComponentAsDict('1', 'ro')
+        print(componentTestDict)
+
+        # ********************************************
+        # test getComponentPOFile
+        pluginTestDict = poManager.getPluginAsDict('1', 'ro')
+        print(pluginTestDict)
 
     def _checkHeader(self, testCat, witnessCat):
         self.assertEqual(testCat.domain, witnessCat.domain)

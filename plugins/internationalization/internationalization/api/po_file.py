@@ -12,7 +12,7 @@ API specifications for PO file management.
 from ally.api.config import service, call
 from introspection.api.plugin import Plugin
 from introspection.api.component import Component
-from ally.api.type import Reference
+from ally.api.type import Reference, Scheme
 from ally.api.model import Content
 from introspection.api.domain_admin import modelAdmin
 
@@ -35,7 +35,7 @@ class IPOFileService:
     '''
 
     @call
-    def getGlobalPOFile(self, locale:PO.Locale) -> PO.Reference:
+    def getGlobalPOFile(self, locale:PO.Locale, scheme:Scheme) -> PO.Reference:
         '''
         Provides the messages for the whole application and the given locale.
 
@@ -46,7 +46,7 @@ class IPOFileService:
         '''
 
     @call
-    def getComponentPOFile(self, component:Component.Id, locale:PO.Locale) -> PO.Reference:
+    def getComponentPOFile(self, component:Component.Id, locale:PO.Locale, scheme:Scheme) -> PO.Reference:
         '''
         Provides the messages for the given component and the given locale.
 
@@ -59,7 +59,7 @@ class IPOFileService:
         '''
 
     @call
-    def getPluginPOFile(self, plugin:Plugin.Id, locale:PO.Locale) -> PO.Reference:
+    def getPluginPOFile(self, plugin:Plugin.Id, locale:PO.Locale, scheme:Scheme) -> PO.Reference:
         '''
         Provides the messages for the given plugin and the given locale.
 

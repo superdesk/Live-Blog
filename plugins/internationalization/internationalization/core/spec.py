@@ -80,6 +80,29 @@ class IPOFileManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
+    def getGlobalAsDict(self, locale):
+        '''
+        Provides the messages for the whole application and the given locale in the
+        form of a dictionary. The dictionary has the following structure:
+        {
+            "mydomain" : {
+                // po header fields
+                "" : {
+                    "plural-forms" : "...",
+                    "lang" : "en",
+                },
+                // all the msgid strings and translations
+                "context:msgid" : [ "msgid_plural", "translation", "plural_translation" ],
+            },
+        }
+
+        @param locale: string
+            The locale for which to return the translation.
+        @return: dict
+            The dictionary containing the translation.
+        '''
+
+    @abc.abstractmethod
     def getComponentPOFile(self, component, locale):
         '''
         Provides the messages for the given component and the given locale.
@@ -93,7 +116,22 @@ class IPOFileManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def getPluginPOFile(self, locale, plugin):
+    def getComponentAsDict(self, component, locale):
+        '''
+        Provides the messages for the given component and the given locale in the
+        form of a dictionary. For dictionary structure:
+        @see IPOFileManager.getGlobalAsDict
+
+        @param component: string
+            The component id for which to return the translation.
+        @param locale: string
+            The locale for which to return the translation.
+        @return: bytes file like object
+            The dictionary containing the translation.
+        '''
+
+    @abc.abstractmethod
+    def getPluginPOFile(self, plugin, locale):
         '''
         Provides the messages for the given plugin and the given locale.
 
@@ -103,6 +141,21 @@ class IPOFileManager(metaclass=abc.ABCMeta):
             The locale for which to return the translation.
         @return: bytes  file like object
             The PO file containing the translation.
+        '''
+
+    @abc.abstractmethod
+    def getPluginAsDict(self, plugin, locale):
+        '''
+        Provides the messages for the given component and the given locale in the
+        form of a dictionary. For dictionary structure:
+        @see IPOFileManager.getGlobalAsDict
+
+        @param plugin: string
+            The plugin id for which to return the translation.
+        @param locale: string
+            The locale for which to return the translation.
+        @return: bytes file like object
+            The dictionary containing the translation.
         '''
 
     # ----------------------------------------------------------------
