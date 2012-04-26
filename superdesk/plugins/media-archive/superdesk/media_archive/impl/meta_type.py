@@ -10,17 +10,35 @@ SQL Alchemy based implementation for the meta type API.
 '''
 
 from ..api.meta_type import IMetaTypeService
-from ..meta.meta_type import MetaType
 from ally.container.ioc import injected
-from sql_alchemy.impl.entity import EntityNQServiceAlchemy
+from ally.support.sqlalchemy.session import SessionSupport
+from superdesk.media_archive.meta.meta_type import MetaTypeMapped
+from sqlalchemy.orm.exc import NoResultFound
+from ally.exception import InputError, Ref
+from ally.support.sqlalchemy.util_service import buildLimits
 
 # --------------------------------------------------------------------
 
 @injected
-class MetaTypeServiceAlchemy(EntityNQServiceAlchemy, IMetaTypeService):
+class MetaTypeServiceAlchemy(SessionSupport, IMetaTypeService):
     '''
-    @see: IMetaTypeService
+    Implementation based on SQL alchemy for @see: IMetaTypeService
     '''
 
     def __init__(self):
-        EntityNQServiceAlchemy.__init__(self, MetaType)
+        SessionSupport.__init__(self)
+
+    def getByKey(self, key):
+        '''
+        @see: IMetaTypeService.getByKey
+        '''
+        try:
+            return self.session().query(MetaTypeMapped).filter(MetaTypeMapped.Key == key).one()
+        except NoResultFound:
+            raise InputError(Ref(_('Unknown meta type key'), ref=MetaTypeMapped.Key))
+
+    def getMetaTypes(self, offset=None, limit=None):
+        '''
+        @see: IMetaTypeService.getByKey
+        '''
+        return buildLimits(self.session().query(MetaTypeMapped), offset, limit).all()

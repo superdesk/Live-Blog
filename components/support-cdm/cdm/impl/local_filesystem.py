@@ -50,10 +50,9 @@ class IDelivery(metaclass=abc.ABCMeta):
         Returns the URI of a certain content identified by the repository path.
 
         @param repoFilePath: string
-                The path of the content item. This is a unique
-                     identifier of the item.
-        @return: The URI of the content
-        @rtype: string
+            The path of the content item. This is a unique identifier of the item.
+        @return: string
+            The URI of the content
         '''
 
 
@@ -98,10 +97,7 @@ class HTTPDelivery(IDelivery):
 @injected
 class LocalFileSystemCDM(ICDM):
     '''
-    @ivar delivery: IDelivery
-        The delivery protocol
-
-    @see: ICDM (Content Delivery Manager interface)
+    Local file system implementation for the @see: ICDM (Content Delivery Manager interface)
     '''
 
     delivery = IDelivery
@@ -206,9 +202,9 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
         assert isinstance(protocol, str), 'Invalid protocol %s' % protocol
-        self._validatePath(path)
         if protocol != 'http':
             raise UnsupportedProtocol(protocol)
+        self.getTimestamp(path) # Just to trigger a path not found if the path is not valid even for a link
         return self.delivery.getURI(path)
 
     def getTimestamp(self, path):

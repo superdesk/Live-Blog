@@ -78,12 +78,12 @@ class ICDM(metaclass=abc.ABCMeta):
         Returns the URI of a certain content identified by the unique path.
 
         @param path: string
-                The path of the content item. This is a unique
-                     identifier of the item.
+            The path of the content item. This is a unique identifier of the item.
         @param protocol: string
-                A string containing the name of the protocol
-        @return: The URI of the content
-        @rtype: string
+            A string containing the name of the protocol
+        @return: string
+            The URI of the content
+        @raise PathNotFound: in case the path does not exist in the CDM.
         '''
 
     @abc.abstractmethod
@@ -96,6 +96,7 @@ class ICDM(metaclass=abc.ABCMeta):
             The path of the content item. This is a unique identifier of the item.
         @return: datetime
             The last modification time for the content in path.
+        @raise PathNotFound: in case the path does not exist in the CDM.
         '''
 
 class PathNotFound(Exception):

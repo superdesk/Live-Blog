@@ -10,7 +10,7 @@ Contains the SQL alchemy meta for media meta info API.
 '''
 
 from ..api.meta_info import MetaInfo
-from .meta_data import MetaData
+from .meta_data import MetaDataMapped
 from ally.support.sqlalchemy.mapper import mapperModel
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Table, Column, ForeignKey
@@ -22,7 +22,7 @@ from superdesk.meta.metadata_superdesk import meta
 
 table = Table('archive_meta_info', meta,
               Column('id', INTEGER(unsigned=True), primary_key=True, key='Id'),
-              Column('fk_metadata_id', ForeignKey(MetaData.Id), nullable=False, key='MetaData'),
+              Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id), nullable=False, key='MetaData'),
               Column('fk_language_id', ForeignKey(LanguageEntity.Id), nullable=False, key='Language'),
               Column('title', String(255), nullable=False, key='Title'),
               Column('keywords', String(255), key='Keywords'),
