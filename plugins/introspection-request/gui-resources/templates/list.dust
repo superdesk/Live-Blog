@@ -1,4 +1,4 @@
-{>layouts_list/}
+{>"layouts/list"/}
 
 {<list}
 	<ul class="nav nav-list">

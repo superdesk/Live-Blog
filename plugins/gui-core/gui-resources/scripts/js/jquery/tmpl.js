@@ -11,7 +11,7 @@ define(['jquery', 'dust/core'], function ($, dust) {
 			}
         	return this.each(function()
         	{
-				$that = $(this);				
+				$that = $(this);
 				$.tmpl(selector, data, function(err, out) {
 					if(!err)
 						$that.html(out);
