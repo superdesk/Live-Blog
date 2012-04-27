@@ -9,7 +9,8 @@
         isBrowser = (typeof window !== "undefined" && window.navigator && window.document) || typeof importScripts !== "undefined",
         isNode = typeof process !== "undefined" && process.versions && !!process.versions.node,
 		pathPrefix = '';
-        dustLibrary = 'dust';
+        dustCompilerLibrary = 'dust/compiler';
+		dustCoreLibrary = 'dust/core';
 
     if (isBrowser) {
         // Browser action
@@ -75,8 +76,8 @@
 			var self = this;
 
             if (isBrowser) {
-                require([dustLibrary], function(){
-                    self.process(window.dust, name, parentRequire, load, config);
+                require([dustCompilerLibrary], function(dust){
+					self.process(dust, name, parentRequire, load, config);
                 });
             } else if (isNode) {
                 self.process(require.nodeRequire('dust'), name, parentRequire, load, config);
@@ -96,9 +97,10 @@
 			var self = this,
                 path = parentRequire.toUrl( prefix + name + '.dust');
             fetchText(path, function(data){
-
-                var text = dust.compile(data, name.replace("/", "_"));
-
+				var text = "define('tmpl!" + name +"', ['"+dustCoreLibrary+"'], function (dust) {"
+						+ dust.compile(data, name) + "\n"
+						+ "return { render: function(context, callback) { dust.render('" + name + "', context, callback); }}"
+						+ "});\n"
                 if (config.isBuild) {
                     buildMap[name] = text;
                 }
@@ -106,9 +108,7 @@
                 if (!config.isBuild) {
                     text += "\r\n//@ sourceURL=" + path;
                 }
-
-                load.fromText(name, isNode ? '' : text);
-
+                load.fromText(name, isNode ? '' : text);			
                 parentRequire([name], function (value) {
                     load(value);
                 });
