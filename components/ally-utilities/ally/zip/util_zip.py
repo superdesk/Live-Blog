@@ -18,7 +18,7 @@ from zipfile import is_zipfile
 # The path separator inside a ZIP archive
 ZIPSEP = '/'
 
-def normOSPath(filePath, keepEndSep = False):
+def normOSPath(filePath, keepEndSep=False):
     '''
     Normalizes the given path and replaces all ZIP path separators
     with system path separators.
@@ -44,7 +44,7 @@ def normZipPath(inZipPath):
     else:
         return inZipPath.replace(os.sep, ZIPSEP).lstrip(ZIPSEP)
 
-def getZipFilePath(filePath, stopPath = ''):
+def getZipFilePath(filePath, stopPath=''):
     '''
     Detect if part or all of the given path points to a ZIP file
 
@@ -70,4 +70,4 @@ def getZipFilePath(filePath, stopPath = ''):
         nextSubPath = dirname(parentPath)
         if nextSubPath == parentPath: break
         parentPath = nextSubPath
-    raise Exception('Invalid ZIP path %s' % filePath)
+    raise IOError('Invalid ZIP path %s' % filePath)

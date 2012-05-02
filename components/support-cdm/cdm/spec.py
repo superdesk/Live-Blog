@@ -75,7 +75,8 @@ class ICDM(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def getURI(self, path, protocol):
         '''
-        Returns the URI of a certain content identified by the unique path.
+        Returns the URI of a certain content identified by the unique path. Attention this method should not perform any
+        checks to see if the content is valid or exists.
 
         @param path: string
             The path of the content item. This is a unique identifier of the item.
@@ -83,7 +84,6 @@ class ICDM(metaclass=abc.ABCMeta):
             A string containing the name of the protocol
         @return: string
             The URI of the content
-        @raise PathNotFound: in case the path does not exist in the CDM.
         '''
 
     @abc.abstractmethod

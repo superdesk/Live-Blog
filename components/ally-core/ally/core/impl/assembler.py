@@ -229,8 +229,25 @@ class AssembleInsert(AssembleInvokers):
         call = invoker.call
         assert isinstance(call, Call)
         if call.method != INSERT: return False
-        types = processTypesHints(extractMandatoryTypes(invoker), call)
 
+        typ = invoker.output
+        if isinstance(typ, (TypeModel, TypeModelProperty)):
+            model = typ.container
+        else:
+            log.info('Cannot extract model from output type %s for call %s', typ, call)
+            return False
+        assert isinstance(model, Model)
+
+        types = extractMandatoryTypes(invoker)
+        if types:
+            lastTyp = types[-1]
+            if isinstance(lastTyp, TypeModel) or isinstance(lastTyp, TypeModelProperty):
+                if lastTyp.container != model: types.append(model)
+            else: types.append(model)
+        else:
+            types.append(model)
+
+        type = processTypesHints(types, call)
         node = obtainNode(root, types)
         if not node: return False
         assert isinstance(node, Node)
