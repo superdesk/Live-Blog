@@ -1,10 +1,10 @@
 define
 ([
-    'jquery','jquery/superdesk','jquery/tmpl','jquery/rest',
+    'jquery','jquery/superdesk','dust/core','jquery/tmpl','jquery/rest',
     'tmpl!layouts/dashboard',
     'tmpl!navbar'
 ], 
-function($, superdesk)
+function($, superdesk, dust)
 {
     var MenuView = function() 
     {
@@ -16,18 +16,21 @@ function($, superdesk)
     		{ 
     			displayMenu.push($.extend({}, this, { Path: this.Path.split('.'), DisplayName: this.Path.replace('.', '-') }));
     		});
-    		
     		$('#navbar-top')
     		.tmpl( 'navbar', {superdesk: {menu: displayMenu}} )
     		.on('click', '.nav a', function(event)
     		{
     		    var self = this;
-    		    superdesk.navigation.bind( $(this).attr('href'), require([config.api_url + $(self).attr('script-path')], function(x){ console.log(x.init()); }) );
+    		    superdesk.navigation.bind( 
+    		        $(this).attr('href'), 
+    		        function(){ 
+    		            require([config.api_url + $(self).attr('script-path')], function(x){ x.init(); });
+    		        });
     			event.preventDefault(); 
     		});
     		
         });
-        $('#area-main').tmpl( 'layouts_dashboard' );
+        $('#area-main').tmpl( 'layouts/dashboard' );
     };
 
     return MenuView;

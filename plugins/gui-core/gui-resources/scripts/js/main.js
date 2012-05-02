@@ -13,7 +13,8 @@ requirejs.config
 		'jqueryui': config.js_url + '/jquery/ui/',
 		'dust': config.js_url + '/dust',
 		'history': config.js_url + '/history',
-		'tmpl': config.js_url + '/require/tmpl'
+		'tmpl': config.js_url + '/require/tmpl',
+		'gettext': config.js_url + '/gettext',
 	}
 });
 require(['jquery/superdesk', 'lib/core/scripts/js/views/menu'], 
