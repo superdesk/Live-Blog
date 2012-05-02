@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define(['jquery', 'dust/core'], function ($, dust) {
     $.fn.extend
     ({
         tmpl: function(selector, data)
@@ -11,10 +11,13 @@ define(['jquery'], function ($) {
 			}
         	return this.each(function()
         	{
-				$that = $(this);				
+				$that = $(this);
 				$.tmpl(selector, data, function(err, out) {
 					if(!err)
 						$that.html(out);
+					else if( window.console ) {
+						window.console.log( err );
+					}
 				});
         	});
         }

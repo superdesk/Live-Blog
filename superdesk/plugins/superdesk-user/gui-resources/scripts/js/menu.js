@@ -1,7 +1,11 @@
 // set up scripts from modules.user.* action
-$(function()
+define
+([
+    'jquery','jquery/superdesk',
+],
+function($)
 {
-	superdesk.getActions('modules.user.*')
+	$.superdesk.getActions('modules.user.*')
 	.done(function(actions)
 	{
 		// superdesk.navigation.bind(actions)
@@ -15,9 +19,9 @@ $(function()
 		});
 		
 		// superdesk.presentation.prototype.view.prefix = apiUrl+'/content/superdesk/';
-		(new superdesk.presentation)
+		(new $.superdesk.presentation)
 			.setScript(listPath)
-			.setLayout(superdesk.layouts.list.clone())
+			.setLayout($.superdesk.layouts.list.clone())
 			.setArgs({updateScript: updatePath, addScript: addPath})
 			.run();
 	});

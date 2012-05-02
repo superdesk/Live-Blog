@@ -1,1 +1,9 @@
-{>layouts_list/}
+{>"layouts/list"/}
+
+{<list}
+	something totally different
+{/list}
+
+{<body}
+	<div {ui.content}></div>
+{/body}
