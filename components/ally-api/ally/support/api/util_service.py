@@ -69,6 +69,29 @@ def namesForModel(model):
 
 # --------------------------------------------------------------------
 
+def copy(src, dest):
+    '''
+    Copies the container properties from the object source to object destination, attention only the common properties from
+    source and destination will be transfered, the rest of properties will be ignored.
+    If common properties are not compatible by types an exception will be raised.
+    
+    @param src: container object
+        The source to copy from.
+    @param dest: container object
+        The destination to copy to.
+    @return: container object
+        Returns the destination object.
+    @raise ValueError: If the common properties are not compatible by type.
+    '''
+    assert src is not None, 'A source object is required'
+    clazz, properites = src.__class__, set(namesForContainer(dest))
+    for prop in namesForContainer(src):
+        if prop not in properites: continue
+        if getattr(clazz, prop) in src: setattr(dest, prop, getattr(src, prop))
+    return dest
+
+# --------------------------------------------------------------------
+
 def trimIter(collection, size=None, offset=None, limit=None):
     '''
     Trims the provided iterator based on the offset and limit.

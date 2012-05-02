@@ -204,7 +204,6 @@ class LocalFileSystemCDM(ICDM):
         assert isinstance(protocol, str), 'Invalid protocol %s' % protocol
         if protocol != 'http':
             raise UnsupportedProtocol(protocol)
-        self.getTimestamp(path) # Just to trigger a path not found if the path is not valid even for a link
         return self.delivery.getURI(path)
 
     def getTimestamp(self, path):
