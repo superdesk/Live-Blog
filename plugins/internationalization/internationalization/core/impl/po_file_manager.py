@@ -115,7 +115,7 @@ class POFileManagerDB(IPOFileManager):
 
         if not os.path.exists(self.locale_dir_path): os.makedirs(self.locale_dir_path)
         if not isdir(self.locale_dir_path) or not os.access(self.locale_dir_path, os.W_OK):
-            raise IOError('Unable to access the repository directory %s' % self.locale_dir_path)
+            raise IOError('Unable to access the locale directory %s' % self.locale_dir_path)
 
     def getGlobalPOTimestamp(self, locale):
         '''
