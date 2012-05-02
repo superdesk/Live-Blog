@@ -14,7 +14,7 @@ from ally.container.binder_op import bindValidations
 from ally.support.sqlalchemy.mapper import mappingsOf
 from ally.support.sqlalchemy.session import bindSession
 from sql_alchemy import database_config
-from sql_alchemy.database_config import alchemySessionCreator, metas
+from sql_alchemy.database_config import alchemySessionCreator, metas, createTables
 from superdesk.meta.metadata_superdesk import meta
 
 # --------------------------------------------------------------------
@@ -22,6 +22,8 @@ from superdesk.meta.metadata_superdesk import meta
 support.include(database_config)
 
 # --------------------------------------------------------------------
+
+createTables = createTables
 
 @ioc.replace(database_url)
 def database_url():
