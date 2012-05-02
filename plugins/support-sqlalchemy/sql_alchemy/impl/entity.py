@@ -19,6 +19,7 @@ from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
 from inspect import isclass
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
+from ally.support.api.util_service import copy
 
 # --------------------------------------------------------------------
 
@@ -183,15 +184,13 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
         @see: IEntityCRUDService.insert
         '''
         assert self.modelType.isValid(entity), 'Invalid entity %s, expected %s' % (entity, self.Entity)
-        mentity = self.Entity()
-        for prop in self.model.properties:
-            if getattr(entity.__class__, prop) in entity: setattr(mentity, prop, getattr(entity, prop))
+        entityDb = copy(entity, self.Entity())
         try:
-            self.session().add(mentity)
-            self.session().flush((mentity,))
-        except SQLAlchemyError as e: handle(e, mentity)
-        entity.Id = mentity.Id
-        return mentity.Id
+            self.session().add(entityDb)
+            self.session().flush((entityDb,))
+        except SQLAlchemyError as e: handle(e, entityDb)
+        entity.Id = entityDb.Id
+        return entityDb.Id
 
     def update(self, entity):
         '''
@@ -202,9 +201,7 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
         entityDb = self.session().query(self.Entity).get(entity.Id)
         if not entityDb: raise InputError(Ref(_('Unknown id'), ref=self.Entity.Id))
         try:
-            for prop in self.model.properties:
-                if getattr(entity.__class__, prop) in entity: setattr(entityDb, prop, getattr(entity, prop))
-            self.session().flush((entityDb,))
+            self.session().flush((copy(entity, entityDb),))
         except SQLAlchemyError as e: handle(e, self.Entity)
 
     def delete(self, id):

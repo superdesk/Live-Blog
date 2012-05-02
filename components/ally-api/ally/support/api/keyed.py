@@ -1,12 +1,12 @@
 '''
-Created on May 26, 2011
+Created on May 2, 2012
 
 @package: ally api
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-General specifications for the entities API that poses an integer Id identifier.
+General specifications for the entities API that poses a string Key identifier.
 '''
 
 from ally.api.config import model, query, service, call
@@ -14,12 +14,12 @@ from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
-@model(id='Id')
+@model(id='Key')
 class Entity:
     '''
-    Provides the basic container for an entity that has a Id identifier.
+    Provides the basic container for an entity that has a Key as the identifier.
     '''
-    Id = int
+    Key = str
 
 # --------------------------------------------------------------------
 
@@ -39,13 +39,13 @@ class IEntityGetService:
     '''
 
     @call
-    def getById(self, id:Entity.Id) -> Entity:
+    def getByKey(self, key:Entity.Key) -> Entity:
         '''
-        Provides the entity based on the id.
+        Provides the entity based on the key.
         
-        @param id: integer
-            The id of the entity to find.
-        @raise InputException: If the id is not valid. 
+        @param key: string
+            The key of the entity to find.
+        @raise InputException: If the key is not valid. 
         '''
 
 @service
@@ -88,14 +88,14 @@ class IEntityCRUDService:
     '''
 
     @call
-    def insert(self, entity:Entity) -> Entity.Id:
+    def insert(self, entity:Entity) -> Entity.Key:
         '''
-        Insert the entity, also the entity will have automatically assigned the Id to it.
+        Insert the entity, also the entity will have automatically assigned the key to it.
         
         @param entity: Entity
             The entity to be inserted.
         
-        @return: The id assigned to the entity
+        @return: The key assigned to the entity
         @raise InputException: If the entity is not valid. 
         '''
 
@@ -109,12 +109,12 @@ class IEntityCRUDService:
         '''
 
     @call
-    def delete(self, id:Entity.Id) -> bool:
+    def delete(self, key:Entity.Key) -> bool:
         '''
-        Delete the entity for the provided id.
+        Delete the entity for the provided key.
         
-        @param id: integer
-            The id of the entity to be deleted.
+        @param key: integer
+            The key of the entity to be deleted.
             
         @return: True if the delete is successful, false otherwise.
         '''

@@ -22,6 +22,7 @@ import logging
 import os
 from ally.zip.util_zip import normOSPath, normZipPath
 import json
+from urllib.parse import unquote
 
 # --------------------------------------------------------------------
 
@@ -81,7 +82,7 @@ class ContentDeliveryHandler(Processor):
             return rsp.setCode(METHOD_NOT_AVAILABLE, 'Path not available for method')
 
         # Make sure the given path points inside the repository
-        entryPath = normOSPath(join(self.repositoryPath, normZipPath(req.path)))
+        entryPath = normOSPath(join(self.repositoryPath, normZipPath(unquote(req.path))))
         if not entryPath.startswith(self.repositoryPath):
             return rsp.setCode(RESOURCE_NOT_FOUND, 'Out of repository path')
 
