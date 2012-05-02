@@ -11,7 +11,9 @@ Provides utility functions for handling I/O operations.
 
 from ally.zip.util_zip import normOSPath, getZipFilePath, ZIPSEP
 from os.path import isfile
+from os import stat
 from zipfile import ZipFile
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -126,12 +128,27 @@ def openURI(path):
     '''
     path = normOSPath(path)
     if isfile(path):
-        return open(path, 'r+b')
+        return open(path, 'rb')
     zipFilePath, inZipPath = getZipFilePath(path)
     zipFile = ZipFile(zipFilePath)
     if inZipPath in zipFile.NameToInfo and not inZipPath.endswith(ZIPSEP) and inZipPath != '':
         return zipFile.open(inZipPath)
     raise IOError('Invalid file path %s' % path)
+
+def timestampURI(path):
+    '''
+    Returns the last modified time stamp for the given path.
+    
+    @param path: string
+        The path to a resource: a file system path, a ZIP path
+    @return: datetime
+        The last modified time stamp.
+    '''
+    path = normOSPath(path)
+    if isfile(path):
+        return datetime.fromtimestamp(stat(path).st_mtime)
+    zipFilePath, _inZipPath = getZipFilePath(path)
+    return datetime.fromtimestamp(stat(zipFilePath).st_mtime)
 
 class keepOpen:
     '''

@@ -153,7 +153,7 @@ class AOPModules(AOP):
             if path not in sys.modules:
                 try: __import__(path)
                 except:
-                    log.exception('Cannot import module %r' % path)
+                    log.info('Cannot import module %r' % path)
                     broken.add(path)
         self._paths = {path:sys.modules[path] for path in self._paths if path not in broken}
         return self
