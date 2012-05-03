@@ -137,9 +137,11 @@ class EncoderPathURI(EncoderPath):
             query = urlencode(parameters) if parameters else ''
             return urlunsplit((self.scheme, self.host, self.root + '/'.join(paths), query, ''))
         else:
-            url = urlsplit(path)
-            if url.scheme and url.netloc:
+            assert isinstance(path, str), 'Invalid path %s' % path
+            if not path.strip().startswith('/'):
+                #TODO: improve the relative path detection
                 # This is an absolute path so we will return it as it is.
                 return path
             # The path is relative to this server so we will convert it in an absolute path
+            url = urlsplit(path)
             return urlunsplit((self.scheme, self.host, url.path, url.query, url.fragment))

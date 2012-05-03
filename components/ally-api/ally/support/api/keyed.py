@@ -90,7 +90,7 @@ class IEntityCRUDService:
     @call
     def insert(self, entity:Entity) -> Entity.Key:
         '''
-        Insert the entity, also the entity will have automatically assigned the key to it.
+        Insert the entity.
         
         @param entity: Entity
             The entity to be inserted.

@@ -1,0 +1,66 @@
+'''
+Created on May 3, 2012
+
+@package: superdesk source
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
+@author: Gabriel Nistor
+
+Populates sample data for the services.
+'''
+
+from __plugin__.superdesk.db_superdesk import createTables
+from __plugin__.superdesk_source.temp_populate import getSourcesIds
+from ally.container import ioc
+from ally.container.support import entityFor
+from superdesk.collaborator.api.collaborator import ICollaboratorService
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.person.api.person import IPersonService, QPerson, Person
+
+# --------------------------------------------------------------------
+
+PERSONS = {
+           'Billy': ('Balaceanu', 'Gruia'),
+           'Jey': ('Mihai', 'Floresti'),
+           'Mugurel': ('Doe', 'Sporilor'),
+           }
+
+def getPersonsIds():
+    personService = entityFor(IPersonService)
+    assert isinstance(personService, IPersonService)
+    persons = {}
+    for name in PERSONS:
+        prsns = personService.getAll(q=QPerson(firstName=name))
+        if prsns: persons[name] = next(iter(prsns)).Id
+        else:
+            prsn = Person()
+            prsn.FirstName = name
+            prsn.LastName, prsn.Address = PERSONS[name]
+            persons[name] = personService.insert(prsn)
+    return persons
+
+COLLABORATORS = {
+                 'Billy': 'google',
+                 'Jey': 'google',
+                 'Mugurel': 'facebook',
+                 }
+
+def getCollaboratorsIds():
+    collaboratorService = entityFor(ICollaboratorService)
+    assert isinstance(collaboratorService, ICollaboratorService)
+    collaborators = {}
+    for name in COLLABORATORS:
+        colls = collaboratorService.getAll(qp=QPerson(firstName=name))
+        if colls: collaborators[name] = colls[0].Id
+        else:
+            coll = CollaboratorMapped()
+            coll.Person = getPersonsIds()[name]
+            coll.Source = getSourcesIds()[COLLABORATORS[name]]
+            collaborators[name] = collaboratorService.insert(coll)
+    return collaborators
+
+# --------------------------------------------------------------------
+
+@ioc.after(createTables)
+def populate():
+    getCollaboratorsIds()
