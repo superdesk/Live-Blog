@@ -24,6 +24,7 @@ support.include(database_config)
 # --------------------------------------------------------------------
 
 createTables = createTables
+alchemySessionCreator = alchemySessionCreator
 
 @ioc.replace(database_url)
 def database_url():

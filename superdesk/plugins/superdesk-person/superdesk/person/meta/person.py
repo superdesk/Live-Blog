@@ -20,9 +20,9 @@ from superdesk.meta.metadata_superdesk import meta
 
 table = Table('person', meta,
                Column('id', INTEGER(unsigned=True), primary_key=True, key='Id'),
-               Column('first_name', String(20), key='FirstName'),
-               Column('last_name', String(20), key='LastName'),
-               Column('address', String(20), key='Address'),
+               Column('first_name', String(255), key='FirstName'),
+               Column('last_name', String(255), key='LastName'),
+               Column('address', String(255), key='Address'),
                mysql_engine='InnoDB', mysql_charset='utf8')
 
 Person = mapperModel(Person, table)
