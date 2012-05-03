@@ -25,6 +25,8 @@ from internationalization.core.spec import IPOFileManager, InvalidLocaleError
 from io import BytesIO
 from os.path import dirname, join
 import os
+from copy import copy
+from ally.babel.util_babel import msgId, isMsgTranslated, copyTranslation, fixBabelCatalogAddBug
 
 # --------------------------------------------------------------------
 
@@ -161,8 +163,7 @@ class POFileManagerDB(IPOFileManager):
         try: locale = Locale.parse(locale)
         except UnknownLocaleError: raise InvalidLocaleError(locale)
 
-#        messages = self.messageService.getMessages(qs=QSource(type=TYPE_JAVA_SCRIPT))
-        messages = self.messageService.getMessages()
+        messages = self.messageService.getMessages(qs=QSource(type=TYPE_JAVA_SCRIPT))
         catalog = self._build(locale, messages, self._filePath(locale))
         return self._toDict('', catalog)
 
@@ -182,8 +183,7 @@ class POFileManagerDB(IPOFileManager):
         '''
         try: locale = Locale.parse(locale)
         except UnknownLocaleError: raise InvalidLocaleError(locale)
-#        messages = self.messageService.getComponentMessages(component, qs=QSource(type=TYPE_JAVA_SCRIPT))
-        messages = self.messageService.getComponentMessages(component)
+        messages = self.messageService.getComponentMessages(component, qs=QSource(type=TYPE_JAVA_SCRIPT))
         catalog = self._build(locale, messages, self._filePath(locale, component=component),
                               self._filePath(locale))
         return self._toDict(component, catalog)
@@ -204,8 +204,7 @@ class POFileManagerDB(IPOFileManager):
         '''
         try: locale = Locale.parse(locale)
         except UnknownLocaleError: raise InvalidLocaleError(locale)
-#        messages = self.messageService.getPluginMessages(plugin, qs=QSource(type=TYPE_JAVA_SCRIPT))
-        messages = self.messageService.getPluginMessages(plugin)
+        messages = self.messageService.getPluginMessages(plugin, qs=QSource(type=TYPE_JAVA_SCRIPT))
         catalog = self._build(locale, messages, self._filePath(locale, plugin=plugin),
                               self._filePath(locale))
         return self._toDict(plugin, catalog)
@@ -330,19 +329,27 @@ class POFileManagerDB(IPOFileManager):
         assert isinstance(catalog, Catalog), 'Invalid catalog %s' % catalog
         assert isinstance(messages, Iterable), 'Invalid messages list %s' % messages
 
+        for msg in catalog: msg.locations = []
+
         for msg in messages:
             assert isinstance(msg, Message)
             id = msg.Singular if not msg.Plural else (msg.Singular,) + tuple(msg.Plural)
             src = self.sourceService.getById(msg.Source)
             context = msg.Context if msg.Context != '' else None
-            msgC = catalog.get(id, context)
+            msgC = catalog.get(msg.Singular, context)
             if msgC is None and fallBack is not None:
                 assert isinstance(fallBack, Catalog), 'Invalid fall back catalog %s' % fallBack
-                msgC = fallBack.get(id, context)
-                if msgC is not None: catalog[id] = msgC
+                msgC = fallBack.get(msg.Singular, context)
+                if msgC is not None:
+                    msgC.locations = []
+                    catalog[msg.Singular] = msgC
+            msgCOrig = copy(msgC)
             catalog.add(id, context=msg.Context if msg.Context != '' else None,
                         locations=((src.Path, msg.LineNumber),),
                         user_comments=(msg.Comments if msg.Comments else '',))
+            if msgC: fixBabelCatalogAddBug(msgC, catalog.num_plurals)
+            if msg.Plural and msgC and msgCOrig and isinstance(msgCOrig.string, str) and msgCOrig.string != '':
+                copyTranslation(msgCOrig, msgC)
 
         creationDate = catalog.creation_date # We need to make sure that the catalog keeps its creation date.
         catalog.creation_date = creationDate
@@ -382,7 +389,7 @@ class POFileManagerDB(IPOFileManager):
             if not msg or msg.id == '': continue
             if isinstance(msg.id, (list, tuple)):
                 key, key_plural = msg.id
-                singular, plural = msg.string
+                singular, plural = msg.string[0], msg.string[1]
             else:
                 key, key_plural = msg.id, None
                 singular, plural = msg.string, None
@@ -451,8 +458,9 @@ class POFileManagerDB(IPOFileManager):
         if isfile(path):
             with open(path) as fObj: catalogOld = read_po(fObj, locale)
             for msg in catalog:
-                msgO = catalogOld.get(msg.id, msg.context)
-                if not msg.string and msgO and msgO.string: msg.string = msgO.string
+                msgO = catalogOld.get(msgId(msg), msg.context)
+                if not isMsgTranslated(msg) and msgO and isMsgTranslated(msgO):
+                    msg.string = msgO.string
             catalog.creation_date = catalogOld.creation_date
         else:
             pathDir = dirname(path)
@@ -464,23 +472,24 @@ class POFileManagerDB(IPOFileManager):
             # or are the only plugin that makes use of the message in the global.
             updatedGlobal = False
             for msg in list(catalog):
-                if not msg.string: catalog.delete(msg.id, msg.context)
-                elif not msg.id: continue
+                id = msgId(msg)
+                if not id: continue
+                if not isMsgTranslated(msg):
+                    catalog.delete(id, msg.context)
                 else:
-                    msgG = catalogGlobal.get(msg.id, msg.context)
-                    if not msgG:
-                        catalog.delete(msg.id, msg.context)
-                    elif msgG.string == msg.string:
-                        catalog.delete(msg.id, msg.context)
-                    elif msgG.locations == msg.locations:
-                        msgG.string = msg.string
-                        catalog.delete(msg.id, msg.context)
+                    msgG = catalogGlobal.get(id, msg.context)
+                    if not msgG or msgG.string == msg.string:
+                        catalog.delete(id, msg.context)
+                    elif not isMsgTranslated(msgG) or msgG.locations == msg.locations:
+                        copyTranslation(msg, msgG)
+                        catalog.delete(id, msg.context)
                         updatedGlobal = True
 
             if updatedGlobal:
                 # We remove all the messages that are not translated.
                 for msg in list(catalogGlobal):
-                    if not msg.string: catalogGlobal.delete(msg.id, msg.context)
+                    if not isMsgTranslated(msg):
+                        catalogGlobal.delete(msgId(msg), msg.context)
 
                 catalogGlobal.revision_date = datetime.now()
                 with open(pathGlobal, 'wb') as fObj: write_po(fObj, catalogGlobal, **self.write_po_config)
@@ -488,7 +497,8 @@ class POFileManagerDB(IPOFileManager):
         else:
             # We remove all the messages that are not translated.
             for msg in list(catalog):
-                if not msg.string: catalog.delete(msg.id, msg.context)
+                if not isMsgTranslated(msg):
+                    catalog.delete(msgId(msg), msg.context)
 
         catalog.revision_date = datetime.now()
         with open(path, 'wb') as fObj: write_po(fObj, catalog, **self.write_po_config)
