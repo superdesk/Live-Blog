@@ -20,6 +20,8 @@ from internationalization.api.source import ISourceService, Source
 from internationalization.core.impl.po_file_manager import POFileManagerDB
 from os import makedirs
 from genericpath import isdir
+from shutil import rmtree
+from ally.babel.util_babel import msgId
 
 
 class TestMessageService(IMessageService):
@@ -35,13 +37,13 @@ class TestMessageService(IMessageService):
 
     _pluginMessages = 8
 
-    def getMessagesCount(self, sourceId=None, q=None):
+    def getMessagesCount(self, sourceId=None, qm=None, qs=None):
         '''
         Provides the total count of messages searched based on the given parameters.
         '''
         return self._components * self._componentMessages + self._plugins * self._pluginMessages
 
-    def getMessages(self, sourceId=None, offset=None, limit=None, q=None):
+    def getMessages(self, sourceId=None, offset=None, limit=None, qm=None, qs=None):
         '''
         Provides the messages searched based on the given parameters.
         '''
@@ -52,53 +54,59 @@ class TestMessageService(IMessageService):
             messages.extend(self.getPluginMessages(str(p)))
         return messages
 
-    def getComponentMessagesCount(self, component, q=None):
+    def getComponentMessagesCount(self, component, qm=None, qs=None):
         '''
         Provides the total count of messages for the given component.
         '''
         return self._componentMessages
 
-    def getComponentMessages(self, component, offset=None, limit=None, q=None):
+    def getComponentMessages(self, component, offset=None, limit=None, qm=None, qs=None):
         '''
         Provides the messages for the given component.
         '''
         messages = []
         for m in range(self._componentMessages):
+            if qs and m % 2: continue
             msg = Message()
             msg.Id = self._componentStartId + int(component) * self._componentMessages + m
             if m > 2:
                 msg.Singular = 'component %s message %d' % (component, m)
+                msg.Plural = None if m % 2 else ['component %s message %d plural' % (component, m)]
                 msg.Context = 'component'
             else:
                 msg.Singular = 'message %i' % m
+                msg.Plural = None if m % 2 else ['message %d plural' % m]
                 msg.Context = ''
             msg.Source = int(component)
-            msg.LineNumber = 100 + 2 * m
+            msg.LineNumber = 100 + m
             messages.append(msg)
         return messages
 
-    def getPluginMessagesCount(self, plugin, q=None):
+    def getPluginMessagesCount(self, plugin, qm=None, qs=None):
         '''
         Provides the total count of messages for the given plugin.
         '''
         return self._pluginMessages
 
-    def getPluginMessages(self, plugin, offset=None, limit=None, q=None):
+    def getPluginMessages(self, plugin, offset=None, limit=None, qm=None, qs=None):
         '''
         Provides the messages for the given plugin.
         '''
         messages = []
         for m in range(self._pluginMessages):
+            if qs and m % 2: continue
             msg = Message()
             msg.Id = self._pluginStartId + int(plugin) * self._pluginMessages + m
             if m > 3:
                 msg.Singular = 'plugin %s message %d' % (plugin, m)
+                msg.Plural = None if m % 2 else ['plugin %s message %d plural' % (plugin, m)]
                 msg.Context = 'plugin'
             else:
                 msg.Singular = 'message %i' % m
+                msg.Plural = None if m % 2 else ['message %d plural' % m]
                 msg.Context = ''
-            msg.Source = int(plugin) + 10
-            msg.LineNumber = 100 + 2 * m
+            msg.Source = 10 + int(plugin)
+            msg.LineNumber = 200 + m
             messages.append(msg)
         return messages
 
@@ -120,12 +128,13 @@ class TestSourceService(ISourceService):
     def getById(self, id):
         src = Source()
         src.Id = id
+        ext = 'py' if id % 2 else 'js'
         if id < 10:
             src.Component = str(id)
-            src.Path = 'component_%d/src.py' % id
+            src.Path = 'component_%d/src.%s' % (id, ext)
         else:
             src.Plugin = str(id)
-            src.Path = 'plugin_%d/src.py' % id
+            src.Path = 'plugin_%d/src.%s' % (id, ext)
         return src
 
     def getAll(self, offset=None, limit=None, q=None):
@@ -152,7 +161,8 @@ class TestHTTPDelivery(unittest.TestCase):
         poManager.sourceService = TestSourceService()
         poRepDir = TemporaryDirectory()
         poManager.locale_dir_path = poRepDir.name
-#        poManager.locale_dir_path = join(dirname(abspath(__file__)), 'repo');
+        poManager.locale_dir_path = join(dirname(abspath(__file__)), 'repo');
+        rmtree(poManager.locale_dir_path)
         if not isdir(poManager.locale_dir_path):
             makedirs(poManager.locale_dir_path)
 
@@ -165,8 +175,8 @@ class TestHTTPDelivery(unittest.TestCase):
             globalTestCat = read_po(f)
         self.assertEqual(len(globalCat), len(globalTestCat))
         for msg in globalCat:
-            if msg and msg.id != '':
-                self.assertEqual(msg.string, globalTestCat.get(msg.id, msg.context).string)
+            if msg and msg.id:
+                self.assertEqual(msg.string, globalTestCat.get(msgId(msg), msg.context).string)
 
         # ********************************************
         # test updateComponentPOFile
@@ -176,9 +186,9 @@ class TestHTTPDelivery(unittest.TestCase):
         with open(join(poManager.locale_dir_path, 'component', '1_ro.po')) as f:
             componentTestCat = read_po(f)
         for msg in componentTestCat:
-            if msg and msg.id != '':
-                self.assertEqual(msg.string, componentCat.get(msg.id, msg.context).string)
-                self.assertNotEqual(msg.string, globalCat.get(msg.id, msg.context).string)
+            if msg and msg.id:
+                self.assertEqual(msg.string, componentCat.get(msgId(msg), msg.context).string)
+                self.assertNotEqual(msg.string, globalCat.get(msgId(msg), msg.context).string)
 
         # ********************************************
         # test updatePluginPOFile
@@ -188,9 +198,9 @@ class TestHTTPDelivery(unittest.TestCase):
         with open(join(poManager.locale_dir_path, 'plugin', '1_ro.po')) as f:
             pluginTestCat = read_po(f)
         for msg in pluginTestCat:
-            if msg and msg.id != '':
-                self.assertEqual(msg.string, pluginCat.get(msg.id, msg.context).string)
-                self.assertNotEqual(msg.string, globalCat.get(msg.id, msg.context).string)
+            if msg and msg.id:
+                self.assertEqual(msg.string, pluginCat.get(msgId(msg), msg.context).string)
+                self.assertNotEqual(msg.string, globalCat.get(msgId(msg), msg.context).string)
 
         # ********************************************
         # test getGlobalPOFile
@@ -199,8 +209,9 @@ class TestHTTPDelivery(unittest.TestCase):
         self.assertEqual(len(globalCat), len(globalTestCat))
         self._checkHeader(globalTestCat, globalCat)
         for msg in globalCat:
-            if msg and msg.id != '':
-                self.assertEqual(msg.string, globalTestCat.get(msg.id, msg.context).string)
+            if msg and msg.id:
+                self.assertEqual(msg.locations, globalTestCat.get(msgId(msg), msg.context).locations)
+                self.assertEqual(msg.string, globalTestCat.get(msgId(msg), msg.context).string)
 
         # ********************************************
         # test getComponentPOFile
@@ -209,7 +220,8 @@ class TestHTTPDelivery(unittest.TestCase):
         self.assertEqual(len(componentCat), len(componentTestCat))
         self._checkHeader(componentTestCat, componentCat)
         for msg in componentCat:
-            if msg and msg.id != '':
+            if msg and msg.id:
+                self.assertEqual(msg.locations, componentTestCat.get(msgId(msg), msg.context).locations)
                 self.assertEqual(msg.string, componentTestCat.get(msg.id, msg.context).string)
 
         # ********************************************
@@ -219,13 +231,17 @@ class TestHTTPDelivery(unittest.TestCase):
         self.assertEqual(len(pluginCat), len(pluginTestCat))
         self._checkHeader(pluginTestCat, pluginCat)
         for msg in pluginCat:
-            if msg and msg.id != '':
+            if msg and msg.id:
+                self.assertEqual(msg.locations, pluginTestCat.get(msgId(msg), msg.context).locations)
                 self.assertEqual(msg.string, pluginTestCat.get(msg.id, msg.context).string)
 
         # ********************************************
         # test getGlobalAsDict
         globalTestDict = poManager.getGlobalAsDict('ro')
-        print(globalTestDict)
+        for domain, messages in globalTestDict.items():
+            print('domain: %s' % domain)
+            for id, plurals in messages.items():
+                print('    %s -> %s' % (id, plurals))
 
         # ********************************************
         # test getComponentPOFile
