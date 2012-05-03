@@ -1,0 +1,9 @@
+<div class="row-fluid" id="main-container">
+	<div class="span6" id="area-sidebar">
+		{+list/}
+	</div>
+	<div class="span6" id="area-content">
+		{+body/}
+	</div>
+</div>
+<hr>
