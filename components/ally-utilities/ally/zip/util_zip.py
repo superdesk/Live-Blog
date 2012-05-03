@@ -1,7 +1,7 @@
 '''
 Created on Feb 9, 2012
 
-@package support - cdm
+@package ally utilities
 @copyright 2012 Sourcefabric o.p.s.
 @license http: // www.gnu.org / licenses / gpl - 3.0.txt
 @author: Mugur Rus
