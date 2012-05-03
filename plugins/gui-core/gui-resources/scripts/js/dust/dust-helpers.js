@@ -1,4 +1,4 @@
-define('dust/dust-helpers', ['dust/dust','jquery', 'jquery/i18n', 'jquery/utils'], function(dust, $, I18n){
+define('dust/dust-helpers', ['jquery', 'dust/dust', 'jquery/i18n', 'jquery/utils'], function($, dust, I18n){
 var parseAttributeParams = function(params) {
 	if($.isDefined(params.param1) ) {
 		for(var i=1,count=params.length+1, aux=[];i<count;i++) {
@@ -13,22 +13,24 @@ var parseAttributeParams = function(params) {
 	}
 };
 
-var helpers = {
- "gettext": function( chunk, context, bodies, params ){
-	msgid = ( 	params.msgid );	
-	// no msgid
+var helpers = { 
+  "i18n": function( chunk, context, bodies, params ){
+	msgid = ( params.msgid );
+	msgid_plural = ( params.msgid_plural );
+	n = ( params.n );
+	domain = ( params.domain );
+	msgctxt = ( params.msgctxt );
     if( params && params.msgid ){
 		delete params.msgid;
-		chunk.write(gettext(msgid).format(parseAttributeParams(params)));
+		chunk.write(I18n.dcnpgettext(domain, msgctxt, msgid, msgid_plural, n).format(parseAttributeParams(params)));
 	}
 	else {
       if( window.console ){
         window.console.log( "No expression given!" );
       }
     }
-    return chunk;
-  },
-  
+    return chunk;	
+  },  
   sep: function(chunk, context, bodies) {
     if (context.stack.index === context.stack.of - 1) {
       return chunk;
