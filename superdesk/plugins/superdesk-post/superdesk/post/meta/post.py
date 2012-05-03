@@ -28,7 +28,7 @@ class PostMapped(Base, Post):
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Creator = Column('fk_creator_id', ForeignKey(User.Id, ondelete='RESTRICT'), nullable=False)
-    Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'), nullable=False)
+    Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))
     Content = Column('content', String(1000), nullable=False)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     PublishedOn = Column('published_on', DateTime)
