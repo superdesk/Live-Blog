@@ -9,7 +9,7 @@
         isBrowser = (typeof window !== "undefined" && window.navigator && window.document) || typeof importScripts !== "undefined",
         isNode = typeof process !== "undefined" && process.versions && !!process.versions.node,
 		pathPrefix = '';
-        dustCompilerLibrary = 'dust/compiler';
+        dustCompilerLibrary = ['dust/compiler','dust/i18n_parse'];
 		dustCoreLibrary = 'dust/core';
 
     if (isBrowser) {
@@ -76,15 +76,15 @@
 			var self = this;
 
             if (isBrowser) {
-                require([dustCompilerLibrary], function(dust){
-					self.process(dust, name, parentRequire, load, config);
+                require(dustCompilerLibrary, function(dust, i18n_parse){
+					self.process(dust, name, parentRequire, load, config, i18n_parse);
                 });
             } else if (isNode) {
                 self.process(require.nodeRequire('dust'), name, parentRequire, load, config);
             }
         },
 
-        process: function(dust, name, parentRequire, load, config) {
+        process: function(dust, name, parentRequire, load, config, i18n_parse) {
 			var prefix = '';
 			if( name.indexOf('>') === -1 ) {
 				prefix = config.templatePaths.default;
@@ -97,6 +97,7 @@
 			var self = this,
                 path = parentRequire.toUrl( prefix + name + '.dust');
             fetchText(path, function(data){
+				data = i18n_parse(data);
 				var text = "define('tmpl!" + name +"', ['"+dustCoreLibrary+"'], function (dust) {"
 						+ dust.compile(data, name) + "\n"
 						+ "return { render: function(context, callback) { dust.render('" + name + "', context, callback); }}"
