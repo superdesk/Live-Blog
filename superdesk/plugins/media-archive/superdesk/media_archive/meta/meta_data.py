@@ -12,13 +12,33 @@ Contains the SQL alchemy meta for media meta data API.
 from ..api.meta_data import MetaData
 from .meta_type import MetaTypeMapped
 from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.mapper import reconstructor
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String, DateTime, Integer
 from superdesk.meta.metadata_superdesk import Base
+from ally.support.sqlalchemy.session import openSession
+from ally.internationalization import N_
 
 # --------------------------------------------------------------------
+
+META_TYPE_KEY = N_('other')
+# The key used for simple meta data objects
+
+# --------------------------------------------------------------------
+
+class Thumbnail(Base):
+    '''
+    Provides the mapping for thumbnails.
+    This is not a REST model.
+    '''
+    __tablename__ = 'archive_thumbnail'
+    __table_args__ = dict(mysql_engine='InnoDB')
+
+    id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    format = Column('format', String(255), unique=True, nullable=False, doc='''
+    The format for the reference of the thumbnail images in the media archive
+    id = the meta data database id; name = the name of the content file; size = the key of the thumbnail size
+    ''')
 
 class MetaDataMapped(Base, MetaData):
     '''
@@ -28,13 +48,21 @@ class MetaDataMapped(Base, MetaData):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Name = Column('name', String(255), nullable=False)
     SizeInBytes = Column('size_in_bytes', Integer)
-    CreatedOn = Column('created_on', DateTime)
+    CreatedOn = Column('created_on', DateTime, nullable=False)
     # None REST model attribute --------------------------------------
     typeId = Column('type', ForeignKey(MetaTypeMapped.id, ondelete='RESTRICT'), nullable=False)
-    type = relationship(MetaTypeMapped, backref=backref('parent', uselist=False))
-    reference = Column('reference', String(255))
+    thumbnailId = Column('fk_thumbnail_id', ForeignKey(Thumbnail.id, ondelete='RESTRICT'), nullable=False)
 
+    _cache_types = {}
+    # A dictionary having as a key the type id and as a value the type key. This is because not to many meta data types are
+    # expected.
     @reconstructor
     def init_on_load(self):
-        self.Type = self.type.Key
+        key = self._cache_types.get(self.typeId)
+        if key is None:
+            metaType = openSession().query(MetaTypeMapped).get(self.typeId)
+            assert isinstance(metaType, MetaTypeMapped), 'Invalid type id %s' % metaType
+            key = self._cache_types[metaType.id] = metaType.Key
+        self.Type = key
