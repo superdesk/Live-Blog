@@ -22,6 +22,10 @@ def menuAction():
                   ScriptPath=getPublishedGui('livedesk/scripts/js/menu-live-blogs.js'), Href='/livedesk/live-blogs')
 
 @ioc.entity   
+def subMenuAction():
+    return Action('submenu', Parent=menuAction(), ScriptPath=getPublishedGui('livedesk/scripts/js/submenu-live-blogs.js'))
+
+@ioc.entity   
 def modulesAction():
     return Action('livedesk', Parent=defaults.modulesAction())
 
@@ -33,5 +37,6 @@ def modulesUpdateAction():
 @ioc.start
 def registerActions():
     actionManagerService().add(menuAction())
+    actionManagerService().add(subMenuAction())
     actionManagerService().add(modulesAction())
     actionManagerService().add(modulesUpdateAction())

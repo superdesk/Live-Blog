@@ -9,8 +9,14 @@
 		<div class="nav-collapse">
 			<ul class="nav">
 			{#superdesk.menu}
-				<li>
-					<a href="{Href}" script-path="{ScriptPath}" class="menu-{DisplayName}">{Label}</a>
+				<li class="dropdown">
+					<a href="{Href}" script-path="{ScriptPath}" class="menu-{Name} dropdown-toggle" data-toggle="dropdown">
+						{Label} {?Subs}<b class="caret"></b>{/Subs}</a>
+					{?Subs}
+						<ul {Subs} class="dropdown-menu submenu-{Name}">
+                  			<li class="nav-header">Loading...</li>
+                  		</ul>
+					{/Subs}
 				</li>
 			{/superdesk.menu}
 			</ul>

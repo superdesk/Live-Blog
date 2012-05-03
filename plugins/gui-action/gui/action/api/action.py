@@ -29,20 +29,27 @@ class Action:
     # ui script path
     Href = str
     # href to use for ui controls
+    ChildrenCount = int
 
     def __init__(self, Path=None, Label=None, Parent=None, ScriptPath=None, Href=None):
         self.Path = ''
+        self.ChildrenCount = 0
         if Path:
             self.Path = re.compile('[^\w\-\.]', re.ASCII).sub('', Path)
         if Parent:
             assert isinstance(Parent, Action), 'Invalid Parent object: %s' % Parent
             self.Path = Parent.Path + '.' + self.Path
+            Parent.incrementKids(self)
         if Label:
             self.Label = Label
         if ScriptPath:
             self.ScriptPath = ScriptPath
         if Href:
             self.Href = Href;
+
+    def incrementKids(self, action):
+        if not isinstance(action, Action): return
+        self.ChildrenCount += 1
 
 # --------------------------------------------------------------------
 
