@@ -9,7 +9,7 @@ Created on Jan 5, 2012
 Provides utility methods for SQL alchemy service implementations.
 '''
 
-from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual
+from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual, AsDate, AsTime, AsDateTime
 from ally.api.type import typeFor
 from ally.exception import InputError, Ref
 from ally.internationalization import _
@@ -63,6 +63,7 @@ def buildQuery(sqlQuery, query, mapped):
     for criteria in namesForQuery(clazz):
         column = properties.get(criteria.lower())
         if column is not None and getattr(clazz, criteria) in query:
+
             crt = getattr(query, criteria)
             if isinstance(crt, AsBoolean):
                 assert isinstance(crt, AsBoolean)
@@ -77,6 +78,10 @@ def buildQuery(sqlQuery, query, mapped):
                 assert isinstance(crt, AsEqual)
                 if AsEqual.equal in crt:
                     sqlQuery = sqlQuery.filter(column == crt.equal)
+            elif isinstance(crt, (AsDate, AsTime, AsDateTime)):
+                if crt.__class__.start in crt: sqlQuery = sqlQuery.filter(column >= crt.start)
+                if crt.__class__.end in crt: sqlQuery = sqlQuery.filter(column <= crt.end)
+
             if isinstance(crt, AsOrdered):
                 assert isinstance(crt, AsOrdered)
                 if AsOrdered.ascending in crt:

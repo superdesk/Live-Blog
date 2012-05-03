@@ -1,25 +1,26 @@
 '''
-Created on Jun 23, 2011
+Created on May 2, 2012
 
 @package: support plugin
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-SQL alchemy implementation for the generic entities API.
+SQL alchemy implementation for the generic keyed entities API.
 '''
 
 from ally.api.operator.type import TypeModel, TypeQuery
 from ally.api.type import typeFor
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.api import entity as api
+from ally.support.api import keyed as api
 from ally.support.api.util_service import copy
 from ally.support.sqlalchemy.mapper_descriptor import MappedSupport
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
 from inspect import isclass
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
+from sqlalchemy.orm.exc import NoResultFound
 import logging
 
 # --------------------------------------------------------------------
@@ -147,13 +148,12 @@ class EntityGetServiceAlchemy(EntitySupportAlchemy):
     Generic implementation for @see: IEntityGetService
     '''
 
-    def getById(self, id):
+    def getByKey(self, key):
         '''
-        @see: IEntityGetService.getById
+        @see: IEntityGetService.getByKey
         '''
-        entity = self.session().query(self.Entity).get(id)
-        if not entity: raise InputError(Ref(_('Unknown id'), ref=self.Entity.Id))
-        return entity
+        try: return self.session().query(self.Entity).filter(self.Entity.Key == key).one()
+        except NoResultFound: raise InputError(Ref(_('Unknown key'), ref=self.Entity.Key))
 
 class EntityFindServiceAlchemy(EntitySupportAlchemy):
     '''
@@ -192,29 +192,29 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
             self.session().add(entityDb)
             self.session().flush((entityDb,))
         except SQLAlchemyError as e: handle(e, entityDb)
-        entity.Id = entityDb.Id
-        return entityDb.Id
+        return entity.Key
 
     def update(self, entity):
         '''
         @see: IEntityCRUDService.update
         '''
         assert self.modelType.isValid(entity), 'Invalid entity %s, expected %s' % (entity, self.Entity)
-        assert isinstance(entity.Id, int), 'Invalid entity %s, with id %s' % (entity, entity.Id)
-        entityDb = self.session().query(self.Entity).get(entity.Id)
-        if not entityDb: raise InputError(Ref(_('Unknown id'), ref=self.Entity.Id))
+        assert isinstance(entity.Key, str), 'Invalid entity %s, with key %s' % (entity, entity.Key)
+
+        try: entityDb = self.session().query(self.Entity).filter(self.Entity.Key == entity.Key)
+        except NoResultFound: raise InputError(Ref(_('Unknown key'), ref=self.Entity.Key))
         try:
             self.session().flush((copy(entity, entityDb),))
         except SQLAlchemyError as e: handle(e, self.Entity)
 
-    def delete(self, id):
+    def delete(self, key):
         '''
         @see: IEntityCRUDService.delete
         '''
         try:
-            return self.session().query(self.Entity).filter(self.Entity.Id == id).delete() > 0
+            return self.session().query(self.Entity).filter(self.Entity.Key == key).delete() > 0
         except OperationalError:
-            assert log.debug('Could not delete entity %s with id \'%s\'', self.Entity, id, exc_info=True) or True
+            assert log.debug('Could not delete entity %s with key \'%s\'', self.Entity, key, exc_info=True) or True
             raise InputError(Ref(_('Cannot delete because is in use'), model=self.model))
 
 class EntityGetCRUDServiceAlchemy(EntityGetServiceAlchemy, EntityCRUDServiceAlchemy):

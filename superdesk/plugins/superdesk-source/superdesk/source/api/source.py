@@ -12,8 +12,8 @@ the content is received from the source.
 
 from .type import SourceType
 from ally.api.config import service, call, query
-from ally.api.criteria import AsBoolean
-from ally.api.type import Iter
+from ally.api.criteria import AsBoolean, AsLikeOrdered
+from ally.api.type import Iter, Reference
 from ally.support.api.entity import Entity, IEntityGetCRUDService, QEntity
 from superdesk.api.domain_superdesk import modelSuperDesk
 
@@ -26,7 +26,7 @@ class Source(Entity):
     '''
     Type = SourceType
     Name = str
-    URI = str
+    URI = Reference
     IsModifiable = bool
 
 # --------------------------------------------------------------------
@@ -36,6 +36,7 @@ class QSource(QEntity):
     '''
     Provides the query for source model.
     '''
+    name = AsLikeOrdered
     isModifiable = AsBoolean
 
 # --------------------------------------------------------------------
