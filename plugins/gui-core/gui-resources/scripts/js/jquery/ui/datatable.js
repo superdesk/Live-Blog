@@ -440,6 +440,7 @@ define('jqueryui/datatable',['jquery', 'dust', 'jquery/tmpl','jqueryui/widget', 
         },
         _create : function()
         {
+            
             if(this.element.is('table'))
                 this.plugins.lib.core.replaceDatatable( this.element );
             else
@@ -458,7 +459,7 @@ define('jqueryui/datatable',['jquery', 'dust', 'jquery/tmpl','jqueryui/widget', 
         },
         _destroy: function() 
         { 
-            console.log('-', this);
+            
         }
     }); 
 });
