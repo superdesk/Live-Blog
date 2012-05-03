@@ -33,7 +33,7 @@ class Collaborator(Entity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, Source))
+@service((Entity, Collaborator))
 class ICollaboratorService(IEntityGetCRUDService):
     '''
     Provides the service methods for the collaborators.
