@@ -13,19 +13,14 @@ function parseAttributeParams(params) {
 	}
 }
 var helpers = {
-  "npgettext": function(){
+  "i18n": function( chunk, context, bodies, params ){
 	msgid = ( params.msgid );
-	msgid_plural = ( params.nmsgid );
-	n = ( params.count );
-	msgctxt = ( params.context );
+	msgid_plural = ( params.msgid_plural );
+	n = ( params.n );
+	msgctxt = ( params.msgctxt );
     if( params && params.msgid ){
 		delete params.msgid;
-		if(params.length) {
-			chunk.write(npgettext(msgctxt, msgid, msgid_plural, n).format(parseAttributeParams(params)));
-		}
-		else {
-			chunk.write(gettext(msgctxt, msgid, msgid_plural, n).toString());
-		}
+		chunk.write(dcnpgettext(msgctxt, msgid, msgid_plural, n).format(parseAttributeParams(params)));
 	}
 	else {
       if( window.console ){
@@ -55,11 +50,13 @@ var helpers = {
   },
   "ngettext": function( chunk, context, bodies, params ){
 	msgid = ( params.msgid );
-	nmsgid = ( params.nmsgid );
-	count = ( params.count );
+	msgid_plural = ( params.msgid_plural );
+	n = ( params.n );
 	// no msgid
-    if( params && params.msgid && params.nmsgid && params.count ){
+    if( params && params.msgid && params.msgid_plural && params.n ){
 		delete params.msgid;
+		delete params.msgid_plural;
+		delete params.n;
 		if(params.length) {
 			chunk.write(gettext(msgid).format(parseAttributeParams(params)));
 		}
@@ -73,4 +70,5 @@ if($.isDefined(dust.helpers)) {
 } else {
 	dust.helpers = helpers;
 }
+return dust;
 });
