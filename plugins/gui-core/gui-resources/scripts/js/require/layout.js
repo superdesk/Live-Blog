@@ -1,5 +1,4 @@
-(function()
-{
+(function(){
     define
     ({
         load: function (name, req, load, config)
