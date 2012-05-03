@@ -1,6 +1,6 @@
 define
 ([
-    'jquery','jquery/superdesk','dust/core','jquery/tmpl','jquery/rest',
+    'jquery','jquery/superdesk','dust/core','jquery/tmpl','jquery/rest', 'bootstrap', 
     'tmpl!layouts/dashboard',
     'tmpl!navbar'
 ], 
@@ -14,8 +14,28 @@ function($, superdesk, dust)
     		var displayMenu = []
     		$(menu).each(function()
     		{ 
-    			displayMenu.push($.extend({}, this, { Path: this.Path.split('.'), DisplayName: this.Path.replace('.', '-') }));
+    		    var Subs = null;
+    			if(this.ChildrenCount > 0)
+    			{
+    			    Subs = 'data-submenu='+this.Path;
+    			    Subz = '[data-submenu="'+this.Path+'"]';
+    			    new $.rest(config.api_url + '/resources/GUI/Action?path=' + this.Path + '.*')
+    			    .done(function(subs)
+    			    { 
+    			        $(subs).each(function()
+    			        { 
+    			            require([config.api_url + this.ScriptPath], function(x){ x.init(Subz); }); 
+    			        });
+    			    });
+    			}
+    			displayMenu.push($.extend({}, this, 
+    			{ 
+    			    Path: this.Path.split('.'), 
+    			    Name: this.Path.replace('.', '-'),
+    			    Subs: Subs
+    			}));
     		});
+    		
     		$('#navbar-top')
     		.tmpl( 'navbar', {superdesk: {menu: displayMenu}} )
     		.on('click', '.nav a', function(event)
@@ -24,7 +44,10 @@ function($, superdesk, dust)
     		    superdesk.navigation.bind( 
     		        $(this).attr('href'), 
     		        function(){ 
-    		            require([config.api_url + $(self).attr('script-path')], function(x){ x.init(); });
+    		            require([config.api_url + $(self).attr('script-path')], function(x)
+    		            { 
+    		                if(x && x.init) x.init(); 
+    		            });
     		        });
     			event.preventDefault(); 
     		});
