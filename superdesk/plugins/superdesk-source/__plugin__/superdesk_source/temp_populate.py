@@ -40,20 +40,22 @@ SOURCES = {
            'facebook': (False, 'www.facebook.com', 'rss'),
            }
 
+_cache_sources = {}
 def getSourcesIds():
     sourcesService = entityFor(ISourceService)
     assert isinstance(sourcesService, ISourceService)
-    sources = {}
-    for name in SOURCES:
-        srcs = sourcesService.getAll(q=QSource(name=name))
-        if srcs: sources[name] = next(iter(srcs)).Id
-        if not srcs:
-            src = Source()
-            src.Name = name
-            src.IsModifiable, src.URI, src.Type = SOURCES[name]
-            createSourceType(src.Type)
-            sources[name] = sourcesService.insert(src)
-    return sources
+    if not _cache_sources:
+        sources = _cache_sources
+        for name in SOURCES:
+            srcs = sourcesService.getAll(q=QSource(name=name))
+            if srcs: sources[name] = next(iter(srcs)).Id
+            if not srcs:
+                src = Source()
+                src.Name = name
+                src.IsModifiable, src.URI, src.Type = SOURCES[name]
+                createSourceType(src.Type)
+                sources[name] = sourcesService.insert(src)
+    return _cache_sources
 
 # --------------------------------------------------------------------
 
