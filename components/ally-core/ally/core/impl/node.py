@@ -195,7 +195,7 @@ class MatchProperty(Match):
         '''
         return MatchProperty(self.node, self.type, self.matchValue)
 
-    def __str__(self): return '*' if self.matchValue is None else self.matchValue
+    def __str__(self): return '*' if self.matchValue is None else str(self.matchValue)
 
 # --------------------------------------------------------------------
 

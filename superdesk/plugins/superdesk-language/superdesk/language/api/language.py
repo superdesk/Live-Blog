@@ -62,7 +62,8 @@ class ILanguageService(IEntityCRUDService):
         '''
 
     @call(webName='Available')
-    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10, q:QLanguage=None) -> IterPart(Language):
+    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10,
+                        q:QLanguage=None) -> IterPart(Language):
         '''
         Provides all the available languages.
         '''
