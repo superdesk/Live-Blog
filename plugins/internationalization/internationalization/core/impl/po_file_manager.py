@@ -17,16 +17,17 @@ from babel.messages.catalog import Catalog
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po, write_po
 from collections import Iterable
+from copy import copy
 from datetime import datetime
 from genericpath import isdir, isfile
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, QSource, TYPE_JAVA_SCRIPT
 from internationalization.core.spec import IPOFileManager, InvalidLocaleError
+from internationalization.support.babel.util_babel import msgId, isMsgTranslated, copyTranslation, \
+    fixBabelCatalogAddBug
 from io import BytesIO
 from os.path import dirname, join
 import os
-from copy import copy
-from ally.babel.util_babel import msgId, isMsgTranslated, copyTranslation, fixBabelCatalogAddBug
 
 # --------------------------------------------------------------------
 
