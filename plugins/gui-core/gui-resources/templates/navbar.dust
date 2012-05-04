@@ -10,7 +10,7 @@
 			<ul class="nav">
 			{#superdesk.menu}
 				<li class="dropdown">
-					<a href="{Href}" script-path="{ScriptPath}" class="menu-{Name} dropdown-toggle" data-toggle="dropdown">
+					<a href="{?Href}{Href}{:else}#{/Href}" script-path="{ScriptPath}" class="menu-{Name} dropdown-toggle" data-toggle="dropdown">
 						{Label} {?Subs}<b class="caret"></b>{/Subs}</a>
 					{?Subs}
 						<ul {Subs} class="dropdown-menu submenu-{Name}">
