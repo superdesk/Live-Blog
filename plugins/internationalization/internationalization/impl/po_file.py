@@ -20,6 +20,7 @@ from introspection.api.plugin import IPluginService, Plugin
 from ally.api.model import Content
 import codecs
 from introspection.api.component import IComponentService
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -72,8 +73,8 @@ class POFileService(IPOFileService):
             try: cdmFileTimestamp = self.cdmLocale.getTimestamp(path)
             except PathNotFound: republish = True
             else:
-                mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale),
-                                       self.poFileManager.getComponentPOTimestamp(component, locale))
+                mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale) or datetime.min,
+                                       self.poFileManager.getComponentPOTimestamp(component, locale) or datetime.min)
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
@@ -94,8 +95,8 @@ class POFileService(IPOFileService):
             try: cdmFileTimestamp = self.cdmLocale.getTimestamp(path)
             except PathNotFound: republish = True
             else:
-                mngFileTimestamp = mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale),
-                                                          self.poFileManager.getPluginPOTimestamp(plugin, locale))
+                mngFileTimestamp = mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale) or datetime.min,
+                                                          self.poFileManager.getPluginPOTimestamp(plugin, locale) or datetime.min)
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
