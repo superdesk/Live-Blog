@@ -393,7 +393,7 @@ class POFileManagerDB(IPOFileManager):
             else:
                 key, key_plural = msg.id, None
                 singular, plural = msg.string, None
-            key = msg.id if not msg.context else "%s:%s" % (msg.context, msg.id)
+            key = key if not msg.context else "%s:%s" % (msg.context, key)
             d[key] = [ key_plural, singular, plural ]
         return { domain : d }
 
