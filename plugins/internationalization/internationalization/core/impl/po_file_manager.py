@@ -43,7 +43,7 @@ FORMAT_MO = '%s_%s.mo'
 
 # TODO: add lock in order to avoid problems when a file is being updated an then read.
 @injected
-class POFileManagerDB(IPOFileManager):
+class POFileManager(IPOFileManager):
     '''
     Implementation for @see: IPOFileManager
     '''
