@@ -17,7 +17,7 @@ from babel.messages.pofile import read_po
 
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, Source
-from internationalization.core.impl.po_file_manager import POFileManagerDB
+from internationalization.core.impl.po_file_manager import POFileManager
 from os import makedirs
 from genericpath import isdir
 from shutil import rmtree
@@ -156,7 +156,7 @@ class TestHTTPDelivery(unittest.TestCase):
     _poDir = join(dirname(abspath(__file__)), 'po')
 
     def testLocalFilesystemCDM(self):
-        poManager = POFileManagerDB()
+        poManager = POFileManager()
         poManager.messageService = TestMessageService()
         poManager.sourceService = TestSourceService()
         poRepDir = TemporaryDirectory()
