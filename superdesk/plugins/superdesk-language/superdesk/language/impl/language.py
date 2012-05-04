@@ -24,6 +24,10 @@ from superdesk.language.meta.language import LanguageEntity
 
 # --------------------------------------------------------------------
 
+DEFAULT_LOCALE = ['en']
+
+# --------------------------------------------------------------------
+
 @injected
 class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
     '''
@@ -40,7 +44,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         self._locales = OrderedDict(locales)
         validateProperty(LanguageEntity.Code, self._validateCode)
 
-    def getByCode(self, code, locales):
+    def getByCode(self, code, locales=DEFAULT_LOCALE):
         '''
         @see: ILanguageService.getByCode
         '''
@@ -48,7 +52,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         if not locale: raise InputError(Ref(_('Unknown language code'), ref=Language.Code))
         return self._populate(Language(code), self._translator(locale, self._localesOf(locales)))
 
-    def getAllAvailable(self, locales, offset=None, limit=None, q=None):
+    def getAllAvailable(self, locales=DEFAULT_LOCALE, offset=None, limit=None, q=None):
         '''
         @see: ILanguageService.getAllAvailable
         '''
@@ -66,12 +70,13 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
                          for code, locale in languages)
         return Part(languages, length)
 
-    def getById(self, id, locales):
+    def getById(self, id, locales=DEFAULT_LOCALE):
         '''
         @see: ILanguageService.getById
         '''
         locales = self._localesOf(locales)
-        language = super().getById(id)
+        language = self.session().query(LanguageEntity).get(id)
+        if not language: raise InputError(Ref(_('Unknown language id'), ref=LanguageEntity.Id))
         return self._populate(language, self._translator(self._localeOf(language.Code), locales))
 
     def getCount(self):
@@ -80,7 +85,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         '''
         return self._getCount()
 
-    def getAll(self, locales, offset=None, limit=None):
+    def getAll(self, locales=DEFAULT_LOCALE, offset=None, limit=None):
         '''
         @see: ILanguageService.getAll
         '''
