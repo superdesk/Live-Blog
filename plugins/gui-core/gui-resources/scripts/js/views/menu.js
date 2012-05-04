@@ -40,15 +40,18 @@ function($, superdesk, dust)
     		.tmpl( 'navbar', {superdesk: {menu: displayMenu}} )
     		.on('click', '.nav a', function(event)
     		{
+    		    if(!$(this).attr('href')) return;
     		    var self = this;
-    		    superdesk.navigation.bind( 
+    		    superdesk.navigation.bind
+    		    ( 
     		        $(this).attr('href'), 
-    		        function(){ 
-    		            require([config.api_url + $(self).attr('script-path')], function(x)
+    		        function(){ require([config.api_url + $(self).attr('script-path')], 
+    		            function(x)
     		            { 
     		                if(x && x.init) x.init(); 
     		            });
-    		        });
+    		        }
+    		    );
     			event.preventDefault(); 
     		});
     		
