@@ -37,14 +37,17 @@ def js_bootstrap_file():
 @ioc.start
 def publish():
     publishLib('core')
-    
+
 @ioc.after(publish)
 def updateStartup():
     bootPath = lib_folder_format() % 'core/'
-    try:
-        fileList = [openURI(getGuiPath(js_core_libs_format() % x)) for x in js_core_libs()]
-        try: cdmGUI().removePath(bootPath + js_bootstrap_file())
+    fileList = []
+    for x in js_core_libs():
+        try: fileList.append(openURI(getGuiPath(js_core_libs_format() % x)))
         except: pass
-        cdmGUI().publishFromFile(bootPath + js_bootstrap_file(), BytesIO(b'\n'.join([fi.read() for fi in fileList])))
-    finally:
-        for f in fileList: f.close()
+
+    try: cdmGUI().removePath(bootPath + js_bootstrap_file())
+    except: pass
+    cdmGUI().publishFromFile(bootPath + js_bootstrap_file(), BytesIO(b'\n'.join([fi.read() for fi in fileList])))
+
+    for f in fileList: f.close()
