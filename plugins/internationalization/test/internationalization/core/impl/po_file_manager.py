@@ -237,21 +237,21 @@ class TestHTTPDelivery(unittest.TestCase):
 
         # ********************************************
         # test getGlobalAsDict
-        globalTestDict = poManager.getGlobalAsDict('ro')
-        for domain, messages in globalTestDict.items():
-            print('domain: %s' % domain)
-            for id, plurals in messages.items():
-                print('    %s -> %s' % (id, plurals))
+#        globalTestDict = poManager.getGlobalAsDict('ro')
+#        for domain, messages in globalTestDict.items():
+#            print('domain: %s' % domain)
+#            for id, plurals in messages.items():
+#                print('    %s -> %s' % (id, plurals))
 
         # ********************************************
         # test getComponentPOFile
-        componentTestDict = poManager.getComponentAsDict('1', 'ro')
-        print(componentTestDict)
+#        componentTestDict = poManager.getComponentAsDict('1', 'ro')
+#        print(componentTestDict)
 
         # ********************************************
         # test getComponentPOFile
-        pluginTestDict = poManager.getPluginAsDict('1', 'ro')
-        print(pluginTestDict)
+#        pluginTestDict = poManager.getPluginAsDict('1', 'ro')
+#        print(pluginTestDict)
 
     def _checkHeader(self, testCat, witnessCat):
         self.assertEqual(testCat.domain, witnessCat.domain)
