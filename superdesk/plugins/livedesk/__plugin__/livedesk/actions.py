@@ -19,11 +19,11 @@ from ..gui_core.gui_core import getPublishedGui
 @ioc.entity   
 def menuAction():
     return Action('livedesk', Parent=defaults.menuAction(), Label=NC_('Menu', 'Live Blogs'),
-                  ScriptPath=getPublishedGui('livedesk/scripts/js/menu-live-blogs.js'))
+                  ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/menu-live-blogs.js'))
 
 @ioc.entity   
 def subMenuAction():
-    return Action('submenu', Parent=menuAction(), ScriptPath=getPublishedGui('livedesk/scripts/js/submenu-live-blogs.js'))
+    return Action('submenu', Parent=menuAction(), ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/submenu-live-blogs.js'))
 
 @ioc.entity   
 def modulesAction():
@@ -32,7 +32,7 @@ def modulesAction():
 @ioc.entity   
 def modulesUpdateAction():
     return Action('add', Parent=modulesAction(), 
-                  ScriptPath=getPublishedGui('livedesk/scripts/js/add-live-blogs.js'))
+                  ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/add-live-blogs.js'))
 
 @ioc.start
 def registerActions():
