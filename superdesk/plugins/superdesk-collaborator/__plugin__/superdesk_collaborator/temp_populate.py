@@ -25,19 +25,21 @@ PERSONS = {
            'Mugurel': ('Doe', 'Sporilor'),
            }
 
+_cache_persons = {}
 def getPersonsIds():
     personService = entityFor(IPersonService)
     assert isinstance(personService, IPersonService)
-    persons = {}
-    for name in PERSONS:
-        prsns = personService.getAll(q=QPerson(firstName=name))
-        if prsns: persons[name] = next(iter(prsns)).Id
-        else:
-            prsn = Person()
-            prsn.FirstName = name
-            prsn.LastName, prsn.Address = PERSONS[name]
-            persons[name] = personService.insert(prsn)
-    return persons
+    if not _cache_persons:
+        persons = _cache_persons
+        for name in PERSONS:
+            prsns = personService.getAll(q=QPerson(firstName=name))
+            if prsns: persons[name] = next(iter(prsns)).Id
+            else:
+                prsn = Person()
+                prsn.FirstName = name
+                prsn.LastName, prsn.Address = PERSONS[name]
+                persons[name] = personService.insert(prsn)
+    return _cache_persons
 
 COLLABORATORS = {
                  'Billy': 'google',
@@ -45,19 +47,21 @@ COLLABORATORS = {
                  'Mugurel': 'facebook',
                  }
 
+_cache_collaborators = {}
 def getCollaboratorsIds():
     collaboratorService = entityFor(ICollaboratorService)
     assert isinstance(collaboratorService, ICollaboratorService)
-    collaborators = {}
-    for name in COLLABORATORS:
-        colls = collaboratorService.getAll(qp=QPerson(firstName=name))
-        if colls: collaborators[name] = colls[0].Id
-        else:
-            coll = CollaboratorMapped()
-            coll.Person = getPersonsIds()[name]
-            coll.Source = getSourcesIds()[COLLABORATORS[name]]
-            collaborators[name] = collaboratorService.insert(coll)
-    return collaborators
+    if not _cache_collaborators:
+        collaborators = _cache_collaborators
+        for name in COLLABORATORS:
+            colls = collaboratorService.getAll(qp=QPerson(firstName=name))
+            if colls: collaborators[name] = colls[0].Id
+            else:
+                coll = CollaboratorMapped()
+                coll.Person = getPersonsIds()[name]
+                coll.Source = getSourcesIds()[COLLABORATORS[name]]
+                collaborators[name] = collaboratorService.insert(coll)
+    return _cache_collaborators
 
 # --------------------------------------------------------------------
 

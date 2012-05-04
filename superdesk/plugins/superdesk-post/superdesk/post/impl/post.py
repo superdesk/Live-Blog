@@ -6,7 +6,7 @@ Created on May 3, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Contains the SQL alchemy meta for post API.
+Contains the SQL alchemy implementation for post API.
 '''
 
 from ..api.post import IPostService
@@ -26,7 +26,7 @@ from superdesk.post.api.post import Post, QPostUnpublished, QPostPublished, \
 # --------------------------------------------------------------------
 
 @injected
-class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
+class PostServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
     '''
     Implementation for @see: IPostService
     '''
@@ -65,7 +65,7 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
         sql = sql.filter(PostMapped.PublishedOn != None)
         return sql.count()
 
-    def getPublished(self, creatorId=None, authorId=None, offset=None, limit=10, q=None):
+    def getPublished(self, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
         @see: IPostService.getPublished
         '''

@@ -26,5 +26,5 @@ class CollaboratorMapped(Base, Collaborator):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Person = Column('fk_person_id', ForeignKey(Person.Id, ondelete='CASCADE'), nullable=False)
+    Person = Column('fk_person_id', ForeignKey(Person.Id, ondelete='CASCADE'))
     Source = Column('fk_source_id', ForeignKey(SourceMapped.Id, ondelete='RESTRICT'), nullable=False)
