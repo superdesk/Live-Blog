@@ -52,8 +52,13 @@ define('bootstrap/dropdown', ['jquery'], function ($) {
         selector = $this.attr('href')
         selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
       }
-
-      $parent = $(selector)
+      
+      try {
+          $parent = $(selector);
+      }
+      catch(e) { 
+          $parent = false; 
+      }
       $parent.length || ($parent = $this.parent())
 
       isActive = $parent.hasClass('open')
