@@ -17,10 +17,12 @@ from ally.container import support, ioc
 from cdm.spec import ICDM
 from cdm.support import ExtendPathCDM
 from internationalization.api.po_file import IPOFileService
-from internationalization.core.impl.po_file_manager import POFileManagerDB
+from internationalization.core.impl.po_file_manager import POFileManager
 from internationalization.core.spec import IPOFileManager
-from internationalization.impl.po_file import POFileServiceCDM
+from internationalization.impl.po_file import POFileService
 from internationalization.scanner import Scanner
+from internationalization.api.json_locale import IJSONLocaleFileService
+from internationalization.impl.json_locale import JSONFileService
 
 # --------------------------------------------------------------------
 
@@ -29,7 +31,7 @@ API, IMPL = 'internationalization.api.**.I*Service', 'internationalization.impl.
 support.createEntitySetup(API, IMPL)
 support.bindToEntities(IMPL, binders=bindInternationalizationSession)
 support.listenToEntities(IMPL, listeners=addService(bindInternationalizationSession, bindInternationalizationValidations))
-support.wireEntities(Scanner, POFileManagerDB, POFileServiceCDM)
+support.wireEntities(Scanner, POFileManager, POFileService)
 support.loadAllEntities(API)
 
 # --------------------------------------------------------------------
@@ -45,19 +47,25 @@ def scan_localized_messages():
 def scanner(): return Scanner()
 
 @ioc.entity
-def cdmPO() -> ICDM:
+def cdmLocale() -> ICDM:
     '''
-    The content delivery manager (CDM) for the PO generated files.
+    The content delivery manager (CDM) for the locale files.
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'cache/locale/%s')
 
 @ioc.entity
-def poFileManager() -> IPOFileManager: return POFileManagerDB()
+def poFileManager() -> IPOFileManager: return POFileManager()
 
 @ioc.entity
-def poFileServiceCDM() -> IPOFileService:
-    srv = POFileServiceCDM()
-    srv.cdmPO = cdmPO()
+def poFileService() -> IPOFileService:
+    srv = POFileService()
+    srv.cdmLocale = cdmLocale()
+    return srv
+
+@ioc.entity
+def jsonFileService() -> IJSONLocaleFileService:
+    srv = JSONFileService()
+    srv.cdmLocale = cdmLocale()
     return srv
 
 # --------------------------------------------------------------------
