@@ -473,7 +473,6 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         if( elements.contents().index(para) == -1 )
                             var para = self.plugins.lib.selectionChildren();
                         if( !para.length ) para = this;
-                        console.log(para);
                         switch(self.options.floatingToolbar)
                         {
                             case 'left' :
