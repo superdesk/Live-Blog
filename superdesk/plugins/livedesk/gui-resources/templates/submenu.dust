@@ -7,5 +7,9 @@
 	<li><a>No blogs yet!</a></li>
 {/Blogs}
 <li class="divider"></li>
-<li><a><i class="icon-plus-sign"></i> Create Blog</a></li>
-<li><a>Archive</a></li>
+<li>
+	<a id="submenu-liveblogs-create"><i class="icon-plus-sign" href="#"></i> Create Blog</a>
+</li>
+<li>
+	<a id="submenu-liveblogs-archive">Archive</a>
+</li>
