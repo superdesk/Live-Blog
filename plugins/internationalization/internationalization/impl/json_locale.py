@@ -18,6 +18,7 @@ from internationalization.api.json_locale import IJSONLocaleFileService
 from internationalization.core.spec import IPOFileManager, InvalidLocaleError
 from introspection.api.plugin import IPluginService, Plugin
 from introspection.api.component import IComponentService
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -56,7 +57,7 @@ class JSONFileService(IJSONLocaleFileService):
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
-                self.cdmLocale.publishContent(path, self.poFileManager.getGlobalAsDict(locale))
+                self.cdmLocale.publishContent(path, str(self.poFileManager.getGlobalAsDict(locale)))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmLocale.getURI(path, scheme)
 
@@ -70,12 +71,12 @@ class JSONFileService(IJSONLocaleFileService):
             try: cdmFileTimestamp = self.cdmLocale.getTimestamp(path)
             except PathNotFound: republish = True
             else:
-                mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale),
-                                       self.poFileManager.getComponentPOTimestamp(component, locale))
+                mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale) or datetime.min,
+                                       self.poFileManager.getComponentPOTimestamp(component, locale) or datetime.min)
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
-                self.cdmLocale.publishContent(path, self.poFileManager.getComponentAsDict(component, locale))
+                self.cdmLocale.publishContent(path, str(self.poFileManager.getComponentAsDict(component, locale)))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmLocale.getURI(path, scheme)
 
@@ -92,12 +93,12 @@ class JSONFileService(IJSONLocaleFileService):
             try: cdmFileTimestamp = self.cdmLocale.getTimestamp(path)
             except PathNotFound: republish = True
             else:
-                mngFileTimestamp = mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale),
-                                                          self.poFileManager.getPluginPOTimestamp(plugin, locale))
+                mngFileTimestamp = mngFileTimestamp = max(self.poFileManager.getGlobalPOTimestamp(locale) or datetime.min,
+                                                          self.poFileManager.getPluginPOTimestamp(plugin, locale) or datetime.min)
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
-                self.cdmLocale.publishContent(path, self.poFileManager.getPluginAsDict(plugin, locale))
+                self.cdmLocale.publishContent(path, str(self.poFileManager.getPluginAsDict(plugin, locale)))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmLocale.getURI(path, scheme)
 
