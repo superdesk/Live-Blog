@@ -18,9 +18,6 @@ from babel.messages.pofile import read_po
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, Source
 from internationalization.core.impl.po_file_manager import POFileManager
-from os import makedirs
-from genericpath import isdir
-from shutil import rmtree
 from ally.babel.util_babel import msgId
 
 
@@ -161,10 +158,6 @@ class TestHTTPDelivery(unittest.TestCase):
         poManager.sourceService = TestSourceService()
         poRepDir = TemporaryDirectory()
         poManager.locale_dir_path = poRepDir.name
-        poManager.locale_dir_path = join(dirname(abspath(__file__)), 'repo');
-        rmtree(poManager.locale_dir_path)
-        if not isdir(poManager.locale_dir_path):
-            makedirs(poManager.locale_dir_path)
 
         # ********************************************
         # test updateGlobalPOFile
