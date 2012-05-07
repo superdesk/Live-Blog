@@ -38,7 +38,7 @@ class MappedSupport(metaclass=MappedSupportMeta):
 
 # --------------------------------------------------------------------
 
-class MappedReference(InstrumentedAttribute):
+class MappedReference(InstrumentedAttribute, TypeSupport):
     '''
     Provides the mapped property reference.
     @see: Reference
@@ -77,6 +77,17 @@ class MappedReference(InstrumentedAttribute):
             if isinstance(typ, TypeContainer):
                 assert isinstance(typ, TypeContainer)
                 return MappedReference(typeFor(getattr(typ.forClass, name)), self._ally_instrumented, self)
+
+    def adapted(self, adapter):
+        '''
+        @see: InstrumentedAttribute.adapted
+        We need to adjust this in order to be able to alias the REST mapped classes.
+        '''
+        instrumented = self._ally_instrumented.adapted(adapter)
+        adapted = self.__class__(self._ally_type, instrumented, self._ally_ref_parent)
+        adapted.comparator = self.comparator.adapted(adapter)
+        adapted.class_ = self.class_
+        return adapted
 
     def __repr__(self):
         r = []

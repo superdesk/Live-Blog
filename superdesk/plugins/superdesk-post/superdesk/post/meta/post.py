@@ -16,6 +16,7 @@ from sqlalchemy.types import String, DateTime
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.user.meta.user import User
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from sqlalchemy.orm.mapper import reconstructor
 
 # --------------------------------------------------------------------
 
@@ -34,3 +35,7 @@ class PostMapped(Base, Post):
     PublishedOn = Column('published_on', DateTime)
     UpdatedOn = Column('updated_on', DateTime)
     DeletedOn = Column('deleted_on', DateTime)
+
+    @reconstructor
+    def init_on_load(self):
+        self.IsModified = self.PublishedOn is not None
