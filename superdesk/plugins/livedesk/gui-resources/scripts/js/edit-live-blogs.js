@@ -1,6 +1,7 @@
-define(['jquery', 'jqueryui/texteditor', 'tmpl!livedesk>add'], function($) 
+define(['jquery', 'jqueryui/texteditor', 'tmpl!livedesk>edit'], function($) 
 {
-    var initAddBlog = function()
+    
+    var initEditBlog = function()
     {
         var content = $(this).find('[is-content]'),
             h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
@@ -15,9 +16,10 @@ define(['jquery', 'jqueryui/texteditor', 'tmpl!livedesk>add'], function($)
         content.find('article#blog-intro').texteditor({floatingToolbar: 'top'});
     };
     
-    var AddApp = function()
+    var EditApp = function(theBlog)
     {
-        $('#area-main').tmpl('add', {ui: {content: 'is-content=1'}}, initAddBlog);
+        console.log(theBlog);
+        //$('#area-main').tmpl('add', {ui: {content: 'is-content=1'}}, initAddBlog);
     };
-    return AddApp;
+    return EditApp;
 });
