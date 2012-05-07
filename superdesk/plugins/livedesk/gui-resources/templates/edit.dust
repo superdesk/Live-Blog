@@ -1,0 +1,22 @@
+{>"layouts/livedesk"/}
+
+{<list}
+	list
+{/list}
+
+{<body}
+<div {ui.content} class="live-blog-content">
+	<section class="title-page">
+        <header>
+        	<a class="pull-right collapse-button" href="#">
+        		<i class="icon-chevron-down"></i> <span class="button-text">Collapse</span>
+        	</a>
+            <h2>Click to begin live blogging!</h2>
+            <p class="article-info">Reported by <a href="#" class="live-blog-author">Davis Elison</a>, <time>March 01, 2012</time> <span class="update-time">last updated <time>21:26:14</time></span></p>
+        </header>
+        <article id="blog-intro">
+        	Maybe add some introductory description?
+	    </article> 
+    </section>
+</div>
+{/body}
