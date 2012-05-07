@@ -370,7 +370,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     $(elem).on( "click", function(evt) 
                     { 
                         command.execute();
-                        $(this).trigger('command-executed.text-editor')
+                        $(this).trigger('command-executed.text-editor');
                     });
                     command.addElement(elem.get(0));
                     return command;
@@ -378,7 +378,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
             },
             toolbar : function()
             {
-                this.element = $('<div />').addClass('edit-toolbar');
+                this.element = $('<div />').addClass('edit-toolbar').addClass('btn-toolbar');
                 this._create = function(elements)
                 {
                     var cmds = [];
@@ -430,26 +430,26 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 },
                 justifyLeft : function()
                 {
-                    var element = $('<a class="justify left" />').html(''),
+                    var element = $('<a class="align left" />').html(''),
                         command = new this.plugins.lib.commandFactory( new this.plugins.lib.command( "JustifyLeft" ), element);
                     return command;
                 },
                 justifyCenter : function()
                 {
-                    var element = $('<a class="justify center" />').html('');
+                    var element = $('<a class="align center" />').html(''),
                         command = new this.plugins.lib.commandFactory( new this.plugins.lib.command( "JustifyCenter" ), element );
                     return command;
                 },
                 justifyRight : function()
                 {
-                    var element = $('<a class="justify right" />').html(''),
+                    var element = $('<a class="align right" />').html(''),
                         command = new this.plugins.lib.commandFactory( new this.plugins.lib.command( "JustifyRight" ), element );
                     return command;
                 },
                 link : function()
                 {
-                    var element = $('<a class="link" />').html('&infin;');
-                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.linkCommand(), element );
+                    var element = $('<a class="link" />').html('&infin;'),
+                        command = new this.plugins.lib.commandFactory( new this.plugins.lib.linkCommand(), element );
                     return command;
                 },
                 image : function()
@@ -465,7 +465,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 {
                     var toolbar = this.plugins.toolbar.element,
                         self = this;
-                    
+
                     toolbar.css({ position : 'absolute', top : 0, left : 0 }).hide().appendTo('body');
                     var moveToolbar = function(event)
                     {
@@ -475,18 +475,24 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         if( !para.length ) para = this;
                         switch(self.options.floatingToolbar)
                         {
-                            case 'left' :
-                            default : 
-                                var ofst = $(para).eq(0).offset();
-                                var left = ofst.left + $(para).eq(0).width();
-                                var top = ofst.top;
+                            case 'top':
+                                var ofst = $(para).eq(0).offset(),
+                                    left = ofst.left,
+                                    top = ofst.top - toolbar.outerHeight();
+                            break;
+                            case 'left':
+                            default: 
+                                var ofst = $(para).eq(0).offset(),
+                                    left = ofst.left + $(para).eq(0).width(),
+                                    top = ofst.top;
                             break;
                         }
                         toolbar.css({top : top, left : left}).fadeIn('fast');
-                    }
+                    };
+                    
                     var hideToolbar = function()
                     {
-                        toolbar.fadeOut('fast');
+                        toolbar.fadeOut('fast'); // TODO css transition
                     };
                     // timer here cause webkit is fail
                     $(elements).on('focusin keydown click', function(event)
