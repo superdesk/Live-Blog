@@ -385,7 +385,7 @@ class POFileManager(IPOFileManager):
         assert isinstance(catalog, Catalog), 'Invalid catalog %s' % catalog
 
         d = { }
-        d[''] = { 'lang' : catalog.locale, 'plural-forms' : catalog.plural_forms }
+        d[''] = { 'lang' : catalog.locale.language, 'plural-forms' : catalog.plural_forms }
         for msg in catalog:
             if not msg or msg.id == '': continue
             if isinstance(msg.id, (list, tuple)):
