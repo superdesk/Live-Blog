@@ -22,7 +22,7 @@ class CollaboratorMapped(Base, Collaborator):
     '''
     Provides the mapping for Collaborator.
     '''
-    __tablename__ = 'collaborators'
+    __tablename__ = 'collaborator'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
