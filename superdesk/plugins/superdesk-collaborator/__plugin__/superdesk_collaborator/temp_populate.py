@@ -45,6 +45,7 @@ COLLABORATORS = {
                  'Billy': 'google',
                  'Jey': 'google',
                  'Mugurel': 'facebook',
+                 'google': 'google',
                  }
 
 _cache_collaborators = {}
@@ -58,7 +59,8 @@ def getCollaboratorsIds():
             if colls: collaborators[name] = colls[0].Id
             else:
                 coll = CollaboratorMapped()
-                coll.Person = getPersonsIds()[name]
+                try: coll.Person = getPersonsIds()[name]
+                except KeyError: pass
                 coll.Source = getSourcesIds()[COLLABORATORS[name]]
                 collaborators[name] = collaboratorService.insert(coll)
     return _cache_collaborators
