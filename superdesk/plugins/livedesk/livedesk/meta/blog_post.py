@@ -13,12 +13,13 @@ from ..api.blog_post import BlogPost
 from .blog import BlogMapped
 from sqlalchemy.schema import Column, ForeignKey
 from superdesk.post.meta.post import PostMapped
+from superdesk.meta.metadata_superdesk import Base
 
 # --------------------------------------------------------------------
 
-class BlogPostMapped(PostMapped, BlogPost):
+class BlogPostEntry(Base):
     '''
-    Provides the mapping for BlogPost.
+    Provides the mapping for BlogPost table where it keeps the connection between the post and the blog.
     '''
     __tablename__ = 'livedesk_post'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
@@ -26,5 +27,9 @@ class BlogPostMapped(PostMapped, BlogPost):
     Id = Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True)
     Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False)
 
-
+class BlogPostMapped(PostMapped, BlogPostEntry, BlogPost):
+    '''
+    Provides the mapping for BlogPost in the form of extending the Post.
+    '''
+    __tablename__ = 'livedesk_post'
 

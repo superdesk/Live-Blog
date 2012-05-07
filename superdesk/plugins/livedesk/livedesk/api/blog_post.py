@@ -26,6 +26,7 @@ class BlogPost(Post):
     Provides the blog post model.
     '''
     Blog = Blog
+    AuthorName = str
 
 # --------------------------------------------------------------------
 

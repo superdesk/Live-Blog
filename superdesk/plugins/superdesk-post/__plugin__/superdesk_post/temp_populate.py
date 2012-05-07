@@ -84,6 +84,7 @@ def createPosts():
             if author: pst.Author = getCollaboratorsIds()[author]
 
             createPostType(pst.Type)
+            postService.insert(pst)
 
 # --------------------------------------------------------------------
 
