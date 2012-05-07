@@ -106,9 +106,9 @@ class JSONFileService(IJSONLocaleFileService):
 
     def _cdmPath(self, locale, component=None, plugin=None):
         '''
-        Returns the path to the CDM PO file corresponding to the given locale and / or
+        Returns the path to the CDM JSON file corresponding to the given locale and / or
         component / plugin. If no component of plugin was specified it returns the
-        name of the global PO file.
+        name of the global JSON file.
         
         @param locale: string
             The locale.
@@ -131,4 +131,4 @@ class JSONFileService(IJSONLocaleFileService):
         else:
             path.append('global')
         path.append(locale)
-        return '%s.po' % '-'.join(path)
+        return '%s.json' % '-'.join(path)
