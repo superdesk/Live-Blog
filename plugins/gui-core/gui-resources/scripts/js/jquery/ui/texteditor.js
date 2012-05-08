@@ -470,9 +470,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     var moveToolbar = function(event)
                     {
                         var para = self.plugins.lib.selectionParent();
+                        
                         if( elements.contents().index(para) == -1 )
                             var para = self.plugins.lib.selectionChildren();
                         if( !para.length ) para = this;
+                        
+                        
                         switch(self.options.floatingToolbar)
                         {
                             case 'top':

@@ -18,6 +18,7 @@ requirejs.config
 		'gettext': config.js_url + '/gettext',
 	}
 });
+
 require(['jquery/superdesk', 'lib/core/scripts/js/views/menu'], //, 'jquery/i18n', 'lib/core/scripts/catalog' ], 
 function(superdesk, MenuView)//, I18n, catalog)
 {
