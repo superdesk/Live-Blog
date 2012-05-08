@@ -1,8 +1,7 @@
 define
 ([
   'jquery', 'jquery/superdesk', 'jquery/tmpl', 'jquery/rest',
-  'tmpl!livedesk>submenu',
-  'tmpl!livedesk>layouts/livedesk'
+  'tmpl!livedesk>submenu'
 ], function($, superdesk)
 {
     app = 
@@ -17,36 +16,29 @@ define
                     createBtn.off('click.livedesk')
                         .on('click.livedesk', function()
                         { 
-                            // add layout
-                            $('#area-main').tmpl('layouts/livedesk', function()
+                            // get modules.* actions
+                            superdesk.getActions('modules.livedesk.*')
+                            .done(function(actions)
                             {
-                                // get modules.* actions
-                                superdesk.getActions('modules.livedesk.*')
-                                .done(function(actions)
+                                $(actions).each(function()
                                 {
-                                    $(actions).each(function()
-                                    {
-                                        // and display add action
-                                        if(this.Path == 'modules.livedesk.add' && this.ScriptPath)
-                                            require([superdesk.apiUrl+this.ScriptPath], function(AddApp) {
-                                                addApp = new AddApp();
-                                            });
-                                    });
+                                    // and display add action
+                                    if(this.Path == 'modules.livedesk.add' && this.ScriptPath)
+                                        require([superdesk.apiUrl+this.ScriptPath], function(AddApp) {
+                                            addApp = new AddApp();
+                                        });
                                 });
                             });
                         });
                     $(this).find('.submenu-blog').off('click.livedesk')
                         .on('click.livedesk', function()
                         {
-                            console.log('x');
                             var theBlog = $(this).attr('data-blog-link');
-                            $('#area-main').tmpl('layouts/livedesk', function()
+                            superdesk.getActions('modules.livedesk.*')
+                            .done(function(actions)
                             {
-                                superdesk.getActions('modules.livedesk.*')
-                                .done(function(actions)
-                                {
-                                    require([superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js']);
-                                });
+                                require([superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js'],
+                                function(EditApp){ new EditApp(theBlog) });
                             });
                         });
                 });
