@@ -392,8 +392,10 @@ class POFileManager(IPOFileManager):
                 key, key_plural = msg.id
                 singular, plural = msg.string[0], msg.string[1]
             else:
-                key, key_plural = msg.id, None
-                singular, plural = msg.string, None
+                key, key_plural = msg.id, ''
+                singular, plural = msg.string, ''
+            singular = singular if singular is not None else ''
+            plural = plural if plural is not None else ''
             key = key if not msg.context else "%s:%s" % (msg.context, key)
             d[key] = [ key_plural, singular, plural ]
         return { domain : d }
