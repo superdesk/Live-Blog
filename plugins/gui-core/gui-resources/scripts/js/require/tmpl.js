@@ -74,7 +74,6 @@
 
         load: function (name, parentRequire, load, config) {
 			var self = this;
-
             if (isBrowser) {
                 require(dustCompilerLibrary, function(dust, i18n_parse){
 					self.process(dust, name, parentRequire, load, config, i18n_parse);
@@ -85,11 +84,12 @@
         },
 
         process: function(dust, name, parentRequire, load, config, i18n_parse) {
-			var prefix = '';
+			var prefix = '',prefixTemplate=''
 			if( name.indexOf('>') === -1 ) {
 				prefix = config.templatePaths.default;
 			} else {
 				var arr = name.split('>');
+				prefixTemplate = arr[0] + '>';
 				prefix = config.templatePaths.plugin.replace('{plugin}',arr[0]);
 				name = arr[1];				
 			}
@@ -98,9 +98,9 @@
                 path = parentRequire.toUrl( prefix + name + '.dust');
             fetchText(path, function(data){
 				data = i18n_parse(data);
-				var text = "define('tmpl!" + name +"', ['"+dustCoreLibrary+"'], function (dust) {"
-						+ dust.compile(data, name) + "\n"
-						+ "return { render: function(context, callback) { dust.render('" + name + "', context, callback); }}"
+				var text = "define('tmpl!" + prefixTemplate + name + "', ['"+dustCoreLibrary+"'], function (dust) {"
+						+ dust.compile(data, prefixTemplate + name) + "\n"
+						+ "return { render: function(context, callback) {dust.render('" + prefixTemplate + name + "', context, callback); }}"
 						+ "});\n"
                 if (config.isBuild) {
                     buildMap[name] = text;
@@ -109,8 +109,8 @@
                 if (!config.isBuild) {
                     text += "\r\n//@ sourceURL=" + path;
                 }
-                load.fromText(name, isNode ? '' : text);			
-                parentRequire([name], function (value) {
+                load.fromText(prefixTemplate + name, isNode ? '' : text);			
+                parentRequire([prefixTemplate + name], function (value) {
                     load(value);
                 });
             });

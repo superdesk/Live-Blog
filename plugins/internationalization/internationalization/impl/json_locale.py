@@ -19,6 +19,7 @@ from internationalization.core.spec import IPOFileManager, InvalidLocaleError
 from admin.introspection.api.plugin import IPluginService, Plugin
 from admin.introspection.api.component import IComponentService
 from datetime import datetime
+from json.encoder import JSONEncoder
 
 # --------------------------------------------------------------------
 
@@ -57,7 +58,7 @@ class JSONFileService(IJSONLocaleFileService):
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
-                self.cdmLocale.publishContent(path, str(self.poFileManager.getGlobalAsDict(locale)))
+                self.cdmLocale.publishContent(path, JSONEncoder().encode(self.poFileManager.getGlobalAsDict(locale)))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmLocale.getURI(path, scheme)
 
@@ -76,7 +77,7 @@ class JSONFileService(IJSONLocaleFileService):
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
-                self.cdmLocale.publishContent(path, str(self.poFileManager.getComponentAsDict(component, locale)))
+                self.cdmLocale.publishContent(path, JSONEncoder().encode(self.poFileManager.getComponentAsDict(component, locale)))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmLocale.getURI(path, scheme)
 
@@ -98,7 +99,7 @@ class JSONFileService(IJSONLocaleFileService):
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
-                self.cdmLocale.publishContent(path, str(self.poFileManager.getPluginAsDict(plugin, locale)))
+                self.cdmLocale.publishContent(path, JSONEncoder().encode(self.poFileManager.getPluginAsDict(plugin, locale)))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmLocale.getURI(path, scheme)
 
