@@ -58,5 +58,5 @@ i18n.prototype = {
 I18n = new i18n;
 I18n.install();
 
-return I18n;
+$.extend($, {i18n: I18n});
 });

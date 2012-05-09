@@ -1,4 +1,4 @@
-define('dust/dust-helpers', ['jquery', 'dust/dust', 'jquery/i18n', 'jquery/utils'], function($, dust, I18n){
+define('dust/dust-helpers', ['dust/dust', 'jquery', 'jquery/i18n', 'jquery/utils'], function(dust, $){
 var parseAttributeParams = function(params) {
 	if($.isDefined(params.param1) ) {
 		for(var i=1,count=params.length+1, aux=[];i<count;i++) {
@@ -22,7 +22,7 @@ var helpers = {
 	msgctxt = ( params.msgctxt );
     if( params && params.msgid ){
 		delete params.msgid;
-		chunk.write(I18n.dcnpgettext(domain, msgctxt, msgid, msgid_plural, n).format(parseAttributeParams(params)));
+		chunk.write($.i18n.dcnpgettext(domain, msgctxt, msgid, msgid_plural, n).format(parseAttributeParams(params)));
 	}
 	else {
       if( window.console ){

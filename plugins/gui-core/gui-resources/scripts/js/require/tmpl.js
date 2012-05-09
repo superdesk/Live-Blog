@@ -100,7 +100,7 @@
 				data = i18n_parse(data);
 				var text = "define('tmpl!" + name +"', ['"+dustCoreLibrary+"'], function (dust) {"
 						+ dust.compile(data, name) + "\n"
-						+ "return { render: function(context, callback) { dust.render('" + name + "', context, callback); }}"
+						+ "return { render: function(context, callback) { delete dust.cache['" + name + "']; dust.render('" + name + "', context, callback); }}"
 						+ "});\n"
                 if (config.isBuild) {
                     buildMap[name] = text;

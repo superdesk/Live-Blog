@@ -1,7 +1,16 @@
+﻿<a data-toggle="modal" href="#myModal">Help</a>
 <div class="hero-unit well">
 	<h1>_("Welcome to ");<span style="color:#009360">_("Superdesk");</span>!</h1>
-	<p>_("Lorem ipsum where there's muck there's brass appens as maybe ah'll learn thi consectetur nah then tell this summat for nowt tha daft apeth nobbut a lad dapibus dahn t'coil oil eget ey up ut euismod est at is that thine.");</p>
+	<p>_("aLorem ipsum where there's muck there's brass appens as maybe ah'll learn thi consectetur nah then tell this summat for nowt tha daft apeth nobbut a lad dapibus dahn t'coil oil eget ey up ut euismod est at is that thine.");</p>
     <p><a class="btn btn-primary btn-large">_("Learn more"); &raquo;</a></p>
 </div>
 <hr />
-    
+<div class="modal hide fade" id="myModal">
+  <div class="modal-header"> <a class="close" data-dismiss="modal"></a>
+    <h3>Add source</h3>
+  </div>
+  <div class="modal-body">
+
+  </div>
+  <div class="modal-footer"> <a href="#" class="btn" data-dismiss="modal">Cancel</a> <a href="#" class="btn btn-primary" data-dismiss="modal">OK</a> </div>
+</div>
