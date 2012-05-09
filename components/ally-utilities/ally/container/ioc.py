@@ -84,7 +84,7 @@ def before(setup):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
         return update_wrapper(register(SetupEvent(function, target, SetupEvent.BEFORE), callerLocals()), function)
-    
+
     assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
     return partial(decorator, setup.name)
 
@@ -99,10 +99,10 @@ def after(setup):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
         return update_wrapper(register(SetupEvent(function, target, SetupEvent.AFTER), callerLocals()), function)
-    
+
     assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
     return partial(decorator, setup.name)
-    
+
 def replace(setup):
     '''
     Decorator for setup functions that replace other setup functions in the underlying context.
@@ -115,10 +115,10 @@ def replace(setup):
         if isinstance(setup, SetupConfig):
             return update_wrapper(register(SetupReplaceConfig(function, name), callerLocals()), function)
         return update_wrapper(register(SetupReplace(function, name), callerLocals()), function)
-    
+
     assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
     return partial(decorator, setup.name)
-    
+
 def start(*args):
     '''
     Decorator for setup functions that need to be called at IoC start.
@@ -135,7 +135,7 @@ def start(*args):
 def open(*modules, config=None):
     '''
     Load and assemble the setup modules and keeps them opened for retrieving and processing values. Call the close
-    function after finalization.
+    function after finalization. Automatically activates the assembly.
     
     @param modules: arguments(path|AOPModules|module) 
         The modules that compose the setup.
@@ -148,22 +148,33 @@ def open(*modules, config=None):
     context = Context()
     for module in modules:
         if isinstance(module, str): module = importlib.import_module(module)
-        
+
         if ismodule(module): context.addSetupModule(module)
         elif isinstance(module, AOPModules):
             assert isinstance(module, AOPModules)
             for m in module.load().asList(): context.addSetupModule(m)
         else: raise SetupError('Cannot use module %s' % module)
-        
-    assembly = context.assemble(config)
+
+    return activate(context.assemble(config))
+
+def activate(assembly):
+    '''
+    Activates the provided assembly.
+    
+    @param assembly: Assembly
+        The assembly to activate.
+    @return: Assembly
+        The same assembly for chaining purposes.
+    '''
+    assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
     Assembly.stack.append(assembly)
     return assembly
 
-def close():
+def deactivate():
     '''
-    Closes the ongoing assembly.
+    Deactivate the ongoing assembly.
     '''
-    assert Assembly.stack, 'No assembly available for close'
+    assert Assembly.stack, 'No assembly available for deactivation'
     Assembly.stack.pop()
 
 def initialize(entity):

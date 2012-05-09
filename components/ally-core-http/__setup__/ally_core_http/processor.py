@@ -13,7 +13,7 @@ from . import server_pattern_rest
 from ..ally_core.converter import contentNormalizer, converterPath
 from ..ally_core.processor import handlersResources, methodInvoker, converter, \
     handlersExplainError, requestTypes, parameters, invokingHandler
-from ..ally_core.resource_manager import resourcesManager
+from ..ally_core.resource_management import resourcesLocator
 from ally.container import ioc
 from ally.core.http.impl.processor.formatting import FormattingProviderHandler
 from ally.core.http.impl.processor.header import HeaderStandardHandler
@@ -50,7 +50,7 @@ def methodOverride() -> Processor:
 @ioc.entity
 def uri() -> Processor:
     b = URIHandler()
-    b.resourcesManager = resourcesManager()
+    b.resourcesLocator = resourcesLocator()
     b.converterPath = converterPath()
     return b
 
@@ -63,7 +63,6 @@ def headerStandard() -> Processor:
 @ioc.entity
 def metaFilter() -> Processor:
     b = MetaFilterHandler()
-    b.resourcesManager = resourcesManager()
     b.normalizer = contentNormalizer()
     b.fetching = Processors(*handlersFetching())
     b.readFromParams = read_from_params()

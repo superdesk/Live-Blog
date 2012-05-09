@@ -276,7 +276,6 @@ def call(*args, types=None, **hints):
     function = args[0]
     assert isfunction(function), 'Invalid function %s' % function
 
-    output, inputs = extractOuputInput(function, types)
     name, method = function.__name__, hints.pop('method', None)
     if method is None:
         for regex, m in NAME_TO_METHOD.items():
@@ -284,6 +283,8 @@ def call(*args, types=None, **hints):
                 method = m
                 break
         else: raise DevelError('Cannot deduce method for function name "%s"' % name)
+
+    output, inputs = extractOuputInput(function, types)
 
     function._ally_call = Call(name, method, output, inputs, hints)
     return abstractmethod(function)

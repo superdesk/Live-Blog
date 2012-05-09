@@ -3,7 +3,7 @@
 
 	<property name="root" value="../"/>
 	<property name="destination" value="."/>
-	<property name="egg.ally.core.sqlalchemy" value="ally-core-sqlalchemy-1.0-py3.2.egg"/>
+	<property name="egg.ally.core.sqlalchemy" value="ally-core-sqlalchemy-1.0.egg"/>
 
 	<target name="clean">
 		<delete file="${destination}/${egg.ally.core.sqlalchemy}" />

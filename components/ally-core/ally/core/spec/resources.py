@@ -8,7 +8,7 @@ Created on Jun 18, 2011
 
 Module containing specifications for the resources tree.
 '''
-#TODO: rename the interfaces as IResourcesManager, IAssembler
+#TODO: rename the interfaces as IAssembler
 
 from ally.api.type import Type, Input
 import abc
@@ -22,21 +22,53 @@ class Path:
     The path is basically a immutable collection of matches. 
     '''
 
-    def __init__(self, matches, node=None):
+    def __init__(self, resourcesLocator, matches, node=None):
         '''
         Initializes the path.
 
+        @param resourcesLocator: IResourcesLocator
+            The resource locator that generated the path.
         @param matches: list[Match]
             The list of matches that represent the path.
         @param node: Node
             The node represented by the path, if None it means that the path is incomplete.
         '''
+        assert isinstance(resourcesLocator, IResourcesLocator), 'Invalid resources locator %s' % resourcesLocator
         assert isinstance(matches, list), 'Invalid matches list %s' % matches
         assert node is None or isinstance(node, Node), 'Invalid node % can be None' % node
         if __debug__:
             for match in matches: assert isinstance(match, Match), 'Invalid match %s' % match
+        self.resourcesLocator = resourcesLocator
         self.matches = matches
         self.node = node
+
+    def findGetModel(self, typeModel):
+        '''
+        @see: IResourcesLocator.findGetModel
+        
+        Finds the path for the first Node that provides a get resource for the type model. The search is made based
+        on this path. First this path Node and is children's are searched for the get method if not found it will
+        go to the Nodes parent and make the search there, so forth and so on.
+        
+        @param typeModel: TypeModel
+            The type model to search the get for.
+        @return: PathExtended|None
+            The extended path pointing to the desired get method, attention some updates might be necessary on 
+            the path to be available. None if the path could not be found.
+        '''
+        return self.resourcesLocator.findGetModel(self, typeModel)
+
+    def findGetAllAccessible(self):
+        '''
+        @see: IResourcesLocator.findGetAllAccessible
+        
+        Finds all GET paths that can be directly accessed without the need of any path update based on this path,
+        basically all paths that can be directly related to this path without any additional information.
+        
+        @return: list[PathExtended]
+            A list of PathExtended from the provided from path that are accessible, empty list if none found.
+        '''
+        return self.resourcesLocator.findGetAllAccessible(self)
 
     def toArguments(self, invoker):
         '''
@@ -121,7 +153,7 @@ class Path:
         @return: Path
             The cloned path.
         '''
-        return Path([match.clone() for match in self.matches], self.node)
+        return Path(self.resourcesLocator, [match.clone() for match in self.matches], self.node)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -164,14 +196,13 @@ class PathExtended(Path):
         self.matchesOwned = matches
         all = parent.matches[:index]
         all.extend(matches)
-        super().__init__(all, node)
+        super().__init__(parent.resourcesLocator, all, node)
 
     def clone(self):
         '''
         @see: Path.clone
         '''
-        return PathExtended(self.parent.clone(), [match.clone() for match in self.matchesOwned], self.node, \
-                            self.index)
+        return PathExtended(self.parent.clone(), [match.clone() for match in self.matchesOwned], self.node, self.index)
 
 # --------------------------------------------------------------------
 
@@ -478,7 +509,6 @@ class Node(metaclass=abc.ABCMeta):
         self._childrens.sort(key=lambda node: node.order)
 
     def remChild(self, child):
-        #TODO: make a better removal mechanism.
         '''
         Removes the child node from this node.
         
@@ -535,17 +565,16 @@ class Node(metaclass=abc.ABCMeta):
 
 # --------------------------------------------------------------------
 
-class ResourcesManager(metaclass=abc.ABCMeta):
+class IResourcesRegister(metaclass=abc.ABCMeta):
     '''
-    Provides the specifications for the resources manager. This manager will contain the resources tree and provide
-    abilities to update the tree and also to find resources.
-    @attention: This class might require thread safety latter on the line when we are doing the model property update.
+    Provides the specifications for the resources register. This will contain the resources tree and provide abilities
+    to update the tree.
     '''
 
     @abc.abstractmethod
     def getRoot(self):
         '''
-        Provides the root node of this resource manager.
+        Provides the root node of this resource repository.
         
         @return: Node
             The root Node.
@@ -554,27 +583,33 @@ class ResourcesManager(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def register(self, implementation):
         '''
-        Register the provided service class into the resource node tree.
+        Register the provided API service implementation into the resource node tree.
     
         @param implementation: object
-            The implementation for the provided service.
+            The implementation for and API service.
         '''
 
+class IResourcesLocator(metaclass=abc.ABCMeta):
+    '''
+    Provides the specifications for the resources locator. This the abilities to find resources.
+    '''
+
     @abc.abstractmethod
-    def findResourcePath(self, converterPath, paths):
+    def findPath(self, converterPath, paths):
         '''
         Finds the resource node for the provided request path.
         
         @param converterPath: ConverterPath
             The converter path used in handling the path elements.
-        @param paths: list
+        @param paths: list[string]
             A list of string path elements identifying a resource to be searched for.
         @return: Path
-            The path leading to the node that provides the paths resource.
+            The path leading to the node that provides the resource if the Path has no node it means that the paths
+            have been recognized only to certain point.
         '''
 
     @abc.abstractmethod
-    def findGetModel(self, fromPath, modelType):
+    def findGetModel(self, fromPath, typeModel):
         '''
         Finds the path for the first Node that provides a get for the name. The search is made based
         on the from path. First the from path Node and is children's are searched for the get method if 
@@ -582,7 +617,7 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         
         @param fromPath: Path
             The path to make the search based on.
-        @param modelType: TypeModel
+        @param typeModel: TypeModel
             The type model to search the get for.
         @return: PathExtended|None
             The extended path pointing to the desired get method, attention some updates might be necessary on 
@@ -590,30 +625,14 @@ class ResourcesManager(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def findGetAllAccessible(self, fromPath=None):
+    def findGetAllAccessible(self, fromPath):
         '''
         Finds all GET paths that can be directly accessed without the need of any path update based on the
         provided from path, basically all paths that can be directly related to the provided path without any
         additional information.
         
-        @param fromPath: Path|None
-            The path to make the search based on. If None will use the root path.
-        @return: list
+        @param fromPath: Path
+            The path to make the search based on.
+        @return: list[PathExtended]
             A list of PathExtended from the provided from path that are accessible, empty list if none found.
         '''
-
-    @abc.abstractmethod
-    def findGetAccessibleByModel(self, model, instance=None):
-        '''
-        Finds all GET paths that can be directly accessed without the need of any path update. The returned paths
-        are basically linked with the provided model and values extracted from the model object. So all paths that
-        can be directly related to the model object without any additional information.
-        
-        @param model: Model
-            The model of the object.
-        @param instance: object|None
-            The model instance object, if None the path has to be updated by the consumer.
-        @return: list
-            A list of Path's from the provided model object, empty list if none found.
-        '''
-

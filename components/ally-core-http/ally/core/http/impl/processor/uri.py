@@ -12,7 +12,7 @@ Provides the URI request path handler.
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP
 from ally.core.spec.codes import RESOURCE_NOT_FOUND, RESOURCE_FOUND
-from ally.core.spec.resources import ConverterPath, Path, ResourcesManager
+from ally.core.spec.resources import ConverterPath, Path, IResourcesLocator
 from ally.core.spec.server import Response, Processor, ProcessorsChain, \
     EncoderPath
 from urllib.parse import urlencode, urlunsplit, urlsplit
@@ -37,8 +37,8 @@ class URIHandler(Processor):
     Requires on response: NA
     '''
 
-    resourcesManager = ResourcesManager
-    # The resources manager that will provide the path to the resource node.
+    resourcesLocator = IResourcesLocator
+    # The resources locator that will provide the path to the resource node.
     converterPath = ConverterPath
     # The converter path used for handling the URL path.
     scheme = 'http'
@@ -47,8 +47,8 @@ class URIHandler(Processor):
     # The header in which the host is provided.
 
     def __init__(self):
-        assert isinstance(self.resourcesManager, ResourcesManager), \
-        'Invalid resources manager %s' % self.resourcesManager
+        assert isinstance(self.resourcesLocator, IResourcesLocator), \
+        'Invalid resources locator %s' % self.resourcesLocator
         assert isinstance(self.converterPath, ConverterPath), 'Invalid ConverterPath object %s' % self.converterPath
         assert isinstance(self.scheme, str), 'Invalid string %s' % self.scheme
         assert isinstance(self.headerHost, str), 'Invalid string %s' % self.headerHost
@@ -77,7 +77,7 @@ class URIHandler(Processor):
             rsp.contentType = extension
             req.accContentTypes.insert(0, extension)
 
-        resourcePath = self.resourcesManager.findResourcePath(self.converterPath, paths)
+        resourcePath = self.resourcesLocator.findPath(self.converterPath, paths)
         assert isinstance(resourcePath, Path)
         if not resourcePath.node:
             # we stop the chain processing

@@ -12,10 +12,9 @@ API specifications for collaborators.
 from ally.api.config import service, call
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, IEntityGetCRUDService
-from internationalization.api.source import QSource
 from superdesk.api.domain_superdesk import modelSuperDesk
 from superdesk.person.api.person import Person, QPerson
-from superdesk.source.api.source import Source
+from superdesk.source.api.source import Source, QSource
 
 # --------------------------------------------------------------------
 

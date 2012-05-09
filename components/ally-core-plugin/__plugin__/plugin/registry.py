@@ -12,7 +12,6 @@ Provides the setup registry for the plugins.
 from ..cdm.local_cdm import contentDeliveryManager
 from ally.container import ioc
 from ally.container.proxy import proxyWrapFor
-from ally.core.spec.resources import ResourcesManager
 from cdm.spec import ICDM
 from functools import partial
 
@@ -51,18 +50,8 @@ def cdmGUI() -> ICDM:
     return contentDeliveryManager()
 
 @ioc.entity
-def resourcesManager() -> ResourcesManager:
-    import ally_deploy_plugin
-    return ally_deploy_plugin.resourcesManager
-
-@ioc.entity
 def services():
     '''
     The plugins services that will be registered automatically.
     '''
     return []
-
-@ioc.start
-def register():
-    import ally_deploy_plugin
-    ally_deploy_plugin.services = services()

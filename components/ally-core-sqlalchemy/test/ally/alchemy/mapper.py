@@ -153,16 +153,6 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(user.Parent, 1)
         session.close()
 
-    # ----------------------------------------------------------------
-
-    def testFailedExtending(self):
-        User = mapperSimple(globals()['User'], tableUser)
-
-        def extendMapped():
-            class UserExt(User):
-                pass
-        self.assertRaises(TypeError, extendMapped)
-
 # --------------------------------------------------------------------
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ Created on May 29, 2011
 Provides unit testing for the decorated models.
 '''
 
-from ally.api.criteria import AsOrdered, AsLike
+from ally.api.criteria import AsOrdered, AsLikeOrdered
 from ally.api.type import typeFor
 import unittest
 from ally.api.config import model, query
@@ -47,7 +47,7 @@ class TestQuery:
 
     date = AsOrdered
 
-    name = AsLike
+    name = AsLikeOrdered
 
     age = AsOrdered
 

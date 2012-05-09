@@ -51,7 +51,7 @@ def deploy():
         finally:
             if not isConfig:
                 with open(configurationsFilePath, 'w') as f: save(assembly.trimmedConfigurations(), f)
-            ioc.close()
+            ioc.deactivate()
     except:
         print('-' * 150, file=sys.stderr)
         print('A problem occurred while deploying', file=sys.stderr)
