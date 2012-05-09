@@ -10,7 +10,7 @@ define
         {
             new $.rest(superdesk.apiUrl + '/resources/LiveDesk/Blog/').xfilter('Title,Id').done(function(blogs)
             { 
-                $(submenu).tmpl('submenu', {Blogs: blogs}, function()
+                $(submenu).tmpl('livedesk>submenu', {Blogs: blogs}, function()
                 { 
                     var createBtn = $(this).find('#submenu-liveblogs-create');
                     createBtn.off('click.livedesk')

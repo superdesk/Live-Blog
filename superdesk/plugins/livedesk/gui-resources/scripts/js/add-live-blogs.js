@@ -19,7 +19,7 @@ function($)
     
     var AddApp = function()
     {
-        $('#area-main').tmpl('add', {ui: {content: 'is-content=1'}}, initAddBlog);
+        $('#area-main').tmpl('livedesk>add', {ui: {content: 'is-content=1'}}, initAddBlog);
     };
     return AddApp;
 });
