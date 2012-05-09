@@ -28,7 +28,7 @@ define([
     			    require(['tmpl!request>method', 'tmpl!request>description'], function()
     			    {
         			    var content = $('[is-content]', '#area-main')
-        						.tmpl( 'description', {Request: request} ); // need object for iteration
+        						.tmpl( 'request>description', {Request: request} ); // need object for iteration
         					// attach spawned resource to the info button
         			    $('header', content)
         					.prop('api-resource', requestResource)
@@ -61,7 +61,7 @@ define([
     				    {
     				        $(self).prop('api-resource').get(apiMethod).done(function(inputList)
     			            {
-    				            displayBox.tmpl('inputlist', inputList).slideDown('fast');
+    				            displayBox.tmpl('request>inputlist', inputList).slideDown('fast');
     			            });
     				    });
     					break;
@@ -79,7 +79,7 @@ define([
     	// generate list of available requests
     	requests.done(function(request)
     	{
-    		$('#area-main').tmpl('list', {request: request, ui:{ content: 'is-content=1'}})
+    		$('#area-main').tmpl('request>list', {request: request, ui:{ content: 'is-content=1'}})
     		    .find('ul').children()
     		        .off('click.superdesk').on('click.superdesk', displayPattern);
     	});
