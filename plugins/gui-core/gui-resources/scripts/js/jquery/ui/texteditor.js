@@ -63,9 +63,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         contents = $(range.commonAncestorContainer).contents(),
                         ret = [];
                     for( var i = range.startOffset; i < range.endOffset; i++ )
-                        if(contents[i]) 
-                            ret.push(contents[i]);
-                    return ret.filter(function()
+                        contents[i] && ret.push(contents[i]);
+                    
+                    return $(ret).filter(function()
                     { 
                         return !(this.nodeType == 3 && $(this).text().trim() == '');
                     });
@@ -151,6 +151,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 {
                     this.execute = function() 
                     {
+                        console.log(command);
                         document.execCommand(command, false, null); 
                     };
                     this.toggleState = function()
@@ -382,7 +383,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 this._create = function(elements)
                 {
                     var cmds = [];
-                    for( i in this.plugins.controls ) 
+                    for( var i in this.plugins.controls ) 
                         try
                         {
                             var cmd = this.plugins.controls[i].call(this, elements);
@@ -455,33 +456,64 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 image : function()
                 {
                     var element = $('<a class="image" />').html('&#x2740;');
-                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.imageCommand(), element );/*new lib.dialogAidedCommand(new lib.command)*/ 
+                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.imageCommand(), element );/*new lib.dialogAidedCommand(new lib.command)*/
+                    this.plugins.floatingToolbar.blockElements.push('img');
                     return command;
                 }
             },
             floatingToolbar :
             {
+                blockElements: [],
                 _create : function(elements)
                 {
                     var toolbar = this.plugins.toolbar.element,
                         self = this;
 
                     toolbar.css({ position : 'absolute', top : 0, left : 0 }).hide().appendTo('body');
-                    var moveToolbar = function(event)
+                    
+                    var findBlockParent = function()
                     {
-                        var para = self.plugins.lib.selectionParent();
-                        
-                        if( elements.contents().index(para) == -1 )
-                            var para = self.plugins.lib.selectionChildren();
-                        if( !para.length ) para = this;
-                        
-                        
+                        var blockElem = self.plugins.lib.selectionChildren(),
+                            isBlock = false,
+                            style;
+                        if( blockElem.length != 1 )
+                            blockElem = self.plugins.lib.selectionParent().get(0)
+                        else
+                            blockElem = blockElem.get(0);
+
+                        while(!isBlock)
+                        {
+                            if( elements.index(blockElem) !== -1 
+                                || $.inArray( $(blockElem).prop('tagName').toLowerCase(), self.plugins.floatingToolbar.blockElements) !== -1 )
+                            { 
+                                isBlock = blockElem; 
+                                break; 
+                            }
+                            style = window.getComputedStyle(blockElem);
+                            style.display == 'block' && (isBlock = blockElem);
+                            blockElem = $(blockElem).parent().get(0);
+                        }
+                        return isBlock;
+                    },
+                    moveToolbar = function(event)
+                    {
+                        toolbar.removeClass(self.options.toolbar.classes.topFixed);
+                        var para = findBlockParent();
                         switch(self.options.floatingToolbar)
                         {
                             case 'top':
                                 var ofst = $(para).eq(0).offset(),
                                     left = ofst.left,
                                     top = ofst.top - toolbar.outerHeight();
+                                if($('html').scrollTop() > top) 
+                                {
+                                    toolbar
+                                        .removeAttr('style')
+                                        .css({left: left})
+                                        .addClass(self.options.toolbar.classes.topFixed)
+                                        .fadeIn('fast');
+                                    return;
+                                }
                             break;
                             case 'left':
                             default: 
@@ -490,7 +522,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                                     top = ofst.top;
                             break;
                         }
-                        toolbar.css({top : top, left : left}).fadeIn('fast');
+                        toolbar.css({top : top, left : left, position: 'absolute'}).fadeIn('fast');
                     };
                     
                     var hideToolbar = function()
@@ -507,7 +539,10 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 }
             }
         },
-        options:{},
+        options:
+        {
+            toolbar:{ classes:{ topFixed: 'fixed-top' }}
+        },
         plugin : function()
         {
         //  console.log(this, arguments)            
@@ -530,3 +565,4 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
         }
     }); 
 });
+
