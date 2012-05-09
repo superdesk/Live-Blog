@@ -11,7 +11,7 @@ API specifications for article type.
 
 from .entity import Entity, IEntityService
 from ally.api.config import model, service, query
-from ally.api.criteria import AsLike
+from ally.api.criteria import AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ class QArticleType:
     '''
     Provides the query article type model.
     '''
-    name = AsLike
+    name = AsLikeOrdered
 
 # --------------------------------------------------------------------
 

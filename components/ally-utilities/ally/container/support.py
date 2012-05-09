@@ -282,7 +282,10 @@ def entitiesFor(clazz, assembly=None):
 
     entities = (name for name, call in assembly.calls.items()
                 if isinstance(call, CallEntity) and call.type and (call.type == clazz or issubclass(call.type, clazz)))
-    return [assembly.processForName(name) for name in entities]
+
+    Assembly.stack.append(assembly)
+    try: return [assembly.processForName(name) for name in entities]
+    finally: Assembly.stack.pop()
 
 def entityFor(clazz, assembly=None):
     '''
@@ -309,7 +312,10 @@ def entityFor(clazz, assembly=None):
     if len(entities) > 1:
         raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' %
                          (', '.join(entities), clazz))
-    return assembly.processForName(entities[0])
+
+    Assembly.stack.append(assembly)
+    try: return assembly.processForName(entities[0])
+    finally: Assembly.stack.pop()
 
 # --------------------------------------------------------------------
 

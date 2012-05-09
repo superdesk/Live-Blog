@@ -21,6 +21,7 @@ from cdm.impl.local_filesystem import HTTPDelivery, LocalFileSystemCDM, LocalFil
 from ally.zip.util_zip import normOSPath
 from io import BytesIO
 import json
+from datetime import datetime
 
 
 normpath = lambda txt: re.sub('[\\W]+', '', txt)
@@ -52,7 +53,7 @@ class TestHTTPDelivery(unittest.TestCase):
             cdm.publishFromFile(dstFile, srcTmpFile.name)
             dstFilePath = join(d.getRepositoryPath(), dstFile)
             self.assertTrue(isfile(dstFilePath))
-            self.assertEqual(stat(dstFilePath).st_mtime,
+            self.assertEqual(datetime.fromtimestamp(stat(dstFilePath).st_mtime),
                              cdm.getTimestamp('testdir1/tempfile.txt'))
         finally:
             rmtree(dirname(dstFilePath))
@@ -82,7 +83,7 @@ class TestHTTPDelivery(unittest.TestCase):
             for dir in dirs:
                 dstFilePath = join(dstDirPath, dir, 'text.html')
                 self.assertTrue(isfile(dstFilePath))
-                self.assertEqual(stat(dstFilePath).st_mtime,
+                self.assertEqual(datetime.fromtimestamp(stat(dstFilePath).st_mtime),
                                  cdm.getTimestamp(join('testdir3', dir, 'text.html')))
             # test remove path
             filePath = 'testdir3/test1/subdir1/text.html'

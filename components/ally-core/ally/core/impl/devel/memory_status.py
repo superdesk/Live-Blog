@@ -13,7 +13,7 @@ from ally.api.type import Input, Integer, typeFor, String
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction
 from ally.core.impl.node import NodePath
-from ally.core.spec.resources import ResourcesManager
+from ally.core.spec.resources import IResourcesRegister
 from collections import OrderedDict
 from inspect import isclass
 from ally.support.util_sys import fullyQName
@@ -27,14 +27,14 @@ class MemoryStatusPresenter:
     '''
     Class providing the memory status presentation.
     '''
-    
-    resourcesManager = ResourcesManager
-    # The resources manager used in getting the node structure.
-    
+
+    resourcesRegister = IResourcesRegister
+    # The resources register used in getting the node structure.
+
     def __init__(self):
-        assert isinstance(self.resourcesManager, ResourcesManager), \
+        assert isinstance(self.resourcesRegister, IResourcesRegister), \
         'Invalid resources manager %s' % self.resourcesManager
-        node = NodePath(self.resourcesManager.getRoot(), True, 'MemoryStatus')
+        node = NodePath(self.resourcesRegister.getRoot(), True, 'MemoryStatus')
         node.get = InvokerFunction(None, self.present, [
                                                         Input('limit', typeFor(Integer), True, None),
                                                         Input('include', typeFor(String), True, None),

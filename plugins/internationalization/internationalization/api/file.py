@@ -9,13 +9,13 @@ Created on Mar 7, 2012
 API specifications for localized files.
 '''
 
+from admin.api.domain_admin import modelAdmin
+from admin.introspection.api.component import Component
+from admin.introspection.api.plugin import Plugin
 from ally.api.config import service, query
 from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered
 from ally.support.api.entity import Entity, QEntity, IEntityService
 from datetime import datetime
-from introspection.api.component import Component
-from introspection.api.domain_admin import modelAdmin
-from introspection.api.plugin import Plugin
 
 # --------------------------------------------------------------------
 

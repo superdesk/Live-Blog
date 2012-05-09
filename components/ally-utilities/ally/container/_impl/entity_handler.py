@@ -49,15 +49,13 @@ class Initializer:
         if initializer is not None:
             assert isinstance(initializer, Initializer)
             if entity.__class__ == initializer._entityClazz:
-                try:
-                    if entity._ally_ioc_initialized: return
-                except AttributeError:
-                    args, keyargs = entity._ally_ioc_arguments
-                    entity._ally_ioc_initialized = True
-                    del entity._ally_ioc_arguments
-                    if initializer._entityInit:
-                        initializer._entityInit(entity, *args, **keyargs)
-                        log.info('Initialized entity %s' % entity)
+                if getattr(entity, '_ally_ioc_initialized', False): return
+                args, keyargs = entity._ally_ioc_arguments
+                entity._ally_ioc_initialized = True
+                del entity._ally_ioc_arguments
+                if initializer._entityInit:
+                    initializer._entityInit(entity, *args, **keyargs)
+                    log.info('Initialized entity %s' % entity)
 
     def __init__(self, clazz):
         '''

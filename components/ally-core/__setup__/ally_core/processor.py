@@ -12,7 +12,6 @@ Provides the configurations for the processors used in handling the request.
 from .converter import defaultErrorContentConverter
 from .encoder_decoder import handlersDecoding, handlersEncoding
 from .parameter import decodersParameters
-from .resource_manager import resourcesManager
 from ally.container import ioc
 from ally.core.impl.processor.converter import ConverterHandler
 from ally.core.impl.processor.decoding import DecodingHandler
@@ -64,10 +63,7 @@ def redirect() -> Processor:
     return b
 
 @ioc.entity
-def metaCreator() -> Processor:
-    b = MetaCreatorHandler()
-    b.resourcesManager = resourcesManager()
-    return b
+def metaCreator() -> Processor: return MetaCreatorHandler()
 
 @ioc.entity
 def converter() -> Processor: return ConverterHandler()

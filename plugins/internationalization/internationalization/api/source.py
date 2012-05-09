@@ -10,11 +10,11 @@ API specifications for localized messages sources.
 '''
 
 from .file import File, QFile
+from admin.api.domain_admin import modelAdmin
 from ally.api.config import service, query
 from ally.api.criteria import AsEqual
 from ally.internationalization import N_
 from ally.support.api.entity import Entity, QEntity, IEntityService
-from introspection.api.domain_admin import modelAdmin
 
 # --------------------------------------------------------------------
 

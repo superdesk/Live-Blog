@@ -17,7 +17,7 @@ from .samples.impl.article import ArticleService
 from .samples.impl.article_type import ArticleTypeService
 from ally.api.type import Iter, Type, typeFor
 from ally.container import ioc, aop
-from ally.core.spec.resources import ResourcesManager, Path
+from ally.core.spec.resources import IResourcesLocator, Path
 from ally.core.spec.server import Processors, Request, Response
 from functools import reduce
 import re
@@ -36,8 +36,8 @@ class TestEncoderXML(unittest.TestCase):
             services.append(ArticleTypeService())
             services.append(ArticleService())
 
-            resourcesManager = get('resourcesManager')
-            assert isinstance(resourcesManager, ResourcesManager)
+            resourcesLocator = get('resourcesLocator')
+            assert isinstance(resourcesLocator, IResourcesLocator)
 
             converterPath = get('converterPath')
 
@@ -53,12 +53,13 @@ class TestEncoderXML(unittest.TestCase):
             req, rsp = Request(), Response()
             rsp.contentConverter = converterPath
             rsp.encoderPath = EncoderPathTest(converterPath)
+            rsp.charSet = 'UTF-8'
             rsp.objMeta = None
 
             # Test Property convert
 
             rsp.obj, rsp.objType = 1, typeFor(Article.Id)
-            req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article', '1'])
+            req.resourcePath = resourcesLocator.findPath(converterPath, ['Article', '1'])
             processors.newChain().process(req, rsp)
 
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
@@ -78,7 +79,7 @@ class TestEncoderXML(unittest.TestCase):
             a = Article()
             a.Id, a.Name, a.Type = 1, 'Article 1', 2
             rsp.obj, rsp.objType = a, typeFor(Article)
-            req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article', '1'])
+            req.resourcePath = resourcesLocator.findPath(converterPath, ['Article', '1'])
             processors.newChain().process(req, rsp)
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
@@ -88,7 +89,7 @@ class TestEncoderXML(unittest.TestCase):
             a = Article()
             a.Id, a.Name, a.Type = 3, 'Article 3', 4
             rsp.obj, rsp.objType = a, typeFor(Article)
-            req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article', '1'])
+            req.resourcePath = resourcesLocator.findPath(converterPath, ['Article', '1'])
             processors.newChain().process(req, rsp)
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
@@ -98,7 +99,7 @@ class TestEncoderXML(unittest.TestCase):
             at = ArticleType()
             at.Id, at.Name = 1, 'Article Type 1'
             rsp.obj, rsp.objType = at, typeFor(ArticleType)
-            req.resourcePath = resourcesManager.findResourcePath(converterPath, ['ArticleType', '1'])
+            req.resourcePath = resourcesLocator.findPath(converterPath, ['ArticleType', '1'])
             processors.newChain().process(req, rsp)
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
@@ -108,7 +109,7 @@ class TestEncoderXML(unittest.TestCase):
 
             # Test list paths encoding
 
-            rsp.obj, rsp.objType = resourcesManager.findGetAllAccessible(), Iter(Type(Path))
+            rsp.obj, rsp.objType = resourcesLocator.findPath(converterPath, []).findGetAllAccessible(), Iter(Type(Path))
             processors.newChain().process(req, rsp)
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
@@ -118,7 +119,7 @@ class TestEncoderXML(unittest.TestCase):
             # Test list property encoding
 
             rsp.obj, rsp.objType = [1, 2], Iter(Article.Id)
-            req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article'])
+            req.resourcePath = resourcesLocator.findPath(converterPath, ['Article'])
             processors.newChain().process(req, rsp)
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
@@ -147,7 +148,7 @@ class TestEncoderXML(unittest.TestCase):
             a1.Id, a1.Name, a1.Type = 1, 'Article 1', 1
             a2.Id, a2.Name, a2.Type = 2, 'Article 2', 2
             rsp.obj, rsp.objType = (a1, a2), Iter(Article)
-            req.resourcePath = resourcesManager.findResourcePath(converterPath, ['Article'])
+            req.resourcePath = resourcesLocator.findPath(converterPath, ['Article'])
             processors.newChain().process(req, rsp)
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',
@@ -165,7 +166,7 @@ class TestEncoderXML(unittest.TestCase):
 '''<?xml version="1.0" encoding="UTF-8"?>
 <Type><href>ArticleType/2</href><Id>2</Id></Type><Id>1</Id>'''))
 
-        finally: ioc.close()
+        finally: ioc.deactivate()
 
 # --------------------------------------------------------------------
 

@@ -11,7 +11,6 @@ Provides the configurations for the encoder text.
 
 from ..test_support import EncoderGetObj
 from .converter import contentNormalizer, converterPath
-from .resource_manager import resourcesManager
 from ally.container import ioc
 from ally.core.impl.processor.encoder_text import EncodingTextHandler
 from ally.core.impl.processor.meta_creator import MetaCreatorHandler
@@ -25,7 +24,6 @@ def encoder(): return EncoderGetObj()
 @ioc.entity
 def encoderText() -> Processor:
     b = EncodingTextHandler()
-    b.resourcesManager = resourcesManager()
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
     b.encoder = encoder()
@@ -37,7 +35,6 @@ def encoderText() -> Processor:
 @ioc.entity
 def metaCreator() -> Processor:
     b = MetaCreatorHandler()
-    b.resourcesManager = resourcesManager()
     return b
 
 @ioc.entity

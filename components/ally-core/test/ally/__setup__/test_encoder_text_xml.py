@@ -10,7 +10,6 @@ Provides the configurations for the encoder text xml.
 '''
 
 from .converter import contentNormalizer, converterPath
-from .resource_manager import resourcesManager
 from ally.container import ioc
 from ally.core.spec.server import Processor, Processors
 from ally.core.impl.processor.encoder_xml import EncodingXMLHandler
@@ -21,7 +20,6 @@ from .test_encoder_text import metaCreator
 @ioc.entity
 def encoderTextXML() -> Processor:
     b = EncodingXMLHandler()
-    b.resourcesManager = resourcesManager()
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
     b.charSetDefault = 'UTF-8'

@@ -9,7 +9,7 @@ Created on Nov 24, 2011
 Provides the configurations for development tools.
 '''
 
-from .resource_manager import resourcesManager
+from .resource_management import resourcesRegister
 from ally.container import ioc
 from ally.core.impl.devel.memory_status import MemoryStatusPresenter
 
@@ -25,10 +25,10 @@ def application_mode() -> str:
 @ioc.entity
 def memoryStatusPresenter():
     b = MemoryStatusPresenter()
-    b.resourcesManager = resourcesManager()
+    b.resourcesRegister = resourcesRegister()
     return b
 
-@ioc.after(resourcesManager)
+@ioc.after(resourcesRegister)
 def development():
     if application_mode() == 'devel':
         memoryStatusPresenter()

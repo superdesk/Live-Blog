@@ -14,6 +14,7 @@ from pkgutil import get_importer, iter_importers, find_loader
 import os
 import sys
 import traceback
+from inspect import ismodule
 
 # --------------------------------------------------------------------
 
@@ -22,7 +23,7 @@ class PackageExtender:
     Provides support for extending packages having the same name but different python paths. Basically provides the
     union of packages.
     '''
-    
+
     def __init__(self):
         '''
         Construct the package extender.
@@ -30,7 +31,7 @@ class PackageExtender:
         self.__loading = set()
         self.__unittest = False
         self.__unextended = set()
-        
+
     def setForUnitTest(self, unittest):
         '''
         Sets the unit test flag indicating that the module loading should be wrapped and any problem that appears in
@@ -41,7 +42,7 @@ class PackageExtender:
         '''
         assert isinstance(unittest, bool), 'Invalid unit test flag %s' % unittest
         self.__unittest = unittest
-        
+
     def addFreezedPackage(self, name):
         '''
         Adds a new unextended package, a unextended package will only have the modules and definitions that are found
@@ -52,28 +53,51 @@ class PackageExtender:
         '''
         assert isinstance(name, str), 'Invalid package name %s' % name
         self.__unextended.add(name)
-    
+
     def find_module(self, name, paths=None):
         '''
         @see: http://www.python.org/dev/peps/pep-0302/
         '''
         if is_builtin(name) == 0 and name not in self.__loading and name not in sys.modules:
-            for unname in self.__unextended:
-                if unname == name or name.startswith(unname): break
-            else:
-                self.__loading.add(name)
-                loader = find_loader(name)
-                self.__loading.remove(name)
-                if loader is not None:
-                    if loader.is_package(name): return PackageLoader(loader)
-                    if self.__unittest: return ModuleLoader(loader)
-    
+            self.__loading.add(name)
+            loader = find_loader(name)
+            self.__loading.remove(name)
+
+            if self._isUnextended(name):
+                if loader is None:
+                    # If there is no loader but the parent package is extend able we might try to refresh the paths of
+                    # the parent because maybe meanwhile the python path has been updated.
+                    k = name.rfind('.')
+                    if k > 0: inPackage = name[:k]
+                    else: inPackage = None
+                    if not self._isUnextended(inPackage):
+                        _extendPackagePaths(sys.modules[inPackage])
+                        loader = find_loader(name)
+            elif loader is not None:
+                if loader.is_package(name): loader = PackageLoader(loader)
+                elif self.__unittest: loader = ModuleLoader(loader)
+
+            return loader
+
+    # ----------------------------------------------------------------
+
+    def _isUnextended(self, name):
+        '''
+        Checks if the path is unextended.
+        '''
+        for unname in self.__unextended:
+            if unname == name or name.startswith(unname):
+                return True
+        return False
+
 class PackageLoader:
     '''
     Provides the package loader for the package extender. This is used whenever there is a package to be loaded. This
     class is just a wrapper around the normal loader that will append the package module path.
     '''
-    
+
+    __slots__ = ('__loader',)
+
     def __init__(self, loader):
         '''
         Construct the package loader wrapper for the provided loader.
@@ -83,33 +107,13 @@ class PackageLoader:
         '''
         assert loader, 'A loader is required'
         self.__loader = loader
-    
+
     def load_module(self, name):
         '''
         @see: http://www.python.org/dev/peps/pep-0302/
         '''
-        module = self.__loader.load_module(name)
-        fullName, paths = module.__name__, module.__path__
-        k = fullName.rfind('.')
-        if k >= 0:
-            package = sys.modules[fullName[:k]]
-            name = fullName[k + 1:]
-            importers = [get_importer(path) for path in package.__path__]
-        else:
-            name = fullName
-            importers = iter_importers()
-        
-        for importer in importers:
-            moduleLoader = importer.find_module(name)
-            if moduleLoader and moduleLoader.is_package(name):
-                path = os.path.dirname(moduleLoader.get_filename(name))
-                if path not in paths:
-                    paths.append(path)
-                    exec(moduleLoader.get_code(name), module.__dict__)
-        module.__path__ = paths
+        return _extendPackagePaths(self.__loader.load_module(name))
 
-        return module
-    
     def __getattr__(self, name): return getattr(self.__loader, name)
 
 class ModuleLoader:
@@ -117,7 +121,9 @@ class ModuleLoader:
     Provides the module loader this is used just because when running unit tests some import exceptions get ignored and
     will really throw you off the actual problem, so this is just a wrapper that exposes any exception.
     '''
-    
+
+    __slots__ = ('__loader',)
+
     def __init__(self, loader):
         '''
         Construct the module loader wrapper for the provided loader.
@@ -127,7 +133,7 @@ class ModuleLoader:
         '''
         assert loader, 'A loader is required'
         self.__loader = loader
-    
+
     def load_module(self, name):
         '''
         @see: http://www.python.org/dev/peps/pep-0302/
@@ -141,8 +147,40 @@ class ModuleLoader:
             raise
 
         return module
-    
+
     def __getattr__(self, name): return getattr(self.__loader, name)
+
+# --------------------------------------------------------------------
+
+def _extendPackagePaths(package):
+    '''
+    Extends the package paths for the provided package.
+    
+    @param package: module package
+        The module package to be extended.
+    @return: module package
+        The extended module package, the same module usually.
+    '''
+    assert ismodule(package), 'Invalid package module %s' % package
+    fullName, paths = package.__name__, package.__path__
+    k = fullName.rfind('.')
+    if k >= 0:
+        name = fullName[k + 1:]
+        importers = [get_importer(path) for path in sys.modules[fullName[:k]].__path__]
+    else:
+        name = fullName
+        importers = iter_importers()
+
+    for importer in importers:
+        moduleLoader = importer.find_module(name)
+        if moduleLoader and moduleLoader.is_package(name):
+            path = os.path.dirname(moduleLoader.get_filename(name))
+            if path not in paths:
+                paths.append(path)
+                # TODO: add checking to enforce the fact that the init file should not contain any code beside doc.
+                # code = moduleLoader.get_code(name)
+    package.__path__ = paths
+    return package
 
 # --------------------------------------------------------------------
 
@@ -152,7 +190,7 @@ del PackageExtender # We remove the class so no other instance can be created.
 # Registers into the python sys._meta_path the package extender.
 if not sys.meta_path or not sys.meta_path[0] == PACKAGE_EXTENDER:
     sys.meta_path.insert(0, PACKAGE_EXTENDER)
-        
+
 def registerPackageExtender(unittest=True):
     '''
     Registers into the python sys._meta_path the package extender. If the package extender is registered it will not be

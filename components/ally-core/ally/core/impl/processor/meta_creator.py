@@ -16,7 +16,7 @@ from ally.api.type import TypeNone, Iter, Type, IterPart, List, typeFor, Boolean
 from ally.container.ioc import injected
 from ally.core.spec.data_meta import MetaLink, MetaValue, MetaModel, MetaPath, \
     MetaCollection
-from ally.core.spec.resources import ResourcesManager, Path
+from ally.core.spec.resources import Path
 from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
 from ally.support.core.util_resources import pathLongName
 from ally.type_legacy import OrderedDict
@@ -53,14 +53,10 @@ class MetaCreatorHandler(Processor):
     Requires on response: [objType]
     '''
 
-    resourcesManager = ResourcesManager
-    # The resources manager used in locating the resource nodes for the id's presented.
     nameReference = 'Reference'
     # The name to be used when creating reference links.
 
     def __init__(self):
-        assert isinstance(self.resourcesManager, ResourcesManager), \
-        'Invalid resources manager %s' % self.resourcesManager
         assert isinstance(self.nameReference, str), 'Invalid reference name %s' % self.nameReference
         self.returnNameReference = lambda obj: self.nameReference
 
@@ -147,7 +143,7 @@ class MetaCreatorHandler(Processor):
             assert isinstance(typ, TypeModelProperty)
 
             if typ.container.propertyId == typ.property:
-                path = self.resourcesManager.findGetModel(resourcePath, typ.parent)
+                path = resourcePath.findGetModel(typ.parent)
                 if path: metaLink = MetaPath(path, typ, getValue)
                 else: metaLink = None
             else: metaLink = None
@@ -156,7 +152,7 @@ class MetaCreatorHandler(Processor):
 
         if isinstance(typ, TypeModel):
             assert isinstance(typ, TypeModel)
-            path = self.resourcesManager.findGetModel(resourcePath, typ)
+            path = resourcePath.findGetModel(typ)
             typId = typeFor(getattr(typ.forClass, typ.container.propertyId))
             assert isinstance(typId, TypeModelProperty)
 
@@ -195,12 +191,10 @@ class MetaCreatorHandler(Processor):
         metas = {prop:self.metaProperty(ptyp, resourcePath, partial(rgetattr, prop))
                  for prop, ptyp in model.properties.items()}
 
-        paths = self.resourcesManager.findGetAllAccessible(resourcePath)
-        pathsModel = self.resourcesManager.findGetAccessibleByModel(model)
-        paths.extend([path for path in pathsModel if path not in paths])
+        paths = resourcePath.findGetAllAccessible()
         metas.update({mpath.getName(): mpath for mpath in (MetaPath(path, typ, getModel) for path in paths)})
 
-        path = self.resourcesManager.findGetModel(resourcePath, typ)
+        path = resourcePath.findGetModel(typ)
         if path: metaLink = MetaPath(path, typ, getModel)
         else: metaLink = None
 

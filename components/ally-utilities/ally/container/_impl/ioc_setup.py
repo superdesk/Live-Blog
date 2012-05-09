@@ -602,6 +602,13 @@ class CallEntity(WithCall, WithType, WithListeners):
             if isgenerator(ret): value, followUp = next(ret), partial(next, ret, None)
             else: value, followUp = ret, None
 
+            if value is not None:
+                valueId, value_calls = id(value), self._assembly.value_calls
+                calls = value_calls.get(valueId)
+                if calls is None: value_calls[valueId] = calls = deque([self])
+                else: calls.append(self)
+            else: valueId = None
+
             assert log.debug('Processed entity %r with value %s', self._name, value) or True
             v = self.validate(value)
             for inter in self._interceptors:
@@ -614,7 +621,11 @@ class CallEntity(WithCall, WithType, WithListeners):
 
             if followUp: followUp()
 
-            Initializer.initialize(value)
+            if valueId:
+                calls.pop()
+                if len(calls) == 0:
+                    Initializer.initialize(value)
+                    del value_calls[valueId]
 
             for listener in self._listenersAfter: listener()
 
@@ -749,6 +760,7 @@ class Assembly:
         self.configUsed = set()
         self.configurations = {}
         self.calls = {}
+        self.value_calls = {}
         self.callsStart = []
         self.called = set()
         self.started = False
@@ -801,7 +813,8 @@ class Assembly:
         if not call: raise SetupError('No IoC resource for name %r' % name)
         if not callable(call): raise SetupError('Invalid call %s for name %r' % (call, name))
         try: value = call()
-        except: raise SetupError('Exception occurred for %r in processing chain %r' % (name, ', '.join(self._processing)))
+        except: raise SetupError('Exception occurred for %r in processing chain %r' %
+                                 (name, ', '.join(self._processing)))
         self._processing.pop()
         return value
 
