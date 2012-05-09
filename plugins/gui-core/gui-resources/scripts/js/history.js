@@ -1722,6 +1722,7 @@ define('history', function(){
                 // Create the newState
                 var newState = History.createStateObject(data,title,url);
 
+                //History.debug('History.isLastSavedState(newState) ', History.isLastSavedState(newState) );
                 // Check it
                 if ( History.isLastSavedState(newState) ) {
                     // Won't be a change
@@ -1802,7 +1803,6 @@ define('history', function(){
 
         } // !History.emulated.pushState
 
-
         // ====================================================================
         // Initialise
 
@@ -1836,7 +1836,7 @@ define('history', function(){
         /**
          * Create the initial State
          */
-        History.saveState(History.storeState(History.extractState(document.location.href,true)));
+        //History.saveState(History.storeState(History.extractState(document.location.href,true)));
 
         /**
          * Bind for Saving Store
