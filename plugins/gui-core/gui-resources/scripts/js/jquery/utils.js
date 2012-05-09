@@ -46,5 +46,5 @@ $.mergeObj = function(first, second) {
 				first[i] = second[i];
 	}
 };
-
+$.extend($.browser, {language: window.navigator.userLanguage || window.navigator.language});
 });
