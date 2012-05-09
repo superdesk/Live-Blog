@@ -1,4 +1,4 @@
-{>"layouts/livedesk"/}
+{>"livedesk>layouts/livedesk"/}
 
 {<list}
 	list
@@ -20,6 +20,38 @@
         <article id="blog-intro">
         	{Description|s}
 	    </article> 
+    </section>
+    <section class="blog-section">
+    	<div class="tool-box-top">
+            <a href="#"><i class="icon-share-alt"></i> Share</a>
+            <div class="dropdown dropdown-simple pull-right">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="icon-cog"></i><b class="caret"></b></a>
+                <ul class="dropdown-menu bottom-up pull-right">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+              </ul>
+            </div>
+        </div>
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#timeline-view" data-toggle="tab">Timeline</a></li>
+          <li class=""><a href="#map-view" data-toggle="tab">Map View</a></li>
+          <select class="pull-right">
+          	<option>Show all</option>
+            <option>Show Wrapups</option>
+            <option>Show Alerts</option>
+            <option>Show Quotes</option>
+          </select>
+        </ul>
+        <div class="tab-content">
+			<div class="tab-pane active" id="timeline-view">
+            </div>
+        	<div class="tab-pane" id="map-view">
+            22
+            </div>
+        </div>
     </section>
 </div>
 {/body}

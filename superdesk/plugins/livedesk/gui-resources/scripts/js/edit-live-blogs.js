@@ -1,5 +1,5 @@
 define(['jquery', 'jqueryui/texteditor', 
-        'tmpl!livedesk>layouts/livedesk', 'tmpl!livedesk>edit'], 
+        'tmpl!livedesk>layouts/livedesk', 'tmpl!livedesk>edit', 'tmpl!livedesk>edit-timeline'], 
 function($) 
 {
     
@@ -23,12 +23,12 @@ function($)
         var blog = new $.rest(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
         { 
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}}),
-                content = $('#area-main').tmpl('edit', data, initEditBlog);
+                content = $('#area-main').tmpl('livedesk>edit', data, initEditBlog);
             
             $('.collapse-title-page', content).off('click.livedesk')
             .on('click.livedesk', function()
             {
-                var intro = $('article#blog-intro', content)
+                var intro = $('article#blog-intro', content);
                 !intro.is(':hidden') && intro.fadeOut('fast') && intro.text('Expand');
                 intro.is(':hidden') && intro.fadeIn('fast') && intro.text('Collapse');
             });
@@ -44,6 +44,14 @@ function($)
                             
                         });
                 });
+            });
+            
+            this.get('BlogPostPublished')
+            .xfilter('Id, Content, CreatedOn,'+
+                    'Author.Id, Author.Person, Author.Person.FirstName, Author.Person.LastName, Author.Source, Author.Source.Name')
+            .done(function(posts)
+            {
+                $('#timeline-view', content).tmpl('livedesk>edit-timeline', {Posts: this.extractListData(posts)});
             });
         });
     };
