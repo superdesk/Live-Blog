@@ -15,12 +15,12 @@ requirejs.config
 		'dust': config.js_url + '/dust',
 		'history': config.js_url + '/history',
 		'tmpl': config.js_url + '/require/tmpl',
+		'i18n': config.js_url + '/require/i18n',
 		'gettext': config.js_url + '/gettext',
 	}
 });
-require(['jquery/superdesk', 'lib/core/scripts/js/views/menu'], //, 'jquery/i18n', 'lib/core/scripts/catalog' ], 
-function(superdesk, MenuView)//, I18n, catalog)
+require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n'], 
+function(MenuView, $)
 {
-	//I18n.load(catalog);
-    superdesk.navigation.init(function(){ var menuView = new MenuView; });
+    $.superdesk.navigation.init(function(){ var menuView = new MenuView; });
 }); 

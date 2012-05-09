@@ -64,9 +64,11 @@ define('jquery/rest',['jquery'], function ($) {
 			var ret = data;
 			if( !Array.isArray(data) ) for( i in data ) 
 			{
-				if( Array.isArray(data[i]) ) 
+				if( Array.isArray(data[i]) )
+				{
 					ret = data[i];
-				break;
+					break;
+				}
 			}
 			return ret;
 		};

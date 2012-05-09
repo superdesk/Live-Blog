@@ -30,13 +30,18 @@ def modulesAction():
     return Action('livedesk', Parent=defaults.modulesAction())
 
 @ioc.entity   
-def modulesUpdateAction():
+def modulesAddAction():
     return Action('add', Parent=modulesAction(), 
                   ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/add-live-blogs.js'))
+@ioc.entity   
+def modulesEditAction():
+    return Action('edit', Parent=modulesAction(), 
+                  ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/edit-live-blogs.js'))
 
 @ioc.start
 def registerActions():
     actionManagerService().add(menuAction())
     actionManagerService().add(subMenuAction())
     actionManagerService().add(modulesAction())
-    actionManagerService().add(modulesUpdateAction())
+    actionManagerService().add(modulesAddAction())
+    actionManagerService().add(modulesEditAction())

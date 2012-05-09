@@ -40,11 +40,12 @@ function($, superdesk, dust)
     		.tmpl( 'navbar', {superdesk: {menu: displayMenu}} )
     		.on('click', '.nav a', function(event)
     		{
-    		    if(!$(this).attr('href')) return;
     		    var self = this;
+    		    if(!$(self).attr('href')) return;
+    		    if(!$(self).attr('script-path')) { event.preventDefault(); return; }
     		    superdesk.navigation.bind
     		    ( 
-    		        $(this).attr('href'), 
+    		        $(self).attr('href'), 
     		        function(){ require([config.api_url + $(self).attr('script-path')], 
     		            function(x)
     		            { 
