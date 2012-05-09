@@ -9,11 +9,11 @@ Created on May 4, 2012
 API specifications for PO file management.
 '''
 
+from admin.api.domain_admin import modelAdmin
+from admin.introspection.api.component import Component
+from admin.introspection.api.plugin import Plugin
 from ally.api.config import service, call
-from introspection.api.plugin import Plugin
-from introspection.api.component import Component
 from ally.api.type import Reference, Scheme
-from introspection.api.domain_admin import modelAdmin
 
 # --------------------------------------------------------------------
 

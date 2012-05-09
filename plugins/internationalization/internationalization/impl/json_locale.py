@@ -16,8 +16,8 @@ from ally.internationalization import _
 from cdm.spec import ICDM, PathNotFound
 from internationalization.api.json_locale import IJSONLocaleFileService
 from internationalization.core.spec import IPOFileManager, InvalidLocaleError
-from introspection.api.plugin import IPluginService, Plugin
-from introspection.api.component import IComponentService
+from admin.introspection.api.plugin import IPluginService, Plugin
+from admin.introspection.api.component import IComponentService
 from datetime import datetime
 
 # --------------------------------------------------------------------

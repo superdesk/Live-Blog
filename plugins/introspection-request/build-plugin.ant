@@ -3,7 +3,7 @@
 
 	<property name="root" value="../"/>
 	<property name="destination" value="."/>
-	<property name="egg.introspection.request" value="introspection-request-1.0-py3.2.egg"/>
+	<property name="egg.introspection.request" value="introspection-request-1.0.egg"/>
 
 	<target name="clean">
 		<delete file="${destination}/${egg.introspection.request}" />

@@ -14,4 +14,4 @@ Contains request node presenter setup files.
 NAME = 'introspection request'
 GROUP = 'development'
 VERSION = '1.0'
-DESCRIPTION = 'Provides the introspection for the possible requests on the REST server'
+DESCRIPTION = 'Provides the introspection GUI for the possible requests on the REST server'
