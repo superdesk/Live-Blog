@@ -1,9 +1,9 @@
 '''
 Created on Feb 2, 2012
 
-@package ally core request
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: introspection request
+@copyright: 2011 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mihai Balaceanu
 
 Registered actions for request plugin
@@ -18,23 +18,23 @@ from gui.action.api.action import Action
 
 # --------------------------------------------------------------------
 
-@ioc.entity    
+@ioc.entity
 def menuAction():
     return Action('request', N_('Request'), Parent=defaults.menuAction(), Href='/api-requests',
                ScriptPath=getPublishedGui('superdesk/request/scripts/js/menu.js'))
 
-@ioc.entity   
+@ioc.entity
 def modulesAction():
     return Action('request', Parent=defaults.modulesAction())
 
-@ioc.entity    
+@ioc.entity
 def modulesListAction():
     return Action('list', N_('Request'), Parent=modulesAction(),
                ScriptPath=getPublishedGui('superdesk/request/scripts/js/list.js'))
-    
+
 @ioc.start
 def actionRegister():
     actionManagerService().add(menuAction())
     actionManagerService().add(modulesAction())
     actionManagerService().add(modulesListAction())
-    
+

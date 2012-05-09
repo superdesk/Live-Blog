@@ -10,13 +10,13 @@ API specifications for localized messages.
 '''
 
 from .source import Source
+from admin.api.domain_admin import modelAdmin
+from admin.introspection.api.component import Component
+from admin.introspection.api.plugin import Plugin
 from ally.api.config import service, call, query
 from ally.api.criteria import AsLike
 from ally.api.type import Iter, Count, List
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
-from introspection.api.domain_admin import modelAdmin
-from introspection.api.component import Component
-from introspection.api.plugin import Plugin
 from internationalization.api.source import QSource
 
 # --------------------------------------------------------------------

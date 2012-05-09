@@ -17,6 +17,8 @@ from superdesk.meta.metadata_superdesk import Base
 from superdesk.user.meta.user import User
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from sqlalchemy.orm.mapper import reconstructor
+from superdesk.post.meta.type import PostTypeMapped
+from sqlalchemy.orm import relationship, backref
 
 # --------------------------------------------------------------------
 
@@ -35,7 +37,11 @@ class PostMapped(Base, Post):
     PublishedOn = Column('published_on', DateTime)
     UpdatedOn = Column('updated_on', DateTime)
     DeletedOn = Column('deleted_on', DateTime)
+    # None REST model attribute --------------------------------------
+    typeId = Column('fk_type_id', ForeignKey(PostTypeMapped.id, ondelete='RESTRICT'), nullable=False)
+    type = relationship(PostTypeMapped, backref=backref('parent', uselist=False))
 
     @reconstructor
     def init_on_load(self):
         self.IsModified = self.PublishedOn is not None
+        self.Type = self.type.Key

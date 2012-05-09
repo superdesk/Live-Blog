@@ -9,6 +9,8 @@ Created on Mar 5, 2012
 The scanner used for extracting the localized text messages.
 '''
 
+from admin.introspection.api.component import IComponentService, Component
+from admin.introspection.api.plugin import IPluginService, Plugin
 from ally.container import wire
 from ally.container.ioc import injected
 from babel.messages.extract import extract_nothing, extract_python, \
@@ -20,14 +22,11 @@ from internationalization.api.file import IFileService, QFile, File
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, TYPES, Source, \
     QSource
-from introspection.api.component import IComponentService, Component
-from introspection.api.plugin import IPluginService, Plugin
-from io import BytesIO
+from io import BytesIO, TextIOWrapper
 from os import path
 from zipfile import ZipFile
 import logging
 import os
-from io import TextIOWrapper
 
 # --------------------------------------------------------------------
 

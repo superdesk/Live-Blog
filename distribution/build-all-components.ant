@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ally-all-components" default="build" basedir=".">
 
-	<property name="root" value="../components/"/>
-	<property name="destination" value="./components/"/>
-	
+	<property name="root" value="../components/" />
+	<property name="destination" value="./components/" />
+
 	<import file="../components/ally-utilities/build-component.ant" />
 	<import file="../components/ally-api/build-component.ant" />
 	<import file="../components/ally-core/build-component.ant" />
@@ -11,14 +11,18 @@
 	<import file="../components/ally-core-http/build-component.ant" />
 	<import file="../components/ally-core-plugin/build-component.ant" />
 	<import file="../components/ally-core-sqlalchemy/build-component.ant" />
+	<import file="../components/support-administration/build-component.ant" />
+	<import file="../components/support-development/build-component.ant" />
 	<import file="../components/support-cdm/build-component.ant" />
-	
+
 	<target name="clean" depends="ally-utilities.clean, ally-api.clean, ally-core.clean, ally-core-babel.clean,
-		ally-core-http.clean, ally-core-plugin.clean, ally-core-sqlalchemy.clean, support-cdm.clean">
+		ally-core-http.clean, ally-core-plugin.clean, ally-core-sqlalchemy.clean,
+		support-administration.clean, support-development.clean, support-cdm.clean">
 	</target>
 
 	<target name="build" depends="clean, ally-utilities.build, ally-api.build,ally-core.build, ally-core-babel.build,
-		ally-core-http.build, ally-core-plugin.build, ally-core-sqlalchemy.build, support-cdm.build">
+		ally-core-http.build, ally-core-plugin.build, ally-core-sqlalchemy.build,
+		support-administration.build, support-development.build, support-cdm.build">
 	</target>
 
 </project>
