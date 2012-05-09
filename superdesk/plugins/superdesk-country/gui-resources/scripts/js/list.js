@@ -21,19 +21,19 @@ function($, superdesk)
     ({
         tpl: 
         {
-            header: 'list-head',
-            footer: 'list-footer',
-            body: 'list-body'
+            header: 'country>list-head',
+            footer: 'country>list-footer',
+            body: 'country>list-body'
         },
         resource: new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Code, Name')
     });
     
     var ListApp = function( paths ) 
     {
-        $('#area-main').tmpl('list', {ui:{ content: 'is-content=1'}});
+        $('#area-main').tmpl('country>list', {ui:{ content: 'is-content=1'}});
         $('#area-main [is-content]').html( datatable );
         
-    	$.tmpl('add', {}, function(error, output){ $('#area-content').append(output); });
+    	$.tmpl('country>add', {}, function(error, output){ $('#area-content').append(output); });
     
     	// details button functionality 
     	$(document)
@@ -42,8 +42,8 @@ function($, superdesk)
     	{
     		new $.rest($(this).attr('href')).done(function(data)
     		{
-    			require(['tmpl!country>details','jqueryui/dialog'], function() {
-    				$.tmpl('details', data, function(error, output) {
+    			require(['jquery','jqueryui/dialog','tmpl!country>details',], function($) {
+    				$.tmpl('country>details', data, function(error, output) {
     					$(output)
     					.dialog
     					({ 
