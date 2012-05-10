@@ -151,8 +151,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 {
                     this.execute = function() 
                     {
-                        console.log(command);
-                        document.execCommand(command, false, null); 
+                        console.log(this.lib.selectionContents())
+                        document.execCommand(command, false, null);
+                        $(this).trigger('command-'+command+'.text-editor');
                     };
                     this.toggleState = function()
                     {
@@ -206,16 +207,10 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         this.getDialog().dialog('open');
                     };
                 },
-                imageCommand : function()
+                imageCommand : function(thisPlugin)
                 {
-                    var dialog = this.dialog.attr('title', 'Add/edit an image')
-                        .append($('<p />')
-                            .append($('<label />').attr('for', 'editor-image-text').text('Image description:'))
-                            .append($('<input />').attr('id', 'editor-image-text')))
-                        .append($('<p />')
-                            .append($('<label />').attr('for', 'editor-image-value').text('Image URL:'))
-                            .append( $('<input />').attr('id', 'editor-image-value')));
-                    var self = this;
+                    var dialog = this.dialog.attr('title', 'Add/edit an image').append(thisPlugin.options.imageDialogUI),
+                        self = this;
                     this.queryState = function()
                     {
                         return this.lib.selectionHas('img');
@@ -237,9 +232,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId, true);
                                 if( url.replace(/^http:\/\//,'') !== "" )
                                 {
-                                    // need to remark selection beacause apparently inserting images removes ranges
+                                    // need to remark selection because apparently inserting images removes ranges
                                     self.restoreSelectionMarkerId = self.lib.markSelection(self.restoreSelectionMarkerId); 
-                                    document.execCommand("insertImage", false, url);
+                                    console.log(document.execCommand("insertImage", false, url))
                                     self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                     $(self).trigger('image-inserted.text-editor');
                                 }
@@ -456,7 +451,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 image : function()
                 {
                     var element = $('<a class="image" />').html('&#x2740;');
-                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.imageCommand(), element );/*new lib.dialogAidedCommand(new lib.command)*/
+                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.imageCommand(this), element );/*new lib.dialogAidedCommand(new lib.command)*/
                     this.plugins.floatingToolbar.blockElements.push('img');
                     return command;
                 }
@@ -541,7 +536,18 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
         },
         options:
         {
-            toolbar:{ classes:{ topFixed: 'fixed-top' }}
+            toolbar:{ class: null, classes:{ topFixed: 'fixed-top' }},
+            imageDialogUI: 
+                '<p><label for="editor-image-text">Image description:</label><input id="editor-image-text" data-option="image-text"></p>'+
+                '<p><label for="editor-image-value">Image URL:</label><input id="editor-image-value" data-option="image-value"></p>'+
+                '<p>'+
+                    '<label for="editor-image-value">Image align:</label>'+
+                    '<div class="btn-group" data-toggle="buttons-radio">'+
+                        '<button class="btn btn-primary">Left</button>'+
+                        '<button class="btn btn-primary">Middle</button>'+
+                        '<button class="btn btn-primary">Right</button>'+
+                    '</div>'+
+                '</p>'
         },
         plugin : function()
         {

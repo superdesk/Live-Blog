@@ -1,6 +1,5 @@
 <ul class="post-list">
 {#Posts}
-{Type.Key}
 	{@if cond="'{Type.Key}'=='wrapup'"}
 	</ul>
 	<div class="wrapup open">
@@ -12,29 +11,27 @@
 	</div>
 	<ul class="post-list wraped">
 	{:else}
-		<li class="quote twitter">
+		<li class="{Author.Source.Name}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#" class="close">×</a>
 	        </div>
 	        <figure>
-	        	<img width="48" height="48" alt="1" src="img/avatar_default_twitter.png">
+	        	<img src="" />
 	        </figure>
 	        <div class="result-content">
 				<h3>
 					{?Author.Person}
 						<span class="author">{Author.Person.FirstName} {Author.Person.LastName}</span>
 					{:else}
-						{?Author.Source}
-							<!-- google or smth else -->
-						{/Author.Source}
+						<!-- google or smth else -->
 					{/Author}
 				</h3>
 				<p class="result-text">
 					{Content}
 				</p>
 				<p class="attributes">
-					<i class="source-icon"></i>
+					<i class="source-icon-{Article.Source.Name}"></i>
 					<time>{CreatedOn}</time>
 					<a class="share" href="#"><i class="icon-share-alt"></i> Share</a>
 				</p>
