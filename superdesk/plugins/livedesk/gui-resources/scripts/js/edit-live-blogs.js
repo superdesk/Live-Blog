@@ -47,7 +47,7 @@ function($)
             });
             
             this.get('BlogPostPublished')
-            .xfilter('Id, Content, CreatedOn,'+
+            .xfilter('Id, Content, CreatedOn, Type.Key, '+
                     'Author.Id, Author.Person, Author.Person.FirstName, Author.Person.LastName, Author.Source, Author.Source.Name')
             .done(function(posts)
             {
