@@ -1,5 +1,6 @@
 <ul class="post-list">
 {#Posts}
+{Type.Key}
 	{@if cond="'{Type.Key}'=='wrapup'"}
 	</ul>
 	<div class="wrapup open">
