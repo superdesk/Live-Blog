@@ -24,7 +24,7 @@
     <section class="blog-section">
     	<div class="tool-box-top">
             <a href="#"><i class="icon-share-alt"></i> Share</a>
-            <div class="dropdown dropdown-simple pull-right">
+            <!--div class="dropdown dropdown-simple pull-right">
                 <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="icon-cog"></i><b class="caret"></b></a>
                 <ul class="dropdown-menu bottom-up pull-right">
                 <li><a href="#">Action</a></li>
@@ -33,20 +33,23 @@
                 <li class="divider"></li>
                 <li><a href="#">Separated link</a></li>
               </ul>
-            </div>
+            </div-->
         </div>
+        <div class="btn-group pull-right">
+			<button data-toggle="dropdown" class="btn dropdown-toggle">_("Action"); <span class="caret"></span></button>
+			<ul class="dropdown-menu">
+    			<li><a href="javascript:void(0)">_("Show all");</a></li>
+    			<li><a href="javascript:void(0)">_("Show wrapups");</a></li>
+    			<li><a href="javascript:void(0)">_("Show alerts");</a></li>
+  			</ul>
+		</div>
         <ul class="nav nav-tabs">
-          <li class="active"><a href="#timeline-view" data-toggle="tab">Timeline</a></li>
-          <li class=""><a href="#map-view" data-toggle="tab">Map View</a></li>
-          <select class="pull-right">
-          	<option>Show all</option>
-            <option>Show Wrapups</option>
-            <option>Show Alerts</option>
-            <option>Show Quotes</option>
-          </select>
+			<li class="active"><a href="#timeline-view" data-toggle="tab">_("Timeline");</a></li>
+			<li class=""><a href="#map-view" data-toggle="tab">_("Map View");</a></li>
         </ul>
         <div class="tab-content">
 			<div class="tab-pane active" id="timeline-view">
+				_("Loading. please wait...");
             </div>
         	<div class="tab-pane" id="map-view">
             22
