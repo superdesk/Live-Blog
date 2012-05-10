@@ -1015,6 +1015,9 @@ section.main-section {
 				width: 36px;
 				height: 36px;
 				border:1px solid #e9e9e9;
+				background: @grayLighter;
+				font-weight: 0;
+				display: inline-block;
 				}
 .collaborators-feed .search-result-list {
 	top:62px;
@@ -1031,21 +1034,21 @@ section.main-section {
 	}
 
 		
-.quote .result-content {
+.post-list li .result-content {
 	position:relative;
 	margin-left:50px;
 	}
 	.post-list .result-content {
 		margin-right:30px;
 		}
-	.quote .result-content h3, .quote .result-content .result-text  {
+	.post-list li .result-content h3, .post-list li .result-content .result-text  {
 		display:inline;
 		line-height:14px;
 		}
-		.quote .result-content h3 {
+		.post-list li .result-content h3 {
 			margin-right:6px;
 			}
-	.quote .result-content time {
+	.post-list li .result-content time {
 		display:inline;
 		}
 li.image, li.image:hover {		
@@ -1261,6 +1264,7 @@ li.image, li.image:hover {
 	margin: 12px 0 0 0;
 	padding: 8px 8px 1px;
 	position: relative;
+	min-height: 48px;
 	}
 	.wrapup .wrapup-content {
 		position: relative;
@@ -1274,7 +1278,7 @@ li.image, li.image:hover {
 		.wrapup .arrow {
 			width:20px;
 			height:20px;
-			background:url(../img/wrapup-arrow.png) no-repeat 0 0;
+			background:url(../../images/wrapup-arrow.png) no-repeat 0 0;
 			overflow:hidden;
 			float:left;
 			margin:10px 0 0 10px;

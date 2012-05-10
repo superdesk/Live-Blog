@@ -29,8 +29,8 @@ function($)
             .on('click.livedesk', function()
             {
                 var intro = $('article#blog-intro', content);
-                !intro.is(':hidden') && intro.fadeOut('fast') && intro.text('Expand');
-                intro.is(':hidden') && intro.fadeIn('fast') && intro.text('Collapse');
+                !intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
+                intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
             });
             
             this.get('BlogCollaborator').xfilter('Collaborator').done(function(colabs)
@@ -48,7 +48,8 @@ function($)
             
             this.get('BlogPostPublished')
             .xfilter('Id, Content, CreatedOn, Type.Key, '+
-                    'Author.Id, Author.Person, Author.Person.FirstName, Author.Person.LastName, Author.Source, Author.Source.Name')
+                    'Author.Id, Author.Person, Author.Person.FirstName, Author.Person.LastName, '+
+                    'Author.Source, Author.Source.Name, Author.Source.Id')
             .done(function(posts)
             {
                 $('#timeline-view', content).tmpl('livedesk>edit-timeline', {Posts: this.extractListData(posts)});
