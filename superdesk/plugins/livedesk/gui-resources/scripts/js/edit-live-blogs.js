@@ -2,6 +2,21 @@ define(['jquery', 'jqueryui/texteditor',
         'tmpl!livedesk>layouts/livedesk', 'tmpl!livedesk>edit', 'tmpl!livedesk>edit-timeline'], 
 function($) 
 {
+    // wrap image command
+    var editorImageControl = function()
+    {
+        // call super
+        var command = $.ui.texteditor.prototype.plugins.controls.image.apply(this, arguments);
+        // do something on insert event
+        $(command).on('image-inserted.text-editor', function()
+        {
+            var img = $(this.lib.selectionHas('img'));
+            if( !img.parents('figure.blog-image:eq(0)').length )
+                img.wrap('<figure class="blog-image" />');
+        });
+        return command;
+    };
+    var editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl });
     
     var initEditBlog = function()
     {
@@ -15,7 +30,7 @@ function($)
             plugins: {controls: h2ctrl},
             floatingToolbar: 'top'
         });
-        content.find('article#blog-intro').texteditor({floatingToolbar: 'top'});
+        content.find('article#blog-intro').texteditor({floatingToolbar: 'top', plugins:{ controls: editorTitleControls }});
     };
     
     var EditApp = function(theBlog)
