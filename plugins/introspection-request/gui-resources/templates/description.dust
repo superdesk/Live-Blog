@@ -7,7 +7,7 @@
 {?Request.Get}
 <article class="row-fluid well">
 	{#Request.Get}
-		{>method/}
+		{>"request>method"/}
 	{/Request.Get}
 </article>
 {:else}
@@ -19,7 +19,7 @@
 {?Request.Insert}
 <article class="row-fluid well">
 	{#Request.Insert}
-		{>method/}
+		{>"request>method"/}
 	{/Request.Insert}
 </article>
 {:else}
@@ -33,7 +33,7 @@
 {?Request.Update}
 <article class="row-fluid well">
 	{#Request.Update}
-		{>method/}
+		{>"request>method"/}
 	{/Request.Update}
 </article>
 {:else}
