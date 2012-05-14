@@ -16,6 +16,8 @@ from superdesk.meta.metadata_superdesk import Base
 from superdesk.language.meta.language import LanguageEntity
 from superdesk.user.meta.user import User
 from sqlalchemy.types import String, DateTime, Text
+from sqlalchemy.orm import column_property
+from sqlalchemy.sql.expression import select, func
 
 # --------------------------------------------------------------------
 
@@ -34,3 +36,9 @@ class BlogMapped(Base, Blog):
     CreatedOn = Column('created_on', DateTime, nullable=False)
     LiveOn = Column('live_on', DateTime)
     ClosedOn = Column('closed_on', DateTime)
+
+# --------------------------------------------------------------------
+
+from livedesk.meta.blog_post import BlogPostMapped
+
+BlogMapped.UpdatedOn = column_property(select([func.max(BlogPostMapped.UpdatedOn)]).where(BlogPostMapped.Blog == BlogMapped.Id))
