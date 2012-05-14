@@ -1,4 +1,4 @@
-define(['jquery', 'jqueryui/texteditor', 
+define(['jquery', 'jqueryui/texteditor',
         'tmpl!livedesk>layouts/livedesk', 'tmpl!livedesk>edit', 'tmpl!livedesk>edit-timeline'], 
 function($) 
 {
