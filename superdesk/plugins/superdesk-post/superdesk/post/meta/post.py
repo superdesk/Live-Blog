@@ -37,7 +37,7 @@ class PostMapped(Base, Post):
     PublishedOn = Column('published_on', DateTime)
     UpdatedOn = Column('updated_on', DateTime)
     DeletedOn = Column('deleted_on', DateTime)
-    # None REST model attribute --------------------------------------
+    # Non REST model attribute --------------------------------------
     typeId = Column('fk_type_id', ForeignKey(PostTypeMapped.id, ondelete='RESTRICT'), nullable=False)
     type = relationship(PostTypeMapped, backref=backref('parent', uselist=False))
 
