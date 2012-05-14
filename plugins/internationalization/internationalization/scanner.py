@@ -166,42 +166,45 @@ class Scanner:
             if isinstance(file, Source): source = file
             else: source = None
             messages = None
-            for text, context, lineno, comments in extractor:
-                if not source:
-                    if file: self.fileService.delete(file.Id)
-                    source = Source()
-                    source.Component = componentId
-                    source.Plugin = pluginId
-                    source.Path = filePath
-                    source.Type = method
-                    source.LastModified = lastModified
-                    files[filePath] = source
-                    self.sourceService.insert(source)
+            try:
+                for text, context, lineno, comments in extractor:
+                    if not source:
+                        if file: self.fileService.delete(file.Id)
+                        source = Source()
+                        source.Component = componentId
+                        source.Plugin = pluginId
+                        source.Path = filePath
+                        source.Type = method
+                        source.LastModified = lastModified
+                        files[filePath] = source
+                        self.sourceService.insert(source)
 
-                if messages is None: messages = {msg.Singular:msg for msg in self.messageService.getMessages(source.Id)}
+                    if messages is None: messages = {msg.Singular:msg for msg in self.messageService.getMessages(source.Id)}
 
-                if isinstance(text, str): singular, plurals = text, None
-                elif len(text) == 1: singular, plurals = text[0], None
-                else: singular, plurals = text[0], list(text[1:])
+                    if isinstance(text, str): singular, plurals = text, None
+                    elif len(text) == 1: singular, plurals = text[0], None
+                    else: singular, plurals = text[0], list(text[1:])
 
-                msg = messages.get(singular)
-                if not msg:
-                    msg = Message()
-                    msg.Source = source.Id
-                    msg.Singular = singular
-                    msg.Plural = plurals
-                    msg.Context = context
-                    msg.LineNumber = lineno
-                    msg.Comments = '\n'.join(comments)
+                    msg = messages.get(singular)
+                    if not msg:
+                        msg = Message()
+                        msg.Source = source.Id
+                        msg.Singular = singular
+                        msg.Plural = plurals
+                        msg.Context = context
+                        msg.LineNumber = lineno
+                        msg.Comments = '\n'.join(comments)
 
-                    self.messageService.insert(msg)
-                    messages[singular] = msg
-                else:
-                    msg.Plural = plurals
-                    msg.Context = context
-                    msg.LineNumber = lineno
-                    msg.Comments = '\n'.join(comments)
-                    self.messageService.update(msg)
+                        self.messageService.insert(msg)
+                        messages[singular] = msg
+                    else:
+                        msg.Plural = plurals
+                        msg.Context = context
+                        msg.LineNumber = lineno
+                        msg.Comments = '\n'.join(comments)
+                        self.messageService.update(msg)
+            except UnicodeDecodeError as e:
+                log.error('%s: %s' % (filePath, str(e)))
 
             if processModified and filePath not in files:
                 file = File()
