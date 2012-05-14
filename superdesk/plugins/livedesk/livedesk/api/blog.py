@@ -92,6 +92,7 @@ class Blog(Entity):
     LiveOn = datetime
     LastUpdatedOn = datetime
     ClosedOn = datetime
+    UpdatedOn = datetime
 
 # --------------------------------------------------------------------
 
