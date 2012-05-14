@@ -28,6 +28,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         selection = window.getSelection(),
                         range = selection.rangeCount ? selection.getRangeAt(0) : false,
                         marker = $('<span />').html('&#xfeff;').attr('sel-id', markerId ).hide();
+
                     if( !range ) return false;
                     if( range.collapsed ) 
                         range.insertNode(marker.get(0));
@@ -66,6 +67,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     var range = window.getSelection().getRangeAt(0),
                         contents = $(range.commonAncestorContainer).contents(),
                         ret = [];
+
                     for( var i = range.startOffset; i < range.endOffset; i++ )
                         contents[i] && ret.push(contents[i]);
                     
@@ -93,7 +95,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         var selection = window.getSelection();
                         if( selection.rangeCount <= 0 ) return false;
                         var range = selection.getRangeAt(0),
-                            container = range.startContainer; // TODO investigate this...
+                            container = range.collapsed ? range.startContainer : range.commonAncestorContainer;
+                        
                     }
                     else
                     {
@@ -112,8 +115,11 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             var container = range.parentElement();
                         }
                     }
-                    return $(container).parents(':eq(0)');
+                    return range.collapsed ? $(container).parents(':eq(0)') : $(container);
                 },
+                /*!
+                 * returns a copy of the selection contents
+                 */
                 selectionContents : function()
                 {
                     if( window.getSelection )
@@ -191,6 +197,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 },
                 /*!
                  * basic command which adds a jquery ui dialog for popup on execute
+                 * inheriting classes must set dialog.prop('caller', this) - this = them
+                 *  to make restore selection work Q_Q 
                  */
                 dialogAidedCommand : function()
                 {
@@ -205,13 +213,19 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             width: 500, // TODO from options
                             close: function()
                             {
-                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
+                                var caller = $(this).prop('caller'); 
+                                caller.restoreSelectionMarkerId 
+                                    && self.lib.restoreSelection(caller.restoreSelectionMarkerId);
                             }
                         });
                     
                     this.getDialog = function()
                     {
                         return this.dialog;
+                    };
+                    this.getSelectionMarkerId = function()
+                    {
+                        return this.restoreSelectionMarkerId;  
                     };
                     this.execute = function()
                     {
@@ -285,7 +299,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             imgText = img ? img.attr('alt') : '',
                             initialUrl = img ? img.attr('src') : "http://",
                             align = img ? img.attr('align') : false;
-                            
+                        
+                        dialog.prop('caller', this);
+                        
                         if( !img )
                             this.dialog.dialog('option', 'buttons', [this.dialogButtons.insert, this.dialogButtons.cancel]);
                         else
@@ -357,6 +373,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     };
                     this.getDialog = function()
                     {
+                        this.dialog.prop('caller', this);
+                        
                         var a = $( $(self.lib.selectionContents() ).eq(0)),
                             aText = $(a).text(),
                             urlRe = new RegExp();
@@ -388,16 +406,39 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         var dialog = this.dialog,
                             parent = $(this.lib.selectionParent()),
                             html;
+                        dialog.prop('caller', this);
                         if( parent.attr('contenteditable') )
-                            parent = parent.clone();
+                            self.editTarget = parent;
                         else
-                            parent = parent.parents('[contenteditable]:eq(0)').clone();
+                            self.editTarget = parent.parents('[contenteditable]:eq(0)')
+
+                        parent = self.editTarget.clone();
                         parent.find('[sel-id]').remove();
                         dialog.find('textarea').val(parent.html());
+                        
+                        this.dialog.dialog('option', 'buttons', this.dialogButtons);
                         return dialog;
                     };
                     
+                    this.dialogButtons = 
+                    {
+                        ok: { text: 'Ok',
+                            click: function()
+                            {
+                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
+                                parent = self.editTarget;
+                                console.log(parent);
+                                parent.html($(this).find('textarea.editor-code').val());
+                                $(this).dialog('close');
+                            }
+                        }
+                            
+                    }
+                    this.id = 'code';
                 },
+                /*!
+                 * factory class for commands
+                 */
                 commandFactory : function(command, elem) 
                 {   
                     elem.unselectable = "on"; // IE, prevent focus
@@ -524,12 +565,18 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             isBlock = false,
                             style;
                         if( blockElem.length != 1 )
-                            blockElem = self.plugins.lib.selectionParent().get(0)
+                        {
+                            blockElem = self.plugins.lib.selectionParent().get(0);
+                        }
                         else
                             blockElem = blockElem.get(0);
-
                         while(!isBlock)
                         {
+                            if( blockElem.nodeType != 1 )
+                            {
+                                blockElem = $(blockElem).parent().get(0);
+                                continue;
+                            }
                             if( elements.index(blockElem) !== -1 
                                 || $.inArray( $(blockElem).prop('tagName').toLowerCase(), self.plugins.floatingToolbar.blockElements) !== -1 )
                             { 
