@@ -97,16 +97,17 @@ def createBlogAdmins():
 FROM_TIME = datetime(2012, 1, 2, 10, 13, 20, 22)
 D_1 = timedelta(seconds=1)
 D_2 = timedelta(seconds=2)
+D_3 = timedelta(seconds=10)
 POSTS = {}
 
 POSTS[(FROM_TIME, 'Active Blog about Starcraft II')] = \
-('normal', 'Gabriel', None, False, 'Wsup from livedesk', FROM_TIME + D_1, None, None)
+('normal', 'Gabriel', None, False, 'Wsup from livedesk', FROM_TIME + D_1, FROM_TIME + D_3, None)
 FROM_TIME += D_2
 POSTS[(FROM_TIME, 'Active Blog about Starcraft II')] = \
 ('normal', 'God', None, False, 'Wsuppppp', FROM_TIME + D_1, None, None)
 FROM_TIME += D_2
 POSTS[(FROM_TIME, 'Active Blog about Starcraft II')] = \
-('normal', 'God', 'Billy', True, 'I don\'t know starcraft', FROM_TIME + D_1, None, None)
+('normal', 'God', 'Billy', True, 'I don\'t know starcraft', FROM_TIME + D_1, FROM_TIME + D_3, None)
 FROM_TIME += D_2
 POSTS[(FROM_TIME, 'Active Blog about Starcraft II')] = \
 ('wrapup', 'Gabriel', None, False, 'Billy goes out', FROM_TIME + D_1, None, None)
