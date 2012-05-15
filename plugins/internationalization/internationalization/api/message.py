@@ -51,19 +51,7 @@ class IMessageService(IEntityGetCRUDService):
     The messages service.
     '''
 
-    def getMessagesCount(self, sourceId:Source.Id=None, qm:QMessage=None, qs:QSource=None) -> Count:
-        '''
-        Provides the total count of messages searched based on the given parameters.
-        
-        @param sourceId: Source.Id
-            The source file identifier.
-        @param qm: QMessage
-            Query for filtering the messages based on message attributes. @see QMessage
-        @param qs: QSource
-            Query for filtering the messages based on the message source. @see QSource
-        '''
-
-    @call(countMethod=getMessagesCount)
+    @call
     def getMessages(self, sourceId:Source.Id=None, offset:int=None, limit:int=10,
                     qm:QMessage=None, qs:QSource=None) -> Iter(Message):
         '''
@@ -81,19 +69,20 @@ class IMessageService(IEntityGetCRUDService):
             Query for filtering the messages based on the message source. @see QSource
         '''
 
-    def getComponentMessagesCount(self, component:Component.Id, qm:QMessage=None, qs:QSource=None) -> Count:
+    @call(countFor=getMessages)
+    def getMessagesCount(self, sourceId:Source.Id=None, qm:QMessage=None, qs:QSource=None) -> Count:
         '''
-        Provides the total count of messages for the given component.
-
-        @param component: Component.Id
-            The component identifier.
+        Provides the total count of messages searched based on the given parameters.
+        
+        @param sourceId: Source.Id
+            The source file identifier.
         @param qm: QMessage
             Query for filtering the messages based on message attributes. @see QMessage
         @param qs: QSource
             Query for filtering the messages based on the message source. @see QSource
         '''
 
-    @call(countMethod=getComponentMessagesCount)
+    @call
     def getComponentMessages(self, component:Component.Id, offset:int=None, limit:int=10,
                              qm:QMessage=None, qs:QSource=None) -> Iter(Message):
         '''
@@ -111,19 +100,20 @@ class IMessageService(IEntityGetCRUDService):
             Query for filtering the messages based on the message source. @see QSource
         '''
 
-    def getPluginMessagesCount(self, plugin:Plugin.Id, qm:QMessage=None, qs:QSource=None) -> Count:
+    @call(countFor=getComponentMessages)
+    def getComponentMessagesCount(self, component:Component.Id, qm:QMessage=None, qs:QSource=None) -> Count:
         '''
-        Provides the total count of messages for the given plugin.
+        Provides the total count of messages for the given component.
 
-        @param plugin: Plugin.Id
-            The plugin identifier.
+        @param component: Component.Id
+            The component identifier.
         @param qm: QMessage
             Query for filtering the messages based on message attributes. @see QMessage
         @param qs: QSource
             Query for filtering the messages based on the message source. @see QSource
         '''
 
-    @call(countMethod=getPluginMessagesCount)
+    @call
     def getPluginMessages(self, plugin:Plugin.Id, offset:int=None, limit:int=10,
                           qm:QMessage=None, qs:QSource=None) -> Iter(Message):
         '''
@@ -141,3 +131,15 @@ class IMessageService(IEntityGetCRUDService):
             Query for filtering the messages based on the message source. @see QSource
         '''
 
+    @call(countFor=getPluginMessages)
+    def getPluginMessagesCount(self, plugin:Plugin.Id, qm:QMessage=None, qs:QSource=None) -> Count:
+        '''
+        Provides the total count of messages for the given plugin.
+
+        @param plugin: Plugin.Id
+            The plugin identifier.
+        @param qm: QMessage
+            Query for filtering the messages based on message attributes. @see QMessage
+        @param qs: QSource
+            Query for filtering the messages based on the message source. @see QSource
+        '''

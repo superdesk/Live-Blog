@@ -11,7 +11,7 @@ API specifications for languages.
 
 from ally.api.config import service, call, query
 from ally.api.criteria import AsLikeOrdered
-from ally.api.type import Locale, IterPart, List
+from ally.api.type import Locale, List, Iter
 from superdesk.api.domain_superdesk import modelSuperDesk
 
 # --------------------------------------------------------------------
@@ -53,7 +53,7 @@ class ICountryService:
         '''
 
     @call
-    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10, q:QCountry=None) -> IterPart(Country):
+    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10, q:QCountry=None) -> Iter(Country):
         '''
         Provides all the available countries.
         '''

@@ -14,7 +14,8 @@ from ally.container.ioc import injected
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.meta.blog import BlogMapped
-from livedesk.api.blog import QBlogActive, QBlog
+from livedesk.api.blog import QBlogActive, QBlog, Blog
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -55,6 +56,14 @@ class BlogServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogService):
         sql = self._buildQuery(languageId, creatorId, q)
         sql = buildLimits(sql, offset, limit)
         return sql.all()
+
+    def insert(self, blog):
+        '''
+        @see: IBlogService.insert
+        '''
+        assert isinstance(blog, Blog), 'Invalid blog %s' % blog
+        blog.CreatedOn = datetime.now()
+        return super().insert(blog)
 
     # ----------------------------------------------------------------
 
