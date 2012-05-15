@@ -92,8 +92,7 @@ class BlogPostServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogPostService):
         '''
         Builds the general query for posts.
         '''
-        sql = self.session().query(BlogPostMapped, PersonMapped.FirstName, PersonMapped.LastName, SourceMapped.Name,
-                                   UserPerson.FirstName, UserPerson.LastName)
+        sql = self.session().query(BlogPostMapped)
         sql = sql.outerjoin(CollaboratorMapped).outerjoin(PersonMapped).outerjoin(SourceMapped)
         sql = sql.join(UserPerson, BlogPostMapped.Creator == UserPerson.Id)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
@@ -101,22 +100,3 @@ class BlogPostServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogPostService):
         if authorId: sql = sql.filter(BlogPostMapped.Author == authorId)
         if q: sql = buildQuery(sql, q, BlogPostMapped)
         return sql
-
-    def _processResults(self, results):
-        '''
-        Process the author name based on the results tuples.
-        '''
-        for result in results:
-            post, authorFirstName, authorLastName, sourceName, creatorFirstName, creatorLastName = result
-            assert isinstance(post, BlogPost)
-            if authorFirstName or authorLastName:
-                name = '%s %s' % ('' if authorFirstName is None else authorFirstName,
-                                  '' if authorLastName is None else authorLastName)
-                post.AuthorName = name.strip()
-            elif sourceName:
-                post.AuthorName = sourceName
-            else:
-                name = '%s %s' % ('' if creatorFirstName is None else creatorFirstName,
-                                  '' if creatorLastName is None else creatorLastName)
-                post.AuthorName = name.strip()
-            yield post

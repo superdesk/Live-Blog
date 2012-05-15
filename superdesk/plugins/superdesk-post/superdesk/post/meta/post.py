@@ -47,15 +47,11 @@ class PostMapped(Base, Post):
     # Calculated model attributes ------------------------------------
     @hybrid_property
     def AuthorName(self):
-#        if isclass(self): return None
+        if isclass(self): return None
         if self.author and self.author.Name:
             return self.author.Name
         elif self.creator and self.creator.Name:
             return self.creator.Name
         return None
-
-    @AuthorName.expression
-    def AuthorName(cls):
-        return CollaboratorMapped.Person
 
     Type = association_proxy('type', 'Key')
