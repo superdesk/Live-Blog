@@ -70,40 +70,42 @@ class IPostService(IEntityGetCRUDService):
     Provides the service methods for the post.
     '''
 
-    def getUnpublishedCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None,
-                            q:QPostUnpublished=None) -> Count:
-        '''
-        Provides the count of unpublished posts.
-        '''
-
-    @call(countMethod=getUnpublishedCount, webName='Unpublished')
+    @call(webName='Unpublished')
     def getUnpublished(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None, limit:int=10,
                     q:QPostUnpublished=None) -> Iter(Post):
         '''
         Provides all the unpublished posts.
         '''
 
-    def getPublishedCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, q:QPostPublished=None) -> Count:
+    @call(countFor=getUnpublished)
+    def getUnpublishedCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None,
+                            q:QPostUnpublished=None) -> Count:
         '''
-        Provides the count of the published posts.
+        Provides the count of unpublished posts.
         '''
 
-    @call(countMethod=getPublishedCount, webName='Published')
+    @call(webName='Published')
     def getPublished(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None, limit:int=10,
                     q:QPostPublished=None) -> Iter(Post):
         '''
         Provides all the published posts.
         '''
 
-    def getAllCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, q:QPost=None) -> Count:
+    @call(countFor=getPublished)
+    def getPublishedCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, q:QPostPublished=None) -> Count:
         '''
-        Provides the count of all posts.
+        Provides the count of the published posts.
         '''
 
-    @call(countMethod=getAllCount)
+    @call
     def getAll(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None, limit:int=10,
                     q:QPost=None) -> Iter(Post):
         '''
         Provides all the posts.
         '''
 
+    @call(countFor=getAll)
+    def getAllCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, q:QPost=None) -> Count:
+        '''
+        Provides the count of all posts.
+        '''

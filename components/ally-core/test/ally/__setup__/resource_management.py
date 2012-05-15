@@ -12,17 +12,20 @@ Provides the configurations for the resource manager.
 from .assembler import assemblers
 from ally.container import ioc
 from ally.core.impl.resources_management import ResourcesManager
-from ally.core.spec.resources import IResourcesLocator
+from ally.core.spec.resources import IResourcesLocator, IResourcesRegister
 
 # --------------------------------------------------------------------
 # Creating the resource manager
 
 @ioc.entity
-def services(): return []
+def resourcesManager():
+    b = ResourcesManager(); yield b
+    b.assemblers = assemblers()
 
 @ioc.entity
 def resourcesLocator() -> IResourcesLocator:
-    b = ResourcesManager()
-    b.assemblers = assemblers()
-    b.services = services()
-    return b
+    return resourcesManager()
+
+@ioc.entity
+def resourcesRegister() -> IResourcesRegister:
+    return resourcesManager()

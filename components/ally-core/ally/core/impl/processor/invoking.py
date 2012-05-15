@@ -18,6 +18,7 @@ from ally.core.spec.resources import Path, Invoker
 from ally.core.spec.server import Processor, ProcessorsChain, Response, Request
 from ally.exception import DevelError, InputError
 import logging
+from ally.api.type import Input
 
 # --------------------------------------------------------------------
 
@@ -183,10 +184,20 @@ class InvokingHandler(Processor):
         '''
         assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+
+        invoke = []
+        for inp in invoker.inputs:
+            assert isinstance(inp, Input)
+            if inp.name in arguments: invoke.append(arguments[inp.name])
+            elif inp.hasDefault: invoke.append(inp.default)
+            else:
+                rsp.setCode(RESOURCE_NOT_FOUND, 'No value for %s' % inp.name)
+                log.info('No value for mandatory input %s for invoker %s', inp, invoker)
+                return False
+
         try:
-            value = invoker.invoke(*(arguments[inp.name] if inp.name in arguments else inp.default
-                                     for inp in invoker.inputs))
-            assert log.debug('Successful on calling invoker %s with values %s', invoker, args) or True
+            value = invoker.invoke(*invoke)
+            assert log.debug('Successful on calling invoker %s with values %s', invoker, invoke) or True
             return callback(value, invoker, rsp, *args)
         except DevelError as e:
             rsp.setCode(BAD_CONTENT, e.message)

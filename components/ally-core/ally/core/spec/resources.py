@@ -8,7 +8,6 @@ Created on Jun 18, 2011
 
 Module containing specifications for the resources tree.
 '''
-#TODO: rename the interfaces as IAssembler
 
 from ally.api.type import Type, Input
 import abc
@@ -211,12 +210,13 @@ class AssembleError(Exception):
     Exception thrown whenever there is an assembly problem.
     '''
 
-class Assembler(metaclass=abc.ABCMeta):
+class IAssembler(metaclass=abc.ABCMeta):
     '''
     This class needs to be extended.
     Provides support for assembling the calls in the node structure.
     '''
 
+    @abc.abstractmethod
     def knownModelHints(self):
         '''
         Provides the known model hints for the assembler.
@@ -224,8 +224,8 @@ class Assembler(metaclass=abc.ABCMeta):
         @return: dictionary{string:string}|None
             A dictionary containing as a key the allowed hint name and as a value the hint description. 
         '''
-        return None
 
+    @abc.abstractmethod
     def knownCallHints(self):
         '''
         Provides the known call hints for the assembler.
@@ -233,7 +233,6 @@ class Assembler(metaclass=abc.ABCMeta):
         @return: dictionary{string:string}|None
             A dictionary containing as a key the allowed hint name and as a value the hint description. 
         '''
-        return None
 
     @abc.abstractmethod
     def assemble(self, root, invokers):
@@ -245,7 +244,7 @@ class Assembler(metaclass=abc.ABCMeta):
         @param root: Node
             The root node to assemble the invokers to.
         @param invokers: list[Invoker]
-            The list of invokers to be assembled.
+            The list of invokers to be assembled, the list needs to have the resolved invokers removed.
         '''
 
 # --------------------------------------------------------------------
@@ -413,20 +412,26 @@ class Invoker(metaclass=abc.ABCMeta):
     Contains all the data required for accessing a call.
     '''
 
-    def __init__(self, output, name, inputs):
+    def __init__(self, name, method, output, inputs, hints):
         '''
         Constructs an invoker.
         
+        @param name: string
+            The name for the invoker.
+        @param method: integer
+            The method for the invoker.
         @param output: Type
             The output type of the invoker.
-        @param name: string
-            The name of the invoker.
         @param inputs: list[Input]|tuple(Input)
             The list of Inputs for the invoker, attention not all inputs are mandatory.
+        @param hints: dictionary{string, object}
+            The hints for the invoker.
         '''
-        assert not output or isinstance(output, Type), 'Invalid output type %s' % output
         assert isinstance(name, str), 'Invalid name %s' % name
+        assert isinstance(method, int), 'Invalid method %s' % method
+        assert isinstance(output, Type), 'Invalid output type %s' % output
         assert isinstance(inputs, (list, tuple)), 'Invalid inputs list %s' % inputs
+        assert isinstance(hints, dict), 'Invalid hints %s' % hints
 
         mandatory = 0
         for inp in inputs:
@@ -434,10 +439,12 @@ class Invoker(metaclass=abc.ABCMeta):
             if inp.hasDefault: break
             mandatory += 1
 
-        self.output = output
         self.name = name
+        self.method = method
+        self.output = output
         self.inputs = inputs
         self.mandatory = mandatory
+        self.hints = hints
 
     @abc.abstractmethod
     def invoke(self, *args):
@@ -448,10 +455,19 @@ class Invoker(metaclass=abc.ABCMeta):
             The arguments to use in invoking.
         '''
 
+    @abc.abstractmethod
+    def location(self):
+        '''
+        Provides the code location for the invoker.
+        
+        @return: tuple(string "file name", integer "line number", string "function name")
+            A tuple containing the invoker implementation location.
+        '''
+
     def __str__(self):
-        return '<%s[%s %s(%s)]>' % (self.__class__.__name__, self.output, self.name, ', '.join(
-                                ''.join((('defaulted:' if i >= self.mandatory else ''), inp.name, '=', str(inp.type)))
-                                for i, inp in enumerate(self.inputs)))
+        inputs = ['%s%s=%s' % ('defaulted:' if i >= self.mandatory else '', inp.name, inp.type)
+                  for i, inp in enumerate(self.inputs)]
+        return '<%s[%s %s(%s)]>' % (self.__class__.__name__, self.output, self.name, ', '.join(inputs))
 
 class Node(metaclass=abc.ABCMeta):
     '''
@@ -507,18 +523,6 @@ class Node(metaclass=abc.ABCMeta):
         assert child not in self._childrens, 'Already contains children node %s' % child
         self._childrens.append(child)
         self._childrens.sort(key=lambda node: node.order)
-
-    def remChild(self, child):
-        '''
-        Removes the child node from this node.
-        
-        @param child: Node
-            The new child node to be removed.
-        '''
-        assert isinstance(child, Node), 'Invalid child node %s' % child
-        assert child.parent is self, 'The child has a different parent %s' % child
-        assert child in self._childrens, 'No children node %s' % child
-        self._childrens.remove(child)
 
     def childrens(self):
         '''
@@ -602,7 +606,8 @@ class IResourcesLocator(metaclass=abc.ABCMeta):
         @param converterPath: ConverterPath
             The converter path used in handling the path elements.
         @param paths: list[string]
-            A list of string path elements identifying a resource to be searched for.
+            A list of string path elements identifying a resource to be searched for, this list will be consumed 
+            of every path element that was successfully identified.
         @return: Path
             The path leading to the node that provides the resource if the Path has no node it means that the paths
             have been recognized only to certain point.

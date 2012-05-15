@@ -17,6 +17,7 @@ from datetime import datetime
 from ally.api.config import query, service, call
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered
 from ally.api.type import Iter, Count
+from ally.api.authentication import auth
 
 
 #def Auth(typ):
@@ -85,7 +86,7 @@ class Blog(Entity):
     Provides the blog model.
     '''
     Language = LanguageEntity
-    Creator = User
+    Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
     Title = str
     Description = str
     CreatedOn = datetime
@@ -121,20 +122,21 @@ class IBlogService(IEntityGetCRUDService):
     '''
 
     @call(webName='Active')
-    def getActiveBlogs(self, languageId:LanguageEntity.Id=None, creatorId:User.Id=None, offset:int=None, limit:int=None,
-                       q:QBlogActive=None) -> Iter(Blog):
+    def getActiveBlogs(self, languageId:LanguageEntity=None, creatorId:auth(User)=None,
+                       offset:int=None, limit:int=None, q:QBlogActive=None) -> Iter(Blog):
         '''
         Provides all the active blogs.
         '''
 
-    def getAllCount(self, languageId:LanguageEntity.Id=None, creatorId:User.Id=None, q:QBlog=None) -> Count:
+    @call
+    def getAll(self, languageId:LanguageEntity=None, creatorId:User=None, offset:int=None, limit:int=None,
+               q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs.
         '''
 
-    @call(countMethod=getAllCount)
-    def getAll(self, languageId:LanguageEntity.Id=None, creatorId:User.Id=None, offset:int=None, limit:int=None,
-               q:QBlog=None) -> Iter(Blog):
+    @call(countFor=getAll)
+    def getAllCount(self, languageId:LanguageEntity.Id=None, creatorId:User.Id=None, q:QBlog=None) -> Count:
         '''
         Provides all the blogs.
         '''
