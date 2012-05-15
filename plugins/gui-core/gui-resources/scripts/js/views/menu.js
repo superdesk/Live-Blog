@@ -49,7 +49,7 @@ function($, superdesk, dust)
     		        function(){ require([config.api_url + $(self).attr('script-path')], 
     		            function(x)
     		            { 
-    		                if(x && x.init) x.init(); 
+    		                x && x.init && x.init(); 
     		            });
     		        }
     		    );
