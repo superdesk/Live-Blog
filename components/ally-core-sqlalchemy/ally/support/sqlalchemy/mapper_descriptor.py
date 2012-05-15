@@ -12,7 +12,7 @@ Provides the descriptors of REST models for the SQL alchemy mappings.
 from abc import ABCMeta
 from ally.api.operator.descriptor import Property
 from ally.api.operator.type import TypeContainer, TypeModelProperty
-from ally.api.type import typeFor, TypeSupport
+from ally.api.type import TypeSupport
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.mapper import Mapper
 
@@ -76,7 +76,7 @@ class MappedReference(InstrumentedAttribute, TypeSupport):
             typ = self._ally_type.type
             if isinstance(typ, TypeContainer):
                 assert isinstance(typ, TypeContainer)
-                return MappedReference(typeFor(getattr(typ.forClass, name)), self._ally_instrumented, self)
+                return MappedReference(typ.childTypeFor(name), self._ally_instrumented, self)
 
     def adapted(self, adapter):
         '''
