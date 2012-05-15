@@ -23,6 +23,7 @@ class Person(Entity):
     FirstName = str
     LastName = str
     Address = str
+    Name = str
 
 # --------------------------------------------------------------------
 
