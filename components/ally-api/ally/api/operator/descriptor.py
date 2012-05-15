@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class Reference:
+class Reference(TypeSupport):
     '''
     Provides the property reference that is provided by the property descriptor.
     '''
@@ -55,7 +55,7 @@ class Reference:
         typ = self._ally_type.type
         if isinstance(typ, TypeContainer):
             assert isinstance(typ, TypeContainer)
-            return Reference(typeFor(getattr(typ.forClass, name)), self)
+            return Reference(typ.childTypeFor(name), self)
         raise AttributeError('\'%s\' object has no attribute \'%s\'' % (self.__class__.__name__, name))
 
     def __hash__(self):
@@ -244,7 +244,7 @@ class CriteriaEntry:
         @param name: string
             The property to get from the contained criteria.
         '''
-        return Reference(typeFor(getattr(self._ally_type.forClass, name)), self)
+        return Reference(self._ally_type.childTypeFor(name), self)
 
     def __hash__(self):
         return hash(self._ally_type)

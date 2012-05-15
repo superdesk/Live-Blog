@@ -12,7 +12,7 @@ Provides the call assemblers used for authentication.
 from ally.api.operator.authentication.type import IAuthenticated, \
     TypeAuthentication, TypeModelAuth
 from ally.api.operator.type import TypeModel, TypeModelProperty
-from ally.api.type import Input, typeFor
+from ally.api.type import Input
 from ally.container.ioc import injected
 from ally.core.spec.resources import Node, Invoker, IAssembler, AssembleError
 import logging
@@ -82,7 +82,7 @@ class AssembleAuthenticated(IAssembler):
                 for prop, ptyp in typ.container.properties.items():
                     if isinstance(ptyp, TypeModelAuth):
                         assert isinstance(ptyp, TypeModelAuth)
-                        ptyp = typeFor(getattr(ptyp.forClass, ptyp.container.propertyId))
+                        ptyp = ptyp.childTypeId()
                         # We need to get the property of the authenticated model.
                         assert isinstance(ptyp, IAuthenticated), 'Invalid authenticated type %s' % ptyp
                         authTypes.add(ptyp)
@@ -117,4 +117,5 @@ class AssembleAuthenticated(IAssembler):
 
             invoker = InvokerRestructuring(invoker, inputs, indexes, indexesSetValue)
             log.info('Assembled as an authenticated invoker %s' % invoker)
-            return invoker
+
+        return invoker

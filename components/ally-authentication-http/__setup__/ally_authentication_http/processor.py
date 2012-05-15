@@ -45,10 +45,6 @@ def handlersResourcesAuthentication():
     return handlers
 
 # --------------------------------------------------------------------
-#
-#@ioc.before(pathProcessors)
-#def updateHandlersRedirect():
-#    pathProcessors().append((re.compile('^authenticated(/|(?=\\.)|$)'), Processors(*handlersResourcesAuthentication())))
 
 @ioc.before(pathProcessors)
 def updatePathProcessors():

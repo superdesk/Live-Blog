@@ -11,7 +11,7 @@ Provides the parameters decoders.
 
 from ally.api.criteria import AsOrdered, AsLike
 from ally.api.operator.type import TypeQuery, TypeCriteriaEntry, TypeProperty
-from ally.api.type import Input, Iter, Type, typeFor
+from ally.api.type import Input, Iter, Type
 from ally.container.ioc import injected
 from ally.core.spec.resources import ConverterPath
 from ally.core.spec.server import EncoderParams, DecoderParams
@@ -343,11 +343,9 @@ def _groupCriteriaEntriesByProperty(queryType):
     assert isinstance(queryType, TypeQuery)
     #TODO: maybe cache the grouped structure
     groupByProp = {}
-    for criteria in queryType.query.criterias:
-        crtEntryType = typeFor(getattr(queryType.forClass, criteria))
+    for crtEntryType in queryType.childTypes():
         assert isinstance(crtEntryType, TypeCriteriaEntry)
-        for prop in crtEntryType.criteria.properties:
-            propType = typeFor(getattr(crtEntryType.forClass, prop))
+        for propType in crtEntryType.childTypes():
             crtEntriesTypes = groupByProp.get(propType)
             if crtEntriesTypes is None: groupByProp[propType] = [crtEntryType]
             else: crtEntriesTypes.append(crtEntryType)
