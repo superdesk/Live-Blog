@@ -9,7 +9,7 @@ Created on Oct 11, 2011
 Provides a Node on the resource manager with an invoker that presents the memory status.
 '''
 
-from ally.api.type import Input, Integer, typeFor, String
+from ally.api.type import Input, Integer, typeFor, String, Non
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction
 from ally.core.impl.node import NodePath
@@ -19,6 +19,7 @@ from inspect import isclass
 from ally.support.util_sys import fullyQName
 import gc
 import sys
+from ally.api.config import GET
 
 # --------------------------------------------------------------------
 
@@ -35,11 +36,12 @@ class MemoryStatusPresenter:
         assert isinstance(self.resourcesRegister, IResourcesRegister), \
         'Invalid resources manager %s' % self.resourcesManager
         node = NodePath(self.resourcesRegister.getRoot(), True, 'MemoryStatus')
-        node.get = InvokerFunction(None, self.present, [
-                                                        Input('limit', typeFor(Integer), True, None),
-                                                        Input('include', typeFor(String), True, None),
-                                                        Input('exclude', typeFor(String), True, None),
-                                                        ], 0)
+        node.get = InvokerFunction(GET, self.present, typeFor(Non),
+                                   [
+                                    Input('limit', typeFor(Integer), True, None),
+                                    Input('include', typeFor(String), True, None),
+                                    Input('exclude', typeFor(String), True, None),
+                                    ], {})
 
     def present(self, limit, include=None, exclude=None):
         '''

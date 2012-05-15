@@ -70,12 +70,13 @@ def merge(clazz, mapped, metadata):
     assert isinstance(model, Model)
 
     mappedModelType = TypeModel(mapped, model, clazz)
-    for prop, typ in model.properties.items():
-        propType = propRefType = TypeModelProperty(mappedModelType, prop, typ)
-        if isinstance(typ, TypeModel):
-            md = typ.container
-            assert isinstance(md, Model)
-            propType = TypeModelProperty(mappedModelType, prop, md.properties[md.propertyId])
+    for prop in model.properties:
+        propDesc = clazz.__dict__[prop]
+        assert isinstance(propDesc, Property)
+        refType = typeFor(propDesc.reference)
+        assert isinstance(refType, TypeModelProperty)
+        propRefType = TypeModelProperty(mappedModelType, refType.property, refType.type)
+        propType = TypeModelProperty(mappedModelType, prop, propDesc.type)
 
         instrumented = getattr(mapped, prop)
         if isinstance(instrumented, InstrumentedAttribute):

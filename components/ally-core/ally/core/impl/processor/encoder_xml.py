@@ -19,6 +19,7 @@ from io import StringIO
 from numbers import Number
 from xml.sax.saxutils import XMLGenerator
 import logging
+from ally.api.model import Part
 
 # --------------------------------------------------------------------
 
@@ -147,8 +148,11 @@ class EncodingXMLHandler(EncodingTextBaseHandler):
             elif isinstance(meta.metaItem, MetaLink): tag = normalize(self.nameResources)
             else: raise DevelError('Illegal item meta %s for meta list %s' % (meta.metaItem, meta))
 
-            if meta.getTotal: xml.startElement(tag, {normalize(self.nameTotal):str(meta.getTotal(value))})
-            else: xml.startElement(tag, {})
+            if isinstance(value, Part):
+                assert isinstance(value, Part)
+                xml.startElement(tag, {normalize(self.nameTotal):str(value.total)})
+            else:
+                xml.startElement(tag, {})
             for item in items:
                 self.encodeMetaXML(xml, item, meta.metaItem, asString, pathEncode, normalize, name=nameItem)
             xml.endElement(tag)

@@ -44,7 +44,6 @@ RULE_QUERY_CRITERIA = ('^[a-z]{1,}[\w]*$',
                        'The query criteria name needs to start with a lower case, got "%s"')
 
 # The available method actions.
-OTHER = 0
 GET = 1
 INSERT = 2
 UPDATE = 4
@@ -133,9 +132,7 @@ def model(*args, name=None, **hints):
     for prop, typ in properties.items():
         propType = propRefType = TypeModelProperty(modelType, prop)
         if isinstance(typ, TypeModel):
-            md = typ.container
-            assert isinstance(md, Model)
-            propType = TypeModelProperty(modelType, prop, md.properties[md.propertyId])
+            propType = TypeModelProperty(modelType, prop, typ.container.properties[typ.container.propertyId])
         setattr(clazz, prop, Property(propType, Reference(propRefType)))
 
     clazz._ally_type = modelType # This specified the detected type for the model class by using 'typeFor'
@@ -284,7 +281,7 @@ def call(*args, types=None, **hints):
                 break
         else: raise DevelError('Cannot deduce method for function name "%s"' % name)
 
-    output, inputs = extractOuputInput(function, types)
+    output, inputs = extractOuputInput(function, types, modelToId=method in (GET, DELETE))
 
     function._ally_call = Call(name, method, output, inputs, hints)
     return abstractmethod(function)
@@ -335,19 +332,12 @@ def service(*args, generic=None):
     calls = []
     for name, function in clazz.__dict__.items():
         if isfunction(function):
-            try:
-                calls.append(function._ally_call)
-                del function._ally_call
-            except AttributeError:
-                assert log.debug('Function %s has no call, making it a unexposed call', name) or True
-                try: output, inputs = extractOuputInput(function)
-                except:
-                    fnc = function.__code__
-                    raise DevelError('Cannot extract the output and input at:\nFile "%s", line %i, in %s' %
-                                     (fnc.co_filename, fnc.co_firstlineno, name))
-
-                calls.append(Call(name, OTHER, output, inputs, {'exposed':False}))
-                abstractmethod(function)
+            if not hasattr(function, '_ally_call'):
+                fnc = function.__code__
+                raise DevelError('No call for method at:\nFile "%s", line %i, in %s' %
+                                 (fnc.co_filename, fnc.co_firstlineno, name))
+            calls.append(function._ally_call)
+            del function._ally_call
 
     services = [typeFor(base) for base in clazz.__bases__]
     services = [typ.service for typ in services if isinstance(typ, TypeService)]

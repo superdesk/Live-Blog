@@ -16,6 +16,7 @@ from ally.exception import DevelError
 import logging
 from ally.core.spec.data_meta import MetaModel, MetaCollection, MetaLink, MetaValue, \
     MetaFetch
+from ally.api.model import Part
 
 # --------------------------------------------------------------------
 
@@ -132,7 +133,9 @@ class EncodingTextHandler(EncodingTextBaseHandler):
             else: raise DevelError('Illegal item meta %s for meta list %s' % (meta.metaItem, meta))
 
             obj = {name:[self.convertMeta(item, meta.metaItem, asString, pathEncode, normalize) for item in items]}
-            if meta.getTotal: obj[normalize(self.nameTotal)] = str(meta.getTotal(value))
+            if isinstance(value, Part):
+                assert isinstance(value, Part)
+                obj[normalize(self.nameTotal)] = str(value.total)
             return obj
 
         elif isinstance(meta, MetaValue):

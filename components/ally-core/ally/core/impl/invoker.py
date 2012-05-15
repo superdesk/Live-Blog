@@ -9,10 +9,11 @@ Created on Jun 25, 2011
 Provides the invokers implementations.
 '''
 
-from ally.api.type import Input, typeFor
-from ally.core.spec.resources import Invoker, Normalizer
-from ally.api.operator.container import Call, Model
-from ally.api.operator.type import TypeService, TypeModel
+from ally.api.model import Part
+from ally.api.operator.container import Call
+from ally.api.operator.type import TypeService
+from ally.api.type import Input, typeFor, Iter
+from ally.core.spec.resources import Invoker
 from ally.exception import DevelError
 
 # --------------------------------------------------------------------
@@ -34,21 +35,28 @@ class InvokerCall(Invoker):
         typ = typeFor(implementation)
         assert isinstance(typ, TypeService), 'Invalid service implementation %s' % implementation
         assert isinstance(call, Call), 'Invalid call %s' % call
-        super().__init__(call.output, call.name, call.inputs)
+        super().__init__(call.name, call.method, call.output, call.inputs, call.hints)
 
         self.implementation = implementation
         self.call = call
 
         self.service = typ.service
         self.clazz = typ.forClass
-        self.invoke = getattr(self.implementation, self.call.name)
-        # We just assign the invoke method to the actual service method
 
     def invoke(self, *args):
         '''
         @see: InvokerCall.invoke
         '''
-        raise TypeError('Improper invoker initialization, this should have never been called')
+        return getattr(self.implementation, self.call.name)(*args)
+
+    def location(self):
+        '''
+        @see: InvokerCall.location
+        '''
+        fnc = getattr(self.clazz, self.call.name).__code__
+        try: name = fnc.__name__
+        except AttributeError: name = self.call.name
+        return (fnc.co_filename, fnc.co_firstlineno, name)
 
 # --------------------------------------------------------------------
 
@@ -57,7 +65,7 @@ class InvokerFunction(Invoker):
     Provides invoking for API calls.
     '''
 
-    def __init__(self, output, function, inputs):
+    def __init__(self, method, function, output, inputs, hints, name=None):
         '''
         @see: Invoker.__init__
         
@@ -65,68 +73,143 @@ class InvokerFunction(Invoker):
             The Callable to invoke.
         '''
         assert callable(function), 'Invalid input callable provided %s' % function
-        super().__init__(output, function.__name__, inputs)
+        super().__init__(name or function.__name__, method, output, inputs, hints)
         self.function = function
-        self.invoke = function
 
     def invoke(self, *args):
         '''
         @see: InvokerCall.invoke
         '''
-        raise TypeError('Improper invoker initialization, this should have never been called')
+        return self.function(*args)
+
+    def location(self):
+        '''
+        @see: InvokerCall.location
+        '''
+        fnc = self.function.__code__
+        try: name = self.function.__name__
+        except AttributeError: name = '<NA>'
+        return (fnc.co_filename, fnc.co_firstlineno, name)
 
 # --------------------------------------------------------------------
 
-class InvokerSetId(Invoker):
+class InvokerAssemblePart(Invoker):
     '''
-    Wraps an invoker that expects an entity as the input. This invoker will set on that entity the designated
-    properties based on the arguments.
-    As an example, if you have the wrapped invoker looking like 
-    [...]%(..,Entity)
-    to look like
-    [...]%(..., Entity.propery..., Entity).
+    Delegates the invoking call to two other invokers, one will generate a list and the other will generate an integer
+    which will be considered the total count of the limited list items, based on the results a single Part object will
+    be returned.
     '''
 
-    def __init__(self, invoker, normalizer):
+    def __init__(self, invokerList, invokerCount):
         '''
         @see: Invoker.__init__
         
-        @param invoker: Invoker
-            The Invoker to be wrapped.
-        @param normalizer: Normalizer
-            The normalizer used for transforming the content property names.
+        @param invokerList: Invoker
+            The Invoker that will generate the list items.
+        @param invokerCount: Invoker
+            The Invoker that will generate the total items count.
         '''
-        assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
-        typeModel = invoker.inputs[invoker.mandatory - 1].type
-        assert isinstance(typeModel, TypeModel), \
-        'Invalid invoker %s, needs to have as the last entry a type model' % invoker
-        assert isinstance(normalizer, Normalizer), 'Invalid Normalizer object %s' % normalizer
+        assert isinstance(invokerList, Invoker), 'Invalid invoker list %s' % invokerList
+        assert isinstance(invokerList.output, Iter), 'Invalid invoker list output type %s' % invokerList
+        assert isinstance(invokerCount, Invoker), 'Invalid invoker count %s' % invokerCount
 
-        model = typeModel.container
-        assert isinstance(model, Model)
+        super().__init__(invokerList.name, invokerList.method, invokerList.output, invokerList.inputs,
+                         invokerList.hints)
 
-        inputs = list(invoker.inputs[:invoker.mandatory])
-        inputId = Input(model.name + model.propertyId, typeFor(getattr(typeModel.forClass, model.propertyId)))
-        inputs.insert(invoker.mandatory - 1, inputId)
-        super().__init__(invoker.output, invoker.name, inputs)
+        self.invokerList = invokerList
+        self.invokerCount = invokerCount
 
-        self.invoker = invoker
-        self.normalizer = normalizer
-        self.propertyId = model.propertyId
+        countArgs = set(input.name for input in invokerCount.inputs)
+        self.positions = [k for k, input in enumerate(invokerList.inputs) if input.name in countArgs]
 
     def invoke(self, *args):
         '''
         @see: Invoker.invoke
         '''
-        obj = args[self.mandatory - 1]
-        arg = args[self.invoker.mandatory - 1]
-        val = getattr(obj, self.propertyId)
-        if val is not None and val != arg:
-            raise DevelError('Cannot have two distinct values %r and %r for %r' %
-                             (arg, val, self.normalizer.normalize(self.propertyId)))
-        setattr(obj, self.propertyId, arg)
+        countArgs = []
+        for k in self.positions:
+            if k < len(args): countArgs.append(args[k])
+            else: break
+        return Part(self.invokerList.invoke(*args), self.invokerCount.invoke(*countArgs))
 
-        wargs = list(args[:self.invoker.mandatory - 1])
-        wargs.append(obj)
-        wargs.extend(args[self.mandatory:])
+    def location(self):
+        '''
+        @see: InvokerCall.location
+        '''
+        return self.invokerList.location()
+
+# --------------------------------------------------------------------
+
+class InvokerRestructuring(Invoker):
+    '''
+    Invoker that provides the inputs restructuring based on a list of indexes.
+    '''
+
+    def __init__(self, invoker, inputs, indexes, indexesSetValue={}):
+        '''
+        @see: Invoker.__init__
+        
+        @param invoker: Invoker
+            The Invoker to be wrapped.
+        @param inputs: list[Input]|tuple(Input)
+            The inputs that are represented by this restructuring invoker.
+        @param indexes: list[integer]|tuple(integer)
+            The indexes to restructure by, the value represents the index within the provided inputs and the 
+            position in the list represents in the index in the provided invoker inputs.
+        @param indexesSetValue: dictionary{integer:dictionary{string, integer}}
+            A dictionary of indexes to be used for setting values in objects. The key is the index of the invoker input
+            that contains the object to set the value to, as a value another dictionary that has as a value the property
+            name of the value to set on the object and as a value the index form the provided inputs.
+        '''
+        assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
+        assert isinstance(indexes, (list, tuple)), 'Invalid indexes %s' % indexes
+        assert isinstance(indexesSetValue, dict), 'Invalid indexes for value set %s' % indexesSetValue
+        assert len(indexes) == len(invoker.inputs), 'Invalid indexes %s' % indexes
+        if __debug__:
+            for index in indexes:
+                assert isinstance(index, int), 'Invalid index %s' % index
+                assert index >= 0 and index < len(inputs), 'Index out of inputs range %s' % index
+            for index, toSet in indexesSetValue.items():
+                assert isinstance(index, int), 'Invalid index %s' % index
+                assert index >= 0 and index < len(invoker.inputs), 'Index out of invoker inputs range %s' % index
+                for prop, fromIndex in toSet.items():
+                    assert isinstance(prop, str), 'Invalid property %s' % prop
+                    assert isinstance(fromIndex, int), 'Invalid index %s' % fromIndex
+                    assert fromIndex >= 0 and fromIndex < len(inputs), 'Index out of inputs range %s' % fromIndex
+
+        self.invoker = invoker
+        self.indexes = indexes
+        self.indexesSetValue = indexesSetValue
+
+        super().__init__(invoker.name, invoker.method, invoker.output, inputs, invoker.hints)
+
+    def invoke(self, *args):
+        '''
+        @see: Invoker.invoke
+        '''
+        lenArgs, wargs = len(args), []
+        for index in self.indexes:
+            if index < lenArgs: value = args[index]
+            else:
+                inp = self.inputs[index]
+                assert isinstance(inp, Input)
+                if not inp.hasDefault: raise DevelError('No value available for %r for %s' % (inp.name, self))
+                value = inp.default
+
+            wargs.append(value)
+
+        for index, toSet in self.indexesSetValue.items():
+            obj = wargs[index]
+            for prop, fromIndex in toSet.items():
+                arg = args[fromIndex]
+                val = getattr(obj, prop)
+                if val is None: setattr(obj, prop, arg)
+                elif val != arg: raise DevelError('Cannot set value %s, expected value %s' % (val, arg))
+
         return self.invoker.invoke(*wargs)
+
+    def location(self):
+        '''
+        @see: InvokerCall.location
+        '''
+        return self.invoker.location()

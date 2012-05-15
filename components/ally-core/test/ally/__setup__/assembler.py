@@ -13,25 +13,25 @@ from .converter import contentNormalizer
 from ally.container import ioc
 from ally.core.impl.assembler import AssembleGet, AssembleInsert, AssembleUpdate, \
     AssembleDelete
-from ally.core.spec.resources import Assembler
+from ally.core.spec.resources import IAssembler
 
 # --------------------------------------------------------------------
 # Creating the assemblers
 
 @ioc.entity
-def assembleGet() -> Assembler: return AssembleGet()
+def assembleGet() -> IAssembler: return AssembleGet()
 
 @ioc.entity
-def assembleDelete() -> Assembler: return AssembleDelete()
+def assembleDelete() -> IAssembler: return AssembleDelete()
 
 @ioc.entity
-def assembleInsert() -> Assembler:
+def assembleInsert() -> IAssembler:
     b = AssembleInsert();
     b.normalizer = contentNormalizer()
     return b
 
 @ioc.entity
-def assembleUpdate() -> Assembler:
+def assembleUpdate() -> IAssembler:
     b = AssembleUpdate();
     b.normalizer = contentNormalizer()
     return b

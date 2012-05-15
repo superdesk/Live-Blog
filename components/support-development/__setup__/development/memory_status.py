@@ -9,9 +9,9 @@ Created on Nov 24, 2011
 Provides the configurations for development tools.
 '''
 
-from .resource_management import resourcesRegister
+from ..ally_core.resource_management import resourcesRegister
 from ally.container import ioc
-from ally.core.impl.devel.memory_status import MemoryStatusPresenter
+from development.request.impl.memory_status import MemoryStatusPresenter
 
 # --------------------------------------------------------------------
 # Creating the development tools

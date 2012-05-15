@@ -12,7 +12,7 @@ Provides the types used for APIs.
 from .. import type_legacy as numbers
 from ..support.util import Uninstantiable, Singletone
 from ..type_legacy import Iterable, Sized
-from .model import Part, Content
+from .model import Content
 from datetime import datetime, date, time
 from inspect import isclass
 from abc import ABCMeta
@@ -237,32 +237,6 @@ class Iter(Type):
 
     def __str__(self):
         return '%s(%s)' % (self.__class__.__name__, self.itemType)
-
-class IterPart(Iter):
-    '''
-    Maps an iterator of values that is a part of a bigger collection.
-    You need also to specify in the constructor what elements this iterator will contain.
-    Since the values in an iterator can only be retrieved once than this type when validating the iterator it will
-    not be able to validate also the elements.
-    '''
-
-    __slots__ = Type.__slots__ + ('itemType',)
-
-    def __init__(self, itemType):
-        '''
-        Constructs the iterator type for the provided item type.
-        @see: Type.__init__
-        
-        @param itemType: Type|class
-            The item type of the iterator.
-        '''
-        Iter.__init__(self, itemType)
-
-    def isValid(self, iter):
-        '''
-        @see: Type.isValid
-        '''
-        return isinstance(iter, Part)
 
 class List(Iter):
     '''

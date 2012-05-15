@@ -9,9 +9,9 @@ Created on Jan 4, 2012
 Provides utility methods based on the API specifications.
 '''
 
-from ally.core.impl.node import NodeModel, NodePath
-from ally.core.spec.resources import Match, Node, Path, ConverterPath
-from ally.api.operator.container import Model
+from ally.core.impl.node import NodePath
+from ally.core.spec.resources import Match, Node, Path, ConverterPath, \
+    IResourcesRegister
 
 # --------------------------------------------------------------------
 
@@ -116,22 +116,6 @@ def pathLongName(path):
     assert isinstance(path, Path), 'Invalid path %s' % path
     return nodeLongName(path.node)
 
-def findNodeModel(root, model):
-    '''
-    Finds the node model in the provided node, None if there is no such node model.
-    
-    @param root: Node
-        The root node to search the node model in.
-    @param model: Model
-        The model to search.
-    @return: NodeModel|None
-        The found node model or None if there is no node for the provided model in the root node.
-    '''
-    assert isinstance(root, Node), 'Invalid root node %s' % root
-    assert isinstance(model, Model), 'Invalid model %s' % model
-    for child in root.childrens():
-        if isinstance(child, NodeModel) and child.model == model: return child
-
 def pathForNode(node):
     '''
     Provides the path that leads to the provided node. The node needs to be in a tree node to have a valid path
@@ -143,3 +127,42 @@ def pathForNode(node):
         The path that leads to the node.
     '''
     return Path(matchesForNode(node), node)
+
+# --------------------------------------------------------------------
+
+class ResourcesRegisterDelegate(IResourcesRegister):
+    '''
+    A resource register that delegates all the registering to a collection of other resources registers. Basically 
+    allows the same register to be propagated to more then one register. 
+    '''
+
+    def __init__(self, main, *others):
+        '''
+        Constructs the delegate based on the main resource register.
+        
+        @param main: IResourcesRegister
+            The main resources register, the difference between this and the others is that the root node of the main
+            register will be the root of this delegate.
+        @param others: arguments
+            The other registers to delegate to.
+        '''
+        assert isinstance(main, IResourcesRegister), 'Invalid main register %s' % main
+        if __debug__:
+            for register in others: assert isinstance(register, IResourcesRegister), 'Invalid register %s' % main
+
+        self.main = main
+        self.others = others
+
+    def getRoot(self):
+        '''
+        @see: IResourcesRegister.getRoot
+        '''
+        return self.main.getRoot()
+
+    def register(self, implementation):
+        '''
+        @see: IResourcesRegister.register
+        '''
+        self.main.register(implementation)
+        for register in self.others:
+            register.register(implementation)
