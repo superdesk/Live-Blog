@@ -183,7 +183,7 @@ def extractOuputInput(function, types=None, modelToId=False):
             assert isinstance(typ, Type), 'Could not obtain a valid type for %s with %s' % (arg, annotations[arg])
             if modelToId and isinstance(typ, TypeModel):
                 assert isinstance(typ, TypeModel)
-                typ = typeFor(getattr(typ.forClass, typ.container.propertyId))
+                typ = typ.childTypeId()
             if k < mandatory: inputs.append(Input(arg, typ))
             else: inputs.append(Input(arg, typ, True, defaults[k - mandatory]))
 

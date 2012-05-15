@@ -53,22 +53,22 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(req.invoker, Invoker), 'Invalid request invoker %s' % req
 
-        try:
-            p = self._parse(self.nameAuthentication, req.headers, req.params, VALUE_NO_PARSE)
+        try: p = self._parse(self.nameAuthentication, req.headers, req.params, VALUE_NO_PARSE)
         except DevelError as e:
             assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
 
-        if p:
-            #TODO: implement properly
-            id = int(p)
-            for inp in req.invoker.inputs:
-                assert isinstance(inp, Input)
-                if isinstance(inp.type, TypeAuthentication):
+        typesAuth = [inp for inp in req.invoker.inputs if isinstance(inp.type, TypeAuthentication)]
+        if typesAuth:
+            if p:
+                #TODO: implement properly
+                id = int(p)
+                for inp in typesAuth:
+                    assert isinstance(inp, Input)
                     req.arguments[inp.name] = id
-        else:
-            rsp.setCode(UNAUTHORIZED, 'Unauthorized access')
-            return
+            else:
+                rsp.setCode(UNAUTHORIZED, 'Unauthorized access')
+                return
 
         chain.proceed()

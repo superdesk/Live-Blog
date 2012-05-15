@@ -554,14 +554,12 @@ class AssembleUpdateModel(AssembleUpdate):
         if len(modelTypes) == 1:
             typ = modelTypes[0]
             assert isinstance(typ, TypeModel)
-            model = typ.container
-            assert isinstance(model, Model)
-            typeId = typeFor(getattr(typ.forClass, model.propertyId))
+            typeId = typ.childTypeId()
             if typeId not in types:
                 inputs = list(invoker.inputs[:invoker.mandatory])
                 indexes = list(range(0, invoker.mandatory))
 
-                inputs.append(Input('setId$%s' % model.propertyId, typeId))
+                inputs.append(Input('setId$%s' % typeId.property, typeId))
                 inputs.extend(invoker.inputs[invoker.mandatory:])
                 indexes.extend(range(invoker.mandatory + 1, len(inputs)))
 
