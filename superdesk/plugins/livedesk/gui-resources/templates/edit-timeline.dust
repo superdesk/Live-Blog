@@ -1,0 +1,44 @@
+<ul class="post-list">
+{#Posts}
+	{@if cond="'{Type.Key}'=='wrapup'"}
+	</ul>
+	<div class="wrapup open">
+    	<div class="arrow"></div>
+    	<div class="wrapup-content">
+			{Content}
+        </div>
+        <div class="clear"></div>
+	</div>
+	<ul class="post-list wraped">
+	{:else}
+		<li class="{Author.Source.Name}">
+			<div class="drag-bar"></div>
+	        <div class="tool-box-right">
+	        	<a href="#" class="close">×</a>
+	        </div>
+	        <figure>
+	        	<img src="" />
+	        </figure>
+	        <div class="result-content">
+				<h3>
+					{?Author.Person}
+						<span class="author">{Author.Person.FirstName} {Author.Person.LastName}</span>
+					{:else}
+						<!-- google or smth else -->
+					{/Author}
+				</h3>
+				<p class="result-text">
+					{Content}
+				</p>
+				<p class="attributes">
+					<i class="source-icon-{Article.Source.Name}"></i>
+					<time>{CreatedOn}</time>
+					<a class="share" href="#"><i class="icon-share-alt"></i> Share</a>
+				</p>
+			</div>
+			<div class="clear"></div>
+		</li>
+	{/if}
+{/Posts}
+</ul>
+                	
