@@ -16,9 +16,11 @@ from sqlalchemy.types import String, DateTime
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.user.meta.user import User
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from sqlalchemy.orm.mapper import reconstructor
 from superdesk.post.meta.type import PostTypeMapped
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.associationproxy import association_proxy
+from inspect import isclass
 
 # --------------------------------------------------------------------
 
@@ -37,11 +39,23 @@ class PostMapped(Base, Post):
     PublishedOn = Column('published_on', DateTime)
     UpdatedOn = Column('updated_on', DateTime)
     DeletedOn = Column('deleted_on', DateTime)
-    # Non REST model attribute --------------------------------------
+    # Non REST model attributes --------------------------------------
     typeId = Column('fk_type_id', ForeignKey(PostTypeMapped.id, ondelete='RESTRICT'), nullable=False)
-    type = relationship(PostTypeMapped, backref=backref('parent', uselist=False))
+    type = relationship(PostTypeMapped, backref=backref('parent'))
+    author = relationship(CollaboratorMapped, backref=backref('parent'))
 
-    @reconstructor
-    def init_on_load(self):
-        self.IsModified = self.PublishedOn is not None
-        self.Type = self.type.Key
+    # Calculated model attributes ------------------------------------
+    @hybrid_property
+    def AuthorName(self):
+#        if isclass(self): return None
+        if self.author and self.author.Name:
+            return self.author.Name
+        elif self.creator and self.creator.Name:
+            return self.creator.Name
+        return None
+
+    @AuthorName.expression
+    def AuthorName(cls):
+        return CollaboratorMapped.Person
+
+    Type = association_proxy('type', 'Key')

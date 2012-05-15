@@ -36,6 +36,7 @@ class Post(Entity):
     PublishedOn = datetime
     UpdatedOn = datetime
     DeletedOn = datetime
+    AuthorName = str
 
 # --------------------------------------------------------------------
 
