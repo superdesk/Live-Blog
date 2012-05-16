@@ -1,6 +1,6 @@
 define
 ([
-    'jquery','jquery/superdesk','dust/core','jquery/tmpl','jquery/rest', 'bootstrap', 
+    'jquery','jquery/superdesk','dust/core','jquery/tmpl','jquery/rest', 'bootstrap',  
     'tmpl!layouts/dashboard',
     'tmpl!navbar'
 ], 
@@ -57,7 +57,7 @@ function($, superdesk, dust)
     		});
     		
         });
-        $('#area-main').tmpl( 'layouts/dashboard' );
+        $.superdesk.applyLayout('layouts/dashboard');
     };
 
     return MenuView;
