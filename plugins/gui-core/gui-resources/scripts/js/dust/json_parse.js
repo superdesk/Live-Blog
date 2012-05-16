@@ -66,6 +66,7 @@ var json_parse = (function () {
         ch,     // The current character
         escapee = {
             '"':  '"',
+			"'": "'",
             '\\': '\\',
             '/':  '/',
             b:    '\b',
@@ -182,7 +183,34 @@ var json_parse = (function () {
                         string += ch;
                     }
                 }
+            } else if(ch === "'") {
+                while (next()) {
+                    if (ch === "'") {
+                        next();
+                        return string;
+                    } else if (ch === '\\') {
+                        next();
+                        if (ch === 'u') {
+                            uffff = 0;
+                            for (i = 0; i < 4; i += 1) {
+                                hex = parseInt(next(), 16);
+                                if (!isFinite(hex)) {
+                                    break;
+                                }
+                                uffff = uffff * 16 + hex;
+                            }
+                            string += String.fromCharCode(uffff);
+                        } else if (typeof escapee[ch] === 'string') {
+                            string += escapee[ch];
+                        } else {
+                            break;
+                        }
+                    } else {
+                        string += ch;
+                    }
+                }
             }
+
             error("Bad string");
         },
         keys = function () {
@@ -199,6 +227,32 @@ var json_parse = (function () {
             if (ch === '"') {
                 while (next()) {
                     if (ch === '"') {
+                        next();
+                        return string;
+                    } else if (ch === '\\') {
+                        next();
+                        if (ch === 'u') {
+                            uffff = 0;
+                            for (i = 0; i < 4; i += 1) {
+                                hex = parseInt(next(), 16);
+                                if (!isFinite(hex)) {
+                                    break;
+                                }
+                                uffff = uffff * 16 + hex;
+                            }
+                            string += String.fromCharCode(uffff);
+                        } else if (typeof escapee[ch] === 'string') {
+                            string += escapee[ch];
+                        } else {
+                            break;
+                        }
+                    } else {
+                        string += ch;
+                    }
+                }
+            } else if (ch === "'") {
+                while (next()) {
+                    if (ch === "'") {
                         next();
                         return string;
                     } else if (ch === '\\') {
