@@ -1,0 +1,1 @@
+define('providers/enabled', [	'providers/google/tab',	'providers/twitter/tab'], function(providers){	return providers;});
