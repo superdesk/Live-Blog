@@ -14,9 +14,10 @@ requirejs.config
 		'bootstrap': config.js_url + '/jquery/bootstrap',
 		'dust': config.js_url + '/dust',
 		'history': config.js_url + '/history',
+		'utils': config.js_url + '/utils',
+		'gettext': config.js_url + '/gettext',
 		'tmpl': config.js_url + '/require/tmpl',
 		'i18n': config.js_url + '/require/i18n',
-		'gettext': config.js_url + '/gettext',
 	}
 });
 require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n'], 
