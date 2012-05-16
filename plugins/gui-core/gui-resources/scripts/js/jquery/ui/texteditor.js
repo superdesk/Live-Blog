@@ -574,23 +574,25 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                 _create: function(elements)
                 {
                     var toolbar = this.plugins.toolbar.element,
-                        self = this.plugins.draggableToolbar
+                        self = this.plugins.draggableToolbar,
+                        isDragged;
+                    
                     toolbar.draggable
                     ({ 
                         cancel: 'a', 
                         stop: function()
                         { 
-                            self.isDragged = true;
+                            isDragged = true;
                         }
                     });
                     toolbar.on('dblclick', function()
                     { 
-                        self.isDragged = false;
+                        isDragged = false;
                         $(elements).trigger('focusin');
                     });
                     $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function(event)
                     {
-                        self.isDragged && toolbar.show() && event.stopImmediatePropagation();
+                        isDragged && toolbar.show() && event.stopImmediatePropagation();
                     });
                 }
             },
