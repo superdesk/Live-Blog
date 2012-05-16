@@ -38,6 +38,7 @@ class PersonMapped(Base, Person):
     def Name(self):
         name = '%s %s' % ('' if self.FirstName is None else self.FirstName,
                           '' if self.LastName is None else self.LastName)
+        #TODO: remove
         print('name: %s' % name)
         return name.strip()
 
