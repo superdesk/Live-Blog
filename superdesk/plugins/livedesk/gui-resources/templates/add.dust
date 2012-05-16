@@ -1,8 +1,4 @@
-{>"livedesk>layouts/livedesk"/}
-
-{<list}
-	list
-{/list}
+{>"livedesk>layouts/blog"/}
 
 {<body}
 <div {ui.content} class="live-blog-content">
