@@ -23,6 +23,13 @@ import re
 
 # --------------------------------------------------------------------
 
+@ioc.config
+def server_pattern_authenticated():
+    ''' The pattern used for matching the REST authenticated resources paths in HTTP URL's'''
+    return '^resources\/my(/|(?=\\.)|$)'
+
+# --------------------------------------------------------------------
+
 @ioc.entity
 def uriAuthentication() -> Processor:
     b = URIHandler()
@@ -48,5 +55,5 @@ def handlersResourcesAuthentication():
 
 @ioc.before(pathProcessors)
 def updatePathProcessors():
-    pathProcessors().append((re.compile('^authenticated(/|(?=\\.)|$)'), Processors(*handlersResourcesAuthentication())))
+    pathProcessors().append((re.compile(server_pattern_authenticated()), Processors(*handlersResourcesAuthentication())))
 
