@@ -13,8 +13,36 @@ from ally.api.model import Part
 from ally.api.operator.container import Call
 from ally.api.operator.type import TypeService
 from ally.api.type import Input, typeFor, Iter
-from ally.core.spec.resources import Invoker
+from ally.core.spec.resources import Invoker, InvokerInfo
 from ally.exception import DevelError
+from inspect import isclass, getdoc
+from ally.support.util_sys import getAttrAndClass
+from ally.container.proxy import proxiedClass
+
+# --------------------------------------------------------------------
+
+class InvokerInfoMethod(InvokerInfo):
+    '''
+    Provides the info object for a class method.
+    '''
+
+    def __init__(self, name, clazz):
+        '''
+        Constructs the info function based on the provided function.
+        
+        @param name: string
+            The class function name.
+        @param clazz: class
+            The class of the function.
+        '''
+        assert isinstance(name, str), 'Invalid function name %s' % name
+        assert isclass(clazz), 'Invalid class %s' % clazz
+
+        method, clazzDefiner = getAttrAndClass(clazz, name)
+        super().__init__(name, method.__code__.co_filename, method.__code__.co_firstlineno, getdoc(method))
+
+        self.clazz = clazz
+        self.clazzDefiner = clazzDefiner
 
 # --------------------------------------------------------------------
 
@@ -35,37 +63,26 @@ class InvokerCall(Invoker):
         typ = typeFor(implementation)
         assert isinstance(typ, TypeService), 'Invalid service implementation %s' % implementation
         assert isinstance(call, Call), 'Invalid call %s' % call
-        super().__init__(call.name, call.method, call.output, call.inputs, call.hints)
+
+        infoIMPL = InvokerInfoMethod(call.name, proxiedClass(implementation.__class__))
+        infoAPI = InvokerInfoMethod(call.name, typ.forClass)
+        super().__init__(call.name, call.method, call.output, call.inputs, call.hints, infoIMPL, infoAPI)
 
         self.implementation = implementation
         self.call = call
 
-        self.service = typ.service
-        self.clazz = typ.forClass
-
     def invoke(self, *args):
         '''
-        @see: InvokerCall.invoke
+        @see: Invoker.invoke
         '''
         return getattr(self.implementation, self.call.name)(*args)
-
-    def location(self):
-        '''
-        @see: InvokerCall.location
-        '''
-        fnc = getattr(self.clazz, self.call.name).__code__
-        try: name = fnc.__name__
-        except AttributeError: name = self.call.name
-        return (fnc.co_filename, fnc.co_firstlineno, name)
-
-# --------------------------------------------------------------------
 
 class InvokerFunction(Invoker):
     '''
     Provides invoking for API calls.
     '''
 
-    def __init__(self, method, function, output, inputs, hints, name=None):
+    def __init__(self, method, function, output, inputs, hints, name=None, infoIMPL=None):
         '''
         @see: Invoker.__init__
         
@@ -73,7 +90,13 @@ class InvokerFunction(Invoker):
             The Callable to invoke.
         '''
         assert callable(function), 'Invalid input callable provided %s' % function
-        super().__init__(name or function.__name__, method, output, inputs, hints)
+
+        name = name or function.__name__
+        if infoIMPL is None:
+            infoIMPL = InvokerInfo(name, function.__code__.co_filename, function.__code__.co_firstlineno,
+                                   getdoc(function))
+        else: assert isinstance(infoIMPL, InvokerInfo), 'Invalid invoker information %s' % infoIMPL
+        super().__init__(name, method, output, inputs, hints, infoIMPL)
         self.function = function
 
     def invoke(self, *args):
@@ -81,17 +104,6 @@ class InvokerFunction(Invoker):
         @see: InvokerCall.invoke
         '''
         return self.function(*args)
-
-    def location(self):
-        '''
-        @see: InvokerCall.location
-        '''
-        fnc = self.function.__code__
-        try: name = self.function.__name__
-        except AttributeError: name = '<NA>'
-        return (fnc.co_filename, fnc.co_firstlineno, name)
-
-# --------------------------------------------------------------------
 
 class InvokerAssemblePart(Invoker):
     '''
@@ -114,7 +126,7 @@ class InvokerAssemblePart(Invoker):
         assert isinstance(invokerCount, Invoker), 'Invalid invoker count %s' % invokerCount
 
         super().__init__(invokerList.name, invokerList.method, invokerList.output, invokerList.inputs,
-                         invokerList.hints)
+                         invokerList.hints, invokerList.infoIMPL, invokerList.infoAPI)
 
         self.invokerList = invokerList
         self.invokerCount = invokerCount
@@ -131,12 +143,6 @@ class InvokerAssemblePart(Invoker):
             if k < len(args): countArgs.append(args[k])
             else: break
         return Part(self.invokerList.invoke(*args), self.invokerCount.invoke(*countArgs))
-
-    def location(self):
-        '''
-        @see: InvokerCall.location
-        '''
-        return self.invokerList.location()
 
 # --------------------------------------------------------------------
 
@@ -181,7 +187,8 @@ class InvokerRestructuring(Invoker):
         self.indexes = indexes
         self.indexesSetValue = indexesSetValue
 
-        super().__init__(invoker.name, invoker.method, invoker.output, inputs, invoker.hints)
+        super().__init__(invoker.name, invoker.method, invoker.output, inputs, invoker.hints,
+                         invoker.infoIMPL, invoker.infoAPI)
 
     def invoke(self, *args):
         '''
@@ -207,9 +214,3 @@ class InvokerRestructuring(Invoker):
                 elif val != arg: raise DevelError('Cannot set value %s, expected value %s' % (val, arg))
 
         return self.invoker.invoke(*wargs)
-
-    def location(self):
-        '''
-        @see: InvokerCall.location
-        '''
-        return self.invoker.location()

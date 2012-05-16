@@ -407,12 +407,45 @@ class Match(metaclass=abc.ABCMeta):
             return self.node == other.node
         return False
 
+class InvokerInfo:
+    '''
+    Provides the information for an invoker function. 
+    '''
+
+    def __init__(self, name, file, line, doc):
+        '''
+        Construct the info.
+        
+        @param name: string
+            The function name.
+        @param file: string
+            The absolute file path where the function is defined.
+        @param line: integer
+            The line number where the function is defined.
+        @param doc: string
+            The documentation associated with the invoker.
+        @ivar clazz: class|None
+            The class where the function is used from.
+        @ivar clazzDefiner: class|None
+            The class where the function is actually defined in, this is mostly for inheritance cases.
+        '''
+        assert isinstance(name, str), 'Invalid name %s' % name
+        assert isinstance(file, str), 'Invalid file path %s' % file
+        assert isinstance(line, int), 'Invalid line number %s' % line
+        assert isinstance(doc, str), 'Invalid documentation %s' % doc
+        self.name = name
+        self.file = file
+        self.line = line
+        self.doc = doc
+        self.clazz = None
+        self.clazzDefiner = None
+
 class Invoker(metaclass=abc.ABCMeta):
     '''
     Contains all the data required for accessing a call.
     '''
 
-    def __init__(self, name, method, output, inputs, hints):
+    def __init__(self, name, method, output, inputs, hints, infoIMPL, infoAPI=None):
         '''
         Constructs an invoker.
         
@@ -426,12 +459,18 @@ class Invoker(metaclass=abc.ABCMeta):
             The list of Inputs for the invoker, attention not all inputs are mandatory.
         @param hints: dictionary{string, object}
             The hints for the invoker.
+        @param infoIMPL: InvokerInfo
+            The invoker information for the implementation.
+        @param infoAPI: InvokerInfo|None
+            The invoker information for the API, if one is available.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
         assert isinstance(method, int), 'Invalid method %s' % method
         assert isinstance(output, Type), 'Invalid output type %s' % output
         assert isinstance(inputs, (list, tuple)), 'Invalid inputs list %s' % inputs
         assert isinstance(hints, dict), 'Invalid hints %s' % hints
+        assert isinstance(infoIMPL, InvokerInfo), 'Invalid invoker information %s' % infoIMPL
+        assert infoAPI is None or isinstance(infoAPI, InvokerInfo), 'Invalid invoker information %s' % infoAPI
 
         mandatory = 0
         for inp in inputs:
@@ -445,6 +484,8 @@ class Invoker(metaclass=abc.ABCMeta):
         self.inputs = inputs
         self.mandatory = mandatory
         self.hints = hints
+        self.infoIMPL = infoIMPL
+        self.infoAPI = infoAPI
 
     @abc.abstractmethod
     def invoke(self, *args):
@@ -453,15 +494,6 @@ class Invoker(metaclass=abc.ABCMeta):
         
         @param args: arguments
             The arguments to use in invoking.
-        '''
-
-    @abc.abstractmethod
-    def location(self):
-        '''
-        Provides the code location for the invoker.
-        
-        @return: tuple(string "file name", integer "line number", string "function name")
-            A tuple containing the invoker implementation location.
         '''
 
     def __str__(self):

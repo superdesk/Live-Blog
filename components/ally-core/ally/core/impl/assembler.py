@@ -16,7 +16,8 @@ from ally.api.type import Iter, typeFor, Count, List, Input
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerRestructuring, InvokerAssemblePart
 from ally.core.impl.node import NodePath, NodeProperty, NodeRoot
-from ally.core.spec.resources import Node, AssembleError, Invoker, IAssembler
+from ally.core.spec.resources import Node, AssembleError, Invoker, IAssembler, \
+    InvokerInfo
 from inspect import isclass
 from itertools import combinations, chain
 import abc
@@ -296,7 +297,10 @@ class AssembleOneByOne(AssembleBase):
                 if self.assembleInvoker(root, invoker): del invokers[k]
                 else: k += 1
             except:
-                raise AssembleError('Problems assembling invoker at:\nFile "%s", line %i, in %s' % invoker.location())
+                info = invoker.infoAPI or invoker.infoIMPL
+                assert isinstance(info, InvokerInfo)
+                raise AssembleError('Problems assembling invoker at:\nFile "%s", line %i, in %s' %
+                                    (info.file, info.line, info.name))
 
     @abc.abstractmethod
     def assembleInvoker(self, root, invoker):

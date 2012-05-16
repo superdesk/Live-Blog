@@ -39,5 +39,5 @@ def server_version() -> str:
 
 @ioc.config
 def server_pattern_rest():
-    ''' The pattern used for matching the rest resources paths in HTTP URL's'''
+    ''' The pattern used for matching the REST resources paths in HTTP URL's'''
     return '^resources(/|(?=\\.)|$)'

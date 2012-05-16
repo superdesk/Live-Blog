@@ -17,10 +17,11 @@ from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
 from ally.core.impl.node import NodeRoot, NodePath, NodeProperty
 from ally.core.spec.resources import Node, Path, ConverterPath, IAssembler, \
-    IResourcesRegister, IResourcesLocator, PathExtended
+    IResourcesRegister, IResourcesLocator, PathExtended, InvokerInfo
 from ally.support.core.util_resources import pushMatch
 from collections import deque
 import logging
+from inspect import currentframe
 
 # --------------------------------------------------------------------
 
@@ -49,7 +50,13 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
             if known: self._hintsModel.update(known)
 
         rootGetAllAccessible = lambda: Path(self, [], self._root).findGetAllAccessible()
-        self._root = NodeRoot(InvokerFunction(GET, rootGetAllAccessible, List(Type(Path)), [], {}))
+
+        infoIMPL = InvokerInfo('resources', __file__, currentframe().f_lineno,
+                               'Provides all get resources directly available')
+        infoIMPL.clazz = ResourcesManager
+        infoIMPL.clazzDefiner = ResourcesManager
+        invoker = InvokerFunction(GET, rootGetAllAccessible, List(Type(Path)), [], {}, 'resources', infoIMPL)
+        self._root = NodeRoot(invoker)
 
     def getRoot(self):
         '''
