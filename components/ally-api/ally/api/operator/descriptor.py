@@ -16,6 +16,7 @@ from ally.api.operator.container import Query, Container
 from ally.api.operator.type import TypeCriteria
 from ally.exception import DevelError
 import logging
+from ally.support.util_sys import getAttrAndClass
 
 # --------------------------------------------------------------------
 
@@ -86,13 +87,13 @@ class Property:
 
     __slots__ = ('type', 'reference')
 
-    def __init__(self, type, reference):
+    def __init__(self, type, reference=None):
         '''
         Constructs the model property descriptor.
         
         @param type: TypeProperty
             The property type represented by the property.
-        @param reference: object
+        @param reference: object|None
             The reference to be used with the property.
         '''
         assert isinstance(type, TypeProperty), 'Invalid property type %s' % type
@@ -118,6 +119,20 @@ class Property:
             assert isinstance(obj, ContainerSupport), 'Invalid container object %s' % obj
             assert self.type.parent.isValid(obj), 'Invalid container object %s, expected %s' % (obj, self.type.parent)
             return obj._ally_values.get(self.type.property)
+
+    def __contained__(self, obj):
+        '''
+        Checks if the property is contained in the provided object. This is an artifact from the __contains__ method 
+        that is found on the actual model object.
+        
+        @param obj: object
+            The object to check if the property is contained in.
+        @return: boolean
+            True if the property is contained in the object, false otherwise.
+        '''
+        assert isinstance(obj, ContainerSupport), 'Invalid container object %s' % obj
+        assert self.type.parent.isValid(obj), 'Invalid container object %s, expected %s' % (obj, self.type.parent)
+        return self.type.property in obj._ally_values
 
     def __set__(self, obj, value):
         '''
@@ -290,7 +305,12 @@ class ContainerSupport(metaclass=ABCMeta):
         '''
         typ = typeFor(ref)
         if not isinstance(typ, TypeProperty): return False
-        return typ.parent.isValid(self) and typ.property in self._ally_values
+        assert isinstance(typ, TypeProperty)
+        if typ.parent.isValid(self):
+            descriptor, _clazz = getAttrAndClass(self.__class__, typ.property)
+            contained = getattr(descriptor, '__contained__', None)
+            if contained: return contained(self)
+        return False
 
     def __repr__(self):
         container = self._ally_type.container
