@@ -15,9 +15,7 @@ from sqlalchemy.schema import Column
 from sqlalchemy.types import String
 from superdesk.meta.metadata_superdesk import Base
 from sqlalchemy.ext.hybrid import hybrid_property
-from ally.container.binder_op import validateManaged
-from ally.support.sqlalchemy.mapper import registerValidation
-from sqlalchemy.orm.mapper import reconstructor
+from sqlalchemy.sql.expression import case
 
 # --------------------------------------------------------------------
 
@@ -32,21 +30,18 @@ class PersonMapped(Base, Person):
     FirstName = Column('first_name', String(255))
     LastName = Column('last_name', String(255))
     Address = Column('address', String(255))
-
-    # Calculated model attributes ------------------------------------
     @hybrid_property
     def Name(self):
-        name = '%s %s' % ('' if self.FirstName is None else self.FirstName,
-                          '' if self.LastName is None else self.LastName)
-        #TODO: remove
-        print('name: %s' % name)
-        return name.strip()
+        if self.FirstName is not None: return self.FirstName + ' ' + self.LastName
+        else: return self.FirstName
 
-#    @reconstructor
-#    def init_on_load(self):
-#        self.Name = '%s %s' % ('' if self.FirstName is None else self.FirstName,
-#                               '' if self.LastName is None else self.LastName)
-#        self.Name = self.Name.strip()
+    # Expression for hybrid ------------------------------------
+    @classmethod
+    @Name.expression
+    def _Name(cls):
+        return case([(cls.FirstName != None, cls.FirstName + ' ' + cls.LastName)], else_=cls.LastName)
 
+
+#TODO: add validation
 #validateManaged(PersonMapped.Name)
 #registerValidation(PersonMapped)

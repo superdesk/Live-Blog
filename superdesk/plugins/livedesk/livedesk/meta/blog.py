@@ -40,5 +40,5 @@ class BlogMapped(Base, Blog):
 # --------------------------------------------------------------------
 
 from livedesk.meta.blog_post import BlogPostMapped
-
-BlogMapped.UpdatedOn = column_property(select([func.max(BlogPostMapped.UpdatedOn)]).where(BlogPostMapped.Blog == BlogMapped.Id))
+BlogMapped.UpdatedOn = column_property(select([func.max(BlogPostMapped.UpdatedOn)]).
+                                       where(BlogPostMapped.Blog == BlogMapped.Id))
