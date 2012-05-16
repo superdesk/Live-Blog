@@ -574,7 +574,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                 _create: function(elements)
                 {
                     var toolbar = this.plugins.toolbar.element,
-                        self = this;
+                        self = this.plugins.draggableToolbar
                     toolbar.draggable
                     ({ 
                         cancel: 'a', 
@@ -583,10 +583,14 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             self.isDragged = true;
                         }
                     });
-                    toolbar.on('dblclick', function(){ self.isDragged = false; })
+                    toolbar.on('dblclick', function()
+                    { 
+                        self.isDragged = false;
+                        $(elements).trigger('focusin');
+                    });
                     $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function(event)
                     {
-                        self.isDragged && event.stopImmediatePropagation();
+                        self.isDragged && toolbar.show() && event.stopImmediatePropagation();
                     });
                 }
             },
@@ -632,6 +636,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     },
                     moveToolbar = function(event)
                     {
+                        //console.profile('moving toolbar');
                         toolbar.removeClass(self.options.toolbar.classes.topFixed);
                         var para = findBlockParent();
                         switch(self.options.floatingToolbar)
@@ -658,6 +663,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             break;
                         }
                         toolbar.css({top : top, left : left, position: 'absolute'}).fadeIn('fast');
+                        //console.profileEnd();
                     };
                     
                     var hideToolbar = function()
