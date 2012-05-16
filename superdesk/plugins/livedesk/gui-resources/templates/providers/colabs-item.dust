@@ -1,0 +1,15 @@
+{<list}
+<ul class="search-result-list scroller">
+	{#Colabs}
+	<li class="quote collaborators">
+		<figure><img src="img/avatar_default_collaborator.png" alt="1" height="48" width="48"></figure>
+		<div class="result-content">
+		
+        	<h3><span class="author">{Name}</span></h3>
+        	<p class="result-text">{Text}</p>
+        	<p class="attributes"><time>{Time}</time></p>
+    	</div>
+    </li>
+    {/Colabs}
+</ul>
+{/list}
