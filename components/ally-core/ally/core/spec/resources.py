@@ -412,7 +412,7 @@ class InvokerInfo:
     Provides the information for an invoker function. 
     '''
 
-    def __init__(self, name, file, line, doc):
+    def __init__(self, name, file, line, doc=None):
         '''
         Construct the info.
         
@@ -422,7 +422,7 @@ class InvokerInfo:
             The absolute file path where the function is defined.
         @param line: integer
             The line number where the function is defined.
-        @param doc: string
+        @param doc: string|None
             The documentation associated with the invoker.
         @ivar clazz: class|None
             The class where the function is used from.
@@ -432,7 +432,7 @@ class InvokerInfo:
         assert isinstance(name, str), 'Invalid name %s' % name
         assert isinstance(file, str), 'Invalid file path %s' % file
         assert isinstance(line, int), 'Invalid line number %s' % line
-        assert isinstance(doc, str), 'Invalid documentation %s' % doc
+        assert doc is None or isinstance(doc, str), 'Invalid documentation %s' % doc
         self.name = name
         self.file = file
         self.line = line

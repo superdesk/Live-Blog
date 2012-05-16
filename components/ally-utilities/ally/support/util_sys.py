@@ -243,6 +243,9 @@ def getAttrAndClass(clazz, name):
         The class to get the attribute from.
     @param name: string
         The attribute name.
+    @return: tuple(object, class)
+        A tuple containing in the first position the attribute value and in the second position the class that
+        defined the attribute.
     '''
     assert isclass(clazz), 'Invalid class %s' % clazz
     assert isinstance(name, str), 'Invalid name %s' % name

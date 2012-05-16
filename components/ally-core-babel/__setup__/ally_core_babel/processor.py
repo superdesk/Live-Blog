@@ -20,6 +20,7 @@ from ally.core.spec.server import Processor
 @ioc.replace(converter)
 def converterBabel() -> Processor:
     from babel import localedata, core
+    #TODO: check if is still a problem in the new Babel version
     # Babel FIX: We need to adjust the dir name for locales since they need to be outside the .egg file
     localedata._dirname = localedata._dirname.replace('.egg', '')
     core._filename = core._filename.replace('.egg', '')

@@ -19,20 +19,20 @@ from ally.container.binder_op import INDEX_PROP, validateAutoId, \
 from ally.exception import Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.mapper_descriptor import MappedSupport, \
-    MappedReference, MappedProperty
+    MappedProperty
 from ally.support.sqlalchemy.session import openSession
 from functools import partial
 from inspect import isclass
 from sqlalchemy import event
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm import mapper
-from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.schema import Table, MetaData, Column, ForeignKey
 from sqlalchemy.sql.expression import Join
 from sqlalchemy.types import String
 import logging
+from ally.support.util_sys import getAttrAndClass
 
 # --------------------------------------------------------------------
 
@@ -66,6 +66,8 @@ def merge(clazz, mapped, metadata):
     assert isinstance(metadata, MetaData), 'Invalid metadata %s' % metadata
     typeModel = typeFor(clazz)
     assert isinstance(typeModel, TypeModel), 'Invalid model class %s' % clazz
+    assert typeModel.baseClass is None, \
+    'Required only plain API model types for mapping, already mapped model type %s' % typeModel
     model = typeModel.container
     assert isinstance(model, Model)
 
@@ -78,12 +80,11 @@ def merge(clazz, mapped, metadata):
         propRefType = TypeModelProperty(mappedModelType, refType.property, refType.type)
         propType = TypeModelProperty(mappedModelType, prop, propDesc.type)
 
-        instrumented = getattr(mapped, prop)
-        if isinstance(instrumented, InstrumentedAttribute):
-            reference = MappedReference(propRefType, instrumented)
-            setattr(mapped, prop, MappedProperty(propType, reference, instrumented))
-        else:
+        descriptor, _clazz = getAttrAndClass(mapped, prop)
+        if isinstance(descriptor, Property):
             setattr(mapped, prop, Property(propType, Reference(propRefType)))
+        else:
+            setattr(mapped, prop, MappedProperty(propType, propRefType, descriptor))
 
     mapped._ally_type = mappedModelType
     try: metadata._ally_mappings.append(mapped)
