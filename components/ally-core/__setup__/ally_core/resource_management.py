@@ -13,6 +13,7 @@ from .assembler import assemblers
 from ally.container import ioc
 from ally.core.impl.resources_management import ResourcesManager
 from ally.core.spec.resources import IResourcesLocator, IResourcesRegister
+from ally.exception import DevelError
 
 # --------------------------------------------------------------------
 # Creating the resource manager
@@ -21,11 +22,23 @@ from ally.core.spec.resources import IResourcesLocator, IResourcesRegister
 def services(): return []
 
 @ioc.entity
+def resourcesManager():
+    b = ResourcesManager(); yield b
+    b.assemblers = assemblers()
+
+@ioc.entity
 def resourcesLocator() -> IResourcesLocator:
-    return resourcesRegister()
+    return resourcesManager()
 
 @ioc.entity
 def resourcesRegister() -> IResourcesRegister:
-    b = ResourcesManager(); yield b
-    b.services = services()
-    b.assemblers = assemblers()
+    return resourcesManager()
+
+# --------------------------------------------------------------------
+
+@ioc.start
+def registerServices():
+    register = resourcesRegister()
+    for service in services():
+        try: register.register(service)
+        except: raise DevelError('Cannot register service instance %s' % service)

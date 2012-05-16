@@ -39,6 +39,26 @@ class TypeContainer(Type):
 
         self.container = container
 
+    def childTypes(self):
+        '''
+        Provides the child properties types.
+        
+        @return: list[TypeProperty]
+            The properties types.
+        '''
+        return [self.childTypeFor(name) for name in self.container.properties]
+
+    def childTypeFor(self, name):
+        '''
+        Provides the child type property for the provided name.
+        
+        @param name: string
+            The name of the type property to provide.
+        @return: TypeProperty
+            The type property for the provided name.
+        '''
+        return typeFor(getattr(self.forClass, name))
+
 class TypeModel(TypeContainer):
     '''
     Provides the type for the model.
@@ -79,6 +99,12 @@ class TypeModel(TypeContainer):
         if TypeContainer.isValid(self, obj): return True
         if self.baseClass: return isinstance(obj, self.baseClass)
         return False
+
+    def childTypeId(self):
+        '''
+        Provides the child type property id.
+        '''
+        return self.childTypeFor(self.container.propertyId)
 
 class TypeCriteria(TypeContainer):
     '''
@@ -121,6 +147,26 @@ class TypeQuery(Type):
         Type.__init__(self, forClass, False, False)
 
         self.query = query
+
+    def childTypes(self):
+        '''
+        Provides the child criteria entry types.
+        
+        @return: list[TypeCriteriaEntry]
+            The criteria entry types.
+        '''
+        return [self.childTypeFor(name) for name in self.query.criterias]
+
+    def childTypeFor(self, name):
+        '''
+        Provides the child criteria entry type for the provided name.
+        
+        @param name: string
+            The name of the type property to provide.
+        @return: TypeCriteriaEntry
+            The criteria entry type for the name.
+        '''
+        return typeFor(getattr(self.forClass, name))
 
 # --------------------------------------------------------------------
 
@@ -225,6 +271,26 @@ class TypeCriteriaEntry(Type):
         assert isinstance(self.criteriaType, TypeCriteria), 'Invalid criteria class %s' % self.criteriaClass
         self.criteria = self.criteriaType.container
         Type.__init__(self, self.criteriaType.forClass, False, False)
+
+    def childTypes(self):
+        '''
+        Provides the child criteria entry types.
+        
+        @return: list[TypeCriteriaEntry]
+            The criteria entry types.
+        '''
+        return self.criteriaType.childTypes()
+
+    def childTypeFor(self, name):
+        '''
+        Provides the child criteria entry type for the provided name.
+        
+        @param name: string
+            The name of the type property to provide.
+        @return: TypeCriteriaEntry
+            The criteria entry type for the name.
+        '''
+        return self.criteriaType.childTypeFor(name)
 
     def __hash__(self):
         return hash((self.parent, self.name))

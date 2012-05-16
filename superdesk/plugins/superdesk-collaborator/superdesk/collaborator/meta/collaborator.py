@@ -13,8 +13,11 @@ from ..api.collaborator import Collaborator
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column, ForeignKey
 from superdesk.meta.metadata_superdesk import Base
-from superdesk.person.meta.person import Person
+from superdesk.person.meta.person import PersonMapped
 from superdesk.source.meta.source import SourceMapped
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
+from inspect import isclass
 
 # --------------------------------------------------------------------
 
@@ -26,5 +29,19 @@ class CollaboratorMapped(Base, Collaborator):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Person = Column('fk_person_id', ForeignKey(Person.Id, ondelete='CASCADE'))
+    Person = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'))
     Source = Column('fk_source_id', ForeignKey(SourceMapped.Id, ondelete='RESTRICT'), nullable=False)
+
+    # Non REST model attributes --------------------------------------
+    person = relationship(PersonMapped, uselist=False)
+    source = relationship(SourceMapped, uselist=False)
+
+    # Calculated model attributes ------------------------------------
+    @hybrid_property
+    def Name(self):
+        if isclass(self): return None
+        if self.person and self.person.Name:
+            return self.person.Name
+        elif self.source and self.source.Name:
+            return self.source.Name
+        return None

@@ -75,6 +75,9 @@ class Model(Container):
         if isinstance(other, self.__class__): return self.name == other.name
         return False
 
+    def __str__(self):
+        return '<%s %s>' % (self.name, [str(prop) for prop in self.properties])
+
 class Criteria(Container):
     '''
     Used for mapping the API criteria.

@@ -9,15 +9,15 @@ Created on Jun 28, 2011
 Module containing the implementation for the resources manager.
 '''
 
+from ally.api.config import GET
 from ally.api.operator.container import Service, Call
 from ally.api.operator.type import TypeService, TypeModel
 from ally.api.type import List, Type, Input, typeFor
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
 from ally.core.impl.node import NodeRoot, NodePath, NodeProperty
-from ally.core.spec.resources import Node, Path, ConverterPath, Assembler, \
+from ally.core.spec.resources import Node, Path, ConverterPath, IAssembler, \
     IResourcesRegister, IResourcesLocator, PathExtended
-from ally.exception import DevelError
 from ally.support.core.util_resources import pushMatch
 from collections import deque
 import logging
@@ -36,27 +36,20 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
 
     assemblers = list
     # The list of assemblers to be used by this resources manager in order to register nodes.
-    services = list
-    # The list of services to be registered, the list contains the service instance.
 
     def __init__(self):
         assert isinstance(self.assemblers, list), 'Invalid assemblers list %s' % self.assemblers
-        assert isinstance(self.services, list), 'Invalid services list %s' % self.services
 
         self._hintsCall, self._hintsModel = {}, {}
         for asm in self.assemblers:
-            assert isinstance(asm, Assembler), 'Invalid assembler %s' % asm
+            assert isinstance(asm, IAssembler), 'Invalid assembler %s' % asm
             known = asm.knownCallHints()
             if known: self._hintsCall.update(known)
             known = asm.knownModelHints()
             if known: self._hintsModel.update(known)
 
         rootGetAllAccessible = lambda: Path(self, [], self._root).findGetAllAccessible()
-        self._root = NodeRoot(InvokerFunction(List(Type(Path)), rootGetAllAccessible, []))
-
-        for service in self.services:
-            try: self.register(service)
-            except: raise DevelError('Cannot register service instance %s' % service)
+        self._root = NodeRoot(InvokerFunction(GET, rootGetAllAccessible, List(Type(Path)), [], {}))
 
     def getRoot(self):
         '''
@@ -80,8 +73,15 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
             assert isinstance(call, Call), 'Invalid call %s' % call
             if __debug__:
                 unknown = set(call.hints.keys()).difference(self._hintsCall.keys())
-                assert not unknown, 'Invalid call hints %r for %s in service %s, the allowed call hints are:\n\t%s' % \
-                (', '.join(unknown), call, service, '\n\t'.join('"%s": %s' % item for item in self._hintsCall.items()))
+
+                fnc = getattr(typeService.forClass, call.name).__code__
+                try: name = fnc.__name__
+                except AttributeError: name = call.name
+                location = (fnc.co_filename, fnc.co_firstlineno, name)
+
+                assert not unknown, \
+                'Allowed call hints are:\n\t%s\nInvalid call hints %r at:\nFile "%s", line %i, in %s' % \
+                (('\n\t'.join('"%s": %s' % item for item in self._hintsCall.items()), ', '.join(unknown)) + location)
 
                 for inp in call.inputs:
                     assert isinstance(inp, Input), 'Invalid input %s' % inp
@@ -89,13 +89,15 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
                     except AttributeError: pass
                     else:
                         unknown = set(model.hints.keys()).difference(self._hintsModel.keys())
-                        assert not unknown, 'Invalid model hints %r for %s in %s, %s, the allowed model hints are:'\
-                        '\n\t%s' % (', '.join(unknown), model, call, service, '\n\t'.join('"%s": %s' % item
-                                                                                    for item in self._hintsModel.items()))
+
+                        assert not unknown, \
+                        'Allowed model hints are:\n\t%s\nInvalid call hints %r at:\nFile "%s", line %i, in %s' % \
+                        (('\n\t'.join('"%s": %s' % item for item in self._hintsModel.items()), ', '.join(unknown))
+                         + location)
 
             invokers.append(InvokerCall(implementation, call))
         for asm in self.assemblers:
-            assert isinstance(asm, Assembler)
+            assert isinstance(asm, IAssembler)
             asm.assemble(self._root, invokers)
         for invoker in invokers:
             assert isinstance(invoker, InvokerCall)

@@ -9,35 +9,34 @@ Created on Nov 24, 2011
 Provides the configurations for the assemblers.
 '''
 
-from .converter import contentNormalizer
 from ally.container import ioc
 from ally.core.impl.assembler import AssembleGet, AssembleInsert, AssembleUpdate, \
-    AssembleDelete
-from ally.core.spec.resources import Assembler
+    AssembleDelete, AssembleCount, AssembleUpdateModel
+from ally.core.spec.resources import IAssembler
 
 # --------------------------------------------------------------------
 # Creating the assemblers
 
 @ioc.entity
-def assembleGet() -> Assembler: return AssembleGet()
+def assembleGet() -> IAssembler: return AssembleGet()
 
 @ioc.entity
-def assembleDelete() -> Assembler: return AssembleDelete()
+def assembleDelete() -> IAssembler: return AssembleDelete()
 
 @ioc.entity
-def assembleInsert() -> Assembler:
-    b = AssembleInsert();
-    b.normalizer = contentNormalizer()
-    return b
+def assembleInsert() -> IAssembler: return AssembleInsert()
 
 @ioc.entity
-def assembleUpdate() -> Assembler:
-    b = AssembleUpdate();
-    b.normalizer = contentNormalizer()
-    return b
+def assembleUpdate() -> IAssembler: return AssembleUpdate()
+
+@ioc.entity
+def assembleUpdateModel() -> IAssembler: return AssembleUpdateModel()
+
+@ioc.entity
+def assembleCount() -> IAssembler: return AssembleCount()
 
 # ---------------------------------
 
 @ioc.entity
 def assemblers():
-    return [assembleGet(), assembleInsert(), assembleUpdate(), assembleDelete()]
+    return [assembleCount(), assembleGet(), assembleInsert(), assembleUpdateModel(), assembleUpdate(), assembleDelete()]

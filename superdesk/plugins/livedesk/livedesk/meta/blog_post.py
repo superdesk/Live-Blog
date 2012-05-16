@@ -10,10 +10,10 @@ Contains the SQL alchemy meta for blog post API.
 '''
 
 from ..api.blog_post import BlogPost
-from .blog import BlogMapped
 from sqlalchemy.schema import Column, ForeignKey
 from superdesk.post.meta.post import PostMapped
 from superdesk.meta.metadata_superdesk import Base
+from livedesk.meta.blog import BlogMapped
 
 # --------------------------------------------------------------------
 

@@ -37,10 +37,6 @@ class IService(IServiceEntity):
         '''
         '''
 
-    def undecorated(self):
-        '''
-        '''
-
 # --------------------------------------------------------------------
 
 class ServiceImpl(IService):
@@ -57,10 +53,6 @@ class ServiceImpl(IService):
         pass
 
     def implCustom(self):
-        '''
-        '''
-
-    def undecorated(self):
         '''
         '''
 
@@ -88,13 +80,6 @@ class TestConfigure(unittest.TestCase):
 
             def intToStr(self, x):
                 return str(x)
-
-            def doNothing(self, x):
-                pass
-
-            def implCustom(self):
-                '''
-                '''
 
         self.assertRaises(TypeError, ServiceImpl)
 

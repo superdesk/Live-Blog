@@ -14,14 +14,14 @@ from ally.support.sqlalchemy.mapper import mapperModel
 from sqlalchemy.schema import Table, Column, ForeignKey
 from sqlalchemy.types import String
 from superdesk.meta.metadata_superdesk import meta
-from superdesk.person.meta.person import Person
+from superdesk.person.meta.person import PersonMapped
 
 # --------------------------------------------------------------------
 
 table = Table('user', meta,
-               Column('fk_person_id', ForeignKey(Person.Id), primary_key=True, key='Id'),
+               Column('fk_person_id', ForeignKey(PersonMapped.Id), primary_key=True, key='Id'),
                Column('name', String(20), nullable=False, unique=True, key='Name'),
                mysql_engine='InnoDB', mysql_charset='utf8')
 
 # map User entity to defined table (above)
-User = mapperModel(User, table, inherits=Person)
+User = mapperModel(User, table, inherits=PersonMapped)

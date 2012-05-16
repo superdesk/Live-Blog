@@ -1,7 +1,7 @@
 '''
 Created on Nov 24, 2011
 
-@package: Newscoop
+@package: ally core http
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -83,8 +83,8 @@ def pathProcessors():
 @ioc.entity
 def handlersFetching():
     '''
-    The specific handlers to be used for an actual invoking procedure, used by the meta filter to actually fetch entities
-    whenever the X-Filter is used and there is no compound method available.
+    The specific handlers to be used for an actual invoking procedure, used by the meta filter to actually fetch 
+    entities whenever the X-Filter is used and there is no compound method available.
     '''
     return [methodInvoker(), requestTypes(), parameters(), invokingHandler()]
 

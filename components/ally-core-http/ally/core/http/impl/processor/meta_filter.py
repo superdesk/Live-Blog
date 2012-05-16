@@ -150,7 +150,7 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
             if isinstance(meta.metaItem, MetaModel):
                 assert isinstance(meta, MetaCollection)
                 return MetaCollection(self.filterMeta(meta.metaItem, normalize, createFetcher, filterTree),
-                                      meta.getItems, meta.getTotal)
+                                      meta.getItems)
 
         elif isinstance(meta, MetaModel):
             assert isinstance(meta, MetaModel)

@@ -12,7 +12,7 @@ Provides the components introspection.
 from ..api.component import Component
 from admin.api.domain_admin import modelAdmin
 from ally.api.config import service, call
-from ally.api.type import IterPart
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ class IPluginService:
         '''
 
     @call
-    def getPlugins(self, offset:int=None, limit:int=None) -> IterPart(Plugin):
+    def getPlugins(self, offset:int=None, limit:int=None) -> Iter(Plugin):
         '''
         Provides all the plugins.
         '''
