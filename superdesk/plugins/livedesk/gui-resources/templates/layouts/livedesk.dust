@@ -1,9 +1,25 @@
-<div class="row-fluid" id="main-container">
-	<div class="span6" id="area-sidebar">
-		{+list/}
-	</div>
-	<div class="span6" id="area-content">
-		{+body/}
-	</div>
+<header>
+<div class="subnav subnav-fixed">
+	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" href="#put-live">Put live</a>
+	<ul class="nav nav-pills pull-left">	
+    {!#blog!}
+		<li class="active"><a href="">{name}</a></li>
+		<li class=""><a href="configure.html">Configure Blog</a></li>
+		<li class=""><a href="#">Manage collaborators</a></li>
+		<li class=""><a href="#">Manage feeds</a></li>
+	{!/blog!}	
+    </ul>
 </div>
-<hr>
+ 
+<div class="subnav subnav-fixed hidden">
+<form class="form-inline">
+	<input type="text" class="span5" placeholder="Live Blog name"> <select id="language" class="span3" >
+                <option>Select language</option>
+                <option>French</option>
+                <option>English</option>
+                <option>German</option>
+              </select>	<input type="button" class="btn btn-medium btn-primary" value="Save">
+    </form>
+</div>  
+</header>
+{+body/}
