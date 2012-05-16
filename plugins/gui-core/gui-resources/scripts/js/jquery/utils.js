@@ -22,6 +22,13 @@ $.combineObj = function(keys, values) {
 	}
     return object;
 };
+$.arrayValues = function(obj) {
+	var arr = [];
+	for(i in obj) {
+		arr.push(obj[i]);
+	}
+	return arr;
+};
 $.mergeObj = function(first, second) {
 	if(arguments.length > 2) {
 		for(i=2;i<arguments.length;i++) {
