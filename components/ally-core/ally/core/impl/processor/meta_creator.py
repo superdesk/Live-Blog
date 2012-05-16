@@ -11,7 +11,7 @@ Provides the meta creation processor handler.
 
 from ally.api.operator.container import Model
 from ally.api.operator.type import TypeModelProperty, TypeModel
-from ally.api.type import TypeNone, Iter, Type, IterPart, List, typeFor, Boolean, \
+from ally.api.type import TypeNone, Iter, Type, List, typeFor, Boolean, \
     Integer, Number, Percentage, String, Time, Date, DateTime, TypeReference
 from ally.container.ioc import injected
 from ally.core.spec.data_meta import MetaLink, MetaValue, MetaModel, MetaPath, \
@@ -32,9 +32,6 @@ returnSame = lambda obj: obj
 
 returnNone = lambda obj: None
 # Function that just returns None.
-
-returnTotal = lambda part: part.total
-# Function that returns the total count of a part.
 
 rgetattr = lambda prop, obj: getattr(obj, prop)
 # A simple lambda that just reverses the getattr parameters in order to be used with partial.
@@ -92,20 +89,17 @@ class MetaCreatorHandler(Processor):
             if isinstance(typ, Iter):
                 assert isinstance(typ, Iter)
 
-                if isinstance(typ, IterPart): getTotal = returnTotal
-                else: getTotal = None
-
                 itype = typ.itemType
 
                 if isinstance(itype, TypeModelProperty):
-                    return MetaCollection(self.metaProperty(itype, resourcePath), returnSame, getTotal)
+                    return MetaCollection(self.metaProperty(itype, resourcePath), returnSame)
 
                 elif isinstance(itype, TypeModel):
                     assert isinstance(itype, TypeModel)
-                    return MetaCollection(self.metaModel(itype, resourcePath), returnSame, getTotal)
+                    return MetaCollection(self.metaModel(itype, resourcePath), returnSame)
 
                 elif itype.isOf(Path):
-                    return MetaCollection(MetaLink(pathLongName, returnSame), returnSame, getTotal)
+                    return MetaCollection(MetaLink(pathLongName, returnSame), returnSame)
                 else:
 
                     assert log.debug('Cannot encode list item object type %r', itype) or True
@@ -153,7 +147,7 @@ class MetaCreatorHandler(Processor):
         if isinstance(typ, TypeModel):
             assert isinstance(typ, TypeModel)
             path = resourcePath.findGetModel(typ)
-            typId = typeFor(getattr(typ.forClass, typ.container.propertyId))
+            typId = typ.childTypeId()
             assert isinstance(typId, TypeModelProperty)
 
             if path: metaLink = MetaPath(path, typId, getValue)

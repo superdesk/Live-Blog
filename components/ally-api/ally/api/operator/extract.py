@@ -89,17 +89,17 @@ def extractPropertiesInherited(classes, forType=TypeContainer):
 
 # --------------------------------------------------------------------
 
-def extractCriterias(namescape):
+def extractCriterias(namespace):
     '''
     Extract the criteria's that are found in the provided query class.
     
-    @param namescape: dictionary{string, object}
-        The query class namescape to extract to extract the criteria's from.
+    @param namespace: dictionary{string, object}
+        The query class namespace to extract to extract the criteria's from.
     @return: dictionary{string, class}
         A dictionary containing as the key the criteria name and as a value the criteria class.
     '''
     criterias = {}
-    for name, value in namescape.items():
+    for name, value in namespace.items():
         if name.startswith('_') or isfunction(value):
             continue
         typ = typeFor(value)
@@ -108,7 +108,7 @@ def extractCriterias(namescape):
             criterias[name] = typ.forClass
         else:
             log.warning('Cannot extract criteria for class %s attribute "%s" of value %s',
-                        namescape.get('__name__'), name, value)
+                        namespace.get('__name__'), name, value)
 
     return criterias
 
@@ -135,7 +135,7 @@ def extractCriteriasInherited(classes):
 
 # --------------------------------------------------------------------
 
-def extractOuputInput(function, types=None):
+def extractOuputInput(function, types=None, modelToId=False):
     '''
     Extracts the input and output for a call based on the provided function.
     
@@ -144,10 +144,15 @@ def extractOuputInput(function, types=None):
     @param types: list[Type or Type container]|None
         The list of types to associate with the function, if they are not provided then the function annotations
         are considered.
+    @param modelToId: boolean
+        Flag indicating that the extract should convert all inputs that are model types to their actually
+        corresponding property type, used in order not to constantly provide the id property of the model when in fact
+        we can deduce that the API annotation actually refers to the id and not the model.
     @return: tuple(Type, list[Input])
         A tuple containing on the first position the output type of the call and second the list of inputs for the call.
     '''
     assert isfunction(function), 'Invalid function %s' % function
+    assert isinstance(modelToId, bool), 'Invalid model to id flag %s' % modelToId
     if IS_PY3K:
         fnArgs = getfullargspec(function)
         args, varargs, keywords, defaults = fnArgs.args, fnArgs.varargs, fnArgs.varkw, fnArgs.defaults
@@ -176,6 +181,9 @@ def extractOuputInput(function, types=None):
             if arg not in annotations: raise DevelError('There is no type for %s' % arg)
             typ = typeFor(annotations[arg])
             assert isinstance(typ, Type), 'Could not obtain a valid type for %s with %s' % (arg, annotations[arg])
+            if modelToId and isinstance(typ, TypeModel):
+                assert isinstance(typ, TypeModel)
+                typ = typ.childTypeId()
             if k < mandatory: inputs.append(Input(arg, typ))
             else: inputs.append(Input(arg, typ, True, defaults[k - mandatory]))
 

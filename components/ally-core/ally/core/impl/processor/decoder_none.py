@@ -37,9 +37,5 @@ class DecodingNoneHandler(Processor):
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert req.method in (INSERT, UPDATE), 'Invalid method %s for processor' % req.method
 
-        noDecoding = False
-        if not findLastModel(req.invoker):
-            noDecoding = True
-        if noDecoding:
-            assert log.debug('Nothing required to be decoded for this invoking') or True
+        if not findLastModel(req.invoker): assert log.debug('Nothing required to be decoded for this invoking') or True
         else: chain.proceed()

@@ -10,72 +10,14 @@ API specifications for livedesk blog.
 '''
 
 from livedesk.api.domain_livedesk import modelLiveDesk
-from ally.support.api.entity import Entity, IEntityGetCRUDService
+from ally.support.api.entity import Entity, IEntityCRUDService
 from superdesk.language.api.language import LanguageEntity
 from superdesk.user.api.user import User
 from datetime import datetime
 from ally.api.config import query, service, call
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered
 from ally.api.type import Iter, Count
-
-
-#def Auth(typ):
-#    return typ
-#
-## --------------------------------------------------------------------
-#
-#@modelLiveDesk
-#class Blog(Entity):
-#    '''
-#    Provides the blog model.
-#    '''
-#    Language = LanguageEntity
-#    Creator = User; Creator = Auth(Creator) # This is redundant, is just to keep IDE hinting.
-#    Title = str
-#    Description = str
-#    CreatedOn = datetime
-#    LiveOn = datetime
-#    LastUpdatedOn = datetime
-#    ClosedOn = datetime
-#
-## --------------------------------------------------------------------
-#
-#@query
-#class QBlog(Entity):
-#    '''
-#    Provides the query for active blog model.
-#    '''
-#    title = AsLikeOrdered
-#    createdOn = AsDateOrdered
-#    liveOn = AsDateOrdered
-#    lastUpdatedOn = AsDateOrdered
-#
-## --------------------------------------------------------------------
-#
-#@service((Entity, Blog))
-#class IBlogService(IEntityGetCRUDService):
-#    '''
-#    Provides the service methods for the blogs.
-#    '''
-#
-#    @call
-#    def getBlog(self, blogId:Blog, userId:Auth(User)=None) -> Blog:
-#        '''
-#        Provides the blog based on the specified id, is the user is not specified the blog will be returned only if is
-#        in live mode.
-#        '''
-#
-#    @call(webName='Administered')
-#    def getWhereAdmin(self, adminId:Auth(User), languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
-#        '''
-#        Provides all the blogs that are administered by the provided user.
-#        '''
-#
-#    @call(webName='Live')
-#    def getLive(self, languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
-#        '''
-#        Provides all the blogs that are live at this moment.
-#        '''
+from ally.api.authentication import auth
 
 # --------------------------------------------------------------------
 
@@ -85,18 +27,19 @@ class Blog(Entity):
     Provides the blog model.
     '''
     Language = LanguageEntity
-    Creator = User
+    Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
     Title = str
     Description = str
     CreatedOn = datetime
     LiveOn = datetime
     LastUpdatedOn = datetime
     ClosedOn = datetime
+    UpdatedOn = datetime
 
 # --------------------------------------------------------------------
 
 @query
-class QBlogActive(Entity):
+class QBlog(Entity):
     '''
     Provides the query for active blog model.
     '''
@@ -105,37 +48,42 @@ class QBlogActive(Entity):
     liveOn = AsDateOrdered
     lastUpdatedOn = AsDateOrdered
 
-@query
-class QBlog(QBlogActive):
-    '''
-    Provides the general query blog model.
-    '''
-    closedOn = AsDateOrdered
-
 # --------------------------------------------------------------------
 
 @service((Entity, Blog))
-class IBlogService(IEntityGetCRUDService):
+class IBlogService(IEntityCRUDService):
     '''
     Provides the service methods for the blogs.
     '''
 
-    @call(webName='Active')
-    def getActiveBlogs(self, languageId:LanguageEntity.Id=None, creatorId:User.Id=None, offset:int=None, limit:int=None,
-                       q:QBlogActive=None) -> Iter(Blog):
+    @call
+    def getBlog(self, blogId:Blog, userId:auth(User)=None) -> Blog:
         '''
-        Provides all the active blogs.
-        '''
-
-    def getAllCount(self, languageId:LanguageEntity.Id=None, creatorId:User.Id=None, q:QBlog=None) -> Count:
-        '''
-        Provides all the blogs.
+        Provides the blog based on the specified id, is the user is not specified the blog will be returned only if is
+        in live mode.
         '''
 
-    @call(countMethod=getAllCount)
-    def getAll(self, languageId:LanguageEntity.Id=None, creatorId:User.Id=None, offset:int=None, limit:int=None,
+    @call
+    def getAll(self, languageId:LanguageEntity=None, adminId:auth(User)=None, offset:int=None, limit:int=None,
                q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs.
         '''
 
+    @call(countFor=getAll)
+    def getAllCount(self, languageId:LanguageEntity=None, adminId:auth(User)=None, q:QBlog=None) -> Count:
+        '''
+        Provides all the blogs.
+        '''
+
+    @call(webName='Administered')
+    def getLiveWhereAdmin(self, adminId:auth(User), languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
+        '''
+        Provides all the blogs that are administered by the provided user.
+        '''
+
+    @call(webName='Live')
+    def getLive(self, languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
+        '''
+        Provides all the blogs that are live at this moment.
+        '''

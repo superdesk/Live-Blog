@@ -17,7 +17,7 @@ from .samples.impl.article import ArticleService
 from .samples.impl.article_type import ArticleTypeService
 from ally.api.type import Iter, TypeNone, Type, typeFor
 from ally.container import ioc, aop
-from ally.core.spec.resources import IResourcesLocator, Path
+from ally.core.spec.resources import IResourcesLocator, Path, IResourcesRegister
 from ally.core.spec.server import Processors, Request, Response
 import unittest
 
@@ -29,10 +29,10 @@ class TestEncoderText(unittest.TestCase):
         assembly = ioc.open(aop.modulesIn(__setup__))
         get = assembly.processForPartialName
         try:
-            services = get('services')
-            assert isinstance(services, list)
-            services.append(ArticleTypeService())
-            services.append(ArticleService())
+            resourcesRegister = get('resourcesRegister')
+            assert isinstance(resourcesRegister, IResourcesRegister)
+            resourcesRegister.register(ArticleTypeService())
+            resourcesRegister.register(ArticleService())
 
             resourcesLocator = get('resourcesLocator')
             assert isinstance(resourcesLocator, IResourcesLocator)

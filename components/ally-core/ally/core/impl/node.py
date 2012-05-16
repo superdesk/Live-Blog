@@ -13,7 +13,6 @@ from ally.api.type import Input
 from ally.core.spec.resources import ConverterPath, Match, Node, Invoker
 import logging
 from ally.api.operator.type import TypeModelProperty
-from ally.api.operator.container import Model
 
 # --------------------------------------------------------------------
 
@@ -285,26 +284,6 @@ class NodePath(Node):
 
     def __str__(self):
         return '<%s[%s]>' % (self.__class__.__name__, self.name)
-
-class NodeModel(NodePath):
-    '''
-    Provides a node that matches model elements.
-    
-    @see: Node
-    '''
-
-    def __init__(self, parent, model):
-        '''
-        @see: Node.__init__
-        
-        @param model: Model
-            The model to make the matching based on.
-        @ivar _match: MatchString
-            The match corresponding to this node.
-        '''
-        assert isinstance(model, Model), 'Invalid model %s' % model
-        self.model = model
-        super().__init__(parent, True, model.name)
 
 class NodeProperty(Node):
     '''

@@ -14,7 +14,8 @@ from ally.api.operator.container import Service, Call
 from ally.api.operator.type import TypeModelProperty
 from ally.container.ioc import injected
 from ally.container.proxy import proxiedClass
-from ally.core.impl.invoker import InvokerCall, InvokerFunction, InvokerSetId
+from ally.core.impl.invoker import InvokerCall, InvokerFunction, \
+    InvokerAssemblePart, InvokerRestructuring
 from ally.core.impl.node import MatchProperty
 from ally.core.spec.resources import Node, Match, ConverterPath, \
     IResourcesRegister
@@ -189,9 +190,13 @@ class RequestService(IRequestService):
 
         self._methodId += 1
 
-        if isinstance(invoker, InvokerSetId):
-            assert isinstance(invoker, InvokerSetId)
+        if isinstance(invoker, InvokerRestructuring):
+            assert isinstance(invoker, InvokerRestructuring)
             invoker = invoker.invoker
+
+        if isinstance(invoker, InvokerAssemblePart):
+            assert isinstance(invoker, InvokerAssemblePart)
+            invoker = invoker.invokerList
 
         if isinstance(invoker, InvokerCall):
             assert isinstance(invoker, InvokerCall)
