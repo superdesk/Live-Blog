@@ -1,29 +1,43 @@
-define(['jquery', 'jqueryui/texteditor', 
+define(['jquery', 'jqueryui/texteditor',
         'tmpl!livedesk>layouts/livedesk', 'tmpl!livedesk>edit', 'tmpl!livedesk>edit-timeline'], 
 function($) 
 {
-    
-    var initEditBlog = function()
-    {
-        var content = $(this).find('[is-content]'),
-            h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
-        delete h2ctrl.justifyRight;
-        delete h2ctrl.justifyLeft;
-        delete h2ctrl.justifyCenter; 
-        content.find('section header h2').texteditor
-        ({
-            plugins: {controls: h2ctrl},
-            floatingToolbar: 'top'
-        });
-        content.find('article#blog-intro').texteditor({floatingToolbar: 'top'});
-    };
+    // wrap image command
+    var editorImageControl = function()
+        {
+            // call super
+            var command = $.ui.texteditor.prototype.plugins.controls.image.apply(this, arguments);
+            // do something on insert event
+            $(command).on('image-inserted.text-editor', function()
+            {
+                var img = $(this.lib.selectionHas('img'));
+                if( !img.parents('figure.blog-image:eq(0)').length )
+                    img.wrap('<figure class="blog-image" />');
+            });
+            return command;
+        },
+        editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
+        initEditBlog = function()
+        {
+            var content = $(this).find('[is-content]'),
+                h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
+            delete h2ctrl.justifyRight;
+            delete h2ctrl.justifyLeft;
+            delete h2ctrl.justifyCenter; 
+            content.find('section header h2').texteditor
+            ({
+                plugins: {controls: h2ctrl},
+                floatingToolbar: 'top'
+            });
+            content.find('article#blog-intro').texteditor({floatingToolbar: 'top', plugins:{ controls: editorTitleControls }});
+        };
     
     var EditApp = function(theBlog)
     {
         var blog = new $.rest(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
         { 
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}}),
-                content = $('#area-main').tmpl('livedesk>edit', data, initEditBlog);
+                content = $.superdesk.applyLayout('livedesk>edit', data, initEditBlog);
             
             $('.collapse-title-page', content).off('click.livedesk')
             .on('click.livedesk', function()

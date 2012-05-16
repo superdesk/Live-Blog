@@ -52,7 +52,6 @@ define('bootstrap/button', ['jquery'], function ($) {
 
   Button.prototype.toggle = function () {
     var $parent = this.$element.parent('[data-toggle="buttons-radio"]')
-
     $parent && $parent
       .find('.active')
       .removeClass('active')
@@ -60,11 +59,10 @@ define('bootstrap/button', ['jquery'], function ($) {
     this.$element.toggleClass('active')
   }
 
-
  /* BUTTON PLUGIN DEFINITION
   * ======================== */
 
-  $.fn.button = function (option) {
+  $.fn.twitterButton = function (option) {
     return this.each(function () {
       var $this = $(this)
         , data = $this.data('button')
@@ -75,12 +73,11 @@ define('bootstrap/button', ['jquery'], function ($) {
     })
   }
 
-  $.fn.button.defaults = {
+  $.fn.twitterButton.defaults = {
     loadingText: 'loading...'
   }
 
-  $.fn.button.Constructor = Button
-
+  $.fn.twitterButton.Constructor = Button
 
  /* BUTTON DATA-API
   * =============== */
@@ -89,7 +86,7 @@ define('bootstrap/button', ['jquery'], function ($) {
     $('body').on('click.button.data-api', '[data-toggle^=button]', function ( e ) {
       var $btn = $(e.target)
       if (!$btn.hasClass('btn')) $btn = $btn.closest('.btn')
-      $btn.button('toggle')
+      $btn.twitterButton('toggle')
     })
   })
 

@@ -9,17 +9,21 @@ Created on May 4, 2012
 Contains the SQL alchemy meta for blog API.
 '''
 
-from ..api.blog import IBlogService
+from ..api.blog import IBlogService, QBlog, Blog
+from ..meta.blog import BlogMapped
+from ..meta.blog_admin import BlogAdminMapped
 from ally.container.ioc import injected
-from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
+from ally.exception import InputError, Ref
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from livedesk.meta.blog import BlogMapped
-from livedesk.api.blog import QBlogActive, QBlog
+from datetime import datetime
+from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
+from sqlalchemy.orm.exc import NoResultFound
+from ally.internationalization import _
 
 # --------------------------------------------------------------------
 
 @injected
-class BlogServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogService):
+class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
     '''
     Implementation for @see: IBlogService
     '''
@@ -28,42 +32,70 @@ class BlogServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogService):
         '''
         Construct the blog service.
         '''
-        EntityGetCRUDServiceAlchemy.__init__(self, BlogMapped)
+        EntityCRUDServiceAlchemy.__init__(self, BlogMapped)
 
-    def getActiveBlogs(self, languageId=None, creatorId=None, offset=None, limit=None, q=None):
+    def getBlog(self, blogId, userId=None):
         '''
-        @see: IBlogService.getActiveBlogs
+        @see: IBlogService.getBlog
         '''
-        assert q is None or isinstance(q, QBlogActive), 'Invalid query %s' % q
-        sql = self._buildQuery(languageId, creatorId, q)
-        sql = sql.filter((BlogMapped.ClosedOn == None) & (BlogMapped.LiveOn != None))
+        sql = self.session().query(BlogMapped)
+        if userId: sql = sql.filter(BlogMapped.Creator == userId)
+        sql = sql.filter(BlogMapped.Id == blogId)
+
+        try: return sql.one()
+        except NoResultFound: raise InputError(Ref(_('Unknown id'), ref=Blog.Id))
+
+    def getAll(self, languageId=None, adminId=None, offset=None, limit=None, q=None):
+        '''
+        @see: IBlogService.getAll
+        '''
+        sql = self._buildQuery(languageId, adminId, q)
         sql = buildLimits(sql, offset, limit)
         return sql.all()
 
-    def getAllCount(self, languageId=None, creatorId=None, q=None):
+    def getAllCount(self, languageId=None, adminId=None, q=None):
         '''
         @see: IBlogService.getAllCount
         '''
         assert q is None or isinstance(q, QBlog), 'Invalid query %s' % q
-        return self._buildQuery(languageId, creatorId, q).count()
+        return self._buildQuery(languageId, adminId, q).count()
 
-    def getAll(self, languageId=None, creatorId=None, offset=None, limit=None, q=None):
+    def getLiveWhereAdmin(self, adminId, languageId=None, q=None):
         '''
-        @see: IBlogService.getAll
+        @see: IBlogService.getLiveWhereAdmin
         '''
-        assert q is None or isinstance(q, QBlog), 'Invalid query %s' % q
-        sql = self._buildQuery(languageId, creatorId, q)
-        sql = buildLimits(sql, offset, limit)
+        sql = self._buildQuery(languageId, adminId, q)
+        sql = sql.filter(BlogMapped.ClosedOn == None)
         return sql.all()
+
+    def getLive(self, languageId=None, q=None):
+        '''
+        @see: IBlogService.getLive
+        '''
+        sql = self._buildQuery(languageId, None, q)
+        sql = sql.filter((BlogMapped.ClosedOn == None) & (BlogMapped.LiveOn != None))
+        return sql.all()
+
+    def insert(self, blog):
+        '''
+        @see: IBlogService.insert
+        '''
+        assert isinstance(blog, Blog), 'Invalid blog %s' % blog
+        blog.CreatedOn = datetime.now()
+        return super().insert(blog)
 
     # ----------------------------------------------------------------
 
-    def _buildQuery(self, languageId=None, creatorId=None, q=None):
+    def _buildQuery(self, languageId=None, adminId=None, q=None):
         '''
         Builds the general query for blogs.
         '''
         sql = self.session().query(BlogMapped)
         if languageId: sql = sql.filter(BlogMapped.Language == languageId)
-        if creatorId: sql = sql.filter(BlogMapped.Creator == creatorId)
-        if q: sql = buildQuery(sql, q, BlogMapped)
+        if adminId:
+            sql = sql.join(BlogAdminMapped).filter((BlogMapped.Creator == adminId) |
+                                                   (BlogAdminMapped.User == adminId))
+        if q:
+            assert isinstance(q, QBlog), 'Invalid query %s' % q
+            sql = buildQuery(sql, q, BlogMapped)
         return sql

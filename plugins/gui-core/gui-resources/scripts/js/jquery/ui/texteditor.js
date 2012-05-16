@@ -13,7 +13,7 @@
  * $('article header h1').texteditor('plugin', { customPlugin: { _create : function(){ ... } }}); 
  * 
  */
-define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], function ($) 
+define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jqueryui/draggable'], function ($) 
 {
     "use strict";
     $.widget( "ui.texteditor", 
@@ -24,20 +24,25 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
             {
                 markSelection : function() 
                 {
-                    var markerId = arguments[0] ? arguments[0] : "sel-" + (+new Date()) + "-" + ("" + Math.random()).slice(2);
-                    var range = window.getSelection().getRangeAt(0);
-                    var marker = $('<span />').html('&#xfeff;').attr('sel-id', markerId ).hide();
+                    var markerId = arguments[0] ? arguments[0] : "sel-" + (+new Date()) + "-" + ("" + Math.random()).slice(2),
+                        selection = window.getSelection(),
+                        range = selection.rangeCount ? selection.getRangeAt(0) : false,
+                        marker = $('<span />').html('&#xfeff;').attr('sel-id', markerId ).hide();
+
+                    if( !range ) return false;
                     if( range.collapsed ) 
                         range.insertNode(marker.get(0));
                     else // not collapsed for selecting nodes like <img />
                     {
-                        var intermRange = range.cloneRange();
-                        var firstMarker = marker.get(0);
-                        intermRange.insertNode(firstMarker);
+                        // making sure there are only 2 selections with the same id at this point
+                        var selMark = $('[sel-id="'+markerId+'"]'), 
+                            intermRange = range.cloneRange(),
+                            firstMarker = !selMark.length ? marker.get(0) : selMark.get(0),
+                            secondMarker = !selMark.length ? marker.clone().get(0) : selMark.get(1);
+                        !selMark.length && intermRange.insertNode(firstMarker);
                         range.setStartAfter(firstMarker);
                         intermRange.collapse(false);
-                        var secondMarker = marker.clone().get(0);
-                        intermRange.insertNode(secondMarker);
+                        !selMark.length && intermRange.insertNode(secondMarker);
                         range.setEndBefore(secondMarker);
                         intermRange.detach();
                     }
@@ -62,6 +67,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     var range = window.getSelection().getRangeAt(0),
                         contents = $(range.commonAncestorContainer).contents(),
                         ret = [];
+
                     for( var i = range.startOffset; i < range.endOffset; i++ )
                         contents[i] && ret.push(contents[i]);
                     
@@ -89,7 +95,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         var selection = window.getSelection();
                         if( selection.rangeCount <= 0 ) return false;
                         var range = selection.getRangeAt(0),
-                            container = range.startContainer; // TODO investigate this...
+                            container = range.collapsed ? range.startContainer : range.commonAncestorContainer;
+                        
                     }
                     else
                     {
@@ -108,8 +115,11 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             var container = range.parentElement();
                         }
                     }
-                    return $(container).parents(':eq(0)');
+                    return range.collapsed ? $(container).parents(':eq(0)') : $(container);
                 },
+                /*!
+                 * returns a copy of the selection contents
+                 */
                 selectionContents : function()
                 {
                     if( window.getSelection )
@@ -139,25 +149,34 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         return !(this.nodeType == 3 && $(this).text().trim() == '');
                     });
                 },
-                _create : function()
+                selectionHtml: function()
+                {
+                    var selection = window.getSelection(),
+                        range = selection.rangeCount ? selection.getRangeAt(0) : false,
+                        tmpDiv = $('<div />');
+                    tmpDiv.append(range.cloneContents().childNodes).find("[sel-id]").remove();
+                    return tmpDiv.html();
+                },
+                _create : function(elements)
                 {
                     var lib = this.plugins.lib;
                     lib.command.prototype.lib = lib;
                     lib.dialogAidedCommand.inherits(lib.command);
+                    lib.dialogAidedCommand.prototype.dialogRepo = new Array;
                     lib.imageCommand.inherits(lib.dialogAidedCommand);
                     lib.linkCommand.inherits(lib.dialogAidedCommand);
+                    lib.htmlCodeCommand.inherits(lib.dialogAidedCommand);
                 },
                 command : function( command ) 
                 {
                     this.execute = function() 
                     {
-                        console.log(this.lib.selectionContents())
                         document.execCommand(command, false, null);
                         $(this).trigger('command-'+command+'.text-editor');
                     };
                     this.toggleState = function()
                     {
-                        if(this.queryState())
+                        if(this.queryState.apply(this, arguments))
                             $(this.getElements()).addClass('active');
                         else
                             $(this.getElements()).removeClass('active');
@@ -175,14 +194,16 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     {
                         return this._elements;
                     };
-                    this.id = Math.random();
+                    this.id = command;
                 },
                 /*!
                  * basic command which adds a jquery ui dialog for popup on execute
+                 * inheriting classes must set dialog.prop('caller', this) - this = them
+                 *  to make restore selection work Q_Q 
                  */
                 dialogAidedCommand : function()
                 {
-                    this.parentClass.apply(this); // need to instance the parent command
+                    this.parentClass.apply(this, ['dialog']); // need to instance the parent command
                     this.restoreSelectionMarkerId = null;
                     var self = this;
                     this.dialog = $( "<div />" )
@@ -193,13 +214,19 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             width: 500, // TODO from options
                             close: function()
                             {
-                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
+                                var caller = $(this).prop('caller'); 
+                                caller.restoreSelectionMarkerId 
+                                    && self.lib.restoreSelection(caller.restoreSelectionMarkerId);
                             }
                         });
                     
                     this.getDialog = function()
                     {
                         return this.dialog;
+                    };
+                    this.getSelectionMarkerId = function()
+                    {
+                        return this.restoreSelectionMarkerId;  
                     };
                     this.execute = function()
                     {
@@ -211,6 +238,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 {
                     var dialog = this.dialog.attr('title', 'Add/edit an image').append(thisPlugin.options.imageDialogUI),
                         self = this;
+                    
+                    $(thisPlugin).on('plugins-remove', function()
+                            { 
+                                dialog.dialog('remove').remove();
+                            });
+                    
                     this.queryState = function()
                     {
                         return this.lib.selectionHas('img');
@@ -222,8 +255,10 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             text : 'Insert',
                             click : function()
                             {
-                                var url = $(this).find('#editor-image-value').val();
-                                var text = $(this).find('#editor-image-text').val();
+                                var url = $(this).find('[data-option="image-value"]').val(),
+                                    text = $(this).find('[data-option="image-text"]').val(),
+                                    align = $(this).find('[data-toggle="buttons-radio"] .active');
+                                
                                 if( url === null )
                                 {
                                     $(this).dialog('close');
@@ -233,12 +268,16 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                                 if( url.replace(/^http:\/\//,'') !== "" )
                                 {
                                     // need to remark selection because apparently inserting images removes ranges
-                                    self.restoreSelectionMarkerId = self.lib.markSelection(self.restoreSelectionMarkerId); 
-                                    console.log(document.execCommand("insertImage", false, url))
+                                    self.restoreSelectionMarkerId = self.lib.markSelection(self.restoreSelectionMarkerId);
+                                    document.execCommand("insertImage", false, url);
                                     self.lib.restoreSelection(self.restoreSelectionMarkerId);
+                                    var newImg = $(self.lib.selectionHas('img'));
+                                    align && newImg.attr('align', align.attr('data-value'));
+                                    newImg.attr('alt', text);
                                     $(self).trigger('image-inserted.text-editor');
                                 }
                                 $(this).dialog('close');
+                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
                             }
                         },
                         remove : 
@@ -246,7 +285,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             text : 'Remove',
                             click : function()
                             {
+                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                 self.currentSelectedImage.remove();
+                                self.currentSelectedImage = false;
                                 $(self).trigger('image-removed.text-editor');
                                 $(this).dialog('close');
                             }
@@ -260,10 +301,14 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     this.currentSelectedImage = false;
                     this.getDialog = function()
                     {
-                        var dialog = this.dialog;
-                        var img = this.lib.selectionHas('img');
-                        var imgText = img ? img.attr('alt') : '';
-                        var initialUrl = img ? img.attr('src') : "http://";
+                        var dialog = this.dialog,
+                            img = this.lib.selectionHas('img'),
+                            imgText = img ? img.attr('alt') : '',
+                            initialUrl = img ? img.attr('src') : "http://",
+                            align = img ? img.attr('align') : false;
+                        
+                        dialog.prop('caller', this);
+                        
                         if( !img )
                             this.dialog.dialog('option', 'buttons', [this.dialogButtons.insert, this.dialogButtons.cancel]);
                         else
@@ -271,13 +316,14 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             this.dialog.dialog('option', 'buttons', this.dialogButtons);
                             this.currentSelectedImage = img;
                         }
-                        this.dialog.find('#editor-image-value').val(initialUrl);
-                        this.dialog.find('#editor-image-text').val(imgText);
+                        this.dialog.find('[data-option="image-value"]').val(initialUrl);
+                        this.dialog.find('[data-option="image-text"]').val(imgText);
+                        align && this.dialog.find('[data-toggle="buttons-radio"] [data-value="'+align+'"]').addClass('active');
                         return dialog;
                     };
                 },
                 // TODO decorator pattern
-                linkCommand : function(self) // passed this object to get other plugins
+                linkCommand : function(thisPlugin) // passed this object to get other plugins
                 {
                     var dialog = this.dialog.attr('title', 'Add a link')
                         .append($('<p />')
@@ -287,6 +333,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             .append( $('<label />').attr('for', 'editor-link-value').text('Link href:'))
                             .append( $('<input />').attr('id', 'editor-link-value')));
                     var self = this;
+                    
+                    $(thisPlugin).on('plugins-remove', function()
+                            { 
+                                dialog.dialog('remove').remove();
+                            });
+                    
                     this.dialogButtons = 
                     {
                         insert : 
@@ -334,13 +386,15 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     };
                     this.getDialog = function()
                     {
-                        var a = $( $(self.lib.selectionContents() ).eq(0));
-                        var aText = $(a).text();
-                        var urlRe = new RegExp();
+                        this.dialog.prop('caller', this);
+                        
+                        var a = $( $(self.lib.selectionContents() ).eq(0)),
+                            aText = $(a).text(),
+                            urlRe = new RegExp();
                         urlRe.compile("^[A-Za-z]+://[A-Za-z0-9-_]+\\.[A-Za-z0-9-_%&\?\/.=]+$");
-                        var isA = a.is('a');
-                        var isUrl = urlRe.test(aText);
-                        var initialUrl = isA ? a.attr('href') : ( isUrl ? aText : "http://" );
+                        var isA = a.is('a'),
+                            isUrl = urlRe.test(aText),
+                            initialUrl = isA ? a.attr('href') : ( isUrl ? aText : "http://" );
                         if( !isA )
                             this.dialog.dialog('option', 'buttons', [this.dialogButtons.insert, this.dialogButtons.cancel]);
                         else
@@ -354,6 +408,56 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         return $($(self.lib.selectionContents()).eq(0)).is('a');
                     };
                 },
+                
+                htmlCodeCommand: function(thisPlugin)
+                {
+                    var dialog = this.dialog.attr('title', 'HTML code').append($('<textarea class="editor-code" />')),
+                        self = this;
+                    
+                    $(thisPlugin).on('plugins-remove', function()
+                    { 
+                        dialog.dialog('remove').remove();
+                    });
+                    
+                    this.queryState = function(){ return false; };
+                    this.getDialog = function()
+                    {
+                        var dialog = this.dialog,
+                            parent = $(this.lib.selectionParent()),
+                            html;
+                        dialog.prop('caller', this);
+                        if( parent.attr('contenteditable') )
+                            self.editTarget = parent;
+                        else
+                            self.editTarget = parent.parents('[contenteditable]:eq(0)')
+
+                        parent = self.editTarget.clone();
+                        parent.find('[sel-id]').remove();
+                        dialog.find('textarea').val(parent.html());
+                        
+                        this.dialog.dialog('option', 'buttons', this.dialogButtons);
+                        return dialog;
+                    };
+                    
+                    this.dialogButtons = 
+                    {
+                        ok: { text: 'Ok',
+                            click: function()
+                            {
+                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
+                                parent = self.editTarget;
+                                console.log(parent);
+                                parent.html($(this).find('textarea.editor-code').val());
+                                $(this).dialog('close');
+                            }
+                        }
+                            
+                    }
+                    this.id = 'code';
+                },
+                /*!
+                 * factory class for commands
+                 */
                 commandFactory : function(command, elem) 
                 {   
                     elem.unselectable = "on"; // IE, prevent focus
@@ -375,6 +479,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
             toolbar : function()
             {
                 this.element = $('<div />').addClass('edit-toolbar').addClass('btn-toolbar');
+                this.items = [];
                 this._create = function(elements)
                 {
                     var cmds = [];
@@ -382,7 +487,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         try
                         {
                             var cmd = this.plugins.controls[i].call(this, elements);
-                            this.plugins.toolbar.element.append( cmd.getElements() );
+                            this.plugins.toolbar.items.push(cmd);
+                            this.plugins.toolbar.element.append(cmd.getElements());
                             cmds.push(cmd);
                         }
                         catch(e){ /*console.exception(e);*/ }
@@ -392,7 +498,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         try
                         {
                             for( var i in cmds ) 
-                                cmds[i].toggleState();
+                                cmds[i].toggleState(self.plugins.toolbar);
                         }
                         catch(e){ /*console.exception(e);*/ }
                     });
@@ -444,26 +550,54 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 },
                 link : function()
                 {
-                    var element = $('<a class="link" />').html('&infin;'),
-                        command = new this.plugins.lib.commandFactory( new this.plugins.lib.linkCommand(), element );
+                    var element = $('<a class="link" />').html(''),
+                        command = new this.plugins.lib.commandFactory( new this.plugins.lib.linkCommand(this), element );
                     return command;
                 },
                 image : function()
                 {
-                    var element = $('<a class="image" />').html('&#x2740;');
-                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.imageCommand(this), element );/*new lib.dialogAidedCommand(new lib.command)*/
+                    var element = $('<a class="image" />').html('');
+                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.imageCommand(this), element );
                     this.plugins.floatingToolbar.blockElements.push('img');
+                    return command;
+                },
+                html : function()
+                {
+                    var element = $('<a class="code" />').html('&lt;/&gt');
+                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.htmlCodeCommand(this), element );
                     return command;
                 }
             },
-            floatingToolbar :
+            draggableToolbar:
             {
-                blockElements: [],
-                _create : function(elements)
+                isDragged: false,
+                _create: function(elements)
                 {
                     var toolbar = this.plugins.toolbar.element,
                         self = this;
-
+                    toolbar.draggable
+                    ({ 
+                        cancel: 'a', 
+                        stop: function()
+                        { 
+                            self.isDragged = true;
+                        }
+                    });
+                    toolbar.on('dblclick', function(){ self.isDragged = false; })
+                    $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function(event)
+                    {
+                        self.isDragged && event.stopImmediatePropagation();
+                    });
+                }
+            },
+            floatingToolbar:
+            {
+                blockElements: [],
+                _create: function(elements)
+                {
+                    var toolbar = this.plugins.toolbar.element,
+                        self = this;
+                    
                     toolbar.css({ position : 'absolute', top : 0, left : 0 }).hide().appendTo('body');
                     
                     var findBlockParent = function()
@@ -472,12 +606,18 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             isBlock = false,
                             style;
                         if( blockElem.length != 1 )
-                            blockElem = self.plugins.lib.selectionParent().get(0)
+                        {
+                            blockElem = self.plugins.lib.selectionParent().get(0);
+                        }
                         else
                             blockElem = blockElem.get(0);
-
                         while(!isBlock)
                         {
+                            if( blockElem.nodeType != 1 )
+                            {
+                                blockElem = $(blockElem).parent().get(0);
+                                continue;
+                            }
                             if( elements.index(blockElem) !== -1 
                                 || $.inArray( $(blockElem).prop('tagName').toLowerCase(), self.plugins.floatingToolbar.blockElements) !== -1 )
                             { 
@@ -525,12 +665,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         toolbar.fadeOut('fast'); // TODO css transition
                     };
                     // timer here cause webkit is fail
-                    $(elements).on('focusin keydown click', function(event)
+                    $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function(event)
                     {
                         var self = this;
                         setTimeout(function(){ moveToolbar.call(self, event); }, 1); 
                     });
-                    $(elements).on('blur focusout', hideToolbar);
+                    $(elements).on('blur.texteditor focusout.texteditor', hideToolbar);
                 }
             }
         },
@@ -538,20 +678,21 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
         {
             toolbar:{ class: null, classes:{ topFixed: 'fixed-top' }},
             imageDialogUI: 
-                '<p><label for="editor-image-text">Image description:</label><input id="editor-image-text" data-option="image-text"></p>'+
-                '<p><label for="editor-image-value">Image URL:</label><input id="editor-image-value" data-option="image-value"></p>'+
+                '<p><label for="editor-image-text">Image description:</label>'+
+                    '<input id="editor-image-text" data-option="image-text"></p>'+
+                '<p><label for="editor-image-value">Image URL:</label>'+
+                    '<input id="editor-image-value" data-option="image-value"></p>'+
                 '<p>'+
                     '<label for="editor-image-value">Image align:</label>'+
                     '<div class="btn-group" data-toggle="buttons-radio">'+
-                        '<button class="btn btn-primary">Left</button>'+
-                        '<button class="btn btn-primary">Middle</button>'+
-                        '<button class="btn btn-primary">Right</button>'+
+                        '<button class="btn" data-value="left"><i class="icon-align-left" /></button>'+
+                        '<button class="btn" data-value="middle"><i class="icon-align-center" /></button>'+
+                        '<button class="btn" data-value="right"><i class="icon-align-left" /></button>'+
                     '</div>'+
                 '</p>'
         },
         plugin : function()
         {
-        //  console.log(this, arguments)            
         },
         _create : function()
         {
@@ -559,14 +700,22 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
         },
         _init: function() 
         { 
-            
         },
         _setOption: function( key, value ) 
         {
-            //$.Widget.prototype._setOption.apply( this, arguments );
+            $.Widget.prototype._setOption.apply( this, arguments );
         },
-        _destroy: function() 
-        { 
+        destroy: function() 
+        {
+        },
+        pluginsDestroy: function()
+        {
+            $(this).trigger('plugins-remove');
+            /*this.plugins.lib.dialogRepo && $(this.plugins.lib.dialogRepo).each(function()
+            {
+                console.log(this);
+            });*/
+            this.plugins.toolbar.element  && this.plugins.toolbar.element.remove();
             
         }
     }); 

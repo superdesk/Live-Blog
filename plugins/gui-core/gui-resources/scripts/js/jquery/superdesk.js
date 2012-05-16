@@ -52,6 +52,15 @@ var superdesk =
 				return layoutObject;
 			});
 	},
+	layoutPlaceholder: '#area-main',
+	applyLayout: function(tmpl, data, callback)
+	{
+	    /*$(this.layoutPlaceholder).nextAll().each(function()
+	    {
+	        console.log(this);
+	    });*/
+	    return $(this.layoutPlaceholder).tmpl(tmpl, data, callback);
+	},
 	/*!
 	 * cache repo
 	 */

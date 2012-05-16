@@ -14,7 +14,7 @@ from ..meta.collaborator import CollaboratorMapped
 from ally.container.ioc import injected
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
-from superdesk.person.meta.person import Person
+from superdesk.person.meta.person import PersonMapped
 from superdesk.source.meta.source import SourceMapped
 
 # --------------------------------------------------------------------
@@ -38,7 +38,7 @@ class CollaboratorServiceAlchemy(EntityGetCRUDServiceAlchemy, ICollaboratorServi
         sql = self.session().query(CollaboratorMapped)
         if personId: sql = sql.filter(CollaboratorMapped.Person == personId)
         if sourceId: sql = sql.filter(CollaboratorMapped.Source == sourceId)
-        if qp: sql = buildQuery(sql.join(Person), qp, Person)
+        if qp: sql = buildQuery(sql.join(PersonMapped), qp, PersonMapped)
         if qs: sql = buildQuery(sql.join(SourceMapped), qs, SourceMapped)
         sql = buildLimits(sql, offset, limit)
         return sql.all()

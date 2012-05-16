@@ -10,7 +10,7 @@ Created on Mar 6, 2012
 from superdesk.person.api.person import IPersonService, QPerson
 from ally.container.ioc import injected
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from ..meta.person import Person
+from ..meta.person import PersonMapped
 
 # --------------------------------------------------------------------
 
@@ -20,4 +20,4 @@ class PersonServiceAlchemy(EntityServiceAlchemy, IPersonService):
     @see: IUserService
     '''
     def __init__(self):
-        EntityServiceAlchemy.__init__(self, Person, QPerson)
+        EntityServiceAlchemy.__init__(self, PersonMapped, QPerson)
