@@ -15,6 +15,11 @@ from ally.container import ioc
 from ally.support.util_io import openURI
 from io import BytesIO
 from __plugin__.gui_core.gui_core import getPublishedLib
+import logging
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -72,6 +77,6 @@ def updateDemoFile():
     except Exception as e: 
         print('Error publishing demo client file:', e)
         return
-    print('Client demo script published:', server_url()+getPublishedLib('core/'+ui_demo_file()) )
+    assert log.debug('Client demo script published:', server_url() + getPublishedLib('core/' + ui_demo_file())) or True
     
     

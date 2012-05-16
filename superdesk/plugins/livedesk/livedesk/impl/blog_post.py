@@ -21,13 +21,13 @@ from sqlalchemy.exc import SQLAlchemyError
 from superdesk.post.api.post import QPostUnpublished, QPostPublished, \
     IPostService
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.person.meta.person import Person
+from superdesk.person.meta.person import PersonMapped
 from superdesk.source.meta.source import SourceMapped
 from sqlalchemy.orm.util import aliased
 
 # --------------------------------------------------------------------
 
-UserPerson = aliased(Person)
+UserPerson = aliased(PersonMapped)
 
 @injected
 class BlogPostServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogPostService):
@@ -53,7 +53,7 @@ class BlogPostServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogPostService):
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
         if not q: sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
         sql = buildLimits(sql, offset, limit)
-        return (post for post in self._processResults(sql.all()))
+        return (post for post in sql.all())
 
     def getUnpublished(self, blogId, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
@@ -63,7 +63,7 @@ class BlogPostServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogPostService):
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
         sql = buildLimits(sql, offset, limit)
-        return (post for post in self._processResults(sql.all()))
+        return (post for post in sql.all())
 
     def insert(self, post):
         '''
@@ -92,31 +92,11 @@ class BlogPostServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogPostService):
         '''
         Builds the general query for posts.
         '''
-        sql = self.session().query(BlogPostMapped, Person.FirstName, Person.LastName, SourceMapped.Name,
-                                   UserPerson.FirstName, UserPerson.LastName)
-        sql = sql.outerjoin(CollaboratorMapped).outerjoin(Person).outerjoin(SourceMapped)
+        sql = self.session().query(BlogPostMapped)
+        sql = sql.outerjoin(CollaboratorMapped).outerjoin(PersonMapped).outerjoin(SourceMapped)
         sql = sql.join(UserPerson, BlogPostMapped.Creator == UserPerson.Id)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
         if authorId: sql = sql.filter(BlogPostMapped.Author == authorId)
         if q: sql = buildQuery(sql, q, BlogPostMapped)
         return sql
-
-    def _processResults(self, results):
-        '''
-        Process the author name based on the results tuples.
-        '''
-        for result in results:
-            post, authorFirstName, authorLastName, sourceName, creatorFirstName, creatorLastName = result
-            assert isinstance(post, BlogPost)
-            if authorFirstName or authorLastName:
-                name = '%s %s' % ('' if authorFirstName is None else authorFirstName,
-                                  '' if authorLastName is None else authorLastName)
-                post.AuthorName = name.strip()
-            elif sourceName:
-                post.AuthorName = sourceName
-            else:
-                name = '%s %s' % ('' if creatorFirstName is None else creatorFirstName,
-                                  '' if creatorLastName is None else creatorLastName)
-                post.AuthorName = name.strip()
-            yield post

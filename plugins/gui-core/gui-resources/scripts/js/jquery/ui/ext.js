@@ -69,6 +69,11 @@ define('jqueryui/ext',['jquery', 'jqueryui/widget', 'jqueryui/dialog'], function
 							if( objectModel.plugins[i] && $.isFunction(objectModel.plugins[i]._create) ) // call init per plugin
 								objectModel.plugins[i]._create.call(objectModel, self);
 						}
+
+					if(objectModel.pluginsDestroy) self.on('remove', function()
+	                { 
+	                    objectModel.pluginsDestroy.call(objectModel, self); 
+	                });
 				};
 				
 				if( isMethodCall )

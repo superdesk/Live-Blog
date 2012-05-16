@@ -15,6 +15,7 @@ from ally.support.api.entity import Entity, IEntityGetCRUDService
 from superdesk.api.domain_superdesk import modelSuperDesk
 from superdesk.person.api.person import Person, QPerson
 from superdesk.source.api.source import Source, QSource
+from superdesk.person.meta.person import PersonMapped
 
 # --------------------------------------------------------------------
 
@@ -25,6 +26,7 @@ class Collaborator(Entity):
     '''
     Person = Person
     Source = Source
+    Name = str
 
 # --------------------------------------------------------------------
 
@@ -39,7 +41,7 @@ class ICollaboratorService(IEntityGetCRUDService):
     '''
 
     @call
-    def getAll(self, personId:Person.Id=None, sourceId:Source.Id=None, offset:int=None, limit:int=None,
+    def getAll(self, personId:PersonMapped.Id=None, sourceId:Source.Id=None, offset:int=None, limit:int=None,
                qp:QPerson=None, qs:QSource=None) -> Iter(Collaborator):
         '''
         Provides all the collaborators.
