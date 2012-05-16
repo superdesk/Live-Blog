@@ -187,7 +187,7 @@ define('jquery/rest',['jquery'], function ($) {
 			
 			var fromData = this.fromData;
 			this.lastAdded = fromData;
-	
+
 			if(!self.initXFrom)
 			{
 				self.iniXFrom = true;
