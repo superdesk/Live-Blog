@@ -13,7 +13,7 @@
  * $('article header h1').texteditor('plugin', { customPlugin: { _create : function(){ ... } }}); 
  * 
  */
-define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], function ($) 
+define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jqueryui/draggable'], function ($) 
 {
     "use strict";
     $.widget( "ui.texteditor", 
@@ -157,11 +157,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     tmpDiv.append(range.cloneContents().childNodes).find("[sel-id]").remove();
                     return tmpDiv.html();
                 },
-                _create : function()
+                _create : function(elements)
                 {
                     var lib = this.plugins.lib;
                     lib.command.prototype.lib = lib;
                     lib.dialogAidedCommand.inherits(lib.command);
+                    lib.dialogAidedCommand.prototype.dialogRepo = new Array;
                     lib.imageCommand.inherits(lib.dialogAidedCommand);
                     lib.linkCommand.inherits(lib.dialogAidedCommand);
                     lib.htmlCodeCommand.inherits(lib.dialogAidedCommand);
@@ -237,6 +238,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 {
                     var dialog = this.dialog.attr('title', 'Add/edit an image').append(thisPlugin.options.imageDialogUI),
                         self = this;
+                    
+                    $(thisPlugin).on('plugins-remove', function()
+                            { 
+                                dialog.dialog('remove').remove();
+                            });
+                    
                     this.queryState = function()
                     {
                         return this.lib.selectionHas('img');
@@ -316,7 +323,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     };
                 },
                 // TODO decorator pattern
-                linkCommand : function(self) // passed this object to get other plugins
+                linkCommand : function(thisPlugin) // passed this object to get other plugins
                 {
                     var dialog = this.dialog.attr('title', 'Add a link')
                         .append($('<p />')
@@ -326,6 +333,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                             .append( $('<label />').attr('for', 'editor-link-value').text('Link href:'))
                             .append( $('<input />').attr('id', 'editor-link-value')));
                     var self = this;
+                    
+                    $(thisPlugin).on('plugins-remove', function()
+                            { 
+                                dialog.dialog('remove').remove();
+                            });
+                    
                     this.dialogButtons = 
                     {
                         insert : 
@@ -400,6 +413,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 {
                     var dialog = this.dialog.attr('title', 'HTML code').append($('<textarea class="editor-code" />')),
                         self = this;
+                    
+                    $(thisPlugin).on('plugins-remove', function()
+                    { 
+                        dialog.dialog('remove').remove();
+                    });
+                    
                     this.queryState = function(){ return false; };
                     this.getDialog = function()
                     {
@@ -532,7 +551,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                 link : function()
                 {
                     var element = $('<a class="link" />').html(''),
-                        command = new this.plugins.lib.commandFactory( new this.plugins.lib.linkCommand(), element );
+                        command = new this.plugins.lib.commandFactory( new this.plugins.lib.linkCommand(this), element );
                     return command;
                 },
                 image : function()
@@ -549,14 +568,36 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                     return command;
                 }
             },
-            floatingToolbar :
+            draggableToolbar:
             {
-                blockElements: [],
-                _create : function(elements)
+                isDragged: false,
+                _create: function(elements)
                 {
                     var toolbar = this.plugins.toolbar.element,
                         self = this;
-
+                    toolbar.draggable
+                    ({ 
+                        cancel: 'a', 
+                        stop: function()
+                        { 
+                            self.isDragged = true;
+                        }
+                    });
+                    toolbar.on('dblclick', function(){ self.isDragged = false; })
+                    $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function(event)
+                    {
+                        self.isDragged && event.stopImmediatePropagation();
+                    });
+                }
+            },
+            floatingToolbar:
+            {
+                blockElements: [],
+                _create: function(elements)
+                {
+                    var toolbar = this.plugins.toolbar.element,
+                        self = this;
+                    
                     toolbar.css({ position : 'absolute', top : 0, left : 0 }).hide().appendTo('body');
                     
                     var findBlockParent = function()
@@ -624,12 +665,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
                         toolbar.fadeOut('fast'); // TODO css transition
                     };
                     // timer here cause webkit is fail
-                    $(elements).on('focusin keydown click', function(event)
+                    $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function(event)
                     {
                         var self = this;
                         setTimeout(function(){ moveToolbar.call(self, event); }, 1); 
                     });
-                    $(elements).on('blur focusout', hideToolbar);
+                    $(elements).on('blur.texteditor focusout.texteditor', hideToolbar);
                 }
             }
         },
@@ -652,7 +693,6 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
         },
         plugin : function()
         {
-        //  console.log(this, arguments)            
         },
         _create : function()
         {
@@ -660,14 +700,22 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext'], func
         },
         _init: function() 
         { 
-            
         },
         _setOption: function( key, value ) 
         {
-            //$.Widget.prototype._setOption.apply( this, arguments );
+            $.Widget.prototype._setOption.apply( this, arguments );
         },
-        _destroy: function() 
-        { 
+        destroy: function() 
+        {
+        },
+        pluginsDestroy: function()
+        {
+            $(this).trigger('plugins-remove');
+            /*this.plugins.lib.dialogRepo && $(this.plugins.lib.dialogRepo).each(function()
+            {
+                console.log(this);
+            });*/
+            this.plugins.toolbar.element  && this.plugins.toolbar.element.remove();
             
         }
     }); 
