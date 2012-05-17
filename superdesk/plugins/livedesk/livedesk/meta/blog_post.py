@@ -14,10 +14,22 @@ from sqlalchemy.schema import Column, ForeignKey
 from superdesk.post.meta.post import PostMapped
 from superdesk.meta.metadata_superdesk import Base
 from livedesk.meta.blog import BlogMapped
+from sqlalchemy.ext.declarative import declared_attr
 
 # --------------------------------------------------------------------
 
-class BlogPostEntry(Base):
+#TODO: this is just a temporary extending mechanism needs to be done by using join.
+class BlogPostDefinition:
+    '''
+    Provides the mapping for BlogCollaborator definition.
+    '''
+    __tablename__ = 'livedesk_post'
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+
+    Id = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
+    Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False))
+
+class BlogPostEntry(Base, BlogPostDefinition):
     '''
     Provides the mapping for BlogPost table where it keeps the connection between the post and the blog.
     '''
@@ -27,9 +39,9 @@ class BlogPostEntry(Base):
     Id = Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True)
     Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False)
 
-class BlogPostMapped(PostMapped, BlogPostEntry, BlogPost):
+class BlogPostMapped(BlogPostDefinition, PostMapped, BlogPost):
     '''
     Provides the mapping for BlogPost in the form of extending the Post.
     '''
-    __tablename__ = 'livedesk_post'
+    __table_args__ = dict(extend_existing=True)
 

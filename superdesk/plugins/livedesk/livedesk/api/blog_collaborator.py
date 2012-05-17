@@ -12,19 +12,17 @@ API specifications for livedesk blog collaborator.
 from .blog import Blog
 from ally.api.config import service, call, INSERT, DELETE
 from ally.api.type import Iter
-from ally.support.api.entity import Entity, IEntityGetService
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.collaborator.api.collaborator import Collaborator
 
 # --------------------------------------------------------------------
 
-@modelLiveDesk
-class BlogCollaborator(Entity):
+@modelLiveDesk(name=Collaborator)
+class BlogCollaborator(Collaborator):
     '''
     Provides the blog collaborator model.
     '''
     Blog = Blog
-    Collaborator = Collaborator
 
 # --------------------------------------------------------------------
 
@@ -32,33 +30,32 @@ class BlogCollaborator(Entity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, BlogCollaborator))
-class IBlogCollaboratorService(IEntityGetService):
+@service
+class IBlogCollaboratorService:
     '''
     Provides the service methods for the blog collaborators.
     '''
 
     @call
-    def getAll(self, blogId:Blog.Id=None, collaboratorId:Collaborator.Id=None,
-               offset:int=None, limit:int=None) -> Iter(BlogCollaborator):
+    def getById(self, blogId:Blog, collaboratorId:BlogCollaborator) -> BlogCollaborator:
+        '''
+        Provides the blog collaborator based on the id.
+        '''
+
+    @call
+    def getAll(self, blogId:Blog) -> Iter(BlogCollaborator):
         '''
         Provides all the blog collaborators.
         '''
 
-    @call(method=INSERT)
+    @call(method=INSERT, webName='Add')
     def addCollaborator(self, blogId:Blog.Id, collaboratorId:Collaborator.Id) -> BlogCollaborator.Id:
         '''
         Assigns the collaborator as a collaborator to the blog.
         '''
 
-    @call(method=DELETE)
-    def removeCollaborator(self, blogId:Blog.Id, collaboratorId:Collaborator.Id) -> bool:
+    @call(method=DELETE, webName='Remove')
+    def removeCollaborator(self, blogId:Blog, collaboratorId:Collaborator) -> bool:
         '''
         Removes the collaborator from the blog.
-        '''
-
-    @call
-    def remove(self, blogCollaboratorId:BlogCollaborator.Id) -> bool:
-        '''
-        Removes the blog collaborator.
         '''

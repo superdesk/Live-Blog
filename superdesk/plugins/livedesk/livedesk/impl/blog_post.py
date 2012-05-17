@@ -16,7 +16,6 @@ from ally.container import wire
 from ally.container.ioc import injected
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
 from livedesk.api.blog_post import BlogPost
-from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.post.api.post import QPostUnpublished, QPostPublished, \
     IPostService
@@ -24,13 +23,17 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.source.meta.source import SourceMapped
 from sqlalchemy.orm.util import aliased
+from ally.support.sqlalchemy.session import SessionSupport
+from sqlalchemy.orm.exc import NoResultFound
+from ally.exception import InputError, Ref
+from ally.internationalization import _
 
 # --------------------------------------------------------------------
 
 UserPerson = aliased(PersonMapped)
 
 @injected
-class BlogPostServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogPostService):
+class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
     '''
     Implementation for @see: IBlogPostService
     '''
@@ -42,7 +45,18 @@ class BlogPostServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogPostService):
         Construct the blog post service.
         '''
         assert isinstance(self.postService, IPostService), 'Invalid post service %s' % self.postService
-        EntityGetCRUDServiceAlchemy.__init__(self, BlogPostMapped)
+        SessionSupport.__init__(self)
+
+    def getById(self, blogId, postId):
+        '''
+        @see: IBlogPostService.getById
+        '''
+        sql = self.session().query(BlogPostMapped)
+        sql = sql.filter(BlogPostMapped.Blog == blogId)
+        sql = sql.filter(BlogPostMapped.Id == postId)
+
+        try: return sql.one()
+        except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogPostMapped.Id))
 
     def getPublished(self, blogId, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
@@ -65,21 +79,21 @@ class BlogPostServiceAlchemy(EntityGetCRUDServiceAlchemy, IBlogPostService):
         sql = buildLimits(sql, offset, limit)
         return (post for post in sql.all())
 
-    def insert(self, post):
+    def insert(self, blogId, post):
         '''
         @see: IBlogPostService.insert
         '''
         assert isinstance(post, BlogPost), 'Invalid post %s' % post
         postDb = BlogPostEntry()
         postDb.Id = self.postService.insert(post)
-        postDb.Blog = post.Blog
+        postDb.Blog = blogId
         try:
             self.session().add(postDb)
             self.session().flush((postDb,))
         except SQLAlchemyError as e: handle(e, BlogPost)
         return postDb.Id
 
-    def update(self, post):
+    def update(self, blogId, post):
         '''
         @see: IBlogPostService.update
         '''

@@ -9,10 +9,10 @@ Created on Jun 19, 2011
 Provides the nodes used in constructing the resources node tree.
 '''
 
-from ally.api.type import Input
+from ally.api.operator.type import TypeModelProperty
+from ally.api.type import Input, typeFor
 from ally.core.spec.resources import ConverterPath, Match, Node, Invoker
 import logging
-from ally.api.operator.type import TypeModelProperty
 
 # --------------------------------------------------------------------
 
@@ -35,9 +35,6 @@ class MatchRoot(Match):
     def __init__(self, node):
         '''
         @see: Match.__init__
-        
-        @param matchValue: string
-            The string value of the match.
         '''
         super().__init__(node)
 
@@ -80,16 +77,16 @@ class MatchString(Match):
     @see: Match
     '''
 
-    def __init__(self, node, matchValue):
+    def __init__(self, node, value):
         '''
         @see: Match.__init__
         
-        @param matchValue: string
+        @param value: string
             The string value of the match.
         '''
         super().__init__(node)
-        assert isinstance(matchValue, str), 'Invalid string match value %s' % matchValue
-        self.matchValue = matchValue
+        assert isinstance(value, str), 'Invalid string match value %s' % value
+        self.value = value
 
     def asArgument(self, invoker, args):
         '''
@@ -114,7 +111,7 @@ class MatchString(Match):
         @see: Match.toPath
         '''
         assert isinstance(converterPath, ConverterPath)
-        return converterPath.normalize(self.matchValue)
+        return converterPath.normalize(self.value)
 
     def clone(self):
         '''
@@ -122,7 +119,7 @@ class MatchString(Match):
         '''
         return self
 
-    def __str__(self): return self.matchValue
+    def __str__(self): return self.value
 
 class MatchProperty(Match):
     '''
@@ -131,19 +128,16 @@ class MatchProperty(Match):
     @see: Match
     '''
 
-    def __init__(self, node, type, matchValue=None):
+    def __init__(self, node, value=None):
         '''
         @see: Match.__init__
         
-        @param type: TypeModelProperty
-            The type property represented by the matcher.
-        @param matchValue: string|None
+        @param value: string|None
             The match string value, none if the match will expect updates.
         '''
+        assert isinstance(node, NodeProperty), 'Invalid node %s' % node
         super().__init__(node)
-        assert isinstance(type, TypeModelProperty), 'Invalid type property %s' % type
-        self.matchValue = matchValue
-        self.type = type
+        self.value = value
 
     def asArgument(self, invoker, args):
         '''
@@ -151,50 +145,53 @@ class MatchProperty(Match):
         '''
         assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
         assert isinstance(args, dict), 'Invalid arguments dictionary %s' % args
-        assert self.matchValue != None, 'This match %s has not value' % self
+        assert self.value != None, 'This match %s has no value' % self
         for inp in invoker.inputs:
-            assert isinstance(inp, Input)
-            if inp.type == self.type:
-                args[inp.name] = self.matchValue
+            if inp in self.node.inputs and inp.name not in args:
+                args[inp.name] = self.value
                 return
 
     def update(self, obj, objType):
         '''
         @see: Match.update
         '''
-        if objType == self.type:
-            self.matchValue = obj
+        if objType in self.node.typesProperties:
+            self.value = obj
             return True
-        if objType == self.type.container:
-            self.matchValue = getattr(obj, self.type.property)
-            return True
-        if objType == self.type.parent:
-            self.matchValue = getattr(obj, self.type.property)
-            return True
+
+        for typ in self.node.typesProperties:
+            assert isinstance(typ, TypeModelProperty)
+            if objType == typ.container:
+                self.value = getattr(obj, typ.property)
+                return True
+            if objType == typ.parent:
+                self.value = getattr(obj, typ.property)
+                return True
+
         return False
 
     def isValid(self):
         '''
         @see: Match.isValid
         '''
-        return self.matchValue is not None
+        return self.value is not None
 
     def toPath(self, converterPath, isFirst, isLast):
         '''
         @see: Match.toPath
         '''
         assert isinstance(converterPath, ConverterPath)
-        assert self.matchValue is not None, \
+        assert self.value is not None, \
         'Cannot represent the path element for %s because there is no value' % self.type
-        return converterPath.asString(self.matchValue, self.type)
+        return converterPath.asString(self.value, self.node.type)
 
     def clone(self):
         '''
         @see: Match.clone
         '''
-        return MatchProperty(self.node, self.type, self.matchValue)
+        return MatchProperty(self.node, self.value)
 
-    def __str__(self): return '*' if self.matchValue is None else str(self.matchValue)
+    def __str__(self): return '*' if self.value is None else str(self.value)
 
 # --------------------------------------------------------------------
 
@@ -266,7 +263,7 @@ class NodePath(Node):
         assert isinstance(converterPath, ConverterPath), 'Invalid converter path %s' % converterPath
         assert isinstance(paths, list), 'Invalid paths %s' % paths
         assert len(paths) > 0, 'No path element in paths %s' % paths
-        if converterPath.normalize(self._match.matchValue) == paths[0]:
+        if converterPath.normalize(self._match.value) == paths[0]:
             del paths[0]
             return self._match
         return None
@@ -292,19 +289,23 @@ class NodeProperty(Node):
     @see: Node
     '''
 
-    def __init__(self, parent, type):
+    def __init__(self, parent, inp):
         '''
         @see: Node.__init__
         
-        @param type: TypeModelProperty
-            The type property represented by the node.
+        @param inp: Input
+            The first input of the property node.
         '''
-        assert isinstance(type, TypeModelProperty), 'Invalid type property %s' % type
-        assert type.isOf(int) or type.isOf(str), \
-        'Invalid property type class %s needs to be an integer or string' % type
-        self.type = type
-        self.model = type.container
-        super().__init__(parent, False, ORDER_INTEGER if type.isOf(int) else ORDER_STRING)
+        assert isinstance(inp, Input), 'Invalid input %s' % inp
+        assert isinstance(inp.type, TypeModelProperty), 'Invalid input type %s' % inp.type
+        assert inp.type.isOf(int) or inp.type.isOf(str), 'Invalid input type %s' % inp.type
+
+        self.inputs = set((inp,))
+        self.typesProperties = set((inp.type,))
+
+        self.type = typeFor(int if inp.type.isOf(int) else str)
+
+        super().__init__(parent, False, self._orderFor(inp.type))
 
     def tryMatch(self, converterPath, paths):
         '''
@@ -316,7 +317,7 @@ class NodeProperty(Node):
         try:
             value = converterPath.asValue(paths[0], self.type)
             del paths[0]
-            return MatchProperty(self, self.type, value)
+            return MatchProperty(self, value)
         except ValueError:
             return False
 
@@ -324,7 +325,32 @@ class NodeProperty(Node):
         '''
         @see: Node.newMatch
         '''
-        return MatchProperty(self, self.type)
+        return MatchProperty(self)
+
+    def isFor(self, inp):
+        '''
+        Checks if the node property is for the provided input.
+        
+        @param inp: Input
+            The input to check if valid for this node.
+        '''
+        assert isinstance(inp, Input), 'Invalid input %s' % inp
+        if not isinstance(inp.type, TypeModelProperty): return False
+        if not (inp.type.isOf(int) or inp.type.isOf(str)): return False
+        return self._orderFor(inp.type) == self.order
+
+    def addInput(self, inp):
+        '''
+        Adds a new input to the node property.
+        
+        @param inp: Input
+            The input to be acknowledged by the node.
+        '''
+        assert isinstance(inp, Input), 'Invalid input %s' % inp
+        assert isinstance(inp.type, TypeModelProperty), 'Invalid input type property %s' % inp.type
+        assert self.isFor(inp), 'Invalid input %s, is not for this node' % inp
+        self.inputs.add(inp)
+        self.typesProperties.add(inp.type)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -332,4 +358,12 @@ class NodeProperty(Node):
         return False
 
     def __str__(self):
-        return '<%s[%s]>' % (self.__class__.__name__, self.type)
+        return '<%s[%s]>' % (self.__class__.__name__, [str(inp) for inp in self.inputs])
+
+    # ----------------------------------------------------------------
+
+    def _orderFor(self, type):
+        '''
+        Provides the order for the type.
+        '''
+        return ORDER_INTEGER if type.isOf(int) else ORDER_STRING

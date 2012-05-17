@@ -11,17 +11,18 @@ Contains the SQL alchemy meta for blog collaborator API.
 
 from ..api.blog_collaborator import IBlogCollaboratorService
 from ally.container.ioc import injected
-from ally.support.sqlalchemy.util_service import buildLimits
-from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
-from sql_alchemy.impl.entity import EntityGetServiceAlchemy
+from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
+    BlogCollaboratorEntry
 from sqlalchemy.exc import OperationalError
 from ally.exception import InputError, Ref
 from ally.internationalization import _
+from ally.support.sqlalchemy.session import SessionSupport
+from sqlalchemy.orm.exc import NoResultFound
 
 # --------------------------------------------------------------------
 
 @injected
-class BlogCollaboratorServiceAlchemy(EntityGetServiceAlchemy, IBlogCollaboratorService):
+class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
     '''
     Implementation for @see: IBlogCollaboratorService
     '''
@@ -30,30 +31,38 @@ class BlogCollaboratorServiceAlchemy(EntityGetServiceAlchemy, IBlogCollaboratorS
         '''
         Construct the blog collaborator service.
         '''
-        EntityGetServiceAlchemy.__init__(self, BlogCollaboratorMapped)
+        SessionSupport.__init__(self)
 
-    def getAll(self, blogId=None, collaboratorId=None, offset=None, limit=None):
+    def getById(self, blogId, collaboratorId):
+        '''
+        @see: IBlogCollaboratorService.getById
+        '''
+        sql = self.session().query(BlogCollaboratorMapped)
+        sql = sql.filter(BlogCollaboratorMapped.Blog == blogId)
+        sql = sql.filter(BlogCollaboratorMapped.Id == collaboratorId)
+
+        try: return sql.one()
+        except NoResultFound: raise InputError(Ref(_('No collaborator'), ref=BlogCollaboratorMapped.Id))
+
+    def getAll(self, blogId):
         '''
         @see: IBlogCollaboratorService.getAll
         '''
-        sql = self.session().query(BlogCollaboratorMapped)
-        if blogId: sql = sql.filter(BlogCollaboratorMapped.Blog == blogId)
-        if collaboratorId: sql = sql.filter(BlogCollaboratorMapped.Collaborator == collaboratorId)
-        sql = buildLimits(sql, offset, limit)
+        sql = self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Blog == blogId)
         return sql.all()
 
     def addCollaborator(self, blogId, collaboratorId):
         '''
         @see: IBlogCollaboratorService.addCollaborator
         '''
-        sql = self.session().query(BlogCollaboratorMapped)
-        sql = sql.filter(BlogCollaboratorMapped.Blog == blogId)
-        sql = sql.filter(BlogCollaboratorMapped.Collaborator == collaboratorId)
+        sql = self.session().query(BlogCollaboratorEntry)
+        sql = sql.filter(BlogCollaboratorEntry.Blog == blogId)
+        sql = sql.filter(BlogCollaboratorEntry.Id == collaboratorId)
         if sql.count() > 0: raise InputError(_('Already a collaborator for this blog'))
 
-        bgc = BlogCollaboratorMapped()
+        bgc = BlogCollaboratorEntry()
         bgc.Blog = blogId
-        bgc.Collaborator = collaboratorId
+        bgc.Id = collaboratorId
         self.session().add(bgc)
         self.session().flush((bgc,))
         return bgc.Id
@@ -63,18 +72,9 @@ class BlogCollaboratorServiceAlchemy(EntityGetServiceAlchemy, IBlogCollaboratorS
         @see: IBlogCollaboratorService.removeCollaborator
         '''
         try:
-            sql = self.session().query(BlogCollaboratorMapped)
-            sql = sql.filter(BlogCollaboratorMapped.Blog == blogId)
-            sql = sql.filter(BlogCollaboratorMapped.Collaborator == collaboratorId)
+            sql = self.session().query(BlogCollaboratorEntry)
+            sql = sql.filter(BlogCollaboratorEntry.Blog == blogId)
+            sql = sql.filter(BlogCollaboratorEntry.Id == collaboratorId)
             return sql.delete() > 0
-        except OperationalError:
-            raise InputError(Ref(_('Cannot remove'), model=BlogCollaboratorMapped))
-
-    def remove(self, blogCollaboratorId):
-        '''
-        @see: IBlogCollaboratorService.remove
-        '''
-        try:
-            return self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Id == id).delete() > 0
         except OperationalError:
             raise InputError(Ref(_('Cannot remove'), model=BlogCollaboratorMapped))

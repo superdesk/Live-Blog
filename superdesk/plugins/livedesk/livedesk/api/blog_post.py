@@ -13,14 +13,13 @@ from .blog import Blog
 from ally.api.config import service, call
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.post.api.post import Post, QPostPublished, QPostUnpublished
-from ally.support.api.entity import IEntityGetCRUDService, Entity
 from superdesk.user.api.user import User
 from superdesk.collaborator.api.collaborator import Collaborator
 from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
-@modelLiveDesk
+@modelLiveDesk(name='Post')
 class BlogPost(Post):
     '''
     Provides the blog post model.
@@ -34,23 +33,41 @@ class BlogPost(Post):
 
 # --------------------------------------------------------------------
 
-@service((Entity, BlogPost))
-class IBlogPostService(IEntityGetCRUDService):
+@service
+class IBlogPostService:
     '''
     Provides the service methods for the blog posts.
     '''
 
+    @call
+    def getById(self, blogId:Blog, postId:BlogPost) -> BlogPost:
+        '''
+        Provides the blog post based on the id.
+        '''
+
     @call(webName='Published')
-    def getPublished(self, blogId:Blog.Id, creatorId:User.Id=None, authorId:Collaborator.Id=None,
+    def getPublished(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
                      offset:int=None, limit:int=None, q:QPostPublished=None) -> Iter(BlogPost):
         '''
         Provides all the blogs published posts.
         '''
 
     @call(webName='Unpublished')
-    def getUnpublished(self, blogId:Blog.Id, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None,
-                       limit:int=None, q:QPostUnpublished=None) -> Iter(BlogPost):
+    def getUnpublished(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
+                       offset:int=None, limit:int=None, q:QPostUnpublished=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
+        '''
+
+    @call
+    def insert(self, blogId:Blog.Id, post:Post) -> BlogPost.Id:
+        '''
+        Inserts the post for the blog.
+        '''
+
+    @call
+    def update(self, blogId:Blog.Id, post:Post) -> bool:
+        '''
+        Update the post for the blog.
         '''
 

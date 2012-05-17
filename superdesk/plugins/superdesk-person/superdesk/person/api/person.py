@@ -22,8 +22,8 @@ class Person(Entity):
     '''
     FirstName = str
     LastName = str
+    FullName = str
     Address = str
-    Name = str
 
 # --------------------------------------------------------------------
 

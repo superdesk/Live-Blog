@@ -9,6 +9,7 @@ Created on May 2, 2012
 API specifications for posts.
 '''
 
+from ally.api.authentication import auth
 from ally.api.config import service, call, query
 from ally.api.criteria import AsDateTimeOrdered, AsBoolean
 from ally.api.type import Iter, Count
@@ -28,7 +29,7 @@ class Post(Entity):
     Provides the post message model.
     '''
     Type = PostType
-    Creator = User
+    Creator = auth(User)
     Author = Collaborator
     IsModified = bool
     Content = str
