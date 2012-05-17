@@ -28,7 +28,7 @@ class CollaboratorMapped(Base, Collaborator):
     Provides the mapping for Collaborator.
     '''
     __tablename__ = 'collaborator'
-    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
+    __table_args__ = dict(mysql_engine='InnoDB')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Person = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'))
@@ -46,4 +46,4 @@ class CollaboratorMapped(Base, Collaborator):
     @classmethod
     @Name.expression
     def _Name(cls):
-        return case([(cls.Person == None, SourceMapped.Name)], else_=PersonMapped.Name)
+        return case([(cls.Person == None, SourceMapped.Name)], else_=PersonMapped.FirstName)

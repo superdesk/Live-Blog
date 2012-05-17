@@ -21,7 +21,7 @@ from sqlalchemy.ext.declarative import declared_attr
 #TODO: this is just a temporary extending mechanism needs to be done by using join.
 class AdminDefinition:
     '''
-    Provides the mapping for a BlogAdmin entry.
+    Provides the mapping for a BlogAdmin definition.
     '''
     __tablename__ = 'livedesk_admin'
     __table_args__ = dict(mysql_engine='InnoDB')
@@ -38,5 +38,4 @@ class AdminMapped(User, AdminDefinition, Admin):
     '''
     Provides the mapping for BlogAdmin.
     '''
-    #__mapper_args__ = {'properties': {'Name': User.__table__.c.Name}}
     __table_args__ = dict(extend_existing=True)

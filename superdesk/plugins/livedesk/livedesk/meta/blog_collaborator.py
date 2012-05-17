@@ -10,25 +10,32 @@ Contains the SQL alchemy meta for blog collaborator API.
 '''
 
 from ..api.blog_collaborator import BlogCollaborator
-from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
+from sqlalchemy.schema import Column, ForeignKey
 from superdesk.meta.metadata_superdesk import Base
 from .blog import BlogMapped
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from sqlalchemy.ext.declarative import declared_attr
 
 # --------------------------------------------------------------------
 
-class BlogCollaboratorMapped(Base, BlogCollaborator):
+#TODO: this is just a temporary extending mechanism needs to be done by using join.
+class BlogCollaboratorDefinition:
+    '''
+    Provides the mapping for BlogCollaborator definition.
+    '''
+    __tablename__ = 'livedesk_collaborator'
+    __table_args__ = dict(mysql_engine='InnoDB')
+
+    Id = declared_attr(lambda cls: Column('fk_collaborator_id', ForeignKey(CollaboratorMapped.Id), primary_key=True))
+    Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), primary_key=True))
+
+class BlogCollaboratorEntry(Base, BlogCollaboratorDefinition):
+    '''
+    Provides the mapping for BlogCollaborator entry.
+    '''
+
+class BlogCollaboratorMapped(BlogCollaboratorDefinition, CollaboratorMapped, BlogCollaborator):
     '''
     Provides the mapping for BlogCollaborator.
     '''
-    __tablename__ = 'livedesk_collaborator'
-
-    Id = Column('id', INTEGER(unsigned=True), primary_key=True)
-    Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False)
-    Collaborator = Column('fk_collaborator_id', ForeignKey(CollaboratorMapped.Id), nullable=False)
-
-    __table_args__ = (
-                      UniqueConstraint(Blog, Collaborator, name='blog_collaborator_unique'),
-                      dict(mysql_engine='InnoDB', mysql_charset='utf8')
-                      )
+    __table_args__ = dict(extend_existing=True)
