@@ -11,16 +11,16 @@ Contains the SQL alchemy meta for post API.
 
 from ..api.post import Post
 from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import String, DateTime
-from superdesk.meta.metadata_superdesk import Base
-from superdesk.user.meta.user import User
-from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.post.meta.type import PostTypeMapped
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.associationproxy import association_proxy
-from inspect import isclass
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
+from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.sql.expression import case
+from sqlalchemy.types import String, DateTime
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.meta.metadata_superdesk import Base
+from superdesk.post.meta.type import PostTypeMapped
+from superdesk.user.meta.user import User
 
 # --------------------------------------------------------------------
 
@@ -32,6 +32,7 @@ class PostMapped(Base, Post):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Type = association_proxy('type', 'Key')
     Creator = Column('fk_creator_id', ForeignKey(User.Id, ondelete='RESTRICT'), nullable=False)
     Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))
     Content = Column('content', String(1000), nullable=False)
@@ -39,19 +40,19 @@ class PostMapped(Base, Post):
     PublishedOn = Column('published_on', DateTime)
     UpdatedOn = Column('updated_on', DateTime)
     DeletedOn = Column('deleted_on', DateTime)
-    # Non REST model attributes --------------------------------------
-    typeId = Column('fk_type_id', ForeignKey(PostTypeMapped.id, ondelete='RESTRICT'), nullable=False)
-    type = relationship(PostTypeMapped, backref=backref('parent'))
-    author = relationship(CollaboratorMapped, backref=backref('parent'))
-
-    # Calculated model attributes ------------------------------------
     @hybrid_property
     def AuthorName(self):
-        if isclass(self): return None
-        if self.author and self.author.Name:
-            return self.author.Name
-        elif self.creator and self.creator.Name:
-            return self.creator.Name
-        return None
+        if self.Author is None: return self.creator.Name
+        return self.author.Name
 
-    Type = association_proxy('type', 'Key')
+    # Non REST model attributes --------------------------------------
+    typeId = Column('fk_type_id', ForeignKey(PostTypeMapped.id, ondelete='RESTRICT'), nullable=False)
+    type = relationship(PostTypeMapped, uselist=False, lazy='joined')
+    author = relationship(CollaboratorMapped, uselist=False, lazy='joined')
+    creator = relationship(User, uselist=False, lazy='joined')
+
+    # Expression for hybrid ------------------------------------
+    @classmethod
+    @AuthorName.expression
+    def _AuthorName(cls):
+        return case([(cls.Author == None, User.Name)], else_=CollaboratorMapped.Name)

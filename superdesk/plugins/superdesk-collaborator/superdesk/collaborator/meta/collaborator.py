@@ -10,17 +10,19 @@ Contains the SQL alchemy meta for source API.
 '''
 
 from ..api.collaborator import Collaborator
+from ally.support.sqlalchemy.mapper import validate
 from sqlalchemy.dialects.mysql.base import INTEGER
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.sql.expression import case
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.person.meta.person import PersonMapped
 from superdesk.source.meta.source import SourceMapped
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.hybrid import hybrid_property
-from inspect import isclass
 
 # --------------------------------------------------------------------
 
+@validate
 class CollaboratorMapped(Base, Collaborator):
     '''
     Provides the mapping for Collaborator.
@@ -31,17 +33,17 @@ class CollaboratorMapped(Base, Collaborator):
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Person = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'))
     Source = Column('fk_source_id', ForeignKey(SourceMapped.Id, ondelete='RESTRICT'), nullable=False)
-
-    # Non REST model attributes --------------------------------------
-    person = relationship(PersonMapped, uselist=False)
-    source = relationship(SourceMapped, uselist=False)
-
-    # Calculated model attributes ------------------------------------
     @hybrid_property
     def Name(self):
-        if isclass(self): return None
-        if self.person and self.person.Name:
-            return self.person.Name
-        elif self.source and self.source.Name:
-            return self.source.Name
-        return None
+        if self.Person is None: return self.source.Name
+        return self.person.FullName
+
+    # Non REST model attributes --------------------------------------
+    person = relationship(PersonMapped, uselist=False, lazy='joined')
+    source = relationship(SourceMapped, uselist=False, lazy='joined')
+
+    # Expression for hybrid ------------------------------------
+    @classmethod
+    @Name.expression
+    def _Name(cls):
+        return case([(cls.Person == None, SourceMapped.Name)], else_=PersonMapped.Name)

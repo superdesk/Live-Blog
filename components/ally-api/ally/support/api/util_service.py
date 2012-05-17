@@ -69,7 +69,7 @@ def namesForModel(model):
 
 # --------------------------------------------------------------------
 
-def copy(src, dest):
+def copy(src, dest, exclude=[]):
     '''
     Copies the container properties from the object source to object destination, attention only the common properties from
     source and destination will be transfered, the rest of properties will be ignored.
@@ -79,6 +79,8 @@ def copy(src, dest):
         The source to copy from.
     @param dest: container object
         The destination to copy to.
+    @param exclude: list[string]|tuple(string)
+        A list of properties names to exclude from copy.
     @return: container object
         Returns the destination object.
     @raise ValueError: If the common properties are not compatible by type.
@@ -87,6 +89,7 @@ def copy(src, dest):
     clazz, properites = src.__class__, set(namesForContainer(dest))
     for prop in namesForContainer(src):
         if prop not in properites: continue
+        if prop in exclude: continue
         if getattr(clazz, prop) in src: setattr(dest, prop, getattr(src, prop))
     return dest
 

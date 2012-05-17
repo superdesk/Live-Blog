@@ -53,8 +53,8 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         '''
         assert isinstance(source, Source), 'Invalid source %s' % source
         sourceDb = SourceMapped()
-        copy(source, sourceDb)
         sourceDb.typeId = self._typeId(source.Type)
+        copy(source, sourceDb, exclude=('Type',))
 
         try:
             self.session().add(sourceDb)
@@ -70,10 +70,10 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         assert isinstance(source, Source), 'Invalid source %s' % source
         sourceDb = self.session().query(SourceMapped).get(source.Id)
         if not sourceDb: raise InputError(Ref(_('Unknown source id'), ref=Source.Id))
-        sourceDb.typeId = self._typeId(source.Type)
+        if Source.Type in source: sourceDb.typeId = self._typeId(source.Type)
 
         try:
-            self.session().flush((copy(source, sourceDb),))
+            self.session().flush((copy(source, sourceDb, exclude=('Type',)),))
         except SQLAlchemyError as e: handle(e, SourceMapped)
 
     # ----------------------------------------------------------------

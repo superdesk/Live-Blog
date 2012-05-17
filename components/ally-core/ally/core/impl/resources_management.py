@@ -17,7 +17,7 @@ from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
 from ally.core.impl.node import NodeRoot, NodePath, NodeProperty
 from ally.core.spec.resources import Node, Path, ConverterPath, IAssembler, \
-    IResourcesRegister, IResourcesLocator, PathExtended, InvokerInfo
+    IResourcesRegister, IResourcesLocator, PathExtended, InvokerInfo, Invoker
 from ally.support.core.util_resources import pushMatch
 from collections import deque
 import logging
@@ -107,9 +107,11 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
             assert isinstance(asm, IAssembler)
             asm.assemble(self._root, invokers)
         for invoker in invokers:
-            assert isinstance(invoker, InvokerCall)
-            log.warning('The service %s call %s could not be resolved in the node structure', \
-                        invoker.service, invoker.call)
+            assert isinstance(invoker, Invoker)
+            info = invoker.infoAPI or invoker.infoIMPL
+            assert isinstance(info, InvokerInfo)
+            log.warning('Could not resolve in the node structure the call at:\nFile "%s", line %i, in %s', \
+                        info.file, info.line, info.name)
 
     def findPath(self, converterPath, paths):
         '''

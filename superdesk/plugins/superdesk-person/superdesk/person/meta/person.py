@@ -10,15 +10,17 @@ Contains the SQL alchemy meta for person API.
 '''
 
 from ..api.person import Person
+from ally.support.sqlalchemy.mapper import validate
 from sqlalchemy.dialects.mysql.base import INTEGER
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.schema import Column
+from sqlalchemy.sql.expression import case
 from sqlalchemy.types import String
 from superdesk.meta.metadata_superdesk import Base
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.sql.expression import case
 
 # --------------------------------------------------------------------
 
+@validate
 class PersonMapped(Base, Person):
     '''
     Provides the mapping for Person entity.
@@ -31,17 +33,12 @@ class PersonMapped(Base, Person):
     LastName = Column('last_name', String(255))
     Address = Column('address', String(255))
     @hybrid_property
-    def Name(self):
-        if self.FirstName is not None: return self.FirstName + ' ' + self.LastName
-        else: return self.FirstName
+    def FullName(self):
+        if self.FirstName is None: return self.LastName
+        return self.FirstName + ' ' + self.LastName
 
     # Expression for hybrid ------------------------------------
     @classmethod
-    @Name.expression
-    def _Name(cls):
-        return case([(cls.FirstName != None, cls.FirstName + ' ' + cls.LastName)], else_=cls.LastName)
-
-
-#TODO: add validation
-#validateManaged(PersonMapped.Name)
-#registerValidation(PersonMapped)
+    @FullName.expression
+    def _FullName(cls):
+        return case([(cls.FirstName == None, cls.LastName)], else_=cls.FirstName + ' ' + cls.LastName)

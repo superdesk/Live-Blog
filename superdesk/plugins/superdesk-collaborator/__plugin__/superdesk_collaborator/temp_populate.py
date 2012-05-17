@@ -13,8 +13,8 @@ from __plugin__.superdesk.db_superdesk import createTables
 from __plugin__.superdesk_source.temp_populate import getSourcesIds
 from ally.container import ioc
 from ally.container.support import entityFor
-from superdesk.collaborator.api.collaborator import ICollaboratorService
-from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.collaborator.api.collaborator import ICollaboratorService, \
+    Collaborator
 from superdesk.person.api.person import IPersonService, QPerson, Person
 
 # --------------------------------------------------------------------
@@ -58,7 +58,7 @@ def getCollaboratorsIds():
             colls = collaboratorService.getAll(qp=QPerson(firstName=name))
             if colls: collaborators[name] = colls[0].Id
             else:
-                coll = CollaboratorMapped()
+                coll = Collaborator()
                 try: coll.Person = getPersonsIds()[name]
                 except KeyError: pass
                 coll.Source = getSourcesIds()[COLLABORATORS[name]]
