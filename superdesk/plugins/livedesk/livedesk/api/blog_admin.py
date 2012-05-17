@@ -12,19 +12,17 @@ API specifications for livedesk blog administrators.
 from .blog import Blog
 from ally.api.config import service, call, INSERT, DELETE
 from ally.api.type import Iter
-from ally.support.api.entity import Entity, IEntityGetService
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.user.api.user import User
 
 # --------------------------------------------------------------------
 
 @modelLiveDesk
-class BlogAdmin(Entity):
+class Admin(User):
     '''
     Provides the blog administrator model.
     '''
     Blog = Blog
-    User = User
 
 # --------------------------------------------------------------------
 
@@ -32,32 +30,32 @@ class BlogAdmin(Entity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, BlogAdmin))
-class IBlogAdminService(IEntityGetService):
+@service
+class IBlogAdminService:
     '''
     Provides the service methods for the blog administrators.
     '''
 
     @call
-    def getAll(self, blogId:Blog.Id=None, userId:User.Id=None, offset:int=None, limit:int=None) -> Iter(BlogAdmin):
+    def getById(self, blogId:Blog, adminId:Admin) -> Admin:
+        '''
+        Provides the blog admin based on the id.
+        '''
+
+    @call
+    def getAll(self, blogId:Blog) -> Iter(Admin):
         '''
         Provides all the blog administrators.
         '''
 
-    @call(method=INSERT)
-    def addAdmin(self, blogId:Blog.Id, userId:User.Id) -> BlogAdmin.Id:
+    @call(method=INSERT, webName='Add')
+    def addAdmin(self, blogId:Blog.Id, userId:User.Id) -> Admin.Id:
         '''
         Assigns the user as a user administrator to the blog.
         '''
 
-    @call(method=DELETE)
-    def removeAdmin(self, blogId:Blog.Id, userId:User.Id) -> bool:
+    @call(method=DELETE, webName='Remove')
+    def removeAdmin(self, blogId:Blog, userId:User) -> bool:
         '''
         Removes the user administrator from the blog.
-        '''
-
-    @call
-    def remove(self, blogAdminId:BlogAdmin.Id) -> bool:
-        '''
-        Removes the blog user administrator.
         '''
