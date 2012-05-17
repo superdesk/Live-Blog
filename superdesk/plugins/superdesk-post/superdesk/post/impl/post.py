@@ -97,7 +97,7 @@ class PostServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
         postDb = PostMapped()
-        copy(post, postDb)
+        copy(post, postDb, exclude='Type')
         postDb.typeId = self._typeId(post.Type)
 
         try:
@@ -114,10 +114,10 @@ class PostServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
         assert isinstance(post, Post), 'Invalid post %s' % post
         postDb = self.session().query(PostMapped).get(post.Id)
         if not postDb: raise InputError(Ref(_('Unknown post id'), ref=Post.Id))
-        postDb.typeId = self._typeId(post.Type)
+        if Post.Type in post: postDb.typeId = self._typeId(post.Type)
 
         try:
-            self.session().flush((copy(post, postDb),))
+            self.session().flush((copy(post, postDb, exclude='Type'),))
         except SQLAlchemyError as e: handle(e, PostMapped)
 
     # ----------------------------------------------------------------

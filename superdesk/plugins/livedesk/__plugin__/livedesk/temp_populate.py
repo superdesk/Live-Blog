@@ -90,8 +90,10 @@ def createBlogAdmins():
     assert isinstance(blogAdminService, IBlogAdminService)
     for name, blog in BLOG_ADMINS.items():
         blogId, userId = getBlogsIds()[blog], getUsersIds()[name]
-        blgs = blogAdminService.getAll(blogId, userId)
-        if not blgs:
+        blgs = blogAdminService.getAll(blogId)
+        for blg in blgs:
+            if blg.Id == userId: break
+        else:
             blogAdminService.addAdmin(blogId, userId)
 
 FROM_TIME = datetime(2012, 1, 2, 10, 13, 20, 22)

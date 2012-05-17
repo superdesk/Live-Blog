@@ -238,6 +238,7 @@ def getAttrAndClass(clazz, name):
     '''
     The getattr function provides only the required attribute value, this function provides the attribute value and 
     also the class or super class that defines the attribute.
+    Attention unlike getattr this search will not invoke descriptors.
     
     @param clazz: class
         The class to get the attribute from.
