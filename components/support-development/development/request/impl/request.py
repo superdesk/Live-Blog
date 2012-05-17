@@ -13,7 +13,7 @@ from ..api.request import IRequestService, Request, Input, Method
 from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.api.operator.type import TypeModelProperty
 from ally.container.ioc import injected
-from ally.core.impl.node import MatchProperty
+from ally.core.impl.node import MatchProperty, NodeProperty
 from ally.core.spec.resources import Node, Match, ConverterPath, \
     IResourcesRegister, Invoker, InvokerInfo
 from ally.exception import InputError, Ref, DevelError
@@ -164,7 +164,8 @@ class RequestService(IRequestService):
 
         if isinstance(match, MatchProperty):
             assert isinstance(match, MatchProperty)
-            typ = match.type
+            assert isinstance(match.node, NodeProperty)
+            typ = next(iter(match.node.typesProperties))
             assert isinstance(typ, TypeModelProperty)
             inp.Description = _('The %(type)s of %(model)s %(description)s') % \
                         dict(type=_(typ.property), model=_(typ.container.name),

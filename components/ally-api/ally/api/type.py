@@ -294,6 +294,9 @@ class Input:
         self.hasDefault = hasDefault
         self.default = default
 
+    def __hash__(self):
+        return hash((self.name, self.type))
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.name == other.name and self.type == other.type

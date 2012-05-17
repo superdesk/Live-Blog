@@ -11,7 +11,7 @@ Module containing the implementation for the resources manager.
 
 from ally.api.config import GET
 from ally.api.operator.container import Service, Call
-from ally.api.operator.type import TypeService, TypeModel
+from ally.api.operator.type import TypeService, TypeModel, TypeModelProperty
 from ally.api.type import List, Type, Input, typeFor
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
@@ -194,11 +194,14 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
                 for nodeId in node.childrens():
                     if isinstance(nodeId, NodeProperty):
                         assert isinstance(nodeId, NodeProperty)
-                        if nodeId.get is not None and nodeId.type.parent == modelType:
-                            matches = []
-                            for matchNode in matchNodes: pushMatch(matches, matchNode.newMatch())
-                            pushMatch(matches, nodeId.newMatch())
-                            return PathExtended(fromPath, matches, nodeId, index)
+                        if nodeId.get is not None:
+                            for typ in nodeId.typesProperties:
+                                assert isinstance(typ, TypeModelProperty)
+                                if typ.parent == modelType:
+                                    matches = []
+                                    for matchNode in matchNodes: pushMatch(matches, matchNode.newMatch())
+                                    pushMatch(matches, nodeId.newMatch())
+                                    return PathExtended(fromPath, matches, nodeId, index)
 
         for child in node.childrens():
             if child == exclude: continue

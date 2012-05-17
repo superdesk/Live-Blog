@@ -79,7 +79,7 @@ class AssembleBase(IAssembler):
         '''
         Process the hints that affect the types used for constructing the node path.
         
-        @param types: list[TypeModelProperty|TypeModel|Model|tuple(string,boolean)]
+        @param types: list[Input|TypeModel|Model|tuple(string,boolean)]
             The list of types to be altered based on the type hints.
         @param hints: dictionary{string, object}
             The hints to be processed for the types.
@@ -109,7 +109,7 @@ class AssembleBase(IAssembler):
         '''
         Processes the web name hint found on the call and alters the provided types list according to it.
         
-        @param types: list[TypeModelProperty|TypeModel|Model|tuple(string,boolean)]
+        @param types: list[Input|TypeModel|Model|tuple(string,boolean)]
             The list of types to be altered based on the web name hint.
         @param hints: dictionary{string, object}
             The hints to be processed for the types.
@@ -167,6 +167,32 @@ class AssembleBase(IAssembler):
 
     # ----------------------------------------------------------------
 
+    def isModelIn(self, model, types):
+        '''
+        Checks if the model is present in the provided types.
+        
+        @param model: Model
+            The model to check if present.
+        @param types: list[Input|TypeModel|Model|tuple(string,boolean)]|tuple(...)
+            The types to check.
+        @return: boolean
+            True if the model is present, False otherwise.
+        '''
+        assert isinstance(model, Model), 'Invalid model %s' % model
+        assert isinstance(types, (list, tuple)), 'Invalid types %s' % types
+        for typ in types:
+            if isinstance(typ, Input):
+                assert isinstance(typ, Input)
+                typ = typ.type.container
+
+            if typ == model: return True
+            elif isinstance(typ, TypeModel):
+                assert isinstance(typ, TypeModel)
+                if typ.container == model: return True
+        return False
+
+    # ----------------------------------------------------------------
+
     def obtainNodePath(self, root, name, isGroup=False):
         '''
         Obtain the path node with name in the provided root Node.
@@ -217,25 +243,26 @@ class AssembleBase(IAssembler):
                 return child
         return NodePath(root, True, model.name)
 
-    def obtainNodeProperty(self, root, type):
+    def obtainNodeProperty(self, root, inp):
         '''
         Obtain the property node in the provided root Node.
         
         @param root: Node
             The root node to obtain the path node in.
-        @param type: TypeModelProperty
-            The type property to find the node for.
+        @param inp: Input
+            The input to find the node for.
         @return: NodeProperty
             The property node.
         '''
         assert isinstance(root, Node), 'Invalid root node %s' % root
-        assert isinstance(type, TypeModelProperty), 'Invalid type property %s' % type
+        assert isinstance(inp, Input), 'Invalid input %s' % inp
 
-        assert isinstance(root, Node)
         for child in root.childrens():
-            if isinstance(child, NodeProperty) and child.type == type:
+            if isinstance(child, NodeProperty) and child.isFor(inp):
+                assert isinstance(child, NodeProperty)
+                child.addInput(inp)
                 return child
-        return NodeProperty(root, type)
+        return NodeProperty(root, inp)
 
     def obtainNode(self, root, types):
         '''
@@ -243,7 +270,7 @@ class AssembleBase(IAssembler):
         
         @param root: Node
             The root node to obtain the node in.
-        @param types: list[TypeModelProperty|TypeModel|Model|tuple(string,boolean)]|tuple(...)
+        @param types: list[Input|TypeModel|Model|tuple(string,boolean)]|tuple(...)
             The list of types to identify the node.
         @return: Node|boolean
             The node for the types or False if unable to obtain one for the provided types.
@@ -252,16 +279,19 @@ class AssembleBase(IAssembler):
         assert isinstance(types, (list, tuple)), 'Invalid types %s' % types
 
         for typ in types:
-            if isinstance(typ, TypeModelProperty):
-                assert isinstance(typ, TypeModelProperty)
+            if isinstance(typ, Input):
+                assert isinstance(typ, Input)
+                assert isinstance(typ.type, TypeModelProperty), 'Invalid input type %s' % typ.type
+                model = typ.type.container
+                assert isinstance(model, Model)
 
                 addModel = True
-                if isinstance(root, NodePath) and root.name == typ.container.name:
+                if isinstance(root, NodePath) and root.name == model.name:
                     addModel = False
-                if addModel and isinstance(root, NodeProperty) and root.model.name == typ.container.name:
+                if addModel and isinstance(root, NodeProperty) and typ in root.inputs:
                     addModel = False
 
-                if addModel: root = self.obtainNodeModel(root, typ.container)
+                if addModel: root = self.obtainNodeModel(root, model)
                 root = self.obtainNodeProperty(root, typ)
             elif isinstance(typ, TypeModel):
                 assert isinstance(typ, TypeModel)
@@ -353,8 +383,8 @@ class AssembleGet(AssembleOneByOne):
             return False
         assert isinstance(model, Model)
 
-        mandatory = [inp.type for inp in invoker.inputs[:invoker.mandatory] if isinstance(inp.type, TypeModelProperty)]
-        extra = [inp.type for inp in invoker.inputs[invoker.mandatory:] if isinstance(inp.type, TypeModelProperty)]
+        mandatory = [inp for inp in invoker.inputs[:invoker.mandatory] if isinstance(inp.type, TypeModelProperty)]
+        extra = [inp for inp in invoker.inputs[invoker.mandatory:] if isinstance(inp.type, TypeModelProperty)]
         nodes = self.nodesFor(root, model, isList, mandatory, extra, invoker.hints)
 
         if not nodes: return False
@@ -374,10 +404,10 @@ class AssembleGet(AssembleOneByOne):
             The model to obtain the nodes for.
         @param isGroup: boolean
             Flag indicating that the model is actually provided as a collection.
-        @param mandatory: @see: obtainNode.types
-            The mandatory types.
-        @param optional: @see: obtainNode.types
-            The optional types.
+        @param mandatory: list[Input]
+            The mandatory inputs.
+        @param optional: list[Input]
+            The optional inputs.
         @param hints: dictionary{string, object}
             The hints for the invoker.
         '''
@@ -390,14 +420,8 @@ class AssembleGet(AssembleOneByOne):
         for extra in chain(*(combinations(optional, k) for k in range(0, len(optional) + 1))):
             types = list(mandatory)
             types.extend(extra)
-            # Determine if the last path type element represents the returned model.
-            if types:
-                lastTyp = types[-1]
-                if isinstance(lastTyp, TypeModel) or isinstance(lastTyp, TypeModelProperty):
-                    if lastTyp.container != model:
-                        types.append(model)
-                else: types.append(model)
-            else: types.append(model)
+            # Determine if the path represents the returned model.
+            if not self.isModelIn(model, types): types.append(model)
 
             node = self.obtainNode(root, self.processTypesHints(types, hints, isGroup))
             if node: nodes.append(node)
@@ -431,7 +455,7 @@ class AssembleDelete(AssembleOneByOne):
             log.warning('Invalid output type %s for a delete method, expected boolean', invoker.output)
             return False
 
-        types = [inp.type for inp in invoker.inputs[:invoker.mandatory] if isinstance(inp.type, TypeModelProperty)]
+        types = [inp for inp in invoker.inputs[:invoker.mandatory] if isinstance(inp.type, TypeModelProperty)]
         if not types:
             log.info('Cannot extract any path types for %s', invoker)
             return False
@@ -475,15 +499,15 @@ class AssembleInsert(AssembleOneByOne):
             return False
         assert isinstance(model, Model)
 
-        types = [inp.type for inp in invoker.inputs[:invoker.mandatory]
-                 if isinstance(inp.type, (TypeModelProperty, TypeModel))]
+        types = [inp if isinstance(inp.type, TypeModelProperty) else inp.type
+                 for inp in invoker.inputs[:invoker.mandatory] if isinstance(inp.type, (TypeModelProperty, TypeModel))]
+
         models = [typ.container for typ in types if isinstance(typ, TypeModel)]
-        if not models: types.append(model)
-        elif len(models) == 1:
-            if models[0] != model: types.append(model)
-        else:
+        if len(models) > 1:
             log.info('To many insert models %s for %s', models, invoker)
             return False
+
+        if not self.isModelIn(model, types): types.append(model)
 
         node = self.obtainNode(root, self.processTypesHints(types, invoker.hints))
         if not node: return False
@@ -516,8 +540,9 @@ class AssembleUpdate(AssembleOneByOne):
 
         if invoker.method != UPDATE: return False
 
-        types = [inp.type for inp in invoker.inputs[:invoker.mandatory]
-                 if isinstance(inp.type, (TypeModelProperty, TypeModel))]
+        types = [inp if isinstance(inp.type, TypeModelProperty) else inp.type
+                 for inp in invoker.inputs[:invoker.mandatory] if isinstance(inp.type, (TypeModelProperty, TypeModel))]
+
         models = [typ.container for typ in types if isinstance(typ, TypeModel)]
         if len(models) > 1:
             log.info('To many update models %s for %s', models, invoker)

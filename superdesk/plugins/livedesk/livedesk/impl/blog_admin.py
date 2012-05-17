@@ -54,10 +54,10 @@ class BlogAdminServiceAlchemy(SessionSupport, IBlogAdminService):
         '''
         @see: IBlogAdminService.addAdmin
         '''
-#        sql = self.session().query(AdminMapped)
-#        sql = sql.filter(AdminMapped.Blog == blogId)
-#        sql = sql.filter(AdminMapped.Id == userId)
-#        if sql.count() > 0: raise InputError(Ref(_('Already an administrator'), ref=AdminMapped.Id))
+        sql = self.session().query(AdminEntry)
+        sql = sql.filter(AdminEntry.Blog == blogId)
+        sql = sql.filter(AdminEntry.Id == userId)
+        if sql.count() > 0: raise InputError(Ref(_('Already an administrator'), ref=AdminMapped.Id))
 
         bge = AdminEntry()
         bge.Id = userId
@@ -71,9 +71,9 @@ class BlogAdminServiceAlchemy(SessionSupport, IBlogAdminService):
         @see: IBlogAdminService.removeAdmin
         '''
         try:
-            sql = self.session().query(AdminMapped)
-            sql = sql.filter(AdminMapped.Blog == blogId)
-            sql = sql.filter(AdminMapped.Id == userId)
+            sql = self.session().query(AdminEntry)
+            sql = sql.filter(AdminEntry.Blog == blogId)
+            sql = sql.filter(AdminEntry.Id == userId)
             return sql.delete() > 0
         except OperationalError:
             raise InputError(Ref(_('Cannot remove'), model=AdminMapped))

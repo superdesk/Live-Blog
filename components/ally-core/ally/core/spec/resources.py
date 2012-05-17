@@ -574,9 +574,9 @@ class Node(metaclass=abc.ABCMeta):
         
         @param converterPath: ConverterPath
             The converter path to be used in matching the provided path(s).
-        @param paths: list
+        @param paths: list[string]
             The path elements list containing strings, this list will get consumed whenever a matching occurs.
-        @return: Match|list|boolean
+        @return: Match|list[Match]|boolean
             If a match has occurred than a match or a list with match objects will be returned or True if there
             is no match to provide by this node, if not than None or False is returned.
         '''
