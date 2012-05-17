@@ -18,7 +18,7 @@ from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
 from livedesk.api.blog_post import BlogPost
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.post.api.post import QPostUnpublished, QPostPublished, \
-    IPostService
+    IPostService, Post
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.source.meta.source import SourceMapped
@@ -83,7 +83,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.insert
         '''
-        assert isinstance(post, BlogPost), 'Invalid post %s' % post
+        assert isinstance(post, Post), 'Invalid post %s' % post
         postDb = BlogPostEntry()
         postDb.Id = self.postService.insert(post)
         postDb.Blog = blogId

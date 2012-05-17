@@ -19,8 +19,8 @@ from livedesk.api.blog import IBlogService, QBlog, Blog
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from superdesk.language.api.language import ILanguageService, LanguageEntity
 from livedesk.api.blog_admin import IBlogAdminService
-from livedesk.api.blog_post import IBlogPostService, BlogPost
-from superdesk.post.api.post import QPost
+from livedesk.api.blog_post import IBlogPostService
+from superdesk.post.api.post import QPost, Post
 
 # --------------------------------------------------------------------
 
@@ -131,8 +131,7 @@ def createBlogPosts():
         psts = blogPostService.getPublished(blogId, q=q)
         try: next(iter(psts))
         except StopIteration:
-            pst = BlogPost()
-            pst.Blog = blogId
+            pst = Post()
             pst.CreatedOn = createdOn
             pst.Type, creator, author, pst.IsModified, pst.Content, \
             pst.PublishedOn, pst.UpdatedOn, pst.DeletedOn = POSTS[(createdOn, blog)]
@@ -140,7 +139,7 @@ def createBlogPosts():
             if author: pst.Author = getCollaboratorsIds()[author]
 
             createPostType(pst.Type)
-            blogPostService.insert(pst)
+            blogPostService.insert(blogId, pst)
 
 # --------------------------------------------------------------------
 
