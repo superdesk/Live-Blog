@@ -10,6 +10,7 @@ Contains the SQL alchemy meta for post API.
 '''
 
 from ..api.post import Post
+from ally.support.sqlalchemy.mapper import validate
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -24,6 +25,7 @@ from superdesk.user.meta.user import User
 
 # --------------------------------------------------------------------
 
+@validate
 class PostMapped(Base, Post):
     '''
     Provides the mapping for Post.

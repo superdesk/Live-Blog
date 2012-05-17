@@ -76,8 +76,10 @@ def createBlogCollaborators():
     assert isinstance(blogCollaboratorService, IBlogCollaboratorService)
     for name, blog in BLOG_COLLABORATORS.items():
         blogId, collId = getBlogsIds()[blog], getCollaboratorsIds()[name]
-        blgs = blogCollaboratorService.getAll(blogId, collId)
-        if not blgs:
+        blgs = blogCollaboratorService.getAll(blogId)
+        for blg in blgs:
+            if blg.Id == collId: break
+        else:
             blogCollaboratorService.addCollaborator(blogId, collId)
 
 BLOG_ADMINS = {

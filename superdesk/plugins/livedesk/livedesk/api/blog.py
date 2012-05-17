@@ -50,6 +50,8 @@ class QBlog(Entity):
 
 # --------------------------------------------------------------------
 
+#TODO: change the policy, here more of a security check this doesn't need to happen for authentification
+# remove methods like getBlog, getAll
 @service((Entity, Blog))
 class IBlogService(IEntityCRUDService):
     '''
