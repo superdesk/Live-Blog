@@ -13,15 +13,15 @@ from ..api.blog_admin import IBlogAdminService
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.util_service import buildLimits
-from livedesk.meta.blog_admin import BlogAdminMapped
-from sql_alchemy.impl.entity import EntityGetServiceAlchemy
+from ally.support.sqlalchemy.session import SessionSupport
+from livedesk.meta.blog_admin import AdminMapped, AdminEntry
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm.exc import NoResultFound
 
 # --------------------------------------------------------------------
 
 @injected
-class BlogAdminServiceAlchemy(EntityGetServiceAlchemy, IBlogAdminService):
+class BlogAdminServiceAlchemy(SessionSupport, IBlogAdminService):
     '''
     Implementation for @see: IBlogAdminService
     '''
@@ -30,51 +30,50 @@ class BlogAdminServiceAlchemy(EntityGetServiceAlchemy, IBlogAdminService):
         '''
         Construct the blog administrator service.
         '''
-        EntityGetServiceAlchemy.__init__(self, BlogAdminMapped)
+        SessionSupport.__init__(self)
 
-    def getAll(self, blogId=None, userId=None, offset=None, limit=None):
+    def getById(self, blogId, userId):
+        '''
+        @see: IBlogAdminService.getById
+        '''
+        sql = self.session().query(AdminMapped)
+        sql = sql.filter(AdminMapped.Blog == blogId)
+        sql = sql.filter(AdminMapped.Id == userId)
+
+        try: return sql.one()
+        except NoResultFound: raise InputError(Ref(_('No administrator'), ref=AdminMapped.Id))
+
+    def getAll(self, blogId):
         '''
         @see: IBlogAdminService.getAll
         '''
-        sql = self.session().query(BlogAdminMapped)
-        if blogId: sql = sql.filter(BlogAdminMapped.Blog == blogId)
-        if userId: sql = sql.filter(BlogAdminMapped.User == userId)
-        sql = buildLimits(sql, offset, limit)
+        sql = self.session().query(AdminMapped).filter(AdminMapped.Blog == blogId)
         return sql.all()
 
     def addAdmin(self, blogId, userId):
         '''
         @see: IBlogAdminService.addAdmin
         '''
-        sql = self.session().query(BlogAdminMapped)
-        sql = sql.filter(BlogAdminMapped.Blog == blogId)
-        sql = sql.filter(BlogAdminMapped.User == userId)
-        if sql.count() > 0: raise InputError(_('Already an administrator for this blog'))
+#        sql = self.session().query(AdminMapped)
+#        sql = sql.filter(AdminMapped.Blog == blogId)
+#        sql = sql.filter(AdminMapped.Id == userId)
+#        if sql.count() > 0: raise InputError(Ref(_('Already an administrator'), ref=AdminMapped.Id))
 
-        bgu = BlogAdminMapped()
-        bgu.Blog = blogId
-        bgu.User = userId
-        self.session().add(bgu)
-        self.session().flush((bgu,))
-        return bgu.Id
+        bge = AdminEntry()
+        bge.Id = userId
+        bge.Blog = blogId
+        self.session().add(bge)
+        self.session().flush((bge,))
+        return bge.Id
 
     def removeAdmin(self, blogId, userId):
         '''
         @see: IBlogAdminService.removeAdmin
         '''
         try:
-            sql = self.session().query(BlogAdminMapped)
-            sql = sql.filter(BlogAdminMapped.Blog == blogId)
-            sql = sql.filter(BlogAdminMapped.User == userId)
+            sql = self.session().query(AdminMapped)
+            sql = sql.filter(AdminMapped.Blog == blogId)
+            sql = sql.filter(AdminMapped.Id == userId)
             return sql.delete() > 0
         except OperationalError:
-            raise InputError(Ref(_('Cannot remove'), model=BlogAdminMapped))
-
-    def remove(self, userId):
-        '''
-        @see: IBlogAdminService.remove
-        '''
-        try:
-            return self.session().query(BlogAdminMapped).filter(BlogAdminMapped.Id == id).delete() > 0
-        except OperationalError:
-            raise InputError(Ref(_('Cannot remove'), model=BlogAdminMapped))
+            raise InputError(Ref(_('Cannot remove'), model=AdminMapped))
