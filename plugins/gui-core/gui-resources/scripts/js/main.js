@@ -17,11 +17,14 @@ requirejs.config
 		'utils': config.js_url + '/utils',
 		'gettext': config.js_url + '/gettext',
 		'tmpl': config.js_url + '/require/tmpl',
-		'i18n': config.js_url + '/require/i18n',
+		'i18n': config.js_url + '/require/i18n'
 	}
 });
-require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n'], 
+require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
 function(MenuView, $)
 {
+    $.rest.prototype.config.apiUrl = config.api_url;
+    $.restAuth.prototype.config.apiUrl = config.api_url;
+    
     $.superdesk.navigation.init(function(){ var menuView = new MenuView; });
 }); 
