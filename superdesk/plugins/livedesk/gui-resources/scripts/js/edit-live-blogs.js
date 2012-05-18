@@ -53,11 +53,13 @@ function(providers, $)
                 providers[idx].el = $(el.attr('href'));
                 providers[idx].init(theBlog);
             });
+            $('.tabbable').on('hide','a[data-toggle="tab"]', function(e) 
+                    { console.log('cifi-cif'); });
         };
     
     var EditApp = function(theBlog)
     {
-        var blog = new $.rest(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
+        var blog = new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
         { 
             
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
