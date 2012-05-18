@@ -11,7 +11,7 @@ Contains the SQL alchemy meta for blog API.
 
 from ..api.blog import IBlogService, QBlog, Blog
 from ..meta.blog import BlogMapped
-from ..meta.blog_admin import AdminMapped
+from ..meta.blog_admin import AdminEntry
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
@@ -81,7 +81,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         @see: IBlogService.insert
         '''
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
-        blog.CreatedOn = datetime.now()
+        if blog.CreatedOn is None: blog.CreatedOn = datetime.now()
         return super().insert(blog)
 
     # ----------------------------------------------------------------
@@ -93,7 +93,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         sql = self.session().query(BlogMapped)
         if languageId: sql = sql.filter(BlogMapped.Language == languageId)
         if adminId:
-            sql = sql.join(AdminMapped).filter((BlogMapped.Creator == adminId) | (AdminMapped.Id == adminId))
+            sql = sql.join(AdminEntry).filter((BlogMapped.Creator == adminId) | (AdminEntry.Id == adminId))
         if q:
             assert isinstance(q, QBlog), 'Invalid query %s' % q
             sql = buildQuery(sql, q, BlogMapped)
