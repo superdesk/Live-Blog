@@ -38,94 +38,100 @@ define('jquery/rest',['jquery'], function ($) {
 	 */
 	function resource()
 	{
-		var self = this;
-		
-		//this.uniqueId = (new Date).getTime();
-		
-		this._ = '';
-		
-		this.getData = [];
-		this.lastAdded = {};
-		this.lastUrl = '';
-		this.job = [];
-		this.initXFrom = false;
-		this.respArgs = null;
-		this.dataChanged = false;
-		
-		this.requestOptions = 
-		{
-			dataType: 'json',
-			type: 'get',
-			headers: { 'Accept' : 'text/json' } 
-		};
-		
-		var extractListData = function(data)
-		{
-			var ret = data;
-			if( !Array.isArray(data) ) for( i in data ) 
-			{
-				if( Array.isArray(data[i]) )
-				{
-					ret = data[i];
-					break;
-				}
-			}
-			return ret;
-		};
-		this.extractListData = extractListData;
-		
-		if( typeof arguments[0] == 'string' )
-		{
-			self.lastUrl = arguments[0];
-			self.request({url : arguments[0] });
-			var resolve = null;
-			self.initData = new chainable( function()
-			{
-				if( resolve && !self.dataChanged ) 
-				{
-					this.deferred.resolve(resolve); 
-					return ret;
-				};
-				
-				if( typeof this.request != 'undefined' ) self.request(this.request);
-				return self.doRequest()
-					.pipe(function(data)
-					{
-					    resolve = extractListData(data);
-                        self.dataChanged = false;
-                        return resolve;
-					})
-					.then(this.deferred.resolve, this.deferred.reject);
-			}, 'initData from ajax');
-		}
-		else
-		{
-			var ret = extractListData(arguments[0]);
-			this.initData = new chainable(function()
-			{ 
-				this.deferred.resolve(ret); return ret; 
-			}, 'initData with data');
-		}
-		
-		this.lastAdded = this.initData;
-		
-		this.fromData = new chainable(function(data){ this.deferred.resolve(data); }, 'fromInit');
-		var fromData = this.fromData,
-			self = this;
-		
-		fromData.promise().always(function(){ self.initXFrom = false; })
-		self.initXFrom = true;
-		$.when(this.initData).then(function()
-		{
-			fromData.invoke.apply(fromData, arguments);
-		}, fromData.deferred.reject );
-		
-		if(arguments[1]) this.name = arguments[1];
-		
+	    arguments.length && this._construct.apply(this, arguments);
 	};
-
+	
 	resource.prototype = 
 	{
+	    _: '',
+        getData: [],
+        lastAdded: {},
+        lastUrl: '',
+        job: [],
+        initXFrom: false,
+        respArgs: null,
+        dataChanged: false,
+        initData: undefined,
+        fromData: undefined,
+        getData: [],
+        _construct: function()
+        {
+            var self = this,
+                extractListData = this.extractListData;
+            if( typeof arguments[0] == 'string' )
+            {
+                self.lastUrl = arguments[0];
+                self.request({url :
+                    arguments[0].indexOf('http://') !== -1 ? arguments[0] :
+                    self.config.apiUrl+self.config.resourcePath+arguments[0] });
+                var resolve = null;
+                self.initData = new chainable( function()
+                {
+                    if( resolve && !self.dataChanged ) 
+                    {
+                        this.deferred.resolve(resolve); 
+                        return ret;
+                    };
+                    
+                    if( typeof this.request != 'undefined' ) self.request(this.request);
+                    return self.doRequest()
+                        .pipe(function(data)
+                        {
+                            resolve = extractListData(data);
+                            self.dataChanged = false;
+                            return resolve;
+                        })
+                        .then(this.deferred.resolve, this.deferred.reject);
+                }, 'initData from ajax');
+            }
+            else
+            {
+                var ret = extractListData(arguments[0]);
+                this.initData = new chainable(function()
+                { 
+                    this.deferred.resolve(ret); return ret; 
+                }, 'initData with data');
+            }
+            
+            this.lastAdded = this.initData;
+            
+            this.fromData = new chainable(function(data){ this.deferred.resolve(data); }, 'fromInit');
+            var fromData = this.fromData,
+                self = this;
+            
+            fromData.promise().always(function(){ self.initXFrom = false; })
+            self.initXFrom = true;
+            $.when(this.initData).then(function()
+            {
+                fromData.invoke.apply(fromData, arguments);
+            }, fromData.deferred.reject );
+            
+            if(arguments[1]) this.name = arguments[1];
+        },
+        extractListData: function(data)
+        {
+            var ret = data;
+            if( !Array.isArray(data) ) for( i in data ) 
+            {
+                if( Array.isArray(data[i]) )
+                {
+                    ret = data[i];
+                    break;
+                }
+            }
+            return ret;
+        },
+	    config:
+	    {
+	        resourcePath: '/resources/',
+	        apiUrl: ''
+	    },
+        requestOptions: 
+        {
+            dataType: 'json',
+            type: 'get',
+            headers: { 'Accept' : 'text/json' } 
+        },
 		chainable: chainable,
 	
 		/*!
@@ -428,6 +434,12 @@ define('jquery/rest',['jquery'], function ($) {
 			$.extend(true, this.requestOptions, options);
 			return this;
 		},
+		
+		auth: function()
+		{
+		    this.config.resourcePath = '/resources/my';
+		    this.requestOptions.headers.Authorization = 1;
+		},
 
 		/*!
 		 * reset request option data, optionally by key
@@ -454,4 +466,14 @@ define('jquery/rest',['jquery'], function ($) {
 	};
 	
 	$.extend($, {rest : resource});
+	
+	var authProto = $.extend( true, {}, $.rest.prototype, 
+    { 
+        config: {resourcePath: '/resources/my/'}, 
+        requestOptions: {headers: {'Authorization': 1}} 
+    }),
+        restAuth = function(){arguments.length && this._construct.apply(this, arguments);};
+    restAuth.prototype = authProto;
+    
+    $.extend($, {restAuth : restAuth});
 });
