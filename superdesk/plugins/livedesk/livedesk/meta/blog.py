@@ -14,7 +14,7 @@ from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.schema import Column, ForeignKey
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.language.meta.language import LanguageEntity
-from superdesk.user.meta.user import User
+from superdesk.user.meta.user import UserMapped
 from sqlalchemy.types import String, DateTime, Text
 from sqlalchemy.orm import column_property
 from sqlalchemy.sql.expression import select, func
@@ -33,7 +33,7 @@ class BlogMapped(Base, Blog):
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Language = Column('fk_language_id', ForeignKey(LanguageEntity.Id), nullable=False)
-    Creator = Column('fk_creator_id', ForeignKey(User.Id), nullable=False)
+    Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id), nullable=False)
     Title = Column('title', String(255), nullable=False)
     Description = Column('description', Text)
     CreatedOn = Column('created_on', DateTime, nullable=False)

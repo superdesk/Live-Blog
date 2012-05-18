@@ -27,17 +27,6 @@ def server_thread_pool() -> int:
     '''The thread pool size for the server'''
     return 10
 
-@ioc.config
-def server_content_folder() -> str:
-    '''The folder from where the server should provide static content files, attention this will be available only if
-    there is also a server root'''
-    return None
-
-@ioc.config
-def server_content_index() -> str:
-    '''The static folder index file'''
-    return 'index.html'
-
 @ioc.entity
 def requestHandler():
     from ally.core.http.server.server_cherrypy import RequestHandler

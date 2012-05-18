@@ -10,17 +10,12 @@ Provides the configurations for development tools.
 '''
 
 from ..ally_core.resource_management import resourcesRegister
+from ..development.service import publish_development
 from ally.container import ioc
 from development.request.impl.memory_status import MemoryStatusPresenter
 
 # --------------------------------------------------------------------
 # Creating the development tools
-
-@ioc.config
-def application_mode() -> str:
-    '''The application mode one of devel, prod'''
-    return 'prod'
-
 
 @ioc.entity
 def memoryStatusPresenter():
@@ -30,5 +25,5 @@ def memoryStatusPresenter():
 
 @ioc.after(resourcesRegister)
 def development():
-    if application_mode() == 'devel':
+    if publish_development() == 'devel':
         memoryStatusPresenter()

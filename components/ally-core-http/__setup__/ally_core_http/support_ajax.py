@@ -6,7 +6,7 @@ Created on Nov 24, 2011
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the the javascript setup required by browser for ajax.
+Provides the javascript setup required by browser for ajax.
 '''
 
 from ..ally_core.processor import methodInvoker

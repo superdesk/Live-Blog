@@ -87,13 +87,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert isinstance(post, Post), 'Invalid post %s' % post
         post.CreatedOn = datetime.now()
         postDb = BlogPostEntry()
-        postDb.Id = self.postService.insert(post)
         postDb.Blog = blogId
+        postDb.blogPostId = self.postService.insert(post)
         try:
             self.session().add(postDb)
             self.session().flush((postDb,))
         except SQLAlchemyError as e: handle(e, BlogPost)
-        return postDb.Id
+        return postDb.blogPostId
 
     def publish(self, blogId, postId):
         '''
@@ -113,13 +113,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert isinstance(post, Post), 'Invalid post %s' % post
         post.CreatedOn = post.PublishedOn = datetime.now()
         postDb = BlogPostEntry()
-        postDb.Id = self.postService.insert(post)
         postDb.Blog = blogId
+        postDb.blogPostId = self.postService.insert(post)
         try:
             self.session().add(postDb)
             self.session().flush((postDb,))
         except SQLAlchemyError as e: handle(e, BlogPost)
-        return postDb.Id
+        return postDb.blogPostId
 
     def update(self, blogId, post):
         '''
