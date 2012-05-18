@@ -54,10 +54,16 @@ function(providers, $)
             {
                 $(colabsList).each(function()
                 {
-                    var colab = this;
-                    new $.rest(colab.Collaborator.Post.Post.href).xfilter('Id, Content, CreatedOn, PublishedOn')
-                    .done(function(postList)
+                    var colab = this,
+                        updateRequest = new $.rest(colab)
+                        .get('PostPublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
+                        .get('PostUnpublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
+                    .done(function(published, unpublished)
                     {
+                        published = this.extractListData(published[0]);
+                        unpublished = this.extractListData(unpublished[0]);
+                        var postList = published.concat(unpublished);
+                        
                         var appendPosts = [];
                         for(var i=0; i<postList.length; i++)
                         {
@@ -79,14 +85,15 @@ function(providers, $)
                         }]);
                     });
                 });
-            },
-            blog = new $.rest(theBlog).get('Collaborator').done(function(listData)
+            };
+            
+            new $.restAuth(theBlog).get('Collaborator').done(function(listData)
             {
                 var colabsHrefs = this.extractListData(listData);
                 $(colabsHrefs).each(function()
                 { 
                     new $.rest(this.href)
-                    .xfilter('Collaborator.Person.FirstName,Collaborator.Person.LastName,Collaborator.Person.Id,Collaborator.Post')
+                    .xfilter('Person.Id,Person.FullName')
                     .done(function(colab)
                     {
                         colab._latestPost = 0;
@@ -94,14 +101,18 @@ function(providers, $)
                         if(colabsList.length == colabsHrefs.length)
                             $(self.el).tmpl('livedesk>providers/colabs', {Colabs: colabsList}, setupHeader);
                        
-                        new $.rest(colab.Collaborator.Post.Post.href)
-                        .xfilter('Id, Content, CreatedOn, PublishedOn')
-                        .done(function(postList)
+                        this.get('PostPublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
+                            .get('PostUnpublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
+                        .done(function(published, unpublished)
                         {
+                            published = this.extractListData(published[0]);
+                            unpublished = this.extractListData(unpublished[0]);
+                            var postList = published.concat(unpublished);
+                            
                             for(var i=0; i<postList.length; i++)
                                 colab._latestPost = Math.max(colab._latestPost, parseInt(postList[i].Id));
 
-                            $.tmpl('livedesk>providers/colabs-items', {Person: colab.Collaborator.Person, Posts: postList}, function(e, o)
+                            $.tmpl('livedesk>providers/colabs-items', {Person: colab.Person, Posts: postList}, function(e, o)
                             {
                                 $('.search-result-list', self.el).prepend(o);
                                 clearInterval(updateInterval);
