@@ -129,7 +129,7 @@ def validateMaxLength(refProp, length):
     assert isinstance(length, int), 'Invalid length %s' % length
     validateProperty(refProp, functools.partial(onPropertyMaxLength, length), index=INDEX_PROP_MAX_LEN)
 
-def validateManaged(prop):
+def validateManaged(prop, key=(EVENT_PROP_INSERT, EVENT_PROP_UPDATE)):
     '''
     Binds a managed validation on the property. The managed validation consists of:
      - the property is not allowed to have any value when inserting or updating.
@@ -137,7 +137,7 @@ def validateManaged(prop):
     @param refProp: TypeSupport|TypeModelProperty
         The property reference to get the property to bind to.
     '''
-    validateProperty(prop, onPropertyUnwanted, index=INDEX_PROP_MANAGED)
+    validateProperty(prop, onPropertyUnwanted, key, INDEX_PROP_MANAGED)
 
 def bindValidations(proxy, mappings=None):
     '''

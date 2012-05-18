@@ -10,7 +10,7 @@ API specifications for livedesk blog posts.
 '''
 
 from .blog import Blog
-from ally.api.config import service, call
+from ally.api.config import service, call, INSERT
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.post.api.post import Post, QPostPublished, QPostUnpublished
 from superdesk.user.api.user import User
@@ -65,8 +65,20 @@ class IBlogPostService:
         Inserts the post for the blog.
         '''
 
+    @call(method=INSERT, webName='Publish')
+    def publish(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
+        '''
+        Inserts the post for the blog.
+        '''
+
+    @call(webName='Published')
+    def insertAndPublish(self, blogId:Blog.Id, post:Post) -> BlogPost.Id:
+        '''
+        Inserts the post for the blog.
+        '''
+
     @call
-    def update(self, blogId:Blog.Id, post:Post) -> bool:
+    def update(self, blogId:Blog.Id, post:Post):
         '''
         Update the post for the blog.
         '''

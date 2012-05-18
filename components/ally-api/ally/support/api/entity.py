@@ -100,7 +100,7 @@ class IEntityCRUDService:
         '''
 
     @call
-    def update(self, entity:Entity) -> None:
+    def update(self, entity:Entity):
         '''
         Update the entity.
         

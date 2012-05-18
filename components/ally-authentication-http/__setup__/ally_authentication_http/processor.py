@@ -55,5 +55,6 @@ def handlersResourcesAuthentication():
 
 @ioc.before(pathProcessors)
 def updatePathProcessors():
-    pathProcessors().append((re.compile(server_pattern_authenticated()), Processors(*handlersResourcesAuthentication())))
+    processors = Processors(*handlersResourcesAuthentication())
+    pathProcessors().insert(0, (re.compile(server_pattern_authenticated()), processors))
 
