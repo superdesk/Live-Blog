@@ -8,7 +8,7 @@ function($, superdesk, dust)
 {
     var MenuView = function() 
     {
-        var menu = new $.rest(config.api_url + '/resources/GUI/Action?path=menu.*')
+        var menu = new $.rest('GUI/Action?path=menu.*')
         .done(function(menu)
         {  
     		var displayMenu = []
@@ -19,7 +19,7 @@ function($, superdesk, dust)
     			{
     			    Subs = 'data-submenu='+this.Path;
     			    Subz = '[data-submenu="'+this.Path+'"]';
-    			    new $.rest(config.api_url + '/resources/GUI/Action?path=' + this.Path + '.*')
+    			    new $.rest('GUI/Action?path=' + this.Path + '.*')
     			    .done(function(subs)
     			    { 
     			        $(subs).each(function()
