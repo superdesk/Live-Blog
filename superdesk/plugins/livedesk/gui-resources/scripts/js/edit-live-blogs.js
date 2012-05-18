@@ -59,9 +59,8 @@ function(providers, $)
     
     var EditApp = function(theBlog)
     {
-        var blog = new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
+        new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
         { 
-            
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
                 content = $.superdesk.applyLayout('livedesk>edit', data, function(){ initEditBlog(theBlog); });
             
@@ -88,28 +87,27 @@ function(providers, $)
                 intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
             });
             
-            this.get('BlogCollaborator').xfilter('Collaborator').done(function(colabs)
+            this.get('Collaborator').done(function(colabs)
             { 
                 $(this.extractListData(colabs)).each(function()
                 { 
-                    new $.rest(this.Collaborator.href)
+                    /*new $.rest(this.Collaborator.href)
                         .xfilter('Person.FirstName, Person.LastName')
                         .done(function()
                         { 
                             
-                        });
+                        });*/
                 });
             });
             
-            this.get('BlogPostPublished')
-            .xfilter('Id, Content, CreatedOn, Type.Key, '+
-                    'Author.Id, Author.Person, Author.Person.FirstName, Author.Person.LastName, '+
-                    'Author.Source, Author.Source.Name, Author.Source.Id')
+            this.get('PostPublished')
+            .xfilter('Id, Content, CreatedOn, Type, Author.Source.Name, Author.Source.Id')
             .done(function(posts)
             {
                 $('#timeline-view', content).tmpl('livedesk>edit-timeline', {Posts: this.extractListData(posts)});
             });
         });
+        
     };
     return EditApp;
 });
