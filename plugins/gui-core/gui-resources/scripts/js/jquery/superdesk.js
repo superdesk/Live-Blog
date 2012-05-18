@@ -74,7 +74,7 @@ var superdesk =
 		var dfd = $.Deferred();
 		if( !superdesk.cache.actions[path] )
 		{
-			new $.rest(superdesk.apiUrl + '/resources/GUI/Action?path='+path)
+			new $.rest('GUI/Action?path='+path)
 				.done(function(actions)
 				{ 
 					superdesk.cache.actions[path] = actions;
