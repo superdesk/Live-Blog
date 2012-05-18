@@ -10,11 +10,11 @@ Contains the SQL alchemy meta for blog admin API.
 '''
 
 from ..api.blog_admin import Admin
+from .blog import BlogMapped
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.schema import Column, ForeignKey
 from superdesk.meta.metadata_superdesk import Base
-from .blog import BlogMapped
-from superdesk.user.meta.user import User
-from sqlalchemy.ext.declarative import declared_attr
+from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
@@ -26,16 +26,18 @@ class AdminDefinition:
     __tablename__ = 'livedesk_admin'
     __table_args__ = dict(mysql_engine='InnoDB')
 
-    Id = declared_attr(lambda cls: Column('fk_user_id', ForeignKey(User.Id), primary_key=True))
     Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), primary_key=True))
+    # Non REST model attribute --------------------------------------
+    adminId = declared_attr(lambda cls: Column('fk_user_id', ForeignKey(UserMapped.userId), primary_key=True))
+    # Never map over the inherited id
 
 class AdminEntry(Base, AdminDefinition):
     '''
-    Provides the mapping for a BlogAdmin entry.
+    Provides the mapping for a blog Admin entry.
     '''
 
-class AdminMapped(User, AdminDefinition, Admin):
+class AdminMapped(AdminDefinition, UserMapped, Admin):
     '''
-    Provides the mapping for BlogAdmin.
+    Provides the mapping for blog Admin.
     '''
-    __table_args__ = dict(extend_existing=True)
+    __table_args__ = dict(AdminDefinition.__table_args__, extend_existing=True)
