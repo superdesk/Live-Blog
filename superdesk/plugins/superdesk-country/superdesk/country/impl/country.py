@@ -60,7 +60,7 @@ class CountryServiceBabelAlchemy(ICountryService):
             length = len(countries)
             countries = trimIter(countries, length, offset, limit)
         else:
-            length = len(self._locales)
+            length = len(self.countries)
             countries = trimIter(self.countries, length, offset, limit)
             countries = (Country(code, self._translate(code, locales)) for code in countries)
         return Part(countries, length)
