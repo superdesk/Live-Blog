@@ -8,7 +8,7 @@ define
     {
         init: function(submenu) 
         {
-            new $.rest(superdesk.apiUrl + '/resources/LiveDesk/Blog/').xfilter('Title,Id').done(function(blogs)
+            new $.restAuth('LiveDesk/Blog/').xfilter('Title,Id').done(function(blogs)
             { 
                 $(submenu).tmpl('livedesk>submenu', {Blogs: blogs}, function()
                 { 
@@ -38,7 +38,7 @@ define
                             .done(function(actions)
                             {
                                 require([superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js'],
-                                function(EditApp){ new EditApp(theBlog) });
+                                function(EditApp){ new EditApp(theBlog); });
                             });
                         });
                 });
