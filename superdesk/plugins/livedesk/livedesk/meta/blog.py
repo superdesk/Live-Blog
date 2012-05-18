@@ -18,9 +18,12 @@ from superdesk.user.meta.user import User
 from sqlalchemy.types import String, DateTime, Text
 from sqlalchemy.orm import column_property
 from sqlalchemy.sql.expression import select, func
+from ally.support.sqlalchemy.mapper import validate
+from ally.container.binder_op import validateManaged
 
 # --------------------------------------------------------------------
 
+@validate(exclude=('CreatedOn',))
 class BlogMapped(Base, Blog):
     '''
     Provides the mapping for Blog.
@@ -36,6 +39,8 @@ class BlogMapped(Base, Blog):
     CreatedOn = Column('created_on', DateTime, nullable=False)
     LiveOn = Column('live_on', DateTime)
     ClosedOn = Column('closed_on', DateTime)
+
+validateManaged(BlogMapped.CreatedOn)
 
 # --------------------------------------------------------------------
 

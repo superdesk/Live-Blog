@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rest-client version="2.3.3"><request><http-version>1.1</http-version><URL>http://localhost/resources/my/LiveDesk/Blog</URL><method>POST</method><headers><header key="Content-Language" value="en"/><header key="Content-Type" value="text/xml"/><header key="Authorization" value="1"/></headers><body content-type="text/plain" charset="UTF-8">&lt;Blog&gt;&#x0D;
+	&lt;Description&gt;&#x0D;
+		Lets talk about&#x0D;
+	&lt;/Description&gt;&#x0D;
+	&lt;Title&gt;My first blog&lt;/Title&gt;&#x0D;
+	&lt;Language&gt;1&lt;/Language&gt;&#x0D;
+&lt;/Blog&gt;</body></request></rest-client>

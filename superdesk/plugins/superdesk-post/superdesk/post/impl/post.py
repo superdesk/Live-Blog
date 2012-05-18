@@ -22,8 +22,11 @@ from ally.exception import InputError, Ref
 from ally.internationalization import _
 from superdesk.post.api.post import Post, QPostUnpublished, QPostPublished, \
     QPost
+from datetime import datetime
 
 # --------------------------------------------------------------------
+
+COPY_EXCLUDE = ('Type', 'AuthorName')
 
 @injected
 class PostServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
@@ -97,8 +100,9 @@ class PostServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
         postDb = PostMapped()
-        copy(post, postDb, exclude='Type')
+        copy(post, postDb, exclude=COPY_EXCLUDE)
         postDb.typeId = self._typeId(post.Type)
+        if postDb.CreatedOn is None: postDb.CreatedOn = datetime.now()
 
         try:
             self.session().add(postDb)
@@ -116,8 +120,9 @@ class PostServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
         if not postDb: raise InputError(Ref(_('Unknown post id'), ref=Post.Id))
         if Post.Type in post: postDb.typeId = self._typeId(post.Type)
 
+        if postDb.UpdatedOn is None: postDb.UpdatedOn = datetime.now()
         try:
-            self.session().flush((copy(post, postDb, exclude='Type'),))
+            self.session().flush((copy(post, postDb, exclude=COPY_EXCLUDE),))
         except SQLAlchemyError as e: handle(e, PostMapped)
 
     # ----------------------------------------------------------------
