@@ -93,7 +93,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         sql = self.session().query(BlogMapped)
         if languageId: sql = sql.filter(BlogMapped.Language == languageId)
         if adminId:
-            sql = sql.join(AdminEntry).filter((BlogMapped.Creator == adminId) | (AdminEntry.Id == adminId))
+            sql = sql.join(AdminEntry).filter((BlogMapped.Creator == adminId) | (AdminEntry.adminId == adminId))
         if q:
             assert isinstance(q, QBlog), 'Invalid query %s' % q
             sql = buildQuery(sql, q, BlogMapped)
