@@ -27,6 +27,7 @@ from ally.support.sqlalchemy.session import SessionSupport
 from sqlalchemy.orm.exc import NoResultFound
 from ally.exception import InputError, Ref
 from ally.internationalization import _
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -84,6 +85,33 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.insert
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
+        post.CreatedOn = datetime.now()
+        postDb = BlogPostEntry()
+        postDb.Id = self.postService.insert(post)
+        postDb.Blog = blogId
+        try:
+            self.session().add(postDb)
+            self.session().flush((postDb,))
+        except SQLAlchemyError as e: handle(e, BlogPost)
+        return postDb.Id
+
+    def publish(self, blogId, postId):
+        '''
+        @see: IBlogPostService.publish
+        '''
+        post = self.getById(blogId, postId)
+        assert isinstance(post, Post)
+        if post.PublishedOn: raise InputError(Ref(_('Already published'), ref=Post.PublishedOn))
+        post.PublishedOn = datetime.now()
+        self.postService.update(post)
+        return postId
+
+    def insertAndPublish(self, blogId, post):
+        '''
+        @see: IBlogPostService.insertAndPublish
+        '''
+        assert isinstance(post, Post), 'Invalid post %s' % post
+        post.CreatedOn = post.PublishedOn = datetime.now()
         postDb = BlogPostEntry()
         postDb.Id = self.postService.insert(post)
         postDb.Blog = blogId
@@ -97,7 +125,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.update
         '''
-        assert isinstance(post, BlogPost), 'Invalid post %s' % post
+        assert isinstance(post, Post), 'Invalid post %s' % post
+        post.UpdatedOn = datetime.now()
         self.postService.update(post)
 
     # ----------------------------------------------------------------

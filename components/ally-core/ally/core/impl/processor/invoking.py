@@ -108,7 +108,7 @@ class InvokingHandler(Processor):
                 rsp.obj = value
             else:
                 rsp.setCode(CANNOT_INSERT, 'Cannot insert')
-                assert log.debug('Cannot updated resource') or True
+                assert log.debug('Cannot update resource') or True
                 return False
         else:
             rsp.obj = value
@@ -136,8 +136,8 @@ class InvokingHandler(Processor):
                 rsp.setCode(UPDATE_SUCCESS, 'Successfully updated')
                 assert log.debug('Successful updated resource') or True
             else:
-                rsp.setCode(CANNOT_UPDATE, 'Cannot updated')
-                assert log.debug('Cannot updated resource') or True
+                rsp.setCode(CANNOT_UPDATE, 'Cannot update')
+                assert log.debug('Cannot update resource') or True
             return False
         else:
             #If an entity is returned than we will render that.

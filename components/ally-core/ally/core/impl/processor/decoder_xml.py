@@ -184,6 +184,6 @@ class RuleSetProperty(Rule):
         try:
             setattr(digester.stack[-1], self._property, self._converter.asValue(content, self._type))
         except ValueError:
-            digester.errors.append(Ref(_('Invalid value, expected %{type}s type') %
+            digester.errors.append(Ref(_('Invalid value, expected %(type)s type') %
                                     dict(type=_(str(self._type))), model=self._model, property=self._property))
             assert log.debug('Problems setting property %r from XML value %s', self._property, content) or True

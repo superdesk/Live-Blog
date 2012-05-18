@@ -22,10 +22,12 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.type import PostTypeMapped
 from superdesk.user.meta.user import User
+from ally.container.binder_op import validateManaged, validateRequired, \
+    EVENT_PROP_UPDATE
 
 # --------------------------------------------------------------------
 
-@validate
+@validate(exclude=('Type', 'CreatedOn', 'UpdatedOn', 'DeletedOn', 'PublishedOn'))
 class PostMapped(Base, Post):
     '''
     Provides the mapping for Post.
@@ -58,3 +60,12 @@ class PostMapped(Base, Post):
     @AuthorName.expression
     def _AuthorName(cls):
         return case([(cls.Author == None, User.Name)], else_=CollaboratorMapped.Name)
+
+validateRequired(PostMapped.Type)
+validateManaged(PostMapped.Type, key=EVENT_PROP_UPDATE)
+validateManaged(PostMapped.Author, key=EVENT_PROP_UPDATE)
+
+validateManaged(PostMapped.CreatedOn)
+validateManaged(PostMapped.PublishedOn)
+validateManaged(PostMapped.UpdatedOn)
+validateManaged(PostMapped.DeletedOn)

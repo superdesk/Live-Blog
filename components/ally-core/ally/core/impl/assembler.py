@@ -579,20 +579,24 @@ class AssembleUpdateModel(AssembleUpdate):
         if invoker.method != UPDATE: return False
 
         types = [inp.type for inp in invoker.inputs[:invoker.mandatory] if isinstance(inp.type, TypeModelProperty)]
-        modelTypes = [inp.type for inp in invoker.inputs[:invoker.mandatory] if isinstance(inp.type, TypeModel)]
+        modelTypes = [(inp.type, k) for k, inp in enumerate(invoker.inputs[:invoker.mandatory])
+                      if isinstance(inp.type, TypeModel)]
         if len(modelTypes) == 1:
-            typ = modelTypes[0]
+            typ, modelIndex = modelTypes[0]
             assert isinstance(typ, TypeModel)
             typeId = typ.childTypeId()
             if typeId not in types:
+                assert isinstance(typeId, TypeModelProperty)
                 inputs = list(invoker.inputs[:invoker.mandatory])
                 indexes = list(range(0, invoker.mandatory))
+
+                indexesSetValue = {modelIndex: {typeId.property:invoker.mandatory}}
 
                 inputs.append(Input('setId$%s' % typeId.property, typeId))
                 inputs.extend(invoker.inputs[invoker.mandatory:])
                 indexes.extend(range(invoker.mandatory + 1, len(inputs)))
 
-                return super().assembleInvoker(root, InvokerRestructuring(invoker, inputs, indexes))
+                return super().assembleInvoker(root, InvokerRestructuring(invoker, inputs, indexes, indexesSetValue))
         return False
 
 # --------------------------------------------------------------------
