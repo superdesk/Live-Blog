@@ -12,7 +12,7 @@ Created on Mar 6, 2012
 from superdesk.user.api.user import IUserService, QUser
 from ally.container.ioc import injected
 from sql_alchemy.impl.entity import EntityServiceAlchemy
-from superdesk.user.meta.user import User
+from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
@@ -22,4 +22,4 @@ class UserServiceAlchemy(EntityServiceAlchemy, IUserService):
     @see: IUserService
     '''
     def __init__(self):
-        EntityServiceAlchemy.__init__(self, User, QUser)
+        EntityServiceAlchemy.__init__(self, UserMapped, QUser)

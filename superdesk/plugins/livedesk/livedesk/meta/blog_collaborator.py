@@ -26,8 +26,12 @@ class BlogCollaboratorDefinition:
     __tablename__ = 'livedesk_collaborator'
     __table_args__ = dict(mysql_engine='InnoDB')
 
-    Id = declared_attr(lambda cls: Column('fk_collaborator_id', ForeignKey(CollaboratorMapped.Id), primary_key=True))
     Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), primary_key=True))
+
+    # Non REST model attribute --------------------------------------
+    blogCollaboratorId = declared_attr(lambda cls: Column('fk_collaborator_id',
+                                                          ForeignKey(CollaboratorMapped.Id), primary_key=True))
+    # Never map over the inherited id
 
 class BlogCollaboratorEntry(Base, BlogCollaboratorDefinition):
     '''
@@ -38,4 +42,4 @@ class BlogCollaboratorMapped(BlogCollaboratorDefinition, CollaboratorMapped, Blo
     '''
     Provides the mapping for BlogCollaborator.
     '''
-    __table_args__ = dict(extend_existing=True)
+    __table_args__ = dict(BlogCollaboratorDefinition.__table_args__, extend_existing=True)
