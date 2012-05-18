@@ -57,15 +57,15 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         sql = self.session().query(BlogCollaboratorEntry)
         sql = sql.filter(BlogCollaboratorEntry.Blog == blogId)
-        sql = sql.filter(BlogCollaboratorEntry.Id == collaboratorId)
+        sql = sql.filter(BlogCollaboratorEntry.blogCollaboratorId == collaboratorId)
         if sql.count() > 0: raise InputError(_('Already a collaborator for this blog'))
 
         bgc = BlogCollaboratorEntry()
         bgc.Blog = blogId
-        bgc.Id = collaboratorId
+        bgc.blogCollaboratorId = collaboratorId
         self.session().add(bgc)
         self.session().flush((bgc,))
-        return bgc.Id
+        return bgc.blogCollaboratorId
 
     def removeCollaborator(self, blogId, collaboratorId):
         '''
@@ -74,7 +74,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         try:
             sql = self.session().query(BlogCollaboratorEntry)
             sql = sql.filter(BlogCollaboratorEntry.Blog == blogId)
-            sql = sql.filter(BlogCollaboratorEntry.Id == collaboratorId)
+            sql = sql.filter(BlogCollaboratorEntry.blogCollaboratorId == collaboratorId)
             return sql.delete() > 0
         except OperationalError:
             raise InputError(Ref(_('Cannot remove'), model=BlogCollaboratorMapped))

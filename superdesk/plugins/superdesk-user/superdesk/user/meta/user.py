@@ -10,18 +10,23 @@ Contains the SQL alchemy meta for language API.
 '''
 
 from ..api.user import User
-from ally.support.sqlalchemy.mapper import mapperModel
-from sqlalchemy.schema import Table, Column, ForeignKey
+from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String
-from superdesk.meta.metadata_superdesk import meta
 from superdesk.person.meta.person import PersonMapped
+from ally.support.sqlalchemy.mapper import validate
 
 # --------------------------------------------------------------------
 
-table = Table('user', meta,
-               Column('fk_person_id', ForeignKey(PersonMapped.Id), primary_key=True, key='Id'),
-               Column('name', String(20), nullable=False, unique=True, key='Name'),
-               mysql_engine='InnoDB', mysql_charset='utf8')
+@validate
+class UserMapped(PersonMapped, User):
+    '''
+    Provides the mapping for User entity.
+    '''
+    __tablename__ = 'user'
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-# map User entity to defined table (above)
-User = mapperModel(User, table, inherits=PersonMapped)
+    Name = Column('name', String(20), nullable=False, unique=True)
+
+    # Non REST model attribute --------------------------------------
+    userId = Column('fk_person_id', ForeignKey(PersonMapped.Id), primary_key=True)
+    # Never map over the inherited id

@@ -11,15 +11,15 @@ single thread at one time.
 '''
 
 from ..support.util_sys import callerLocals
+from ._impl.aop_container import AOPModules
 from ._impl.entity_handler import Initializer
 from ._impl.ioc_setup import SetupEntity, SetupConfig, SetupFunction, SetupEvent, \
     Context, SetupReplace, SetupStart, SetupError, register, ConfigError, Assembly
-from ._impl.aop_container import AOPModules
+from ally.container._impl.ioc_setup import SetupReplaceConfig
 from functools import partial, update_wrapper
 from inspect import isclass, ismodule, getfullargspec, isfunction
 import importlib
 import logging
-from ally.container._impl.ioc_setup import SetupReplaceConfig
 
 # --------------------------------------------------------------------
 
@@ -80,13 +80,13 @@ def before(setup):
     @param setup: SetupFunction
         The setup function to listen to.
     '''
-    def decorator(target, function):
+    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, target, SetupEvent.BEFORE), callerLocals()), function)
+        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.BEFORE), callerLocals()), function)
 
-    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
-    return partial(decorator, setup.name)
+    return decorator
 
 def after(setup):
     '''
@@ -95,13 +95,14 @@ def after(setup):
     @param setup: SetupFunction
         The setup function to listen to.
     '''
-    def decorator(target, function):
+    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, target, SetupEvent.AFTER), callerLocals()), function)
+        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.AFTER),
+                                       callerLocals()), function)
 
-    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
-    return partial(decorator, setup.name)
+    return decorator
 
 def replace(setup):
     '''
@@ -110,14 +111,14 @@ def replace(setup):
     @param setup: SetupFunction
         The setup function to be replaced.
     '''
-    def decorator(name, function):
+    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    def decorator(function):
         _process(function)
         if isinstance(setup, SetupConfig):
-            return update_wrapper(register(SetupReplaceConfig(function, name), callerLocals()), function)
-        return update_wrapper(register(SetupReplace(function, name), callerLocals()), function)
+            return update_wrapper(register(SetupReplaceConfig(function, setup), callerLocals()), function)
+        return update_wrapper(register(SetupReplace(function, setup), callerLocals()), function)
 
-    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
-    return partial(decorator, setup.name)
+    return decorator
 
 def start(*args):
     '''

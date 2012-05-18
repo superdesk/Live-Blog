@@ -22,7 +22,7 @@ def save(configurations, fwrite, maxwidth=60):
     '''
     Saves the configurations to the provided file writer.
     
-    @param assembly: dictionary{string, Config}
+    @param configurations: dictionary{string, Config}
         A dictionary of the configurations to be saved, the key is the configuration name and the value is a Config
         object.
     @param fwrite: file
@@ -33,7 +33,7 @@ def save(configurations, fwrite, maxwidth=60):
     assert isinstance(configurations, dict), 'Invalid configurations %s' % configurations
     assert fwrite, 'No writer provided'
     assert isinstance(maxwidth, int), 'Invalid maximum width %s' % maxwidth
-    
+
     import yaml
     split = REGEX_SPLIT
     groups = {config.group for config in configurations.values()}
@@ -66,7 +66,7 @@ def load(fread):
         The configuration dictionary.
     '''
     assert fread, 'No reader provided'
-    
+
     import yaml
     config = yaml.load(fread)
     if config is None: config = {}
@@ -79,7 +79,7 @@ class Config:
     '''
     Class for providing a configuration data.
     '''
-    
+
     def __init__(self, name, value, group=None, description=None):
         '''
         Construct the configuration.
@@ -100,4 +100,4 @@ class Config:
         self.value = value
         self.group = group
         self.description = description
-        
+

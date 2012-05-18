@@ -194,14 +194,18 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
                 for nodeId in node.childrens():
                     if isinstance(nodeId, NodeProperty):
                         assert isinstance(nodeId, NodeProperty)
-                        if nodeId.get is not None:
-                            for typ in nodeId.typesProperties:
-                                assert isinstance(typ, TypeModelProperty)
-                                if typ.parent == modelType:
-                                    matches = []
-                                    for matchNode in matchNodes: pushMatch(matches, matchNode.newMatch())
-                                    pushMatch(matches, nodeId.newMatch())
-                                    return PathExtended(fromPath, matches, nodeId, index)
+                        if nodeId.get is None: continue
+                        assert isinstance(nodeId.get, Invoker)
+                        if not nodeId.get.output.isOf(modelType): continue
+
+                        for typ in nodeId.typesProperties:
+                            assert isinstance(typ, TypeModelProperty)
+                            if typ.parent != modelType: continue
+
+                            matches = []
+                            for matchNode in matchNodes: pushMatch(matches, matchNode.newMatch())
+                            pushMatch(matches, nodeId.newMatch())
+                            return PathExtended(fromPath, matches, nodeId, index)
 
         for child in node.childrens():
             if child == exclude: continue

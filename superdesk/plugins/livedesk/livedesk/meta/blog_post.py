@@ -26,22 +26,20 @@ class BlogPostDefinition:
     __tablename__ = 'livedesk_post'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Id = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
     Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False))
+
+    # Non REST model attribute --------------------------------------
+    blogPostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
+    # Never map over the inherited id
 
 class BlogPostEntry(Base, BlogPostDefinition):
     '''
     Provides the mapping for BlogPost table where it keeps the connection between the post and the blog.
     '''
-    __tablename__ = 'livedesk_post'
-    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
-
-    Id = Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True)
-    Blog = Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False)
 
 class BlogPostMapped(BlogPostDefinition, PostMapped, BlogPost):
     '''
     Provides the mapping for BlogPost in the form of extending the Post.
     '''
-    __table_args__ = dict(extend_existing=True)
+    __table_args__ = dict(BlogPostDefinition.__table_args__, extend_existing=True)
 

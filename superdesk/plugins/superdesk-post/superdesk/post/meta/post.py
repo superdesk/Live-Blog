@@ -21,7 +21,7 @@ from sqlalchemy.types import String, DateTime
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.type import PostTypeMapped
-from superdesk.user.meta.user import User
+from superdesk.user.meta.user import UserMapped
 from ally.container.binder_op import validateManaged, validateRequired, \
     EVENT_PROP_UPDATE
 
@@ -37,7 +37,7 @@ class PostMapped(Base, Post):
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Type = association_proxy('type', 'Key')
-    Creator = Column('fk_creator_id', ForeignKey(User.Id, ondelete='RESTRICT'), nullable=False)
+    Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id, ondelete='RESTRICT'), nullable=False)
     Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))
     Content = Column('content', String(1000), nullable=False)
     CreatedOn = Column('created_on', DateTime, nullable=False)
@@ -53,13 +53,13 @@ class PostMapped(Base, Post):
     typeId = Column('fk_type_id', ForeignKey(PostTypeMapped.id, ondelete='RESTRICT'), nullable=False)
     type = relationship(PostTypeMapped, uselist=False, lazy='joined')
     author = relationship(CollaboratorMapped, uselist=False, lazy='joined')
-    creator = relationship(User, uselist=False, lazy='joined')
+    creator = relationship(UserMapped, uselist=False, lazy='joined')
 
     # Expression for hybrid ------------------------------------
     @classmethod
     @AuthorName.expression
     def _AuthorName(cls):
-        return case([(cls.Author == None, User.Name)], else_=CollaboratorMapped.Name)
+        return case([(cls.Author == None, UserMapped.Name)], else_=CollaboratorMapped.Name)
 
 validateRequired(PostMapped.Type)
 validateManaged(PostMapped.Type, key=EVENT_PROP_UPDATE)

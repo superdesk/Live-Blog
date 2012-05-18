@@ -66,7 +66,7 @@ class SetupEntityWire(Setup):
             for clazz, wiring in wirings.items():
                 assert isclass(clazz), 'Invalid class %s' % clazz
                 assert isinstance(wiring, Wiring), 'Invalid wiring %s' % wiring
-        self._group = group
+        self.group = group
         self._wirings = wirings
 
     def update(self, wirings):
@@ -88,7 +88,7 @@ class SetupEntityWire(Setup):
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        prefix = self._group + '.'
+        prefix = self.group + '.'
         for name, call in assembly.calls.items():
             if name.startswith(prefix) and isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
@@ -116,7 +116,7 @@ class SetupEntityWire(Setup):
                     for wconfig in wiring.configurations:
                         assert isinstance(wconfig, WireConfig)
                         if wconfig.name not in value.__dict__:
-                            name = self.nameFor(self._group, clazz, wconfig)
+                            name = self.nameFor(self.group, clazz, wconfig)
                             setattr(value, wconfig.name, assembly.processForName(name))
                     if followUp: followUp()
                 return value, followWiring
@@ -146,7 +146,7 @@ class SetupEntityListen(Setup):
         if __debug__:
             for clazz in classes: assert isclass(clazz), 'Invalid class %s' % clazz
             for call in listeners: assert callable(call), 'Invalid listener %s' % call
-        self._group = group
+        self.group = group
         self._classes = classes
         self._listeners = listeners
 
@@ -155,7 +155,7 @@ class SetupEntityListen(Setup):
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        prefix = self._group + '.'
+        prefix = self.group + '.'
         for name, call in assembly.calls.items():
             if name.startswith(prefix) and isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
@@ -205,7 +205,7 @@ class SetupEntityProxy(Setup):
         if __debug__:
             for clazz in classes: assert isclass(clazz), 'Invalid class %s' % clazz
             for call in binders: assert callable(call), 'Invalid binder %s' % call
-        self._group = group
+        self.group = group
         self._classes = classes
         self._binders = binders
 
@@ -214,7 +214,7 @@ class SetupEntityProxy(Setup):
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        prefix = self._group + '.'
+        prefix = self.group + '.'
         for name, call in assembly.calls.items():
             if name.startswith(prefix) and isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
@@ -287,10 +287,10 @@ class SetupEntityCreate(SetupSource):
                     assert log.debug('There is already an entity of type %s', self._type) or True
                     break
         else:
-            if self._name in assembly.calls:
-                raise SetupError('There is already a setup call for name %r' % self._name)
-            call = CallEntity(assembly, self._name, self._function, self._type)
-        assembly.calls[self._name] = call
+            if self.name in assembly.calls:
+                raise SetupError('There is already a setup call for name %r' % self.name)
+            call = CallEntity(assembly, self.name, self._function, self._type)
+        assembly.calls[self.name] = call
 
 # --------------------------------------------------------------------
 
