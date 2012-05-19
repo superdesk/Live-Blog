@@ -14,13 +14,13 @@ from __plugin__.superdesk_collaborator.temp_populate import getCollaboratorsIds
 from __plugin__.superdesk_post.temp_populate import getUsersIds, createPostType
 from ally.container import ioc
 from ally.container.support import entityFor
-from datetime import datetime, timedelta
+from datetime import datetime
 from livedesk.api.blog import IBlogService, QBlog, Blog
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from superdesk.language.api.language import ILanguageService, LanguageEntity
 from livedesk.api.blog_admin import IBlogAdminService
 from livedesk.api.blog_post import IBlogPostService
-from superdesk.post.api.post import QPost, Post
+from superdesk.post.api.post import Post
 
 # --------------------------------------------------------------------
 
@@ -98,48 +98,25 @@ def createBlogAdmins():
         else:
             blogAdminService.addAdmin(blogId, userId)
 
-FROM_TIME = datetime(2012, 1, 2, 10, 13, 20, 22)
-D_1 = timedelta(seconds=1)
-D_2 = timedelta(seconds=2)
-D_3 = timedelta(seconds=10)
-POSTS = {}
-
-POSTS[(FROM_TIME, 'Active Blog about Starcraft II')] = \
-('normal', 'Gabriel', None, False, 'Wsup from livedesk', FROM_TIME + D_1, FROM_TIME + D_3, None)
-FROM_TIME += D_2
-POSTS[(FROM_TIME, 'Active Blog about Starcraft II')] = \
-('normal', 'God', None, False, 'Wsuppppp', FROM_TIME + D_1, None, None)
-FROM_TIME += D_2
-POSTS[(FROM_TIME, 'Active Blog about Starcraft II')] = \
-('normal', 'God', 'Billy', True, 'I don\'t know starcraft', FROM_TIME + D_1, FROM_TIME + D_3, None)
-FROM_TIME += D_2
-POSTS[(FROM_TIME, 'Active Blog about Starcraft II')] = \
-('wrapup', 'Gabriel', None, False, 'Billy goes out', FROM_TIME + D_1, None, None)
-FROM_TIME += D_2
-POSTS[(FROM_TIME, 'Active Blog about Starcraft II')] = \
-('normal', 'Gabriel', 'google', False, 'Lets try again', FROM_TIME + D_1, None, None)
-
+POSTS = [
+         ('Active Blog about Starcraft II', 'normal', 'Gabriel', None, 'Wsup from livedesk'),
+         ('Active Blog about Starcraft II', 'normal', 'God', None, 'Wsuppppp'),
+         ('Active Blog about Starcraft II', 'normal', 'God', 'Billy', 'I don\'t know starcraft'),
+         ('Active Blog about Starcraft II', 'wrapup', 'Gabriel', None, 'Billy goes out'),
+         ('Active Blog about Starcraft II', 'normal', 'Gabriel', 'google', 'Lets try again'),
+         ]
 
 def createBlogPosts():
     blogPostService = entityFor(IBlogPostService)
     assert isinstance(blogPostService, IBlogPostService)
-    for createdOn, blog in POSTS:
-        blogId = getBlogsIds()[blog]
+    for data in POSTS:
+        pst = Post()
+        blog, pst.Type, creator, author, pst.Content = data
+        pst.Creator = getUsersIds()[creator]
+        if author: pst.Author = getCollaboratorsIds()[author]
 
-        q = QPost()
-        q.createdOn.start = q.createdOn.end = createdOn
-        psts = blogPostService.getPublished(blogId, q=q)
-        try: next(iter(psts))
-        except StopIteration:
-            pst = Post()
-            pst.CreatedOn = createdOn
-            pst.Type, creator, author, pst.IsModified, pst.Content, \
-            pst.PublishedOn, pst.UpdatedOn, pst.DeletedOn = POSTS[(createdOn, blog)]
-            pst.Creator = getUsersIds()[creator]
-            if author: pst.Author = getCollaboratorsIds()[author]
-
-            createPostType(pst.Type)
-            blogPostService.insert(blogId, pst)
+        createPostType(pst.Type)
+        blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
 
 # --------------------------------------------------------------------
 
