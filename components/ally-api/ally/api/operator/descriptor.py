@@ -236,7 +236,9 @@ class CriteriaEntry:
         if not main:
             raise ValueError('Cannot set value for %s because the criteria %s has no main property' %
                              (self, self._ally_type.criteria))
-        setattr(self.__get__(obj), main, value)
+
+        obj = self.__get__(obj)
+        for prop in main: setattr(obj, prop, value)
 
     def __delete__(self, obj):
         '''

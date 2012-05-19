@@ -14,19 +14,18 @@ from ..meta.post import PostMapped
 from ..meta.type import PostTypeMapped
 from ally.container.ioc import injected
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from ally.support.api.util_service import copy
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from superdesk.post.api.post import Post, QPostUnpublished, QPostPublished, \
     QPost
-from datetime import datetime
+from ally.support.sqlalchemy.functions import current_timestamp
 
 # --------------------------------------------------------------------
 
-COPY_EXCLUDE = ('Type', 'AuthorName')
+COPY_EXCLUDE = ('Type', 'IsModified', 'AuthorName')
 
 @injected
 class PostServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
@@ -102,12 +101,10 @@ class PostServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
         postDb = PostMapped()
         copy(post, postDb, exclude=COPY_EXCLUDE)
         postDb.typeId = self._typeId(post.Type)
-        if postDb.CreatedOn is None: postDb.CreatedOn = datetime.now()
+        if post.CreatedOn is None: postDb.CreatedOn = current_timestamp()
 
-        try:
-            self.session().add(postDb)
-            self.session().flush((postDb,))
-        except SQLAlchemyError as e: handle(e, postDb)
+        self.session().add(postDb)
+        self.session().flush((postDb,))
         post.Id = postDb.Id
         return post.Id
 
@@ -119,11 +116,9 @@ class PostServiceAlchemy(EntityGetCRUDServiceAlchemy, IPostService):
         postDb = self.session().query(PostMapped).get(post.Id)
         if not postDb: raise InputError(Ref(_('Unknown post id'), ref=Post.Id))
         if Post.Type in post: postDb.typeId = self._typeId(post.Type)
+        if post.UpdatedOn is None: postDb.UpdatedOn = current_timestamp()
 
-        if postDb.UpdatedOn is None: postDb.UpdatedOn = datetime.now()
-        try:
-            self.session().flush((copy(post, postDb, exclude=COPY_EXCLUDE),))
-        except SQLAlchemyError as e: handle(e, PostMapped)
+        self.session().flush((copy(post, postDb, exclude=COPY_EXCLUDE),))
 
     # ----------------------------------------------------------------
 

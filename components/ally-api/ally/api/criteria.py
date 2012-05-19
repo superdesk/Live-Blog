@@ -76,13 +76,33 @@ class AsBooleanOrdered(AsBoolean, AsOrdered):
 
 # --------------------------------------------------------------------
 
+@criteria(main=('start', 'end'))
+class AsRange:
+    '''
+    Provides a query for properties that need to be handled as a range.
+    '''
+    start = str
+    end = str
+    startEx = str
+    endEx = str
+
 @criteria
+class AsRangeOrdered(AsRange, AsOrdered):
+    '''
+    Provides the equal search and also the ordering.
+    '''
+
+# --------------------------------------------------------------------
+
+@criteria(main=('start', 'end'))
 class AsDate:
     '''
     Provides query for properties that can be managed as date.
     '''
     start = Date
     end = Date
+    startEx = Date
+    endEx = Date
 
 @criteria
 class AsDateOrdered(AsDate, AsOrdered):
@@ -92,13 +112,15 @@ class AsDateOrdered(AsDate, AsOrdered):
 
 # --------------------------------------------------------------------
 
-@criteria
+@criteria(main=('start', 'end'))
 class AsTime:
     '''
     Provides query for properties that can be managed as time.
     '''
     start = Time
     end = Time
+    startEx = Time
+    endEx = Time
 
 @criteria
 class AsTimeOrdered(AsTime, AsOrdered):
@@ -108,13 +130,15 @@ class AsTimeOrdered(AsTime, AsOrdered):
 
 # --------------------------------------------------------------------
 
-@criteria
+@criteria(main=('start', 'end'))
 class AsDateTime:
     '''
     Provides query for properties that can be managed as date time.
     '''
     start = DateTime
     end = DateTime
+    startEx = DateTime
+    endEx = DateTime
 
 @criteria
 class AsDateTimeOrdered(AsDateTime, AsOrdered):

@@ -45,6 +45,9 @@ class PostMapped(Base, Post):
     UpdatedOn = Column('updated_on', DateTime)
     DeletedOn = Column('deleted_on', DateTime)
     @hybrid_property
+    def IsModified(self):
+        return self.UpdatedOn is not None
+    @hybrid_property
     def AuthorName(self):
         if self.Author is None: return self.creator.Name
         return self.author.Name
@@ -56,6 +59,10 @@ class PostMapped(Base, Post):
     creator = relationship(UserMapped, uselist=False, lazy='joined')
 
     # Expression for hybrid ------------------------------------
+    @classmethod
+    @IsModified.expression
+    def _IsModified(cls):
+        return case([(cls.UpdatedOn != None, True)], else_=False)
     @classmethod
     @AuthorName.expression
     def _AuthorName(cls):

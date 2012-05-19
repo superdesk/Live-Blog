@@ -9,7 +9,8 @@ Created on Jan 5, 2012
 Provides utility methods for SQL alchemy service implementations.
 '''
 
-from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual, AsDate, AsTime, AsDateTime
+from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual, AsDate, AsTime, AsDateTime, \
+    AsRange
 from ally.api.type import typeFor
 from ally.exception import InputError, Ref
 from ally.internationalization import _
@@ -40,8 +41,8 @@ def buildLimits(sqlQuery, offset=None, limit=None):
     @param limit: integer|None
         The limit of elements to get.
     '''
-    if offset: sqlQuery = sqlQuery.offset(offset)
-    if limit: sqlQuery = sqlQuery.limit(limit)
+    if offset is not None: sqlQuery = sqlQuery.offset(offset)
+    if limit is not None: sqlQuery = sqlQuery.limit(limit)
     return sqlQuery
 
 def buildQuery(sqlQuery, query, mapped):
@@ -78,9 +79,11 @@ def buildQuery(sqlQuery, query, mapped):
                 assert isinstance(crt, AsEqual)
                 if AsEqual.equal in crt:
                     sqlQuery = sqlQuery.filter(column == crt.equal)
-            elif isinstance(crt, (AsDate, AsTime, AsDateTime)):
+            elif isinstance(crt, (AsDate, AsTime, AsDateTime, AsRange)):
                 if crt.__class__.start in crt: sqlQuery = sqlQuery.filter(column >= crt.start)
                 if crt.__class__.end in crt: sqlQuery = sqlQuery.filter(column <= crt.end)
+                if crt.__class__.startEx in crt: sqlQuery = sqlQuery.filter(column > crt.startEx)
+                if crt.__class__.endEx in crt: sqlQuery = sqlQuery.filter(column < crt.endEx)
 
             if isinstance(crt, AsOrdered):
                 assert isinstance(crt, AsOrdered)

@@ -152,10 +152,11 @@ def criteria(*args, main=None):
     
             order = bool
             
-    @param main: string|None
-        Provide the name of the property that is to be considered the main property for the criteria. The main property
-        is the property used whenever the criteria is used without a property. If the main property is None then it will
-        be inherited if is the case from super criteria's otherwise is left unset.
+    @param main: string|tuple(string)|list[string]|None
+        Provide the name of the property/properties that is to be considered the main property for the criteria. 
+        The main property/properties is the property/properties used whenever the criteria is used without a property. 
+        If the main property is None then it will be inherited if is the case from super criteria's otherwise is left
+        unset.
     '''
     if not args: return partial(criteria, main=main)
     assert len(args) == 1, 'Expected only one argument that is the decorator class, got %s arguments' % len(args)
@@ -172,8 +173,7 @@ def criteria(*args, main=None):
             raise DevelError('Invalid type %s for property \'%s\', only primitives allowed' % (typ, prop))
 
     if main is not None:
-        assert isinstance(main, str), 'Invalid main property name %s' % main
-        assert main in properties, 'Invalid main property %s is not in criteria properties' % main
+        if isinstance(main, str): main = [main]
     else:
         inherited = extractContainersFrom(clazz.__bases__, TypeCriteria)
         for crt in inherited:
@@ -181,6 +181,7 @@ def criteria(*args, main=None):
             if crt.main:
                 main = crt.main
                 break
+        else: main = ()
 
     criteriaContainer = Criteria(properties, main)
     criteriaType = TypeCriteria(clazz, criteriaContainer)

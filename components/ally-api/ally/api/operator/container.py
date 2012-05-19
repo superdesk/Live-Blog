@@ -86,25 +86,32 @@ class Criteria(Container):
 
     __slots__ = Container.__slots__ + ('main',)
 
-    def __init__(self, properties, main=None):
+    def __init__(self, properties, main=()):
         '''
         Create the criteria with the provided properties, is very similar to a Model.
         @see: Container.__init__
         
-        @param main: string|None
-            The main property for the criteria, the main is used whenever a value is set directly on the criteria. The
-            main property needs to be found in the provided properties.
+        @param main: list[string]|tuple(string)
+            The main properties for the criteria, the main is used whenever a value is set directly on the 
+            criteria. The main properties needs to be found in the provided properties and have compatible types.
         '''
-        if main is not None:
-            assert isinstance(main, str), 'Invalid main property %s' % main
-            assert main in properties, 'Invalid main property %s, is not found in the provided properties' % main
+        assert isinstance(main, (list, tuple)), 'Invalid main properties %s' % main
         if __debug__:
             for typ in properties.values():
                 assert isinstance(typ, Type), 'Not a criteria type %s' % typ
                 assert typ.isPrimitive, 'Not a primitive criteria type for %s' % typ
+            typ = None
+            for prop in main:
+                assert prop in properties, \
+                'Invalid main property %s, is not found in the provided properties' % prop
+                if typ is not None:
+                    assert properties[prop].isOf(typ), \
+                    'Invalid main property %s with type %s' % (prop, properties[prop])
+                else: typ = properties[prop]
+
         Container.__init__(self, properties)
 
-        self.main = main
+        self.main = tuple(main)
 
 class Query:
     '''

@@ -10,24 +10,23 @@ Created on May 4, 2012
 Contains the SQL alchemy meta for livedesk blog posts API.
 '''
 
-from ..api.blog_post import IBlogPostService
+from ..api.blog_post import IBlogPostService, QBlogPostUnpublished, \
+    QBlogPostPublished
 from ..meta.blog_post import BlogPostMapped, BlogPostEntry
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
-from livedesk.api.blog_post import BlogPost
-from sqlalchemy.exc import SQLAlchemyError
-from superdesk.post.api.post import QPostUnpublished, QPostPublished, \
-    IPostService, Post
-from superdesk.collaborator.meta.collaborator import CollaboratorMapped
-from superdesk.person.meta.person import PersonMapped
-from superdesk.source.meta.source import SourceMapped
-from sqlalchemy.orm.util import aliased
-from ally.support.sqlalchemy.session import SessionSupport
-from sqlalchemy.orm.exc import NoResultFound
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from datetime import datetime
+from ally.support.sqlalchemy.functions import current_timestamp
+from ally.support.sqlalchemy.session import SessionSupport
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.util import aliased
+from sqlalchemy.sql import functions as fn
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.person.meta.person import PersonMapped
+from superdesk.post.api.post import IPostService, Post
+from superdesk.source.meta.source import SourceMapped
 
 # --------------------------------------------------------------------
 
@@ -63,21 +62,31 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.getPublished
         '''
-        assert q is None or isinstance(q, QPostPublished), 'Invalid query %s' % q
+        assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
-        if not q: sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
+        sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
         sql = buildLimits(sql, offset, limit)
         return (post for post in sql.all())
+
+    def getPublishedCount(self, blogId, creatorId=None, authorId=None, q=None):
+        '''
+        @see: IBlogPostService.getPublishedCount
+        '''
+        assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
+        sql = self._buildQuery(blogId, creatorId, authorId, q)
+        sql = sql.filter(BlogPostMapped.PublishedOn != None)
+        return sql.count()
 
     def getUnpublished(self, blogId, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
         @see: IBlogPostService.getUnpublished
         '''
-        assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
+        assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
         sql = buildLimits(sql, offset, limit)
+        sql.order_by(BlogPostMapped.CreatedOn.desc())
         return (post for post in sql.all())
 
     def insert(self, blogId, post):
@@ -85,15 +94,12 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.insert
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
-        post.CreatedOn = datetime.now()
-        postDb = BlogPostEntry()
-        postDb.Blog = blogId
-        postDb.blogPostId = self.postService.insert(post)
-        try:
-            self.session().add(postDb)
-            self.session().flush((postDb,))
-        except SQLAlchemyError as e: handle(e, BlogPost)
-        return postDb.blogPostId
+
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
+        postEntry.CId = self._nextCId()
+        self.session().add(postEntry)
+
+        return postEntry.blogPostId
 
     def publish(self, blogId, postId):
         '''
@@ -101,9 +107,16 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         post = self.getById(blogId, postId)
         assert isinstance(post, Post)
+
         if post.PublishedOn: raise InputError(Ref(_('Already published'), ref=Post.PublishedOn))
-        post.PublishedOn = datetime.now()
+
+        post.PublishedOn = current_timestamp()
         self.postService.update(post)
+
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
+        postEntry.CId = self._nextCId()
+        self.session().add(postEntry)
+
         return postId
 
     def insertAndPublish(self, blogId, post):
@@ -111,23 +124,26 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.insertAndPublish
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
-        post.CreatedOn = post.PublishedOn = datetime.now()
-        postDb = BlogPostEntry()
-        postDb.Blog = blogId
-        postDb.blogPostId = self.postService.insert(post)
-        try:
-            self.session().add(postDb)
-            self.session().flush((postDb,))
-        except SQLAlchemyError as e: handle(e, BlogPost)
-        return postDb.blogPostId
+
+        post.PublishedOn = current_timestamp()
+
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
+        postEntry.CId = self._nextCId()
+        self.session().add(postEntry)
+
+        return postEntry.blogPostId
 
     def update(self, blogId, post):
         '''
         @see: IBlogPostService.update
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
-        post.UpdatedOn = datetime.now()
+
         self.postService.update(post)
+
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
+        postEntry.CId = self._nextCId()
+        self.session().add(postEntry)
 
     # ----------------------------------------------------------------
 
@@ -143,3 +159,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if authorId: sql = sql.filter(BlogPostMapped.Author == authorId)
         if q: sql = buildQuery(sql, q, BlogPostMapped)
         return sql
+
+    def _nextCId(self):
+        '''
+        Provides the next change Id.
+        '''
+        max = self.session().query(fn.max(BlogPostMapped.CId)).scalar()
+        if max: return max + 1
+        return 1
