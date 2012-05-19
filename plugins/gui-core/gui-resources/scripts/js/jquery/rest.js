@@ -58,6 +58,7 @@ define('jquery/rest',['jquery'], function ($) {
         {
             var self = this,
                 extractListData = this.extractListData;
+            this.getData = [];
             if( typeof arguments[0] == 'string' )
             {
                 self.lastUrl = arguments[0];
@@ -435,12 +436,6 @@ define('jquery/rest',['jquery'], function ($) {
 			return this;
 		},
 		
-		auth: function()
-		{
-		    this.config.resourcePath = '/resources/my';
-		    this.requestOptions.headers.Authorization = 1;
-		},
-
 		/*!
 		 * reset request option data, optionally by key
 		 */
@@ -467,13 +462,22 @@ define('jquery/rest',['jquery'], function ($) {
 	
 	$.extend($, {rest : resource});
 	
-	var authProto = $.extend( true, {}, $.rest.prototype, 
-    { 
-        config: {resourcePath: '/resources/my/'}, 
-        requestOptions: {headers: {'Authorization': 1}} 
-    }),
-        restAuth = function(){arguments.length && this._construct.apply(this, arguments);};
-    restAuth.prototype = authProto;
-    
+	
+	function restAuth()
+	{  
+	    resource.apply(this, arguments);  
+	}  
+	
+	restAuth.prototype = Object.create(new resource(), 
+	{  
+	    _construct: { value: function()
+	    {
+	        this.config.resourcePath = '/resources/my/';
+            this.requestOptions.headers.Authorization = 1;
+	        resource.prototype._construct.apply(this, arguments);
+	        
+	    }, enumerable: true, configurable: true, writable: true }  
+	});  
+	    
     $.extend($, {restAuth : restAuth});
 });
