@@ -72,9 +72,7 @@ def createPosts():
     postService = entityFor(IPostService)
     assert isinstance(postService, IPostService)
     for createdOn in POSTS:
-        q = QPost()
-        q.createdOn.start = q.createdOn.end = createdOn
-        psts = postService.getAll(q=q)
+        psts = postService.getAll(q=QPost(createdOn=createdOn))
         if not psts:
             pst = Post()
             pst.CreatedOn = createdOn

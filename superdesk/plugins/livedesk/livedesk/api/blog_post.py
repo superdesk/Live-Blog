@@ -10,12 +10,13 @@ API specifications for livedesk blog posts.
 '''
 
 from .blog import Blog
-from ally.api.config import service, call, INSERT
+from ally.api.config import service, call, INSERT, query
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.post.api.post import Post, QPostPublished, QPostUnpublished
 from superdesk.user.api.user import User
 from superdesk.collaborator.api.collaborator import Collaborator
-from ally.api.type import Iter
+from ally.api.type import Iter, Count
+from ally.api.criteria import AsRangeOrdered
 
 # --------------------------------------------------------------------
 
@@ -24,12 +25,25 @@ class BlogPost(Post):
     '''
     Provides the blog post model.
     '''
+    CId = int
     Blog = Blog
     AuthorName = str
 
 # --------------------------------------------------------------------
 
-# No query
+@query
+class QBlogPostUnpublished(QPostUnpublished):
+    '''
+    Provides the blog post message query.
+    '''
+    cId = AsRangeOrdered
+
+@query
+class QBlogPostPublished(QPostPublished):
+    '''
+    Provides the blog post message query.
+    '''
+    cId = AsRangeOrdered
 
 # --------------------------------------------------------------------
 
@@ -47,14 +61,21 @@ class IBlogPostService:
 
     @call(webName='Published')
     def getPublished(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
-                     offset:int=None, limit:int=None, q:QPostPublished=None) -> Iter(BlogPost):
+                     offset:int=None, limit:int=None, q:QBlogPostPublished=None) -> Iter(BlogPost):
+        '''
+        Provides all the blogs published posts.
+        '''
+
+    @call(countFor=getPublished)
+    def getPublishedCount(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
+                          q:QBlogPostPublished=None) -> Count:
         '''
         Provides all the blogs published posts.
         '''
 
     @call(webName='Unpublished')
     def getUnpublished(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
-                       offset:int=None, limit:int=None, q:QPostUnpublished=None) -> Iter(BlogPost):
+                       offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
         '''
