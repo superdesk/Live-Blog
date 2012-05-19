@@ -15,6 +15,7 @@ from superdesk.post.meta.post import PostMapped
 from superdesk.meta.metadata_superdesk import Base
 from livedesk.meta.blog import BlogMapped
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.dialects.mysql.base import INTEGER
 
 # --------------------------------------------------------------------
 
@@ -26,8 +27,8 @@ class BlogPostDefinition:
     __tablename__ = 'livedesk_post'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
+    CId = Column('id_change', INTEGER(unsigned=True))
     Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False))
-
     # Non REST model attribute --------------------------------------
     blogPostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
     # Never map over the inherited id

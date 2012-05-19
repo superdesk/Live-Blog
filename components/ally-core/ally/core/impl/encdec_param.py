@@ -297,8 +297,8 @@ class EncDecQuery(EncoderParams, DecoderParams):
         assert not isinstance(propType.type, Iter), \
         'WTF, cannot encode list properties, the query supposed to have only primitives as properties'
         assert isinstance(params, list)
-        defaults = [crtEntrType.criteria.main for crtEntrType in criteriaEntriesTypes]
-        if propType.property in defaults:
+        mains = [crtEntrType.criteria.main[0] for crtEntrType in criteriaEntriesTypes if crtEntrType.criteria.main]
+        if propType.property in mains:
             names = [propType.property + self.separatorName + crtEntrType.name
                      if _isNameInPrimitives(inputs, crtEntrType.name)
                      else crtEntrType.name for crtEntrType in criteriaEntriesTypes]
@@ -313,7 +313,10 @@ class EncDecQuery(EncoderParams, DecoderParams):
             elif len(values) == 1:
                 if q is None: q = queryType.forClass()
                 crit = getattr(q, crtEntrType.name)
-                setattr(crit, propType.property, self.converterPath.asValue(values[0], propType.type))
+                try:
+                    setattr(crit, propType.property, self.converterPath.asValue(values[0], propType.type))
+                except ValueError:
+                    raise DevelError('Invalid value %r , expected type %s' % (values[0], propType.type))
         return q
 
 # --------------------------------------------------------------------

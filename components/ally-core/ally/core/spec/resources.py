@@ -12,6 +12,7 @@ Module containing specifications for the resources tree.
 from ally.api.type import Type, Input
 import abc
 import re
+from datetime import date, datetime, time
 
 # --------------------------------------------------------------------
 
@@ -312,7 +313,13 @@ class Converter:
             return float(strValue)
         if objType.isOf(bool):
             return strValue.strip().lower() == 'true'
-        raise AssertionError('Invalid object type %r for converter' % objType)
+        if objType.isOf(datetime):
+            return datetime.strptime(strValue, '%a, %d %b %Y %H:%M:%S')
+        if objType.isOf(date):
+            return datetime.strptime(strValue, 'a, %d %b %Y').date()
+        if objType.isOf(time):
+            return time.strptime(strValue, '%H:%M:%S').time()
+        raise AssertionError('Invalid object type %s for converter' % objType)
 
 class ConverterPath(Normalizer, Converter):
     '''
