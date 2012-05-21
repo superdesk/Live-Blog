@@ -42,8 +42,8 @@ def getPersonsIds():
     return _cache_persons
 
 COLLABORATORS = {
-                 'Billy': 'google',
-                 'Jey': 'google',
+                 'Billy': 'facebook',
+                 'Jey': 'facebook',
                  'Mugurel': 'facebook',
                  'google': 'google',
                  }
