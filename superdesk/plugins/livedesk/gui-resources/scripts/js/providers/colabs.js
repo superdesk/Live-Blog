@@ -5,7 +5,7 @@ define('providers/colabs',
 ],
 function(providers, $)
 {
-    var config = { updateInterval: 3 },
+    var config = { updateInterval: 30 },
         colabsList = [], 
         updateInterval = 0,
         intervalRunning = false;
