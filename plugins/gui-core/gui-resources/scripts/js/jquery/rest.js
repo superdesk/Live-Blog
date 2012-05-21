@@ -32,7 +32,22 @@ define('jquery/rest',['jquery'], function ($) {
 		this.fn.apply(this, arguments)
 		return this;
 	};
-	
+
+    /*!
+     * Private method to get the url
+     */
+    function getUrl()
+    {
+        if( (this.lastUrl.substr(0,4).toLowerCase() === 'http') ||
+            (this.lastUrl.substr(0,5).toLowerCase() === 'https') ||
+            (this.lastUrl.substr(0,2) === '//') ) {
+            return this.lastUrl;
+        } else if(this.lastUrl.substr(0,1) === '/' ) {
+            return this.config.apiUrl+this.lastUrl;
+        } else {
+            return this.config.apiUrl+this.config.resourcePath+this.lastUrl;
+        }
+    }
 	/*!
 	 * construct
 	 */
@@ -408,7 +423,7 @@ define('jquery/rest',['jquery'], function ($) {
 		update: function(data, url)
 		{
 			this.request({type: 'post', headers: {'X-HTTP-Method-Override': 'PUT'}, data: data});
-			return this.doRequest(url ? url : this.lastUrl);
+			return this.doRequest(url ? url : getUrl.apply(this));
 		},
 		/*!
 		 * 
@@ -416,7 +431,7 @@ define('jquery/rest',['jquery'], function ($) {
 		insert: function(data, url)
 		{
 			this.request({type: 'post', data: data});
-			return this.doRequest(url ? url : this.lastUrl);
+			return this.doRequest(url ? url : getUrl.apply(this));
 		},
 		/*!
 		 * 
@@ -424,7 +439,7 @@ define('jquery/rest',['jquery'], function ($) {
 		delete: function(data, url)
 		{
 			this.request({type: 'post', headers: {'X-HTTP-Method-Override': 'DELETE'}, data: data});
-			return this.doRequest(url ? url : this.lastUrl);
+			return this.doRequest(url ? url : getUrl.apply(this));
 		},
 		
 		/*!
