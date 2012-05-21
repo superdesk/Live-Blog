@@ -14,7 +14,7 @@
 		<li class="quote {Author.Source.Name}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
-	        	<a href="#" class="close">×</a>
+	        	<a href="#" class="close">x</a>
 	        </div>
 	        <figure>
 	        	<img src="" />
@@ -28,7 +28,7 @@
 					{/Author}
 				</h3>
 				<p class="result-text">
-					{Content}
+					{Content|s}
 				</p>
 				<p class="attributes">
 					<i class="source-icon-{Article.Source.Name}"></i>
