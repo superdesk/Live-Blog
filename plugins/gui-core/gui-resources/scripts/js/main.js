@@ -23,8 +23,28 @@ requirejs.config
 require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
 function(MenuView, $)
 {
+    var authLock = function()
+    {
+        var args = arguments,
+            self = this;
+        require(['lib/core/scripts/js/views/auth'], function(AuthApp){ AuthApp.require.apply(self, arguments); });
+    },
+    r = $.rest.prototype.doRequest;
+    $.rest.prototype.doRequest = function()
+    {
+        var ajax = r.apply(this, arguments),
+            self = this;
+        ajax.fail(function(){ authLock.apply(self, arguments); });
+        
+        return ajax;
+    };
+    
     $.rest.prototype.config.apiUrl = config.api_url;
     $.restAuth.prototype.config.apiUrl = config.api_url;
+
+    if( localStorage.getItem('superdesk.login.id') )
+        $.restAuth.prototype.requestOptions.headers.Authorization = localStorage.getItem('superdesk.login.id');
     
     $.superdesk.navigation.init(function(){ var menuView = new MenuView; });
-}); 
+});
+
