@@ -6,7 +6,7 @@ define([
 { 
     var ListApp = function()
     {
-        URL = config.api_url+'/resources/Devel/';
+        URL = 'Devel/';
         
     	var requests = new $.rest(URL+'Request').xfilter('Pattern, Id'),
         	/*!
