@@ -57,7 +57,7 @@ function(providers, $)
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
         { 
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
-                content = $.superdesk.applyLayout('livedesk>edit', data, function(){ initEditBlog(theBlog); });
+                content = $.superdesk.applyLayout('livedesk>edit', data, function(){ initEditBlog.call(this, theBlog); });
 
             $('.blog-section .tab-content').droppable({
                 drop: function( event, ui ) {

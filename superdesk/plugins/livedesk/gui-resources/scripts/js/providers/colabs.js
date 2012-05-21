@@ -1,5 +1,6 @@
 define('providers/colabs', 
 [ 'providers', 'jquery', 'jquery/rest',
+  'providers/colabs/adaptor',
   'tmpl!livedesk>providers/colabs',
   'tmpl!livedesk>providers/colabs-items'
 ],
@@ -15,7 +16,7 @@ function(providers, $)
         updateInterval: 0,       
         init: function(theBlog) 
         {         
-            $('.search-result-list', this.el).html('');
+            $('.search-result-list', this.el).html('')
             colabsList = [];
             
             var self = this,
@@ -77,9 +78,20 @@ function(providers, $)
                         appendPosts.length &&
                         $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
                         {
-                            $.tmpl('livedesk>providers/colabs-items', {Person: colab.Collaborator.Person, Posts: appendPosts}, function(e, o)
+                            $.tmpl('livedesk>providers/colabs-items', {Person: colab.Person, Posts: appendPosts}, function(e, o)
                             {
                                 $('.search-result-list', self.el).prepend(o);
+                                $('.search-result-list li', self.el).draggable
+                                ({
+                                    containment: 'document',
+                                    helper: 'clone',
+                                    appendTo: 'body',
+                                    zIndex: 2700,
+                                    start: function() 
+                                    {
+                                        $(this).data('data', self.adaptor.web(this));
+                                    }
+                                });
                                 updateItemCount -= appendPosts.length;
                             });
                         }]);
@@ -115,6 +127,18 @@ function(providers, $)
                             $.tmpl('livedesk>providers/colabs-items', {Person: colab.Person, Posts: postList}, function(e, o)
                             {
                                 $('.search-result-list', self.el).prepend(o);
+                                $('.search-result-list li', self.el).draggable
+                                ({
+                                    containment: 'document',
+                                    helper: 'clone',
+                                    appendTo: 'body',
+                                    zIndex: 2700,
+                                    start: function() 
+                                    {
+                                        $(this).data('data', self.adaptor.web(this));
+                                    }
+                                });
+                                
                                 clearInterval(updateInterval);
                                 updateInterval = setInterval(function()
                                 {
