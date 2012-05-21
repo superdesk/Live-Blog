@@ -1,7 +1,7 @@
 {>"layouts/list"/}
 
 {<list}
-	<ul class="nav nav-list">
+	<ul class="nav nav-list scroller" style="width: 469px;">
 		<li class="nav-header">Requests</li>
 		{#request}
 		<li>

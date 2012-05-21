@@ -59,7 +59,7 @@ function(providers, $)
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
                 content = $.superdesk.applyLayout('livedesk>edit', data, function(){ initEditBlog(theBlog); });
 
-            $('.blog-section .tab-content').droppable({
+            $('.live-blog-content').droppable({
                 drop: function( event, ui ) {
                     var el = ui.draggable.prependTo($(this).find('#timeline-view>ul:first'));
                     var data = ui.draggable.data('data');
