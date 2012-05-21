@@ -62,8 +62,9 @@ function(providers, $)
             $('.blog-section .tab-content').droppable({
                 drop: function( event, ui ) {
                     var el = ui.draggable.prependTo($(this).find('#timeline-view>ul:first'));
-                    //el.draggable( "destroy" );
-                    new $.restAuth(theBlog + '/Post/Published').resetData().insert(ui.draggable.data('data'));
+                    var data = ui.draggable.data('data');
+                    el.draggable( "destroy").remove();
+                    new $.restAuth(theBlog + '/Post/Published').resetData().insert(data);
                 },
             });
 
