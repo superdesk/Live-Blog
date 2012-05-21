@@ -25,7 +25,7 @@ function($, superdesk)
             footer: 'country>list-footer',
             body: 'country>list-body'
         },
-        resource: new $.rest(superdesk.apiUrl + '/resources/Superdesk/Country').xfilter('Code, Name')
+        resource: new $.rest('Superdesk/Country').xfilter('Code, Name')
     });
     
     var ListApp = function( paths ) 
