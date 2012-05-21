@@ -392,6 +392,7 @@ define('jquery/rest',['jquery'], function ($) {
 			if(typeof arguments[0] == 'string') this.request({url: arguments[0]});
 			var self = this,
 				ajax = $.ajax(this.requestOptions)
+				.fail(function(){ $(self).trigger('failed', arguments); })
 				.always(function(){ self.respArgs = arguments[0]; });
 			if(!this.keepXFilter)
 				delete this.requestOptions.headers['X-Filter'];
@@ -472,8 +473,8 @@ define('jquery/rest',['jquery'], function ($) {
 	{  
 	    _construct: { value: function()
 	    {
-	        this.config.resourcePath = '/resources/my/';
-            this.requestOptions.headers.Authorization = 1;
+	        this.config = $.extend({}, this.config, {resourcePath: '/resources/my/'});
+            //this.requestOptions.headers.Authorization = 111;
 	        resource.prototype._construct.apply(this, arguments);
 	        
 	    }, enumerable: true, configurable: true, writable: true }  

@@ -21,10 +21,38 @@ requirejs.config
 	}
 });
 require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
-function(MenuView, $)
+function(MenuView, $, superdesk)
 {
+    var makeMenu = function(){ var menuView = new MenuView; }, 
+    authLock = function()
+    {
+        var args = arguments,
+            self = this;
+        require(['lib/core/scripts/js/views/auth'], function(AuthApp)
+        {
+            AuthApp.success = makeMenu;
+            AuthApp.require.apply(self, arguments); 
+        });
+    },
+    r = $.rest.prototype.doRequest;
+    $.rest.prototype.doRequest = function()
+    {
+        var ajax = r.apply(this, arguments),
+            self = this;
+        ajax.fail(function(resp){ resp.status == 401 && authLock.apply(self, arguments); });
+        
+        return ajax;
+    };
+    
     $.rest.prototype.config.apiUrl = config.api_url;
     $.restAuth.prototype.config.apiUrl = config.api_url;
+
+    if( localStorage.getItem('superdesk.login.id') )
+    {
+        $.restAuth.prototype.requestOptions.headers.Authorization = localStorage.getItem('superdesk.login.id');
+        superdesk.login = {Id: localStorage.getItem('superdesk.login.id'), Name: localStorage.getItem('superdesk.login.name')}
+    }
     
-    $.superdesk.navigation.init(function(){ var menuView = new MenuView; });
-}); 
+    $.superdesk.navigation.init(makeMenu);
+});
+
