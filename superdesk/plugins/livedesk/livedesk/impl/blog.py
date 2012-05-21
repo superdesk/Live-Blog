@@ -14,11 +14,12 @@ from ..meta.blog import BlogMapped
 from ..meta.blog_admin import AdminEntry
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
+from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from datetime import datetime
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
-from ally.internationalization import _
+from sqlalchemy.sql.expression import exists
 
 # --------------------------------------------------------------------
 
@@ -93,7 +94,8 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         sql = self.session().query(BlogMapped)
         if languageId: sql = sql.filter(BlogMapped.Language == languageId)
         if adminId:
-            sql = sql.join(AdminEntry).filter((BlogMapped.Creator == adminId) | (AdminEntry.adminId == adminId))
+            sql = sql.filter((BlogMapped.Creator == adminId) |
+                             exists().where((AdminEntry.adminId == adminId) & (AdminEntry.Blog == BlogMapped.Id)))
         if q:
             assert isinstance(q, QBlog), 'Invalid query %s' % q
             sql = buildQuery(sql, q, BlogMapped)
