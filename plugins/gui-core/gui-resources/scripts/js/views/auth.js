@@ -1,15 +1,16 @@
 define
 ([
-    'jquery', 'dust/core', 'jquery/tmpl', 'jquery/rest', 'bootstrap',  
+    'jquery', 'jquery/superdesk', 'dust/core', 'jquery/tmpl', 'jquery/rest', 'bootstrap',  
     'tmpl!auth',
 ], 
 function($, superdesk, dust)
 {
     var AuthApp = 
     {
+        success: $.noop,
         require: function()
         {
-            var self = this;
+            var self = this; // rest
             $.tmpl('auth', null, function(e, o)
             { 
                 var dialog = $(o).eq(0).dialog
@@ -21,7 +22,7 @@ function($, superdesk, dust)
                     buttons: 
                     [
                          { text: "Login", click: function(){ $(form).trigger('submit'); }, class: "btn btn-primary"},
-                         { text: "Close", click: function(){ $(this).dialog('close'); }}
+                         { text: "Close", click: function(){ $(this).dialog('close'); }, class: "btn"}
                     ]
                 }),
                     form = dialog.find('form');
@@ -39,8 +40,13 @@ function($, superdesk, dust)
                             { 
                                 found = users[i].Id;
                                 $.restAuth.prototype.requestOptions.headers.Authorization = users[i].Id;
-                                localStorage.setItem('superdesk.login.id', users[i].Id);
-                                localStorage.setItem('superdesk.login.name', users[i].Name);
+                                superdesk.login = users[i];
+                                if($(form).find('#remember:checked').length)
+                                {
+                                    localStorage.setItem('superdesk.login.id', users[i].Id);
+                                    localStorage.setItem('superdesk.login.name', users[i].Name);
+                                }
+                                AuthApp.success && AuthApp.success.apply();
                                 dialog.dialog('close');
                                 break;
                             }
