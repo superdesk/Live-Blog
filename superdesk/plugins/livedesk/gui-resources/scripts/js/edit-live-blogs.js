@@ -1,13 +1,6 @@
-requirejs.config
-({
-    paths: 
-    { 
-        providers:'gui/superdesk/livedesk/scripts/js/providers' 
-    } 
-});
 define([
         'providers/enabled',
-        'jquery', 'jqueryui/texteditor','jquery/splitter', 
+        'jquery', 'jquery/splitter', 'jqueryui/droppable', 'jqueryui/texteditor',
         'tmpl!livedesk>layouts/livedesk',
         'tmpl!livedesk>layouts/blog',
         'tmpl!livedesk>edit', 'tmpl!livedesk>edit-timeline'
@@ -46,15 +39,17 @@ function(providers, $)
             });
             content.find('article#blog-intro').texteditor({floatingToolbar: 'top', plugins:{ controls: editorTitleControls }});
             
-            $('.tabbable').on('show','a[data-toggle="tab"]', function(e) 
+            $('.tabbable')
+            .on('show','a[data-toggle="tab"]', function(e)
             {
                 var el = $(e.target);
                 var idx = parseInt(el.attr('data-idx'));
                 providers[idx].el = $(el.attr('href'));
                 providers[idx].init(theBlog);
-            });
-            $('.tabbable').on('hide','a[data-toggle="tab"]', function(e) 
+            })
+            .on('hide','a[data-toggle="tab"]', function(e)
                     { console.log('cifi-cif'); });
+            console.log($(this).html());
         };
     
     var EditApp = function(theBlog)
@@ -63,7 +58,15 @@ function(providers, $)
         { 
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
                 content = $.superdesk.applyLayout('livedesk>edit', data, function(){ initEditBlog(theBlog); });
-            
+
+            $('.blog-section .tab-content').droppable({
+                drop: function( event, ui ) {
+                    var el = ui.draggable.prependTo($(this).find('#timeline-view>ul:first'));
+                    //el.draggable( "destroy" );
+                    new $.restAuth(theBlog + '/Post/Published').insert(ui.draggable.data('data'));
+                },
+            });
+
             $("#MySplitter").splitter({
                 type: "v",
                 outline: true,

@@ -7,12 +7,15 @@ define('providers/google', [
 	'providers','utils/str', 
 	'jquery','jquery/tmpl',
 	'jqueryui/draggable',
+    'providers/google/adaptor',
 	'tmpl!livedesk>providers/google',
 	'tmpl!livedesk>providers/google/web-item',
 	'tmpl!livedesk>providers/google/news-item',
 	'tmpl!livedesk>providers/google/images-item',
 	'tmpl!livedesk>providers/google-more',
-], function( providers, str, $ ) {$.extend(providers.google, {	initialized: false,
+], function( providers, str, $ ) {
+$.extend(providers.google, {
+	initialized: false,
 	url: 'https://ajax.googleapis.com/ajax/services/search/%(type)s?v=1.0&start=%(start)s&q=%(text)s&callback=?',
 	urls: {
 		web: '',
@@ -21,12 +24,13 @@ define('providers/google', [
 	},
 	data: [],
 	init: function(){
-		if(!this.initialized) {
+//		if(!this.initialized) {
 			this.urls.web = str.format(this.url,{type:'web'});
 			this.urls.news = str.format(this.url,{type:'news'});
 			this.urls.images = str.format(this.url,{type:'images'});
-			this.render();
-		}
+			this.adaptor.init();
+            this.render();
+//		}
 		this.initialized = true;
 	},
 	render: function() {
@@ -94,7 +98,18 @@ define('providers/google', [
 			self.data = self.data.concat(data.responseData.results);
 			data.responseData.date = currentDate;
 			$.tmpl('livedesk>providers/google/web-item', data.responseData, function(e,o) {
-				$('#ggl-web-results').append(o).find('.google').draggable({ containment:'document', helper: 'clone', appendTo: 'body', zIndex: 2700});
+				$('#ggl-web-results').append(o).find('.google').draggable(
+                    {
+                        containment:'document',
+                        helper: 'clone',
+                        appendTo: 'body',
+                        zIndex: 2700,
+                        start: function() {
+                            var idx = parseInt($(this).attr('idx'),10);
+                            $(this).data('data', self.adaptor.web(self.data[idx]));
+                        }
+                    }
+                );
 			});			
 			var cpage = parseInt(data.responseData.cursor.currentPageIndex);
 			cpage += 1;
@@ -194,6 +209,8 @@ define('providers/google', [
 			
 		});
 	},		
-});
+});
 
-return providers;});
+
+return providers;
+});
