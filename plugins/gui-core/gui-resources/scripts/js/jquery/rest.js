@@ -433,7 +433,7 @@ define('jquery/rest',['jquery'], function ($) {
 		request: function(options)
 		{
 			if( options.hasOwnProperty('data') ) this.dataChanged = true;
-			$.extend(true, this.requestOptions, options);
+			this.requestOptions = $.extend(true, {}, this.requestOptions, options);
 			return this;
 		},
 		
