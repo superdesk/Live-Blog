@@ -1,8 +1,8 @@
 {#Posts}
 <li class="quote collaborators" data-colab-id="{#Person}{Id}{/Person}" data-post-id="{Id}">
-	<figure><img src="img/avatar_default_collaborator.png" alt="1" height="48" width="48"></figure>
+	<figure><img src="images/avatar_default_collaborator.png" alt="1" height="48" width="48"></figure>
 	<div class="result-content">
-    	<h3><span class="author">{#Person}{FirstName} {LastName}{/Person}</span></h3>
+    	<h3><span class="author">{#Person}{FullName}{/Person}</span></h3>
     	<p class="result-text">{Content}</p>
     	<p class="attributes"><time>{PublishedOn}</time></p>
 	</div>
