@@ -1,7 +1,6 @@
 define('providers/google/adaptor', ['providers', 'jquery', 'jquery/rest','jquery/utils', 'providers/google/tab'], function(providers){
     $.extend(providers.google, {
         adaptor: {
-            apiUrl: config.api_url,
             author: 1,
             init: function() {
                 var self = this;
@@ -20,7 +19,7 @@ define('providers/google/adaptor', ['providers', 'jquery', 'jquery/rest','jquery
                 return {
                     Content: obj.content,
                     Type: 'normal',
-                    //Author: this.author,
+                    Author: this.author,
                 };
             }
         }

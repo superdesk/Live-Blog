@@ -59,11 +59,12 @@ function(providers, $)
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
                 content = $.superdesk.applyLayout('livedesk>edit', data, function(){ initEditBlog.call(this, theBlog); });
 
-            $('.blog-section .tab-content').droppable({
+            $('.live-blog-content').droppable({
                 drop: function( event, ui ) {
                     var el = ui.draggable.prependTo($(this).find('#timeline-view>ul:first'));
-                    //el.draggable( "destroy" );
-                    new $.restAuth(theBlog + '/Post/Published').resetData().insert(ui.draggable.data('data'));
+                    var data = ui.draggable.data('data');
+                    el.draggable( "destroy").remove();
+                    new $.restAuth(theBlog + '/Post/Published').resetData().insert(data);
                 },
             });
 

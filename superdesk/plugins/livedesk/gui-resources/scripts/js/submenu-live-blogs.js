@@ -9,7 +9,7 @@ define
     {
         init: function(submenu) 
         {
-            new $.restAuth('LiveDesk/Blog/').xfilter('Title,Id').done(function(blogs)
+            new $.restAuth('LiveDesk/Blog/Administered').xfilter('Title,Id').done(function(blogs)
             { 
                 $(submenu).tmpl('livedesk>submenu', {Blogs: blogs}, function()
                 { 
