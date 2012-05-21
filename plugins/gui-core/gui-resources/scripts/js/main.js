@@ -16,6 +16,7 @@ requirejs.config
 		'history': config.js_url + '/history',
 		'utils': config.js_url + '/utils',
 		'gettext': config.js_url + '/gettext',
+        'order': config.js_url + '/require/order',
 		'tmpl': config.js_url + '/require/tmpl',
 		'i18n': config.js_url + '/require/i18n'
 	}
