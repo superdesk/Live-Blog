@@ -24,7 +24,12 @@
 				<li class="divider-vertical"></li>
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-						Username
+						{?user}
+							{#user}{Name}{/user}
+						{:else}
+							Anonymous
+						{/user}
+						{~s}
 						<b class="caret"></b>
 					</a>
 					<ul class="dropdown-menu">
@@ -36,7 +41,7 @@
 						</li>
 						<li class="divider"></li>
 						<li>
-							<a href="#">Logout</a>
+							<a href="#" id="navbar-logout">Logout</a>
 						</li>
 					</ul>
 				</li>

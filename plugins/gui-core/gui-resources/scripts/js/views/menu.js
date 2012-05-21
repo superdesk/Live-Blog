@@ -36,8 +36,10 @@ function($, superdesk, dust)
     			}));
     		});
     		
+    		var navData = {superdesk: {menu: displayMenu}};
+    		superdesk.login && $.extend(navData, {user: superdesk.login});
     		$('#navbar-top')
-    		.tmpl( 'navbar', {superdesk: {menu: displayMenu}} )
+    		.tmpl( 'navbar', navData )
     		.on('click', '.nav a', function(event)
     		{
     		    var self = this;
@@ -54,6 +56,14 @@ function($, superdesk, dust)
     		        }
     		    );
     			event.preventDefault(); 
+    		});
+    		$('#navbar-logout', $('#navbar-top')).on('click', function()
+    		{
+    		    delete superdesk.login;
+    		    localStorage.removeItem('superdesk.login.name');
+    		    localStorage.removeItem('superdesk.login.id');
+    		    delete $.restAuth.prototype.requestOptions.headers.Authorization;
+    		    new MenuView;
     		});
     		
         });
