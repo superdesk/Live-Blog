@@ -2,7 +2,7 @@ define('providers/colabs',
 [ 'providers', 'jquery', 'jquery/rest',
   'providers/colabs/adaptor',
   'tmpl!livedesk>providers/colabs',
-  'tmpl!livedesk>providers/colabs-items'
+  'tmpl!livedesk>providers/colabs/items'
 ],
 function(providers, $)
 {
@@ -27,7 +27,8 @@ function(providers, $)
                 .on('click', 'span[data-colab-id]', function()
                 {
                     var colabId = $(this).attr('data-colab-id'),
-                        posts = $('.collaborators-header', self.el).nextAll('.search-result-list').find('li[data-colab-id!='+colabId+']');
+                        posts = $('.collaborators-header', self.el).nextAll('.search-result-list').find('li[data-colab-id='+colabId+']');
+                    
                     if($(this).data('is-off'))
                     {
                         posts.show();
@@ -78,7 +79,7 @@ function(providers, $)
                         appendPosts.length &&
                         $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
                         {
-                            $.tmpl('livedesk>providers/colabs-items', {Person: colab.Person, Posts: appendPosts}, function(e, o)
+                            $.tmpl('livedesk>providers/colabs/items', {Person: colab.Person, Posts: appendPosts}, function(e, o)
                             {
                                 $('.search-result-list', self.el).prepend(o);
                                 $('.search-result-list li', self.el).draggable
@@ -124,7 +125,7 @@ function(providers, $)
                             for(var i=0; i<postList.length; i++)
                                 colab._latestPost = Math.max(colab._latestPost, parseInt(postList[i].Id));
 
-                            $.tmpl('livedesk>providers/colabs-items', {Person: colab.Person, Posts: postList}, function(e, o)
+                            $.tmpl('livedesk>providers/colabs/items', {Person: colab.Person, Posts: postList}, function(e, o)
                             {
                                 $('.search-result-list', self.el).prepend(o);
                                 $('.search-result-list li', self.el).draggable
