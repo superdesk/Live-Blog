@@ -49,16 +49,16 @@ function(providers, $)
             })
             .on('hide','a[data-toggle="tab"]', function(e)
                     { console.log('cifi-cif'); });
-            console.log($(this).html());
         };
     
     var EditApp = function(theBlog)
     {
+
+
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
         { 
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
                 content = $.superdesk.applyLayout('livedesk>edit', data, function(){ initEditBlog.call(this, theBlog); });
-
             $('.live-blog-content').droppable({
                 drop: function( event, ui ) {
                     var el = ui.draggable.prependTo($(this).find('#timeline-view>ul:first'));
@@ -66,8 +66,8 @@ function(providers, $)
                     el.draggable( "destroy").remove();
                     new $.restAuth(theBlog + '/Post/Published').resetData().insert(data);
                 },
+                activeClass: 'ui-droppable-highlight',
             });
-
             $("#MySplitter").splitter({
                 type: "v",
                 outline: true,
@@ -80,9 +80,8 @@ function(providers, $)
                 cookie: "docksplitter",
                 dockKey: 'Z',   // Alt-Shift-Z in FF/IE
                 accessKey: 'I'  // Alt-Shift-I in FF/IE
-            }); 
-            
-            
+            });
+
             $('.collapse-title-page', content).off('click.livedesk')
             .on('click.livedesk', function()
             {

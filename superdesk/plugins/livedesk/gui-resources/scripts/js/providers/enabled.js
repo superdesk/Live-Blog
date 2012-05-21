@@ -1,1 +1,1 @@
-define('providers/enabled', [	'providers/google/tab',	'providers/twitter/tab',	'providers/colabs/tab',], function(providers){ return providers; });
+define('providers/enabled', [    'order!providers/edit/tab',    'order!providers/colabs/tab',	'order!providers/google/tab',	'order!providers/twitter/tab',], function(providers){ return providers; });
