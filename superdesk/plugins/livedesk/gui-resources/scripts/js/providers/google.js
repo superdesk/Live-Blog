@@ -100,10 +100,12 @@ $.extend(providers.google, {
 			$.tmpl('livedesk>providers/google/web-item', data.responseData, function(e,o) {
 				$('#ggl-web-results').append(o).find('.google').draggable(
                     {
+                        revert: 'invalid',
                         containment:'document',
                         helper: 'clone',
                         appendTo: 'body',
                         zIndex: 2700,
+                        clone: true,
                         start: function() {
                             var idx = parseInt($(this).attr('idx'),10);
                             $(this).data('data', self.adaptor.web(self.data[idx]));
