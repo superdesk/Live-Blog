@@ -26,9 +26,9 @@ define('jqueryui/ext',['jquery', 'jqueryui/widget', 'jqueryui/dialog'], function
 		$.widget.bridge = function( name, object ) 
 		{
 			// prepare plugins for 'per-selector' instances
-			if( typeof object.prototype.plugins != 'undefined' )
+            var pluginsClass = function(){};
+			if( typeof object.prototype.plugins !== 'undefined' )
 			{
-				var pluginsClass = function(){};
 				for( var i in object.prototype.plugins )
 					pluginsClass.prototype[i] = object.prototype.plugins[i];
 			}
