@@ -1,6 +1,6 @@
 define([
         'providers/enabled',
-        'jquery', 'jquery/splitter', 'jqueryui/droppable', 'jqueryui/texteditor',
+        'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable', 'jqueryui/texteditor',
         'tmpl!livedesk>layouts/livedesk',
         'tmpl!livedesk>layouts/blog',
         'tmpl!livedesk>edit', 'tmpl!livedesk>edit-timeline'
@@ -63,7 +63,7 @@ function(providers, $)
                 drop: function( event, ui ) {
                     var el = ui.draggable.prependTo($(this).find('#timeline-view>ul:first'));
                     //el.draggable( "destroy" );
-                    new $.restAuth(theBlog + '/Post/Published').insert(ui.draggable.data('data'));
+                    new $.restAuth(theBlog + '/Post/Published').resetData().insert(ui.draggable.data('data'));
                 },
             });
 
