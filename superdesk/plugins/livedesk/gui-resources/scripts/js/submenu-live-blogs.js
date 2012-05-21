@@ -1,3 +1,4 @@
+requirejs.config({ paths: { providers:'gui/superdesk/livedesk/scripts/js/providers', } });
 define
 ([
   'jquery', 'jquery/superdesk', 'jquery/tmpl', 'jquery/rest',
