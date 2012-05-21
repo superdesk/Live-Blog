@@ -1,4 +1,4 @@
-define('jquery/rest',['jquery'], function ($) {
+define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
 	var dfdManager = 
 	{
 		add: function(parentDfd, childDfd)
@@ -233,7 +233,7 @@ define('jquery/rest',['jquery'], function ($) {
 			var getData = new chainable( function(data) 
 			{
 				var node;
-				if( !Array.isArray(data) ) 
+				if( !Array.isArray(data) && $.isObject(data) )
 					if( Object.keys(data).length == 1 )
 					{
 						for( var i in data )

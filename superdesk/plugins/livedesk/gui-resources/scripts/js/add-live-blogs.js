@@ -14,10 +14,9 @@ define([
                     var el = $(this);
                     data[el.attr('name')]= el.val();
                 });
-                new $.restAuth('LiveDesk/Blog').insert(data).done(function(){
-                    console.dir(arguments);
-                    require([superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js'],
-                        function(EditApp){ new EditApp(theBlog); });
+                new $.restAuth('LiveDesk/Blog').insert(data).done(function(liveBlog){
+                    require([$.superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js'],
+                        function(EditApp){ new EditApp(liveBlog.href); });
                 });
                 //console.log(data);
             });

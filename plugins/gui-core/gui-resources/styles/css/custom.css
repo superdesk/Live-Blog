@@ -1381,3 +1381,8 @@ bootstrap.css (line 1929)
 		top:14px;
 		}
 		
+.ui-droppable-highlight
+{
+    border: 1px solid Gold !important;
+    background: LightGoldenRodYellow !important;
+}
