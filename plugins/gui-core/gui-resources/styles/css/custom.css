@@ -1386,3 +1386,13 @@ bootstrap.css (line 1929)
     border: 1px solid Gold !important;
     background: LightGoldenRodYellow !important;
 }
+.ui-edit-article
+{
+    background: none repeat scroll 0 0 #FFFFFF
+    font-family: Georgia,"Times New Roman",Times,serif;
+    margin-bottom: 19px;
+    margin-left: -9.5px;
+    margin-right: -9.5px;
+    min-height: 100px;
+    padding: 9.5px;
+}
