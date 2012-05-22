@@ -13,7 +13,6 @@ function(providers, $)
     
     $.extend(providers.colabs,  
     {
-        updateInterval: 0,       
         init: function(theBlog) 
         {         
             $('.search-result-list', this.el).html('')
@@ -40,7 +39,7 @@ function(providers, $)
                         $(this).removeClass('label-info').data('is-off', true);
                     }
                 });  
-                $('.new-results', self.el).on('update.livedesk', function(e, count, callback)
+                $('.new-results', self.el).off('update.livedesk').on('update.livedesk', function(e, count, callback)
                 {
                     var self = $(this);
                     $(this).removeClass('hide')
@@ -58,9 +57,9 @@ function(providers, $)
                 {
                     var colab = this,
                         updateRequest = new $.rest(colab)
-                        ///.request({data: {'StartEx.CId': colab._latestPost}})
-                        .get('PostPublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
-                        .get('PostUnpublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
+                        .request({data: {'startEx.cId': colab._latestPost}})
+                        .get('PostPublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
+                        .get('PostUnpublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
                     .done(function(published, unpublished)
                     {
                         published = this.extractListData(published[0]);
@@ -70,10 +69,10 @@ function(providers, $)
                         var appendPosts = [];
                         for(var i=0; i<postList.length; i++)
                         {
-                            if(parseInt(postList[i].Id) > colab._latestPost)
+                            if(parseInt(postList[i].CId) > colab._latestPost)
                             {
                                 appendPosts.push(postList[i]);
-                                colab._latestPost = postList[i].Id;
+                                colab._latestPost = postList[i].CId;
                             }
                         }
                         updateItemCount += appendPosts.length; 
@@ -82,10 +81,9 @@ function(providers, $)
                         {
                             $.tmpl('livedesk>providers/colabs/items', {Person: colab.Person, Posts: appendPosts}, function(e, o)
                             {
-                                $('.search-result-list', self.el).prepend(o);
+                                $('.search-result-list', self.el).scrollTop(0).prepend(o);
                                 $('.search-result-list li', self.el).draggable
                                 ({
-                                    containment: 'document',
                                     helper: 'clone',
                                     appendTo: 'body',
                                     zIndex: 2700,
@@ -115,8 +113,8 @@ function(providers, $)
                         if(colabsList.length == colabsHrefs.length)
                             $(self.el).tmpl('livedesk>providers/colabs', {Colabs: colabsList}, setupHeader);
                        
-                        this.get('PostPublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
-                            .get('PostUnpublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
+                        this.get('PostPublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
+                            .get('PostUnpublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
                         .done(function(published, unpublished)
                         {
                             published = this.extractListData(published[0]);
@@ -124,14 +122,13 @@ function(providers, $)
                             var postList = published.concat(unpublished);
                             
                             for(var i=0; i<postList.length; i++)
-                                colab._latestPost = Math.max(colab._latestPost, parseInt(postList[i].Id));
+                                colab._latestPost = Math.max(colab._latestPost, parseInt(postList[i].CId));
 
                             $.tmpl('livedesk>providers/colabs/items', {Person: colab.Person, Posts: postList}, function(e, o)
                             {
                                 $('.search-result-list', self.el).prepend(o);
                                 $('.search-result-list li', self.el).draggable
                                 ({
-                                    containment: 'document',
                                     helper: 'clone',
                                     appendTo: 'body',
                                     zIndex: 2700,
