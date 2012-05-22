@@ -11,9 +11,10 @@ function($, superdesk, dust)
         var menu = new $.rest('GUI/Action?path=menu.*')
         .done(function(menu)
         {  
-    		var displayMenu = [];
-    		var refreshMenu = function() 
+    		var displayMenu = [],
+    		    refreshMenu = function() 
     		{
+    		    displayMenu = [];
         		$(menu).each(function()
         		{ 
         		    var Subs = null;
@@ -71,6 +72,7 @@ function($, superdesk, dust)
         		    new MenuView;
         		});
     		};
+    		$('#navbar-top').on('refresh-menu', refreshMenu);
     		refreshMenu();
     		
         });
