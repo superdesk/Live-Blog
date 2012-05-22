@@ -104,8 +104,14 @@ function(providers, $)
                 drop: function( event, ui ) {
                     var el = ui.draggable.prependTo($(this).find('#timeline-view>ul:first'));
                     var data = ui.draggable.data('data');
+                    var post = ui.draggable.data('post');
+                    if(data !== undefined) {
+                        new $.restAuth(theBlog + '/Post/Published').resetData().insert(data);
+                    } else if(post !== undefined){
+                        new $.restAuth(theBlog + '/Post/'+post+'/Publish').resetData().insert();
+                    }
+                    //el.draggable("option", "revert", true );
                     el.draggable( "destroy").remove();
-                    new $.restAuth(theBlog + '/Post/Published').resetData().insert(data);
                     // stop update interval -> update -> restart
                     clearInterval(updateInterval);
                     update(true, function(){ updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000); });
