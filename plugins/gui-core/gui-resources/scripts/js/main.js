@@ -48,7 +48,6 @@ function(MenuView, $, superdesk)
     $.rest.prototype.config.apiUrl = config.api_url;
     $.restAuth.prototype.config.apiUrl = config.api_url;
 
-    console.log(localStorage.getItem('superdesk.login.id'));
     if( localStorage.getItem('superdesk.login.id') )
     {
         $.restAuth.prototype.requestOptions.headers.Authorization = localStorage.getItem('superdesk.login.id');
