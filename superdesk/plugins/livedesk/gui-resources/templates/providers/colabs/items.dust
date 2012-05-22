@@ -3,7 +3,7 @@
 	<figure><img src="images/avatar_default_collaborator.png" alt="1" height="48" width="48"></figure>
 	<div class="result-content">
     	<h3><span class="author">{#Person}{FullName}{/Person}</span></h3>
-    	<p class="result-text">{Content}</p>
+    	<p class="result-text">{Content|s}</p>
     	<p class="attributes"><time>{PublishedOn}</time></p>
 	</div>
 </li>
