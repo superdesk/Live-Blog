@@ -109,15 +109,8 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
                 return
 
         if _hasFetcher:
-            chain.process(req, rsp)
-            if rsp.code.isSuccess:
-                # If there is a registered fetcher we need to bring the entire content because the fetching is lazy loading
-                # so if there is any problem while fetching we need to be able to report that, so the content is fetched
-                # before the rendering so in a case of a fetch problem we can abort.
-                try:
-                    content = [bytes for bytes in rsp.content]
-                except FetchError: rsp.content = None
-                else: rsp.content = iter(content)
+            try: chain.process(req, rsp)
+            except FetchError: rsp.content = None
         else: chain.proceed()
 
     # ----------------------------------------------------------------
@@ -258,7 +251,7 @@ class Fetcher:
         req.method = GET
         req.resourcePath = path
         req.accLanguages = self.request.accLanguages
-        req.params.extend(self.request.params)
+        #req.params.extend(self.request.params)
 
         rsp = Response()
         rsp.contentLanguage = self.response.contentLanguage

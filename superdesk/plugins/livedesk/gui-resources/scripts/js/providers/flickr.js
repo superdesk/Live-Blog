@@ -7,6 +7,7 @@ define('providers/flickr', [
     'providers',
     'jquery','jquery/tmpl',
     'jqueryui/draggable',
+     'providers/flickr/adaptor',
     'tmpl!livedesk>providers/flickr',
     'tmpl!livedesk>providers/flickr/image-item',
     'tmpl!livedesk>providers/load-more',
@@ -53,7 +54,20 @@ $.extend(providers.flickr, {
                     
                     if ( data.photos.photos.length > 1 ) {
                         $.tmpl('livedesk>providers/flickr/image-item', data.photos, function(e,o) {
-                            $('#flickr-image-results').append(o).find('.flickr').draggable({ containment:'document', helper: 'clone', appendTo: 'body', zIndex: 2700});
+                            $('#flickr-image-results').append(o).find('.flickr').draggable(
+                            {
+                                revert: 'invalid',
+                                containment:'document',
+                                helper: 'clone',
+                                appendTo: 'body',
+                                zIndex: 2700,
+                                clone: true,
+                                start: function() {
+                                    $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                }
+                                
+                            }
+                            );
                         });			
 
                     //show the load more button
