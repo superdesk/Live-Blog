@@ -11,6 +11,13 @@
 	</div>
 	<ul class="post-list wraped">
 	{:else}
+		{@if cond="'{Author.Source.Name}'=='google'"}
+		<li class="{Author.Source.Name}">
+			<div class="drag-bar"></div>
+	        <div class="tool-box-right">
+	        	<a href="#" class="close">x</a>
+	        </div>
+		{:else}
 		<li class="quote {Author.Source.Name}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
@@ -19,6 +26,7 @@
 	        <figure>
 	        	<img src="" />
 	        </figure>
+        {/if}
 	        <div class="result-content">
 				<h3>
 					{?Author.Person}
