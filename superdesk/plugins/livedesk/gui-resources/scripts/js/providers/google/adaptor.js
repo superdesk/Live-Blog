@@ -1,4 +1,12 @@
-define('providers/google/adaptor', ['providers', 'jquery', 'jquery/rest','jquery/utils', 'providers/google/tab'], function(providers){
+define('providers/google/adaptor', [
+    'providers',
+    'utils/str',
+    'jquery',
+    'jquery/rest',
+    'jquery/utils',
+    'providers/google/tab'
+], function(providers,str, $){
+
     $.extend(providers.google, {
         adaptor: {
             author: 1,
@@ -18,6 +26,20 @@ define('providers/google/adaptor', ['providers', 'jquery', 'jquery/rest','jquery
             web: function(obj) {
                 return {
                     Content: obj.content,
+                    Type: 'normal',
+                    Author: this.author,
+                };
+            },
+            news: function(obj) {
+                return {
+                    Content: obj.content,
+                    Type: 'normal',
+                    Author: this.author,
+                };
+            },
+            images: function(obj) {
+                return {
+                    Content: str.format('<p class="result-text">%(content)s</p><a href="%(url)s"><img src="%(tbUrl)s"/></a>', obj),
                     Type: 'normal',
                     Author: this.author,
                 };
