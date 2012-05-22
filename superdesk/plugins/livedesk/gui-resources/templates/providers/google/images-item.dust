@@ -1,1 +1,1 @@
-{#results}<li class="" idx="{@idx}{.}{/idx}">	<div class="result-content">		<h3><a href="{url}">{title|s}</a></h3>		<p class="result-text">{content|s}</p>		<a href="{url}"><img src="{tbUrl|s}"/></a>	</div></li>{/results}
+{#results}<li class="" idx="{@idx}{.}{/idx}" startx="{startx}">	<div class="result-content">		<h3><a href="{url}">{title|s}</a></h3>		<p class="result-text">{content|s}</p>		<a href="{url}"><img src="{tbUrl|s}"/></a>	</div></li>{/results}
