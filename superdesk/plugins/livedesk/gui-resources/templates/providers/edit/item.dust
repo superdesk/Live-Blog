@@ -24,7 +24,7 @@
 	        	<a href="#" class="close">x</a>
 	        </div>
 	        <figure>
-	        	<img src="" />
+	        	<img src="../../images/avatar_default_collaborator.png" />
 	        </figure>
         {/if}
 	        <div class="result-content">

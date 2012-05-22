@@ -46,6 +46,8 @@ COLLABORATORS = {
                  'Jey': 'facebook',
                  'Mugurel': 'facebook',
                  'google': 'google',
+                 'twitter': 'twitter',
+                 'flickr': 'flickr',
                  }
 
 _cache_collaborators = {}
