@@ -22,6 +22,7 @@ $.extend(providers.flickr, {
                 //console.log('flickr main init');
 		if(!this.initialized) {
 			this.render();
+                        this.adaptor.init();
 		}
 		this.initialized = true;
 	},
@@ -63,9 +64,8 @@ $.extend(providers.flickr, {
                                 zIndex: 2700,
                                 clone: true,
                                 start: function() {
-                                    $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                    $(this).data('data', self.adaptor.universal( $(this) ));
                                 }
-                                
                             }
                             );
                         });			
