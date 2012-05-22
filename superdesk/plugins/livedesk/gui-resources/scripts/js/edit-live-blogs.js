@@ -1,13 +1,16 @@
-define([
-        'providers/enabled',
-        'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable', 'jqueryui/texteditor',
-        'tmpl!livedesk>layouts/livedesk',
-        'tmpl!livedesk>layouts/blog',
-        'tmpl!livedesk>edit', 'tmpl!livedesk>edit-timeline'
-], 
+define([ 
+   'providers/enabled',
+   'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable', 'jqueryui/texteditor',
+   'tmpl!livedesk>layouts/livedesk', 
+   'tmpl!livedesk>layouts/blog', 
+   'tmpl!livedesk>edit', 
+   'tmpl!livedesk>edit-timeline'],
 function(providers, $) 
 {
-    var providers = $.arrayValues(providers), 
+    var config = { updateInterval: 3 },
+        latestPost = 0,
+        providers = $.arrayValues(providers), 
+        content = null,
         editorImageControl = function()
         {
             // call super
@@ -24,8 +27,8 @@ function(providers, $)
         editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
         initEditBlog = function(theBlog)
         {
-            var content = $(this).find('[is-content]'),
-                h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
+            content = $(this).find('[is-content]');
+            var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
             delete h2ctrl.justifyRight;
             delete h2ctrl.justifyLeft;
             delete h2ctrl.justifyCenter; 
@@ -49,12 +52,37 @@ function(providers, $)
             })
             .on('hide','a[data-toggle="tab"]', function(e)
                     { console.log('cifi-cif'); });
+            
+        },
+        updateInterval = 0,
+        updateItemCount = 0,
+        update = function(postHref)
+        {
+            new $.rest(postHref)
+            .request({data:{'startEx.cId':latestPost}})
+            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified')
+            .done(function(posts)
+            {
+                var posts = this.extractListData(posts);
+                if(!posts) return; 
+                for(var i=0; i<posts.length; i++)
+                    latestPost = Math.max(latestPost, parseInt(posts[i].CId));
+                updateItemCount += posts.length;
+                
+                // trigger update with callback to be applied on click
+                $('#timeline-view .new-results', content).trigger('update.livedesk', [updateItemCount, function()
+                {
+                    $.tmpl('livedesk>edit-timeline', {Posts: posts}, function(e, o)
+                    {
+                        $('#timeline-view .post-list', content).prepend(o);
+                        updateItemCount -= posts.length;
+                    });
+                }]);
+            });
         };
     
     var EditApp = function(theBlog)
     {
-
-
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
         { 
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
@@ -66,7 +94,7 @@ function(providers, $)
                     el.draggable( "destroy").remove();
                     new $.restAuth(theBlog + '/Post/Published').resetData().insert(data);
                 },
-                activeClass: 'ui-droppable-highlight',
+                activeClass: 'ui-droppable-highlight'
             });
             $("#MySplitter").splitter({
                 type: "v",
@@ -90,24 +118,43 @@ function(providers, $)
                 intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
             });
             
-            this.get('Collaborator').done(function(colabs)
-            { 
-                $(this.extractListData(colabs)).each(function()
-                { 
-                    /*new $.rest(this.Collaborator.href)
-                        .xfilter('Person.FirstName, Person.LastName')
-                        .done(function()
-                        { 
-                            
-                        });*/
-                });
-            });
-            
+            var postHref = blogData.PostPublished.href;
             this.get('PostPublished')
-            .xfilter('Id, Content, CreatedOn, Type, Author.Source.Name, Author.Source.Id')
+            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified')
             .done(function(posts)
             {
-                $('#timeline-view', content).tmpl('livedesk>edit-timeline', {Posts: this.extractListData(posts)});
+                var posts = this.extractListData(posts);
+                $('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
+                {
+                    // bind update event for new results notification button
+                    $('#timeline-view .new-results', content)
+                    .off('update.livedesk')
+                    .on('update.livedesk', function(e, count, callback)
+                    {
+                        var self = $(this);
+                        self.removeClass('hide').one('click.livedesk', function()
+                        {
+                            self.addClass('hide'); 
+                            callback.apply(this);
+                        })
+                        .find('span').text(count);
+                    });
+                });
+                
+                for(var i=0; i<posts.length; i++)
+                    latestPost = Math.max(latestPost, parseInt(posts[i].CId));
+                
+                clearInterval(updateInterval);
+                updateInterval = setInterval(function()
+                {
+                    if(!$('#timeline-view:visible', self.el).length) 
+                    {
+                        clearInterval(updateInterval);
+                        return;
+                    }
+                    update(postHref); 
+                }, config.updateInterval*1000);
+                
             });
         });
         
