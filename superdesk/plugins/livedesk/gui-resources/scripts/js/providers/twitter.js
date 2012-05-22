@@ -4,9 +4,10 @@
  */
 
 define('providers/twitter', [
-    'providers',
+    'providers',    
     'jquery','jquery/tmpl',
     'jqueryui/draggable',
+    'providers/twitter/adaptor',
     'tmpl!livedesk>providers/twitter',
     'tmpl!livedesk>providers/twitter/user-item',
     'tmpl!livedesk>providers/twitter/web-item',
@@ -84,7 +85,19 @@ $.extend(providers.twitter, {
                     }
                     if ( data.length > 0 ) {
                         $.tmpl('livedesk>providers/twitter/user-item', usrData, function(e,o) {
-                            $('#twt-timeline-results').append(o).find('.twitter').draggable({ containment:'document', helper: 'clone', appendTo: 'body', zIndex: 2700});
+                            $('#twt-timeline-results').append(o).find('.twitter').draggable(
+                            {
+                                revert: 'invalid',
+                                containment:'document',
+                                helper: 'clone',
+                                appendTo: 'body',
+                                zIndex: 2700,
+                                clone: true,
+                                start: function() {
+                                    $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                }   
+                            }
+                            );
                         });			
 
 
@@ -125,7 +138,19 @@ $.extend(providers.twitter, {
                     
                     if (data.length > 0) {
                         $.tmpl('livedesk>providers/twitter/user-item', usrData, function(e,o) {
-                            $('#twt-user-results').append(o).find('.twitter').draggable({ containment:'document', helper: 'clone', appendTo: 'body', zIndex: 2700});
+                            $('#twt-user-results').append(o).find('.twitter').draggable(
+                            {
+                                revert: 'invalid',
+                                containment:'document',
+                                helper: 'clone',
+                                appendTo: 'body',
+                                zIndex: 2700,
+                                clone: true,
+                                start: function() {
+                                    $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                }   
+                            }
+                            );
                         });			
 
 
@@ -170,7 +195,21 @@ $.extend(providers.twitter, {
                     
                     if (data.length > 0) {
                         $.tmpl('livedesk>providers/twitter/user-item', usrData, function(e,o) {
-                            $('#twt-favorites-results').append(o).find('.twitter').draggable({ containment:'document', helper: 'clone', appendTo: 'body', zIndex: 2700});
+                            $('#twt-favorites-results').append(o).find('.twitter').draggable(
+                        
+                            {
+                                revert: 'invalid',
+                                containment:'document',
+                                helper: 'clone',
+                                appendTo: 'body',
+                                zIndex: 2700,
+                                clone: true,
+                                start: function() {
+                                    $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                }   
+                            }
+                            
+                            );
                         });			
 
 
@@ -213,7 +252,21 @@ $.extend(providers.twitter, {
             $.getJSON(url, {}, function(data){
                     if (data.results.length > 0) {
                         $.tmpl('livedesk>providers/twitter/web-item', data, function(e,o) {
-                                $('#twt-web-results').append(o).find('.twitter').draggable({ containment:'document', helper: 'clone', appendTo: 'body', zIndex: 2700});
+                                $('#twt-web-results').append(o).find('.twitter').draggable(
+                            
+                                {
+                                    revert: 'invalid',
+                                    containment:'document',
+                                    helper: 'clone',
+                                    appendTo: 'body',
+                                    zIndex: 2700,
+                                    clone: true,
+                                    start: function() {
+                                        $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                    }   
+                                }
+                            
+                                );
                         });			
 
                         var loadMore = {
