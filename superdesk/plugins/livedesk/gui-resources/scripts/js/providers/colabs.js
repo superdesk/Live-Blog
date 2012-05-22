@@ -58,6 +58,7 @@ function(providers, $)
                 {
                     var colab = this,
                         updateRequest = new $.rest(colab)
+                        ///.request({data: {'StartEx.CId': colab._latestPost}})
                         .get('PostPublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
                         .get('PostUnpublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id')
                     .done(function(published, unpublished)
