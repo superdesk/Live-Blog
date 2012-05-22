@@ -38,6 +38,8 @@ def createSourceType(key):
 SOURCES = {
            'google': (False, 'www.google.com', 'xml'),
            'facebook': (False, 'www.facebook.com', 'rss'),
+           'twitter': (False, 'www.twitter.com', 'xml'),
+           'flickr': (False, 'www.flickr.com', 'xml'),
            }
 
 _cache_sources = {}
