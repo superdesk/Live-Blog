@@ -115,7 +115,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
         postEntry.CId = self._nextCId()
-        self.session().add(postEntry)
+        self.session().merge(postEntry)
 
         return postId
 
@@ -143,7 +143,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
         postEntry.CId = self._nextCId()
-        self.session().add(postEntry)
+        self.session().merge(postEntry)
 
     # ----------------------------------------------------------------
 
