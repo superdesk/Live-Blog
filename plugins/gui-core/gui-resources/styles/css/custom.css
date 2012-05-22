@@ -513,7 +513,7 @@ section.main-section {
     left: 0;
     right: 0;
 	background:#f6f4f9;
-    z-index: 1020; /* 10 less than .navbar-fixed to prevent any overlap */
+    z-index: 1001; /* 10 less than .navbar-fixed to prevent any overlap */
     border-color: #d5d5d5;
     border-width: 0 0 1px; /* drop the border on the fixed edges */
     -webkit-border-radius: 0;
