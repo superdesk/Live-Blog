@@ -1,5 +1,3 @@
-// TODO take modal out of scope
-
 define
 ([
     'jquery', 'jquery/superdesk', 'dust/core', 'jquery/tmpl', 'jquery/rest', 'bootstrap',  

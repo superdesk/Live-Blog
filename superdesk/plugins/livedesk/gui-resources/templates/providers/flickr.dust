@@ -1,0 +1,7 @@
+<div class="search-header">
+    <input type="text" placeholder="_('Search')" id="flickr-search-text">
+</div>
+<ul class="search-result-list scroller" id="flickr-image-holder" style="">
+    <div id="flickr-image-results"></div>
+    <div id="flickr-image-more"></div>
+</ul>
