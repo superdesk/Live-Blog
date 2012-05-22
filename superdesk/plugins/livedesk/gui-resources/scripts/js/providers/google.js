@@ -97,7 +97,7 @@ $.extend(providers.google, {
 		$.getJSON(str.format(this.urls.web,{ start: start, text: text}), {}, function(data){
 			self.data = self.data.concat(data.responseData.results);
 			data.responseData.date = currentDate;
-			$.tmpl('livedesk>providers/google/web-item', data.responseData, function(e,o) {
+			$.tmpl('livedesk>providers/google/web-item', { results: data.responseData.results, startx: start}, function(e,o) {
 				$('#ggl-web-results').append(o).find('.google').draggable(
                     {
                         revert: 'invalid',
@@ -106,8 +106,8 @@ $.extend(providers.google, {
                         zIndex: 2700,
                         clone: true,
                         start: function() {
-                            var idx = parseInt($(this).attr('idx'),10);
-                            $(this).data('data', self.adaptor.web(self.data[idx]));
+                            var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
+                            $(this).data('data', self.adaptor.web(self.data[startx+idx]));
                         }
                         
                     }
