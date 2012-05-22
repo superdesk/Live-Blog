@@ -7,7 +7,7 @@ define([
    'tmpl!livedesk>edit-timeline'],
 function(providers, $) 
 {
-    var config = { updateInterval: 3 },
+    var config = { updateInterval: 30 },
         latestPost = 0,
         providers = $.arrayValues(providers), 
         content = null,
@@ -70,6 +70,7 @@ function(providers, $)
                 updateItemCount += posts.length;
                 
                 // trigger update with callback to be applied on click
+                posts.length &&
                 $('#timeline-view .new-results', content).trigger('update.livedesk', [updateItemCount, function()
                 {
                     $.tmpl('livedesk>edit-timeline', {Posts: posts}, function(e, o)
