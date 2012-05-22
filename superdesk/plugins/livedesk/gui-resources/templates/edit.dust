@@ -45,7 +45,14 @@
         </ul>
         <div class="tab-content">
 			<div class="tab-pane active" id="timeline-view">
-				_("Loading. please wait...");
+				<ul class="new-results hide">
+					<li>
+						<button class="btn btn-large bottom-full">_("Show"){~s}<span></span>{~s}_("new results")</button>
+					</li>
+				</ul>
+				<div class="results-placeholder">
+					_("Loading. please wait...");
+				</div>
             </div>
         	<div class="tab-pane" id="map-view">
             22
