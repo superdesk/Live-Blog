@@ -25,6 +25,7 @@ $.extend(providers.twitter, {
                 //console.log('twitter main init');
 		if(!this.initialized) {
 			this.render();
+                        this.adaptor.init();
 		}
 		this.initialized = true;
 	},
@@ -94,7 +95,7 @@ $.extend(providers.twitter, {
                                 zIndex: 2700,
                                 clone: true,
                                 start: function() {
-                                    $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                    $(this).data('data', self.adaptor.universal( $(this) ));
                                 }   
                             }
                             );
@@ -147,7 +148,7 @@ $.extend(providers.twitter, {
                                 zIndex: 2700,
                                 clone: true,
                                 start: function() {
-                                    $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                    $(this).data('data', self.adaptor.universal( $(this) ));
                                 }   
                             }
                             );
@@ -205,7 +206,7 @@ $.extend(providers.twitter, {
                                 zIndex: 2700,
                                 clone: true,
                                 start: function() {
-                                    $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                    $(this).data('data', self.adaptor.universal( $(this) ));
                                 }   
                             }
                             
@@ -262,7 +263,7 @@ $.extend(providers.twitter, {
                                     zIndex: 2700,
                                     clone: true,
                                     start: function() {
-                                        $(this).data('data', self.adaptor.universal($(this).find('.result-content').html()) );
+                                        $(this).data('data', self.adaptor.universal( $(this) ));
                                     }   
                                 }
                             

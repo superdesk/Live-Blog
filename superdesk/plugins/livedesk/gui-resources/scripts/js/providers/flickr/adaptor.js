@@ -24,11 +24,16 @@ define('providers/flickr/adaptor', [
                 //new $.restAuth(theBlog)
             },
             universal: function(content) {
-                return {
-                    Content: content,
+                
+                var myClone = content.clone();
+                myClone.find('time').remove();
+                
+                var data = {
+                    Content: myClone.find('.result-content').html(),
                     Type: 'normal',
                     Author: this.author,
                 };
+                return data;
             },
         }
     });
