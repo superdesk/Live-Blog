@@ -1,9 +1,4 @@
-<div id="add-live-blog" class="modal hide fade in" style="display: block;">
-    <div class="modal-header">
-        <a data-dismiss="modal" class="close">x</a>
-        <h3>_('Add Live blog')</h3>
-    </div>
-    <div class="modal-body">
+<div id="add-live-blog" title="_('Add Live blog')">
     <form class="form-horizontal row-fluid">
         <div class="user-details">
         <fieldset>
@@ -11,7 +6,7 @@
                 <label class="control-label">_('Language')</label>
                 <div class="controls">
                     <select name="Language" class="span3">
-                    <option>_('Choose language')</option>
+                    <option value="">_('Choose language')</option>
                     {#Languages}
                         <option value="{Id}">{Name}</option>
                     {/Languages}
@@ -21,21 +16,14 @@
             <div class="control-group">
                 <label for="title" class="control-label">_('Title')</label>
                 <div class="controls">
-                    <textarea name="Title" type="text" id="title" class="input-xlarge" style="height: 18px;"></textarea>
+                    <h2 data-value="Title">_('New blog title')</h2>
                 </div>
             </div>
             <div class="control-group">
                 <label for="description" class="control-label">_('Description')</label>
-                <div class="controls">
-                    <textarea name="Description" type="text" id="description" class="input-xlarge"></textarea>
-                </div>
-            </div>
+				<article data-value="Description">_('Add a bit of description')</article> 
+	    	</div>
         </fieldset>
         </div>
     </form>
-    </div>
-    <div class="modal-footer">
-        <a data-dismiss="modal" class="btn" href="#">Cancel</a>
-        <a data-dismiss="modal" class="btn btn-primary" ci="save" href="#">Save changes</a>
-    </div>
 </div>
