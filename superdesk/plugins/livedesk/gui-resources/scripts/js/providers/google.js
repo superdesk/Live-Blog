@@ -101,7 +101,6 @@ $.extend(providers.google, {
 				$('#ggl-web-results').append(o).find('.google').draggable(
                     {
                         revert: 'invalid',
-                        containment:'document',
                         helper: 'clone',
                         appendTo: 'body',
                         zIndex: 2700,
@@ -154,7 +153,6 @@ $.extend(providers.google, {
 				$('#ggl-news-results').append(o).find('.google').draggable(
                     {
                         revert: 'invalid',
-                        containment:'document',
                         helper: 'clone',
                         appendTo: 'body',
                         zIndex: 2700,
@@ -206,7 +204,6 @@ $.extend(providers.google, {
 				$('#ggl-images-results').append(o).find('li').draggable(
                     {
                         revert: 'invalid',
-                        containment:'document',
                         helper: 'clone',
                         appendTo: 'body',
                         zIndex: 2700,
