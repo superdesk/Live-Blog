@@ -751,7 +751,7 @@ section.main-section {
     width: 99%;
 }
 .edit-block textarea {
-	min-height:300px;
+	min-height:200px;
 }
 
 .btn.pull-right {
@@ -842,6 +842,19 @@ section.main-section {
                     right:13px;
                     z-index:2;
                 }
+                .search-result-list-own {
+                    bottom: 0;
+                    list-style: none;
+                    margin: 0;
+                    padding: 0 6px 10px 0;
+                    /*position: absolute;*/
+                    top: 320px;
+                    left:0;
+                    right:13px;
+                    z-index:2;
+                }
+
+
                 .search-result-list > div > li, .post-list > li, .search-result-list > li {
                     background: #FFFFFF;
                     border: 1px solid #ebebeb;
@@ -1380,4 +1393,7 @@ bootstrap.css (line 1929)
 		right:0;
 		top:14px;
 		}
+		
+
+		
 		
