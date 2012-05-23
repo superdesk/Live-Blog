@@ -12,19 +12,12 @@ define('providers/edit/adaptor', [
             init: function() {
             },
             universal: function(data, el) {
-                var normal = $(el).find('.result-content');
-                var wrapup = $(el).find('.wrapup-content');
-                if(normal.length) {
-                    Content = normal.html();
-                } else if(wrapup.length) {
-                    Content = wrapup.html();
-                } else {
-                    Content = '';
-                }
-                return {
-                    Content: Content,
+                return data.Id;
+/*                return {
+                    Content: data.Content,
                     Type: data.Type.Key,
                 };
+*/
             }
         }
     });
