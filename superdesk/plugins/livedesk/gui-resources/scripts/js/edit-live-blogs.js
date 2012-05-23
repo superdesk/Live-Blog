@@ -70,7 +70,7 @@ function(providers, $)
         {
             new $.rest(postHref)
             .request({data:{'startEx.cId':latestPost}})
-            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified')
+            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
             .done(function(posts)
             {
                 var posts = this.extractListData(posts);
@@ -142,7 +142,7 @@ function(providers, $)
             
             postHref = blogData.PostPublished.href;
             this.get('PostPublished')
-            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified')
+            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
             .done(function(posts)
             {
                 var posts = this.extractListData(posts);
