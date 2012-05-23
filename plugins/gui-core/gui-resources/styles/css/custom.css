@@ -1393,7 +1393,7 @@ bootstrap.css (line 1929)
 		right:0;
 		top:14px;
 		}
-		
-
-		
-		
+.search-result-list-own .published
+{
+    border: 1px solid #FFE0EA !important;
+}
