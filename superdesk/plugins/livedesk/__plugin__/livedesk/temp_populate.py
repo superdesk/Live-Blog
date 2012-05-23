@@ -9,9 +9,8 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
-from __plugin__.superdesk.db_superdesk import createTables
-from __plugin__.superdesk_collaborator.temp_populate import getCollaboratorsIds
-from __plugin__.superdesk_post.temp_populate import createPostType
+from __plugin__.superdesk.db_superdesk import alchemySessionCreator, \
+    createTables
 from ally.container import ioc
 from ally.container.support import entityFor
 from datetime import datetime
@@ -22,6 +21,13 @@ from livedesk.api.blog_admin import IBlogAdminService
 from livedesk.api.blog_post import IBlogPostService
 from superdesk.post.api.post import Post
 from superdesk.user.api.user import IUserService, QUser, User
+from superdesk.source.api.source import ISourceService, QSource, Source
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.session import Session
+from superdesk.source.meta.type import SourceTypeMapped
+from superdesk.person.api.person import QPerson
+from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
+from superdesk.post.meta.type import PostTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -40,6 +46,48 @@ def getLanguagesIds():
                 lang.Code = code
                 languages[code] = languageService.insert(lang)
     return _cache_languages
+
+
+def createSourceType(key):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try: session.query(SourceTypeMapped.id).filter(SourceTypeMapped.Key == key).one()[0]
+    except NoResultFound:
+        typ = SourceTypeMapped()
+        typ.Key = key
+        typ.IsAvailable = True
+        session.add(typ)
+
+    session.commit()
+    session.close()
+
+SOURCES = {
+           'google': (False, 'www.google.com', 'xml'),
+           'facebook': (False, 'www.facebook.com', 'rss'),
+           'twitter': (False, 'www.twitter.com', 'xml'),
+           'flickr': (False, 'www.flickr.com', 'xml'),
+           }
+
+
+_cache_sources = {}
+def getSourcesIds():
+    sourcesService = entityFor(ISourceService)
+    assert isinstance(sourcesService, ISourceService)
+    if not _cache_sources:
+        sources = _cache_sources
+        for name in SOURCES:
+            srcs = sourcesService.getAll(q=QSource(name=name))
+            if srcs: sources[name] = next(iter(srcs)).Id
+            if not srcs:
+                src = Source()
+                src.Name = name
+                src.IsModifiable, src.URI, src.Type = SOURCES[name]
+                createSourceType(src.Type)
+                sources[name] = sourcesService.insert(src)
+    return _cache_sources
+
 
 BLOGS = {
          'Demo live blog': ('Doug', 'en', 'This is a Demo for the live blogging tool',
@@ -66,12 +114,17 @@ def getBlogsIds():
 
 
 USERS = {
-         'Doug': (None, None),
-         'Bertrand': (None, None),
-         'David': (None, None),
-         'Adam': (None, None),
-         'Antoine': (None, None),
-         'Gideon': (None, None),
+         'Adam': ('Adam', None),
+         'Antoine': ('Antoine', None),
+         'Bertrand': ('Bertrand', None),
+         'David': ('David', None),
+         'Doug': ('Doug', None),
+         'Gabriel': ('Gabriel', None),
+         'Gideon': ('Gideon', None),
+         'Guest': ('Guest', None),
+         'Mihai': ('Mihai', None),
+         'Mugur': ('Mugur', None),
+         'Sava': ('Sava', None),
        }
 
 _cache_users = {}
@@ -86,15 +139,54 @@ def getUsersIds():
             else:
                 usr = User()
                 usr.Name = name
-                usr.FirstName = name
-                usr.LastName, usr.Address = USERS[name]
+                usr.FirstName, usr.LastName = USERS[name]
                 users[name] = userService.insert(usr)
     return _cache_users
 
 
+COLLABORATORS = {
+                 'Adam': 'facebook',
+                 'Antoine': 'facebook',
+                 'Bertrand': 'facebook',
+                 'David': 'facebook',
+                 'Doug': 'facebook',
+                 'Gabriel': 'twitter',
+                 'Gideon': 'facebook',
+                 'Guest': 'facebook',
+                 'Mihai': 'facebook',
+                 'Mugur': 'twitter',
+                 'Sava': 'facebook',
+
+                 'google': 'google',
+                 'twitter': 'twitter',
+                 'flickr': 'flickr',
+                 }
+
+_cache_collaborators = {}
+def getCollaboratorsIds():
+    collaboratorService = entityFor(ICollaboratorService)
+    assert isinstance(collaboratorService, ICollaboratorService)
+    if not _cache_collaborators:
+        collaborators = _cache_collaborators
+        for name in COLLABORATORS:
+            colls = collaboratorService.getAll(qp=QPerson(firstName=name))
+            if colls: collaborators[name] = colls[0].Id
+            else:
+                coll = Collaborator()
+                try: coll.Person = getUsersIds()[name]
+                except KeyError: pass
+                coll.Source = getSourcesIds()[COLLABORATORS[name]]
+                collaborators[name] = collaboratorService.insert(coll)
+    return _cache_collaborators
+
+
 BLOG_COLLABORATORS = {
-                      'Mugur': 'Demo live blog',
-                      'Sava': 'Demo live blog',
+                       'Antoine': 'Demo live blog',
+                       'Bertrand': 'Demo live blog',
+                       'Doug': 'Demo live blog',
+                       'Guest': 'Demo live blog',
+                       'Mugur': 'Demo live blog',
+                       'Sava': 'Demo live blog',
                       }
 
 def createBlogCollaborators():
@@ -109,10 +201,17 @@ def createBlogCollaborators():
             blogCollaboratorService.addCollaborator(blogId, collId)
 
 BLOG_ADMINS = {
-               'Doug': 'Demo live blog',
+               'Adam': 'Demo live blog',
+               'Antoine': 'Demo live blog',
                'Bertrand': 'Demo live blog',
                'David': 'Demo live blog',
-               'Antoine': 'Demo live blog',
+               'Doug': 'Demo live blog',
+               'Gabriel': 'Demo live blog',
+               'Gideon': 'Demo live blog',
+               'Guest': 'Demo live blog',
+               'Mihai': 'Demo live blog',
+               'Mugur': 'Demo live blog',
+               'Sava': 'Demo live blog',
                }
 
 def createBlogAdmins():
@@ -126,18 +225,39 @@ def createBlogAdmins():
         else:
             blogAdminService.addAdmin(blogId, userId)
 
+def createPostType(key):
+    creator = alchemySessionCreator()
+    session = creator()
+    assert isinstance(session, Session)
+
+    try: session.query(PostTypeMapped.id).filter(PostTypeMapped.Key == key).one()[0]
+    except NoResultFound:
+        typ = PostTypeMapped()
+        typ.Key = key
+        session.add(typ)
+
+    session.commit()
+    session.close()
+
+
 POSTS = [
-         ('Demo live blog', 'normal', 'Doug', None, 'Do we have the blogging live tool'),
-         ('Demo live blog', 'normal', 'David', 'Mugur', 'It cannot be done'),
-         ('Demo live blog', 'normal', 'David', 'Sava', 'They have some beta one as I heard'),
-         ('Demo live blog', 'normal', 'Antoine', 'google', 'Lets see it'),
-         ('Demo live blog', 'normal', 'Bertrand', 'Sava', 'Cool, lets test this tool'),
-         ('Demo live blog', 'normal', 'Antoine', None, 'Lets go'),
+         ('Demo live blog', 'normal', 'Sava', 'Sava', 'We want a new live blogging tool!'),
+         ('Demo live blog', 'normal', 'Mugur', 'Mugur', 'It cannot be done!'),
+         ('Demo live blog', 'normal', 'Doug', 'Doug', 'I heard they have a beta version...'),
+         ('Demo live blog', 'normal', 'Guest', 'Guest', 'Lets see it!'),
+         ('Demo live blog', 'normal', 'Sava', 'Sava', 'Cool, lets test this tool!'),
+         ('Demo live blog', 'normal', 'Mugur', 'Mugur', 'It has bugs...'),
+         ('Demo live blog', 'normal', 'Doug', 'Doug', 'Can you fix the bugs?'),
+         ('Demo live blog', 'normal', 'Mugur', 'Mugur', 'We need at least two months to fix the bugs.'),
+         ('Demo live blog', 'normal', 'Sava', 'Sava', 'I want to see it anyway. Let\'s go!'),
+         ('Demo live blog', 'wrapup', 'Sava', 'google', 'Livedesk is the next generation live blogging tool.'),
          ]
 
 def createBlogPosts():
     blogPostService = entityFor(IBlogPostService)
     assert isinstance(blogPostService, IBlogPostService)
+    for _blogName, blogId in _cache_blogs.items():
+        if blogPostService.getPublishedCount(blogId) > 0: return
     for data in POSTS:
         pst = Post()
         blog, pst.Type, creator, author, pst.Content = data
@@ -151,6 +271,9 @@ def createBlogPosts():
 
 @ioc.after(createTables)
 def populate():
+    getSourcesIds()
+    createPostType('normal')
+    createPostType('wrapup')
     getBlogsIds()
     createBlogCollaborators()
     createBlogAdmins()
