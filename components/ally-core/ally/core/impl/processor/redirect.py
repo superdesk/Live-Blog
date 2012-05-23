@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 @injected
 class RedirectHandler(Processor):
     '''
-    Implementation for a processor that provides the redirect by using the content location based on found references.
+    Implementation of a processor that provides the redirect by using the content location based on found references.
     
     Provides on request: NA
     Provides on response: [contentLocation]

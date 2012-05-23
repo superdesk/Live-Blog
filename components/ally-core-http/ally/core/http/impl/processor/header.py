@@ -167,7 +167,7 @@ class HeaderHTTPBase:
 @injected
 class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
     '''
-    Implementation for a processor that provides the decoding of standard HTTP request headers to actual request data 
+    Implementation of a processor that provides the decoding of standard HTTP request headers to actual request data 
     that can be understood by other processors. Also provides the encoding of those headers.
     
     Provides on request: [content.contentType], [content.charSet], [content.contentLanguage], [content.length],
