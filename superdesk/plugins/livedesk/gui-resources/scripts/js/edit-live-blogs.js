@@ -54,9 +54,19 @@ function(providers, $)
                     { console.log('cifi-cif'); });
             
         },
+        postHref = null,
         updateInterval = 0,
         updateItemCount = 0,
-        update = function(postHref)
+        updateIntervalInit = function()
+        {
+            if(!$('#timeline-view:visible', self.el).length) 
+            {
+                clearInterval(updateInterval);
+                return;
+            }
+            update(); 
+        },
+        update = function(autoUpdate, callback)
         {
             new $.rest(postHref)
             .request({data:{'startEx.cId':latestPost}})
@@ -75,10 +85,12 @@ function(providers, $)
                 {
                     $.tmpl('livedesk>edit-timeline', {Posts: posts}, function(e, o)
                     {
-                        $('#timeline-view .post-list', content).prepend(o);
+                        $('#timeline-view .post-list', content).prepend($(o).find('li'));
                         updateItemCount -= posts.length;
                     });
-                }]);
+                }, autoUpdate]);
+                
+                callback && callback.apply(this);
             });
         };
     
@@ -92,8 +104,17 @@ function(providers, $)
                 drop: function( event, ui ) {
                     var el = ui.draggable.prependTo($(this).find('#timeline-view>ul:first'));
                     var data = ui.draggable.data('data');
+                    var post = ui.draggable.data('post');
+                    if(data !== undefined) {
+                        new $.restAuth(theBlog + '/Post/Published').resetData().insert(data);
+                    } else if(post !== undefined){
+                        new $.restAuth(theBlog + '/Post/'+post+'/Publish').resetData().insert();
+                    }
+                    //el.draggable("option", "revert", true );
                     el.draggable( "destroy").remove();
-                    new $.restAuth(theBlog + '/Post/Published').resetData().insert(data);
+                    // stop update interval -> update -> restart
+                    clearInterval(updateInterval);
+                    update(true, function(){ updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000); });
                 },
                 activeClass: 'ui-droppable-highlight'
             });
@@ -119,7 +140,7 @@ function(providers, $)
                 intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
             });
             
-            var postHref = blogData.PostPublished.href;
+            postHref = blogData.PostPublished.href;
             this.get('PostPublished')
             .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified')
             .done(function(posts)
@@ -130,15 +151,16 @@ function(providers, $)
                     // bind update event for new results notification button
                     $('#timeline-view .new-results', content)
                     .off('update.livedesk')
-                    .on('update.livedesk', function(e, count, callback)
+                    .on('update.livedesk', function(e, count, callback, autoUpdate)
                     {
                         var self = $(this);
-                        self.removeClass('hide').one('click.livedesk', function()
+                        !autoUpdate && self.removeClass('hide').one('click.livedesk', function()
                         {
                             self.addClass('hide'); 
-                            callback.apply(this);
-                        })
-                        .find('span').text(count);
+                            callback.apply(self);
+                        }).find('span').text(count);
+                        autoUpdate && callback.apply(self);
+                        
                     });
                 });
                 
@@ -146,15 +168,7 @@ function(providers, $)
                     latestPost = Math.max(latestPost, parseInt(posts[i].CId));
                 
                 clearInterval(updateInterval);
-                updateInterval = setInterval(function()
-                {
-                    if(!$('#timeline-view:visible', self.el).length) 
-                    {
-                        clearInterval(updateInterval);
-                        return;
-                    }
-                    update(postHref); 
-                }, config.updateInterval*1000);
+                updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000);
                 
             });
         });
