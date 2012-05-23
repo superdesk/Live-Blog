@@ -11,7 +11,7 @@
 	</div>
 	<ul class="post-list wraped">
 	{:else}
-		{@if cond="'{Author.Source.Name}'=='google'"}
+		{@if cond="'{Author.Source.Name}'=='google' || '{Author.Source.Name}'=='flickr'"}
 		<li class="{Author.Source.Name}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
