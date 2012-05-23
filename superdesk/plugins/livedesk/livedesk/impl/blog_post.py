@@ -27,6 +27,7 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post
 from superdesk.source.meta.source import SourceMapped
+from livedesk.api.blog_post import QBlogPost
 
 # --------------------------------------------------------------------
 
@@ -85,6 +86,20 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
+        sql = buildLimits(sql, offset, limit)
+        sql.order_by(BlogPostMapped.CreatedOn.desc())
+        return (post for post in sql.all())
+
+    def getOwned(self, blogId, creatorId, offset=None, limit=None, q=None):
+        '''
+        @see: IBlogPostService.getUnpublishedOwned
+        '''
+        assert q is None or isinstance(q, QBlogPost), 'Invalid query %s' % q
+        sql = self._buildQuery(blogId, creatorId, None, q)
+        if q and QBlogPost.isPublished in q:
+            if q.isPublished.value: sql = sql.filter(BlogPostMapped.PublishedOn != None)
+            else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
+        sql = sql.filter(BlogPostMapped.Author == None)
         sql = buildLimits(sql, offset, limit)
         sql.order_by(BlogPostMapped.CreatedOn.desc())
         return (post for post in sql.all())

@@ -12,11 +12,13 @@ API specifications for livedesk blog posts.
 from .blog import Blog
 from ally.api.config import service, call, INSERT, query
 from livedesk.api.domain_livedesk import modelLiveDesk
-from superdesk.post.api.post import Post, QPostPublished, QPostUnpublished
+from superdesk.post.api.post import Post, QPostPublished, QPostUnpublished, \
+    QPost
 from superdesk.user.api.user import User
 from superdesk.collaborator.api.collaborator import Collaborator
 from ally.api.type import Iter, Count
-from ally.api.criteria import AsRangeOrdered
+from ally.api.criteria import AsRangeOrdered, AsBoolean
+from ally.api.authentication import auth
 
 # --------------------------------------------------------------------
 
@@ -44,6 +46,14 @@ class QBlogPostPublished(QPostPublished):
     Provides the blog post message query.
     '''
     cId = AsRangeOrdered
+
+@query
+class QBlogPost(QPost):
+    '''
+    Provides the blog post message query.
+    '''
+    cId = AsRangeOrdered
+    isPublished = AsBoolean
 
 # --------------------------------------------------------------------
 
@@ -78,6 +88,14 @@ class IBlogPostService:
                        offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
+        '''
+
+    @call(webName='Owned')
+    def getOwned(self, blogId:Blog, creatorId:auth(User), offset:int=None, limit:int=None,
+                 q:QBlogPost=None) -> Iter(BlogPost):
+        '''
+        Provides all the unpublished blogs posts that belong to the creator, this means that the posts will not have
+        an Author.
         '''
 
     @call
