@@ -35,10 +35,12 @@ class PersonMapped(Base, Person):
     @hybrid_property
     def FullName(self):
         if self.FirstName is None: return self.LastName
+        if self.LastName is None: return self.FirstName
         return self.FirstName + ' ' + self.LastName
 
     # Expression for hybrid ------------------------------------
     @classmethod
     @FullName.expression
     def _FullName(cls):
-        return case([(cls.FirstName == None, cls.LastName)], else_=cls.FirstName + ' ' + cls.LastName)
+        return case([(cls.FirstName == None, cls.LastName)], else_=
+                    case([(cls.LastName == None, cls.FirstName)], else_=cls.FirstName + ' ' + cls.LastName))

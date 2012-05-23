@@ -20,9 +20,8 @@ from superdesk.person.api.person import IPersonService, QPerson, Person
 # --------------------------------------------------------------------
 
 PERSONS = {
-           'Billy': ('Balaceanu', 'Gruia'),
-           'Jey': ('Mihai', 'Floresti'),
-           'Mugurel': ('Doe', 'Sporilor'),
+           'Mugur': (None, None),
+           'Sava': (None, None),
            }
 
 _cache_persons = {}
@@ -42,9 +41,9 @@ def getPersonsIds():
     return _cache_persons
 
 COLLABORATORS = {
-                 'Billy': 'facebook',
-                 'Jey': 'facebook',
-                 'Mugurel': 'facebook',
+                 'Mugur': 'facebook',
+                 'Sava': 'facebook',
+
                  'google': 'google',
                  'twitter': 'twitter',
                  'flickr': 'flickr',
