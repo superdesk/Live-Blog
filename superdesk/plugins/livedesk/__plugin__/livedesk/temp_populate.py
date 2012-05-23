@@ -11,7 +11,7 @@ Populates sample data for the services.
 
 from __plugin__.superdesk.db_superdesk import createTables
 from __plugin__.superdesk_collaborator.temp_populate import getCollaboratorsIds
-from __plugin__.superdesk_post.temp_populate import getUsersIds, createPostType
+from __plugin__.superdesk_post.temp_populate import createPostType
 from ally.container import ioc
 from ally.container.support import entityFor
 from datetime import datetime
@@ -21,6 +21,7 @@ from superdesk.language.api.language import ILanguageService, LanguageEntity
 from livedesk.api.blog_admin import IBlogAdminService
 from livedesk.api.blog_post import IBlogPostService
 from superdesk.post.api.post import Post
+from superdesk.user.api.user import IUserService, QUser, User
 
 # --------------------------------------------------------------------
 
@@ -41,10 +42,8 @@ def getLanguagesIds():
     return _cache_languages
 
 BLOGS = {
-         'Active Blog about Starcraft II': ('Gabriel', 'en', 'Lets talk about <b>Stracraft</b>',
-                                            datetime(2012, 1, 1, 10, 2, 20, 22), datetime(2012, 1, 1, 10, 3, 1, 22)),
-         'InActive Blog about Me': ('God', 'ro', 'Lets talk about <b>Gabriel</b>',
-                                            datetime(2012, 1, 1, 10, 1, 20, 22), None),
+         'Demo live blog': ('Doug', 'en', 'This is a Demo for the live blogging tool',
+                                            datetime.now(), datetime.now()),
          }
 
 _cache_blogs = {}
@@ -65,10 +64,37 @@ def getBlogsIds():
                 blogs[name] = blogService.insert(blg)
     return _cache_blogs
 
+
+USERS = {
+         'Doug': (None, None),
+         'Bertrand': (None, None),
+         'David': (None, None),
+         'Adam': (None, None),
+         'Antoine': (None, None),
+         'Gideon': (None, None),
+       }
+
+_cache_users = {}
+def getUsersIds():
+    userService = entityFor(IUserService)
+    assert isinstance(userService, IUserService)
+    if not _cache_users:
+        users = _cache_users
+        for name in USERS:
+            usrs = userService.getAll(q=QUser(name=name))
+            if usrs: users[name] = next(iter(usrs)).Id
+            else:
+                usr = User()
+                usr.Name = name
+                usr.FirstName = name
+                usr.LastName, usr.Address = USERS[name]
+                users[name] = userService.insert(usr)
+    return _cache_users
+
+
 BLOG_COLLABORATORS = {
-                      'Billy': 'Active Blog about Starcraft II',
-                      'Jey': 'Active Blog about Starcraft II',
-                      'Mugurel': 'InActive Blog about Me',
+                      'Mugur': 'Demo live blog',
+                      'Sava': 'Demo live blog',
                       }
 
 def createBlogCollaborators():
@@ -83,8 +109,10 @@ def createBlogCollaborators():
             blogCollaboratorService.addCollaborator(blogId, collId)
 
 BLOG_ADMINS = {
-               'God': 'Active Blog about Starcraft II',
-               'Gabriel': 'InActive Blog about Me',
+               'Doug': 'Demo live blog',
+               'Bertrand': 'Demo live blog',
+               'David': 'Demo live blog',
+               'Antoine': 'Demo live blog',
                }
 
 def createBlogAdmins():
@@ -99,11 +127,12 @@ def createBlogAdmins():
             blogAdminService.addAdmin(blogId, userId)
 
 POSTS = [
-         ('Active Blog about Starcraft II', 'normal', 'Gabriel', None, 'Wsup from livedesk'),
-         ('Active Blog about Starcraft II', 'normal', 'God', None, 'Wsuppppp'),
-         ('Active Blog about Starcraft II', 'normal', 'God', 'Billy', 'I don\'t know starcraft'),
-         ('Active Blog about Starcraft II', 'wrapup', 'Gabriel', None, 'Billy goes out'),
-         ('Active Blog about Starcraft II', 'normal', 'Gabriel', 'google', 'Lets try again'),
+         ('Demo live blog', 'normal', 'Doug', None, 'Do we have the blogging live tool'),
+         ('Demo live blog', 'normal', 'David', 'Mugur', 'It cannot be done'),
+         ('Demo live blog', 'normal', 'David', 'Sava', 'They have some beta one as I heard'),
+         ('Demo live blog', 'normal', 'Antoine', 'google', 'Lets see it'),
+         ('Demo live blog', 'normal', 'Bertrand', 'Sava', 'Cool, lets test this tool'),
+         ('Demo live blog', 'normal', 'Antoine', None, 'Lets go'),
          ]
 
 def createBlogPosts():
