@@ -21,7 +21,7 @@ from ally.exception import DevelError
 @injected
 class ParametersHandler(Processor):
     '''
-    Implementation for a processor that provides the transformation of parameters into arguments, the parameters will
+    Implementation of a processor that provides the transformation of parameters into arguments, the parameters will
     be parsed only for the GET method, for other methods will stop the chain execution and send a failed code.
     
     Provides on request: arguments
