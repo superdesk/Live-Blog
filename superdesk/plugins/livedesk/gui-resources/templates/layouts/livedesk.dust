@@ -3,7 +3,7 @@
 	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" href="#put-live">Put live</a>
 	<ul class="nav nav-pills pull-left">	
     {!#blog!}
-		<li class="active"><a href="">{Title}</a></li>
+		<li class="active"><a href="">{Title|t}</a></li>
 		<li class=""><a href="configure.html">Configure Blog</a></li>
 		<li class=""><a href="#">Manage collaborators</a></li>
 		<li class=""><a href="#">Manage feeds</a></li>

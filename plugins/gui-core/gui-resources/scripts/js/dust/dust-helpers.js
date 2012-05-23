@@ -77,5 +77,7 @@ var helpers = {
 
 dust.helpers = helpers;
 
+dust.filters.t = function(string){ return $('<div>'+string+'</div>').text(); }
+
 return dust;
 });
