@@ -27,7 +27,10 @@ log = logging.getLogger(__name__)
 @injected
 class MethodOverrideHandler(HeaderHTTPBase, Processor):
     '''
-    Provides the method override processor.
+    Provides the method override processor: it changes the request method to the one
+    specified by the parameter named in "self.nameXMethodOverride". This is needed
+    because PUT requests can not be made from Javascript running in a browser and
+    also for development (debugging/testing).
     
     Provides on request: method
     Provides on response: NA

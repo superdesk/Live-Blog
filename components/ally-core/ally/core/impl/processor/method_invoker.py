@@ -20,10 +20,10 @@ from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
 @injected
 class MethodInvokerHandler(Processor):
     '''
-    Implementation for a processor that validates if the request method (GET, INSERT, UPDATE, DELETE) is compatible
+    Implementation of a processor that validates if the request method (GET, INSERT, UPDATE, DELETE) is compatible
     with the resource node of the request, basically checks if the node has the invoke for the requested method.
     If the node has no invoke than this processor will stop the execution chain and provide an error response also
-    providing the allows methods for the resource path node.
+    providing the allowed methods for the resource path node.
     
     Provides on request: invoker, objType
     Provides on response: NA
