@@ -1,7 +1,8 @@
+<ul class="post-list wraped">
 {#Posts}
 	{@if cond="'{Type.Key}'=='wrapup'"}
 	</ul>
-	<div idx="{@idx}{.}{/idx}"class="wrapup open">
+	<div idx="{@idx}{.}{/idx}"class="wrapup open {State}">
     	<div class="arrow"></div>
     	<div class="wrapup-content">
 			{Content}
@@ -10,13 +11,22 @@
 	</div>
 	<ul class="post-list wraped">
 	{:else}
-		<li idx="{@idx}{.}{/idx}" class="quote {Author.Source.Name}">
+		{@if cond="'{Author.Source.Name}'=='google'"}
+		<li  idx="{@idx}{.}{/idx}" class="{Author.Source.Name} {State}">
+			<div class="drag-bar"></div>
+	        <div class="tool-box-right">
+	        	<a href="#" class="close">x</a>
+	        </div>
+		{:else}
+		<li idx="{@idx}{.}{/idx}" class="quote {Author.Source.Name} {State}">
+			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#" class="close">x</a>
 	        </div>
 	        <figure>
 	        	<img src="images/avatar_default_collaborator.png" />
 	        </figure>
+        {/if}
 	        <div class="result-content">
 				<h3>
 					{?Author.Person}
@@ -37,4 +47,4 @@
 		</li>
 	{/if}
 {/Posts}
-                	
+</ul>
