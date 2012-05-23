@@ -102,7 +102,7 @@ function(providers, $)
                 content = $.superdesk.applyLayout('livedesk>edit', data, function(){ initEditBlog.call(this, theBlog); });
             $('.live-blog-content').droppable({
                 drop: function( event, ui ) {
-                    var el = ui.draggable.prependTo($(this).find('#timeline-view>ul:first'));
+
                     var data = ui.draggable.data('data');
                     var post = ui.draggable.data('post');
                     if(data !== undefined) {
@@ -110,13 +110,20 @@ function(providers, $)
                     } else if(post !== undefined){
                         new $.restAuth(theBlog + '/Post/'+post+'/Publish').resetData().insert();
                     }
-                    //el.draggable("option", "revert", true );
-                    el.draggable( "destroy").remove();
+                    // stupid bug in jqueryui you can make draggable desstroy
+                    setTimeout(function(){
+                    				$(ui.draggable).addClass('published').draggable("destroy");
+                    },1);
                     // stop update interval -> update -> restart
                     clearInterval(updateInterval);
                     update(true, function(){ updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000); });
                 },
                 activeClass: 'ui-droppable-highlight'
+            });
+            $('#put-live').on('show', function(){
+                console.log('show');
+            }).on('shown', function(){
+                console.log('shown');
             });
             $("#MySplitter").splitter({
                 type: "v",
