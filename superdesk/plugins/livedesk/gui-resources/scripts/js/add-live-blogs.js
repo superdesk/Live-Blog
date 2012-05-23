@@ -61,7 +61,9 @@ define([
             .on('submit.livedesk', function(e)
             {
                 e.preventDefault();
-                var lang = $("#add-live-blog [name='Language']:eq(0)");
+                var lang = $("#add-live-blog [name='Language']:eq(0)"),
+                    title = $("#add-live-blog [data-value='Title']:eq(0)"),
+                    descr = $("#add-live-blog [data-value='Description']:eq(0)");
                 if( lang.val() == '' )
                 {
                     lang.parents('.control-group:eq(0)').addClass('error');
@@ -71,17 +73,16 @@ define([
                 var data = 
                 {
                     Language: $("#add-live-blog [name='Language']:eq(0)").val(),
-                    Title: $("#add-live-blog [data-value='Title']:eq(0)").html(),
-                    Description: $("#add-live-blog [data-value='Description']:eq(0)").html()
+                    Title: title.attr('style') ? $('<span />').append(title.html()).attr('style', title.attr('style')).html() : title.html(),
+                    Description: descr.attr('style') ? $('<div />').append(title.html()).attr('style', title.attr('style')).html() : title.html()
                 };
                 new $.restAuth('LiveDesk/Blog').insert(data).done(function(liveBlog)
                 {
+                    $('#add-live-blog').dialog('close');
                     require([$.superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js'],
-                        function(EditApp){ new EditApp(liveBlog.href); 
+                        function(EditApp){ new EditApp(liveBlog.href); $('#navbar-top').trigger('refresh-menu'); });
                 });
             });
-            //console.log(data);
-        });
         
     },
     AddApp = function()
