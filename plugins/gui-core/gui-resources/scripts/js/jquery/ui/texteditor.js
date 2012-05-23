@@ -493,7 +493,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         }
                         catch(e){ /*console.exception(e);*/ }
                     var self = this;
-                    $(elements).on('keyup mouseup', function()
+                    $(elements).on('keyup.texteditor mouseup.texteditor', function()
                     {
                         try
                         {
@@ -566,6 +566,20 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     var element = $('<a class="code" />').html('&lt;/&gt');
                     var command = new this.plugins.lib.commandFactory( new this.plugins.lib.htmlCodeCommand(this), element );
                     return command;
+                }
+            },
+            elements:
+            {
+                _create: function(elements)
+                {
+                    $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function()
+                    {
+                        $(this).addClass('focus');
+                    });
+                    $(elements).on('blur.texteditor focusout.texteditor', function()
+                    {
+                        $(this).removeClass('focus');
+                    });
                 }
             },
             draggableToolbar:

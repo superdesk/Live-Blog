@@ -67,6 +67,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
         sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
+        sql = sql.order_by(BlogPostMapped.Id.desc())
         sql = buildLimits(sql, offset, limit)
         return (post for post in sql.all())
 
@@ -87,7 +88,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
         sql = buildLimits(sql, offset, limit)
-        sql.order_by(BlogPostMapped.CreatedOn.desc())
+        sql = sql.order_by(BlogPostMapped.CreatedOn.desc())
+        sql = sql.order_by(BlogPostMapped.Id.desc())
         return (post for post in sql.all())
 
     def getOwned(self, blogId, creatorId, offset=None, limit=None, q=None):
@@ -101,7 +103,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
         sql = sql.filter(BlogPostMapped.Author == None)
         sql = buildLimits(sql, offset, limit)
-        sql.order_by(BlogPostMapped.CreatedOn.desc())
+        sql = sql.order_by(BlogPostMapped.CreatedOn.desc())
+        sql = sql.order_by(BlogPostMapped.Id.desc())
         return (post for post in sql.all())
 
     def insert(self, blogId, post):
