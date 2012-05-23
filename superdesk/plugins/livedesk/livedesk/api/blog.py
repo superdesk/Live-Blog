@@ -59,7 +59,7 @@ class IBlogService(IEntityCRUDService):
     '''
 
     @call
-    def getBlog(self, blogId:Blog, userId:auth(User)=None) -> Blog:
+    def getBlog(self, blogId:Blog) -> Blog:
         '''
         Provides the blog based on the specified id, is the user is not specified the blog will be returned only if is
         in live mode.
