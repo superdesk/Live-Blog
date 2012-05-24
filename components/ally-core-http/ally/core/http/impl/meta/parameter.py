@@ -270,8 +270,6 @@ class ParamMetaService(IMetaService):
                 for prop in criteria.main:
                     pencode = self.encodePrimitive(prop, criteria.properties[prop])
                     merge.assign(EncodeGet(getterOnObjIfIn(prop, ctype.childTypeFor(prop)), pencode))
-
-
             else:
                 cencode = EncodeObject(etype.name)
                 encoders.append(EncodeGet(getterOnObjIfIn(etype.name, etype), cencode))
