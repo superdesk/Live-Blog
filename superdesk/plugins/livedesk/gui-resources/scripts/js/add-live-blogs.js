@@ -1,6 +1,6 @@
 define([
 	'providers/enabled',
-	'jquery', 'jquery/rest', 'jquery/superdesk', 'jqueryui/texteditor',
+	'jquery', 'jquery/rest', 'jquery/superdesk', 'jqueryui/texteditor', 'jquery/utils',
 	'tmpl!livedesk>add'
 ], function(providers, $) {
 
@@ -73,8 +73,8 @@ define([
                 var data = 
                 {
                     Language: $("#add-live-blog [name='Language']:eq(0)").val(),
-                    Title: title.attr('style') ? $('<span />').append(title.html()).attr('style', title.attr('style')).html() : title.html(),
-                    Description: descr.attr('style') ? $('<div />').append(title.html()).attr('style', title.attr('style')).html() : title.html()
+                    Title: $.styledNodeHtml(title),
+                    Description: $.styledNodeHtml(descr)
                 };
                 new $.restAuth('LiveDesk/Blog').insert(data).done(function(liveBlog)
                 {

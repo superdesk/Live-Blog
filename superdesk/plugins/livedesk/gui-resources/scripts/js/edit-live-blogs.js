@@ -1,6 +1,6 @@
 define([ 
    'providers/enabled',
-   'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable', 'jqueryui/texteditor',
+   'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable', 'jqueryui/texteditor', 'jquery/utils',
    'tmpl!livedesk>layouts/livedesk', 
    'tmpl!livedesk>layouts/blog', 
    'tmpl!livedesk>edit', 
@@ -11,6 +11,7 @@ function(providers, $)
         latestPost = 0,
         providers = $.arrayValues(providers), 
         content = null,
+        blogHref = null,
         editorImageControl = function()
         {
             // call super
@@ -28,19 +29,52 @@ function(providers, $)
         initEditBlog = function(theBlog)
         {
             content = $(this).find('[is-content]');
-            var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
+            var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
+                titleInput = content.find('section header h2'),
+                descrInput = content.find('article#blog-intro'),
+                editorSaveInfo = 
+                {
+                    _create: function(elements)
+                    {
+                        $(elements).on('focusout.livedesk', function()
+                        {
+                            if(!blogHref) return;
+                            new $.rest(blogHref).update
+                            ({
+                                Title: $.styledNodeHtml(titleInput), 
+                                Description: $.styledNodeHtml(descrInput)
+                            })
+                            .done(function()
+                            {  
+                                content.find('.update-success').removeClass('hide')
+                                setTimeout(function(){ content.find('.update-success').addClass('hide'); }, 5000);
+                            })
+                            .fail(function()
+                            { 
+                                content.find('.update-error').removeClass('hide')
+                                setTimeout(function(){ content.find('.update-error').addClass('hide'); }, 5000);
+                            });
+                        });
+                    }
+                };
+            
             delete h2ctrl.justifyRight;
             delete h2ctrl.justifyLeft;
             delete h2ctrl.justifyCenter; 
             delete h2ctrl.html;
             delete h2ctrl.image;
             delete h2ctrl.link;
-            content.find('section header h2').texteditor
+            
+            titleInput.texteditor
             ({
-                plugins: {controls: h2ctrl},
+                plugins: {controls: h2ctrl, save: editorSaveInfo},
                 floatingToolbar: 'top'
             });
-            content.find('article#blog-intro').texteditor({floatingToolbar: 'top', plugins:{ controls: editorTitleControls }});
+            descrInput.texteditor
+            ({
+                floatingToolbar: 'top', 
+                plugins:{ save: editorSaveInfo, controls: editorTitleControls }
+            });
             
             $('.tabbable')
             .on('show','a[data-toggle="tab"]', function(e)
@@ -96,6 +130,8 @@ function(providers, $)
     
     var EditApp = function(theBlog)
     {
+        blogHref = theBlog;
+        
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
         { 
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
