@@ -24,7 +24,11 @@
 	        	<a href="#" class="close">x</a>
 	        </div>
 	        <figure>
-	        	<img src="images/avatar_default_collaborator.png" />
+	            {?Author.Person.Avatar}
+	                <img src="{Author.Person.Avatar}" />
+	            {:else}
+	        	    <img src="images/avatar_default_collaborator.png" />
+	            {/Author.Person.Avatar}
 	        </figure>
         {/if}
 	        <div class="result-content">
