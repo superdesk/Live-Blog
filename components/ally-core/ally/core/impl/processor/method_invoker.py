@@ -13,12 +13,12 @@ from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.container.ioc import injected
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE
 from ally.core.spec.resources import Path, Node
-from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
+from ally.core.spec.server import IProcessor, Request, Response, ProcessorsChain
 
 # --------------------------------------------------------------------
 
 @injected
-class MethodInvokerHandler(Processor):
+class MethodInvokerHandler(IProcessor):
     '''
     Implementation for a processor that validates if the request method (GET, INSERT, UPDATE, DELETE) is compatible
     with the resource node of the request, basically checks if the node has the invoke for the requested method.
@@ -34,7 +34,7 @@ class MethodInvokerHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp

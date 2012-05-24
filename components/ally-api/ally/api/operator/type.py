@@ -131,9 +131,9 @@ class TypeQuery(Type):
     Provides the type for the query.
     '''
 
-    __slots__ = Type.__slots__ + ('query',)
+    __slots__ = Type.__slots__ + ('query', 'owner')
 
-    def __init__(self, forClass, query):
+    def __init__(self, forClass, query, owner):
         '''
         Constructs the query type for the provided query.
         @see: Type.__init__
@@ -142,11 +142,15 @@ class TypeQuery(Type):
             The class associated with the query.
         @param query: Query
             The query that this type is constructed on.
+        @param owner: TypeModel
+            The type model that is this type query is owned by.
         '''
         assert isinstance(query, Query), 'Invalid query %s' % query
+        assert isinstance(owner, TypeModel), 'Invalid owner %s' % owner
         Type.__init__(self, forClass, False, False)
 
         self.query = query
+        self.owner = owner
 
     def childTypes(self):
         '''
@@ -276,7 +280,7 @@ class TypeCriteriaEntry(Type):
         '''
         Provides the child criteria entry types.
         
-        @return: list[TypeCriteriaEntry]
+        @return: list[TypeProperty]
             The criteria entry types.
         '''
         return self.criteriaType.childTypes()
@@ -287,7 +291,7 @@ class TypeCriteriaEntry(Type):
         
         @param name: string
             The name of the type property to provide.
-        @return: TypeCriteriaEntry
+        @return: TypeProperty
             The criteria entry type for the name.
         '''
         return self.criteriaType.childTypeFor(name)

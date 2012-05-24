@@ -10,9 +10,9 @@ Module containing specifications for the resources tree.
 '''
 
 from ally.api.type import Type, Input
-import abc
-import re
 from datetime import date, datetime, time
+from re import match
+import abc
 
 # --------------------------------------------------------------------
 
@@ -21,6 +21,7 @@ class Path:
     Provides the path container.
     The path is basically a immutable collection of matches. 
     '''
+    __slots__ = ('resourcesLocator', 'matches', 'node')
 
     def __init__(self, resourcesLocator, matches, node=None):
         '''
@@ -73,7 +74,7 @@ class Path:
     def toArguments(self, invoker):
         '''
         Provides the list of arguments contained in this path.
-        In order to establish for how are the arguments an invoker needs to be provided.
+        In order to establish the arguments an invoker needs to be provided.
         Lets say that path 'Publication/1' leads to a getById(id) but the path 'Publication/1/Section'
         leads to a getAllSection(publicationId) that is why the invoker is needed since the name of the argument
         will change depending on the invoker.
@@ -171,6 +172,7 @@ class PathExtended(Path):
     valid (to have a node for it self).
     @see: Path
     '''
+    __slots__ = Path.__slots__ + ('parent', 'index', 'matchesOwned')
 
     def __init__(self, parent, matches, node, index=None):
         '''
@@ -206,56 +208,10 @@ class PathExtended(Path):
 
 # --------------------------------------------------------------------
 
-class AssembleError(Exception):
-    '''
-    Exception thrown whenever there is an assembly problem.
-    '''
-
-class IAssembler(metaclass=abc.ABCMeta):
-    '''
-    This class needs to be extended.
-    Provides support for assembling the calls in the node structure.
-    '''
-
-    @abc.abstractmethod
-    def knownModelHints(self):
-        '''
-        Provides the known model hints for the assembler.
-        
-        @return: dictionary{string:string}|None
-            A dictionary containing as a key the allowed hint name and as a value the hint description. 
-        '''
-
-    @abc.abstractmethod
-    def knownCallHints(self):
-        '''
-        Provides the known call hints for the assembler.
-        
-        @return: dictionary{string:string}|None
-            A dictionary containing as a key the allowed hint name and as a value the hint description. 
-        '''
-
-    @abc.abstractmethod
-    def assemble(self, root, invokers):
-        '''
-        Resolve in the provided root node the invokers, this means that the assembler needs to find a way of 
-        mapping the invokers to a resource request path in the node structure contained in the root node 
-        provided. If the assembler is able to resolve a invoker or invokers it has to remove them from the list.
-        
-        @param root: Node
-            The root node to assemble the invokers to.
-        @param invokers: list[Invoker]
-            The list of invokers to be assembled, the list needs to have the resolved invokers removed.
-        '''
-
-# --------------------------------------------------------------------
-
 class Normalizer:
     '''
     Provides the normalization for key type strings, like the ones used in paths and content key names.
     '''
-
-    regex_check = re.compile('([a-z_A-Z0-9]+)')
 
     def normalize(self, name):
         '''
@@ -268,7 +224,7 @@ class Normalizer:
             The normalized string.
         '''
         assert isinstance(name, str), 'Invalid string name %s' % name
-        assert self.regex_check.match(name), 'Invalid name %s' % name
+        assert match('([a-z_A-Z0-9]+)', name), 'Invalid name %s' % name
         return name
 
 class Converter:
@@ -328,91 +284,49 @@ class ConverterPath(Normalizer, Converter):
 
 # --------------------------------------------------------------------
 
-class Match(metaclass=abc.ABCMeta):
+class AssembleError(Exception):
     '''
-    Provides a matched path entry.
+    Exception thrown whenever there is an assembly problem.
     '''
 
-    def __init__(self, node):
-        '''
-        Constructs a match.
-        
-        @param node: Node
-            The Node node of the match.
-        '''
-        assert isinstance(node, Node), 'Invalid node %s' % node
-        self.node = node
+class IAssembler(metaclass=abc.ABCMeta):
+    '''
+    This class needs to be extended.
+    Provides support for assembling the calls in the node structure.
+    '''
 
     @abc.abstractmethod
-    def asArgument(self, invoker, args):
+    def knownModelHints(self):
         '''
-        Populates in the provided dictionary of arguments, the key represents the argument name.
-        In order to establish for how are the arguments an invoker needs to be provided.
-        Lets say that path 'Publication/1' leads to a getById(id) but the path 'Publication/1/Section'
-        leads to a getAllSection(publicationId) that is why the invoker is needed since the name of the argument
-        will change depending on the invoker.
+        Provides the known model hints for the assembler.
         
-        @param invoker: Invoker
-            The invoker to construct arguments for.
-        @param args: dictionary
-            The dictionary where the argument(s) name and value(s) of this match will be populated.
+        @return: dictionary{string:string}|None
+            A dictionary containing as a key the allowed hint name and as a value the hint description. 
         '''
 
     @abc.abstractmethod
-    def update(self, obj, objType):
+    def knownCallHints(self):
         '''
-        Updates the match represented value. This method looks like a render method expecting value and type,
-        this because the match is actually a renderer for path elements.
+        Provides the known call hints for the assembler.
         
-        @param obj: object
-            The object value to update with.
-        @param objType: Type|Model
-            The object type.
-        @return: boolean
-            True if the updated was successful, false otherwise.
+        @return: dictionary{string:string}|None
+            A dictionary containing as a key the allowed hint name and as a value the hint description. 
         '''
 
     @abc.abstractmethod
-    def isValid(self):
+    def assemble(self, root, invokers):
         '''
-        Checks if the match is valid, this means that the match will provide a valid path element.
+        Resolve in the provided root node the invokers, this means that the assembler needs to find a way of 
+        mapping the invokers to a resource request path in the node structure contained in the root node 
+        provided. If the assembler is able to resolve a invoker or invokers it has to remove them from the list.
         
-        @return: boolean
-            True if the match can provide a path, false otherwise.
+        @param root: Node
+            The root node to assemble the invokers to.
+        @param invokers: list[Invoker]
+            The list of invokers to be assembled, the list needs to have the resolved invokers removed.
         '''
 
-    @abc.abstractmethod
-    def toPath(self, converterPath, isFirst, isLast):
-        '''
-        Converts the match into a path or paths elements.
-        
-        @param converterPath: ConverterPath
-            The converter path to use in constructing the path(s) elements.
-        @param isFirst: boolean
-            A flag indicating that this is the first match in the full path. This flag might be used by some matchers
-            to make a different path representation.
-        @param isLast: boolean
-            A flag indicating that this is the last match in the full path. This flag might be used by some matchers
-            to make a different path representation.
-        @return: string|list
-            A string or list of strings representing the path element.
-        @raise AssertionError:
-            If the path cannot be represented, check first the 'isValid' method.
-        '''
-
-    @abc.abstractmethod
-    def clone(self):
-        '''
-        Clones the match and all content related to it.
-        
-        @return: Match
-            The cloned match.
-        '''
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.node == other.node
-        return False
+# --------------------------------------------------------------------
 
 class InvokerInfo:
     '''
@@ -470,6 +384,10 @@ class Invoker(metaclass=abc.ABCMeta):
             The invoker information for the implementation.
         @param infoAPI: InvokerInfo|None
             The invoker information for the API, if one is available.
+
+        @ivar target: Type
+            The targeted type of the invoker, this is useful whenever the output is wither a part of maybe not reflecting
+            the actual target of the invoker.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
         assert isinstance(method, int), 'Invalid method %s' % method
@@ -494,6 +412,8 @@ class Invoker(metaclass=abc.ABCMeta):
         self.infoIMPL = infoIMPL
         self.infoAPI = infoAPI
 
+        self.target = None
+
     @abc.abstractmethod
     def invoke(self, *args):
         '''
@@ -508,22 +428,111 @@ class Invoker(metaclass=abc.ABCMeta):
                   for i, inp in enumerate(self.inputs)]
         return '<%s[%s %s(%s)]>' % (self.__class__.__name__, self.output, self.name, ', '.join(inputs))
 
+# --------------------------------------------------------------------
+
+class Match(metaclass=abc.ABCMeta):
+    '''
+    Provides a matched path entry.
+    '''
+    __slots__ = ('node',)
+
+    def __init__(self, node):
+        '''
+        Constructs a match.
+
+        @param node: Node
+            The Node node of the match.
+        '''
+        assert isinstance(node, Node), 'Invalid node %s' % node
+        self.node = node
+
+    @abc.abstractmethod
+    def asArgument(self, invoker, args):
+        '''
+        Populates in the provided dictionary of arguments, the key represents the argument name.
+        In order to establish for how are the arguments an invoker needs to be provided.
+        Lets say that path 'Publication/1' leads to a getById(id) but the path 'Publication/1/Section'
+        leads to a getAllSection(publicationId) that is why the invoker is needed since the name of the argument
+        will change depending on the invoker.
+
+        @param invoker: Invoker
+            The invoker to construct arguments for.
+        @param args: dictionary
+            The dictionary where the argument(s) name and value(s) of this match will be populated.
+        '''
+
+    @abc.abstractmethod
+    def update(self, obj, objType):
+        '''
+        Updates the match represented value. This method looks like a render method expecting value and type,
+        this because the match is actually a renderer for path elements.
+
+        @param obj: object
+            The object value to update with.
+        @param objType: Type | Model
+            The object type.
+        @return: boolean
+            True if the updated was successful, false otherwise.
+        '''
+
+    @abc.abstractmethod
+    def isValid(self):
+        '''
+        Checks if the match is valid, this means that the match will provide a valid path element.
+
+        @return: boolean
+            True if the match can provide a path, false otherwise.
+        '''
+
+    @abc.abstractmethod
+    def toPath(self, converterPath, isFirst, isLast):
+        '''
+        Converts the match into a path or paths elements.
+
+        @param converterPath: ConverterPath
+            The converter path to use in constructing the path(s) elements.
+        @param isFirst: boolean
+            A flag indicating that this is the first match in the full path. This flag might be used by some matchers
+            to make a different path representation.
+        @param isLast: boolean
+            A flag indicating that this is the last match in the full path. This flag might be used by some matchers
+            to make a different path representation.
+        @return: string | list
+            A string or list of strings representing the path element.
+        @raise AssertionError:
+            If the path cannot be represented, check first the 'isValid' method.
+        '''
+
+    @abc.abstractmethod
+    def clone(self):
+        '''
+        Clones the match and all content related to it.
+
+        @return: Match
+            The cloned match.
+        '''
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.node == other.node
+        return False
+
 class Node(metaclass=abc.ABCMeta):
     '''
-    The resource node provides searches and info for resource request paths. Also provides the ability to 
-    acknowledge a path(s) as belonging to the node. All nodes implementations need to be exclusive by nature, 
+    The resource node provides searches and info for resource request paths. Also provides the ability to
+    acknowledge a path(s) as belonging to the node. All nodes implementations need to be exclusive by nature,
     meaning that not two nodes should be valid for the same path.
     '''
 
     def __init__(self, parent, isGroup, order):
         '''
-        Constructs a resource node. 
-        
-        @param parent: Node|None 
+        Constructs a resource node.
+
+        @param parent: Node | None
             The parent node of this node, can be None if is a root node.
-        @param isGroup: boolean 
-            True if the node represents a group of models, false otherwise.
-        @param order: integer 
+        @param isGroup: boolean
+            True if the node represents a group of models, False otherwise.
+        @param order: integer
             The order index of the node, this will be used in correctly ordering the children's to have a proper
             order when searching for path matching.
         @ivar get: Invoker
@@ -534,7 +543,7 @@ class Node(metaclass=abc.ABCMeta):
             The invoker that provides the update of elements, populated by assemblers.
         @ivar delete: Invoker
             The invoker that provides the deletion of elements, populated by assemblers.
-        @ivar _childrens: list
+        @ivar children: list[Node]
             The list of node children's.
         '''
         assert parent is None or isinstance(parent, Node), 'Invalid parent %s, can be None' % parent
@@ -547,30 +556,12 @@ class Node(metaclass=abc.ABCMeta):
         self.insert = None
         self.update = None
         self.delete = None
-        self._childrens = []
-        if parent is not None: parent.addChild(self)
-
-    def addChild(self, child):
-        '''
-        Adds a new child node to this node.
-        
-        @param child: Node
-            The new child node to add.
-        '''
-        assert isinstance(child, Node), 'Invalid child node %s' % child
-        assert child.parent is self, 'The child has a different parent %s' % child
-        assert child not in self._childrens, 'Already contains children node %s' % child
-        self._childrens.append(child)
-        self._childrens.sort(key=lambda node: node.order)
-
-    def childrens(self):
-        '''
-        Provides a list with all the children's of the node.
-        
-        @return: list
-            The list of children nodes.
-        '''
-        return self._childrens
+        self.children = []
+        if parent is not None:
+            assert isinstance(parent, Node), 'Invalid parent node %s' % parent
+            assert self not in parent.children, 'Already contains child node %s' % self
+            parent.children.append(self)
+            parent.children.sort(key=lambda node: node.order)
 
     @abc.abstractmethod
     def tryMatch(self, converterPath, paths):
@@ -578,12 +569,12 @@ class Node(metaclass=abc.ABCMeta):
         Override to provide functionality.
         Checks if the path(s) element is a match, in this case the paths list needs to be trimmed of the path
         elements that have been acknowledged by this node.
-        
+
         @param converterPath: ConverterPath
             The converter path to be used in matching the provided path(s).
-        @param paths: list[string]
-            The path elements list containing strings, this list will get consumed whenever a matching occurs.
-        @return: Match|list[Match]|boolean
+        @param paths: deque[string]
+            The path elements deque containing strings, this list will get consumed whenever a matching occurs.
+        @return: Match | list[Match] | boolean
             If a match has occurred than a match or a list with match objects will be returned or True if there
             is no match to provide by this node, if not than None or False is returned.
         '''
@@ -594,8 +585,8 @@ class Node(metaclass=abc.ABCMeta):
         Override to provide functionality.
         Constructs a blank match object represented by this node, this is used in creating path for nodes.
         So basically this used when we need a path for a node.
-        
-        @return: Match|list|None
+
+        @return: Match | list | None
             A match object or a list with match objects, None if there is no match needed by this node.
         '''
 
@@ -644,8 +635,8 @@ class IResourcesLocator(metaclass=abc.ABCMeta):
         
         @param converterPath: ConverterPath
             The converter path used in handling the path elements.
-        @param paths: list[string]
-            A list of string path elements identifying a resource to be searched for, this list will be consumed 
+        @param paths: deque[string]|Iterable[string]
+            A deque of string path elements identifying a resource to be searched for, this list will be consumed 
             of every path element that was successfully identified.
         @return: Path
             The path leading to the node that provides the resource if the Path has no node it means that the paths

@@ -33,7 +33,7 @@ class Component:
 
 # --------------------------------------------------------------------
 
-@query
+@query(Component)
 class QComponent:
     '''
     Provides the component query.

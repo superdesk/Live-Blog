@@ -1,7 +1,7 @@
 '''
 Created on Jul 8, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -11,20 +11,20 @@ Provides the decoding handler.
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import UNKNOWN_DECODING
-from ally.core.spec.server import Processor, ProcessorsChain, Request, Response, \
+from ally.core.spec.server import IProcessor, ProcessorsChain, Request, Response, \
     Processors, ContentRequest
 from ally.api.config import INSERT, UPDATE
 
 # --------------------------------------------------------------------
 
 @injected
-class DecodingHandler(Processor):
+class DecodingHandler(IProcessor):
     '''
     Implementation for a processor that provides the decoding of the request input content based on the requested 
     format to actual arguments that can be used in calling the invoke. The decoding handler relays on a processors
     chain that contains the decoding processors.
     
-    Provides on request: content.contentType
+    Provides on request: [content.charSet], [content.contentLanguage], [content.contentConverter]
     Provides on response: NA
     
     Requires on request: method, [content.contentType], accContentTypes
@@ -43,7 +43,7 @@ class DecodingHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
