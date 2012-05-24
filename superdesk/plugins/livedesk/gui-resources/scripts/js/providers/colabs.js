@@ -1,5 +1,5 @@
 define('providers/colabs', 
-[ 'providers', 'jquery', 'jquery/rest',
+[ 'providers', 'jquery', 'jquery/rest', 'jquery/avatar',
   'providers/colabs/adaptor',
   'tmpl!livedesk>providers/colabs',
   'tmpl!livedesk>providers/colabs/items'
@@ -56,10 +56,10 @@ function(providers, $)
                 $(colabsList).each(function()
                 {
                     var colab = this,
-                        updateRequest = new $.rest(colab)
+                        updateRequest = new $.rest(colab).resetData()
                         .request({data: {'startEx.cId': colab._latestPost}})
-                        .get('PostPublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
-                        .get('PostUnpublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
+                        .get('PostPublished').resetData().xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
+                        .get('PostUnpublished').resetData().xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
                     .done(function(published, unpublished)
                     {
                         published = this.extractListData(published[0]);
@@ -98,32 +98,37 @@ function(providers, $)
                     });
                 });
             };
-            
-            new $.restAuth(theBlog).get('Collaborator').done(function(listData)
+
+            new $.restAuth(theBlog).get('Collaborator').resetData().done(function(listData)
             {
+
                 var colabsHrefs = this.extractListData(listData);
                 $(colabsHrefs).each(function()
                 { 
-                    new $.rest(this.href)
-                    .xfilter('Person.Id,Person.FullName')
+                    var c = new $.rest(this.href);
+
+                    c.xfilter('Person.Id,Person.FullName,Person.EMail')
                     .done(function(colab)
                     {
+                        var colabData = colab;
+
+                        colab = $.avatar.parse(colab);
                         colab._latestPost = 0;
                         colabsList.push(colab);
                         if(colabsList.length == colabsHrefs.length)
                             $(self.el).tmpl('livedesk>providers/colabs', {Colabs: colabsList}, setupHeader);
-                       
-                        this.get('PostPublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
-                            .get('PostUnpublished').xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
+
+                        new $.rest(colabData)
+                            .get('PostPublished').resetData().request({data: { desc: 'createdOn'}}).xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
+                            .get('PostUnpublished').resetData().request({data: { desc: 'createdOn'}}).xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId')
                         .done(function(published, unpublished)
                         {
                             published = this.extractListData(published[0]);
                             unpublished = this.extractListData(unpublished[0]);
                             var postList = published.concat(unpublished);
-                            
+
                             for(var i=0; i<postList.length; i++)
                                 colab._latestPost = Math.max(colab._latestPost, parseInt(postList[i].CId));
-
                             $.tmpl('livedesk>providers/colabs/items', {Person: colab.Person, Posts: postList}, function(e, o)
                             {
                                 $('.search-result-list', self.el).prepend(o);
