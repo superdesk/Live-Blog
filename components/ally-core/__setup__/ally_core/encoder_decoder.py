@@ -14,7 +14,7 @@ from ally.container import ioc
 from ally.core.impl.processor.decoder_none import DecodingNoneHandler
 from ally.core.impl.processor.decoder_text import DecodingTextHandler
 from ally.core.impl.processor.decoder_xml import DecodingXMLHandler
-from ally.core.spec.server import Processor
+from ally.core.spec.server import IProcessor
 from ally.core.impl.processor.encoder_text import EncodingTextHandler
 from ally.core.impl.processor.decoder_content import DecodingContentHandler
 
@@ -51,7 +51,7 @@ def content_types_yaml() -> dict:
             }
 
 @ioc.entity
-def encodingXML() -> Processor:
+def encodingXML() -> IProcessor:
     from ally.core.impl.processor.encoder_xml import EncodingXMLHandler
     b = EncodingXMLHandler(); yield b
     b.normalizer = contentNormalizer()
@@ -66,7 +66,7 @@ def encoderTextJSON():
     return encodeJSON
 
 @ioc.entity
-def encodingJSON() -> Processor:
+def encodingJSON() -> IProcessor:
     b = EncodingTextHandler(); yield b
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
@@ -81,7 +81,7 @@ def encoderTextYAML():
     return encodeYAML
 
 @ioc.entity
-def encodingYAML() -> Processor:
+def encodingYAML() -> IProcessor:
     b = EncodingTextHandler(); yield b
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
@@ -93,13 +93,13 @@ def encodingYAML() -> Processor:
 # Creating the decoding processors
 
 @ioc.entity
-def decodingNone() -> Processor: return DecodingNoneHandler()
+def decodingNone() -> IProcessor: return DecodingNoneHandler()
 
 @ioc.entity
-def decodingContent() -> Processor: return DecodingContentHandler()
+def decodingContent() -> IProcessor: return DecodingContentHandler()
 
 @ioc.entity
-def decodingXML() -> Processor:
+def decodingXML() -> IProcessor:
     b = DecodingXMLHandler(); yield b
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
@@ -114,7 +114,7 @@ def decoderTextJSON():
     return decodeJSON
 
 @ioc.entity
-def decodingJSON() -> Processor:
+def decodingJSON() -> IProcessor:
     b = DecodingTextHandler(); yield b
     b.normalizer = contentNormalizer()
     b.decoder = decoderTextJSON()
@@ -130,7 +130,7 @@ def decoderTextYAML():
     return decodeYAML
 
 @ioc.entity
-def decodingYAML() -> Processor:
+def decodingYAML() -> IProcessor:
     b = DecodingTextHandler(); yield b
     b.normalizer = contentNormalizer()
     b.decoder = decoderTextYAML()

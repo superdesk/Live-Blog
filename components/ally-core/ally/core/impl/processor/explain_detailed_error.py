@@ -12,7 +12,7 @@ Provides support for explaining the errors in the content of the request.
 from .explain_error import process
 from ally.container.ioc import injected
 from ally.core.spec.resources import Converter
-from ally.core.spec.server import Response, Processor, ProcessorsChain, \
+from ally.core.spec.server import Response, IProcessor, ProcessorsChain, \
     Processors
 from ally.exception import InputError, Ref
 import logging
@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class ExplainDetailedErrorHandler(Processor):
+class ExplainDetailedErrorHandler(IProcessor):
     '''
     Implementation for a processor that provides on the response a form of the error that can be extracted from 
     the response code and error message, this processor uses the code status (success) in order to trigger the error
@@ -53,7 +53,7 @@ class ExplainDetailedErrorHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain

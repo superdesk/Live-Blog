@@ -14,7 +14,7 @@ from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
     RESOURCE_NOT_FOUND
-from ally.core.spec.server import Processor, Response, ProcessorsChain
+from ally.core.spec.server import IProcessor, Response, ProcessorsChain
 from ally.support.util_io import readGenerator
 from os.path import isdir, isfile, join, dirname, normpath, sep
 from zipfile import ZipFile
@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class ContentDeliveryHandler(Processor):
+class ContentDeliveryHandler(IProcessor):
     '''
     Implementation for a processor that delivers the content based on the URL.
     
@@ -44,7 +44,7 @@ class ContentDeliveryHandler(Processor):
     @ivar repositoryPath: string
         The directory where the file repository is
 
-    @see Processor
+    @see: IProcessor
     '''
 
     _linkExt = '.link'
@@ -71,7 +71,7 @@ class ContentDeliveryHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp

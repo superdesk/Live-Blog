@@ -146,7 +146,7 @@ class RequestService(IRequestService):
                     m = self._toMethod(node.update, r); requestMethods.add(m.Id)
                     r.Update = m.Id
 
-        for child in node.childrens(): self._process(child)
+        for child in node.children: self._process(child)
 
     def _toPatternInput(self, match, req):
         '''
@@ -214,51 +214,5 @@ class RequestService(IRequestService):
             if info.clazzDefiner:
                 m.APIClassDefiner = info.clazzDefiner.__module__ + '.' + info.clazzDefiner.__name__
             else: m.APIClassDefiner = m.APIClass
-
-#        if isinstance(invoker, InvokerRestructuring):
-#            assert isinstance(invoker, InvokerRestructuring)
-#            invoker = invoker.invoker
-#
-#        if isinstance(invoker, InvokerAssemblePart):
-#            assert isinstance(invoker, InvokerAssemblePart)
-#            invoker = invoker.invokerList
-#
-#        if isinstance(invoker, InvokerCall):
-#            assert isinstance(invoker, InvokerCall)
-#            assert isinstance(invoker.service, Service)
-#            assert isinstance(invoker.call, Call)
-#            m.Name = invoker.name
-#
-#            clazzApi = invoker.clazz
-#            methodApi, clazzApiDef = getAttrAndClass(clazzApi, invoker.name)
-#            m.APIDoc = getdoc(methodApi)
-#            m.APIClass = clazzApi.__module__ + '.' + clazzApi.__name__
-#            m.APIClassDefiner = clazzApiDef.__module__ + '.' + clazzApiDef.__name__
-#
-#            if ismodule(invoker.implementation):
-#                m.IMPL = invoker.implementation.__name__
-#                m.IMPLDoc = getdoc(getattr(invoker.implementation, invoker.call.name))
-#            else:
-#                clazzImpl = proxiedClass(invoker.implementation.__class__)
-#                methodImpl, clazzImplDef = getAttrAndClass(clazzImpl, invoker.name)
-#                m.IMPLDoc = getdoc(methodImpl)
-#                m.IMPL = clazzImpl.__module__ + '.' + clazzImpl.__name__
-#                m.IMPLDefiner = clazzImplDef.__module__ + '.' + clazzImplDef.__name__
-#        elif isinstance(invoker, InvokerFunction):
-#            assert isinstance(invoker, InvokerFunction)
-#            m.Name = invoker.name
-#
-#            if ismethod(invoker.function):
-#                clazzImpl = proxiedClass(invoker.function.__self__.__class__)
-#                methodImpl, clazzImplDef = getAttrAndClass(clazzImpl, invoker.name)
-#                m.IMPLDoc = getdoc(methodImpl)
-#                m.IMPL = clazzImpl.__module__ + '.' + clazzImpl.__name__
-#                m.IMPLDefiner = clazzImplDef.__module__ + '.' + clazzImplDef.__name__
-#            else:
-#                m.IMPL = invoker.function.__module__
-#                m.IMPLDoc = getdoc(invoker.function)
-#                m.IMPLDefiner = invoker.function.__module__
-#        else:
-#            raise DevelError('Unknown invoker %s' % invoker)
 
         return m

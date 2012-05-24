@@ -12,7 +12,7 @@ Provides the content location redirect based on references.
 from ally.api.operator.type import TypeModelProperty
 from ally.api.type import TypeReference
 from ally.container.ioc import injected
-from ally.core.spec.server import Processor, ProcessorsChain, Response, Request, \
+from ally.core.spec.server import IProcessor, ProcessorsChain, Response, Request, \
     EncoderPath, Processors
 import logging
 from ally.core.spec.codes import REDIRECT
@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class RedirectHandler(Processor):
+class RedirectHandler(IProcessor):
     '''
     Implementation for a processor that provides the redirect by using the content location based on found references.
     
@@ -44,7 +44,7 @@ class RedirectHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert isinstance(req, Request), 'Invalid request %s' % req

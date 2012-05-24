@@ -27,7 +27,7 @@ class Person(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Person)
 class QPerson(QEntity):
     '''
     Query for person service

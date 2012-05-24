@@ -42,7 +42,7 @@ class ExtendModel(APIModel):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Entity)
 class TestQuery:
 
     date = AsOrdered

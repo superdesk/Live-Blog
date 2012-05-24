@@ -11,7 +11,7 @@ Provides the encoder/decoder whenever there is no content required for the invok
 
 from ally.container.ioc import injected
 from ally.core.impl.processor.decoder_text_base import findLastModel
-from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
+from ally.core.spec.server import IProcessor, Request, Response, ProcessorsChain
 import logging
 from ally.api.config import INSERT, UPDATE
 
@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class DecodingNoneHandler(Processor):
+class DecodingNoneHandler(IProcessor):
     '''
     Provides the decoder for no content. Used in order to signal that there is no decoding need rather than a
     decoding problem.
@@ -30,7 +30,7 @@ class DecodingNoneHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp

@@ -11,7 +11,7 @@ Provides the encoding processing node.
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import UNKNOWN_ENCODING
-from ally.core.spec.server import Processor, Request, Response, ProcessorsChain, \
+from ally.core.spec.server import IProcessor, Request, Response, ProcessorsChain, \
     Processors
 import logging
 import codecs
@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class EncodingProcessorsHandler(Processor):
+class EncodingProcessorsHandler(IProcessor):
     '''
     Implementation for a processor that provides the support for executing the encoding processors. The encoding
     just like decoding uses an internal processor chain execution. If a processor is successful in the encoding
@@ -48,7 +48,7 @@ class EncodingProcessorsHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp

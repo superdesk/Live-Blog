@@ -10,7 +10,7 @@ Provides the converters for the response content and request content.
 '''
 
 from ally.core.spec.resources import Converter
-from ally.core.spec.server import Processor, ProcessorsChain, Request, Response
+from ally.core.spec.server import IProcessor, ProcessorsChain, Request, Response
 import logging
 
 # --------------------------------------------------------------------
@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class ConverterHandler(Processor):
+class ConverterHandler(IProcessor):
     '''
     Provides the standard converters.
      
@@ -29,17 +29,17 @@ class ConverterHandler(Processor):
     Requires on request: content.contentLanguage, accLanguages
     Requires on response: [contentLanguage]
     '''
-    
+
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        
+
         rsp.contentConverter = Converter()
         if req.content.contentLanguage:
             req.content.contentConverter = Converter()
-        
+
         chain.proceed()

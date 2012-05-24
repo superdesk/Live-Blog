@@ -13,7 +13,7 @@ from ally.api.operator.type import TypeModel
 from ally.api.type import Input
 from ally.container.ioc import injected
 from ally.core.spec.resources import Normalizer, Converter, Invoker
-from ally.core.spec.server import Processor
+from ally.core.spec.server import IProcessor
 import logging
 
 # --------------------------------------------------------------------
@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class DecodingTextBaseHandler(Processor):
+class DecodingTextBaseHandler(IProcessor):
     '''
     Provides the base decoder for request content that contain model data.
     '''

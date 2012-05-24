@@ -13,7 +13,7 @@ from ..ally_core.processor import explainError
 from ..ally_core_http.processor import pathProcessors
 from ally.container import ioc
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
-from ally.core.spec.server import Processors, Processor
+from ally.core.spec.server import Processors, IProcessor
 from os import path
 import re
 
@@ -38,7 +38,7 @@ def repository_path():
 # Creating the processors used in handling the request
 
 @ioc.entity
-def localContentHandler() -> Processor:
+def localContentHandler() -> IProcessor:
     h = ContentDeliveryHandler()
     h.repositoryPath = repository_path()
     return h

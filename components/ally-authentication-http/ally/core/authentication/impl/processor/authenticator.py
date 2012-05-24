@@ -15,7 +15,7 @@ from ally.container.ioc import injected
 from ally.core.http.impl.processor.header import HeaderHTTPBase, VALUE_NO_PARSE
 from ally.core.http.spec import RequestHTTP, INVALID_HEADER_VALUE, UNAUTHORIZED
 from ally.core.spec.resources import Invoker
-from ally.core.spec.server import Processor, ProcessorsChain, Response
+from ally.core.spec.server import IProcessor, ProcessorsChain, Response
 from ally.exception import DevelError
 import logging
 
@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class AuthenticationHandler(HeaderHTTPBase, Processor):
+class AuthenticationHandler(HeaderHTTPBase, IProcessor):
     '''
     Provides the authentication handling.
     
