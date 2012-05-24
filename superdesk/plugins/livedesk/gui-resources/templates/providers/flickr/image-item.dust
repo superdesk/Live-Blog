@@ -1,7 +1,12 @@
 {#photos}   
-    <li class="flickr image twitter" style="border:0px">
+    <li class="flickr image twitter" style="border:0px; height:auto">
         <div class="result-content">
-            <a href="http://farm{farm}.staticflickr.com/{server}/{id}_{secret}.jpg" target="_blank"><img alt="{title}" src='http://farm{farm}.staticflickr.com/{server}/{id}_{secret}_s.jpg'></a>
+            <a href="http://farm{farm}.staticflickr.com/{server}/{id}_{secret}.jpg" target="_blank">
+                <img alt="{title}" src='http://farm{farm}.staticflickr.com/{server}/{id}_{secret}_s.jpg'>
+                <p>
+                {title}
+                </p>
+            </a>
         </div>
     </li>
 {/photos}
