@@ -31,7 +31,7 @@ class Source(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Source)
 class QSource(QEntity):
     '''
     Provides the query for source model.

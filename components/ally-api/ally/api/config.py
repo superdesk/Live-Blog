@@ -197,41 +197,47 @@ def criteria(*args, main=None):
 
     return clazz
 
-def query(*args):
+def query(owner):
     '''
     Used for decorating classes that are API queries.
     
+    @param owner: TypeModel container
+        The model that is the target of this query.
+    
     ex:
-        @query
+        @query(Theme)
         class ThemeQuery:
             
             name = OrderBy
     '''
-    if not args: return partial(query)
-    assert len(args) == 1, 'Expected only one argument that is the decorator class, got %s arguments' % len(args)
-    clazz = args[0]
-    assert isclass(clazz), 'Invalid class %s' % clazz
+    queryOwner = typeFor(owner)
+    assert isinstance(queryOwner, TypeModel), 'Invalid owner %s, has no type model' % owner
 
-    criterias = extractCriteriasInherited(clazz.__bases__)
-    log.info('Extracted inherited criterias %s for query class %s', criterias, clazz)
-    criterias.update(extractCriterias(clazz.__dict__))
-    log.info('Extracted criterias %s for query class %s', criterias, clazz)
-    for crt in criterias:
-        if not match(RULE_QUERY_CRITERIA[0], crt): raise DevelError(RULE_QUERY_CRITERIA[1] % crt)
+    def decorator(clazz):
+        assert isclass(clazz), 'Invalid class %s' % clazz
 
-    queryContainer = Query(criterias)
-    queryType = TypeQuery(clazz, queryContainer)
+        criterias = extractCriteriasInherited(clazz.__bases__)
+        log.info('Extracted inherited criterias %s for query class %s', criterias, clazz)
+        criterias.update(extractCriterias(clazz.__dict__))
+        log.info('Extracted criterias %s for query class %s', criterias, clazz)
+        for crt in criterias:
+            if not match(RULE_QUERY_CRITERIA[0], crt): raise DevelError(RULE_QUERY_CRITERIA[1] % crt)
 
-    for crt in queryContainer.criterias:
-        critType = TypeCriteriaEntry(queryType, crt)
-        setattr(clazz, crt, CriteriaEntry(critType))
+        queryContainer = Query(criterias)
+        queryType = TypeQuery(clazz, queryContainer, queryOwner)
 
-    clazz._ally_type = queryType # This specified the detected type for the model class by using 'typeFor'
-    clazz.__new__ = QuerySupport.__new__
-    clazz.__repr__ = QuerySupport.__repr__
-    clazz.__contains__ = QuerySupport.__contains__
+        for crt in queryContainer.criterias:
+            critType = TypeCriteriaEntry(queryType, crt)
+            setattr(clazz, crt, CriteriaEntry(critType))
 
-    return clazz
+        clazz._ally_type = queryType # This specified the detected type for the model class by using 'typeFor'
+        clazz.__new__ = QuerySupport.__new__
+        clazz.__repr__ = QuerySupport.__repr__
+        clazz.__contains__ = QuerySupport.__contains__
+
+        return clazz
+
+    return decorator
 
 def call(*args, types=None, **hints):
     '''

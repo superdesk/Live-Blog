@@ -24,7 +24,7 @@ class ArticleType(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(ArticleType)
 class QArticleType:
     '''
     Provides the query article type model.

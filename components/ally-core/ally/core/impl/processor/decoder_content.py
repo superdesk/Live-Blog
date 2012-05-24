@@ -16,7 +16,7 @@ from ally.container.ioc import injected
 from ally.core.spec.codes import BAD_CONTENT
 from ally.core.spec.resources import Invoker
 from ally.core.spec.server import Request, Response, ProcessorsChain, \
-    ContentRequest, Processor
+    ContentRequest, IProcessor
 import logging
 
 # --------------------------------------------------------------------
@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class DecodingContentHandler(Processor):
+class DecodingContentHandler(IProcessor):
     '''
     Provides the decoder for JSON content.
     
@@ -39,7 +39,7 @@ class DecodingContentHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp

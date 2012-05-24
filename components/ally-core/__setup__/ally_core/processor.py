@@ -25,7 +25,7 @@ from ally.core.impl.processor.method_invoker import MethodInvokerHandler
 from ally.core.impl.processor.parameters import ParametersHandler
 from ally.core.impl.processor.redirect import RedirectHandler
 from ally.core.impl.processor.request_types import RequestTypesHandler
-from ally.core.spec.server import Processors, Processor
+from ally.core.spec.server import Processors, IProcessor
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -46,7 +46,7 @@ def explain_detailed_error():
     return True
 
 @ioc.entity
-def explainError() -> Processor:
+def explainError() -> IProcessor:
     b = ExplainDetailedErrorHandler() if explain_detailed_error() else ExplainErrorHandler()
     b.encodings = Processors(*handlersExplainError())
     b.languageDefault = default_language()
@@ -54,41 +54,41 @@ def explainError() -> Processor:
     return b
 
 @ioc.entity
-def methodInvoker() -> Processor: return MethodInvokerHandler()
+def methodInvoker() -> IProcessor: return MethodInvokerHandler()
 
 @ioc.entity
-def redirect() -> Processor:
+def redirect() -> IProcessor:
     b = RedirectHandler()
     b.redirects = Processors(*handlersRedirect())
     return b
 
 @ioc.entity
-def metaCreator() -> Processor: return MetaCreatorHandler()
+def metaCreator() -> IProcessor: return MetaCreatorHandler()
 
 @ioc.entity
-def converter() -> Processor: return ConverterHandler()
+def converter() -> IProcessor: return ConverterHandler()
 
 @ioc.entity
-def requestTypes() -> Processor: return RequestTypesHandler()
+def requestTypes() -> IProcessor: return RequestTypesHandler()
 
 @ioc.entity
-def parameters() -> Processor:
+def parameters() -> IProcessor:
     b = ParametersHandler()
     b.decoders = decodersParameters()
     return b
 
 @ioc.entity
-def decoding() -> Processor:
+def decoding() -> IProcessor:
     b = DecodingHandler()
     b.decodings = Processors(*handlersDecoding())
     b.charSetDefault = default_characterset()
     return b
 
 @ioc.entity
-def invokingHandler() -> Processor: return InvokingHandler()
+def invokingHandler() -> IProcessor: return InvokingHandler()
 
 @ioc.entity
-def encoding() -> Processor:
+def encoding() -> IProcessor:
     b = EncodingProcessorsHandler()
     b.encodings = Processors(*handlersEncoding())
     b.charSetDefault = default_characterset()

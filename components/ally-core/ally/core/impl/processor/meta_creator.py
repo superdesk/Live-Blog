@@ -17,7 +17,7 @@ from ally.container.ioc import injected
 from ally.core.spec.data_meta import MetaLink, MetaValue, MetaModel, MetaPath, \
     MetaCollection
 from ally.core.spec.resources import Path
-from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
+from ally.core.spec.server import IProcessor, Request, Response, ProcessorsChain
 from ally.support.core.util_resources import pathLongName
 from ally.type_legacy import OrderedDict
 from functools import partial
@@ -39,7 +39,7 @@ rgetattr = lambda prop, obj: getattr(obj, prop)
 # --------------------------------------------------------------------
 
 @injected
-class MetaCreatorHandler(Processor):
+class MetaCreatorHandler(IProcessor):
     '''
     Provides the meta creation based on the response object type.
     
@@ -59,7 +59,7 @@ class MetaCreatorHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp

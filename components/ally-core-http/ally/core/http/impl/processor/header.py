@@ -13,7 +13,7 @@ from ally.api.config import GET, DELETE, INSERT, UPDATE
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE, \
     ContentRequestHTTP
-from ally.core.spec.server import Processor, Response, ProcessorsChain
+from ally.core.spec.server import IProcessor, Response, ProcessorsChain
 from ally.exception import DevelError
 from ally.support.core.util_param import extractParamValues
 from collections import OrderedDict
@@ -165,7 +165,7 @@ class HeaderHTTPBase:
 # --------------------------------------------------------------------
 
 @injected
-class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
+class HeaderStandardHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
     '''
     Implementation of a processor that provides the decoding of standard HTTP request headers to actual request data 
     that can be understood by other processors. Also provides the encoding of those headers.
