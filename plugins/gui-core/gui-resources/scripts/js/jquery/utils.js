@@ -53,5 +53,16 @@ $.mergeObj = function(first, second) {
 				first[i] = second[i];
 	}
 };
+$.styledNodeHtml = function(node)
+{
+    node = $(node);
+    if( node.attr('style') && node.attr('style') !== '')
+    {
+        var wrapper = $('<span/>');
+        $('<span style="'+node.attr('style')+'" />').append(node.html()).appendTo(wrapper);
+        return wrapper.html();
+    }
+    return node.html();
+};
 $.extend($.browser, {language: window.navigator.userLanguage || window.navigator.language});
 });
