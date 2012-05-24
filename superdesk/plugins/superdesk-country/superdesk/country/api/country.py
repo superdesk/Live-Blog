@@ -30,7 +30,7 @@ class Country:
 
 # --------------------------------------------------------------------
 
-@query
+@query(Country)
 class QCountry:
     '''
     Provides the country query model.
