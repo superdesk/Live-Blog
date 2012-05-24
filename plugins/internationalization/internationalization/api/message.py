@@ -35,7 +35,7 @@ class Message(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Message)
 class QMessage(QEntity):
     '''
     Provides the query for the message.
