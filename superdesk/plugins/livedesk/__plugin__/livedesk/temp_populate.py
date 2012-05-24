@@ -114,17 +114,17 @@ def getBlogsIds():
 
 
 USERS = {
-         'Adam': ('Adam', None),
-         'Antoine': ('Antoine', None),
-         'Bertrand': ('Bertrand', None),
-         'David': ('David', None),
-         'Doug': ('Doug', None),
-         'Gabriel': ('Gabriel', None),
-         'Gideon': ('Gideon', None),
-         'Guest': ('Guest', None),
-         'Mihai': ('Mihai', None),
-         'Mugur': ('Mugur', None),
-         'Sava': ('Sava', None),
+         'Adam': ('Adam', None, 'adam.thomas@sourcefabric.org'),
+         'Antoine': ('Antoine', None, 'alaurent@globaleditorsnetwork.org'),
+         'Bertrand': ('Bertrand', None, 'bpecquerie@globaleditorsnetwork.org'),
+         'David': ('David', None, 'david.bauer@tageswoche.ch'),
+         'Doug': ('Doug', None, 'douglas.arellanes@sourcefabric.org'),
+         'Gabriel': ('Gabriel', None, 'gabriel.nistor@sourcefabric.org'),
+         'Gideon': ('Gideon', None, 'gideon.lehmann@sourcefabric.org'),
+         'Guest': ('Guest', None, ''),
+         'Mihai': ('Mihai', None, 'mihai.nistor@sourcefabric.org'),
+         'Mugur': ('Mugur', None, 'mugur.rus@sourcefabric.org'),
+         'Sava': ('Sava', None, 'sava.tatic@sourcefabric.org'),
        }
 
 _cache_users = {}
@@ -139,7 +139,7 @@ def getUsersIds():
             else:
                 usr = User()
                 usr.Name = name
-                usr.FirstName, usr.LastName = USERS[name]
+                usr.FirstName, usr.LastName, usr.EMail = USERS[name]
                 users[name] = userService.insert(usr)
     return _cache_users
 
