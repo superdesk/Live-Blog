@@ -13,7 +13,7 @@ from .header import HeaderHTTPBase, VALUE_NO_PARSE
 from ally.api.config import DELETE, GET, INSERT, UPDATE
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, INVALID_HEADER_VALUE
-from ally.core.spec.server import Processor, ProcessorsChain, Response, \
+from ally.core.spec.server import IProcessor, ProcessorsChain, Response, \
     ContentRequest
 from ally.exception import DevelError
 import logging
@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class MethodOverrideHandler(HeaderHTTPBase, Processor):
+class MethodOverrideHandler(HeaderHTTPBase, IProcessor):
     '''
     Provides the method override processor: it changes the request method to the one
     specified by the parameter named in "self.nameXMethodOverride". This is needed
@@ -61,7 +61,7 @@ class MethodOverrideHandler(HeaderHTTPBase, Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain

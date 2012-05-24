@@ -210,7 +210,7 @@ class AssembleBase(IAssembler):
         assert isinstance(name, str), 'Invalid name %s' % name
         assert isinstance(isGroup, bool), 'Invalid is group flag %s' % isGroup
 
-        for child in root.childrens():
+        for child in root.children:
             if isinstance(child, NodePath) and child.name == name:
                 if isGroup is not None: child.isGroup |= isGroup
                 return child
@@ -237,7 +237,7 @@ class AssembleBase(IAssembler):
                 domain = domain.split('/')
                 root = self.obtainNode(root, [(name, False) for name in domain if name.strip()])
 
-        for child in root.childrens():
+        for child in root.children:
             if isinstance(child, NodePath) and child.name == model.name:
                 if not child.isGroup: child.isGroup = True
                 return child
@@ -257,7 +257,7 @@ class AssembleBase(IAssembler):
         assert isinstance(root, Node), 'Invalid root node %s' % root
         assert isinstance(inp, Input), 'Invalid input %s' % inp
 
-        for child in root.childrens():
+        for child in root.children:
             if isinstance(child, NodeProperty) and child.isFor(inp):
                 assert isinstance(child, NodeProperty)
                 child.addInput(inp)

@@ -11,9 +11,9 @@ Module containing specifications for the server processing.
 
 from ally.api import model
 from ally.core.spec.codes import Code
-from collections import deque
 import abc
 import logging
+from ally.support.util_design import Chain
 
 # --------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class Processor(metaclass=abc.ABCMeta):
+class IProcessor(metaclass=abc.ABCMeta):
     '''
     Provides the specifications for all processor classes that are involved in resolving the request to a response.
     '''
@@ -39,69 +39,25 @@ class Processor(metaclass=abc.ABCMeta):
             The chain to call the next processors.
         '''
 
-class ProcessorsChain:
+class ProcessorsChain(Chain):
     '''
-    A chain that contains a list of processors that are executed one by one. Each processor will have the duty
-    to proceed with the processing if is the case by calling the chain.
+    @see: Chain
+    A chain that contains a list of processors that are executed one by one.
     '''
-
-    def __init__(self, processors):
-        '''
-        Initializes the chain with the processors to be executed.
-        
-        @param processors: list
-            The list of processors to be executed. Attention the order in which the processors are provided
-            is critical.
-        '''
-        assert isinstance(processors, list), 'Invalid processors list %s' % processors
-        if __debug__:
-            for processor in processors: assert isinstance(processor, Processor), 'Invalid processor %s' % processor
-        self._processors = deque(processors)
-        self._consumed = False
-
-    def proceed(self):
-        '''
-        Indicates to the chain that it should proceed with the chain execution after a processor has returned. The proceed
-        is available only when the chain execution is in execution. The execution is continued with the same request and
-        response.
-        '''
-        self._proceed = True
 
     def process(self, request, response):
         '''
         Called in order to execute the next processors in the chain. This method will stop processing when all
         the processors have been executed.
         
-        @param request: object
+        @param request: Request
             The request to dispatch to the next processors to be executed.
-        @param response: object
+        @param response: Response
             The response to dispatch to the next processors to be executed.
         '''
-        proceed = True
-        while proceed:
-            proceed = self._proceed = False
-            if len(self._processors) > 0:
-                proc = self._processors.popleft()
-                assert isinstance(proc, Processor)
-                assert log.debug('Processing %r', proc.__class__.__name__) or True
-                proc.process(request, response, self)
-                assert log.debug('Processing finalized %r', proc.__class__.__name__) or True
-                if self._proceed:
-                    assert log.debug('Proceed signal received, continue execution') or True
-                    proceed = self._proceed
-            else:
-                assert log.debug('Processing finalized by consuming') or True
-                self._consumed = True
-
-    def isConsumed(self):
-        '''
-        Checks if the chain is consumed.
-        
-        @return: boolean
-            True if all processors from the chain have been executed, False if a processor from the chain has stopped
-            the execution of the other processors.
-        '''
-        return self._consumed
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        super().process(request, response)
 
 class Processors:
     '''
@@ -115,7 +71,7 @@ class Processors:
         '''
         if __debug__:
             for processor in processors:
-                assert isinstance(processor, Processor), 'Invalid processor %s' % processor
+                assert isinstance(processor, IProcessor), 'Invalid processor %s' % processor
         self.processors = list(processors)
 
     def newChain(self):
@@ -125,7 +81,7 @@ class Processors:
         @return: ProcessorsChain
             The chain of processors.
         '''
-        return ProcessorsChain(self.processors)
+        return ProcessorsChain(processor.process for processor in self.processors)
 
 # --------------------------------------------------------------------
 

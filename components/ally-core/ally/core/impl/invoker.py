@@ -101,7 +101,7 @@ class InvokerFunction(Invoker):
 
     def invoke(self, *args):
         '''
-        @see: InvokerCall.invoke
+        @see: Invoker.invoke
         '''
         return self.function(*args)
 

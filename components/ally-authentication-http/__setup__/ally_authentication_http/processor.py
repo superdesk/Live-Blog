@@ -21,7 +21,7 @@ from ally.core.authentication.impl.processor.authenticator import \
     AuthenticationHandler
 from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.impl.processor.redirect import RedirectHandler
-from ally.core.spec.server import Processors, Processor
+from ally.core.spec.server import Processors, IProcessor
 import re
 from __setup__.ally_core.resource_management import resourcesRegister, resourcesLocator
 from datetime import timedelta
@@ -46,14 +46,14 @@ def session_token_timeout():
 # --------------------------------------------------------------------
 
 @ioc.entity
-def uriAuthentication() -> Processor:
+def uriAuthentication() -> IProcessor:
     b = URIHandler()
     b.resourcesLocator = resourcesLocator()
     b.converterPath = converterPath()
     return b
 
 @ioc.entity
-def redirectAuthentication() -> Processor:
+def redirectAuthentication() -> IProcessor:
     b = RedirectHandler()
     b.redirects = Processors(*handlersRedirectAuthentication())
     return b
@@ -67,7 +67,7 @@ def redirectAuthentication() -> Processor:
 #    return b
 
 @ioc.entity
-def authentication() -> Processor:
+def authentication() -> IProcessor:
     b = AuthenticationHandler()
     b.readFromParams = read_from_params()
     b.readFromParams = False

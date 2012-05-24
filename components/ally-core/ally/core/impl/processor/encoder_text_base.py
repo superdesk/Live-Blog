@@ -11,7 +11,7 @@ Provides the text base encoder processor handler.
 
 from ally.container.ioc import injected
 from ally.core.spec.resources import Converter
-from ally.core.spec.server import Processor, Request, Response, ProcessorsChain, \
+from ally.core.spec.server import IProcessor, Request, Response, ProcessorsChain, \
     EncoderPath
 from collections import Iterable
 from numbers import Number
@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class EncodingTextBaseHandler(Processor):
+class EncodingTextBaseHandler(IProcessor):
     '''
     Provides the text base encoding.
     
@@ -48,7 +48,7 @@ class EncodingTextBaseHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp

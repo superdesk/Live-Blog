@@ -12,6 +12,7 @@ Provides the nodes used in constructing the resources node tree.
 from ally.api.operator.type import TypeModelProperty
 from ally.api.type import Input, typeFor
 from ally.core.spec.resources import ConverterPath, Match, Node, Invoker
+from collections import deque
 import logging
 
 # --------------------------------------------------------------------
@@ -261,7 +262,7 @@ class NodePath(Node):
         @see: Node.tryMatch
         '''
         assert isinstance(converterPath, ConverterPath), 'Invalid converter path %s' % converterPath
-        assert isinstance(paths, list), 'Invalid paths %s' % paths
+        assert isinstance(paths, deque), 'Invalid paths %s' % paths
         assert len(paths) > 0, 'No path element in paths %s' % paths
         if converterPath.normalize(self._match.value) == paths[0]:
             del paths[0]
@@ -311,7 +312,7 @@ class NodeProperty(Node):
         '''
         @see: Node.tryMatch
         '''
-        assert isinstance(paths, list), 'Invalid paths %s' % paths
+        assert isinstance(paths, deque), 'Invalid paths %s' % paths
         assert len(paths) > 0, 'No path element in paths %s' % paths
         assert isinstance(converterPath, ConverterPath), 'Invalid converter path %s' % converterPath
         try:

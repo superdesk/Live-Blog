@@ -15,7 +15,7 @@ from ally.container.ioc import injected
 from ally.core.http.impl.processor.header import VALUE_ATTRIBUTES
 from ally.core.http.spec import RequestHTTP, INVALID_HEADER_VALUE, \
     ContentRequestHTTP
-from ally.core.spec.server import Processor, ProcessorsChain, Response
+from ally.core.spec.server import IProcessor, ProcessorsChain, Response
 from ally.exception import DevelError
 from collections import OrderedDict
 from io import BytesIO
@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class DecodingMultiPartHandler(HeaderHTTPBase, Processor):
+class DecodingMultiPartHandler(HeaderHTTPBase, IProcessor):
     '''
     Provides the multipart content handler processor.
     @see: http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
@@ -88,7 +88,7 @@ class DecodingMultiPartHandler(HeaderHTTPBase, Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain

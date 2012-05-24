@@ -58,7 +58,7 @@ class Login:
     HashedLoginToken = str
 
 @injected
-class AuthenticationHandler(HeaderHTTPBase, Processor):
+class AuthenticationHandler(HeaderHTTPBase, IProcessor):
     '''
     Provides the authentication handling.
 

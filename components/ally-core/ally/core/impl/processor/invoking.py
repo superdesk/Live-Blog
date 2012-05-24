@@ -15,7 +15,7 @@ from ally.container.ioc import injected
 from ally.core.spec.codes import DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS, \
     CANNOT_UPDATE, INSERT_SUCCESS, CANNOT_INSERT, BAD_CONTENT, RESOURCE_NOT_FOUND
 from ally.core.spec.resources import Path, Invoker
-from ally.core.spec.server import Processor, ProcessorsChain, Response, Request
+from ally.core.spec.server import IProcessor, ProcessorsChain, Response, Request
 from ally.exception import DevelError, InputError
 import logging
 from ally.api.type import Input
@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class InvokingHandler(Processor):
+class InvokingHandler(IProcessor):
     '''
     Implementation for a processor that makes the actual call to the request method corresponding invoke on the
     resource path node. The invoking will use all the obtained arguments from the previous processors and perform
@@ -48,7 +48,7 @@ class InvokingHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert isinstance(req, Request), 'Invalid request %s' % req

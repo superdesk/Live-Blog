@@ -19,7 +19,7 @@ from ally.core.impl.node import NodeRoot, NodePath, NodeProperty
 from ally.core.spec.resources import Node, Path, ConverterPath, IAssembler, \
     IResourcesRegister, IResourcesLocator, PathExtended, InvokerInfo, Invoker
 from ally.support.core.util_resources import pushMatch
-from collections import deque
+from collections import deque, Iterable
 import logging
 from inspect import currentframe
 
@@ -92,15 +92,13 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
 
                 for inp in call.inputs:
                     assert isinstance(inp, Input), 'Invalid input %s' % inp
-                    try: model = inp.type.model
-                    except AttributeError: pass
-                    else:
-                        unknown = set(model.hints.keys()).difference(self._hintsModel.keys())
+                    if isinstance(inp.type, (TypeModel, TypeModelProperty)):
+                        unknown = set(inp.type.container.hints.keys()).difference(self._hintsModel.keys())
 
                         assert not unknown, \
-                        'Allowed model hints are:\n\t%s\nInvalid call hints %r at:\nFile "%s", line %i, in %s' % \
-                        (('\n\t'.join('"%s": %s' % item for item in self._hintsModel.items()), ', '.join(unknown))
-                         + location)
+                        'Allowed model hints are:\n\t%s\nInvalid model hints %r at for %s:\nFile "%s", line %i, in %s' % \
+                        (('\n\t'.join('"%s": %s' % item for item in self._hintsModel.items()), ', '.join(unknown),
+                          inp.type) + location)
 
             invokers.append(InvokerCall(implementation, call))
         for asm in self.assemblers:
@@ -118,7 +116,10 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
         @see: IResourcesLocator.findPath
         '''
         assert isinstance(converterPath, ConverterPath), 'Invalid converter path %s' % converterPath
-        assert isinstance(paths, list), 'Invalid paths %s' % paths
+        if not isinstance(paths, deque):
+            assert isinstance(paths, Iterable), 'Invalid iterable paths %s' % paths
+            paths = deque(paths)
+        assert isinstance(paths, deque), 'Invalid paths %s' % paths
 
         if len(paths) == 0: return Path(self, [], self._root)
 
@@ -127,7 +128,7 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
         found = pushMatch(matches, node.tryMatch(converterPath, paths))
         while found and len(paths) > 0:
             found = False
-            for child in node.childrens():
+            for child in node.children:
                 assert isinstance(child, Node)
                 match = child.tryMatch(converterPath, paths)
                 if pushMatch(matches, match):
@@ -161,7 +162,7 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
         assert isinstance(fromPath, Path), 'Invalid from path %s' % fromPath
         assert isinstance(fromPath.node, Node), 'Invalid from path Node %s' % fromPath.node
         paths = []
-        for child in fromPath.node.childrens():
+        for child in fromPath.node.children:
             assert isinstance(child, Node)
             if isinstance(child, NodePath):
                 matches = []
@@ -191,7 +192,7 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
                 added = True
 
             if node.name == modelType.container.name:
-                for nodeId in node.childrens():
+                for nodeId in node.children:
                     if isinstance(nodeId, NodeProperty):
                         assert isinstance(nodeId, NodeProperty)
                         if nodeId.get is None: continue
@@ -207,7 +208,7 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
                             pushMatch(matches, nodeId.newMatch())
                             return PathExtended(fromPath, matches, nodeId, index)
 
-        for child in node.childrens():
+        for child in node.children:
             if child == exclude: continue
             path = self._findGetModel(modelType, fromPath, child, index, False, matchNodes)
             if path: return path
