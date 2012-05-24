@@ -1,6 +1,6 @@
 define([ 
    'providers/enabled',
-   'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable', 'jqueryui/texteditor',
+   'jquery', 'jquery/splitter', 'jquery/rest', 'jquery/avatar', 'jqueryui/droppable', 'jqueryui/texteditor',
    'tmpl!livedesk>layouts/livedesk', 
    'tmpl!livedesk>layouts/blog', 
    'tmpl!livedesk>edit', 
@@ -73,7 +73,7 @@ function(providers, $)
             .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
             .done(function(posts)
             {
-                var posts = this.extractListData(posts);
+                var posts = $.avatar.parse(this.extractListData(posts));
                 if(!posts) return; 
                 for(var i=0; i<posts.length; i++)
                     latestPost = Math.max(latestPost, parseInt(posts[i].CId));
@@ -152,7 +152,7 @@ function(providers, $)
             .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
             .done(function(posts)
             {
-                var posts = this.extractListData(posts);
+                var posts = $.avatar.parse(this.extractListData(posts));
                 $('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
                 {
                     // bind update event for new results notification button
