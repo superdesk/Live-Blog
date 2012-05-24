@@ -114,17 +114,18 @@ def getBlogsIds():
 
 
 USERS = {
-         'Adam': ('Adam', None),
-         'Antoine': ('Antoine', None),
-         'Bertrand': ('Bertrand', None),
-         'David': ('David', None),
-         'Doug': ('Doug', None),
-         'Gabriel': ('Gabriel', None),
-         'Gideon': ('Gideon', None),
-         'Guest': ('Guest', None),
-         'Mihai': ('Mihai', None),
-         'Mugur': ('Mugur', None),
-         'Sava': ('Sava', None),
+         'Adam': ('Adam', None, 'adam.thomas@sourcefabric.org'),
+         'Antoine': ('Antoine', None, 'alaurent@globaleditorsnetwork.org'),
+         'Bertrand': ('Bertrand', None, 'bpecquerie@globaleditorsnetwork.org'),
+		 'Billy': ('Mihai', 'Balaceanu', 'mihai.balaceanu@sourcefabric.org'),
+         'David': ('David', None, 'david.bauer@tageswoche.ch'),
+         'Doug': ('Doug', None, 'douglas.arellanes@sourcefabric.org'),
+         'Gabriel': ('Gabriel', None, 'gabriel.nistor@sourcefabric.org'),
+         'Gideon': ('Gideon', None, 'gideon.lehmann@sourcefabric.org'),
+         'Guest': ('Guest', None, ''),
+         'Mihai': ('Mihai', 'Nistor', 'mihai.nistor@sourcefabric.org'),
+         'Mugur': ('Mugur', None, 'mugur.rus@sourcefabric.org'),
+         'Sava': ('Sava', None, 'sava.tatic@sourcefabric.org'),
        }
 
 _cache_users = {}
@@ -139,7 +140,7 @@ def getUsersIds():
             else:
                 usr = User()
                 usr.Name = name
-                usr.FirstName, usr.LastName = USERS[name]
+                usr.FirstName, usr.LastName, usr.EMail = USERS[name]
                 users[name] = userService.insert(usr)
     return _cache_users
 
@@ -187,6 +188,7 @@ BLOG_COLLABORATORS = {
                        'Guest': 'Demo live blog',
                        'Mugur': 'Demo live blog',
                        'Sava': 'Demo live blog',
+					   'Mihai': 'Demo live blog',
                       }
 
 def createBlogCollaborators():
@@ -241,6 +243,7 @@ def createPostType(key):
 
 
 POSTS = [
+		 ('Demo live blog', 'normal', 'Mihai', 'Mihai', '<b>START</b> your sourcefabrics!!!'),
          ('Demo live blog', 'normal', 'Sava', 'Sava', 'We want a new live blogging tool!'),
          ('Demo live blog', 'normal', 'Mugur', 'Mugur', 'It cannot be done!'),
          ('Demo live blog', 'normal', 'Doug', 'Doug', 'I heard they have a beta version...'),
