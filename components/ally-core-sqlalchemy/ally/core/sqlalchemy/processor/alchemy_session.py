@@ -9,20 +9,20 @@ Created on Jan 5, 2012
 Provides support for SQL alchemy a processor for automatic session handling.
 '''
 
-from ally.core.spec.server import Processor, Response, ProcessorsChain
+from ally.core.spec.server import IProcessor, Response, ProcessorsChain
 from ally.support.sqlalchemy.session import rollback, commit, ATTR_KEEP_ALIVE, \
     endSessions
 
 # --------------------------------------------------------------------
 
-class AlchemySessionHandler(Processor):
+class AlchemySessionHandler(IProcessor):
     '''
     Implementation for a processor that provides the SQLAlchemy session handling.
     '''
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain

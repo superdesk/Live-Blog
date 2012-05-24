@@ -38,7 +38,7 @@ class Blog(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Blog)
 class QBlog(Entity):
     '''
     Provides the query for active blog model.

@@ -17,7 +17,7 @@ from ally.core.http.impl.processor.decoder_multipart import \
     DecodingMultiPartHandler
 from ally.core.http.impl.url_encoded import parseStr
 from ally.core.impl.processor.decoder_text import DecodingTextHandler
-from ally.core.spec.server import Processor
+from ally.core.spec.server import IProcessor
 from ally.core.http.impl.processor.decoder_formdata import DecodingFormDataHandler
 
 # --------------------------------------------------------------------
@@ -41,7 +41,7 @@ def decoderTextUrlencoded():
     return decodeUrlencoded
 
 @ioc.entity
-def decodingUrlencoded() -> Processor:
+def decodingUrlencoded() -> IProcessor:
     b = DecodingTextHandler(); yield b
     b.normalizer = contentNormalizer()
     b.decoder = decoderTextUrlencoded()
@@ -55,7 +55,7 @@ def decodingFormData():
     return b
 
 @ioc.entity
-def decodingMultipart() -> Processor:
+def decodingMultipart() -> IProcessor:
     b = DecodingMultiPartHandler()
     return b
 

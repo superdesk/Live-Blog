@@ -12,12 +12,12 @@ Provides the special types like @see: TypeLocale based from the request/response
 from ally.api.type import Input, List, TypeLocale, TypeScheme
 from ally.container.ioc import injected
 from ally.core.spec.resources import Invoker
-from ally.core.spec.server import Processor, ProcessorsChain, Request, Response
+from ally.core.spec.server import IProcessor, ProcessorsChain, Request, Response
 
 # --------------------------------------------------------------------
 
 @injected
-class RequestTypesHandler(Processor):
+class RequestTypesHandler(IProcessor):
     '''
     Implementation for a processor that provides the special request type arguments like @see: TypeLocale.
     
@@ -30,7 +30,7 @@ class RequestTypesHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert isinstance(req, Request), 'Invalid request %s' % req

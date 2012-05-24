@@ -14,7 +14,7 @@ from ally.api.type import Type, Percentage, Number, Date, DateTime, Time, Boolea
 from ally.container.ioc import injected
 from ally.core.spec.codes import INVALID_FORMATING
 from ally.core.spec.resources import Converter
-from ally.core.spec.server import Processor, ProcessorsChain, Request, Response, \
+from ally.core.spec.server import IProcessor, ProcessorsChain, Request, Response, \
     Content
 from ally.exception import DevelError
 from babel import numbers as bn, dates as bd
@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class BabelConverterHandler(Processor):
+class BabelConverterHandler(IProcessor):
     '''
     Implementation based on Babel for a processor that provides the converters based on language and object formating 
     for the response content and request content.
@@ -68,7 +68,7 @@ class BabelConverterHandler(Processor):
 
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert isinstance(req, Request), 'Invalid request %s' % req
@@ -144,6 +144,7 @@ class ConverterBabel(Converter):
     '''
     Converter implementation based on Babel.
     '''
+    __slots__ = ('locale', 'formats')
 
     def __init__(self, locale, formats):
         assert isinstance(locale, Locale), 'Invalid locale %s' % locale

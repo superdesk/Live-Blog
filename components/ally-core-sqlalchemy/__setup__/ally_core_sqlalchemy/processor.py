@@ -11,14 +11,14 @@ Provides the configurations for the processors used in handling the request.
 
 from ..ally_core.processor import handlersResources, invokingHandler, handlersRedirect
 from ally.container import ioc
-from ally.core.spec.server import Processor
+from ally.core.spec.server import IProcessor
 from ally.core.sqlalchemy.processor.alchemy_session import AlchemySessionHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the sql alchemy session
 
 @ioc.entity
-def alchemySessionHandler() -> Processor: return AlchemySessionHandler()
+def alchemySessionHandler() -> IProcessor: return AlchemySessionHandler()
 
 # --------------------------------------------------------------------
 

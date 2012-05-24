@@ -13,14 +13,14 @@ from .header import HeaderHTTPBase, VALUE_NO_PARSE
 from ally.api.type import formattedType
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE
-from ally.core.spec.server import Processor, ProcessorsChain, Response, \
+from ally.core.spec.server import IProcessor, ProcessorsChain, Response, \
     ContentRequest
 from ally.exception import DevelError
 
 # --------------------------------------------------------------------
 
 @injected
-class FormattingProviderHandler(HeaderHTTPBase, Processor, EncoderHeader):
+class FormattingProviderHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
     '''
     Provides the reading from the header of the formating (object format) used in the response, the decoding 
     of HTTP request header 'X-Format-*' and 'X-FormatContent-*'. Also provides the encoding in the response

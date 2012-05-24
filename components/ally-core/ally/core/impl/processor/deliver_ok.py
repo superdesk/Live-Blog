@@ -12,12 +12,12 @@ method for instance where we just want to deliver some response headers.
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import RESOURCE_FOUND
-from ally.core.spec.server import Processor, Request, Response, ProcessorsChain
+from ally.core.spec.server import IProcessor, Request, Response, ProcessorsChain
 
 # --------------------------------------------------------------------
 
 @injected
-class DeliverOkHandler(Processor):
+class DeliverOkHandler(IProcessor):
     '''
     Handler that just sends an ok status.
     
@@ -27,15 +27,15 @@ class DeliverOkHandler(Processor):
     Requires on request: headers
     Requires on response: NA
     '''
-    
+
     forMethod = int
-    
+
     def __init__(self):
         assert isinstance(self.forMethod, int), 'Invalid for method %s' % self.forMethod
-    
+
     def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        @see: IProcessor.process
         '''
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
