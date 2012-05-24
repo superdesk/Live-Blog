@@ -107,7 +107,7 @@ function(providers, $)
             .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
             .done(function(posts)
             {
-                var posts = this.extractListData(posts);
+                var posts = $.avatar.parse(this.extractListData(posts));
                 if(!posts) return; 
                 for(var i=0; i<posts.length; i++)
                     latestPost = Math.max(latestPost, parseInt(posts[i].CId));
@@ -188,7 +188,7 @@ function(providers, $)
             .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
             .done(function(posts)
             {
-                var posts = this.extractListData(posts);
+                var posts = $.avatar.parse(this.extractListData(posts));
                 $('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
                 {
                     // bind update event for new results notification button
