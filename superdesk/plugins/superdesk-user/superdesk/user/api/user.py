@@ -24,7 +24,7 @@ class User(Person):
 
 # --------------------------------------------------------------------
 
-@query
+@query(User)
 class QUser(QPerson):
     '''
     Query for user service

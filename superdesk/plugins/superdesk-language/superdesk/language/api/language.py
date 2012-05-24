@@ -40,7 +40,7 @@ class LanguageEntity(Entity, Language):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Language)
 class QLanguage:
     '''
     Provides the language query model.
