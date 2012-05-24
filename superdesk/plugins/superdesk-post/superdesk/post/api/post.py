@@ -43,7 +43,7 @@ class Post(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Post)
 class QPostUnpublished(QEntity):
     '''
     Provides the post message query.
@@ -53,12 +53,19 @@ class QPostUnpublished(QEntity):
     updatedOn = AsDateTimeOrdered
     deletedOn = AsDateTimeOrdered
 
-@query
-class QPost(QPostUnpublished):
+@query(Post)
+class QPostPublished(QPostUnpublished):
     '''
     Provides the post message query.
     '''
     publishedOn = AsDateTimeOrdered
+
+@query(Post)
+class QPost(QPostPublished):
+    '''
+    Provides the post message query.
+    '''
+    deletedOn = AsDateTimeOrdered
 
 # --------------------------------------------------------------------
 
