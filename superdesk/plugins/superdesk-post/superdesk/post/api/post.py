@@ -41,7 +41,7 @@ class Post(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Post)
 class QPostUnpublished(QEntity):
     '''
     Provides the post message query.
@@ -50,14 +50,14 @@ class QPostUnpublished(QEntity):
     isModified = AsBoolean
     updatedOn = AsDateTimeOrdered
 
-@query
+@query(Post)
 class QPostPublished(QPostUnpublished):
     '''
     Provides the post message query.
     '''
     publishedOn = AsDateTimeOrdered
 
-@query
+@query(Post)
 class QPost(QPostPublished):
     '''
     Provides the post message query.

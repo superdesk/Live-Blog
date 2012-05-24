@@ -31,14 +31,14 @@ class BlogPost(Post):
 
 # --------------------------------------------------------------------
 
-@query
+@query(BlogPost)
 class QBlogPostUnpublished(QPostUnpublished):
     '''
     Provides the blog post message query.
     '''
     cId = AsRangeOrdered
 
-@query
+@query(BlogPost)
 class QBlogPostPublished(QPostPublished):
     '''
     Provides the blog post message query.
