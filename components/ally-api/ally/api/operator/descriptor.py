@@ -219,6 +219,20 @@ class CriteriaEntry:
                 assert log.debug('Created criteria object for %s', self) or True
             return objCrit
 
+    def __contained__(self, obj):
+        '''
+        Checks if the entry is contained in the provided object. This is an artifact from the __contains__ method 
+        that is found on the actual model object.
+        
+        @param obj: object
+            The object to check if the entry is contained in.
+        @return: boolean
+            True if the entry is contained in the object, false otherwise.
+        '''
+        assert isinstance(obj, QuerySupport), 'Invalid container object %s' % obj
+        assert self._ally_type.parent.isValid(obj), 'Invalid query object %s, expected %s' % (obj, self._ally_type.parent)
+        return self._ally_type.name in obj._ally_values
+
     def __set__(self, obj, value):
         '''
         Set the value on the main criteria property, if the represented criteria doe not expose a main property that this
@@ -311,7 +325,7 @@ class ContainerSupport(metaclass=ABCMeta):
         if typ.parent.isValid(self):
             descriptor, _clazz = getAttrAndClass(self.__class__, typ.property)
             contained = getattr(descriptor, '__contained__', None)
-            if contained: return contained(self)
+            if contained is not None: return contained(self)
         return False
 
     def __repr__(self):
@@ -395,7 +409,10 @@ class QuerySupport(metaclass=ABCMeta):
         typ = typeFor(ref)
         if isinstance(typ, TypeCriteriaEntry):
             assert isinstance(typ, TypeCriteriaEntry)
-            return typ.parent.isValid(self) and typ.name in self._ally_values
+            if typ.parent.isValid(self):
+                descriptor, _clazz = getAttrAndClass(self.__class__, typ.name)
+                contained = getattr(descriptor, '__contained__', None)
+                if contained is not None: return contained(self)
         elif isinstance(typ, TypeProperty):
             # We do not need to make any recursive checking here since the criteria will only contain primitive properties
             # so there will not be the case of AQuery.ACriteria.AModel.AProperty the maximum is AQuery.ACriteria.AProperty
@@ -403,10 +420,12 @@ class QuerySupport(metaclass=ABCMeta):
             except AttributeError: pass
             else:
                 if isinstance(typCrt, TypeCriteriaEntry):
-                    assert isinstance(typCrt, TypeCriteriaEntry)
                     if typCrt.parent.isValid(self):
-                        obj = self._ally_values.get(typCrt.name)
-                        if obj is not None: return typ in obj
+                        descriptor, _clazz = getAttrAndClass(self.__class__, typCrt.name)
+                        contained = getattr(descriptor, '__contained__', None)
+                        if contained is not None and contained(self):
+                            get = getattr(descriptor, '__get__', None)
+                            if get is not None: return typ in get(self)
         return False
 
     def __repr__(self):

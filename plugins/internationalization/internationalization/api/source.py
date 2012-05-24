@@ -37,7 +37,7 @@ class Source(File):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Source)
 class QSource(QFile):
     '''
     Provides the query for the source.

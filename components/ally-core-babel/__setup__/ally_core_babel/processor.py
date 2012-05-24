@@ -12,13 +12,13 @@ Provides the configurations for the processors used in handling the request.
 from ..ally_core.processor import converter, default_language
 from ally.container import ioc
 from ally.core.babel.processor.converter import BabelConverterHandler
-from ally.core.spec.server import Processor
+from ally.core.spec.server import IProcessor
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
 
 @ioc.replace(converter)
-def converterBabel() -> Processor:
+def converterBabel() -> IProcessor:
     from babel import localedata, core
     #TODO: check if is still a problem in the new Babel version
     # Babel FIX: We need to adjust the dir name for locales since they need to be outside the .egg file

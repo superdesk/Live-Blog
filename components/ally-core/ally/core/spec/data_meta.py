@@ -11,7 +11,7 @@ Provides the data meta support.
 
 from ally.api.type import Type
 from ally.core.spec.resources import Path
-from ally.api.operator.type import TypeModelProperty, TypeModel
+from ally.api.operator.type import TypeModel
 from ally.support.core.util_resources import pathLongName
 
 # --------------------------------------------------------------------
@@ -164,7 +164,7 @@ class MetaPath(MetaLink):
             A callable that takes as an argument the object to extract the value for the path.
         '''
         assert isinstance(path, Path), 'Invalid path %s' % path
-        assert isinstance(type, (TypeModelProperty, TypeModel)), 'Invalid type %s' % type
+        assert type is not None, 'A type is required'
         assert callable(getValue), 'Invalid get value callable %s' % getValue
         self.type = type
         self.path = path

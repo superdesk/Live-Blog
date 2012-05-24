@@ -20,7 +20,7 @@ from ally.core.http.impl.processor.header import HeaderStandardHandler
 from ally.core.http.impl.processor.meta_filter import MetaFilterHandler
 from ally.core.http.impl.processor.method_override import MethodOverrideHandler
 from ally.core.http.impl.processor.uri import URIHandler
-from ally.core.spec.server import Processor, Processors
+from ally.core.spec.server import IProcessor, Processors
 import re
 
 # --------------------------------------------------------------------
@@ -42,26 +42,26 @@ def allow_method_override():
 # --------------------------------------------------------------------
 
 @ioc.entity
-def methodOverride() -> Processor:
+def methodOverride() -> IProcessor:
     b = MethodOverrideHandler()
     b.readFromParams = read_from_params()
     return b
 
 @ioc.entity
-def uri() -> Processor:
+def uri() -> IProcessor:
     b = URIHandler()
     b.resourcesLocator = resourcesLocator()
     b.converterPath = converterPath()
     return b
 
 @ioc.entity
-def headerStandard() -> Processor:
+def headerStandard() -> IProcessor:
     b = HeaderStandardHandler()
     b.readFromParams = read_from_params()
     return b
 
 @ioc.entity
-def metaFilter() -> Processor:
+def metaFilter() -> IProcessor:
     b = MetaFilterHandler()
     b.normalizer = contentNormalizer()
     b.fetching = Processors(*handlersFetching())
@@ -69,7 +69,7 @@ def metaFilter() -> Processor:
     return b
 
 @ioc.entity
-def formattingProvider() -> Processor:
+def formattingProvider() -> IProcessor:
     b = FormattingProviderHandler()
     b.readFromParams = read_from_params()
     return b
