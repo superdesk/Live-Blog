@@ -422,7 +422,10 @@ define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
 		 */
 		update: function(data, url)
 		{
-		    this.lastAdded.request && $.extend(this.lastAdded.request.headers, {'X-HTTP-Method-Override': 'PUT'});
+		    if( this.lastAdded.request )
+		        $.extend(this.lastAdded.request.headers, {'X-HTTP-Method-Override': 'PUT'});
+		    else
+		        this.lastAdded.request = {headers: {'X-HTTP-Method-Override': 'PUT'}};
 			this.request({type: 'post', headers: this.lastAdded.request.headers, data: data});
 			return this.doRequest(url ? url : getUrl.apply(this));
 		},
@@ -439,7 +442,10 @@ define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
 		 */
 		delete: function(data, url)
 		{
-		    this.lastAdded.request && $.extend(this.lastAdded.request.headers, {'X-HTTP-Method-Override': 'DELETE'});
+		    if( this.lastAdded.request )
+		        $.extend(this.lastAdded.request.headers, {'X-HTTP-Method-Override': 'DELETE'});
+		    else
+		        this.lastAdded.request = {headers: {'X-HTTP-Method-Override': 'DELETE'}};
 			this.request({type: 'post', headers: this.lastAdded.request.headers, data: data});
 			return this.doRequest(url ? url : getUrl.apply(this));
 		},
