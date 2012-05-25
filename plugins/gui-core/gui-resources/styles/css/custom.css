@@ -577,9 +577,7 @@ section.main-section {
 	box-shadow: inset -4px 0 8px rgba(0, 0, 0, .1);
 	border:none;
 }
-.tabs-left.side-tabs .nav-tabs > li:first-child {
-	margin-top:54px;
-}
+
 .tabs-left.side-tabs .nav-tabs > li > a {
 	width:60px;
 	min-width:60px;
@@ -599,6 +597,10 @@ section.main-section {
 .tabs-left.side-tabs .nav-tabs > li.active > a:hover {
 	background-color: #fff;
 	border-color:#7c7c7c;
+}
+.tabs-left.side-tabs .nav-tabs > li:first-child > a{
+        margin-top: 0px;
+        border-top-width: 0px ! important;
 }
 .add-source {
 	position:absolute;
@@ -864,7 +866,7 @@ section.main-section {
                     padding: 5px 8px 8px;
                     position:relative;
                 }
-                .search-result-list > li {
+                .search-result-list > li, li.ui-draggable-dragging {
                     overflow:hidden;
                     background: #FFFFFF;
                     border: 1px solid #ebebeb;
@@ -874,10 +876,14 @@ section.main-section {
                     padding: 5px 8px 8px;
                     position:relative;
                 }
+                
+                li.ui-draggable-dragging {
+                    max-width: 500px;
+                }
                 .search-result-list > li:hover, .post-list > li:hover {
                     border-color: #c0c0c0;
                 }
-                .search-result-list > li > figure, .post-list > li > figure {
+                .search-result-list > li > figure, .post-list > li > figure, .ui-draggable-dragging > figure {
                     float: left;
                     width: 38px;
                     height: 38px;
@@ -885,7 +891,7 @@ section.main-section {
                     padding:1px;
                     border:1px solid #e9e9e9;
                 }
-                .search-result-list > li > figure > img, .post-list > li > figure > img  {
+                .search-result-list > li > figure > img, .post-list > li > figure > img, .ui-draggable-dragging > figure > img  {
                     width: 36px;
                     height: 36px;
                     border:1px solid #e9e9e9;
