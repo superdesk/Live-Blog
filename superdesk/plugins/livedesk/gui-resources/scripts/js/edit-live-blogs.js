@@ -136,6 +136,7 @@ define([
             init: function(theBlog)
             {
                 this.blogHref = theBlog;
+                blogHref = theBlog;
             },
             update: function(){
                 clearInterval(updateInterval);
