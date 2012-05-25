@@ -1,14 +1,14 @@
-define([ 
-   'providers/enabled',
-   'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable', 
-   'jqueryui/texteditor', 'jquery/utils', 'jquery/avatar',
-   'tmpl!livedesk>layouts/livedesk', 
-   'tmpl!livedesk>layouts/blog', 
-   'tmpl!livedesk>edit', 
-   'tmpl!livedesk>edit-timeline'],
-function(providers, $) 
-{
-    var config = { updateInterval: 15 },
+define([
+    'providers/enabled',
+    'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
+    'jqueryui/texteditor', 'jquery/utils', 'jquery/avatar',
+    'tmpl!livedesk>layouts/livedesk',
+    'tmpl!livedesk>layouts/blog',
+    'tmpl!livedesk>edit',
+    'tmpl!livedesk>edit-timeline'],
+    function(providers, $)
+    {
+        var config = { updateInterval: 5 },
         latestPost = 0,
         providers = $.arrayValues(providers), 
         content = null,
@@ -128,100 +128,109 @@ function(providers, $)
                 callback && callback.apply(this);
             });
         };
-    
-    var EditApp = function(theBlog)
-    {
-        blogHref = theBlog;
-        
-        new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
-        { 
-            var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
-                content = $.superdesk.applyLayout('livedesk>edit', data, function()
-                { 
-                    initEditBlog.call(this, theBlog); 
-                    require(['//platform.twitter.com/widgets.js']);
-                });
-            
-            $('.live-blog-content').droppable({
-                drop: function( event, ui ) {
 
-                    var data = ui.draggable.data('data');
-                    var post = ui.draggable.data('post');
-                    if(data !== undefined) {
-                        new $.restAuth(theBlog + '/Post/Published').resetData().insert(data);
-                    } else if(post !== undefined){
-                        new $.restAuth(theBlog + '/Post/'+post+'/Publish').resetData().insert();
-                    }
-                    // stupid bug in jqueryui you can make draggable desstroy
-                    setTimeout(function(){
-                    				$(ui.draggable).addClass('published').draggable("destroy");
-                    },1);
-                    // stop update interval -> update -> restart
-                    clearInterval(updateInterval);
-                    update(true, function(){ updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000); });
-                },
-                activeClass: 'ui-droppable-highlight'
-            });
-            $('#put-live').on('show', function(){
-                console.log('show');
-            }).on('shown', function(){
-                console.log('shown');
-            });
-            $("#MySplitter").splitter({
-                type: "v",
-                outline: true,
-                sizeLeft: 470,
-                minLeft: 470,
-                minRight: 600,
-                resizeToWidth: true,
-                //dock: "left",
-                dockSpeed: 100,
-                cookie: "docksplitter",
-                dockKey: 'Z',   // Alt-Shift-Z in FF/IE
-                accessKey: 'I'  // Alt-Shift-I in FF/IE
-            });
-
-            $('.collapse-title-page', content).off('click.livedesk')
-            .on('click.livedesk', function()
+        var EditApp = function(theBlog) {
+            this.init(theBlog);
+        };
+        EditApp.prototype = {
+            init: function(theBlog)
             {
-                var intro = $('article#blog-intro', content);
-                !intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
-                intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
-            });
-            
-            postHref = blogData.PostPublished.href;
-            this.get('PostPublished')
-            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
-            .done(function(posts)
-            {
-                var posts = $.avatar.parse(this.extractListData(posts));
-                $('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
-                {
-                    // bind update event for new results notification button
-                    $('#timeline-view .new-results', content)
-                    .off('update.livedesk')
-                    .on('update.livedesk', function(e, count, callback, autoUpdate)
-                    {
-                        var self = $(this);
-                        !autoUpdate && self.removeClass('hide').one('click.livedesk', function()
-                        {
-                            self.addClass('hide'); 
-                            callback.apply(self);
-                        }).find('span').text(count);
-                        autoUpdate && callback.apply(self);
-                        
-                    });
-                });
-                
-                for(var i=0; i<posts.length; i++)
-                    latestPost = Math.max(latestPost, parseInt(posts[i].CId));
-                
+                this.blogHref = theBlog;
+            },
+            update: function(){
                 clearInterval(updateInterval);
-                updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000);
-                
-            });
-        });
-        
-    };
-    return EditApp;
+                update(true, function(){ updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000); });
+            },
+            render: function()
+            {
+                var self = this;
+                new $.restAuth(this.blogHref).xfilter('Creator.Name, Creator.Id').done(function(blogData)
+                {
+                    var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
+                        content = $.superdesk.applyLayout('livedesk>edit', data, function(){
+                            initEditBlog.call(this, self.blogHref);
+                            require(['//platform.twitter.com/widgets.js']);
+                        });
+                    $('.live-blog-content').droppable({
+                        drop: function( event, ui ) {
+
+                            var data = ui.draggable.data('data');
+                            var post = ui.draggable.data('post');
+                            if(data !== undefined) {
+                                new $.restAuth(self.blogHref + '/Post/Published').resetData().insert(data);
+                            } else if(post !== undefined){
+                                new $.restAuth(self.blogHref + '/Post/'+post+'/Publish').resetData().insert();
+                            }
+                            // stupid bug in jqueryui you can make draggable desstroy
+                            setTimeout(function(){
+                                $(ui.draggable).addClass('published').draggable("destroy");
+                            },1);
+                            // stop update interval -> update -> restart
+                            self.update();
+                        },
+                        activeClass: 'ui-droppable-highlight'
+                    });
+                    $('#put-live').on('show', function(){
+                        console.log('show');
+                    }).on('shown', function(){
+                            console.log('shown');
+                        });
+                    $("#MySplitter").splitter({
+                        type: "v",
+                        outline: true,
+                        sizeLeft: 470,
+                        minLeft: 470,
+                        minRight: 600,
+                        resizeToWidth: true,
+                        //dock: "left",
+                        dockSpeed: 100,
+                        cookie: "docksplitter",
+                        dockKey: 'Z',   // Alt-Shift-Z in FF/IE
+                        accessKey: 'I'  // Alt-Shift-I in FF/IE
+                    });
+
+                    $('.collapse-title-page', content).off('click.livedesk')
+                        .on('click.livedesk', function()
+                        {
+                            var intro = $('article#blog-intro', content);
+                            !intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
+                            intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
+                        });
+
+                    postHref = blogData.PostPublished.href;
+                    this.get('PostPublished')
+                        .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
+                        .done(function(posts)
+                        {
+                            var posts = $.avatar.parse(this.extractListData(posts));
+                            $('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
+                            {
+                                // bind update event for new results notification button
+                                $('#timeline-view .new-results', content)
+                                    .off('update.livedesk')
+                                    .on('update.livedesk', function(e, count, callback, autoUpdate)
+                                    {
+                                        var self = $(this);
+                                        !autoUpdate && self.removeClass('hide').one('click.livedesk', function()
+                                        {
+                                            self.addClass('hide');
+                                            callback.apply(self);
+                                        }).find('span').text(count);
+                                        autoUpdate && callback.apply(self);
+
+                                    });
+                            });
+
+                            for(var i=0; i<posts.length; i++)
+                                latestPost = Math.max(latestPost, parseInt(posts[i].CId));
+
+                            clearInterval(updateInterval);
+                            updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000);
+
+                        });
+                });
+            }
+
+        };
+        return EditApp;
 });
