@@ -1,13 +1,14 @@
 define([ 
    'providers/enabled',
-   'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable', 'jqueryui/texteditor', 'jquery/utils',
+   'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable', 
+   'jqueryui/texteditor', 'jquery/utils', 'jquery/avatar',
    'tmpl!livedesk>layouts/livedesk', 
    'tmpl!livedesk>layouts/blog', 
    'tmpl!livedesk>edit', 
    'tmpl!livedesk>edit-timeline'],
 function(providers, $) 
 {
-    var config = { updateInterval: 30 },
+    var config = { updateInterval: 15 },
         latestPost = 0,
         providers = $.arrayValues(providers), 
         content = null,
@@ -135,7 +136,12 @@ function(providers, $)
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
         { 
             var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
-                content = $.superdesk.applyLayout('livedesk>edit', data, function(){ initEditBlog.call(this, theBlog); });
+                content = $.superdesk.applyLayout('livedesk>edit', data, function()
+                { 
+                    initEditBlog.call(this, theBlog); 
+                    require(['//platform.twitter.com/widgets.js']);
+                });
+            
             $('.live-blog-content').droppable({
                 drop: function( event, ui ) {
 

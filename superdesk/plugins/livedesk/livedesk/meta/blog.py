@@ -36,6 +36,7 @@ class BlogMapped(Base, Blog):
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id), nullable=False)
     Title = Column('title', String(255), nullable=False)
     Description = Column('description', Text)
+    OutputLink = Column('output_link', Text)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     LiveOn = Column('live_on', DateTime)
     ClosedOn = Column('closed_on', DateTime)

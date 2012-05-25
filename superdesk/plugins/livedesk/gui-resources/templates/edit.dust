@@ -19,17 +19,9 @@
     </section>
     <section class="blog-section">
     	<div class="tool-box-top">
-            <a href="#"><i class="icon-share-alt"></i> Share</a>
-            <!--div class="dropdown dropdown-simple pull-right">
-                <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="icon-cog"></i><b class="caret"></b></a>
-                <ul class="dropdown-menu bottom-up pull-right">
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li><a href="#">Separated link</a></li>
-              </ul>
-            </div-->
+            <!--a><i class="icon-share-alt"></i> Share</a-->
+			<a href="https://twitter.com/share" class="twitter-share-button" 
+				data-count="horizontal" data-url="{OutputLink}" data-text="{Title|t}">Tweet</a>
             <div class="pull-right update-success hide">
     			_("Blog information updated!")
     		</div>
