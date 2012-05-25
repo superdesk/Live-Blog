@@ -30,6 +30,7 @@ class Blog(Entity):
     Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
     Title = str
     Description = str
+    OutputLink = str
     CreatedOn = datetime
     LiveOn = datetime
     LastUpdatedOn = datetime
