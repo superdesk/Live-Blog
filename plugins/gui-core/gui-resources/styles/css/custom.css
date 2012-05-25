@@ -577,9 +577,7 @@ section.main-section {
 	box-shadow: inset -4px 0 8px rgba(0, 0, 0, .1);
 	border:none;
 }
-.tabs-left.side-tabs .nav-tabs > li:first-child {
-	margin-top:54px;
-}
+
 .tabs-left.side-tabs .nav-tabs > li > a {
 	width:60px;
 	min-width:60px;
@@ -599,6 +597,10 @@ section.main-section {
 .tabs-left.side-tabs .nav-tabs > li.active > a:hover {
 	background-color: #fff;
 	border-color:#7c7c7c;
+}
+.tabs-left.side-tabs .nav-tabs > li:first-child > a{
+        margin-top: 0px;
+        border-top-width: 0px ! important;
 }
 .add-source {
 	position:absolute;
