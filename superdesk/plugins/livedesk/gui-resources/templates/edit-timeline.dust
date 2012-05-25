@@ -39,7 +39,7 @@
 						<!-- google or smth else -->
 					{/Author}
 				</h3>
-				<p class="result-text">
+				<p class="result-text {?Author.Person}editable{/Author.Person}">
 					{Content|s}
 				</p>
 				<p class="attributes">
