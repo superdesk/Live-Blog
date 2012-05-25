@@ -124,7 +124,9 @@ function(providers, $)
                         .done(function(published, unpublished)
                         {
                             published = this.extractListData(published[0]);
+//                            console.log(published);
                             unpublished = this.extractListData(unpublished[0]);
+//                            console.log(unpublished);
                             var postList = published.concat(unpublished);
 
                             for(var i=0; i<postList.length; i++)
