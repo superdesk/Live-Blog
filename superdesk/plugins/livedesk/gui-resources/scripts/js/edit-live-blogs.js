@@ -149,7 +149,7 @@ define([
                     var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
                         content = $.superdesk.applyLayout('livedesk>edit', data, function(){
                             initEditBlog.call(this, self.blogHref);
-                            require(['//platform.twitter.com/widgets.js']);
+                            require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
                         });
                     $('.live-blog-content').droppable({
                         drop: function( event, ui ) {
