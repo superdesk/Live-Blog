@@ -27,11 +27,11 @@ define([
             return command;
         },
         editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
+        h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
         initEditBlog = function(theBlog)
         {
             content = $(this).find('[is-content]');
-            var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
-                titleInput = content.find('section header h2'),
+            var titleInput = content.find('section header h2'),
                 descrInput = content.find('article#blog-intro'),
                 editorSaveInfo = 
                 {
@@ -121,6 +121,9 @@ define([
                     $.tmpl('livedesk>edit-timeline', {Posts: posts}, function(e, o)
                     {
                         $('#timeline-view .post-list', content).prepend($(o).find('li'));
+                        // edit posts
+                        $('#timeline-view .post-list li .editable', content)
+                            .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
                         updateItemCount -= posts.length;
                     });
                 }, autoUpdate]);
@@ -128,25 +131,6 @@ define([
                 callback && callback.apply(this);
             });
         };
-<<<<<<< HEAD
-    
-    var EditApp = function(theBlog)
-    {
-        blogHref = theBlog;
-        
-        new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(blogData)
-        { 
-            var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
-                content = $.superdesk.applyLayout('livedesk>edit', data, function()
-                { 
-                    initEditBlog.call(this, theBlog); 
-                    require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
-                });
-            
-            $('.live-blog-content').droppable({
-                drop: function( event, ui ) {
-=======
->>>>>>> 402eec0bcbf2d6f54f3a8ed8b72e9b6a8182e277
 
         var EditApp = function(theBlog) {
             this.init(theBlog);
@@ -155,6 +139,7 @@ define([
             init: function(theBlog)
             {
                 this.blogHref = theBlog;
+                blogHref = theBlog;
             },
             update: function(){
                 clearInterval(updateInterval);
@@ -168,7 +153,7 @@ define([
                     var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
                         content = $.superdesk.applyLayout('livedesk>edit', data, function(){
                             initEditBlog.call(this, self.blogHref);
-                            require(['//platform.twitter.com/widgets.js']);
+                            require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
                         });
                     $('.live-blog-content').droppable({
                         drop: function( event, ui ) {
@@ -182,7 +167,7 @@ define([
                             }
                             // stupid bug in jqueryui you can make draggable desstroy
                             setTimeout(function(){
-                                $(ui.draggable).addClass('published').draggable("destroy");
+                                $(ui.draggable).removeClass('draggable').draggable("destroy");
                             },1);
                             // stop update interval -> update -> restart
                             self.update();
@@ -224,6 +209,10 @@ define([
                             var posts = $.avatar.parse(this.extractListData(posts));
                             $('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
                             {
+                                // edit posts
+                                $('#timeline-view .post-list li .editable', content)
+                                    .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+                                
                                 // bind update event for new results notification button
                                 $('#timeline-view .new-results', content)
                                     .off('update.livedesk')

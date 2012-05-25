@@ -123,7 +123,7 @@ USERS = {
          'Gabriel': ('Gabriel', None, 'gabriel.nistor@sourcefabric.org'),
          'Gideon': ('Gideon', None, 'gideon.lehmann@sourcefabric.org'),
          'Guest': ('Guest', None, ''),
-         'Mihai': ('Mihai', 'Nistor', 'mihai.nistor@sourcefabric.org'),
+         'Mihail': ('Mihail', 'Nistor', 'mihai.nistor@sourcefabric.org'),
          'Mugur': ('Mugur', None, 'mugur.rus@sourcefabric.org'),
          'Sava': ('Sava', None, 'sava.tatic@sourcefabric.org'),
        }
@@ -154,9 +154,10 @@ COLLABORATORS = {
                  'Gabriel': 'twitter',
                  'Gideon': 'facebook',
                  'Guest': 'facebook',
-                 'Mihai': 'facebook',
+                 'Mihail': 'facebook',
                  'Mugur': 'twitter',
                  'Sava': 'facebook',
+                 'Billy': 'twitter',
 
                  'google': 'google',
                  'twitter': 'twitter',
@@ -188,7 +189,7 @@ BLOG_COLLABORATORS = {
                        'Guest': 'Demo live blog',
                        'Mugur': 'Demo live blog',
                        'Sava': 'Demo live blog',
-					   'Mihai': 'Demo live blog',
+					   'Mihail': 'Demo live blog',
                       }
 
 def createBlogCollaborators():
@@ -211,7 +212,7 @@ BLOG_ADMINS = {
                'Gabriel': 'Demo live blog',
                'Gideon': 'Demo live blog',
                'Guest': 'Demo live blog',
-               'Mihai': 'Demo live blog',
+               'Mihail': 'Demo live blog',
                'Mugur': 'Demo live blog',
                'Sava': 'Demo live blog',
                }
@@ -243,7 +244,7 @@ def createPostType(key):
 
 
 POSTS = [
-		 ('Demo live blog', 'normal', 'Mihai', 'Mihai', '<b>START</b> your sourcefabrics!!!'),
+		 ('Demo live blog', 'normal', 'Mihail', 'Mihail', '<b>START</b> your sourcefabrics!!!'),
          ('Demo live blog', 'normal', 'Sava', 'Sava', 'We want a new live blogging tool!'),
          ('Demo live blog', 'normal', 'Mugur', 'Mugur', 'It cannot be done!'),
          ('Demo live blog', 'normal', 'Doug', 'Doug', 'I heard they have a beta version...'),
@@ -254,6 +255,7 @@ POSTS = [
          ('Demo live blog', 'normal', 'Mugur', 'Mugur', 'We need at least two months to fix the bugs.'),
          ('Demo live blog', 'normal', 'Sava', 'Sava', 'I want to see it anyway. Let\'s go!'),
          ('Demo live blog', 'wrapup', 'Sava', 'google', 'Livedesk is the next generation live blogging tool.'),
+         ('Demo live blog', 'quote', 'Mihail', 'Mihail', 'Fear leads to anger, anger leads to hate, hate leads to suffering.'),
          ]
 
 def createBlogPosts():
@@ -277,6 +279,7 @@ def populate():
     getSourcesIds()
     createPostType('normal')
     createPostType('wrapup')
+    createPostType('quote')
     getBlogsIds()
     createBlogCollaborators()
     createBlogAdmins()
