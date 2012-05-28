@@ -81,15 +81,20 @@ function(providers, $)
                         {
                             $.tmpl('livedesk>providers/colabs/items', {Person: colab.Person, Posts: appendPosts}, function(e, o)
                             {
-                                $('.search-result-list', self.el).scrollTop(0).prepend(o);
-                                $('.search-result-list li', self.el).draggable
+                                $('<ul>'+ o + '</ul>').find('li').each(function(){
+                                    var postId = $(this).attr('data-post-id');
+                                    $('.search-result-list li[data-post-id="' + postId + '"]', self.el).remove();
+                                    $('.search-result-list', self.el).scrollTop(0).prepend($(this));
+                                });
+                                //$('.search-result-list', self.el).scrollTop(0).prepend(o);
+                                $('.search-result-list li.draggable', self.el).draggable
                                 ({
                                     helper: 'clone',
                                     appendTo: 'body',
                                     zIndex: 2700,
                                     start: function() 
                                     {
-                                        $(this).data('data', self.adaptor.web(this));
+                                        $(this).data('post', self.adaptor.universal(this));
                                     }
                                 });
                                 updateItemCount -= appendPosts.length;
@@ -141,7 +146,7 @@ function(providers, $)
                                     zIndex: 2700,
                                     start: function() 
                                     {
-                                        $(this).data('data', self.adaptor.web(this));
+                                        $(this).data('post', self.adaptor.universal(this));
                                     }
                                 });
                                 
