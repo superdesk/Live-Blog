@@ -30,6 +30,7 @@ class Blog(Entity):
     Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
     Title = str
     Description = str
+    OutputLink = str
     CreatedOn = datetime
     LiveOn = datetime
     LastUpdatedOn = datetime
@@ -59,7 +60,7 @@ class IBlogService(IEntityCRUDService):
     '''
 
     @call
-    def getBlog(self, blogId:Blog, userId:auth(User)=None) -> Blog:
+    def getBlog(self, blogId:Blog) -> Blog:
         '''
         Provides the blog based on the specified id, is the user is not specified the blog will be returned only if is
         in live mode.

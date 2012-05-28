@@ -230,25 +230,6 @@
   	outline: thin dotted \9; /* IE6-9 */
 }
 
-.google.ui-draggable-dragging, .collaborators.ui-draggable-dragging
-{
-	width: 500px;
-	background-color: @white;
-	border: 1px solid #EBEBEB;
-	@shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, .6);
-  	.box-shadow(@shadow);
-	list-style: none;
-	padding: 15px;
-}
-.collaborators.ui-draggable-dragging figure {
-    border: 1px solid #E9E9E9;
-    float: left;
-    height: 38px;
-    margin: 3px 0 0;
-    padding: 1px;
-    width: 38px;
-}
-
 #ggl-web-more
 {
 	margin-bottom: 10px;
@@ -263,17 +244,67 @@
 	font-family: @altFontFamily;
 	font-weight: normal;
 	color: @blue;
-	border: 1px dotted @grayLight;
 	padding: 0 10px;
-	width: 300px;
 }
 #add-live-blog article
 {
-	display: block;
 	padding: 5px 10px;
-	margin: 0 0 0 20px;
-	float: left;
-	width: 300px;
 	min-height: 100px;
-	border: 1px dotted @grayLight;
+}
+#add-live-blog h2, #add-live-blog article
+{
+	outline: 0;
+	.box-shadow(inset 0 1px 1px rgba(0,0,0,.075));
+	@transition: border linear .2s, box-shadow linear .2s;
+	.transition(@transition);
+	border: 1px solid @inputBorder;
+	.border-radius(3px);
+}
+#add-live-blog h2.focus, #add-live-blog article.focus
+{
+	border-color: rgba(82,168,236,.8);
+	@shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
+	.box-shadow(@shadow);
+	outline: 0;
+	outline: thin dotted \9; /* IE6-9 */
+}
+
+#gradient 
+{
+	.horizontal-three-colors(@startColor: #00b3ee, @midColor: #7a43b6, @colorStop: 50%, @endColor: #c3325f) 
+	{
+	    background-color: mix(@midColor, @endColor, 80%);
+	    background-image: -webkit-gradient(linear, 0 100%, 0 0, from(@startColor), color-stop(@colorStop, @midColor), to(@endColor));
+	    background-image: -webkit-linear-gradient(@startColor, @midColor @colorStop, @endColor);
+	    background-image: -moz-linear-gradient(left, @startColor, @midColor @colorStop, @endColor);
+	    background-image: -ms-linear-gradient(@startColor, @midColor @colorStop, @endColor);
+	    background-image: -o-linear-gradient(@startColor, @midColor @colorStop, @endColor);
+	    background-image: linear-gradient(@startColor, @midColor @colorStop, @endColor);
+	    background-repeat: no-repeat;
+	    filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@startColor,@endColor)); // IE9 and down, gets no color-stop at all for proper fallback
+	}
+}
+
+.blog-section .update-success, .blog-section .update-error
+{
+	.opacity(100);
+	margin: -3px 0 -5px 0;
+	padding: 0 6px 0 24px;
+	height: 32px;
+	line-height: 32px;
+}
+.blog-section .update-success
+{
+	color: @successText;
+	#gradient > .horizontal-three-colors(@white, mix(@white, @successBackground, 40%), 20%, @successBackground);
+}
+.blog-section .update-error
+{
+	color: @errorText;
+	#gradient > .horizontal-three-colors(@white, mix(@white, @errorBackground, 40%), 20%, @errorBackground);
+}
+
+#timeline-view .post-list li .editable
+{
+	cursor: text;
 }
