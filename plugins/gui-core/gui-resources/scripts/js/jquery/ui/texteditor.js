@@ -446,11 +446,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             {
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                 parent = self.editTarget;
-                                console.log(parent);
+                                //console.log(parent);
                                 parent.html($(this).find('textarea.editor-code').val());
                                 $(this).dialog('close');
                             }
-                        }
+                        },
+                        cancel: { text: 'Cancel', click: function(){ $(this).dialog('close'); } }
                             
                     }
                     this.id = 'code';
@@ -491,7 +492,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             this.plugins.toolbar.element.append(cmd.getElements());
                             cmds.push(cmd);
                         }
-                        catch(e){ /*console.exception(e);*/ }
+                        catch(e){ /* console.exception(e); */ }
                     var self = this;
                     $(elements).on('keyup.texteditor mouseup.texteditor', function()
                     {
@@ -502,6 +503,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         }
                         catch(e){ /*console.exception(e);*/ }
                     });
+                    $(elements).trigger('toolbar-created');
                 };
             },
             controls : 
@@ -558,7 +560,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                 {
                     var element = $('<a class="image" />').html('');
                     var command = new this.plugins.lib.commandFactory( new this.plugins.lib.imageCommand(this), element );
-                    this.plugins.floatingToolbar.blockElements.push('img');
+                    this.plugins.floatingToolbar && this.plugins.floatingToolbar.blockElements.push('img');
                     return command;
                 },
                 html : function()
@@ -627,11 +629,10 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             isBlock = false,
                             style;
                         if( blockElem.length != 1 )
-                        {
                             blockElem = self.plugins.lib.selectionParent().get(0);
-                        }
                         else
                             blockElem = blockElem.get(0);
+                        
                         while(!isBlock)
                         {
                             if( blockElem.nodeType != 1 )
