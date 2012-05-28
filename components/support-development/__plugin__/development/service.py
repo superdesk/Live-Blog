@@ -10,7 +10,6 @@ Contains the services for the development support.
 '''
 
 from ally.container import ioc
-from ally.container.support import entityFor
 from development.request.api.request import IRequestService
 
 # --------------------------------------------------------------------
@@ -18,4 +17,11 @@ from development.request.api.request import IRequestService
 @ioc.entity
 def requestService() -> IRequestService:
     import ally_deploy_application
-    return entityFor(IRequestService, ally_deploy_application.assembly)
+    return ally_deploy_application.assembly.processForPartialName('development.service.requestService')
+
+def publish_development():
+    '''
+    If true the development services will be published.
+    '''
+    import ally_deploy_application
+    return ally_deploy_application.assembly.processForPartialName('development.service.publish_development')

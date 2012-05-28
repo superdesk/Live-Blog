@@ -15,6 +15,7 @@ from ..gui_core.gui_core import getPublishedGui
 from ally.container import ioc
 from ally.internationalization import N_
 from gui.action.api.action import Action
+from __plugin__.development.service import publish_development
 
 # --------------------------------------------------------------------
 
@@ -34,7 +35,8 @@ def modulesListAction():
 
 @ioc.start
 def actionRegister():
-    actionManagerService().add(menuAction())
-    actionManagerService().add(modulesAction())
-    actionManagerService().add(modulesListAction())
+    if publish_development():
+        actionManagerService().add(menuAction())
+        actionManagerService().add(modulesAction())
+        actionManagerService().add(modulesListAction())
 
