@@ -85,6 +85,7 @@ class ContextParse(Context):
         self.normalizer = normalizer
         self.converter = converter
 
+
 # --------------------------------------------------------------------
 
 def getSame(obj):

@@ -216,7 +216,7 @@ class EncodeObjectExploded(EncodeObject):
         @param metas: deque[Meta]
             The list of exploded Meta.
         '''
-        assert isinstance(metas, deque), 'Invalid metas %s' % metas
+        assert isinstance(metas, deque), 'Invalid metas %s' % identifier
         if isinstance(meta, Object):
             assert isinstance(meta, Object)
             for prop in meta.properties:
