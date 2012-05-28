@@ -578,7 +578,7 @@ section.main-section {
 	border:none;
 }
 .tabs-left.side-tabs .nav-tabs > li:first-child {
-	margin-top:54px;
+	margin-top:0px;
 }
 .tabs-left.side-tabs .nav-tabs > li > a {
 	width:60px;
