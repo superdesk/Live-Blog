@@ -1,22 +1,6 @@
 @iconSpritePath:          "../../images/glyphicons-halflings.png";
 @iconWhiteSpritePath:     "../../images/glyphicons-halflings-white.png";
 
-#gradient 
-{
-	.horizontal-three-colors(@startColor: #000, @midColor: #FFF, @colorStop: 50%, @endColor: #000)
-	{
-	    background-color: @endColor;
-	    background-repeat: no-repeat;
-	    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@startColor), color-stop(@colorStop, @midColor), to(@endColor));
-	    background-image: -webkit-linear-gradient(@startColor, @midColor @colorStop, @endColor);
-	    background-image: -moz-linear-gradient(left, @startColor, @midColor @colorStop, @endColor);
-	    background-image: -ms-linear-gradient(0, @startColor, @midColor @colorStop, @endColor);
-	    background-image: -o-linear-gradient(@startColor, @midColor @colorStop, @endColor);
-	    background-image: linear-gradient(@startColor, @midColor @colorStop, @endColor);
-	    filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@startColor,@endColor)); // IE9 and down, gets no color-stop at all for proper fallback
-	}
-}
-
 #area-content article header
 {
 	.clearfix()
@@ -37,49 +21,6 @@
 .box .label
 {
 	margin: 0 @gridGutterWidth / 2;
-}
-
-@-webkit-keyframes loader {
-  from  { background-position: -940px 0; }
-  to    { background-position: 940px 0; }
-}
-@-moz-keyframes loader {
-  from  { background-position: -940px 0; }
-  to    { background-position: 940px 0; }
-}
-@keyframes loader {
-  from  { background-position: -940px 0; }
-  to    { background-position: 940px 0; }
-}
-
-.animation(@name, @duration: 2s, @direction: linear, @count: infinite)
-{
-	-webkit-animation: @name @duration @direction @count;
-     -moz-animation: @name @duration @direction @count;
-          animation: @name @duration @direction @count;
-}
-
-.navbar .loader
-{
-	.transition(all 1s);
-	#gradient.horizontal-three-colors(fade(@blue, 0%), @blue, 50%, fade(@blue, 0%));
-	.opacity(0);
-	position: relative;
-	bottom: -5px;
-	height: 5px;
-	
-}
-.navbar .loader.active 
-{
-	.transition(all 0.5s);
-	.opacity(100);
-	.animation(loader);
-}
-.navbar .loader.complete
-{
-	.transition(all 1s);
-	#gradient.horizontal-three-colors(fade(@green, 0%), @green, 50%, fade(@green, 0%));
-	.opacity(100);
 }
 
 #request-list li.hilite
@@ -246,12 +187,7 @@
 	color: @blue;
 	padding: 0 10px;
 }
-#add-live-blog article
-{
-	padding: 5px 10px;
-	min-height: 100px;
-}
-#add-live-blog h2, #add-live-blog article
+#add-live-blog h2, #add-live-blog article, .edit-block article.editable 
 {
 	outline: 0;
 	.box-shadow(inset 0 1px 1px rgba(0,0,0,.075));
@@ -259,14 +195,52 @@
 	.transition(@transition);
 	border: 1px solid @inputBorder;
 	.border-radius(3px);
+	min-height: 36px;
 }
-#add-live-blog h2.focus, #add-live-blog article.focus
+#add-live-blog h2.focus, #add-live-blog article.focus, .edit-block article.editable.focus 
 {
 	border-color: rgba(82,168,236,.8);
 	@shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
 	.box-shadow(@shadow);
 	outline: 0;
 	outline: thin dotted \9; /* IE6-9 */
+}
+.edit-block article.editable
+{
+	min-height: 150px;
+	margin-bottom: 9px;
+	padding: 4px 8px;
+}
+#add-live-blog article
+{
+	padding: 5px 10px;
+	min-height: 100px;
+}
+.edit-block .top-controls
+{
+	height: 36px; 
+	position: relative
+}
+.edit-block .top-controls select
+{
+	position: absolute; 
+	left: 0;
+	width: 150px;
+}
+.edit-block .toolbar-placeholder
+{
+	position: absolute; 
+	right: 0;
+}
+.edit-block .toolbar-placeholder .edit-toolbar
+{
+	max-width: none;
+	padding-right: 0;
+	padding-top: 0;
+}
+.edit-block .toolbar-placeholder .edit-toolbar a.link
+{
+	margin-left: 4px;
 }
 
 #gradient 
