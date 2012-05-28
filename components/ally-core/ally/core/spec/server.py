@@ -14,10 +14,13 @@ from ally.core.spec.codes import Code
 import abc
 import logging
 from ally.support.util_design import Chain
+from ally.support.util import MetaClassBean
+from ally.core.spec.resources import Path, Invoker
 
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
+MetaClassBean = MetaClassBean # Just to avoid IDE warning
 
 # --------------------------------------------------------------------
 
@@ -161,36 +164,40 @@ class ContentRequest(Content, model.Content):
 
 # --------------------------------------------------------------------
 
-class Request:
+class Request(metaclass=MetaClassBean):
     '''
-    Maps a request object based on a request path and action.
+    Provides a container for request data.
+    
+    @ivar method: integer
+        The method of the request, can be one of GET, INSERT, UPDATE or DELETE constants in the operator module.
+    @ivar accContentTypes: list
+        The content types accepted for response.
+    @ivar accCharSets: list
+        The character sets accepted for response.
+    @ivar accLanguages: list
+        The accepted languages for the request.
+    @ivar content: Content
+        The content provider for the request.
+    @ivar resourcePath: Path
+        The path to the resource node.
+    @ivar invoker: Invoker
+        The invoker obtained from the resource path to be used for calling the service.
+    @ivar arguments: dictionary{string, object}
+        A dictionary containing as a key the argument name, this dictionary needs to be populated by the 
+        processors as seen fit, also the parameters need to be transformed to arguments.
     '''
+    method = int
+    accContentTypes = list
+    accCharSets = list
+    accLanguages = list
+    content = Content
+    resourcePath = Path
+    invoker = Invoker
+    arguments = dict
 
     def __init__(self):
         '''
-        @ivar method: integer
-            The method of the request, can be one of GET, INSERT, UPDATE or DELETE constants in the operator module.
-        @ivar accContentTypes: list
-            The content types accepted for response.
-        @ivar accCharSets: list
-            The character sets accepted for response.
-        @ivar accLanguages: list
-            The accepted languages for the request.
-        @ivar content: Content
-            The content provider for the request.
-        @ivar resourcePath: Path
-            The path to the resource node.
-        @ivar invoker: Invoker
-            The invoker obtained from the resource path to be used for calling the service.
-        @ivar params: list
-            A list of tuples containing on the first position the parameter string name and on the second the string
-            parameter value as provided in the request path. The parameters need to be transformed into arguments
-            and also removed from this list while doing that.
-            I did not use a dictionary on this since the parameter names might repeat and also the order might be
-            important.
-        @ivar arguments: dictionary
-            A dictionary containing as a key the argument name, this dictionary needs to be populated by the 
-            processors as seen fit, also the parameters need to be transformed to arguments.
+        Construct the request.
         '''
         self.method = None
         self.accContentTypes = []
@@ -199,7 +206,6 @@ class Request:
         self.content = None
         self.resourcePath = None
         self.invoker = None
-        self.params = []
         self.arguments = {}
 
 # --------------------------------------------------------------------
@@ -282,33 +288,6 @@ class Response(Content):
 
 # --------------------------------------------------------------------
 
-class DecoderParams(metaclass=abc.ABCMeta): #TODO: DEPRECATED: to be refactored and removed, no decoders should be present
-    '''
-    Provides the decoding for request parameters.
-    '''
-
-    @abc.abstractmethod
-    def decode(self, inputs, input, params, args):
-        '''
-        Decodes based on the input from the provided parameters the arguments that will be populated into args.
-        If based on the provided input there are relevant parameters than remove those parameters from the provided
-        list than the obtained arguments are added to the args dictionary.
-        
-        @param inputs: list
-            The list of inputs involved in the decoding process, this are used to prevent confusion in
-            decoding parameter names.
-        @param input: Input
-            The input to decode arguments for.
-        @param params: list
-            The list of tuples (param name, param value) to extract the arguments from, all the parameters that 
-            are used need to be removed from the list.
-        @param args: dictionary
-            The dictionary {arg name:arg value} that will be populated with the obtained argument values.
-        @raise DevelException: Thrown if a parameter does not contain the right value. 
-        '''
-
-# --------------------------------------------------------------------
-
 class EncoderPath(metaclass=abc.ABCMeta):
     '''
     Provides the path encoding.
@@ -328,45 +307,3 @@ class EncoderPath(metaclass=abc.ABCMeta):
         @return: object
             The full compiled request path, the type depends on the implementation.
         '''
-
-class EncoderParams(metaclass=abc.ABCMeta):
-    '''
-    Provides the encoding from inputs to request parameters.
-    '''
-
-    @abc.abstractmethod
-    def encode(self, inputs, input, arg, params):
-        '''
-        Encodes based on the input and provided argument value into the parameters list.
-        
-        @param inputs: list
-            The list of inputs involved in the encoding process, this are used to prevent confusion in
-            encoding parameter names.
-        @param input: Input
-            The input to encode the argument value for.
-        @param arg: object
-            The object value represented by the input to encode it.
-        @param params: list
-            A list of tuples containing on the first position the parameter string name and on the second the string
-            parameter value as to be represented in the request path. To this list all the obtained parameters will 
-            be added.
-        @return: boolean
-            True if this encoder has successful encoded the input, False otherwise.
-        '''
-
-    @abc.abstractmethod
-    def encodeModels(self, inputs, input, models):
-        '''
-        Encodes the models represented by the provided input. The model is represented as a tuple 
-        (isList, type, value), where isList specifies if the parameter contains a list, type the type of the 
-        parameter and value needs to be either a string or list of strings depending on the isList flag.
-        
-        @param inputs: list
-            The list of inputs involved in the encoding process, this are used to prevent confusion in
-            encoding parameter names.
-        @param input: Input
-            The input to encode the argument value for.
-        @param models: dictionary
-            A dictionary having as a key the parameter name and as a value the model.
-        '''
-

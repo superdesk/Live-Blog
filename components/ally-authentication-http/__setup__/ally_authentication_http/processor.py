@@ -12,10 +12,9 @@ Provides the configurations for the authentication processors.
 from ..ally_authentication_core.resource_management import \
     resourcesLocatorAuthentication
 from ..ally_core.converter import converterPath
-from ..ally_core.processor import handlersRedirect, redirect, handlersResources, \
-    parameters
+from ..ally_core.processor import handlersRedirect, redirect, handlersResources
 from ..ally_core_http.processor import handlersFetching, pathProcessors, uri, \
-    read_from_params
+    read_from_params, parameter
 from ally.container import ioc
 from ally.core.authentication.impl.processor.authenticator import \
     AuthenticationHandler
@@ -69,7 +68,7 @@ def handlersRedirectAuthentication():
     '''
     handlers = list(handlersRedirect())
     # Adding the authentication handler
-    handlers.insert(handlers.index(parameters()), authentication())
+    handlers.insert(handlers.index(parameter()), authentication())
     return handlers
 
 @ioc.entity
@@ -88,14 +87,14 @@ def handlersResourcesAuthentication():
 #    handlers.remove(metaFilter())
 
     # Adding the authentication handler
-    handlers.insert(handlers.index(parameters()), authentication())
+    handlers.insert(handlers.index(parameter()), authentication())
     return handlers
 
 @ioc.entity
 def handlersFetchingAuthentication():
     handlers = list(handlersFetching())
     # Adding the authentication handler
-    handlers.insert(handlers.index(parameters()), authentication())
+    handlers.insert(handlers.index(parameter()), authentication())
     return handlers
 
 # --------------------------------------------------------------------

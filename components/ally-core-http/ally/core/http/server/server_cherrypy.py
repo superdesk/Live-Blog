@@ -78,9 +78,9 @@ class RequestHandler:
         req.headers.update(request.headers)
         for name, value in params.items():
             if isinstance(value, list):
-                req.params.extend([(name, v) for v in value])
+                req.parameters.extend([(name, v) for v in value])
             else:
-                req.params.append((name, value))
+                req.parameters.append((name, value))
 
         req.content = ContentRequestData(request.rfile)
 
