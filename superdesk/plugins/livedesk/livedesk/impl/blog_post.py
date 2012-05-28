@@ -170,11 +170,12 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         Builds the general query for posts.
         '''
         sql = self.session().query(BlogPostMapped)
-        sql = sql.outerjoin(CollaboratorMapped).outerjoin(PersonMapped).outerjoin(SourceMapped)
-        sql = sql.join(UserPerson, BlogPostMapped.Creator == UserPerson.Id)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
-        if authorId: sql = sql.filter(BlogPostMapped.Author == authorId)
+        if authorId:
+            sql = sql.filter((BlogPostMapped.Author == authorId) |
+                             ((CollaboratorMapped.Id == authorId) &
+                              (CollaboratorMapped.Person == BlogPostMapped.Creator)))
         if q: sql = buildQuery(sql, q, BlogPostMapped)
         return sql
 
