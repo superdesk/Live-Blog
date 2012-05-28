@@ -1,5 +1,6 @@
 {#Posts}
-<li class="quote collaborators" data-colab-id="{#Person}{Id}{/Person}" data-post-id="{Id}">
+<li class="with-avatar collaborators draggable" data-colab-id="{#Person}{Id}{/Person}" data-post-id="{Id}">
+	<div class="drag-bar"></div>
 	<figure>
         {#Person}
             {?Avatar}
