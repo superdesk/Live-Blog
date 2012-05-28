@@ -7,25 +7,9 @@ function(providers)
     {
         adaptor: 
         {
-            init: function() 
+            universal: function(obj)
             {
-                var self = this;
-                new $.rest('Superdesk/Collaborator/')
-                    .xfilter('Id')
-                    .request({data: { name: 'google'}})
-                    .done(function(collabs)
-                    {
-                        if($.isDefined(collabs[0])) {
-                            self.author = collabs[0].Id;
-                        }
-                    });
-                //new $.restAuth(theBlog)
-            },
-            web: function(obj) 
-            {
-                return { Content: $(obj).find('p.result-text').html(), 
-                    Type: $(obj).attr('data-post-type') || 'normal',
-                    Author: $(obj).attr('data-colab-id') };
+               return parseInt($(obj).attr('data-post-id'));
             }
         }
     });
