@@ -593,6 +593,11 @@ section.main-section {
 	border:1px solid #7c7c7c;
 	border-width:1px 0 !important;
 }
+
+.tabs-left.side-tabs .nav-tabs > li:first-child > a {
+	border-top-width: 0px !important;
+}
+
 .tabs-left .side-tabs.nav-tabs > li > a:hover {
 	background-color: rgba(0, 0, 0, .2);
 }
@@ -848,7 +853,7 @@ section.main-section {
 						margin: 0;
 						padding: 0 4px 10px 10px;
 						/*position: absolute;*/
-						top: 320px;
+						top: 265px;
 						left:0;
 						right:13px;
 						z-index:2;
@@ -1470,4 +1475,10 @@ bootstrap.css (line 1929)
 .ui-draggable-dragging {
     max-width:500px;
     min-width:200px;
+}
+.loading {
+    background-image: url("../../images/ajax-loader.gif");
+    background-position: center center;
+    background-repeat: no-repeat;
+    height: 40px;
 }
