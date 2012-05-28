@@ -11,115 +11,40 @@ Provides basic meta decode implementations.
 
 from .general import ContextParse, WithSetter, WithGetter
 from ally.api.type import Type
-from ally.core.spec.meta import MetaDecode
+from ally.core.spec.meta import IMetaDecode
 from ally.core.spec.resources import Normalizer, Converter
-from ally.exception import DevelError
 from collections import deque
 
 # --------------------------------------------------------------------
 
-class DecodeRootString(MetaDecode):
+class DecodeGetter(IMetaDecode, WithGetter):
     '''
-    Provides an implementation for the @see: MetaDecode that behaves like a string root, meaning allows only string
-    types (string, deque[string], list[string], tuple(string)), if the type is string then it transforms the identifier 
-    to a deque[string] based on a separator.
+    An encode that actually just uses a getter to fetch a value from the object and pass it to the contained decoder.
+    If the value fetched is None than this decode will return False and not delegate to the contained decoder.
     '''
 
-    def __init__(self, separator, root):
+    def __init__(self, getter, decoder):
         '''
-        Construct the decode node.
+        Construct the get decoder.
+        @see: WithGetter.__init__
         
-        @param separator: string
-            The separator to be used for converting the string identifier.
-        @param root: MetaDecode
-            The root meta decode, usually this meta decode and its children only accept deque[string].
+        @param decoder: IMetaDecode
+            The decoder to delegate with the obtained value.
         '''
-        assert isinstance(separator, str), 'Invalid separator %s' % separator
-        assert isinstance(root, MetaDecode), 'Invalid root %s' % root
+        assert isinstance(decoder, IMetaDecode), 'Invalid decoder %s' % decoder
+        WithGetter.__init__(self, getter)
 
-        self.separator = separator
-        self.root = root
+        self.decoder = decoder
 
     def decode(self, identifier, value, obj, context):
         '''
-        @see: MetaDecode.decode
+        IMetaDecode.decode
         '''
-        if isinstance(identifier, str): identifier = identifier.split(self.separator)
-        if isinstance(identifier, (list, tuple)): identifier = deque(identifier)
+        obj = self.getter(obj)
+        if obj is None: return False
+        return self.decoder.decode(identifier, value, obj, context)
 
-        if not isinstance(identifier, deque):
-            raise DevelError('Invalid identifier %s, expected a string or string collection' % identifier)
-
-        return self.root.decode(identifier, value, obj, context)
-
-class DecodeNode(MetaDecode):
-    '''
-    Provides an implementation for the @see: MetaDecode that dispatches the decode event to the assigned decoder with
-    the first path as a key.
-    
-    Only recognizes the identifier as being a deque[string].
-    '''
-
-    def __init__(self):
-        '''
-        Construct the decode node.
-        
-        @ivar decoders: dictionary{string, MetaDecode}
-            A dictionary that will be used in finding the child decoder for the first path element.
-        '''
-        self.decoders = {}
-
-    def decode(self, identifier, value, obj, context):
-        '''
-        @see: MetaDecode.decode
-        '''
-        assert isinstance(context, ContextParse), 'Invalid context %s' % context
-        assert isinstance(context.normalizer, Normalizer)
-
-        if not isinstance(identifier, deque): return False
-        assert isinstance(identifier, deque)
-
-        if identifier:
-            path = identifier[0]
-            for key, decoder in self.decoders.items():
-                if path == context.normalizer.normalize(key):
-                    assert isinstance(decoder, MetaDecode), 'Invalid meta decode %s' % decoder
-                    identifier.popleft()
-                    return decoder.decode(identifier, value, obj, context)
-                    break
-        return False
-
-class DecodeSequence(MetaDecode):
-    '''
-    Provides an implementation for the @see: MetaDecode that dispatches the decode event to a list of decoders, will stop
-    as soon as a decoder will return True.
-    
-    Only recognizes the identifier as being a deque[string].
-    '''
-
-    def __init__(self):
-        '''
-        Construct the decode node.
-        
-        @ivar decoders: list[MetaDecode]
-            A list of meta decoders, the order is important since the decoding will stop at the first decoder that
-            returns True.
-        '''
-        self.decoders = []
-
-    def decode(self, identifier, value, obj, context):
-        '''
-        @see: MetaDecode.decode
-        '''
-        if not isinstance(identifier, deque): return False
-        assert isinstance(identifier, deque)
-
-        for decoder in self.decoders:
-            assert isinstance(decoder, MetaDecode), 'Invalid meta decode %s' % decoder
-            if decoder.decode(identifier, value, obj, context): return True
-        return False
-
-class DecodeSet(MetaDecode, WithSetter):
+class DecodeSetValue(IMetaDecode, WithSetter):
     '''
     Sets the received value directly.
     
@@ -135,7 +60,7 @@ class DecodeSet(MetaDecode, WithSetter):
 
     def decode(self, identifier, value, obj, context):
         '''
-        MetaDecode.decode
+        IMetaDecode.decode
         '''
         if not isinstance(identifier, deque): return False
         assert isinstance(identifier, deque)
@@ -145,7 +70,7 @@ class DecodeSet(MetaDecode, WithSetter):
         self.setter(obj, value)
         return True
 
-class DecodeValue(MetaDecode, WithSetter):
+class DecodeValue(IMetaDecode, WithSetter):
     '''
     Processes the string value to an object based on the assigned type by using the converter.
     
@@ -167,7 +92,7 @@ class DecodeValue(MetaDecode, WithSetter):
 
     def decode(self, identifier, value, obj, context):
         '''
-        MetaDecode.decode
+        IMetaDecode.decode
         '''
         assert isinstance(context, ContextParse), 'Invalid context %s' % context
         assert isinstance(context.converter, Converter)
@@ -180,52 +105,145 @@ class DecodeValue(MetaDecode, WithSetter):
         if not isinstance(value, str): return False
         # If the value is not a string then is not valid
         try: value = context.converter.asValue(value, self.type)
-        except ValueError: raise DevelError('Expected type %s' % self.type)
+        except ValueError: return False
 
         self.setter(obj, value)
         return True
 
-class DecodeList(MetaDecode, WithSetter, WithGetter):
+class DecodeObject(IMetaDecode):
+    '''
+    Provides an implementation for the @see: IMetaDecode that dispatches the decode event to the assigned decoder with
+    the first path as a key.
+    
+    Only recognizes the identifier as being a deque[string].
+    '''
+
+    def __init__(self):
+        '''
+        Construct the decode node.
+        
+        @ivar properties: dictionary{string, IMetaDecode}
+            A dictionary that will be used in finding the child decoder for the first path element.
+        '''
+        self.properties = {}
+
+    def decode(self, identifier, value, obj, context):
+        '''
+        @see: IMetaDecode.decode
+        '''
+        assert isinstance(context, ContextParse), 'Invalid context %s' % context
+        assert isinstance(context.normalizer, Normalizer)
+
+        if not isinstance(identifier, deque): return False
+        assert isinstance(identifier, deque)
+
+        if identifier:
+            path = identifier[0]
+            for key, decoder in self.properties.items():
+                if path == context.normalizer.normalize(key):
+                    assert isinstance(decoder, IMetaDecode), 'Invalid meta decode %s' % decoder
+                    identifier.popleft()
+                    return decoder.decode(identifier, value, obj, context)
+        return False
+
+class DecodeList(IMetaDecode):
     '''
     Provides the list types decoding.
     
     Only recognizes the identifier as being a deque[string].
     '''
 
-    def __init__(self, setter, getter, itemDecode):
+    def __init__(self, itemDecode):
         '''
-        Construct the list decoder. The getter is used to pull the list from the repository object.
-        @see: WithSetter.__init__
-        @see: WithGetter.__init__
+        Construct the list decoder.
         
-        @param itemDecode: MetaDecode
+        @param itemDecode: IMetaDecode
             The list item decoder.
         '''
-        assert isinstance(itemDecode, MetaDecode), 'Invalid item decode %s' % itemDecode
-        WithSetter.__init__(self, setter)
-        WithGetter.__init__(self, getter)
+        assert isinstance(itemDecode, IMetaDecode), 'Invalid item decode %s' % itemDecode
 
         self.itemDecode = itemDecode
 
     def decode(self, identifier, value, obj, context):
         '''
-        MetaDecode.decode
+        IMetaDecode.decode
         '''
+        if not isinstance(obj, list): return False
         if not isinstance(identifier, deque): return False
+        assert isinstance(obj, list)
         assert isinstance(identifier, deque)
 
         if isinstance(value, (list, tuple)): values = value
         else: values = [value]
 
-        items = []
         for value in values:
-            if not self.itemDecode.decode(identifier, value, items, context): return False
-
-        objList = self.getter(obj)
-        if objList is None:
-            self.setter(obj, items)
-        else:
-            assert isinstance(objList, list), 'Invalid list %s provided by getter' % objList
-            objList.extend(items)
+            if not self.itemDecode.decode(identifier, value, obj, context): return False
 
         return True
+
+class DecodeFirst(IMetaDecode):
+    '''
+    Provides an implementation for the @see: IMetaDecode that dispatches the decode event to a list of decoders, will stop
+    as soon as a decoder will return True.
+    
+    Only recognizes the identifier as being a deque[string].
+    '''
+
+    def __init__(self):
+        '''
+        Construct the decode node.
+        
+        @ivar decoders: list[IMetaDecode]
+            A list of meta decoders, the order is important since the decoding will stop at the first decoder that
+            returns True.
+        '''
+        self.decoders = []
+
+    def decode(self, identifier, value, obj, context):
+        '''
+        @see: IMetaDecode.decode
+        '''
+        if not isinstance(identifier, deque): return False
+        assert isinstance(identifier, deque)
+
+        for decoder in self.decoders:
+            assert isinstance(decoder, IMetaDecode), 'Invalid meta decode %s' % decoder
+            if decoder.decode(identifier, value, obj, context): return True
+        return False
+
+
+class DecodeSplit(IMetaDecode):
+    '''
+    Provides a @see: IMetaDecode that splits a string value into a list of values, if the received value is not a string
+    then it will be delegated to the contained decoder as it is. 
+    '''
+
+    def __init__(self, decoder, splitValues, normalizeValue=None):
+        '''
+        Construct the list with separator.
+        @see: DecodeList.__init__
+        
+        @param decoder: IMetaDecode
+            The decoder to delegate to.
+        @param splitValues: complied regex
+            The regex to use in spliting the values.
+        @param normalizeValue: complied regex|None
+            The regex to use in normalizing the splited values, if None no normalization will occur.
+        '''
+        assert isinstance(decoder, IMetaDecode), 'Invalid decoder %s' % decoder
+        assert splitValues is not None, 'A split values regex is required'
+
+        self.decoder = decoder
+        self.splitValues = splitValues
+        self.normalizeValue = normalizeValue
+
+    def decode(self, identifier, value, obj, context):
+        '''
+        @see: IMetaDecode.decode
+        '''
+        if isinstance(value, str):
+            value = self.splitValues.split(value)
+            if self.normalizeValue is not None:
+                for k in range(0, len(value)): value[k] = self.normalizeValue.sub('', value[k])
+
+        return self.decoder.decode(identifier, value, obj, context)

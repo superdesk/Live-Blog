@@ -79,7 +79,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 assert isinstance(chain, ProcessorsChain)
                 req.path = path[match.end():]
                 req.rootURI = path[:match.end()]
-                req.params.extend(parse_qsl(url.query, True, False))
+                req.parameters.extend(parse_qsl(url.query, True, False))
                 if not req.rootURI.endswith('/'): req.rootURI += '/'
                 break
         else:

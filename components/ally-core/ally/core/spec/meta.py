@@ -10,46 +10,142 @@ Provides the meta specifications.
 '''
 
 from ally.support.util import MetaClassBean
+from collections import Iterable
 import abc
 
 # --------------------------------------------------------------------
 
 MetaClassBean = MetaClassBean # Just to avoid IDE warning
+
+# --------------------------------------------------------------------
+
 class Context(metaclass=MetaClassBean):
     '''
     A simple class that is a container for the context data.
     '''
-
+    
     def __init__(self, **keyargs):
         '''
         Construct a context with the provided key arguments as context data.
         '''
         for key, value in keyargs.items(): setattr(self, key, value)
 
-class Value(metaclass=MetaClassBean):
-    '''
-    The value returned by the encode.
-    
-    @ivar identifier: object
-        The identifier associated with the encoded value.
-    @ivar  value: object
-        The value encoded.
-    ...
-        Beside this values in this class there might be others depending on the nature of the meta encode, is
-        the duty of the meta encoder users to check and use the extra information found in a value.
-    '''
-    identifier = object
-    value = object
-
-    def __init__(self, **keyargs):
-        '''
-        Construct a value with the provided key arguments as data.
-        '''
-        for key, value in keyargs.items(): setattr(self, key, value)
 
 # --------------------------------------------------------------------
 
-class MetaDecode(metaclass=abc.ABCMeta):
+SAMPLE = object() # Marker used to instruct the encoders to provide a sample.
+
+class Meta(metaclass=MetaClassBean):
+    '''
+    The referenced encoded meta.
+    
+    @ivar identifier: object
+        The identifier associated with the encoded meta.
+    ...
+        Beside this values in this class there might be others depending on the nature of the meta encode, is
+        the duty of the meta encoder users to check and use the extra information found in a meta.
+    '''
+    identifier = object
+
+    def __init__(self, identifier=None):
+        '''
+        Construct a meta.
+        
+        @param identifier: object|None
+            The identifier associated with the encoded meta.
+        '''
+        self.identifier = identifier
+
+class Value(Meta):
+    '''
+    Provides a value meta.
+    
+    @ivar  value: object
+        The value encoded.
+    '''
+    value = object
+
+    def __init__(self, identifier=None, value=None):
+        '''
+        Construct a value.
+        @see: Meta.__init__
+        
+        @param value: object|None
+            The value associated with the value meta.
+        '''
+        super().__init__(identifier)
+
+        self.value = value
+
+class Attributed(Meta):
+    '''
+    Provides an attributed meta.
+    
+    @ivar attributes: Iterable[Value]
+        The attributes that decorate the value
+    '''
+    attributes = Iterable
+
+    def __init__(self, identifier=None, attributes=()):
+        '''
+        Construct an attributed meta.
+        @see: Meta.__init__
+        
+        @param attributes: Iterable
+            The attributes associated with the attributed meta.
+        '''
+        assert isinstance(attributes, Iterable), 'Invalid attributes %s' % attributes
+        super().__init__(identifier)
+
+        self.attributes = attributes
+
+class Object(Meta):
+    '''
+    Provides an object meta.
+    
+    @ivar properties: Iterable[Value]
+        The properties for the object.
+    '''
+    properties = Iterable
+
+    def __init__(self, identifier=None, properties=()):
+        '''
+        Construct an object meta.
+        @see: Meta.__init__
+        
+        @param properties: Iterable
+            The properties associated with the object meta.
+        '''
+        assert isinstance(properties, Iterable), 'Invalid properties %s' % properties
+        super().__init__(identifier)
+
+        self.properties = properties
+
+class Collection(Meta):
+    '''
+    Provides a collection meta.
+    
+    @ivar items: Iterable[Value]
+        The items of the collection.
+    '''
+    items = Iterable
+
+    def __init__(self, identifier=None, items=()):
+        '''
+        Construct a collection meta.
+        @see: Meta.__init__
+        
+        @param items: Iterable
+            The items associated with the collection meta.
+        '''
+        assert isinstance(items, Iterable), 'Invalid items %s' % items
+        super().__init__(identifier)
+
+        self.items = items
+
+# --------------------------------------------------------------------
+
+class IMetaDecode(metaclass=abc.ABCMeta):
     '''
     Provides the specification class for a meta that decodes data. 
     '''
@@ -72,7 +168,7 @@ class MetaDecode(metaclass=abc.ABCMeta):
             True if the decode was successful, False otherwise.
         '''
 
-class MetaEncode(metaclass=abc.ABCMeta):
+class IMetaEncode(metaclass=abc.ABCMeta):
     '''
     Provides the specification class for a meta that encodes data. 
     '''
@@ -86,8 +182,8 @@ class MetaEncode(metaclass=abc.ABCMeta):
             The object to be encoded.
         @param context: Context
             The data context used in the decoding, this will contain all the support required by the decoding.
-        @return: Value|None
-            Returns the encoded value, None if their is nothing to encode for the provided object.
+        @return: Meta|None
+            Returns the encoded meta, None if their is nothing to encode for the provided object.
         '''
 
 class IMetaService(metaclass=abc.ABCMeta):
@@ -102,7 +198,7 @@ class IMetaService(metaclass=abc.ABCMeta):
         
         @param invoker: Invoker
             The invoker to create the meta decode for.
-        @return: MetaDecode
+        @return: IMetaDecode
             The created meta decode.
         '''
 
@@ -113,32 +209,6 @@ class IMetaService(metaclass=abc.ABCMeta):
         
         @param invoker: Invoker
             The invoker to create the meta encode for.
-        @return: MetaEncode
+        @return: IMetaEncode
             The created meta encode.
         '''
-
-# --------------------------------------------------------------------
-
-class Object(Value):
-    '''
-    Provides an object value.
-    
-    @ivar properties: list[MetaEncode]
-        The properties encoders for the object.
-    @ivar attributes: list[MetaEncode]
-        The attributes encoders for the object.
-    '''
-    properties = list
-    attributes = list
-
-class Collection(Value):
-    '''
-    Provides a collection value.
-    
-    @ivar item: MetaEncode
-        The meta encode to use on the value items.
-    @ivar attributes: list[MetaEncode]
-        The attributes encoders for the object.
-    '''
-    item = MetaEncode
-    attributes = list

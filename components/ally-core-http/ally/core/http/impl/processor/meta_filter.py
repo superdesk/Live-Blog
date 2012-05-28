@@ -12,7 +12,7 @@ Provides the meta creation processor handler that also makes filtering on the me
 from .header import HeaderHTTPBase, VALUES
 from ally.api.config import GET
 from ally.container.ioc import injected
-from ally.core.http.spec import INVALID_HEADER_VALUE
+from ally.core.http.spec import INVALID_HEADER_VALUE, RequestHTTP
 from ally.core.impl.processor.meta_creator import MetaCreatorHandler, \
     sortProperties
 from ally.core.spec.data_meta import MetaLink, MetaModel, MetaPath, \
@@ -37,7 +37,7 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
     Provides on request: NA
     Provides on response: [objMeta]
     
-    Requires on request: headers
+    Requires on request: headers, [parameters]
     Requires on response: objMeta
     '''
 
@@ -62,12 +62,12 @@ class MetaFilterHandler(MetaCreatorHandler, HeaderHTTPBase):
         '''
         @see: Processor.process
         '''
-        assert isinstance(req, Request), 'Invalid request %s' % req
+        assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
 
         try:
-            filterBy = self._parse(self.nameXFilter, req.headers, req.params, VALUES)
+            filterBy = self._parse(self.nameXFilter, req.headers, req.parameters, VALUES)
         except DevelError as e:
             assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)

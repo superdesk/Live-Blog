@@ -29,7 +29,7 @@ class FormattingProviderHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
     Provides on request: content.objFormat
     Provides on response: objFormat
     
-    Requires on request: headers, params, content
+    Requires on request: headers, parameters, content
     Requires on response: NA
     '''
 
@@ -53,9 +53,9 @@ class FormattingProviderHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
         try:
 
             for clsTyp in formattedType:
-                p = self._parse(self.nameXFormat % clsTyp.__name__, req.headers, req.params, VALUE_NO_PARSE)
+                p = self._parse(self.nameXFormat % clsTyp.__name__, req.headers, req.parameters, VALUE_NO_PARSE)
                 if p: rsp.objFormat[clsTyp] = p
-                p = self._parse(self.nameXFormatContent % clsTyp.__name__, req.headers, req.params, VALUE_NO_PARSE)
+                p = self._parse(self.nameXFormatContent % clsTyp.__name__, req.headers, req.parameters, VALUE_NO_PARSE)
                 if p: req.content.objFormat[clsTyp] = p
 
         except DevelError as e:

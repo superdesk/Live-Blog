@@ -11,23 +11,23 @@ Provides the parameters meta encoders and decoders.
 
 from ally.api.criteria import AsOrdered
 from ally.api.operator.container import Criteria
-from ally.api.operator.type import TypeQuery, TypeCriteriaEntry, TypeModel, \
-    TypeModelProperty, TypeCriteria
-from ally.api.type import Type, Input, List, Iter
+from ally.api.operator.type import TypeQuery, TypeCriteriaEntry, TypeCriteria
+from ally.api.type import Type, Input, Iter
 from ally.container.ioc import injected
-from ally.core.impl.meta.decode import DecodeNode, DecodeList, DecodeValue, \
-    DecodeSequence, DecodeRootString, DecodeSet
+from ally.core.impl.meta.decode import DecodeObject, DecodeList, DecodeValue, \
+    DecodeFirst, DecodeSetValue, DecodeGetter, DecodeSplit
 from ally.core.impl.meta.encode import EncodeValue, EncodeCollection, \
-    EncodeObject, EncodeGet, EncodeMerge
+    EncodeObject, EncodeGetter, EncodeMerge, EncodeObjectExploded, EncodeGetValue, \
+    EncodeGetterIdentifier, EncodeIdentifier, EncodeJoin
 from ally.core.impl.meta.general import getterOnDict, setterOnDict, getterOnObj, \
     getterChain, setterWithGetter, setterOnObj, setterToOthers, obtainOnDict, \
-    getSame, getterOnObjIfIn
-from ally.core.spec.meta import IMetaService
-from ally.core.spec.resources import Invoker
-from ally.exception import DevelError
-from collections import deque
+    getterOnObjIfIn, obtainOnObj, ContextParse
+from ally.core.spec.meta import IMetaService, Value, Object, SAMPLE, Collection
+from ally.core.spec.resources import Invoker, Normalizer
+from collections import deque, Iterable
 import logging
-from test.ally.test_support import EncoderGetObj
+import random
+import re
 
 # --------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class ParamMetaService(IMetaService):
+class ParameterMetaService(IMetaService):
     '''
     @see: IMetaService impementation for handling the parameters meta.
     This service will provide a decode meta that will be able to take as identifiers:
@@ -51,12 +51,29 @@ class ParamMetaService(IMetaService):
     # The name used for the ascending list of names.
     nameOrderDesc = 'desc'
     # The name used for the descending list of names.
+    regexSplitValues = '[\s]*(?<!\\\)\,[\s]*'
+    # The regex used for splitting list values.
+    separatorValue = ','
+    # The separator used for the list values.
+    regexNormalizeValue = '\\\(?=\,)'
+    # The regex used for normalizing the split values.
+    separatorValueEscape = '\,'
+    # The separator escape used for list values.
 
     def __init__(self):
         assert isinstance(self.separatorName, str), 'Invalid separator for names %s' % self.separatorName
         assert isinstance(self.separatorOrderName, str), 'Invalid separator for order names %s' % self.separatorOrderName
         assert isinstance(self.nameOrderAsc, str), 'Invalid name for ascending %s' % self.nameOrderAsc
         assert isinstance(self.nameOrderDesc, str), 'Invalid name for descending %s' % self.nameOrderDesc
+        assert isinstance(self.regexSplitValues, str), 'Invalid regex for values split %s' % self.regexSplitValues
+        assert isinstance(self.separatorValue, str), 'Invalid separator for values %s' % self.separatorValue
+        assert isinstance(self.regexNormalizeValue, str), \
+        'Invalid regex for value normalize %s' % self.regexNormalizeValue
+        assert isinstance(self.separatorValueEscape, str), \
+        'Invalid separator escape for values %s' % self.separatorValueEscape
+
+        self.reSplitValues = re.compile(self.regexSplitValues)
+        self.reNormalizeValue = re.compile(self.regexNormalizeValue)
 
     def createDecode(self, invoker):
         '''
@@ -64,7 +81,7 @@ class ParamMetaService(IMetaService):
         '''
         assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
 
-        root, ordering = DecodeNode(), {}
+        root, ordering = DecodeParameters(self.separatorName), {}
 
         queries = deque()
         # We first process the primitive types.
@@ -74,47 +91,45 @@ class ParamMetaService(IMetaService):
             assert isinstance(typ, Type)
 
             if typ.isPrimitive:
-                setter = setterOnDict(inp.name)
                 if typ.isOf(Iter):
                     assert isinstance(typ, Iter)
-                    pdecode = DecodeList(setter, getterOnDict(inp.name), DecodeValue(list.append, typ.itemType))
+                    dprimitive = DecodeList(DecodeValue(list.append, typ.itemType))
+                    dprimitive = DecodeSplit(dprimitive, self.reSplitValues, self.reNormalizeValue)
+                    dprimitive = DecodeGetter(obtainOnDict(inp.name, list), dprimitive)
                 else:
-                    pdecode = DecodeValue(setter, typ)
+                    dprimitive = DecodeValue(setterOnDict(inp.name), typ)
 
-                root.decoders[inp.name] = pdecode
+                root.properties[inp.name] = dprimitive
             elif isinstance(typ, TypeQuery):
                 assert isinstance(typ, TypeQuery)
                 queries.append(inp)
 
         if queries:
             # We find out the model provided by the invoker
-            mtype = self.findInvokerModel(invoker)
-            if mtype:
-                # First we need to find the main returned model query if available
-                assert isinstance(mtype, TypeModel)
-                mainq = [(inp, k) for k, inp in enumerate(queries) if inp.type.owner == mtype]
-                if len(mainq) == 1:
-                    # If we just have one main query that has the return type model as the owner we can strip the input
-                    # name from the criteria names.
-                    inp, k = mainq[0]
-                    del queries[k]
-                    self.decodeQuery(inp.type, obtainOnDict(inp.name, inp.type.forClass), root.decoders, ordering)
+            mainq = [(inp, k) for k, inp in enumerate(queries) if invoker.output.isOf(inp.type.owner)]
+            if len(mainq) == 1:
+                # If we just have one main query that has the return type model as the owner we can strip the input
+                # name from the criteria names.
+                inp, k = mainq[0]
+                del queries[k]
+                self.decodeQuery(inp.type, obtainOnDict(inp.name, inp.type.forClass), root.properties, ordering)
 
             for inp in queries:
-                nodeDecoders = root.decoders[inp.name] = DecodeNode()
-                nodeOrdering = ordering[inp.name] = DecodeNode()
+                dquery = root.properties[inp.name] = DecodeObject()
+                qordering = ordering[inp.name] = DecodeObject()
                 getter = obtainOnDict(inp.name, inp.type.forClass)
 
-                self.decodeQuery(inp.type, getter, nodeDecoders.decoders, nodeOrdering.decoders)
+                self.decodeQuery(inp.type, getter, dquery.properties, qordering.properties)
 
         for name, asscending in ((self.nameOrderAsc, True), (self.nameOrderDesc, False)):
-            if name in root.decoders:
+            if name in root.properties:
                 log.error('Name conflict for %r in %s', name, invoker)
             else:
-                order = root.decoders[name] = DecodeOrdering(self.separatorOrderName, asscending)
-                order.decoders.update(ordering)
+                order = DecodeOrdering(self.separatorOrderName, asscending)
+                order.properties.update(ordering)
+                root.properties[name] = DecodeSplit(order, self.reSplitValues, self.reNormalizeValue)
 
-        return DecodeRootString(self.separatorName, root)
+        return root
 
     def decodeQuery(self, queryType, getterQuery, decoders, ordering):
         '''
@@ -145,26 +160,38 @@ class ParamMetaService(IMetaService):
             else:
                 getterCriteria = getterChain(getterQuery, getterOnObj(etype.name))
                 if criteria.main:
-                    sequence = decoders[etype.name] = DecodeSequence()
+                    dmain = decoders[etype.name] = DecodeFirst()
 
                     setterMain = setterToOthers(*[setterOnObj(main) for main in criteria.main])
                     setterMain = setterWithGetter(getterCriteria, setterMain)
 
-                    sequence.decoders.append(DecodeValue(setterMain, criteria.properties[criteria.main[0]]))
+                    dmain.decoders.append(DecodeValue(setterMain, criteria.properties[criteria.main[0]]))
 
-                    node = DecodeNode()
-                    sequence.decoders.append(node)
+                    dcriteria = DecodeObject()
+                    dmain.decoders.append(dcriteria)
                 else:
-                    node = decoders[etype.name] = DecodeNode()
+                    dcriteria = decoders[etype.name] = DecodeObject()
 
-                for prop, propType in criteria.properties.items():
-                    node.decoders[prop] = DecodeValue(setterWithGetter(getterCriteria, setterOnObj(prop)), propType)
+                if issubclass(etype.forClass, AsOrdered): exclude = ('ascending', 'priority')
+                else: exclude = ()
+
+                for prop, typ in criteria.properties.items():
+                    if prop in exclude: continue
+                    if typ.isOf(Iter):
+                        assert isinstance(typ, Iter)
+                        dprop = DecodeList(DecodeValue(list.append, typ.itemType))
+                        dprop = DecodeSplit(dprop, self.reSplitValues, self.reNormalizeValue)
+                        dprop = DecodeGetter(getterChain(getterCriteria, obtainOnObj(prop, list)), dprop)
+                    else:
+                        dprop = DecodeValue(setterWithGetter(getterCriteria, setterOnObj(prop)), typ)
+
+                    dcriteria.properties[prop] = dprop
 
             if issubclass(etype.forClass, AsOrdered):
                 if etype.name in ordering:
                     log.error('Name conflict for criteria %r ordering from %s', etype.name, queryType)
                 else:
-                    ordering[etype.name] = DecodeSet(setterOrdering(getterQuery, etype))
+                    ordering[etype.name] = DecodeGetter(getterQuery, DecodeSetValue(setterOrdering(etype)))
 
     # ----------------------------------------------------------------
 
@@ -174,7 +201,7 @@ class ParamMetaService(IMetaService):
         '''
         assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
 
-        root, ordering = EncodeObject(), {}
+        root = EncodeParameters(self.separatorName)
 
         queries = deque()
         # We first process the primitive types.
@@ -184,77 +211,61 @@ class ParamMetaService(IMetaService):
             assert isinstance(typ, Type)
 
             if typ.isPrimitive:
-                root.properties.append(EncodeGet(getterOnDict(inp.name), self.encodePrimitive(inp.name, typ)))
+                if typ.isOf(Iter):
+                    assert isinstance(typ, Iter)
+                    eprimitive = EncodeCollection(EncodeValue(typ.itemType))
+                    eprimitive = EncodeJoin(eprimitive, self.separatorValue, self.separatorValueEscape)
+                else: eprimitive = EncodeValue(typ)
+
+                eprimitive = EncodeGetterIdentifier(eprimitive, getterOnDict(inp.name), inp.name)
+                root.properties.append(eprimitive)
             elif isinstance(typ, TypeQuery):
                 assert isinstance(typ, TypeQuery)
                 queries.append(inp)
 
+        ordering = EncodeOrdering(self.nameOrderAsc, self.nameOrderDesc, self.separatorOrderName)
+
         if queries:
             # We find out the model provided by the invoker
-            mtype = self.findInvokerModel(invoker)
-            if mtype:
-                # First we need to find the main returned model query if available
-                assert isinstance(mtype, TypeModel)
-                mainq = [(inp, k) for k, inp in enumerate(queries) if inp.type.owner == mtype]
-                if len(mainq) == 1:
-                    # If we just have one main query that has the return type model as the owner we can strip the input
-                    # name from the criteria names.
-                    inp, k = mainq[0]
-                    del queries[k]
-                    self.decodeQuery(inp.type, obtainOnDict(inp.name, inp.type.forClass), root.decoders, ordering)
+            mainq, main = [inp for inp in queries if invoker.output.isOf(inp.type.owner)], None
+            if len(mainq) == 1:
+                # If we just have one main query that has the return type model as the owner we can strip the input
+                # name from the criteria names.
+                main = mainq[0]
 
             for inp in queries:
-                nodeDecoders = root.decoders[inp.name] = DecodeNode()
-                nodeOrdering = ordering[inp.name] = DecodeNode()
-                getter = obtainOnDict(inp.name, inp.type.forClass)
+                getter = getterOnDict(inp.name)
 
-                self.decodeQuery(inp.type, getter, nodeDecoders.decoders, nodeOrdering.decoders)
+                equery = EncodeObject()
+                qordering = EncodeObject()
 
-        for name, asscending in ((self.nameOrderAsc, True), (self.nameOrderDesc, False)):
-            if name in root.decoders:
-                log.error('Name conflict for %r in %s', name, invoker)
-            else:
-                order = root.decoders[name] = DecodeOrdering(self.separatorOrderName, asscending)
-                order.decoders.update(ordering)
+                if inp == main:
+                    root.properties.append(EncodeGetter(equery, getter))
+                    ordering.properties.append(EncodeGetter(qordering, getter))
+                else:
+                    root.properties.append(EncodeGetterIdentifier(equery, getter, inp.name))
+                    ordering.properties.append(EncodeGetterIdentifier(qordering, getter, inp.name))
 
-        return DecodeRootString(self.separatorName, root)
+                self.encodeQuery(inp.type, equery.properties, qordering.properties)
 
-    def encodePrimitive(self, identifier, typ):
-        '''
-        Create an encode for a primitive type.
-        
-        @param identifier: object
-            The identifier to use for the encode.
-        @param typ: Type
-            The primitive type to create the encode for.
-        @return: MetaEncode
-            The primitive meta encode.
-        '''
-        if typ.isOf(Iter):
-            assert isinstance(typ, Iter)
-            pencode = EncodeCollection(EncodeValue(typ.itemType), identifier)
-        else:
-            pencode = EncodeValue(typ, identifier)
+        root.properties.append(EncodeJoin(ordering, self.separatorValue, self.separatorValueEscape))
 
-        return EncodeGet(getterOnDict(identifier), pencode)
+        return root
 
-    def encodeQuery(self, queryType, getterQuery, encoders, ordering):
+    def encodeQuery(self, queryType, encoders, ordering):
         '''
         Processes the query type and provides encoders and ordering encoders for it.
         
         @param queryType: TypeQuery
             The query type to process.
-        @param getterQuery: callable(object)
-            The call that provides the query instance object.
         @param decoders: dictionary{string, MetaDecode)
             The dictionary where the decoders for the query will be placed.
         @param ordering: dictionary{string, MetaDecode)
             The dictionary where the ordering decoders for the query will be placed.
         '''
         assert isinstance(queryType, TypeQuery), 'Invalid query type %s' % queryType
-        assert callable(getterQuery), 'Invalid query object getter %s' % getterQuery
         assert isinstance(encoders, list), 'Invalid encoders %s' % encoders
-        assert isinstance(ordering, dict), 'Invalid ordering %s' % ordering
+        assert isinstance(ordering, list), 'Invalid ordering %s' % ordering
 
         for etype in queryType.childTypes():
             assert isinstance(etype, TypeCriteriaEntry)
@@ -277,43 +288,37 @@ class ParamMetaService(IMetaService):
 
             if issubclass(etype.forClass, AsOrdered): exclude.update(('ascending', 'priority'))
 
-            for prop, propType in criteria.properties.items():
+            for prop, typ in criteria.properties.items():
                 if prop in exclude: continue
-                pencode = self.encodePrimitive(prop, propType)
-                encoders.append(EncodeGet(getterOnObjIfIn(prop, ctype.childTypeFor(prop)), pencode))
+                if typ.isOf(Iter):
+                    assert isinstance(typ, Iter)
+                    eprop = EncodeCollection(EncodeValue(typ.itemType))
+                    eprop = EncodeJoin(eprop, self.separatorValue, self.separatorValueEscape)
+                else: eprop = EncodeValue(typ)
 
-    # ----------------------------------------------------------------
+                eprop = EncodeGetterIdentifier(eprop, getterOnObjIfIn(prop, ctype.childTypeFor(prop)), prop)
+                if prop in criteria.main: emain.encoders.append(eprop)
+                else: ecrtieria.properties.append(eprop)
 
-    def findInvokerModel(self, invoker):
-        '''
-        Finds out the invoker targeted model.
-        
-        @param invoker: Invoker
-            The invoker to find the model for.
-        @return: TypeModel|None
-            The found type model or None.
-        '''
-        assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
-        if isinstance(invoker.output, TypeModel): return invoker.output
-        elif isinstance(invoker.output, TypeModelProperty): return invoker.output.parent
+            if issubclass(etype.forClass, AsOrdered):
+                eorder = EncodeGetValue(getterOrdering(etype))
+                eorder = EncodeIdentifier(eorder, etype.name)
+                ordering.append(eorder)
 
 # --------------------------------------------------------------------
 
-def setterOrdering(getterQuery, entryType):
+def setterOrdering(entryType):
     '''
     Create a setter specific for the AsOrdered criteria.
     
-    @param getterQuery: callable(object)
-        The call used for getting the query instance.
     @param entryType: TypeCriteriaEntry
         The criteria entry type of the AsOrdered criteria to manage.
     '''
-    assert callable(getterQuery), 'Invalid query getter %s' % getterQuery
     assert isinstance(entryType, TypeCriteriaEntry), 'Invalid entry type %s' % entryType
     assert isinstance(entryType.parent, TypeQuery)
 
     def setter(obj, value):
-        query = getterQuery(obj)
+        assert entryType.parent.isValid(obj), 'Invalid query object %s' % obj
         # We first find the biggest priority in the query
         priority = 0
         for etype in entryType.parent.childTypes():
@@ -321,18 +326,18 @@ def setterOrdering(getterQuery, entryType):
             if etype == entryType: continue
             if not issubclass(etype.forClass, AsOrdered): continue
 
-            if etype in query:
-                criteria = getattr(query, etype.name)
+            if etype in obj:
+                criteria = getattr(obj, etype.name)
                 assert isinstance(criteria, AsOrdered), 'Invalid criteria %s' % criteria
                 if AsOrdered.priority in criteria: priority = max(priority, criteria.priority)
 
-        criteria = getattr(query, entryType.name)
+        criteria = getattr(obj, entryType.name)
         assert isinstance(criteria, AsOrdered), 'Invalid criteria %s' % criteria
         criteria.ascending = value
         criteria.priority = priority + 1
     return setter
 
-class DecodeOrdering(DecodeNode):
+class DecodeOrdering(DecodeObject):
     '''
     Provides the decoding for the ordering parameters.
     '''
@@ -367,15 +372,199 @@ class DecodeOrdering(DecodeNode):
         if isinstance(value, (list, tuple)): values = value
         else: values = [value]
 
-        invalid = []
         for value in values:
-            if not isinstance(value, str): invalid.append(value)
+            if not isinstance(value, str): return False
             else:
-                if not super().decode(deque(value.split(self.separator)), self.ascending, obj, context):
-                    invalid.append(value)
+                if not super().decode(deque(value.split(self.separator)), self.ascending, obj, context): return False
 
-        if invalid: raise DevelError('Cannot order by %s' % invalid)
         return True
 
+class DecodeParameters(DecodeObject):
+    '''
+    Provides the parameters decode. It will split the string identifiers based on the separator.
+    '''
+
+    def __init__(self, separator):
+        '''
+        Construct the decoder.
+        
+        @param separator: string
+            The separator to be used for converting the string identifier.
+        @param root: IMetaDecode
+            The root meta decode, usually this meta decode and its children only accept deque[string].
+        '''
+        assert isinstance(separator, str), 'Invalid separator %s' % separator
+        super().__init__()
+
+        self.separator = separator
+
+    def decode(self, identifier, value, obj, context):
+        '''
+        @see: IMetaDecode.decode
+        '''
+        if isinstance(identifier, str): identifier = identifier.split(self.separator)
+        if isinstance(identifier, (list, tuple)): identifier = deque(identifier)
+
+        if not isinstance(identifier, deque): return False
+
+        return super().decode(identifier, value, obj, context)
+
 # --------------------------------------------------------------------
+
+def getterOrdering(entryType):
+    '''
+    Create a getter specific for the AsOrdered criteria.
+    
+    @param entryType: TypeCriteriaEntry
+        The criteria entry type of the AsOrdered criteria to manage.
+    '''
+    assert isinstance(entryType, TypeCriteriaEntry), 'Invalid entry type %s' % entryType
+    assert isinstance(entryType.parent, TypeQuery)
+
+    def getter(obj):
+        assert entryType.parent.isValid(obj), 'Invalid query object %s' % obj
+
+        if entryType in obj:
+            criteria = getattr(obj, entryType.name)
+            assert isinstance(criteria, AsOrdered), 'Invalid criteria %s' % criteria
+            if AsOrdered.ascending in criteria: return (criteria.ascending, criteria.priority)
+    return getter
+
+class EncodeOrdering(EncodeObjectExploded):
+    '''
+    Provides the encoding for the ordering parameters.
+    '''
+
+    def __init__(self, nameOrderAsc, nameOrderDesc, separator):
+        '''
+        Construct the order encoder.
+        
+        @param nameOrderAsc: string
+            The identifier used for ascending order.
+        @param nameOrderDesc: string
+            The identifier used for descending order.
+        @param separator: string
+            The separator used for the criteria to be ordered.
+        @param separator: string
+            The separator used for the criteria to be ordered.
+        '''
+        assert isinstance(nameOrderAsc, str), 'Invalid order ascending name %s' % nameOrderAsc
+        assert isinstance(nameOrderDesc, str), 'Invalid order descending name %s' % nameOrderDesc
+        assert isinstance(separator, str), 'Invalid separator %s' % separator
+        super().__init__()
+
+        self.nameOrderAsc = nameOrderAsc
+        self.nameOrderDesc = nameOrderDesc
+        self.separator = separator
+
+    def encode(self, obj, context):
+        '''
+        IMetaEncode.encode
+        '''
+        assert isinstance(context, ContextParse), 'Invalid context %s' % context
+        assert isinstance(context.normalizer, Normalizer)
+        normalize = context.normalizer.normalize
+
+        metaObject = super().encode(obj, context)
+        if metaObject is None: return
+        assert isinstance(metaObject, Object)
+
+        ordering, priortized = [], []
+        for meta in metaObject.properties:
+            assert isinstance(meta, Value), 'Invalid meta %s' % meta
+            if meta.value is SAMPLE:
+                asscending, priority = random.choice((True, False)), random.randint(0, 10)
+            else:
+                assert isinstance(meta.value, tuple), 'The meta value needs to be a two items tuple %s' % meta.value
+                asscending, priority = meta.value
+            if asscending is not None:
+                if isinstance(meta.identifier, str): identifier = normalize(meta.identifier)
+                else:
+                    assert isinstance(meta.identifier, (tuple, list)), 'Invalid identifier %s' % meta.identifier
+                    identifier = self.separator.join(normalize(iden) for iden in meta.identifier)
+
+                if priority is None: ordering.append((identifier, asscending))
+                else: priortized.append((identifier, asscending, priority))
+
+        if not priortized and not ordering: return
+
+        priortized.sort(key=lambda order: not order[1]) # Order by asc/desc
+        priortized.sort(key=lambda order: order[2]) # Order by priority
+
+        ordering.sort(key=lambda order: not order[1]) # Order by asc/desc
+        priortized.extend(ordering)
+
+        return Object(properties=self.groupMeta(priortized, normalize(self.nameOrderAsc), normalize(self.nameOrderDesc)))
+
+    def groupMeta(self, ordering, nameAsc, nameDesc):
+        '''
+        Yields the meta's grouped based on the ascending and descending if they are in consecutive order.
+        
+        @param ordering: list[tuple(string, boolean)]
+            A list containing tuples that have on the first position the ordered identifier and on the second position
+            True for ascending and False for descending.
+        '''
+        assert isinstance(ordering, list), 'Invalid ordering %s' % ordering
+        assert ordering, 'Invalid ordering %s with no elements' % ordering
+
+        ordering = iter(ordering)
+        ord = next(ordering)
+        group, asscending = deque([ord[0]]), ord[1]
+        while True:
+            ord = next(ordering, None)
+
+            if ord and asscending == ord[1]: group.append(ord[0])
+            else:
+                if group:
+                    if len(group) > 1:
+                        yield Collection(nameAsc if asscending else nameDesc, (Value(value=value) for value in group))
+                    else:
+                        yield Value(nameAsc if asscending else nameDesc, group[0])
+
+                if not ord: break
+                group.clear()
+                group.append(ord[0])
+                asscending = ord[1]
+
+class EncodeParameters(EncodeObjectExploded):
+    '''
+    Provides the parameters encode. It will explode the contained meta's and join the identifiers based on the
+    separator.  
+    '''
+
+    def __init__(self, separator):
+        '''
+        Construct the encoder.
+        
+        @param separator: string
+            The separator to be used for joining the string identifier.
+        '''
+        assert isinstance(separator, str), 'Invalid separator %s' % separator
+        super().__init__()
+
+        self.separator = separator
+
+    def encode(self, obj, context):
+        '''
+        IMetaEncode.encode
+        '''
+        meta = super().encode(obj, context)
+        if meta is not None:
+            assert isinstance(meta, Object), 'Invalid meta object %s' % meta
+            meta.properties = self.joinIdentifiers(meta.properties)
+            return meta
+
+    def joinIdentifiers(self, metas):
+        '''
+        Join the identifiers from the provided metas.
+        
+        @param metas: Iterable[Meta]
+            The meta's to join the identifiers for.
+        '''
+        assert isinstance(metas, Iterable), 'Invalid meta\'s' % metas
+        for meta in metas:
+            assert isinstance(meta, Value), 'Invalid meta %s, only Value expected' % meta
+            if isinstance(meta.identifier, (list, tuple)):
+                meta.identifier = self.separator.join(meta.identifier)
+            yield meta
 
