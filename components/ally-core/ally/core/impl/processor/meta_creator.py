@@ -41,7 +41,7 @@ rgetattr = lambda prop, obj: getattr(obj, prop)
 @injected
 class MetaCreatorHandler(Processor):
     '''
-    Provides the meta creation based on the response object type. 
+    Provides the meta creation based on the response object type.
     
     Provides on request: NA
     Provides on response: [objMeta]

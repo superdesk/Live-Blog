@@ -35,12 +35,11 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         '''
         EntityCRUDServiceAlchemy.__init__(self, BlogMapped)
 
-    def getBlog(self, blogId, userId=None):
+    def getBlog(self, blogId):
         '''
         @see: IBlogService.getBlog
         '''
         sql = self.session().query(BlogMapped)
-        if userId: sql = sql.filter(BlogMapped.Creator == userId)
         sql = sql.filter(BlogMapped.Id == blogId)
 
         try: return sql.one()

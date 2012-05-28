@@ -3,15 +3,14 @@
 	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" href="#put-live">Put live</a>
 	<ul class="nav nav-pills pull-left">	
     {!#blog!}
-		<li class="active"><a href="">{Title}</a></li>
+		<li class="active"><a href="">{Title|t}</a></li>
 		<li class=""><a href="configure.html">Configure Blog</a></li>
 		<li class=""><a href="#">Manage collaborators</a></li>
 		<li class=""><a href="#">Manage feeds</a></li>
 	{!/blog!}	
     </ul>
 </div>
- 
-<div class="subnav subnav-fixed hidden">
+ <div class="subnav subnav-fixed hidden">
 <form class="form-inline">
 	<input type="text" class="span5" placeholder="Live Blog name"> <select id="language" class="span3" >
                 <option>Select language</option>
@@ -22,4 +21,28 @@
     </form>
 </div>  
 </header>
+<div class="modal hide fade" id="put-live">
+  <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
+    <h3>_('Put live')</h3>
+  </div>
+  <div class="modal-body">
+    <p>_('Are you sure you want to put Live Blog') <strong>{Title}</strong> _('online?')</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">_('No')</a>
+    <a href="#" class="btn btn-primary" data-dismiss="modal">_('Yes')</a>
+  </div>
+</div>
+<div class="modal hide fade" id="unpublish-live">
+  <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
+    <h3>_('Put live')</h3>
+  </div>
+  <div class="modal-body">
+    <p>_('Are you sure you want to put Live Blog') <strong>{Title}</strong> _('online?')</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">_('No')</a>
+    <a href="#" class="btn btn-primary" data-dismiss="modal">_('Yes')</a>
+  </div>
+</div>
 {+body/}
