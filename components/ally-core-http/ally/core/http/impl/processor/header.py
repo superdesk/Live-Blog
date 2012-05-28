@@ -174,7 +174,7 @@ class HeaderStandardHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
         accContentTypes, accCharSets, accLanguages
     Provides on response: NA
     
-    Requires on request: content, headers, params
+    Requires on request: content, headers, parameters
     Requires on response: [contentType], [charSet], [contentLanguage], [allows], [contentLocation]
     '''
 
@@ -215,16 +215,16 @@ class HeaderStandardHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
         content = req.content
         assert isinstance(content, ContentRequestHTTP), 'Invalid content on request %s' % content
         try:
-            p = self._parse(self.nameContentType, req.headers, req.params, VALUE_ATTRIBUTES)
+            p = self._parse(self.nameContentType, req.headers, req.parameters, VALUE_ATTRIBUTES)
             if p:
                 content.contentType, attributes = p
                 content.charSet = attributes.pop(self.attrContentTypeCharSet, content.charSet)
                 content.contentTypeAttributes.update(attributes)
 
-            p = self._parse(self.nameContentLanguage, req.headers, req.params, VALUE)
+            p = self._parse(self.nameContentLanguage, req.headers, req.parameters, VALUE)
             if p: content.contentLanguage = p
 
-            p = self._parse(self.nameContentLength, req.headers, req.params, VALUE_NO_PARSE)
+            p = self._parse(self.nameContentLength, req.headers, req.parameters, VALUE_NO_PARSE)
             if p:
                 try:
                     content.length = int(p)
@@ -232,13 +232,13 @@ class HeaderStandardHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
                     rsp.setCode(INVALID_HEADER_VALUE, 'Invalid value %r for header %r' % (p, self.nameContentLength))
                     return
 
-            p = self._parse(self.nameAccept, req.headers, req.params, VALUES)
+            p = self._parse(self.nameAccept, req.headers, req.parameters, VALUES)
             if p: req.accContentTypes.extend(p)
 
-            p = self._parse(self.nameAcceptCharset, req.headers, req.params, VALUES)
+            p = self._parse(self.nameAcceptCharset, req.headers, req.parameters, VALUES)
             if p: req.accCharSets.extend(p)
 
-            p = self._parse(self.nameAcceptLanguage, req.headers, req.params, VALUES)
+            p = self._parse(self.nameAcceptLanguage, req.headers, req.parameters, VALUES)
             if p: req.accLanguages.extend(p)
         except DevelError as e:
             assert isinstance(e, DevelError)

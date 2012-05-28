@@ -36,7 +36,6 @@ UNKNOWN_ENCODING = Code(400, False) # HTTP code 400 Bad Request
 UNKNOWN_DECODING = Code(400, False) # HTTP code 400 Bad Request
 UNKNOWN_FORMAT = Code(400, False) # HTTP code 400 Bad Request
 UNKNOWN_LANGUAGE = Code(400, False) # HTTP code 400 Bad Request
-UNKNOWN_PARAMS = Code(400, False) # HTTP code 400 Bad Request
 INVALID_FORMATING = Code(400, False) # HTTP code 400 Bad Request
 BAD_CONTENT = Code(400, False) # HTTP code 400 Bad Request
 ILLEGAL_PARAM = Code(400, False) # HTTP code 400 Bad Request

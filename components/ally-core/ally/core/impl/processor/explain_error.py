@@ -65,17 +65,90 @@ class ExplainErrorHandler(IProcessor):
             error = {'code':str(rsp.code.code)}
             if isinstance(rsp.codeMessage, str):
                 messages.append(rsp.codeMessage)
+
             elif isinstance(rsp.codeMessage, InputError):
                 iexc = rsp.codeMessage
                 assert isinstance(iexc, InputError)
                 for msg in iexc.message:
                     assert isinstance(msg, Ref)
                     messages.append(msg.message)
-            if messages: error['message'] = ', '.join(messages)
+
+            if isinstance(rsp.codeText, str):
+                messages.append(rsp.codeText)
+
+            if messages: error['message'] = '\n'.join(messages)
             rsp.obj = {'error':error}
             rsp.objType = None
             rsp.objMeta = None
             rsp.contentType = None
+            rsp.location = None
+            if not rsp.contentConverter:
+                rsp.contentConverter = self.contentConverterDefault
+            encodingChain = self.encodings.newChain()
+            assert isinstance(encodingChain, ProcessorsChain)
+            encodingChain.process(req, rsp)
+
+# --------------------------------------------------------------------
+
+@injected
+class ExplainDetailedErrorHandler(IProcessor):
+    '''
+    Implementation for a processor that provides on the response a form of the error that can be extracted from 
+    the response code and error message, this processor uses the code status (success) in order to trigger the error
+    response.
+    
+    Provides on request: NA
+    Provides on response: obj, objType, contentLocation, contentType, contentLanguage, contentConverter
+    
+    Requires on request: NA
+    Requires on response: code
+    '''
+
+    encodings = Processors
+    # The encoding processors used for presenting the error, if a processor is successful in the encoding 
+    # process it has to stop the chain execution.
+    languageDefault = str
+    # The default language to use, if none available
+    contentConverterDefault = Converter
+    # The converter used by default if none is fount on the response.
+
+    def __init__(self):
+        assert isinstance(self.encodings, Processors), 'Invalid encodings processors %s' % self.encodings
+        assert isinstance(self.languageDefault, str), 'Invalid string %s' % self.languageDefault
+        assert isinstance(self.contentConverterDefault, Converter), \
+        'Invalid content Converter object %s' % self.contentConverterDefault
+
+    def process(self, req, rsp, chain):
+        '''
+        @see: IProcessor.process
+        '''
+        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
+
+        process(chain, req, rsp)
+
+        if not rsp.code.isSuccess:
+            messages = []
+            error = {'code':str(rsp.code.code)}
+            if isinstance(rsp.codeMessage, str):
+                messages.append(rsp.codeMessage)
+            elif isinstance(rsp.codeMessage, InputError):
+                iexc = rsp.codeMessage
+                assert isinstance(iexc, InputError)
+                for msg in iexc.message:
+                    assert isinstance(msg, Ref)
+                    if not msg.model:
+                        messages.append(msg.message)
+                    elif not msg.property:
+                        mmodel = _dict(error, msg.model)
+                        _list(mmodel, 'message').append(msg.message)
+                    else:
+                        mmodel = _dict(error, msg.model)
+                        mmodel[msg.property] = msg.message
+            if messages: error['message'] = messages
+            rsp.obj = {'error':error}
+            rsp.objType = None
+            rsp.objMeta = None
             rsp.location = None
             if not rsp.contentConverter:
                 rsp.contentConverter = self.contentConverterDefault
@@ -103,3 +176,17 @@ def process(chain, req, rsp):
     except:
         rsp.setCode(INTERNAL_ERROR, 'Upps, it seems I am in a pickle, please consult the server logs')
         log.exception('An exception occurred while trying to process request %s and response %s', req, rsp)
+
+def _dict(d, key):
+    v = d.get(key)
+    if not v:
+        v = {}
+        d[key] = v
+    return v
+
+def _list(d, key):
+    v = d.get(key)
+    if not v:
+        v = []
+        d[key] = v
+    return v

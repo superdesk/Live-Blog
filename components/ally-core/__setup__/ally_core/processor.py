@@ -11,18 +11,15 @@ Provides the configurations for the processors used in handling the request.
 
 from .converter import defaultErrorContentConverter
 from .encoder_decoder import handlersDecoding, handlersEncoding
-from .parameter import decodersParameters
 from ally.container import ioc
 from ally.core.impl.processor.converter import ConverterHandler
 from ally.core.impl.processor.decoding import DecodingHandler
 from ally.core.impl.processor.encoding import EncodingProcessorsHandler
-from ally.core.impl.processor.explain_detailed_error import \
+from ally.core.impl.processor.explain_error import ExplainErrorHandler, \
     ExplainDetailedErrorHandler
-from ally.core.impl.processor.explain_error import ExplainErrorHandler
 from ally.core.impl.processor.invoking import InvokingHandler
 from ally.core.impl.processor.meta_creator import MetaCreatorHandler
 from ally.core.impl.processor.method_invoker import MethodInvokerHandler
-from ally.core.impl.processor.parameters import ParametersHandler
 from ally.core.impl.processor.redirect import RedirectHandler
 from ally.core.impl.processor.request_types import RequestTypesHandler
 from ally.core.spec.server import Processors, IProcessor
@@ -72,12 +69,6 @@ def converter() -> IProcessor: return ConverterHandler()
 def requestTypes() -> IProcessor: return RequestTypesHandler()
 
 @ioc.entity
-def parameters() -> IProcessor:
-    b = ParametersHandler()
-    b.decoders = decodersParameters()
-    return b
-
-@ioc.entity
 def decoding() -> IProcessor:
     b = DecodingHandler()
     b.decodings = Processors(*handlersDecoding())
@@ -108,12 +99,12 @@ def handlersRedirect():
     '''
     The handlers that will be used in processing a redirect.
     '''
-    return [converter(), requestTypes(), parameters(), decoding(), invokingHandler()]
+    return [converter(), requestTypes(), decoding(), invokingHandler()]
 
 @ioc.entity
 def handlersResources():
     '''
     All the handlers that will be used in processing a REST request.
     '''
-    return [explainError(), methodInvoker(), redirect(), metaCreator(), converter(), requestTypes(), parameters(),
-            decoding(), invokingHandler(), encoding()]
+    return [explainError(), methodInvoker(), redirect(), metaCreator(), converter(), requestTypes(), decoding(),
+            invokingHandler(), encoding()]
