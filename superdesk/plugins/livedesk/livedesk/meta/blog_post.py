@@ -10,12 +10,15 @@ Contains the SQL alchemy meta for blog post API.
 '''
 
 from ..api.blog_post import BlogPost
-from sqlalchemy.schema import Column, ForeignKey
-from superdesk.post.meta.post import PostMapped
-from superdesk.meta.metadata_superdesk import Base
 from livedesk.meta.blog import BlogMapped
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects.mysql.base import INTEGER
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.sql.expression import case
+from superdesk.meta.metadata_superdesk import Base
+from superdesk.post.meta.post import PostMapped
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 
 # --------------------------------------------------------------------
 
@@ -43,4 +46,17 @@ class BlogPostMapped(BlogPostDefinition, PostMapped, BlogPost):
     Provides the mapping for BlogPost in the form of extending the Post.
     '''
     __table_args__ = dict(BlogPostDefinition.__table_args__, extend_existing=True)
+
+    @hybrid_property
+    def AuthorPerson(self):
+        if self.author is None: return self.Creator
+        if self.author.Person is not None: return self.author.Person
+
+    # Expression for hybrid ------------------------------------
+    @classmethod
+    @AuthorPerson.expression
+    def _AuthorPerson(cls):
+        return case([(cls.author == None, cls.Creator)], else_=
+                    case([(CollaboratorMapped.Person != None, CollaboratorMapped.Person)]))
+
 
