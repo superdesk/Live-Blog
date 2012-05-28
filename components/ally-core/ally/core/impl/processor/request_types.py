@@ -19,7 +19,7 @@ from ally.core.spec.server import Processor, ProcessorsChain, Request, Response
 @injected
 class RequestTypesHandler(Processor):
     '''
-    Implementation for a processor that provides the special request type arguments like @see: TypeLocale.
+    Implementation of a processor that provides the special request type arguments like @see: TypeLocale.
     
     Provides on request: arguments
     Provides on response: NA

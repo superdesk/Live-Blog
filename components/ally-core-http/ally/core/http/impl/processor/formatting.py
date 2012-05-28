@@ -22,9 +22,9 @@ from ally.exception import DevelError
 @injected
 class FormattingProviderHandler(HeaderHTTPBase, Processor, EncoderHeader):
     '''
-    Provides the reading from the header of the formating (object format) used in the response, the decoding 
-    of HTTP request header 'X-Format-*' and 'X-FormatContent-*'. Also provides the encoding in the response
-    header for the formating used.
+    Reads from the header the formating (object format) used in the response, the decoding 
+    of HTTP request header 'X-Format-*' and 'X-FormatContent-*'. Also provides the encoding
+    of the formating used in the response header.
     
     Provides on request: content.objFormat
     Provides on response: objFormat

@@ -39,7 +39,7 @@ define
                             .done(function(actions)
                             {
                                 require([superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js'],
-                                function(EditApp){ new EditApp(theBlog); });
+                                function(EditApp){ new EditApp(theBlog).render(); });
                             });
                         });
                 });
