@@ -19,6 +19,7 @@ from superdesk.collaborator.api.collaborator import Collaborator
 from ally.api.type import Iter, Count
 from ally.api.criteria import AsRangeOrdered, AsBoolean
 from ally.api.authentication import auth
+from superdesk.person.api.person import Person
 
 # --------------------------------------------------------------------
 
@@ -29,6 +30,7 @@ class BlogPost(Post):
     '''
     CId = int
     Blog = Blog
+    AuthorPerson = Person
     AuthorName = str
 
 # --------------------------------------------------------------------
