@@ -13,6 +13,7 @@ define('providers/flickr', [
     'tmpl!livedesk>providers/flickr/licenses',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
+    'tmpl!livedesk>providers/loading',
     'jquery'
 ], function( providers,  $ ) {
 $.extend(providers.flickr, {
@@ -53,6 +54,13 @@ $.extend(providers.flickr, {
                         
                 });
 	},
+        showLoading : function(where) {
+             $(where).tmpl('livedesk>providers/loading', function(){
+             });
+        },
+        stopLoading : function(where) {
+            $(where).html('');
+        },
         doFlickerImage : function(start) {
             var self = this;
             var text = $('#flickr-search-text').val();
@@ -68,10 +76,10 @@ $.extend(providers.flickr, {
             var license = $('#flickr-license').val();
             
             
-            var fullUrl = str.format(this.url,{page: start, text: text, apykey: this.apykey, license : license});            
-            
+            var fullUrl = str.format(this.url,{start: start, text: text, apykey: this.apykey, license : license});
+            this.showLoading('#flickr-image-more');
             $.getJSON(fullUrl, {}, function(data){
-                    
+                    self.stopLoading('#flickr-image-more');
                     self.data = self.data.concat(data.photos.photo);
                     data.photos.photos = data.photos.photo;
                     
@@ -99,11 +107,16 @@ $.extend(providers.flickr, {
                         var loadMore = {
                             name : 'flickr-load-more'
                         }
-                        $('#flickr-image-more').tmpl('livedesk>providers/load-more', loadMore, function(){
-                            $(this).find('[name="flickr-load-more"]').on('click', function(){
-                                self.doFlickerImage(nextpage)
+                        
+                        if ( nextpage <= totalpages ) {
+                            $('#flickr-image-more').tmpl('livedesk>providers/load-more', loadMore, function(){
+                                $(this).find('[name="flickr-load-more"]').on('click', function(){
+                                    self.doFlickerImage(nextpage)
+                                });
                             });
-                        });
+                        }
+                        
+                        
                     } else {
                         $.tmpl('livedesk>providers/no-results', {}, function(e,o) {
                             $('#flickr-image-results').append(o);
