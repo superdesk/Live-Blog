@@ -654,6 +654,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     },
                     moveToolbar = function(event)
                     {
+                        if( event.type == 'keydown' && $.inArray(event.keyCode, [224, 17, 18, 16, 9])) return;
                         //console.profile('moving toolbar');
                         toolbar.removeClass(self.options.toolbar.classes.topFixed);
                         var para = findBlockParent();
