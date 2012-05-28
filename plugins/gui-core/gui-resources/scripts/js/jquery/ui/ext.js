@@ -62,14 +62,14 @@ define('jqueryui/ext',['jquery', 'jqueryui/widget', 'jqueryui/dialog'], function
 					objectModel.options = $.extend( true, {}, objectModel._getCreateOptions(), prototypeOptions, options);
 					var extendPlugins = (applyPlugins ? applyPlugins : objectModel.plugins);
 					if( typeof objectModel.plugins != 'undefined' )
-						for( i in extendPlugins ) 
+						for( var i in extendPlugins ) 
 						{
 							if( $.isFunction(extendPlugins[i]) ) // instantiate if function
 								objectModel.plugins[i] = new extendPlugins[i];
 							if( objectModel.plugins[i] && $.isFunction(objectModel.plugins[i]._create) ) // call init per plugin
 								objectModel.plugins[i]._create.call(objectModel, self);
 						}
-
+					
 					if(objectModel.pluginsDestroy) self.on('remove', function()
 	                { 
 	                    objectModel.pluginsDestroy.call(objectModel, self); 
