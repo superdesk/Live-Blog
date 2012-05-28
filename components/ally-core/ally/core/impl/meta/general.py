@@ -16,12 +16,12 @@ from ally.core.spec.resources import Normalizer, Converter
 
 class WithSetter:
     '''
-    Provides the base of a meta decode that has a setter.
+    Provides the base of a meta that has a setter.
     '''
 
     def __init__(self, setter):
         '''
-        Construct the decoder with setter.
+        Construct with setter.
         
         @param setter: callable(object, object)
             The setter callable, takes as the first parameter the object to set the value two and as a second parameter
@@ -33,12 +33,12 @@ class WithSetter:
 
 class WithGetter:
     '''
-    Provides the base of a meta decode that has a getter.
+    Provides the base of a meta that has a getter.
     '''
 
     def __init__(self, getter):
         '''
-        Construct the decoder with getter.
+        Construct with getter.
         
         @param getter: callable(object)
             The getter callable, takes as the parameter the object to get the value from. If the getter is not able to
@@ -47,6 +47,24 @@ class WithGetter:
         assert callable(getter), 'Invalid getter %s' % getter
 
         self.getter = getter
+
+class WithIdentifier:
+    '''
+    Provides the base of a meta that has identifier.
+    '''
+
+    def __init__(self, identifier):
+        '''
+        Construct with identifier.
+        
+        @param identifier: string|list[string]|tuple(string)
+            The identifier.
+        '''
+        if __debug__:
+            if not isinstance(identifier, str):
+                for iden in identifier: assert isinstance(iden, str), 'Invalid identifier element %s' % iden
+
+        self.identifier = identifier
 
 # --------------------------------------------------------------------
 
@@ -57,6 +75,15 @@ class ContextParse(Context):
     normalizer = Normalizer
     converter = Converter
 
+    def __init__(self, normalizer, converter):
+        '''
+        Construct the parse context.
+        '''
+        assert isinstance(normalizer, Normalizer), 'Invalid normalizer %s' % normalizer
+        assert isinstance(converter, Converter), 'Invalid converter %s' % converter
+
+        self.normalizer = normalizer
+        self.converter = converter
 
 # --------------------------------------------------------------------
 
@@ -189,8 +216,8 @@ def setterWithGetter(getter, setter):
 
 def obtainOnDict(key, creator):
     '''
-    Create a obtain object on a dictionary for the provided key. Obtaining means that if the object is not present
-    one will be created.
+    Create an obtain object on a dictionary for the provided key. Obtaining means that if there is not value
+    for the key one will be created and assigned.
     
     @param key: string
         The key in the dictionary to obtain the value.
@@ -201,8 +228,28 @@ def obtainOnDict(key, creator):
 
     def obtain(obj):
         assert isinstance(obj, dict), 'Invalid dictionary %s' % obj
-        q = obj.get(key)
-        if q is None: obj[key] = q = creator()
-        assert q is not None, 'No value provided by creator %s' % creator
-        return q
+        value = obj.get(key)
+        if value is None: obj[key] = value = creator()
+        assert value is not None, 'No value provided by creator %s' % creator
+        return value
+    return obtain
+
+def obtainOnObj(attribute, creator):
+    '''
+    Create an obtain object on another object for the provided attribute. Obtaining means that if there is not value
+    for the attribute one will be created and assigned.
+    
+    @param attribute: string
+        The attribute in the object to obtain the value.
+    @param creator: callable()
+        The creator to use in generating the object, has to take no arguments.
+    '''
+    assert callable(creator), 'Invalid creator %s' % creator
+
+    def obtain(obj):
+        assert obj is not None, 'An object is required'
+        value = getattr(obj, attribute, None)
+        if value is None: obj[attribute] = value = creator()
+        assert value is not None, 'No value provided by creator %s' % creator
+        return value
     return obtain

@@ -35,7 +35,7 @@ class MethodOverrideHandler(HeaderHTTPBase, IProcessor):
     Provides on request: method
     Provides on response: NA
     
-    Requires on request: headers, params, method
+    Requires on request: headers, parameters, method
     Requires on response: NA
     '''
 
@@ -69,7 +69,7 @@ class MethodOverrideHandler(HeaderHTTPBase, IProcessor):
         assert isinstance(req.content, ContentRequest), 'Invalid content on request %s' % req.content
 
         try:
-            p = self._parse(self.nameXMethodOverride, req.headers, req.params, VALUE_NO_PARSE)
+            p = self._parse(self.nameXMethodOverride, req.headers, req.parameters, VALUE_NO_PARSE)
         except DevelError as e:
             assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
