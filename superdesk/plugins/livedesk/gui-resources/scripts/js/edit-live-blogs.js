@@ -223,10 +223,16 @@ define([
                                             .done(function()
                                             {
                                                 $(el).parents('li').addClass('update-success').removeClass('update-error');
+                                                setTimeout(function(){
+                                                    $(el).parents('li').removeClass('update-success update-error');
+                                                }, 5000);
                                             })
                                             .fail(function()
                                             {
                                                 $(el).parents('li').addClass('update-error').removeClass('update-success');
+                                                setTimeout(function(){
+                                                    $(el).parents('li').removeClass('update-success update-error');
+                                                }, 5000);
                                             });
                                     });
                                 
