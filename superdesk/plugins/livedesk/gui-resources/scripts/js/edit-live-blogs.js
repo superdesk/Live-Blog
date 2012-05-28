@@ -47,13 +47,13 @@ define([
                             })
                             .done(function()
                             {  
-                                content.find('.update-success').removeClass('hide')
-                                setTimeout(function(){ content.find('.update-success').addClass('hide'); }, 5000);
+                                content.find('.tool-box-top .update-success').removeClass('hide')
+                                setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
                             })
                             .fail(function()
                             { 
-                                content.find('.update-error').removeClass('hide')
-                                setTimeout(function(){ content.find('.update-error').addClass('hide'); }, 5000);
+                                content.find('.tool-box-top .update-error').removeClass('hide')
+                                setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
                             });
                         });
                     }
@@ -86,8 +86,8 @@ define([
                 providers[idx].init(theBlog);
             })
             .on('hide','a[data-toggle="tab"]', function(e)
-                    { console.log('cifi-cif'); });
-            
+                    { console.log('cifi-cif'); })
+            .find('.actived a').tab('show');
         },
         postHref = null,
         updateInterval = 0,
@@ -105,11 +105,11 @@ define([
         {
             new $.rest(postHref)
             .request({data:{'startEx.cId':latestPost}})
-            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
+            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, AuthorPerson.*')
             .done(function(posts)
             {
-                var posts = $.avatar.parse(this.extractListData(posts));
-                if(!posts) return; 
+                if(!posts) return;
+                var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
                 for(var i=0; i<posts.length; i++)
                     latestPost = Math.max(latestPost, parseInt(posts[i].CId));
                 updateItemCount += posts.length;
@@ -203,15 +203,32 @@ define([
 
                     postHref = blogData.PostPublished.href;
                     this.get('PostPublished')
-                        .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Author.Person.*')
+                        .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, AuthorPerson.*')
                         .done(function(posts)
                         {
-                            var posts = $.avatar.parse(this.extractListData(posts));
+                            var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
                             $('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
                             {
                                 // edit posts
                                 $('#timeline-view .post-list li .editable', content)
-                                    .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+                                    .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'})
+                                    .on('focusout.livedesk', function(){
+                                        var el = this,
+                                        postId = $(el).attr('data-post-id');
+                                        if(!blogHref) return;
+                                        new $.rest(blogHref+'/Post/'+postId).update
+                                            ({
+                                                Content: $(el).html()
+                                            })
+                                            .done(function()
+                                            {
+                                                $(el).parents('li').addClass('update-success').removeClass('update-error');
+                                            })
+                                            .fail(function()
+                                            {
+                                                $(el).parents('li').addClass('update-error').removeClass('update-success');
+                                            });
+                                    });
                                 
                                 // bind update event for new results notification button
                                 $('#timeline-view .new-results', content)
