@@ -493,7 +493,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         }
                         catch(e){ /*console.exception(e);*/ }
                     var self = this;
-                    $(elements).on('keyup mouseup', function()
+                    $(elements).on('keyup.texteditor mouseup.texteditor', function()
                     {
                         try
                         {
@@ -568,6 +568,20 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     return command;
                 }
             },
+            elements:
+            {
+                _create: function(elements)
+                {
+                    $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function()
+                    {
+                        $(this).addClass('focus');
+                    });
+                    $(elements).on('blur.texteditor focusout.texteditor', function()
+                    {
+                        $(this).removeClass('focus');
+                    });
+                }
+            },
             draggableToolbar:
             {
                 isDragged: false,
@@ -588,11 +602,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     toolbar.on('dblclick', function()
                     { 
                         isDragged = false;
+                        $(elements).data('toolbar-dragged', false);
                         $(elements).trigger('focusin');
                     });
                     $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function(event)
                     {
-                        isDragged && toolbar.show() && event.stopImmediatePropagation();
+                        isDragged && toolbar.show() && $(this).data('toolbar-dragged', true);
                     });
                 }
             },
@@ -675,8 +690,11 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     // timer here cause webkit is fail
                     $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function(event)
                     {
-                        var self = this;
-                        setTimeout(function(){ moveToolbar.call(self, event); }, 1); 
+                        if( !$(this).data('toolbar-dragged') )
+                        {
+                            var self = this;
+                            setTimeout(function(){ moveToolbar.call(self, event); }, 1);
+                        }
                     });
                     $(elements).on('blur.texteditor focusout.texteditor', hideToolbar);
                 }

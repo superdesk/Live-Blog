@@ -1,24 +1,22 @@
-<ul class="post-list wraped">
 {#Posts}
 	{@if cond="'{Type.Key}'=='wrapup'"}
-	</ul>
-	<div idx="{@idx}{.}{/idx}"class="wrapup open {?PublishedOn}published{:else}unpublished{/PublishedOn}">
-    	<div class="arrow"></div>
-    	<div class="wrapup-content">
-			{Content}
-        </div>
-        <div class="clear"></div>
-	</div>
-	<ul class="post-list wraped">
+    <li idx="{@idx}{.}{/idx}" startx="{startx}" class="wrapup open {?PublishedOn}published{:else}draggable{/PublishedOn}">
+       <div class="drag-bar"></div>
+       <div class="arrow"></div>
+       <div class="wrapup-content">
+            {Content}
+       </div>
+      <div class="clear"></div>
+    </li>
 	{:else}
 		{@if cond="'{Author.Source.Name}'=='google'"}
-		<li  idx="{@idx}{.}{/idx}" class="{Author.Source.Name} {?PublishedOn}published{:else}unpublished{/PublishedOn}">
+		<li idx="{@idx}{.}{/idx}" startx="{startx}" class="{Author.Source.Name} {?PublishedOn}published{:else}draggable{/PublishedOn}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#" class="close">x</a>
 	        </div>
 		{:else}
-		<li idx="{@idx}{.}{/idx}" class="quote {Author.Source.Name} {?PublishedOn}published{:else}unpublished{/PublishedOn}">
+		<li idx="{@idx}{.}{/idx}" startx="{startx}" class="with-avatar {Author.Source.Name} {Type.Key} {?PublishedOn}published{:else}draggable{/PublishedOn}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#" class="close">x</a>
@@ -47,4 +45,3 @@
 		</li>
 	{/if}
 {/Posts}
-</ul>
