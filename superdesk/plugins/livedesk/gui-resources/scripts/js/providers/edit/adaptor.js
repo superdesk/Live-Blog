@@ -13,11 +13,6 @@ define('providers/edit/adaptor', [
             },
             universal: function(data, el) {
                 return data.Id;
-/*                return {
-                    Content: data.Content,
-                    Type: data.Type.Key,
-                };
-*/
             }
         }
     });
