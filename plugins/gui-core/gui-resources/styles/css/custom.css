@@ -31,7 +31,7 @@ html, body{
     text-indent: 100%;
 	white-space: nowrap;
 	overflow: hidden;
-	background:url(../../images/live-desk_logo.png) no-repeat 0 10px;
+	background:url(../../images/live-desk_logo.png) no-repeat 0 3px;
 	padding: 8px 0 12px;
 	margin:0 20px 0 0;
 	width:100px;
@@ -1471,6 +1471,26 @@ bootstrap.css (line 1929)
 .ui-widget-content a {
     color:#0088CC;
 }
+
+
+
+/*
+====================================================
+  Misc, overrides
+====================================================
+*/
+.close.image {
+    width:12px;
+    height:18px;
+    background: url(../../images/image-close.png) no-repeat 0 0;
+    text-indent:100%;
+    white-space:nowrap;
+    overflow:hidden;
+}
+.close.image:hover {
+    background-position:0 -20px;
+}
+
 
 .ui-draggable-dragging {
     max-width:500px;
