@@ -88,6 +88,22 @@ define([
             .on('hide','a[data-toggle="tab"]', function(e)
                     { console.log('cifi-cif'); })
             .find('.actived a').tab('show');
+            
+            $(content).on('click.livedesk', 'li.wrapup', function()
+            {
+                if($(this).hasClass('open'))
+                    $(this).removeClass('open').addClass('closed').nextUntil('li.wrapup').hide();
+                else
+                    $(this).removeClass('closed').addClass('open').nextUntil('li.wrapup').show();
+            }).on('click.livedesk', '.filter-posts a',function(){
+                var datatype = $(this).attr('data-value');
+                if(datatype == 'all') {
+                    $('#timeline-view li').show();
+                } else {
+                    $('#timeline-view li').show();
+                    $('#timeline-view li[data-post-type!="'+datatype+'"]').hide();
+                }
+            });
         },
         postHref = null,
         updateInterval = 0,
@@ -185,12 +201,18 @@ define([
                 clearInterval(updateInterval);
                 update(true, function(){ updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000); });
             },
-            render: function()
+            render: function(){
+                var self = this;
+                new $.restAuth('Superdesk/PostType').xfilter('Key').done(function(postTypes){
+                    self.prerender(postTypes);
+                });
+            },
+            prerender: function(postTypes)
             {
                 var self = this;
                 new $.restAuth(this.blogHref).xfilter('Creator.Name, Creator.Id').done(function(blogData)
                 {
-                    var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
+                    var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers, PostTypes: postTypes}),
                         content = $.superdesk.applyLayout('livedesk>edit', data, function(){
                             initEditBlog.call(this, self.blogHref);
                             require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
