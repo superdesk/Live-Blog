@@ -22,7 +22,11 @@
 	        	<a href="#" class="close">x</a>
 	        </div>
 	        <figure>
-	        	<img src="images/avatar_default_collaborator.png" />
+                {?Avatar}
+                    <img src="{Avatar}" />
+                {:else}
+                    <img src="images/avatar_default_collaborator.png" />
+                {/Avatar}
 	        </figure>
         {/if}
 	        <div class="result-content">
