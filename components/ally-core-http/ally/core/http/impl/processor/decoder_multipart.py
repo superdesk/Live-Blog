@@ -142,6 +142,11 @@ class ContentMultipart(ContentRequestHTTP):
             The content that contains the multipart.
         @param boundary: string
             The boundary used for identifying the multipart bodies.
+            
+        @ivar contentDisposition: string
+            The content disposition for the request content if available.
+        @ivar contentDispositionAttributes: dictionary{string, string}
+            The content disposition extra attributes.
         '''
         assert isinstance(handler, DecodingMultiPartHandler), 'Invalid handler %s' % handler
         assert isinstance(content, ContentRequestHTTP), 'Invalid content %s' % content

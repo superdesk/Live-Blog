@@ -23,13 +23,12 @@ class Context(metaclass=MetaClassBean):
     '''
     A simple class that is a container for the context data.
     '''
-    
+
     def __init__(self, **keyargs):
         '''
         Construct a context with the provided key arguments as context data.
         '''
         for key, value in keyargs.items(): setattr(self, key, value)
-
 
 # --------------------------------------------------------------------
 

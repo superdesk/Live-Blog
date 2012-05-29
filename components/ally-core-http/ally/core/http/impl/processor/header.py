@@ -11,9 +11,9 @@ Provides the standard headers handling.
 
 from ally.api.config import GET, DELETE, INSERT, UPDATE
 from ally.container.ioc import injected
-from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE, \
-    ContentRequestHTTP
-from ally.core.spec.server import IProcessor, Response, ProcessorsChain
+from ally.core.http.spec import RequestHTTP, INVALID_HEADER_VALUE, \
+    ContentRequestHTTP, ResponseHTTP
+from ally.core.spec.server import IProcessor, ProcessorsChain
 from ally.exception import DevelError
 from ally.support.core.util_param import extractParamValues
 from collections import OrderedDict
@@ -165,7 +165,7 @@ class HeaderHTTPBase:
 # --------------------------------------------------------------------
 
 @injected
-class HeaderStandardHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
+class HeaderStandardHandler(HeaderHTTPBase, IProcessor):
     '''
     Implementation of a processor that provides the decoding of standard HTTP request headers to actual request data 
     that can be understood by other processors. Also provides the encoding of those headers.
@@ -175,7 +175,7 @@ class HeaderStandardHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
     Provides on response: NA
     
     Requires on request: content, headers, parameters
-    Requires on response: [contentType], [charSet], [contentLanguage], [allows], [contentLocation]
+    Requires on response: NA
     '''
 
     nameContentType = 'Content-Type'
@@ -210,7 +210,7 @@ class HeaderStandardHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
         @see: Processor.process
         '''
         assert isinstance(req, RequestHTTP), 'Invalid HTTP request %s' % req
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         content = req.content
         assert isinstance(content, ContentRequestHTTP), 'Invalid content on request %s' % content
@@ -244,23 +244,17 @@ class HeaderStandardHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
             assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
-        chain.proceed()
 
-    def encode(self, headers, rsp):
-        '''
-        @see: EncoderHeader.encode
-        '''
-        assert isinstance(headers, dict), 'Invalid headers dictionary %s' % headers
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        chain.process(req, rsp)
 
         if rsp.allows != 0:
             values = [meth[1] for meth in self.methodsAllow if rsp.allows & meth[0] != 0]
-            headers[self.nameAllow] = self._encode(*values)
+            rsp.headers[self.nameAllow] = self._encode(*values)
 
         if rsp.contentType:
-            headers[self.nameContentType] = self._encode((rsp.contentType, (self.attrContentTypeCharSet, rsp.charSet)
-                                                         if rsp.charSet else ()))
+            values = self._encode((rsp.contentType, (self.attrContentTypeCharSet, rsp.charSet) if rsp.charSet else ()))
+            rsp.headers[self.nameContentType] = values
 
-        if rsp.contentLanguage: headers[self.nameContentLanguage] = rsp.contentLanguage
+        if rsp.contentLanguage: rsp.headers[self.nameContentLanguage] = rsp.contentLanguage
 
-        if rsp.location: headers[self.nameLocation] = rsp.encoderPath.encode(rsp.location)
+        if rsp.location: rsp.headers[self.nameLocation] = rsp.encoderPath.encode(rsp.location)

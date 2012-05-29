@@ -12,15 +12,14 @@ Provides the formatting from the http headers for the converters.
 from .header import HeaderHTTPBase, VALUE_NO_PARSE
 from ally.api.type import formattedType
 from ally.container.ioc import injected
-from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE
-from ally.core.spec.server import IProcessor, ProcessorsChain, Response, \
-    ContentRequest
+from ally.core.http.spec import RequestHTTP, INVALID_HEADER_VALUE, ResponseHTTP
+from ally.core.spec.server import IProcessor, ProcessorsChain, ContentRequest
 from ally.exception import DevelError
 
 # --------------------------------------------------------------------
 
 @injected
-class FormattingProviderHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
+class FormattingProviderHandler(HeaderHTTPBase, IProcessor):
     '''
     Reads from the header the formating (object format) used in the response, the decoding 
     of HTTP request header 'X-Format-*' and 'X-FormatContent-*'. Also provides the encoding
@@ -30,7 +29,7 @@ class FormattingProviderHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
     Provides on response: objFormat
     
     Requires on request: headers, parameters, content
-    Requires on response: NA
+    Requires on response: headers
     '''
 
     nameXFormat = 'X-Format-%s'
@@ -47,11 +46,10 @@ class FormattingProviderHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
         '''
         assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
         assert isinstance(req.content, ContentRequest), 'Invalid content on request %s' % req.content
 
         try:
-
             for clsTyp in formattedType:
                 p = self._parse(self.nameXFormat % clsTyp.__name__, req.headers, req.parameters, VALUE_NO_PARSE)
                 if p: rsp.objFormat[clsTyp] = p
@@ -62,14 +60,9 @@ class FormattingProviderHandler(HeaderHTTPBase, IProcessor, EncoderHeader):
             assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)
             return
-        chain.proceed()
 
-    def encode(self, headers, rsp):
-        '''
-        @see: EncoderHeader.encode
-        '''
-        assert isinstance(headers, dict), 'Invalid headers dictionary %s' % headers
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        chain.process(req, rsp)
 
-        for clsTyp, value in rsp.objFormat.items():
-            headers[self.nameXFormat % clsTyp.__name__] = value
+        if rsp.code.isSuccess:
+            for clsTyp, value in rsp.objFormat.items():
+                rsp.headers[self.nameXFormat % clsTyp.__name__] = value

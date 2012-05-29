@@ -56,9 +56,9 @@ class BabelConverterHandler(IProcessor):
                }
 
     defaults = {
-               Date:'medium',
-               Time:'medium',
-               DateTime:'medium'
+               Date:'short',
+               Time:'short',
+               DateTime:'short'
                }
 
     def __init__(self):

@@ -96,7 +96,7 @@ def handlersFetching():
     The specific handlers to be used for an actual invoking procedure, used by the meta filter to actually fetch 
     entities whenever the X-Filter is used and there is no compound method available.
     '''
-    return [methodInvoker(), requestTypes(), parameter(), invokingHandler()]
+    return [methodInvoker(), requestTypes(), invokingHandler()]
 
 # --------------------------------------------------------------------
 

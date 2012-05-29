@@ -9,49 +9,17 @@ Created on Jul 8, 2011
 Provides specifications for APIs used by the HTTP server.
 '''
 
-import abc
-from ally.core.spec.server import Request, ContentRequest
+from ally.core.spec.server import Request, ContentRequest, Response
 from ally.core.spec.codes import Code
 from collections import OrderedDict, deque
 
 # --------------------------------------------------------------------
 
-class RequestHTTP(Request):
-    '''
-    Provides the request extension with additional HTTP data.
-    
-    @ivar path: list[string]
-        The split relative request path.
-    @ivar headers: dictionary
-        The headers of the request
-    @ivar parameters: deque[tuple(string, string)]
-        A list of tuples containing on the first position the parameter string name and on the second the string
-        parameter value as provided in the request path. The parameters need to be transformed into arguments
-        and also removed from this list while doing that.
-        I did not use a dictionary on this since the parameter names might repeat and also the order might be
-        important.
-    @ivar rootURI: string
-        The root URI to be considered for constructing a request path, basically the relative path root.
-    '''
-    path = list
-    headers = dict
-    parameters = deque
-    rootURI = str
-
-    def __init__(self):
-        '''
-        Construct the HTTP request.
-        '''
-        super().__init__()
-        self.path = None
-        self.headers = {}
-        self.parameters = deque()
-        self.rootURI = ''
-
 class ContentRequestHTTP(ContentRequest):
     '''
     Provides the content request extension with additional HTTP data.
     '''
+    __slots__ = ContentRequest.__slots__ + ('contentTypeAttributes',)
 
     def __init__(self):
         '''
@@ -60,31 +28,55 @@ class ContentRequestHTTP(ContentRequest):
         @ivar contentTypeAttributes: dictionary{string, string}
             The content type extra attributes, this attributes will not include the standard attributes, for instance the
             character set.
-        @ivar contentDisposition: string
-            The content disposition for the request content if available.
-        @ivar contentDispositionAttributes: dictionary{string, string}
-            The content disposition extra attributes.
         '''
         super().__init__()
         self.contentTypeAttributes = OrderedDict()
 
-# --------------------------------------------------------------------
-
-class EncoderHeader(metaclass=abc.ABCMeta):
+class RequestHTTP(Request):
     '''
-    Provides the API for encoding the headers from response.
+    Provides the request extension with additional HTTP data.
     '''
+    __slots__ = Request.__slots__ + ('path', 'headers', 'parameters', 'rootURI')
 
-    @abc.abstractmethod
-    def encode(self, headers, response):
+    def __init__(self):
         '''
-        Encode data from the response that is relevant for this encoder in the provided header dictionary.
-        
-        @param headers: dictionary
-            The dictionary containing the headers, as a key the header name.
-        @param response: Response
-            The response to extract data for the headers from.
+        Construct the HTTP request.
+    
+        @ivar path: list[string]
+            The split relative request path.
+        @ivar headers: dictionary{string, string}
+            The headers of the request
+        @ivar parameters: deque[tuple(string, string)]
+            A list of tuples containing on the first position the parameter string name and on the second the string
+            parameter value as provided in the request path. The parameters need to be transformed into arguments
+            and also removed from this list while doing that.
+            I did not use a dictionary on this since the parameter names might repeat and also the order might be
+            important.
+        @ivar rootURI: string
+            The root URI to be considered for constructing a request path, basically the relative path root.
+
         '''
+        super().__init__()
+        self.path = None
+        self.headers = {}
+        self.parameters = deque()
+        self.rootURI = ''
+
+class ResponseHTTP(Response):
+    '''
+    Provides the response extension with additional HTTP data.
+    '''
+    __slots__ = Response.__slots__ + ('headers',)
+
+    def __init__(self):
+        '''
+        Construct the HTTP response.
+    
+        @ivar headers: dictionary{string, string}
+            The headers for the response.
+        '''
+        super().__init__()
+        self.headers = {}
 
 # --------------------------------------------------------------------
 # Additional HTTP methods.

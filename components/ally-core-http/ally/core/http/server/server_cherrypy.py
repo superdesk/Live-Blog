@@ -12,8 +12,8 @@ Provides the cherry py web server support.
 from .server_basic import ContentRequestData
 from ally.api.config import UPDATE, INSERT, GET, DELETE
 from ally.container.ioc import injected
-from ally.core.http.spec import RequestHTTP, EncoderHeader, METHOD_OPTIONS
-from ally.core.spec.server import Processors, ProcessorsChain, Response
+from ally.core.http.spec import RequestHTTP, METHOD_OPTIONS, ResponseHTTP
+from ally.core.spec.server import Processors, ProcessorsChain
 import cherrypy
 import logging
 import re
@@ -36,8 +36,6 @@ class RequestHandler:
     # The processors is a Processors instance
     serverVersion = str
     # The server version name
-    encodersHeader = list
-    # The header encoders
 
     methods = {
                'DELETE' : DELETE,
@@ -49,7 +47,6 @@ class RequestHandler:
     methodUnknown = -1
 
     def __init__(self):
-        assert isinstance(self.encodersHeader, list), 'Invalid header encoders list %s' % self.encodersHeader
         assert isinstance(self.serverVersion, str), 'Invalid server version %s' % self.serverVersion
         if __debug__:
             for reqPath in self.requestPaths:
@@ -84,16 +81,14 @@ class RequestHandler:
 
         req.content = ContentRequestData(request.rfile)
 
-        rsp = Response()
+        rsp = ResponseHTTP()
         chain.process(req, rsp)
 
         response.headers.pop('Content-Type', None)
         response.headers['Server'] = self.serverVersion
-        for headerEncoder in self.encodersHeader:
-            assert isinstance(headerEncoder, EncoderHeader)
-            headerEncoder.encode(response.headers, rsp)
+        response.headers.update(rsp.headers)
         response.status = '%s %s' % (rsp.code.code, rsp.codeText)
-        assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
+        assert log.debug('Finalized request: %s and response: %s' % (req, rsp)) or True
         return rsp.content
     default._cp_config = {
                           'response.stream': True, # We make sure that streaming occurs and is not cached

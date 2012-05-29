@@ -112,12 +112,12 @@ class ParameterMetaService(IMetaService):
                 # name from the criteria names.
                 inp, k = mainq[0]
                 del queries[k]
-                self.decodeQuery(inp.type, obtainOnDict(inp.name, inp.type.forClass), root.properties, ordering)
+                self.decodeQuery(inp.type, obtainOnDict(inp.name, inp.type.clazz), root.properties, ordering)
 
             for inp in queries:
                 dquery = root.properties[inp.name] = DecodeObject()
                 qordering = ordering[inp.name] = DecodeObject()
-                getter = obtainOnDict(inp.name, inp.type.forClass)
+                getter = obtainOnDict(inp.name, inp.type.clazz)
 
                 self.decodeQuery(inp.type, getter, dquery.properties, qordering.properties)
 
@@ -172,7 +172,7 @@ class ParameterMetaService(IMetaService):
                 else:
                     dcriteria = decoders[etype.name] = DecodeObject()
 
-                if issubclass(etype.forClass, AsOrdered): exclude = ('ascending', 'priority')
+                if etype.isOf(AsOrdered): exclude = ('ascending', 'priority')
                 else: exclude = ()
 
                 for prop, typ in criteria.properties.items():
@@ -187,7 +187,7 @@ class ParameterMetaService(IMetaService):
 
                     dcriteria.properties[prop] = dprop
 
-            if issubclass(etype.forClass, AsOrdered):
+            if etype.isOf(AsOrdered):
                 if etype.name in ordering:
                     log.error('Name conflict for criteria %r ordering from %s', etype.name, queryType)
                 else:
@@ -300,7 +300,7 @@ class ParameterMetaService(IMetaService):
                 if prop in criteria.main: emain.encoders.append(eprop)
                 else: ecrtieria.properties.append(eprop)
 
-            if issubclass(etype.forClass, AsOrdered):
+            if etype.isOf(AsOrdered):
                 eorder = EncodeGetValue(getterOrdering(etype))
                 eorder = EncodeIdentifier(eorder, etype.name)
                 ordering.append(eorder)
@@ -324,7 +324,7 @@ def setterOrdering(entryType):
         for etype in entryType.parent.childTypes():
             assert isinstance(etype, TypeCriteriaEntry)
             if etype == entryType: continue
-            if not issubclass(etype.forClass, AsOrdered): continue
+            if not etype.isOf(AsOrdered): continue
 
             if etype in obj:
                 criteria = getattr(obj, etype.name)

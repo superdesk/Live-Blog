@@ -73,9 +73,6 @@ class ExplainErrorHandler(IProcessor):
                     assert isinstance(msg, Ref)
                     messages.append(msg.message)
 
-            if isinstance(rsp.codeText, str):
-                messages.append(rsp.codeText)
-
             if messages: error['message'] = '\n'.join(messages)
             rsp.obj = {'error':error}
             rsp.objType = None
