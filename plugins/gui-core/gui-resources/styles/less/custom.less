@@ -248,8 +248,7 @@
 	.horizontal-three-colors(@startColor: #00b3ee, @midColor: #7a43b6, @colorStop: 50%, @endColor: #c3325f) 
 	{
 	    background-color: mix(@midColor, @endColor, 80%);
-	    background-image: -webkit-gradient(linear, 0 100%, 0 0, from(@startColor), color-stop(@colorStop, @midColor), to(@endColor));
-	    background-image: -webkit-linear-gradient(@startColor, @midColor @colorStop, @endColor);
+	    background-image: -webkit-gradient(linear, 0% 100%, 100% 100%, from(@startColor), color-stop(@colorStop, @midColor), to(@endColor));
 	    background-image: -moz-linear-gradient(left, @startColor, @midColor @colorStop, @endColor);
 	    background-image: -ms-linear-gradient(@startColor, @midColor @colorStop, @endColor);
 	    background-image: -o-linear-gradient(@startColor, @midColor @colorStop, @endColor);
@@ -259,6 +258,11 @@
 	}
 }
 
+.blog-section .tool-box-top
+{
+	height: 24px;
+	overflow: hidden;	
+}
 .blog-section .tool-box-top .update-success, .blog-section .tool-box-top .update-error
 {
 	.opacity(100);
