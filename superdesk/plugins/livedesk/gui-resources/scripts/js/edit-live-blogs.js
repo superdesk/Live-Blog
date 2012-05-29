@@ -212,7 +212,8 @@ define([
                             // stop update interval -> update -> restart
                             self.update();
                         },
-                        activeClass: 'ui-droppable-highlight'
+                        activeClass: 'ui-droppable-highlight',
+                        accept: ':not(.edit-toolbar)'
                     });
                     $('#put-live').on('show', function(){
                         console.log('show');
