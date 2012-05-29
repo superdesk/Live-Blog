@@ -105,7 +105,8 @@ define([
         {
             new $.rest(postHref)
             .request({data:{'startEx.cId':latestPost}})
-            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, AuthorPerson.*')
+            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Creator.Id, ' +
+                'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id')
             .done(function(posts)
             {
                 if(!posts) return;
@@ -113,7 +114,7 @@ define([
                 var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
                 for(var i=0; i<posts.length; i++) {
                     latestPost = Math.max(latestPost, parseInt(posts[i].CId));
-                    if((posts[i].AuthorPerson.Id == $.superdesk.login.Id) && (posts[i].IsModified === "True")) {
+                    if((posts[i].Creator.Id == $.superdesk.login.Id) && (posts[i].IsModified === "True")) {
                         posts.splice(i,1);
                     }
                 }
@@ -126,16 +127,43 @@ define([
                     {
                         $(o).find('li').each(function(){
                             var el = $('#timeline-view .post-list li[data-post-id="'+$(this).attr('data-post-id')+'"]');
-                            if(el.length === 0) {
+                            if($(el).length === 0) {
                                 $('#timeline-view .post-list', content).prepend($(this));
                             } else {
-                                el.replaceWith($(this).addClass('update-success'));
+                                $(el).replaceWith($(this).addClass('update-success'));
+                                el = this;
+                                setTimeout(function(){
+                                    $(el).removeClass('update-success update-error');
+                                }, 5000);
                             }
                         });
                         //$('#timeline-view .post-list', content).prepend();
                         // edit posts
                         $('#timeline-view .post-list li .editable', content)
-                            .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+                            .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'})
+                            .on('focusout.livedesk', function(){
+                                var el = this,
+                                    postId = $(el).attr('data-post-id');
+                                if(!blogHref) return;
+                                new $.rest(blogHref+'/Post/'+postId).update
+                                    ({
+                                        Content: $(el).html()
+                                    })
+                                    .done(function()
+                                    {
+                                        $(el).parents('li').addClass('update-success').removeClass('update-error');
+                                        setTimeout(function(){
+                                            $(el).parents('li').removeClass('update-success update-error');
+                                        }, 5000);
+                                    })
+                                    .fail(function()
+                                    {
+                                        $(el).parents('li').addClass('update-error').removeClass('update-success');
+                                        setTimeout(function(){
+                                            $(el).parents('li').removeClass('update-success update-error');
+                                        }, 5000);
+                                    });
+                            });
                         updateItemCount -= posts.length;
                     });
                 }, autoUpdate]);
@@ -216,7 +244,8 @@ define([
 
                     postHref = blogData.PostPublished.href;
                     this.get('PostPublished')
-                        .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, AuthorPerson.*')
+                        .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+                        'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id')
                         .done(function(posts)
                         {
                             var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
