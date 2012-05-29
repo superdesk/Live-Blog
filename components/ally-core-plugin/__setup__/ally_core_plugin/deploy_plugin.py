@@ -60,9 +60,9 @@ def deploy():
             else:
                 if fullPath not in sys.path: sys.path.append(fullPath)
 
-    isConfig = os.path.isfile(configurations_file_path())
+    isConfig, filePathConfig = os.path.isfile(configurations_file_path()), configurations_file_path()
     if isConfig:
-        with open(configurations_file_path(), 'r') as f: config = load(f)
+        with open(filePathConfig, 'r') as f: config = load(f)
     else: config = {}
 
     PACKAGE_EXTENDER.addFreezedPackage('__plugin__.')
@@ -79,12 +79,12 @@ def deploy():
         services = services()
     except (ConfigError, SetupError):
         # We save the file in case there are missing configuration
-        with open(configurations_file_path(), 'w') as f: save(assembly.trimmedConfigurations(), f)
+        with open(filePathConfig, 'w') as f: save(assembly.trimmedConfigurations(), f)
         isConfig = True
         raise
     finally:
         if not isConfig:
-            with open(configurations_file_path(), 'w') as f: save(assembly.trimmedConfigurations(), f)
+            with open(filePathConfig, 'w') as f: save(assembly.trimmedConfigurations(), f)
         ioc.deactivate()
 
     import ally_deploy_application
