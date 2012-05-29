@@ -22,7 +22,7 @@
 </div>  
 </header>
 <div class="modal hide fade" id="put-live">
-  <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
+  <div class="modal-header"> <a class="close image" data-dismiss="modal">x</a>
     <h3>_('Put live')</h3>
   </div>
   <div class="modal-body">
@@ -34,7 +34,7 @@
   </div>
 </div>
 <div class="modal hide fade" id="unpublish-live">
-  <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
+  <div class="modal-header"> <a class="close image" data-dismiss="modal">x</a>
     <h3>_('Put live')</h3>
   </div>
   <div class="modal-body">
