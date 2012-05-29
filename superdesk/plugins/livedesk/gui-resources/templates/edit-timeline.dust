@@ -1,7 +1,7 @@
 <ul class="post-list wraped">
 {#Posts}
 	{@if cond="'{Type.Key}'=='wrapup'"}
-    <li class="wrapup open" data-post-id="{Id}">
+    <li class="wrapup open" data-post-id="{Id}" data-post-type="{Type.Key}">
        <div class="drag-bar"></div>
        <div class="arrow"></div>
        <div class="wrapup-content">
@@ -11,13 +11,13 @@
     </li>
 	{:else}
 		{@if cond="'{Author.Source.Name}'=='google' || '{Author.Source.Name}'=='flickr'"}
-		<li class="{Author.Source.Name} draggable" data-post-id="{Id}">
+		<li class="{Author.Source.Name} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#" class="close image">x</a>
 	        </div>
 		{:else}
-		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable" data-post-id="{Id}">
+		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#" class="close image">x</a>
@@ -44,7 +44,7 @@
 				<p class="attributes">
 					<i class="source-icon-{Article.Source.Name}"></i>
 					<time>{CreatedOn}</time>
-					<a class="share" href="#"><i class="icon-share-alt"></i> Share</a>
+					<!--a class="share" href="#"><i class="icon-share-alt"></i> Share</a-->
 				</p>
 			</div>
 			<div class="message-error">
