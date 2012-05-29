@@ -259,7 +259,7 @@
 	}
 }
 
-.blog-section .update-success, .blog-section .update-error
+.blog-section .tool-box-top .update-success, .blog-section .tool-box-top .update-error
 {
 	.opacity(100);
 	margin: -3px 0 -5px 0;
@@ -267,18 +267,54 @@
 	height: 32px;
 	line-height: 32px;
 }
-.blog-section .update-success
+.blog-section .tool-box-top .update-success
 {
 	color: @successText;
 	#gradient > .horizontal-three-colors(@white, mix(@white, @successBackground, 40%), 20%, @successBackground);
 }
-.blog-section .update-error
+.blog-section .tool-box-top .update-error
 {
 	color: @errorText;
 	#gradient > .horizontal-three-colors(@white, mix(@white, @errorBackground, 40%), 20%, @errorBackground);
 }
-
 #timeline-view .post-list li .editable
 {
 	cursor: text;
+}
+#timeline-view li.update-success, #timeline-view.update-error
+{
+	
+}
+#timeline-view li.update-success
+{
+	border: 1px solid @successBorder
+}
+#timeline-view li.update-error
+{
+	border: 1px solid @errorBorder
+}
+#timeline-view li .message-error, #timeline-view li .message-success
+{
+	position:absolute;
+	right:3px;
+	bottom:3px; 
+	font-size: 10px;
+	display: none;
+	background: @white;
+}
+#timeline-view li.update-error .message-error
+{
+	display: block;
+}
+#timeline-view li.update-success .message-success
+{
+	display: block;
+}
+#timeline-view li .message-error
+{
+	color: @errorText
+}
+#timeline-view li .message-success
+{
+	color: @successText
 }
