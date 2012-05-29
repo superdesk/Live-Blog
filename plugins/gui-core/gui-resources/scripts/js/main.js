@@ -51,7 +51,7 @@ function(MenuView, $, superdesk)
     if( localStorage.getItem('superdesk.login.id') )
     {
         $.restAuth.prototype.requestOptions.headers.Authorization = localStorage.getItem('superdesk.login.id');
-        superdesk.login = {Id: localStorage.getItem('superdesk.login.id'), Name: localStorage.getItem('superdesk.login.name')}
+        superdesk.login = {Id: localStorage.getItem('superdesk.login.id'), Name: localStorage.getItem('superdesk.login.name'), EMail: localStorage.getItem('superdesk.login.email')}
     }
     
     $.superdesk.navigation.init(makeMenu);
