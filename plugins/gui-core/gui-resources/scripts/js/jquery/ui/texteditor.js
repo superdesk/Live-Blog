@@ -253,6 +253,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         insert : 
                         {
                             text : 'Insert',
+                            class: 'btn-primary btn',
                             click : function()
                             {
                                 var url = $(this).find('[data-option="image-value"]').val(),
@@ -283,6 +284,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         remove : 
                         {
                             text : 'Remove',
+                            class: 'btn-warning btn',
                             click : function()
                             {
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
@@ -295,6 +297,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         cancel : 
                         {
                             text : 'Cancel',
+                            class: 'btn',
                             click : function() { $(this).dialog("close"); }
                         }
                     };
@@ -341,9 +344,28 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     
                     this.dialogButtons = 
                     {
+                        cancel : 
+                        {
+                            text: 'Cancel',
+                            class: 'btn',
+                            click: function(){ $(this).dialog("close"); }
+                        },
+                        remove : 
+                        {
+                            text : 'Remove',
+                            class: 'btn btn-warning',
+                            click : function()
+                            {
+                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
+                                document.execCommand("unlink", false, null);
+                                $(self).trigger('link-removed.text-editor');
+                                $(this).dialog('close');
+                            }
+                        },
                         insert : 
                         {
                             text : 'Insert',
+                            class: 'btn-primary btn',
                             click : function()
                             {
                                 var url = $(this).find('#editor-link-value').val();
@@ -366,23 +388,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                 }
                                 $(this).dialog('close');
                             }
-                        },
-                        remove : 
-                        {
-                            text : 'Remove',
-                            click : function()
-                            {
-                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
-                                document.execCommand("unlink", false, null);
-                                $(self).trigger('link-removed.text-editor');
-                                $(this).dialog('close');
-                            }
-                        },
-                        cancel : 
-                        {
-                            text : 'Cancel',
-                            click : function(){ $(this).dialog("close"); }
                         }
+                        
                     };
                     this.getDialog = function()
                     {
@@ -441,18 +448,19 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     
                     this.dialogButtons = 
                     {
-                        ok: { text: 'Ok',
+                        cancel: { text: 'Cancel', class: 'btn', click: function(){ $(this).dialog('close'); } },
+                        ok: 
+                        { 
+                            text: 'Ok',
+                            class: 'btn btn-primary',
                             click: function()
                             {
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                 parent = self.editTarget;
-                                //console.log(parent);
                                 parent.html($(this).find('textarea.editor-code').val());
                                 $(this).dialog('close');
                             }
-                        },
-                        cancel: { text: 'Cancel', click: function(){ $(this).dialog('close'); } }
-                            
+                        }
                     }
                     this.id = 'code';
                 },
@@ -654,8 +662,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     },
                     moveToolbar = function(event)
                     {
+                        // escape tabs and shifts and so on..
                         if( event.type == 'keydown' && $.inArray(event.keyCode, [224, 17, 18, 16, 9])) return;
-                        //console.profile('moving toolbar');
+                        
                         toolbar.removeClass(self.options.toolbar.classes.topFixed);
                         var para = findBlockParent();
                         switch(self.options.floatingToolbar)
@@ -682,7 +691,6 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             break;
                         }
                         toolbar.css({top : top, left : left, position: 'absolute'}).fadeIn('fast');
-                        //console.profileEnd();
                     };
                     
                     var hideToolbar = function()
