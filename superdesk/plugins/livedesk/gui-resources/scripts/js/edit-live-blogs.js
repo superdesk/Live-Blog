@@ -109,18 +109,30 @@ define([
             .done(function(posts)
             {
                 if(!posts) return;
+
                 var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
-                for(var i=0; i<posts.length; i++)
+                for(var i=0; i<posts.length; i++) {
                     latestPost = Math.max(latestPost, parseInt(posts[i].CId));
+                    if((posts[i].AuthorPerson.Id == $.superdesk.login.Id) && (posts[i].IsModified === "True")) {
+                        posts.splice(i,1);
+                    }
+                }
                 updateItemCount += posts.length;
-                
                 // trigger update with callback to be applied on click
                 posts.length &&
                 $('#timeline-view .new-results', content).trigger('update.livedesk', [updateItemCount, function()
                 {
                     $.tmpl('livedesk>edit-timeline', {Posts: posts}, function(e, o)
                     {
-                        $('#timeline-view .post-list', content).prepend($(o).find('li'));
+                        $(o).find('li').each(function(){
+                            var el = $('#timeline-view .post-list li[data-post-id="'+$(this).attr('data-post-id')+'"]');
+                            if(el.length === 0) {
+                                $('#timeline-view .post-list', content).prepend($(this));
+                            } else {
+                                el.replaceWith($(this).addClass('update-success'));
+                            }
+                        });
+                        //$('#timeline-view .post-list', content).prepend();
                         // edit posts
                         $('#timeline-view .post-list li .editable', content)
                             .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
