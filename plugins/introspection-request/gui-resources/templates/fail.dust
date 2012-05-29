@@ -1,5 +1,5 @@
 ﻿<div class="alert alert-error">
-	<a href="#" class="close"></a>
+	<a href="#" class="close image">x</a>
 	<p>
 		<strong>Oh snap! We cannot show you anything for this URL!</strong> 
 		<br />
