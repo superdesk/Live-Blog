@@ -11,7 +11,6 @@ Provides the configurations for encoders and decoders.
 
 from ..ally_core.converter import contentNormalizer, converterPath
 from ..ally_core.encoder_decoder import handlersDecoding, decodingNone
-from .processor import headerStandard, formattingProvider
 from ally.container import ioc
 from ally.core.http.impl.processor.decoder_multipart import \
     DecodingMultiPartHandler
@@ -58,11 +57,6 @@ def decodingFormData():
 def decodingMultipart() -> IProcessor:
     b = DecodingMultiPartHandler()
     return b
-
-# --------------------------------------------------------------------
-
-@ioc.entity
-def encodersHeader(): return [headerStandard(), formattingProvider()]
 
 # --------------------------------------------------------------------
 

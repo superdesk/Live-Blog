@@ -11,16 +11,13 @@ Module containing specifications for the server processing.
 
 from ally.api import model
 from ally.core.spec.codes import Code
+from ally.support.util_design import Chain
 import abc
 import logging
-from ally.support.util_design import Chain
-from ally.support.util import MetaClassBean
-from ally.core.spec.resources import Path, Invoker
 
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-MetaClassBean = MetaClassBean # Just to avoid IDE warning
 
 # --------------------------------------------------------------------
 
@@ -92,6 +89,7 @@ class Content:
     '''
     Provides the content data.
     '''
+    __slots__ = ('contentType', 'charSet', 'contentLanguage', 'contentConverter', 'objFormat')
 
     def __init__(self):
         '''
@@ -122,6 +120,7 @@ class ContentRequest(Content, model.Content):
     '''
     Provides the content of a request.
     '''
+    __slots__ = Content.__slots__ + ('length',)
 
     def __init__(self):
         '''
@@ -164,40 +163,34 @@ class ContentRequest(Content, model.Content):
 
 # --------------------------------------------------------------------
 
-class Request(metaclass=MetaClassBean):
+class Request:
     '''
     Provides a container for request data.
-    
-    @ivar method: integer
-        The method of the request, can be one of GET, INSERT, UPDATE or DELETE constants in the operator module.
-    @ivar accContentTypes: list
-        The content types accepted for response.
-    @ivar accCharSets: list
-        The character sets accepted for response.
-    @ivar accLanguages: list
-        The accepted languages for the request.
-    @ivar content: Content
-        The content provider for the request.
-    @ivar resourcePath: Path
-        The path to the resource node.
-    @ivar invoker: Invoker
-        The invoker obtained from the resource path to be used for calling the service.
-    @ivar arguments: dictionary{string, object}
-        A dictionary containing as a key the argument name, this dictionary needs to be populated by the 
-        processors as seen fit, also the parameters need to be transformed to arguments.
     '''
-    method = int
-    accContentTypes = list
-    accCharSets = list
-    accLanguages = list
-    content = Content
-    resourcePath = Path
-    invoker = Invoker
-    arguments = dict
+    __slots__ = ('method', 'accContentTypes', 'accCharSets', 'accLanguages', 'content', 'resourcePath', 'invoker',
+                 'arguments')
 
     def __init__(self):
         '''
         Construct the request.
+        
+        @ivar method: integer
+            The method of the request, can be one of GET, INSERT, UPDATE or DELETE constants in the operator module.
+        @ivar accContentTypes: list[string]
+            The content types accepted for response.
+        @ivar accCharSets: list[string]
+            The character sets accepted for response.
+        @ivar accLanguages: list[string]
+            The accepted languages for the request.
+        @ivar content: Content
+            The content provider for the request.
+        @ivar resourcePath: Path
+            The path to the resource node.
+        @ivar invoker: Invoker
+            The invoker obtained from the resource path to be used for calling the service.
+        @ivar arguments: dictionary{string, object}
+            A dictionary containing as a key the argument name, this dictionary needs to be populated by the 
+            processors as seen fit, also the parameters need to be transformed to arguments.
         '''
         self.method = None
         self.accContentTypes = []
@@ -214,6 +207,8 @@ class Response(Content):
     '''
     Provides the response support.
     '''
+    __slots__ = Content.__slots__ + ('code', 'codeMessage', 'codeText', 'scheme', 'location', 'allows', 'encoderPath',
+                                     'obj', 'objType', 'objMeta', 'content')
 
     def __init__(self):
         '''

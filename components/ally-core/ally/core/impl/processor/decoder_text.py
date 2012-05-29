@@ -66,7 +66,7 @@ class DecodingTextHandler(DecodingTextBaseHandler):
                 try:
                     obj = self.decoder(content, content.charSet)
                 except ValueError as e:
-                    rsp.setCode(BAD_CONTENT, 'Invalid content  for %s' % content.contentType)
+                    rsp.setCode(BAD_CONTENT, 'Invalid content for \'%s\'' % content.contentType)
                     return
 
                 name, modelType = nameModelType
@@ -90,7 +90,7 @@ class DecodingTextHandler(DecodingTextBaseHandler):
         model = modelType.container
         assert isinstance(model, Model)
         assert isinstance(converter, Converter)
-        mi = modelType.forClass()
+        mi = modelType.clazz()
         errors = []
         for prop, typ in model.properties.items():
             propName = self.normalizer.normalize(prop)

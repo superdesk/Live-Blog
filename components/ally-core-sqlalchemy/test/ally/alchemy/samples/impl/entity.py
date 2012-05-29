@@ -9,16 +9,16 @@ Created on Jun 23, 2011
 SQL alchemy implementation for the generic entities API.
 '''
 
-from ally.exception import InputError, Ref
-from inspect import isclass
-import logging
-from ally.api.type import typeFor
 from ally.api.operator.type import TypeModel, TypeQuery
+from ally.api.type import typeFor
+from ally.exception import InputError, Ref
+from ally.internationalization import _
+from ally.support.sqlalchemy.mapper import MappedSupport
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
+from inspect import isclass
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
-from ally.internationalization import _
-from ally.support.sqlalchemy.mapper_descriptor import MappedSupport
+import logging
 
 # --------------------------------------------------------------------
 

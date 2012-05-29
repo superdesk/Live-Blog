@@ -58,6 +58,10 @@ class UserWithParent(User):
     '''
     Parent = Parent
 
+
+User = mapperSimple(User, tableUser)
+UserWithParent = mapperSimple(UserWithParent, tableUserParent, inherits=User)
+
 # --------------------------------------------------------------------
 
 class TestMapping(unittest.TestCase):
@@ -68,8 +72,6 @@ class TestMapping(unittest.TestCase):
         meta.create_all(engine)
 
     def testSuccesSimpleMapping(self):
-        User = mapperSimple(globals()['User'], tableUser)
-
         self.assertTrue(typeFor(User.Id).isOf(int))
         self.assertTrue(typeFor(User.Name).isOf(str))
 
@@ -99,15 +101,9 @@ class TestMapping(unittest.TestCase):
         session.close()
 
     def testSuccessInheritAndForeignKey(self):
-        User = mapperSimple(globals()['User'], tableUser)
-
-        UserWithParent = mapperSimple(globals()['UserWithParent'], tableUserParent, inherits=User)
-
         self.assertTrue(typeFor(UserWithParent.Id).isOf(int))
         self.assertTrue(typeFor(UserWithParent.Name).isOf(str))
         self.assertTrue(typeFor(UserWithParent.Parent).isOf(Parent))
-        self.assertTrue(typeFor(UserWithParent.Parent.Id).isOf(int))
-        self.assertTrue(typeFor(UserWithParent.Parent.Name).isOf(str))
 
         session = self.sessionCreate()
         user = UserWithParent()

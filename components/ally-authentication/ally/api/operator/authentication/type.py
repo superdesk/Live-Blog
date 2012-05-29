@@ -24,37 +24,52 @@ class TypeModelAuth(TypeModel, IAuthenticated):
     Provides the type model that is marked to be authenticated.
     '''
 
-    def __init__(self, forClass, container):
+    __slots__ = TypeModel.__slots__ + ('_childTypeId',)
+
+    def __init__(self, clazz, container):
         '''
         Constructs the authenticated type model based on the provided type model.
         
         @see: TypeModel.__init__
         '''
-        TypeModel.__init__(self, forClass, container)
-        self.typePropertyId = None
+        TypeModel.__init__(self, clazz, container)
+        self._childTypeId = None
+
+    def childTypeId(self):
+        '''
+        @see: TypeModel.childTypeId
+        '''
+        if self._childTypeId is None:
+            typ = super().childTypeFor(self.container.propertyId)
+            assert isinstance(typ, TypeModelProperty)
+            self._childTypeId = TypeModelPropertyAuth(self, typ.property, typ.type)
+        return self._childTypeId
 
     def childTypeFor(self, name):
         '''
         @see: TypeModel.childTypeFor
         '''
-        if name == self.container.propertyId:
-            if self.typePropertyId is None:
-                typ = super().childTypeFor(name)
-                assert isinstance(typ, TypeModelProperty)
-                self.typePropertyId = TypeModelPropertyAuth(self, typ.property, typ.type)
-            return self.typePropertyId
+        if name == self.container.propertyId: return self.childTypeId()
         return super().childTypeFor(name)
 
-    def __hash__(self): return super().__hash__()
+    def __hash__(self):
+        '''
+        @see: Type.__hash__
+        '''
+        return super().__hash__()
 
     def __eq__(self, other):
-        if isinstance(other, TypeModel): return self.forClass == other.forClass
+        '''
+        @see: Type.__eq__
+        '''
+        if isinstance(other, TypeModel): return self.clazz == other.clazz
         return False
 
 class TypeModelPropertyAuth(TypeModelProperty, IAuthenticated):
     '''
     Provides the type model property that is marked to be authenticated.
     '''
+    __slots__ = TypeModelProperty.__slots__
 
     def __init__(self, parent, property, type):
         '''
@@ -64,9 +79,16 @@ class TypeModelPropertyAuth(TypeModelProperty, IAuthenticated):
         '''
         TypeModelProperty.__init__(self, parent, property, type)
 
-    def __hash__(self): return super().__hash__()
+    def __hash__(self):
+        '''
+        @see: Type.__hash__
+        '''
+        return super().__hash__()
 
     def __eq__(self, other):
+        '''
+        @see: Type.__eq__
+        '''
         if isinstance(other, TypeModelProperty):
             return self.parent == other.parent and self.property == other.property
         return False
@@ -87,4 +109,39 @@ class TypeAuthentication(Type):
             The type of the authentication.
         '''
         assert isinstance(type, (TypeModel, TypeModelProperty)), 'Invalid type %s' % type
-        Type.__init__(self, type.forClass, False, False)
+        Type.__init__(self, False, False)
+
+        self.type = type
+
+    def isOf(self, type):
+        '''
+        @see: Type.isOf
+        '''
+        return self == type or self.type.isOf(type)
+
+    def isValid(self, obj):
+        '''
+        @see: Type.isValid
+        '''
+        return self.type.isValid(obj)
+
+    def __hash__(self):
+        '''
+        @see: Type.__hash__
+        '''
+        return hash(self.type)
+
+    def __eq__(self, other):
+        '''
+        @see: Type.__eq__
+        '''
+        if isinstance(other, self.__class__):
+            return self.type == other.type
+        return False
+
+    def __str__(self):
+        '''
+        @see: Type.__str__
+        '''
+        return 'auth<%s>' % self.type
+

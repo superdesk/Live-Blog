@@ -121,7 +121,7 @@ class RuleModel(Rule):
         @see: Rule.begin
         '''
         assert isinstance(digester, Digester)
-        digester.stack.append(self._modelType.forClass())
+        digester.stack.append(self._modelType.clazz())
 
     def end(self, node, digester):
         '''

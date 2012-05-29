@@ -258,7 +258,6 @@ class Fetcher:
         req.method = GET
         req.resourcePath = path
         req.accLanguages = self.request.accLanguages
-        req.params.extend(self.request.params)
 
         rsp = Response()
         rsp.contentLanguage = self.response.contentLanguage

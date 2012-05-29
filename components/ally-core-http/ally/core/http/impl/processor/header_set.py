@@ -10,8 +10,8 @@ Provides support for setting headers on responses.
 '''
 
 from ally.container.ioc import injected
-from ally.core.http.spec import EncoderHeader
-from ally.core.spec.server import Response
+from ally.core.http.spec import ResponseHTTP
+from ally.core.spec.server import IProcessor, ProcessorsChain
 import logging
 
 # --------------------------------------------------------------------
@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class EncoderHeaderSet(EncoderHeader):
+class HeaderSetHandler(IProcessor):
     '''
     Provides the setting of static header values.
     '''
@@ -36,10 +36,11 @@ class EncoderHeaderSet(EncoderHeader):
                 assert isinstance(name, str), 'Invalid header name %s' % name
                 assert isinstance(value, str), 'Invalid header value %s' % value
 
-    def encode(self, headers, rsp):
+    def process(self, req, rsp, chain):
         '''
-        @see: EncoderHeader.encode
+        @see: IProcessor.process
         '''
-        assert isinstance(headers, dict), 'Invalid headers dictionary %s' % headers
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        headers.update(self.headers)
+        assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
+        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
+        rsp.headers.update(self.headers)
+        chain.proceed()
