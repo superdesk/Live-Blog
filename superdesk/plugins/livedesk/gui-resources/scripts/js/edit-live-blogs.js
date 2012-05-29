@@ -88,6 +88,14 @@ define([
             .on('hide','a[data-toggle="tab"]', function(e)
                     { console.log('cifi-cif'); })
             .find('.actived a').tab('show');
+            
+            $(content).on('click.livedesk', 'li.wrapup', function()
+            {
+                if($(this).hasClass('open'))
+                    $(this).removeClass('open').addClass('closed').nextUntil('li.wrapup').hide();
+                else
+                    $(this).removeClass('closed').addClass('open').nextUntil('li.wrapup').show();
+            });
         },
         postHref = null,
         updateInterval = 0,
