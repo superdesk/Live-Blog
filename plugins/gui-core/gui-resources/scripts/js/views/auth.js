@@ -31,7 +31,7 @@ function($, superdesk, dust)
                 {
                     var username = $(this).find('#username').val(),
                         form = this;
-                    new $.rest('Superdesk/User').xfilter('Name,Id').done(function(users)
+                    new $.rest('Superdesk/User').xfilter('Name,Id,EMail').done(function(users)
                     {
                         var found = false;
                         for(var i=0; i<users.length; i++)
@@ -45,6 +45,7 @@ function($, superdesk, dust)
                                 {
                                     localStorage.setItem('superdesk.login.id', users[i].Id);
                                     localStorage.setItem('superdesk.login.name', users[i].Name);
+                                    localStorage.setItem('superdesk.login.email', users[i].EMail);
                                 }
                                 AuthApp.success && AuthApp.success.apply();
                                 dialog.dialog('close');
