@@ -79,7 +79,7 @@ class ParameterHandler(IProcessor):
                     text = 'Illegal parameter or value:\n%s\nthe allowed parameters are:\n%s'
                     text %= ('\n'.join('%s=%s' % param for param in illegal), '\n'.join(allowed))
 
-                rsp.setCode(ILLEGAL_PARAM, 'Illegal parameter', text)
+                rsp.setCode(ILLEGAL_PARAM, text, 'Illegal parameter')
                 return
 
         chain.proceed()

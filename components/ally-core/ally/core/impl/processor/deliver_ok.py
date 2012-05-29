@@ -24,7 +24,7 @@ class DeliverOkHandler(IProcessor):
     Provides on request: NA
     Provides on response: NA
     
-    Requires on request: headers
+    Requires on request: method
     Requires on response: NA
     '''
 

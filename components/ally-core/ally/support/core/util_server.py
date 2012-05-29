@@ -40,7 +40,7 @@ class ContentDelegate(ContentRequest):
 
     def close(self):
         '''
-        @see: ContentRequestHTTP.close
+        @see: ContentRequest.close
         '''
         self._content.close()
 
@@ -87,6 +87,6 @@ class ContentLengthLimited(ContentRequest):
 
     def close(self):
         '''
-        @see: ContentRequestHTTP.close
+        @see: ContentRequest.close
         '''
         self._closed = True

@@ -11,11 +11,12 @@ Provides the types used for APIs.
 
 from .. import type_legacy as numbers
 from ..support.util import Uninstantiable, Singletone
-from ..type_legacy import Iterable, Sized
+from ..type_legacy import Iterable
 from .model import Content
 from datetime import datetime, date, time
 from inspect import isclass
 from abc import ABCMeta
+import abc
 
 # --------------------------------------------------------------------
 
@@ -26,14 +27,14 @@ formattedType = []
 
 # --------------------------------------------------------------------
 
-class Type:
+class Type(metaclass=abc.ABCMeta):
     '''
     The class that represents the API types used for mapping data.
     '''
 
-    __slots__ = ('forClass', 'isPrimitive', 'isContainable')
+    __slots__ = ('isPrimitive', 'isContainable')
 
-    def __init__(self, forClass, isPrimitive=False, isContainable=True):
+    def __init__(self, isPrimitive=False, isContainable=True):
         '''
         Initializes the type setting the primitive aspect of the type.
         
@@ -43,13 +44,12 @@ class Type:
         @param isContainable: boolean
             If true than this type is containable in types like List and Count.
         '''
-        assert isclass(forClass), 'Invalid class %s' % forClass
         assert isinstance(isPrimitive, bool), 'Invalid is primitive flag %s' % isPrimitive
         assert isinstance(isContainable, bool), 'Invalid is containable flag %s' % isContainable
-        self.forClass = forClass
         self.isPrimitive = isPrimitive
         self.isContainable = isContainable
 
+    @abc.abstractclassmethod
     def isOf(self, type):
         '''
         Checks if the provided type is compatible with this type.
@@ -59,29 +59,33 @@ class Type:
         @return: boolean
             True if the type is of this type, False otherwise.
         '''
-        if self == type: return True
-        if isclass(type) and issubclass(type, self.forClass): return True
-        if self == typeFor(type): return True
-        return False
 
+    @abc.abstractclassmethod
     def isValid(self, obj):
         '''
         Checks if the provided object instance is represented by this API type.
         
         @param obj: object
-                The object instance to check.
+            The object instance to check.
         '''
-        return isinstance(obj, self.forClass)
 
+    @abc.abstractclassmethod
     def __hash__(self):
-        return hash(self.forClass)
+        '''
+        Provides the hash code for the type.
+        '''
 
+    @abc.abstractclassmethod
     def __eq__(self, other):
-        if isinstance(other, self.__class__): return self.forClass == other.forClass
-        return False
+        '''
+        Equality check.
+        '''
 
+    @abc.abstractclassmethod
     def __str__(self):
-        return '%s.%s' % (self.forClass.__module__, self.forClass.__name__)
+        '''
+        The string representation.
+        '''
 
 class TypeNone(Singletone, Type):
     '''
@@ -94,9 +98,7 @@ class TypeNone(Singletone, Type):
         '''
         @see: Type.__init__
         '''
-        self.isPrimitive = False
-        self.isContainable = False
-        self.forClass = None
+        Type.__init__(self, False, False)
 
     def isOf(self, type):
         '''
@@ -110,89 +112,163 @@ class TypeNone(Singletone, Type):
         '''
         return obj is None
 
+    def __hash__(self):
+        '''
+        @see: Type.__hash__
+        '''
+        return hash(None)
+
     def __eq__(self, other):
+        '''
+        @see: Type.__eq__
+        '''
         return other is self
 
     def __str__(self):
+        '''
+        @see: Type.__str__
+        '''
         return 'None'
 
-class TypePercentage(Singletone, Type):
+class TypeClass(Type):
+    '''
+    The class that represents the API types used for mapping data.
+    '''
+
+    __slots__ = Type.__slots__ + ('clazz',)
+
+    def __init__(self, clazz, isPrimitive=False, isContainable=True):
+        '''
+        Initializes the type setting the primitive aspect of the type.
+        @see: Type.__init__
+        
+        @param clazz: class
+            The class represented by the type.
+        '''
+        assert isclass(clazz), 'Invalid class %s' % clazz
+        Type.__init__(self, isPrimitive, isContainable)
+
+        self.clazz = clazz
+
+    def isOf(self, type):
+        '''
+        Checks if the provided type is compatible with this type.
+        
+        @param type: Type|class 
+            The type to check.
+        @return: boolean
+            True if the type is of this type, False otherwise.
+        '''
+        if self == type: return True
+        if isclass(type) and issubclass(type, self.clazz): return True
+        if self == typeFor(type): return True
+        return False
+
+    def isValid(self, obj):
+        '''
+        Checks if the provided object instance is represented by this API type.
+        
+        @param obj: object
+                The object instance to check.
+        '''
+        return isinstance(obj, self.clazz)
+
+    def __hash__(self):
+        '''
+        @see: Type.__hash__
+        '''
+        return hash(self.clazz)
+
+    def __eq__(self, other):
+        '''
+        @see: Type.__eq__
+        '''
+        if isinstance(other, self.__class__): return self.clazz == other.clazz
+        return False
+
+    def __str__(self):
+        '''
+        @see: Type.__str__
+        '''
+        return '%s' % self.clazz.__name__
+
+class TypePercentage(Singletone, TypeClass):
     '''
     Provides the type for percentage values.
     '''
 
-    __slots__ = Type.__slots__
+    __slots__ = TypeClass.__slots__
 
     def __init__(self):
         '''
         Constructs the percentage type.
-        @see: Type.__init__
+        @see: TypeClass.__init__
         '''
-        Type.__init__(self, float, True)
+        TypeClass.__init__(self, float, True)
 
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
 
 #TODO: check if needed for automatic translation or not.
-class TypeTranslated(Singletone, Type):
+class TypeTranslated(Singletone, TypeClass):
     '''
     Provides the string type that contains as a value a message that should be translated.
     '''
 
-    __slots__ = Type.__slots__
+    __slots__ = TypeClass.__slots__
 
     def __init__(self):
         '''
         Constructs the translated type.
-        @see: Type.__init__
+        @see: TypeClass.__init__
         '''
-        Type.__init__(self, str, True, True)
+        TypeClass.__init__(self, str, True, True)
 
-class TypeReference(Singletone, Type):
+class TypeReference(Singletone, TypeClass):
     '''
     Provides the type representing a reference path.
     '''
 
-    __slots__ = Type.__slots__
+    __slots__ = TypeClass.__slots__
 
     def __init__(self):
         '''
         Constructs the reference path type.
-        @see: Type.__init__
+        @see: TypeClass.__init__
         '''
-        Type.__init__(self, str, True, True)
+        TypeClass.__init__(self, str, True, True)
 
-class TypeLocale(Singletone, Type):
+class TypeLocale(Singletone, TypeClass):
     '''
     Provides the type representing the user requested language for presentation.
     '''
 
-    __slots__ = Type.__slots__
+    __slots__ = TypeClass.__slots__
 
     def __init__(self):
         '''
         Constructs the front language type.
-        @see: Type.__init__
+        @see: TypeClass.__init__
         '''
-        Type.__init__(self, str, False, True)
+        TypeClass.__init__(self, str, False, True)
 
-class TypeScheme(Singletone, Type):
+class TypeScheme(Singletone, TypeClass):
     '''
     Provides the type representing the used scheme.
     '''
 
-    __slots__ = Type.__slots__
+    __slots__ = TypeClass.__slots__
 
     def __init__(self):
         '''
         Constructs the schema type.
-        @see: Type.__init__
+        @see: TypeClass.__init__
         '''
-        Type.__init__(self, str, False, False)
+        TypeClass.__init__(self, str, False, False)
 
 # --------------------------------------------------------------------
 
-class Iter(Type):
+class Iter(TypeClass):
     '''
     Maps an iterator of values.
     You need also to specify in the constructor what elements this iterator will contain.
@@ -200,12 +276,12 @@ class Iter(Type):
     not be able to validate also the elements.
     '''
 
-    __slots__ = Type.__slots__ + ('itemType',)
+    __slots__ = TypeClass.__slots__ + ('itemType',)
 
     def __init__(self, itemType):
         '''
         Constructs the iterator type for the provided item type.
-        @see: Type.__init__
+        @see: TypeClass.__init__
         
         @param itemType: Type|class
             The item type of the iterator.
@@ -214,7 +290,7 @@ class Iter(Type):
         assert isinstance(itemType, Type), 'Invalid item type %s' % itemType
         assert itemType.isContainable, 'Invalid item type %s because is not containable' % itemType
         self.itemType = itemType
-        Type.__init__(self, itemType.forClass, False, False)
+        TypeClass.__init__(self, Iterable, False, False)
 
     def isOf(self, type):
         '''
@@ -222,21 +298,24 @@ class Iter(Type):
         '''
         return self == type or self.itemType.isOf(type)
 
-    def isValid(self, iter):
-        '''
-        @see: Type.isValid
-        '''
-        return isinstance(iter, Iterable)
-
     def __hash__(self):
+        '''
+        @see: Type.__hash__
+        '''
         return hash(self.itemType)
 
     def __eq__(self, other):
+        '''
+        @see: Type.__eq__
+        '''
         if isinstance(other, self.__class__): return self.itemType == other.itemType
         return False
 
     def __str__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.itemType)
+        '''
+        @see: Type.__str__
+        '''
+        return '%s[%s]' % (self.__class__.__name__, self.itemType)
 
 class List(Iter):
     '''
@@ -252,17 +331,15 @@ class List(Iter):
         Constructs the list type for the provided type.
         @see: Iter.__init__
         '''
-        itemType = typeFor(itemType)
-        assert isinstance(itemType, Type), 'Invalid item type %s' % itemType
-        assert itemType.isContainable, 'Invalid item type %s because is not containable' % itemType
-        self.itemType = itemType
-        Type.__init__(self, itemType.forClass, itemType.isPrimitive, False)
+        Iter.__init__(self, itemType)
+        self.clazz = list
+        self.isPrimitive = self.itemType.isPrimitive
 
-    def isValid(self, list):
+    def isValid(self, obj):
         '''
         @see: Type.isValid
         '''
-        if isinstance(list, (Iterable, Sized)): return all(map(self.itemType.isValid, list))
+        if isinstance(obj, (tuple, list)): return all(map(self.itemType.isValid, obj))
         return False
 
 # --------------------------------------------------------------------
@@ -318,21 +395,21 @@ class Boolean(Uninstantiable):
     Maps the boolean values.
     Only used as a class, do not create an instance.
     '''
-_classType[Boolean] = _classType[bool] = Type(bool, True)
+_classType[Boolean] = _classType[bool] = TypeClass(bool, True)
 
 class Integer(Uninstantiable, int):
     '''
     Maps the integer values.
     Only used as a class, do not create an instance.
     '''
-_classType[Integer] = _classType[int] = Type(int, True)
+_classType[Integer] = _classType[int] = TypeClass(int, True)
 
 class Number(Uninstantiable, float):
     '''
     Maps the numbers, this includes integer and float.
     Only used as a class, do not create an instance.
     '''
-_classType[Number] = _classType[numbers.Number] = _classType[float] = Type(numbers.Number, True)
+_classType[Number] = _classType[numbers.Number] = _classType[float] = TypeClass(numbers.Number, True)
 formattedType.append(Number)
 
 class Percentage(Uninstantiable, float):
@@ -348,14 +425,14 @@ class String(Uninstantiable, str):
     Maps the string values.
     Only used as a class, do not create an instance.
     '''
-_classType[String] = _classType[str] = Type(str, True)
+_classType[String] = _classType[str] = TypeClass(str, True)
 
 class Date(Uninstantiable, date):
     '''
     Maps the date time values.
     Only used as a class, do not create an instance.
     '''
-_classType[Date] = _classType[date] = Type(date, True)
+_classType[Date] = _classType[date] = TypeClass(date, True)
 formattedType.append(Date)
 
 class Time(Uninstantiable, time):
@@ -363,7 +440,7 @@ class Time(Uninstantiable, time):
     Maps the date time values.
     Only used as a class, do not create an instance.
     '''
-_classType[Time] = _classType[time] = Type(time, True)
+_classType[Time] = _classType[time] = TypeClass(time, True)
 formattedType.append(Time)
 
 class DateTime(Uninstantiable, datetime):
@@ -371,7 +448,7 @@ class DateTime(Uninstantiable, datetime):
     Maps the date time values.
     Only used as a class, do not create an instance.
     '''
-_classType[DateTime] = _classType[datetime] = Type(datetime, True)
+_classType[DateTime] = _classType[datetime] = TypeClass(datetime, True)
 formattedType.append(DateTime)
 
 # --------------------------------------------------------------------
@@ -382,7 +459,7 @@ class Count(Uninstantiable, int):
     Maps the total count for a collection. 
     Only used as a class, do not create an instance.
     '''
-_classType[Count] = Type(int, True, False)
+_classType[Count] = TypeClass(int, True, False)
 
 # --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
@@ -403,7 +480,7 @@ class Reference(Uninstantiable, str):
 _classType[Reference] = TypeReference()
 
 # Provides the request raw content type.
-_classType[Content] = Type(Content, False, False)
+_classType[Content] = TypeClass(Content, False, False)
 
 class Locale(Uninstantiable, str):
     '''

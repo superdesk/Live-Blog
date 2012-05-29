@@ -85,21 +85,18 @@ class Property:
     is used only with the model class.
     '''
 
-    __slots__ = ('type', 'reference')
+    __slots__ = ('type',)
 
-    def __init__(self, type, reference=None):
+    def __init__(self, type):
         '''
         Constructs the model property descriptor.
         
         @param type: TypeProperty
             The property type represented by the property.
-        @param reference: object|None
-            The reference to be used with the property.
         '''
         assert isinstance(type, TypeProperty), 'Invalid property type %s' % type
 
         self.type = type
-        self.reference = reference
 
     def __get__(self, obj, clazz=None):
         '''
@@ -114,7 +111,8 @@ class Property:
         '''
         if obj is None:
             assert self.type.parent.isOf(clazz), 'Illegal class %s, expected %s' % (clazz, self.type.parent)
-            return self.reference
+            assert issubclass(clazz, ContainerSupport), 'Invalid container class %s' % clazz
+            return clazz._ally_reference.get(self.type.property)
         else:
             assert isinstance(obj, ContainerSupport), 'Invalid container object %s' % obj
             assert self.type.parent.isValid(obj), 'Invalid container object %s, expected %s' % (obj, self.type.parent)
@@ -174,6 +172,93 @@ class Property:
     def __str__(self):
         return str(self.type)
 
+class PropertyDelegateChange(Property):
+    '''
+    Provides the property descriptor that is delegating the __set__ and __delete__ to a descriptor.
+    '''
+    __slots__ = Property.__slots__ + ('descriptor',)
+
+    def __init__(self, type, descriptor):
+        '''
+        Construct the mapped property.
+        
+        @param type: TypeProperty
+            The property type represented by the property.
+        @param descriptor: object
+            A descriptor to delegate to.
+        @see: Property.__init__
+        '''
+        assert isinstance(type, TypeProperty), 'Invalid type %s' % type
+        assert descriptor is not None, 'A descriptor is required'
+        assert hasattr(descriptor, '__set__'), 'Invalid descriptor %s, has no __set__' % descriptor
+        assert hasattr(descriptor, '__delete__'), 'Invalid descriptor %s, has no __delete__' % descriptor
+
+        super().__init__(type)
+        self.descriptor = descriptor
+
+    def __set__(self, obj, value):
+        '''
+        @see: Property.__set__
+        '''
+        self.descriptor.__set__(obj, value)
+
+    def __delete__(self, obj):
+        '''
+        @see: Property.__delete__
+        '''
+        self.descriptor.__delete__(obj)
+
+class PropertyDelegate(Property):
+    '''
+    Provides the property descriptor that is delegating to a descriptor.
+    '''
+    __slots__ = Property.__slots__ + ('descriptor',)
+
+    def __init__(self, type, descriptor):
+        '''
+        Construct the mapped property.
+        
+        @param type: TypeProperty
+            The property type represented by the property.
+        @param descriptor: object
+            A descriptor to delegate to.
+        @see: Property.__init__
+        '''
+        assert isinstance(type, TypeProperty), 'Invalid type %s' % type
+        assert descriptor is not None, 'A descriptor is required'
+        assert hasattr(descriptor, '__get__'), 'Invalid descriptor %s, has no __get__' % descriptor
+        assert hasattr(descriptor, '__set__'), 'Invalid descriptor %s, has no __set__' % descriptor
+        assert hasattr(descriptor, '__delete__'), 'Invalid descriptor %s, has no __delete__' % descriptor
+
+        super().__init__(type)
+        self.descriptor = descriptor
+
+    def __get__(self, obj, clazz=None):
+        '''
+        @see: Property.__get__
+        '''
+        if obj is None: return super().__get__(obj, clazz)
+        return self.descriptor.__get__(obj, clazz)
+
+    def __contained__(self, obj):
+        '''
+        A descriptor property is always contained.
+        @see: Property.__contained__
+        '''
+        return True
+
+    def __set__(self, obj, value):
+        '''
+        @see: Property.__set__
+        '''
+        self.descriptor.__set__(obj, value)
+
+    def __delete__(self, obj):
+        '''
+        @see: Property.__delete__
+        '''
+        self.descriptor.__delete__(obj)
+
 # --------------------------------------------------------------------
 
 class CriteriaEntry:
@@ -214,7 +299,7 @@ class CriteriaEntry:
             'Invalid container object %s, expected %s' % (obj, self._ally_type.parent)
             objCrit = obj._ally_values.get(self._ally_type.name)
             if objCrit is None:
-                objCrit = self._ally_type.forClass(queryObj=obj, criteriaName=self._ally_type.name)
+                objCrit = self._ally_type.clazz(queryObj=obj, criteriaName=self._ally_type.name)
                 obj._ally_values[self._ally_type.name] = objCrit
                 assert log.debug('Created criteria object for %s', self) or True
             return objCrit
@@ -297,13 +382,14 @@ class ContainerSupport(metaclass=ABCMeta):
     Support class for containers.
     '''
     _ally_type = TypeContainer # Contains the type that represents the container
+    _ally_reference = {} # Provides the references for the property descriptors.
 
     def __new__(cls, *args, **keyargs):
         '''
         Construct the instance of the container.
         '''
         assert isinstance(cls._ally_type, TypeContainer), \
-        'Bad container support class %s, not type assigned' % cls._ally_type
+        'Bad container support class %s, no type assigned' % cls._ally_type
         assert cls._ally_type.isOf(cls), 'Illegal class %s, expected %s' % (cls, cls._ally_type)
         self = object.__new__(cls)
         self._ally_values = self.__dict__
@@ -382,7 +468,7 @@ class QuerySupport(metaclass=ABCMeta):
         Construct the instance of the container.
         '''
         assert isinstance(cls._ally_type, TypeQuery), \
-        'Bad query support class %s, not type assigned' % cls._ally_type
+        'Bad query support class %s, no type assigned' % cls._ally_type
         assert cls._ally_type.isOf(cls), 'Illegal class %s, expected %s' % (cls, cls._ally_type)
         query = cls._ally_type.query
         assert isinstance(query, Query)

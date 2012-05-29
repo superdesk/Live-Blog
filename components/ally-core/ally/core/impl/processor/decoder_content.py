@@ -72,7 +72,7 @@ class DecodingContentHandler(IProcessor):
                     # model decoding, so now lets see about the content input.
                     content = req.content.next()
                     if not content:
-                        rsp.setCode(BAD_CONTENT, 'Required a %s content follow up' % inpContent.name)
+                        rsp.setCode(BAD_CONTENT, 'Required a \'%s\' content follow up' % inpContent.name)
                         return
                     req.arguments[inpContent.name] = req.content = content
                     assert log.debug('Successfully provided the next content for input (%s)', inpContent.name) or True

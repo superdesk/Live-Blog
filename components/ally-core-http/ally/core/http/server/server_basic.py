@@ -11,15 +11,14 @@ thread serving requests one at a time).
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
-from ally.core.http.spec import EncoderHeader, RequestHTTP, METHOD_OPTIONS, \
-    ContentRequestHTTP
-from ally.core.spec.server import Response, Processors, ProcessorsChain
-from collections import OrderedDict
+from ally.core.http.spec import RequestHTTP, METHOD_OPTIONS, ContentRequestHTTP, \
+    ResponseHTTP
+from ally.core.spec.server import Processors, ProcessorsChain
+from ally.support.core.util_server import ContentLengthLimited
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qsl
 import logging
 import re
-from urllib.parse import urlparse, parse_qsl
-from ally.support.core.util_server import ContentLengthLimited
 
 # --------------------------------------------------------------------
 
@@ -36,9 +35,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     # The list of path-processors chain tuples
     # The path is a regular expression
     # The processors is a Processors instance
-
-    encodersHeader = list
-    # The header encoders
 
     def do_GET(self):
         self._process(GET)
@@ -90,18 +86,14 @@ class RequestHandler(BaseHTTPRequestHandler):
         req.headers.update(self.headers)
         req.content = ContentRequestData(self.rfile)
 
-        rsp = Response()
+        rsp = ResponseHTTP()
         chain.process(req, rsp)
         self._dispatch(rsp)
         assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
 
     def _dispatch(self, rsp):
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        headers = OrderedDict()
-        for headerEncoder in self.encodersHeader:
-            assert isinstance(headerEncoder, EncoderHeader)
-            headerEncoder.encode(headers, rsp)
-        for name, value in headers.items():
+        assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
+        for name, value in rsp.headers.items():
             self.send_header(name, value)
         self.send_response(rsp.code.code, rsp.codeText)
         self.end_headers()

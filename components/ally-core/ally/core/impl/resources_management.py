@@ -12,7 +12,7 @@ Module containing the implementation for the resources manager.
 from ally.api.config import GET
 from ally.api.operator.container import Service, Call
 from ally.api.operator.type import TypeService, TypeModel, TypeModelProperty
-from ally.api.type import List, Type, Input, typeFor
+from ally.api.type import List, Input, typeFor, TypeClass
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction, InvokerCall
 from ally.core.impl.node import NodeRoot, NodePath, NodeProperty
@@ -55,7 +55,7 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
                                'Provides all get resources directly available')
         infoIMPL.clazz = ResourcesManager
         infoIMPL.clazzDefiner = ResourcesManager
-        invoker = InvokerFunction(GET, rootGetAllAccessible, List(Type(Path)), [], {}, 'resources', infoIMPL)
+        invoker = InvokerFunction(GET, rootGetAllAccessible, List(TypeClass(Path)), [], {}, 'resources', infoIMPL)
         self._root = NodeRoot(invoker)
 
     def getRoot(self):
@@ -81,7 +81,7 @@ class ResourcesManager(IResourcesRegister, IResourcesLocator):
             if __debug__:
                 unknown = set(call.hints.keys()).difference(self._hintsCall.keys())
 
-                fnc = getattr(typeService.forClass, call.name).__code__
+                fnc = getattr(typeService.clazz, call.name).__code__
                 try: name = fnc.__name__
                 except AttributeError: name = call.name
                 location = (fnc.co_filename, fnc.co_firstlineno, name)

@@ -105,7 +105,7 @@ def extractCriterias(namespace):
         typ = typeFor(value)
         if isinstance(typ, TypeCriteria):
             assert isinstance(typ, TypeCriteria)
-            criterias[name] = typ.forClass
+            criterias[name] = typ.clazz
         else:
             log.warning('Cannot extract criteria for class %s attribute "%s" of value %s',
                         namespace.get('__name__'), name, value)
@@ -242,20 +242,20 @@ def processGenericType(forType, generic):
     if isinstance(forType, TypeProperty):
         assert isinstance(forType, TypeModelProperty), 'Only allowed model type properties, got %s' % forType
         assert isinstance(forType.parent, TypeContainer)
-        genericModelClass = generic.get(forType.parent.forClass)
+        genericModelClass = generic.get(forType.parent.clazz)
         if genericModelClass is not None:
             newModelType = typeFor(genericModelClass)
             assert newModelType is not None, 'Invalid generic model class %s, has no model type' % genericModelClass
             newType = TypeModelProperty(newModelType, forType.property, forType.type)
     elif isinstance(forType, TypeModel):
         assert isinstance(forType, TypeModel)
-        genericModelClass = generic.get(forType.forClass)
+        genericModelClass = generic.get(forType.clazz)
         if genericModelClass is not None:
             newType = typeFor(genericModelClass)
             assert newType is not None, 'Invalid generic model class %s, has no model type' % newType
     elif isinstance(forType, TypeQuery):
         assert isinstance(forType, TypeQuery)
-        genericQueryClass = generic.get(forType.forClass)
+        genericQueryClass = generic.get(forType.clazz)
         if genericQueryClass is not None:
             newType = typeFor(genericQueryClass)
             assert newType is not None, 'Invalid generic query class %s, has no query type' % newType

@@ -126,16 +126,19 @@ def model(*args, name=None, **hints):
         if clazz.__module__ != replace.__module__:
             raise DevelError('Replace is available only for classes in the same API module invalid replace class '
                              '%s for replaced class' % (replace, clazz))
-        typ.forClass = clazz
+        typ.clazz = clazz
         typ.container = modelType.container
 
+    reference = {}
     for prop, typ in properties.items():
-        propType = propRefType = TypeModelProperty(modelType, prop)
+        propType = TypeModelProperty(modelType, prop)
+        reference[prop] = Reference(propType)
         if isinstance(typ, TypeModel):
             propType = TypeModelProperty(modelType, prop, typ.container.properties[typ.container.propertyId])
-        setattr(clazz, prop, Property(propType, Reference(propRefType)))
+        setattr(clazz, prop, Property(propType))
 
     clazz._ally_type = modelType # This specified the detected type for the model class by using 'typeFor'
+    clazz._ally_reference = reference # The references to be returned by the properties when used only with class
     clazz.__new__ = ContainerSupport.__new__
     clazz.__repr__ = ContainerSupport.__repr__
     clazz.__contains__ = ContainerSupport.__contains__
@@ -186,11 +189,14 @@ def criteria(*args, main=None):
     criteriaContainer = Criteria(properties, main)
     criteriaType = TypeCriteria(clazz, criteriaContainer)
 
+    reference = {}
     for prop in criteriaContainer.properties:
         propType = TypeProperty(criteriaType, prop)
-        setattr(clazz, prop, Property(propType, Reference(propType)))
+        reference[prop] = Reference(propType)
+        setattr(clazz, prop, Property(propType))
 
     clazz._ally_type = criteriaType # This specified the detected type for the model class by using 'typeFor'
+    clazz._ally_reference = reference # The references to be returned by the properties when used only with class
     clazz.__new__ = CriteriaSupport.__new__
     clazz.__repr__ = CriteriaSupport.__repr__
     clazz.__contains__ = CriteriaSupport.__contains__

@@ -33,7 +33,7 @@ class AuthenticationHandler(HeaderHTTPBase, IProcessor):
     Provides on request: [arguments]
     Provides on response: NA
     
-    Requires on request: headers, params, invoker
+    Requires on request: headers, parameters, invoker
     Requires on response: NA
     '''
 
@@ -53,7 +53,7 @@ class AuthenticationHandler(HeaderHTTPBase, IProcessor):
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(req.invoker, Invoker), 'Invalid request invoker %s' % req
 
-        try: p = self._parse(self.nameAuthentication, req.headers, req.params, VALUE_NO_PARSE)
+        try: p = self._parse(self.nameAuthentication, req.headers, req.parameters, VALUE_NO_PARSE)
         except DevelError as e:
             assert isinstance(e, DevelError)
             rsp.setCode(INVALID_HEADER_VALUE, e.message)

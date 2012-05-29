@@ -154,7 +154,7 @@ class EncodeValue(IMetaEncode):
         assert isinstance(context, ContextParse), 'Invalid context %s' % context
         assert isinstance(context.converter, Converter)
 
-        if obj is SAMPLE: value = 'a %s value' % self.type.forClass.__name__
+        if obj is SAMPLE: value = 'a %s value' % self.type
         else: value = context.converter.asString(obj, self.type)
         return Value(value=value)
 
