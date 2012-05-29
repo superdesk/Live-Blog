@@ -65,7 +65,7 @@ class InvokerCall(Invoker):
         assert isinstance(call, Call), 'Invalid call %s' % call
 
         infoIMPL = InvokerInfoMethod(call.name, proxiedClass(implementation.__class__))
-        infoAPI = InvokerInfoMethod(call.name, typ.forClass)
+        infoAPI = InvokerInfoMethod(call.name, typ.clazz)
         super().__init__(call.name, call.method, call.output, call.inputs, call.hints, infoIMPL, infoAPI)
 
         self.implementation = implementation

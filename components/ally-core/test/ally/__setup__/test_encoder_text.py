@@ -14,7 +14,7 @@ from .converter import contentNormalizer, converterPath
 from ally.container import ioc
 from ally.core.impl.processor.encoder_text import EncodingTextHandler
 from ally.core.impl.processor.meta_creator import MetaCreatorHandler
-from ally.core.spec.server import Processor, Processors
+from ally.core.spec.server import IProcessor, Processors
 
 # --------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ from ally.core.spec.server import Processor, Processors
 def encoder(): return EncoderGetObj()
 
 @ioc.entity
-def encoderText() -> Processor:
+def encoderText() -> IProcessor:
     b = EncodingTextHandler()
     b.normalizer = contentNormalizer()
     b.converterId = converterPath()
@@ -33,7 +33,7 @@ def encoderText() -> Processor:
     return b
 
 @ioc.entity
-def metaCreator() -> Processor:
+def metaCreator() -> IProcessor:
     b = MetaCreatorHandler()
     return b
 

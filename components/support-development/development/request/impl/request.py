@@ -169,7 +169,7 @@ class RequestService(IRequestService):
             assert isinstance(typ, TypeModelProperty)
             inp.Description = _('The %(type)s of %(model)s %(description)s') % \
                         dict(type=_(typ.property), model=_(typ.container.name),
-                        description=re.sub('[\s]+', ' ', getdoc(typ.parent.forClass) or '...'))
+                        description=re.sub('[\s]+', ' ', getdoc(typ.parent.clazz) or '...'))
         else:
             raise DevelError('Unknown match %s' % match)
 

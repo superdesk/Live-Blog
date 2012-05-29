@@ -64,7 +64,7 @@ class DecodingHandler(IProcessor):
                 return
 
             if decodingChain.isConsumed():
-                rsp.setCode(UNKNOWN_DECODING, 'Content type %r not supported for decoding' % req.content.contentType)
+                rsp.setCode(UNKNOWN_DECODING, 'Content type \'%s\' not supported for decoding' % req.content.contentType)
                 return
 
         chain.proceed()
