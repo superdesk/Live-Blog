@@ -63,13 +63,13 @@ def createSourceType(key):
     session.commit()
     session.close()
 
+
 SOURCES = {
+           'internal': (False, '', ''),
            'google': (False, 'www.google.com', 'xml'),
-           'facebook': (False, 'www.facebook.com', 'rss'),
            'twitter': (False, 'www.twitter.com', 'xml'),
            'flickr': (False, 'www.flickr.com', 'xml'),
            }
-
 
 _cache_sources = {}
 def getSourcesIds():
@@ -90,8 +90,10 @@ def getSourcesIds():
 
 
 BLOGS = {
-         'Demo live blog': ('Doug', 'en', 'This is a Demo for the live blogging tool',
-                                            datetime.now(), datetime.now()),
+         'GEN Live Desk Master Class': ('Doug', 'en', 'An in-depth demonstration of the '
+                                        'current state of development of the GEN Live Desk '
+                                        'tool for live online news coverage.',
+                                        datetime.now(), datetime.now()),
          }
 
 _cache_blogs = {}
@@ -114,18 +116,19 @@ def getBlogsIds():
 
 
 USERS = {
-         'Adam': ('Adam', None, 'adam.thomas@sourcefabric.org'),
-         'Antoine': ('Antoine', None, 'alaurent@globaleditorsnetwork.org'),
-         'Bertrand': ('Bertrand', None, 'bpecquerie@globaleditorsnetwork.org'),
+         'Adam': ('Adam', 'Thomas', 'adam.thomas@sourcefabric.org'),
+         'Antoine': ('Antoine', 'Laurent', 'alaurent@globaleditorsnetwork.org'),
+         'Bertrand': ('Bertrand', 'Pecquerie', 'bpecquerie@globaleditorsnetwork.org'),
 		 'Billy': ('Mihai', 'Balaceanu', 'mihai.balaceanu@sourcefabric.org'),
-         'David': ('David', None, 'david.bauer@tageswoche.ch'),
-         'Doug': ('Doug', None, 'douglas.arellanes@sourcefabric.org'),
-         'Gabriel': ('Gabriel', None, 'gabriel.nistor@sourcefabric.org'),
-         'Gideon': ('Gideon', None, 'gideon.lehmann@sourcefabric.org'),
+         'David': ('David', 'Bauer', 'david.bauer@tageswoche.ch'),
+         'Doug': ('Douglas', 'Arellanes', 'douglas.arellanes@sourcefabric.org'),
+         'Gabriel': ('Gabriel', 'Nistor', 'gabriel.nistor@sourcefabric.org'),
+         'Gideon': ('Gideon', 'Lehmann', 'gideon.lehmann@sourcefabric.org'),
          'Guest': ('Guest', None, ''),
+         'John': ('John', 'Burke', 'jburke@globaleditorsnetwork.org'),
          'Mihail': ('Mihail', 'Nistor', 'mihai.nistor@sourcefabric.org'),
-         'Mugur': ('Mugur', None, 'mugur.rus@sourcefabric.org'),
-         'Sava': ('Sava', None, 'sava.tatic@sourcefabric.org'),
+         'Mugur': ('Mugur', 'Rus', 'mugur.rus@sourcefabric.org'),
+         'Sava': ('Sava', 'Tatic', 'sava.tatic@sourcefabric.org'),
        }
 
 _cache_users = {}
@@ -146,18 +149,19 @@ def getUsersIds():
 
 
 COLLABORATORS = {
-                 'Adam': 'facebook',
-                 'Antoine': 'facebook',
-                 'Bertrand': 'facebook',
-                 'David': 'facebook',
-                 'Doug': 'facebook',
-                 'Gabriel': 'twitter',
-                 'Gideon': 'facebook',
-                 'Guest': 'facebook',
-                 'Mihail': 'facebook',
-                 'Mugur': 'twitter',
-                 'Sava': 'facebook',
-                 'Billy': 'twitter',
+                 'Adam': 'internal',
+                 'Antoine': 'internal',
+                 'Bertrand': 'internal',
+                 'Billy': 'internal',
+                 'David': 'internal',
+                 'Doug': 'internal',
+                 'Gabriel': 'internal',
+                 'Gideon': 'internal',
+                 'Guest': 'internal',
+                 'John': 'internal',
+                 'Mihail': 'internal',
+                 'Mugur': 'internal',
+                 'Sava': 'internal',
 
                  'google': 'google',
                  'twitter': 'twitter',
@@ -183,14 +187,12 @@ def getCollaboratorsIds():
 
 
 BLOG_COLLABORATORS = {
-                       'Antoine': 'Demo live blog',
-                       'Bertrand': 'Demo live blog',
-                       'Doug': 'Demo live blog',
-                       'Guest': 'Demo live blog',
-                       'Mugur': 'Demo live blog',
-                       'Sava': 'Demo live blog',
-					   'Mihail': 'Demo live blog',
-                      }
+                      'Adam': 'GEN Live Desk Master Class',
+                      'Antoine': 'GEN Live Desk Master Class',
+                      'David': 'GEN Live Desk Master Class',
+                      'Doug': 'GEN Live Desk Master Class',
+                      'John': 'GEN Live Desk Master Class',
+                     }
 
 def createBlogCollaborators():
     blogCollaboratorService = entityFor(IBlogCollaboratorService)
@@ -203,18 +205,21 @@ def createBlogCollaborators():
         else:
             blogCollaboratorService.addCollaborator(blogId, collId)
 
+
 BLOG_ADMINS = {
-               'Adam': 'Demo live blog',
-               'Antoine': 'Demo live blog',
-               'Bertrand': 'Demo live blog',
-               'David': 'Demo live blog',
-               'Doug': 'Demo live blog',
-               'Gabriel': 'Demo live blog',
-               'Gideon': 'Demo live blog',
-               'Guest': 'Demo live blog',
-               'Mihail': 'Demo live blog',
-               'Mugur': 'Demo live blog',
-               'Sava': 'Demo live blog',
+               'Adam': 'GEN Live Desk Master Class',
+               'Antoine': 'GEN Live Desk Master Class',
+               'Bertrand': 'GEN Live Desk Master Class',
+               'Billy': 'GEN Live Desk Master Class',
+               'David': 'GEN Live Desk Master Class',
+               'Doug': 'GEN Live Desk Master Class',
+               'Gabriel': 'GEN Live Desk Master Class',
+               'Gideon': 'GEN Live Desk Master Class',
+               'Guest': 'GEN Live Desk Master Class',
+               'John': 'GEN Live Desk Master Class',
+               'Mihail': 'GEN Live Desk Master Class',
+               'Mugur': 'GEN Live Desk Master Class',
+               'Sava': 'GEN Live Desk Master Class',
                }
 
 def createBlogAdmins():
@@ -244,18 +249,17 @@ def createPostType(key):
 
 
 POSTS = [
-		 ('Demo live blog', 'normal', 'Mihail', 'Mihail', '<b>START</b> your sourcefabrics!!!'),
-         ('Demo live blog', 'normal', 'Sava', 'Sava', 'We want a new live blogging tool!'),
-         ('Demo live blog', 'normal', 'Mugur', 'Mugur', 'It cannot be done!'),
-         ('Demo live blog', 'normal', 'Doug', 'Doug', 'I heard they have a beta version...'),
-         ('Demo live blog', 'normal', 'Guest', 'Guest', 'Lets see it!'),
-         ('Demo live blog', 'normal', 'Sava', 'Sava', 'Cool, lets test this tool!'),
-         ('Demo live blog', 'normal', 'Mugur', 'Mugur', 'It has bugs...'),
-         ('Demo live blog', 'normal', 'Doug', 'Doug', 'Can you fix the bugs?'),
-         ('Demo live blog', 'normal', 'Mugur', 'Mugur', 'We need at least two months to fix the bugs.'),
-         ('Demo live blog', 'normal', 'Sava', 'Sava', 'I want to see it anyway. Let\'s go!'),
-         ('Demo live blog', 'wrapup', 'Sava', 'google', 'Livedesk is the next generation live blogging tool.'),
-         ('Demo live blog', 'quote', 'Mihail', 'Mihail', 'Fear leads to anger, anger leads to hate, hate leads to suffering.'),
+		 ('GEN Live Desk Master Class', 'normal', 'Adam', 'Adam', 'Hello world!'),
+         ('GEN Live Desk Master Class', 'quote', 'David', 'David', 'GEN Live Desk is a next-generation '
+          'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
+         ('GEN Live Desk Master Class', 'normal', 'Doug', 'Doug', 'GEN Live Desk is free to download, '
+          'easily implemented into your website and alongside existing newsroom tools. It enhances rather '
+          'than replaces. Helps convince an IT department!'),
+         ('GEN Live Desk Master Class', 'normal', 'Antoine', 'Antoine', 'With GEN Live Desk, you can '
+          'drive traffic with engaging content and (if relevant) use sponsorship, contextual adverts or '
+          'paid subscriptions to increase revenue.'),
+         ('GEN Live Desk Master Class', 'wrapup', 'Adam', 'Adam', 'That is all for today folks. Join us '
+          'at GEN News World Media Summit to see Douglas Arellanes demoing the tool live.'),
          ]
 
 def createBlogPosts():
