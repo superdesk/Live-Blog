@@ -11,14 +11,14 @@ define('jquery/avatar', ['utils/str', 'jquery', 'jquery/utils', 'jquery/md5'], f
         },
         parse: function(data, needle) {
             if(!data) return;
-            var self = this;
-            if(!needle) needle = self.defaults.needle;
-            var arr = needle.split('.');
-            var searchKey = arr[0];
-            var searchValue = arr[1];
+            if(!needle) needle = this.defaults.needle;
+            var self = this,
+			arr = needle.split('.'),
+			searchKey = arr[0],
+            searchValue = arr[1];
             $.each(data, function(key, value){
-                if((key === searchKey) && ( $.isDefined(value[searchValue]))) {
-                    this[self.defaults.key] = str.format(self.url,$.extend({}, self.defaults, { md5: $.md5($.trim(value.EMail.toLowerCase()))}));
+				if((key === searchKey) && (searchValue!==undefined) && ( $.isDefined(value[searchValue]))) {
+					this[self.defaults.key] = self.get(value[searchValue]);
                 }
                 if($.isObject(value) || $.isArray(value)) {
                     self.parse(value,needle);
@@ -26,6 +26,10 @@ define('jquery/avatar', ['utils/str', 'jquery', 'jquery/utils', 'jquery/md5'], f
             });
             return data;
         },
+		get: function(value) {
+            var self = this;
+			return str.format(self.url,$.extend({}, self.defaults, { md5: $.md5($.trim(value.toLowerCase()))}));
+		}
     };
     $.avatar  = gravatar;
 });
