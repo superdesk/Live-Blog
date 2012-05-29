@@ -13,6 +13,7 @@ define('providers/twitter', [
     'tmpl!livedesk>providers/twitter/web-item',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
+    'tmpl!livedesk>providers/loading',
     'jquery'
 ], function( providers,  $ ) {
 $.extend(providers.twitter, {
@@ -50,6 +51,13 @@ $.extend(providers.twitter, {
 			});
 		});  
 	},
+        showLoading : function(where) {
+             $(where).tmpl('livedesk>providers/loading', function(){
+             });
+        },
+        stopLoading : function(where) {
+            $(where).html('');
+        },
         startSearch: function(fresh) {
                 var self = this;
                 fresh = typeof fresh !== 'undefined' ? fresh : false;
@@ -78,9 +86,14 @@ $.extend(providers.twitter, {
 
             count = typeof count !== 'undefined' ? count : parseInt(8);
             $('#twt-timeline-results').html('');
-
-            $.getJSON(str.format(this.urlTimeline,{text: text, count: count}), {}, function(data){
-                    //console.log(data);
+            
+            
+            this.showLoading('#twt-timeline-more');
+            
+            var fullUrl = str.format(this.urlTimeline,{text: text, count: count});
+            console.log(fullUrl);
+            $.getJSON(fullUrl, {}, function(data){
+            self.stopLoading('#twt-timeline-more');
                     var usrData = {
                         results: data
                     }
@@ -102,7 +115,7 @@ $.extend(providers.twitter, {
                         });			
 
 
-                        var countmore = parseInt(count) + 8;
+                        var countmore = parseInt(count + 8);
                         var loadMore = {
                             name : 'twitter-timeline-load-more'
                         }
@@ -112,7 +125,7 @@ $.extend(providers.twitter, {
                             });
                         });       
                     } else {
-                        $.tmpl('livedesk>providers/no-results', data.responseData, function(e,o) {
+                        $.tmpl('livedesk>providers/no-results', data, function(e,o) {
                             $('#twt-timeline-results').append(o);
                         });
                     }
@@ -131,8 +144,10 @@ $.extend(providers.twitter, {
 
             count = typeof count !== 'undefined' ? count : parseInt(8);
             $('#twt-user-results').html('');
-
+            
+            this.showLoading('#twt-user-more');
             $.getJSON(str.format(this.urlUser,{text: text, count: count}), {}, function(data){
+                    self.stopLoading('#twt-user-more');
                     var usrData = {
                         results: data
                     }
@@ -166,7 +181,7 @@ $.extend(providers.twitter, {
                                 });
                         });
                     } else {
-                        $.tmpl('livedesk>providers/no-results', data.responseData, function(e,o) {
+                        $.tmpl('livedesk>providers/no-results', data, function(e,o) {
                             $('#twt-user-results').append(o);
                         });
                     }
@@ -186,8 +201,9 @@ $.extend(providers.twitter, {
 
             count = typeof count !== 'undefined' ? count : parseInt(8);
             $('#twt-favorites-results').html('');
-
+            this.showLoading('#twt-favorites-more');
             $.getJSON(str.format(this.urlFavorites,{text: text, count: count}), {}, function(data){
+                    self.stopLoading('#twt-favorites-more');
                     var usrData = {
                         results: data
                     }
@@ -225,7 +241,7 @@ $.extend(providers.twitter, {
                                 });
                         });
                     } else {
-                        $.tmpl('livedesk>providers/no-results', data.responseData, function(e,o) {
+                        $.tmpl('livedesk>providers/no-results', data, function(e,o) {
                             $('#twt-favorites-results').append(o);
                         });
                     }
@@ -249,8 +265,9 @@ $.extend(providers.twitter, {
 
             var mainUrl = 'http://search.twitter.com/search.json';
             var url = mainUrl + qstring + '&result_type=mixed&callback=?';
-
+            this.showLoading('#twt-web-more');
             $.getJSON(url, {}, function(data){
+                    self.stopLoading('#twt-web-more');
                     if (data.results.length > 0) {
                         $.tmpl('livedesk>providers/twitter/web-item', data, function(e,o) {
                                 $('#twt-web-results').append(o).find('.twitter').draggable(
@@ -282,7 +299,7 @@ $.extend(providers.twitter, {
                             });
                         }
                     } else {
-                        $.tmpl('livedesk>providers/no-results', data.responseData, function(e,o) {
+                        $.tmpl('livedesk>providers/no-results', data, function(e,o) {
                             $('#twt-web-results').append(o);
                         });	
                     }
