@@ -55,7 +55,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def __init__(self, *args):
         super().__init__(*args)
-        assert isinstance(self.encodersHeader, list), 'Invalid header encoders list %s' % self.encodersHeader
         if __debug__:
             for reqPath in self.requestPaths:
                 assert isinstance(reqPath, tuple), 'Invalid request paths %s' % self.requestPaths
@@ -89,7 +88,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         rsp = ResponseHTTP()
         chain.process(req, rsp)
         self._dispatch(rsp)
-        assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
+        assert log.debug('Finalized request: %s and response: %s' % (req, rsp)) or True
 
     def _dispatch(self, rsp):
         assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
