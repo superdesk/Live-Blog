@@ -36,16 +36,23 @@ define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
     /*!
      * Private method to get the url
      */
-    function getUrl()
+    function getUrl(data)
     {
+		var aux = "";
+		if(data !== undefined) {
+			for(i in data) {
+				aux = aux+'&'+i+'='+data[i];
+			}
+			aux = '?'+aux.substring(1,aux.length);
+		}
         if( (this.lastUrl.substr(0,4).toLowerCase() === 'http') ||
             (this.lastUrl.substr(0,5).toLowerCase() === 'https') ||
             (this.lastUrl.substr(0,2) === '//') ) {
-            return this.lastUrl;
+            return this.lastUrl+aux;
         } else if(this.lastUrl.substr(0,1) === '/' ) {
-            return this.config.apiUrl+this.lastUrl;
+            return this.config.apiUrl+this.lastUrl+aux;
         } else {
-            return this.config.apiUrl+this.config.resourcePath+this.lastUrl;
+            return this.config.apiUrl+this.config.resourcePath+this.lastUrl+aux;
         }
     }
 	/*!
@@ -427,7 +434,7 @@ define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
 		    else
 		        this.lastAdded.request = {headers: {'X-HTTP-Method-Override': 'PUT'}};
 			this.request({type: 'post', headers: this.lastAdded.request.headers, data: data});
-			return this.doRequest(url ? url : getUrl.apply(this));
+			return this.doRequest(url ? url : getUrl.apply(this,[{'X-HTTP-Method-Override': 'PUT'}]));
 		},
 		/*!
 		 * 
@@ -447,7 +454,7 @@ define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
 		    else
 		        this.lastAdded.request = {headers: {'X-HTTP-Method-Override': 'DELETE'}};
 			this.request({type: 'get', headers: this.lastAdded.request.headers, data: data});
-			return this.doRequest(url ? url : getUrl.apply(this));
+			return this.doRequest(url ? url : getUrl.apply(this,[{'X-HTTP-Method-Override': 'DELETE'}]));
 		},
 		
 		/*!
