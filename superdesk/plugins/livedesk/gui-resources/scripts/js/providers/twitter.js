@@ -102,7 +102,6 @@ $.extend(providers.twitter, {
                             $('#twt-timeline-results').append(o).find('.twitter').draggable(
                             {
                                 revert: 'invalid',
-                                containment:'document',
                                 helper: 'clone',
                                 appendTo: 'body',
                                 zIndex: 2700,
@@ -157,7 +156,6 @@ $.extend(providers.twitter, {
                             $('#twt-user-results').append(o).find('.twitter').draggable(
                             {
                                 revert: 'invalid',
-                                containment:'document',
                                 helper: 'clone',
                                 appendTo: 'body',
                                 zIndex: 2700,
@@ -216,7 +214,6 @@ $.extend(providers.twitter, {
                         
                             {
                                 revert: 'invalid',
-                                containment:'document',
                                 helper: 'clone',
                                 appendTo: 'body',
                                 zIndex: 2700,
@@ -274,7 +271,6 @@ $.extend(providers.twitter, {
                             
                                 {
                                     revert: 'invalid',
-                                    containment:'document',
                                     helper: 'clone',
                                     appendTo: 'body',
                                     zIndex: 2700,
