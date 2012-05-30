@@ -5,9 +5,26 @@ define('providers/twitter/adaptor', [
     $.extend(providers.ads, 
     {
         adaptor: {
-            universal: function(obj) 
+            author: 1,
+            init: function() {
+                var self = this;
+                new $.rest('Superdesk/Collaborator/')
+                    .xfilter('Id')
+                    .request({data: { name: 'advertisement'}})
+                    .done(function(collabs)
+                    {
+                        if($.isDefined(collabs[0])) {
+                            self.author = collabs[0].Id;
+                        }
+                    });
+            },
+            universal: function(obj)
             {
-                return parseInt($(obj).attr('data-post-id'));
+                return {
+                    Content: $(obj).find('.result-text').html(),
+                    Type: 'normal',
+                    Author: this.author
+                };
             }
         }
     });
