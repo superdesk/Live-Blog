@@ -49,20 +49,14 @@ class QPostUnpublished(QEntity):
     createdOn = AsDateTimeOrdered
     isModified = AsBoolean
     updatedOn = AsDateTimeOrdered
+    deletedOn = AsDateTimeOrdered
 
 @query
-class QPostPublished(QPostUnpublished):
+class QPost(QPostUnpublished):
     '''
     Provides the post message query.
     '''
     publishedOn = AsDateTimeOrdered
-
-@query
-class QPost(QPostPublished):
-    '''
-    Provides the post message query.
-    '''
-    deletedOn = AsDateTimeOrdered
 
 # --------------------------------------------------------------------
 
@@ -88,13 +82,13 @@ class IPostService(IEntityGetCRUDService):
 
     @call(webName='Published')
     def getPublished(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None, limit:int=10,
-                    q:QPostPublished=None) -> Iter(Post):
+                    q:QPost=None) -> Iter(Post):
         '''
         Provides all the published posts.
         '''
 
     @call(countFor=getPublished)
-    def getPublishedCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, q:QPostPublished=None) -> Count:
+    def getPublishedCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, q:QPost=None) -> Count:
         '''
         Provides the count of the published posts.
         '''
