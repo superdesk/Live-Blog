@@ -16,7 +16,22 @@
 	        <div class="tool-box-right">
 	        	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
 	        </div>
-		{:else}
+	    {/if}
+	    {@if cond="'{Author.Source.Name}'=='twitter'"}
+		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
+			<div class="drag-bar"></div>
+	        <div class="tool-box-right">
+	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
+	        </div>
+	        <figure>
+	            {?AuthorPerson.Avatar}
+	                <img src="{AuthorPerson.Avatar}" />
+	            {:else}
+	        	    <img src="images/avatar_default_collaborator.png" />
+	            {/AuthorPerson}
+	        </figure>
+	    {/if}
+		{@if cond="'{Author.Source.Name}'!='twitter' && '{Author.Source.Name}'!='google' && '{Author.Source.Name}'!='flickr'"}
 		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
@@ -42,7 +57,7 @@
 					{Content|s}
 				</p>
 				<p class="attributes">
-					<i class="source-icon-{Article.Source.Name}"></i>
+					<i class="source-icon"></i>
 					<time>{CreatedOn}</time>
 					<!--a class="share" href="#"><i class="icon-share-alt"></i> Share</a-->
 				</p>
