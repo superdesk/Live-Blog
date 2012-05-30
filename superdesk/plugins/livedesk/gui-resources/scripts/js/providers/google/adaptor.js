@@ -27,21 +27,21 @@ define('providers/google/adaptor', [
                 return {
                     Content: str.format('<h3><a href="%(url)s">%(title)s</a></h3><p class="result-text">%(content)s</p><i class="source-icon"><img src="http://g.etfv.co/%(url)s" style="max-width: 16px" border="0"></i><a class="author-name" href="%(url)s">%(visibleUrl)s</a>',obj),
                     Type: 'normal',
-                    Author: this.author,
+                    Author: this.author
                 };
             },
             news: function(obj) {
                 return {
                     Content: str.format('<h3><a href="%(url)s">%(title)s</a></h3><p class="result-text">%(content)s</p><i class="source-icon"><img src="http://g.etfv.co/%(url)s" style="max-width: 16px" border="0"></i><a class="author-name" href="%(url)s">%(visibleUrl)s</a>',obj),
                     Type: 'normal',
-                    Author: this.author,
+                    Author: this.author
                 };
             },
             images: function(obj) {
                 return {
                     Content: str.format('<p class="result-text">%(content)s</p><a href="%(url)s"><img src="%(tbUrl)s"/></a>', obj),
                     Type: 'normal',
-                    Author: this.author,
+                    Author: this.author
                 };
             }
         }
