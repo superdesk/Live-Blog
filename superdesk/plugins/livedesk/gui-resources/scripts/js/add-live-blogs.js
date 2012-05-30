@@ -4,8 +4,9 @@ define([
 	'tmpl!livedesk>add'
 ], function(providers, $) {
 
-    var
-    initAddBlog = function(){
+    var hasEditor = false;
+    initAddBlog = function()
+    {
         var initDialog = function()
         {
             var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
@@ -30,14 +31,16 @@ define([
             delete h2ctrl.html;
             delete h2ctrl.image;
             delete h2ctrl.link;
+            
+            !hasEditor && 
             $(this).find("h2[data-value='Title']").texteditor
             ({
                 plugins: {controls: h2ctrl},
                 floatingToolbar: 'top'
-            });
-            
+            }) && 
             $(this).find("article[data-value='Description']")
                 .texteditor({floatingToolbar: 'top', plugins:{ controls: editorTitleControls }});
+            hasEditor = true;
         };
         
         $('#add-live-blog')
