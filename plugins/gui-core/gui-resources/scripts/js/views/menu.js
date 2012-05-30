@@ -50,8 +50,7 @@ function($, superdesk, dust)
         		    if(!$(self).attr('href')) return;
         		    if(!$(self).attr('script-path')) { event.preventDefault(); return; }
 
-        		    if($(self).attr('data-loader') != 'false')
-        		        $('#navbar-top .loader').css('display', 'block').delay(10000).css('display', 'none');
+        		    $(self).attr('data-loader') != 'false' && superdesk.showLoader();
         		    
         		    superdesk.navigation.bind
         		    ( 
