@@ -115,7 +115,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             var container = range.parentElement();
                         }
                     }
-                    return range.collapsed ? $(container).parents(':eq(0)') : $(container);
+                    return range.collapsed && container.nodeType == 3 ? $(container).parents(':eq(0)') : $(container);
                 },
                 /*!
                  * returns a copy of the selection contents
@@ -426,7 +426,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                 
                 htmlCodeCommand: function(thisPlugin)
                 {
-                    var dialog = this.dialog.attr('title', 'HTML code').append($('<textarea class="editor-code" />')),
+                    var dialog = this.dialog.dialog( 'option', 'title', 'HTML code')
+                                    .append($('<textarea class="editor-code" />')),
                         self = this;
                     
                     $(thisPlugin).on('plugins-remove', function()
@@ -440,6 +441,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         var dialog = this.dialog,
                             parent = $(this.lib.selectionParent()),
                             html;
+                        
                         dialog.prop('caller', this);
                         if( parent.attr('contenteditable') )
                             self.editTarget = parent;
@@ -465,6 +467,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             {
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                 parent = self.editTarget;
+                                console.log(parent);
                                 parent.html($(this).find('textarea.editor-code').val());
                                 $(this).dialog('close');
                             }
@@ -588,15 +591,38 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
             },
             elements:
             {
+                /**
+                 * placeholder and focus functionality
+                 * @param elements
+                 */
                 _create: function(elements)
                 {
-                    $(elements).on('focusin.texteditor keydown.texteditor click.texteditor', function()
-                    {
-                        $(this).addClass('focus');
+                    var placeholder = $('<span class="'+this.options.placeholderClass+'" />');
+                    $(elements).each(function()
+                    { 
+                        var $self = $(this),
+                            placeholderText = $(this).attr('placeholder');
+                        placeholderText && $(this).text() === '' && $(this).prepend(placeholder.html(placeholderText));
                     });
-                    $(elements).on('blur.texteditor focusout.texteditor', function()
+                    
+                    $(elements).on('focusin.texteditor', function()
                     {
-                        $(this).removeClass('focus');
+                        var $self = $(this),
+                            hasContent = $self.data('has-content');
+                        !hasContent && placeholder.remove(); 
+                        $self.addClass('focus');
+                    });
+                    $(elements).on('focusout.texteditor', function()
+                    {
+                        var $self = $(this),
+                            placeholderText = $self.attr('placeholder');
+                        
+                        if( $self.text() === '' ) 
+                            $self.prepend(placeholder.html(placeholderText)).data('has-content', false); 
+                        else 
+                            $self.data('has-content', true);
+                        
+                        $self.removeClass('focus');
                     });
                 }
             },
@@ -671,7 +697,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     moveToolbar = function(event)
                     {
                         // escape tabs and shifts and so on..
-                        if( event.type == 'keydown' && $.inArray(event.keyCode, [224, 17, 18, 16, 9])) return;
+                        if( event.type == 'keydown' && $.inArray(event.keyCode, [224, 17, 18, 16, 9]) !== -1) return;
                         
                         toolbar.removeClass(self.options.toolbar.classes.topFixed);
                         var para = findBlockParent();
@@ -720,6 +746,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
         },
         options:
         {
+            placeholderClass: 'placeholder',
             toolbar:{ class: null, classes:{ topFixed: 'fixed-top' }},
             imageDialogUI: 
                 '<form class="form-horizontal"><fieldset>'+
