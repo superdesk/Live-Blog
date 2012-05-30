@@ -846,21 +846,23 @@ section.main-section {
                     left:0;
                     right:13px;
                     z-index:2;
-					}
-					.search-result-list-own {
-						bottom: 0;
-						list-style: none;
-						margin: 0;
-						padding: 0 4px 10px 10px;
-						/*position: absolute;*/
-						top: 265px;
-						left:0;
-						right:13px;
-						z-index:2;
-						}
-						.search-result-list-own .post-list li:first-child {
-							margin-top:0;
-							}
+                    margin-left:-10px;
+                    padding-left:10px;
+                }
+                .search-result-list-own {
+                    bottom: 0;
+                    list-style: none;
+                    margin: 0;
+                    padding: 0 4px 10px 10px;
+                    /*position: absolute;*/
+                    top: 265px;
+                    left:0;
+                    right:13px;
+                    z-index:2;
+                }
+                .search-result-list-own .post-list li:first-child {
+                    margin-top:0;
+                }
 
 
                 .search-result-list > div > li, .post-list > li, .search-result-list > li {
@@ -872,13 +874,13 @@ section.main-section {
                     position:relative;
                 }
                 .search-result-list > li, li.ui-draggable-dragging {
-                    overflow:hidden;
                     background: #FFFFFF;
                     border: 1px solid #ebebeb;
                     list-style: none outside none;
                     margin: 6px 0 0 0;
                     padding: 5px 8px 8px;
                     position:relative;
+                    min-height: 44px;
                 }
                 .search-result-list > li.draggable:hover, search-result-list > div > li.draggable:hover {
                     border-color: #c0c0c0;
