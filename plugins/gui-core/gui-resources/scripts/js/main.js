@@ -2,7 +2,8 @@ requirejs.config
 ({
 	baseUrl: config.content_url,
 //	urlArgs: "bust=" +  (new Date).getTime(),
-	templatePaths: 
+	waitSeconds: 15,
+    templatePaths:
 	{
 	    'default': 'lib/core/templates/',
 		'plugin': 'gui/superdesk/{plugin}/templates/'
