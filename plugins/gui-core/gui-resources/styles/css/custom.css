@@ -880,9 +880,9 @@ section.main-section {
                     padding: 5px 8px 8px;
                     position:relative;
                 }
-                .search-result-list > li.draggable:hover {
+                .search-result-list > li.draggable:hover, search-result-list > div > li.draggable:hover {
                     border-color: #c0c0c0;
-					cursor: move;
+                    cursor: move;
                 }
                 .search-result-list > li > figure, .post-list > li > figure, .ui-draggable-dragging > figure {
                     float: left;
@@ -1171,21 +1171,21 @@ li.image, li.image:hover {
 }
 		
 .drag-bar {
-	position: absolute;
-	left: -10px;
-	top: -1px;
-	bottom: -1px;
-	width:9px;
-	border: 3px solid #969696;
-	border-width: 2px 0;
-	background:#969696 url(../../images/drag_bg.png) repeat-y 3px 0;
-	}
+    position: absolute;
+    left: -10px;
+    top: -1px;
+    bottom: -1px;
+    width:9px;
+    border: 3px solid #969696;
+    border-width: 2px 0;
+    background:#969696 url(../../images/drag_bg.png) repeat-y 3px 0;
+}
 /*.post-list > */li .drag-bar {
-	display:none;
-	}
-	/*.post-list > */li.draggable:hover .drag-bar, .drag-bar:hover {
-		display:none;
-		}
+    display:none;
+}
+/*.post-list > */li.draggable:hover .drag-bar, .drag-bar:hover {
+    display:block;
+}
                 
                 
 
