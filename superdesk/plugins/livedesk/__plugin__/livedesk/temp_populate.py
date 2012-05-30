@@ -66,6 +66,7 @@ def createSourceType(key):
 
 SOURCES = {
            'internal': (False, '', ''),
+           'advertisement': (False, '', ''),
            'google': (False, 'www.google.com', 'xml'),
            'twitter': (False, 'www.twitter.com', 'xml'),
            'flickr': (False, 'www.flickr.com', 'xml'),
@@ -163,6 +164,7 @@ COLLABORATORS = {
                  'Mugur': 'internal',
                  'Sava': 'internal',
 
+                 'advertisement': 'advertisement',
                  'google': 'google',
                  'twitter': 'twitter',
                  'flickr': 'flickr',
@@ -260,6 +262,9 @@ POSTS = [
           'paid subscriptions to increase revenue.'),
          ('GEN Live Desk Master Class', 'wrapup', 'Adam', 'Adam', 'That is all for today folks. Join us '
           'at GEN News World Media Summit to see Douglas Arellanes demoing the tool live.'),
+         ('GEN Live Desk Master Class', 'advertisement', 'Adam', 'advertisement', 'GEN Live Desk is a new open source '
+          'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
+          'be one of the first to test it! http://genlivedesk.org')
          ]
 
 def createBlogPosts():
@@ -284,6 +289,7 @@ def populate():
     createPostType('normal')
     createPostType('wrapup')
     createPostType('quote')
+    createPostType('advertisement')
     getBlogsIds()
     createBlogCollaborators()
     createBlogAdmins()
