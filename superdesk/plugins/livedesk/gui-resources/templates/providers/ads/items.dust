@@ -1,5 +1,5 @@
 {#Posts}
-<li class="advertisement {?PublishedOn}published{:else}draggable{/PublishedOn}" data-post-id="{Id}">
+<li class="advertisement draggable" data-post-id="{Id}">
 	<div class="drag-bar"></div>
 	<div class="result-content">
     	<p class="result-text">{Content|s}</p>
