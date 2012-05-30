@@ -1,0 +1,32 @@
+<div id="add-live-blog" title="_('Add Live blog')">
+    <form class="form-horizontal row-fluid">
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label">_('Language')</label>
+                <div class="controls">
+                    <select name="Language" class="span3">
+                    <option value="">_('Choose language')</option>
+                    {#Languages}
+                        <option value="{Id}">{Name}</option>
+                    {/Languages}
+                    </select>
+                </div>
+			</div>
+            <div class="control-group">
+<<<<<<< HEAD
+				<h2 data-value="Title" placeholder="_('A new blog title')"></h2>
+            </div>
+            <div class="control-group">
+				<article data-value="Description" placeholder="_('and some description')"></article> 
+=======
+                <!-- _('New blog title') -->
+				<h2 data-value="Title"></h2>
+            </div>
+            <div class="control-group">
+                <!-- _('Add a bit of description') -->
+				<article data-value="Description"></article>
+>>>>>>> bdfb8667ae93c65e7096be3f80dff953878fc2d9
+	    	</div>
+        </fieldset>
+    </form>
+</div>
