@@ -1,5 +1,5 @@
-define('providers/twitter/adaptor', [
-    'providers', 'jquery'
+define('providers/ads/adaptor', [
+    'providers', 'jquery', 'providers/ads/tab'
 ], function(providers, $)
 {
     $.extend(providers.ads, 
