@@ -66,6 +66,7 @@ def createSourceType(key):
 
 SOURCES = {
            'internal': (False, '', ''),
+           'advertisement': (False, '', ''),
            'google': (False, 'www.google.com', 'xml'),
            'twitter': (False, 'www.twitter.com', 'xml'),
            'flickr': (False, 'www.flickr.com', 'xml'),
@@ -163,6 +164,7 @@ COLLABORATORS = {
                  'Mugur': 'internal',
                  'Sava': 'internal',
 
+                 'advertisement': 'advertisement',
                  'google': 'google',
                  'twitter': 'twitter',
                  'flickr': 'flickr',
@@ -174,15 +176,19 @@ def getCollaboratorsIds():
     assert isinstance(collaboratorService, ICollaboratorService)
     if not _cache_collaborators:
         collaborators = _cache_collaborators
-        for name in COLLABORATORS:
-            colls = collaboratorService.getAll(qp=QPerson(firstName=name))
-            if colls: collaborators[name] = colls[0].Id
+        for uname, source in COLLABORATORS.items():
+            try: person = getUsersIds()[uname]
+            except KeyError:
+                person = None
+                colls, index = collaboratorService.getAll(qs=QSource(name=source)), source
+            else:
+                colls, index = collaboratorService.getAll(qp=QPerson(firstName=USERS[uname][0])), uname
+            if colls: collaborators[index] = colls[0].Id
             else:
                 coll = Collaborator()
-                try: coll.Person = getUsersIds()[name]
-                except KeyError: pass
-                coll.Source = getSourcesIds()[COLLABORATORS[name]]
-                collaborators[name] = collaboratorService.insert(coll)
+                coll.Person = person
+                coll.Source = getSourcesIds()[source]
+                collaborators[index] = collaboratorService.insert(coll)
     return _cache_collaborators
 
 
@@ -260,6 +266,9 @@ POSTS = [
           'paid subscriptions to increase revenue.'),
          ('GEN Live Desk Master Class', 'wrapup', 'Adam', 'Adam', 'That is all for today folks. Join us '
           'at GEN News World Media Summit to see Douglas Arellanes demoing the tool live.'),
+         ('GEN Live Desk Master Class', 'advertisement', 'Mugur', 'advertisement', 'GEN Live Desk is a new open source '
+          'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
+          'be one of the first to test it! http://genlivedesk.org')
          ]
 
 def createBlogPosts():
@@ -274,7 +283,10 @@ def createBlogPosts():
         if author: pst.Author = getCollaboratorsIds()[author]
 
         createPostType(pst.Type)
-        blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
+        if pst.Type == 'advertisement':
+            blogPostService.insert(getBlogsIds()[blog], pst)
+        else:
+            blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
 
 # --------------------------------------------------------------------
 
@@ -284,6 +296,7 @@ def populate():
     createPostType('normal')
     createPostType('wrapup')
     createPostType('quote')
+    createPostType('advertisement')
     getBlogsIds()
     createBlogCollaborators()
     createBlogAdmins()

@@ -20,6 +20,7 @@ from ally.api.type import Iter, Count
 from ally.api.criteria import AsRangeOrdered, AsBoolean
 from ally.api.authentication import auth
 from superdesk.person.api.person import Person
+from superdesk.post.api.type import PostType
 
 # --------------------------------------------------------------------
 
@@ -76,28 +77,28 @@ class IBlogPostService:
         '''
 
     @call(webName='Published')
-    def getPublished(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
+    def getPublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
                      offset:int=None, limit:int=None, q:QBlogPostPublished=None) -> Iter(BlogPost):
         '''
         Provides all the blogs published posts.
         '''
 
     @call(countFor=getPublished)
-    def getPublishedCount(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
+    def getPublishedCount(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
                           q:QBlogPostPublished=None) -> Count:
         '''
         Provides all the blogs published posts.
         '''
 
     @call(webName='Unpublished')
-    def getUnpublished(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
+    def getUnpublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
                        offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
         '''
 
     @call(webName='Owned')
-    def getOwned(self, blogId:Blog, creatorId:auth(User), offset:int=None, limit:int=None,
+    def getOwned(self, blogId:Blog, creatorId:auth(User), typeId:PostType=None, offset:int=None, limit:int=None,
                  q:QBlogPost=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts that belong to the creator, this means that the posts will not have
@@ -105,7 +106,7 @@ class IBlogPostService:
         '''
 
     @call
-    def getAll(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
+    def getAll(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
                        offset:int=None, limit:int=None, q:QBlogPost=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
