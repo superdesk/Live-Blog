@@ -31,7 +31,13 @@
 	            {/AuthorPerson}
 	        </figure>
 	    {/if}
-		{@if cond="'{Author.Source.Name}'!='twitter' && '{Author.Source.Name}'!='google' && '{Author.Source.Name}'!='flickr'"}
+	    {@if cond="'{Author.Source.Name}'=='advertisement'"}
+		<li class="{Author.Source.Name} {Type.Key} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
+	        <div class="tool-box-right">
+	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
+	        </div>
+	    {/if}
+		{@if cond="'{Author.Source.Name}'!='twitter' && '{Author.Source.Name}'!='google' && '{Author.Source.Name}'!='flickr' && '{Author.Source.Name}'!='advertisement'"}
 		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
