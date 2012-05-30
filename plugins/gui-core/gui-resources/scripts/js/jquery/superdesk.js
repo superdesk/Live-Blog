@@ -56,7 +56,7 @@ var superdesk =
 	showLoader: function()
 	{
 	    $('#navbar-top .loader').css('display', 'block');
-        setTimeout(function(){ $('#navbar-top .loader').css('display', 'none'); }, 10000);
+        setTimeout(function(){ $('#navbar-top .loader').css('display', 'none'); }, 20000);
 	},
 	hideLoader: function()
 	{

@@ -365,6 +365,7 @@ define([
 
                         });
                 });
+                $.superdesk.hideLoader();
             }
 
         };
