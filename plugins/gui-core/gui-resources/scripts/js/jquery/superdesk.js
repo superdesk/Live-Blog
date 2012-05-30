@@ -53,14 +53,16 @@ var superdesk =
 			});
 	},
 	
+	loaderTO: null,
 	showLoader: function()
 	{
 	    $('#navbar-top .loader').css('display', 'block');
-        setTimeout(function(){ $('#navbar-top .loader').css('display', 'none'); }, 20000);
+        this.loaderTO = setTimeout(function(){ $('#navbar-top .loader').css('display', 'none'); }, 20000);
 	},
 	hideLoader: function()
 	{
 	    $('#navbar-top .loader').css('display', 'none');
+	    clearTimeout(this.loaderTO);
 	},
 	
 	layoutPlaceholder: '#area-main',
