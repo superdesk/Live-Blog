@@ -99,6 +99,7 @@ $.extend(providers.twitter, {
                 page = typeof page !== 'undefined' ? page : 1;
                 if (page == 1) {
                     $('#twt-timeline-results').html('');
+                    self.data = [];
                 }
                 this.showLoading('#twt-timeline-more');
                 var fullUrl = str.format(this.urlTimeline,{text: text, page: page});
