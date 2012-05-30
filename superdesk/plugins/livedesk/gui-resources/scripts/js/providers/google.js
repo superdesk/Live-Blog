@@ -44,7 +44,7 @@ $.extend(providers.google, {
 			  var myArr = $(this).attr('id').split('-');
 			  
 			  //hide all ggl result holders
-			  self.el.find('.search-result-list').css('visibility', 'hidden');
+			  self.el.find('.scroller').css('visibility', 'hidden');
 			  //show only the one we need
 			  $('#ggl-'+myArr[1]+'-holder').css('visibility', 'visible');
 			  self.startSearch(true);
