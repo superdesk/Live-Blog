@@ -107,17 +107,19 @@ var superdesk =
             
             History.options.debug = true;
             this._base = History.getPageUrl().split('#')[0];
+            var triggered;
             History.Adapter.bind( window, 'statechange', function()
             {
                 var State = History.getState();
                 (self._repository[State.data.href])();
+                triggered = true;
             });
             
             if( typeof callback === 'function' )
             {
                 this._repository[''] = callback;
                 History.pushState( {href: ''}, $(document).prop('title'), this._base );
-                //History.Adapter.trigger( window, 'statechange' );
+                !triggered && History.Adapter.trigger( window, 'statechange' );
             }
         }
 	},

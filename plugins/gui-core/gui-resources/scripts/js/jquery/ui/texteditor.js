@@ -253,10 +253,13 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         insert : 
                         {
                             text : 'Insert',
+                            class: 'btn-primary btn',
                             click : function()
                             {
                                 var url = $(this).find('[data-option="image-value"]').val(),
                                     text = $(this).find('[data-option="image-text"]').val(),
+                                    width = $(this).find('[data-option="image-width"]').val(),
+                                    height = $(this).find('[data-option="image-height"]').val(),
                                     align = $(this).find('[data-toggle="buttons-radio"] .active');
                                 
                                 if( url === null )
@@ -273,6 +276,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                     self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                     var newImg = $(self.lib.selectionHas('img'));
                                     align && newImg.attr('align', align.attr('data-value'));
+                                    width && newImg.attr('width', width);
+                                    height && newImg.attr('height', height);
                                     newImg.attr('alt', text);
                                     $(self).trigger('image-inserted.text-editor');
                                 }
@@ -283,6 +288,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         remove : 
                         {
                             text : 'Remove',
+                            class: 'btn-warning btn',
                             click : function()
                             {
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
@@ -295,6 +301,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         cancel : 
                         {
                             text : 'Cancel',
+                            class: 'btn',
                             click : function() { $(this).dialog("close"); }
                         }
                     };
@@ -304,6 +311,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         var dialog = this.dialog,
                             img = this.lib.selectionHas('img'),
                             imgText = img ? img.attr('alt') : '',
+                            imgWidth = img ? img.attr('width') : '',
+                            imgHeight = img ? img.attr('height') : '',
                             initialUrl = img ? img.attr('src') : "http://",
                             align = img ? img.attr('align') : false;
                         
@@ -318,6 +327,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         }
                         this.dialog.find('[data-option="image-value"]').val(initialUrl);
                         this.dialog.find('[data-option="image-text"]').val(imgText);
+                        this.dialog.find('[data-option="image-width"]').val(imgWidth);
+                        this.dialog.find('[data-option="image-height"]').val(imgHeight);
                         align && this.dialog.find('[data-toggle="buttons-radio"] [data-value="'+align+'"]').addClass('active');
                         return dialog;
                     };
@@ -341,9 +352,28 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     
                     this.dialogButtons = 
                     {
+                        cancel : 
+                        {
+                            text: 'Cancel',
+                            class: 'btn',
+                            click: function(){ $(this).dialog("close"); }
+                        },
+                        remove : 
+                        {
+                            text : 'Remove',
+                            class: 'btn btn-warning',
+                            click : function()
+                            {
+                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
+                                document.execCommand("unlink", false, null);
+                                $(self).trigger('link-removed.text-editor');
+                                $(this).dialog('close');
+                            }
+                        },
                         insert : 
                         {
                             text : 'Insert',
+                            class: 'btn-primary btn',
                             click : function()
                             {
                                 var url = $(this).find('#editor-link-value').val();
@@ -366,23 +396,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                 }
                                 $(this).dialog('close');
                             }
-                        },
-                        remove : 
-                        {
-                            text : 'Remove',
-                            click : function()
-                            {
-                                self.lib.restoreSelection(self.restoreSelectionMarkerId);
-                                document.execCommand("unlink", false, null);
-                                $(self).trigger('link-removed.text-editor');
-                                $(this).dialog('close');
-                            }
-                        },
-                        cancel : 
-                        {
-                            text : 'Cancel',
-                            click : function(){ $(this).dialog("close"); }
                         }
+                        
                     };
                     this.getDialog = function()
                     {
@@ -441,18 +456,19 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     
                     this.dialogButtons = 
                     {
-                        ok: { text: 'Ok',
+                        cancel: { text: 'Cancel', class: 'btn', click: function(){ $(this).dialog('close'); } },
+                        ok: 
+                        { 
+                            text: 'Ok',
+                            class: 'btn btn-primary',
                             click: function()
                             {
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                 parent = self.editTarget;
-                                //console.log(parent);
                                 parent.html($(this).find('textarea.editor-code').val());
                                 $(this).dialog('close');
                             }
-                        },
-                        cancel: { text: 'Cancel', click: function(){ $(this).dialog('close'); } }
-                            
+                        }
                     }
                     this.id = 'code';
                 },
@@ -654,8 +670,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     },
                     moveToolbar = function(event)
                     {
+                        // escape tabs and shifts and so on..
                         if( event.type == 'keydown' && $.inArray(event.keyCode, [224, 17, 18, 16, 9])) return;
-                        //console.profile('moving toolbar');
+                        
                         toolbar.removeClass(self.options.toolbar.classes.topFixed);
                         var para = findBlockParent();
                         switch(self.options.floatingToolbar)
@@ -682,7 +699,6 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             break;
                         }
                         toolbar.css({top : top, left : left, position: 'absolute'}).fadeIn('fast');
-                        //console.profileEnd();
                     };
                     
                     var hideToolbar = function()
@@ -706,18 +722,35 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
         {
             toolbar:{ class: null, classes:{ topFixed: 'fixed-top' }},
             imageDialogUI: 
-                '<p><label for="editor-image-text">Image description:</label>'+
-                    '<input id="editor-image-text" data-option="image-text"></p>'+
-                '<p><label for="editor-image-value">Image URL:</label>'+
-                    '<input id="editor-image-value" data-option="image-value"></p>'+
-                '<p>'+
-                    '<label for="editor-image-value">Image align:</label>'+
-                    '<div class="btn-group" data-toggle="buttons-radio">'+
+                '<form class="form-horizontal"><fieldset>'+
+                '<div class="control-group">'+
+                    '<label class="control-label" for="editor-image-text">Description:</label>'+
+                    '<div class="controls">'+
+                        '<input id="editor-image-text" data-option="image-text" />'+
+                    '</div>'+
+                '</div>'+
+                '<div class="control-group">'+
+                    '<label class="control-label" for="editor-image-value">URL:</label>'+
+                    '<div class="controls">'+
+                        '<input id="editor-image-value" data-option="image-value" />'+
+                    '</div>'+
+                '</div>'+
+                '<div class="control-group">'+
+                    '<label class="control-label" for="editor-image-value">Align:</label>'+
+                    '<div class="controls"><div class="btn-group" data-toggle="buttons-radio">'+
                         '<button class="btn" data-value="left"><i class="icon-align-left" /></button>'+
                         '<button class="btn" data-value="middle"><i class="icon-align-center" /></button>'+
-                        '<button class="btn" data-value="right"><i class="icon-align-left" /></button>'+
+                        '<button class="btn" data-value="right"><i class="icon-align-right" /></button>'+
+                    '</div></div>'+
+                '</div>'+
+                '<div class="control-group">'+
+                    '<label class="control-label" for="editor-image-value">Size:</label>'+
+                    '<div class="controls">'+
+                        '<input type="text" class="input-mini" placeholder="width" data-option="image-width" /> x '+
+                        '<input type="text" placeholder="height" class="input-mini" data-option="image-height" />'+
                     '</div>'+
-                '</p>'
+                '</div>'+
+                '</fieldset></form>'
         },
         plugin : function()
         {
