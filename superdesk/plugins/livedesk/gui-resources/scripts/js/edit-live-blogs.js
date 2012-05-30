@@ -88,6 +88,22 @@ define([
             .on('hide','a[data-toggle="tab"]', function(e)
                     { console.log('cifi-cif'); })
             .find('.actived a').tab('show');
+            
+            $(content).on('click.livedesk', 'li.wrapup', function()
+            {
+                if($(this).hasClass('open'))
+                    $(this).removeClass('open').addClass('closed').nextUntil('li.wrapup').hide();
+                else
+                    $(this).removeClass('closed').addClass('open').nextUntil('li.wrapup').show();
+            }).on('click.livedesk', '.filter-posts a',function(){
+                var datatype = $(this).attr('data-value');
+                if(datatype == 'all') {
+                    $('#timeline-view li').show();
+                } else {
+                    $('#timeline-view li').show();
+                    $('#timeline-view li[data-post-type!="'+datatype+'"]').hide();
+                }
+            });
         },
         postHref = null,
         updateInterval = 0,
@@ -105,7 +121,8 @@ define([
         {
             new $.rest(postHref)
             .request({data:{'startEx.cId':latestPost}})
-            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, AuthorPerson.*')
+            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Creator.Id, ' +
+                'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id')
             .done(function(posts)
             {
                 if(!posts) return;
@@ -113,7 +130,7 @@ define([
                 var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
                 for(var i=0; i<posts.length; i++) {
                     latestPost = Math.max(latestPost, parseInt(posts[i].CId));
-                    if((posts[i].AuthorPerson.Id == $.superdesk.login.Id) && (posts[i].IsModified === "True")) {
+                    if((posts[i].Creator.Id == $.superdesk.login.Id) && (posts[i].IsModified === "True")) {
                         posts.splice(i,1);
                     }
                 }
@@ -126,16 +143,43 @@ define([
                     {
                         $(o).find('li').each(function(){
                             var el = $('#timeline-view .post-list li[data-post-id="'+$(this).attr('data-post-id')+'"]');
-                            if(el.length === 0) {
+                            if($(el).length === 0) {
                                 $('#timeline-view .post-list', content).prepend($(this));
                             } else {
-                                el.replaceWith($(this).addClass('update-success'));
+                                $(el).replaceWith($(this).addClass('update-success'));
+                                el = this;
+                                setTimeout(function(){
+                                    $(el).removeClass('update-success update-error');
+                                }, 5000);
                             }
                         });
                         //$('#timeline-view .post-list', content).prepend();
                         // edit posts
                         $('#timeline-view .post-list li .editable', content)
-                            .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+                            .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'})
+                            .on('focusout.livedesk', function(){
+                                var el = this,
+                                    postId = $(el).attr('data-post-id');
+                                if(!blogHref) return;
+                                new $.rest(blogHref+'/Post/'+postId).update
+                                    ({
+                                        Content: $(el).html()
+                                    })
+                                    .done(function()
+                                    {
+                                        $(el).parents('li').addClass('update-success').removeClass('update-error');
+                                        setTimeout(function(){
+                                            $(el).parents('li').removeClass('update-success update-error');
+                                        }, 5000);
+                                    })
+                                    .fail(function()
+                                    {
+                                        $(el).parents('li').addClass('update-error').removeClass('update-success');
+                                        setTimeout(function(){
+                                            $(el).parents('li').removeClass('update-success update-error');
+                                        }, 5000);
+                                    });
+                            });
                         updateItemCount -= posts.length;
                     });
                 }, autoUpdate]);
@@ -157,12 +201,18 @@ define([
                 clearInterval(updateInterval);
                 update(true, function(){ updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000); });
             },
-            render: function()
+            render: function(){
+                var self = this;
+                new $.restAuth('Superdesk/PostType').xfilter('Key').done(function(postTypes){
+                    self.prerender(postTypes);
+                });
+            },
+            prerender: function(postTypes)
             {
                 var self = this;
                 new $.restAuth(this.blogHref).xfilter('Creator.Name, Creator.Id').done(function(blogData)
                 {
-                    var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers}),
+                    var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers, PostTypes: postTypes}),
                         content = $.superdesk.applyLayout('livedesk>edit', data, function(){
                             initEditBlog.call(this, self.blogHref);
                             require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
@@ -184,7 +234,8 @@ define([
                             // stop update interval -> update -> restart
                             self.update();
                         },
-                        activeClass: 'ui-droppable-highlight'
+                        activeClass: 'ui-droppable-highlight',
+                        accept: ':not(.edit-toolbar)'
                     });
                     $('#put-live').on('show', function(){
                         console.log('show');
@@ -215,7 +266,8 @@ define([
 
                     postHref = blogData.PostPublished.href;
                     this.get('PostPublished')
-                        .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, AuthorPerson.*')
+                        .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+                        'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id')
                         .done(function(posts)
                         {
                             var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
