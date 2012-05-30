@@ -30,7 +30,6 @@ define('providers/google/adaptor', [
                 };
             },
             news: function(obj) {
-                console.log(obj);
                 return {
                     Content: str.format('<h3><a href="%(url)s">%(title)s</a></h3><p class="result-text">%(content)s</p><i class="source-icon"><img src="http://g.etfv.co/%(url)s" style="max-width: 16px" border="0"></i><a class="author-name" href="%(unescapedUrl)s">%(publisher)s</a>',obj),
                     Type: 'normal',
