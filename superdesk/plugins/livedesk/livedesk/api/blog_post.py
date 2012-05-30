@@ -24,7 +24,7 @@ from superdesk.post.api.type import PostType
 
 # --------------------------------------------------------------------
 
-@modelLiveDesk(name='Post')
+@modelLiveDesk(name=Post)
 class BlogPost(Post):
     '''
     Provides the blog post model.
