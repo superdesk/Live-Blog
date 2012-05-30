@@ -13,10 +13,12 @@
                 </div>
 			</div>
             <div class="control-group">
-				<h2 data-value="Title">_('New blog title')</h2>
+                <!-- _('New blog title') -->
+				<h2 data-value="Title"></h2>
             </div>
             <div class="control-group">
-				<article data-value="Description">_('Add a bit of description')</article> 
+                <!-- _('Add a bit of description') -->
+				<article data-value="Description"></article>
 	    	</div>
         </fieldset>
     </form>

@@ -28,6 +28,8 @@ define('jquery/avatar', ['utils/str', 'jquery', 'jquery/utils', 'jquery/md5'], f
         },
 		get: function(value) {
             var self = this;
+            if(!$.isString(value))
+                return value;
 			return str.format(self.url,$.extend({}, self.defaults, { md5: $.md5($.trim(value.toLowerCase()))}));
 		}
     };

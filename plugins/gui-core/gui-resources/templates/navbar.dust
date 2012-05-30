@@ -33,6 +33,7 @@
 						<b class="caret"></b>
 					</a>
 					<ul class="dropdown-menu">
+						<!--
 						<li>
 							<a href="#">Settings</a>
 						</li>
@@ -40,6 +41,7 @@
 							<a href="#">Another action</a>
 						</li>
 						<li class="divider"></li>
+						-->
 						<li>
 							<a href="#" id="navbar-logout">Logout</a>
 						</li>
