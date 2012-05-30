@@ -252,12 +252,12 @@ define([
                             if(data !== undefined) {
                                 new $.restAuth(self.blogHref + '/Post/Published').resetData().insert(data);
                             } else if(post !== undefined){
+                                // stupid bug in jqueryui you can make draggable desstroy
+                                setTimeout(function(){
+                                    $(ui.draggable).removeClass('draggable').addClass('published').draggable("destroy");
+                                },1);
                                 new $.restAuth(self.blogHref + '/Post/'+post+'/Publish').resetData().insert();
                             }
-                            // stupid bug in jqueryui you can make draggable desstroy
-                            setTimeout(function(){
-                                $(ui.draggable).removeClass('draggable').addClass('published').draggable("destroy");
-                            },1);
                             // stop update interval -> update -> restart
                             self.update();
                         },
