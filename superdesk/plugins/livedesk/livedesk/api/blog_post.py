@@ -23,7 +23,7 @@ from superdesk.person.api.person import Person
 
 # --------------------------------------------------------------------
 
-@modelLiveDesk(name='Post')
+@modelLiveDesk(name=Post)
 class BlogPost(Post):
     '''
     Provides the blog post model.
