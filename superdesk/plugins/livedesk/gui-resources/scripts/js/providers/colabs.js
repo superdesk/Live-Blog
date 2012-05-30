@@ -139,7 +139,7 @@ function(providers, $)
                             $.tmpl('livedesk>providers/colabs/items', {Person: colab.Person, Posts: postList}, function(e, o)
                             {
                                 $('.search-result-list', self.el).prepend(o);
-                                $('.search-result-list li', self.el).draggable
+                                $('.search-result-list li.draggable', self.el).draggable
                                 ({
                                     helper: 'clone',
                                     appendTo: 'body',
