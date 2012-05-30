@@ -198,6 +198,7 @@ define([
                                     el = $(self).parents('li'),
                                     postId = $(el).attr('data-post-id');
                                 $('#delete-post .yes')
+                                    .off('click.livedesk')
                                     .on('click.livedesk',function(){
                                         if(!blogHref) return;
                                         new $.restAuth('Superdesk/Post/'+postId).delete().done(function(){
@@ -332,6 +333,7 @@ define([
                                         el = $(self).parents('li'),
                                         postId = $(el).attr('data-post-id');
                                         $('#delete-post .yes')
+                                            .off('click.livedesk')
                                             .on('click.livedesk',function(){
                                                 if(!blogHref) return;
                                                 new $.restAuth('Superdesk/Post/'+postId).delete().done(function(){
