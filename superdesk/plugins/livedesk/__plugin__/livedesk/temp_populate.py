@@ -165,6 +165,7 @@ COLLABORATORS = {
                  'Sava': 'internal',
 
                  'advertisement': 'advertisement',
+                 'internal': 'internal',
                  'google': 'google',
                  'twitter': 'twitter',
                  'flickr': 'flickr',
@@ -268,7 +269,7 @@ POSTS = [
           'at GEN News World Media Summit to see Douglas Arellanes demoing the tool live.'),
          ('GEN Live Desk Master Class', 'advertisement', 'Mugur', 'advertisement', 'GEN Live Desk is a new open source '
           'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
-          'be one of the first to test it! http://genlivedesk.org')
+          'be one of the first to test it! <a href="http://genlivedesk.org" target="_blank">http://genlivedesk.org</a>')
          ]
 
 def createBlogPosts():
@@ -283,10 +284,7 @@ def createBlogPosts():
         if author: pst.Author = getCollaboratorsIds()[author]
 
         createPostType(pst.Type)
-        if pst.Type == 'advertisement':
-            blogPostService.insert(getBlogsIds()[blog], pst)
-        else:
-            blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
+        blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
 
 # --------------------------------------------------------------------
 
