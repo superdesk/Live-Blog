@@ -52,6 +52,17 @@ var superdesk =
 				return layoutObject;
 			});
 	},
+	
+	showLoader: function()
+	{
+	    $('#navbar-top .loader').css('display', 'block');
+        setTimeout(function(){ $('#navbar-top .loader').css('display', 'none'); }, 10000);
+	},
+	hideLoader: function()
+	{
+	    $('#navbar-top .loader').css('display', 'none');
+	},
+	
 	layoutPlaceholder: '#area-main',
 	applyLayout: function(tmpl, data, callback)
 	{

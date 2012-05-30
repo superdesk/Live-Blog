@@ -17,6 +17,8 @@ define
                     createBtn.off('click.livedesk')
                         .on('click.livedesk', function()
                         { 
+                            superdesk.showLoader();
+                            
                             // get modules.* actions
                             superdesk.getActions('modules.livedesk.*')
                             .done(function(actions)
@@ -34,6 +36,8 @@ define
                     $(this).find('.submenu-blog').off('click.livedesk')
                         .on('click.livedesk', function()
                         {
+                            superdesk.showLoader();
+                            
                             var theBlog = $(this).attr('data-blog-link');
                             superdesk.getActions('modules.livedesk.*')
                             .done(function(actions)

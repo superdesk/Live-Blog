@@ -1,8 +1,8 @@
 define([
 	'providers/enabled',
-	'jquery', 'jquery/rest', 'jquery/superdesk', 'jqueryui/texteditor', 'jquery/utils',
+	'jquery', 'jquery/superdesk', 'jquery/rest', 'jqueryui/texteditor', 'jquery/utils',
 	'tmpl!livedesk>add'
-], function(providers, $) {
+], function(providers, $, superdesk) {
 
     var hasEditor = false;
     initAddBlog = function()
@@ -110,6 +110,8 @@ define([
         } else {
             initAddBlog();
         }
+        
+        superdesk.hideLoader();
     };
     return AddApp;
 });
