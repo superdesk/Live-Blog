@@ -12,8 +12,8 @@ API specifications for livedesk blog posts.
 from .blog import Blog
 from ally.api.config import service, call, INSERT, query
 from livedesk.api.domain_livedesk import modelLiveDesk
-from superdesk.post.api.post import Post, QPostPublished, QPostUnpublished, \
-    QPost
+from superdesk.post.api.post import Post, QPostUnpublished, \
+    QPost, IPostService
 from superdesk.user.api.user import User
 from superdesk.collaborator.api.collaborator import Collaborator
 from ally.api.type import Iter, Count
@@ -36,25 +36,29 @@ class BlogPost(Post):
 # --------------------------------------------------------------------
 
 @query
-class QBlogPostUnpublished(QPostUnpublished):
+class QWithCId:
     '''
-    Provides the blog post message query.
-    '''
-    cId = AsRangeOrdered
-
-@query
-class QBlogPostPublished(QPostPublished):
-    '''
-    Provides the blog post message query.
+    Provides the query for cId.
     '''
     cId = AsRangeOrdered
 
 @query
-class QBlogPost(QPost):
+class QBlogPostUnpublished(QPostUnpublished, QWithCId):
     '''
     Provides the blog post message query.
     '''
-    cId = AsRangeOrdered
+
+@query
+class QBlogPostPublished(QPost, QWithCId):
+    '''
+    Provides the blog post message query.
+    '''
+
+@query
+class QBlogPost(QPost, QWithCId):
+    '''
+    Provides the blog post message query.
+    '''
     isPublished = AsBoolean
 
 # --------------------------------------------------------------------
@@ -101,6 +105,13 @@ class IBlogPostService:
         '''
 
     @call
+    def getAll(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
+                       offset:int=None, limit:int=None, q:QBlogPost=None) -> Iter(BlogPost):
+        '''
+        Provides all the unpublished blogs posts.
+        '''
+
+    @call
     def insert(self, blogId:Blog.Id, post:Post) -> BlogPost.Id:
         '''
         Inserts the post for the blog.
@@ -122,5 +133,16 @@ class IBlogPostService:
     def update(self, blogId:Blog.Id, post:Post):
         '''
         Update the post for the blog.
+        '''
+
+    @call(replaceFor=IPostService)
+    def delete(self, id:Post.Id) -> bool:
+        '''
+        Delete the post for the provided id.
+        
+        @param id: integer
+            The id of the post to be deleted.
+            
+        @return: True if the delete is successful, false otherwise.
         '''
 
