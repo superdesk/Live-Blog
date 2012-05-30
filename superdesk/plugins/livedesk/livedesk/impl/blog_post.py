@@ -20,14 +20,13 @@ from ally.internationalization import _
 from ally.support.sqlalchemy.functions import current_timestamp
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
+from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
-from superdesk.post.api.post import IPostService, Post
-from superdesk.source.meta.source import SourceMapped
-from livedesk.api.blog_post import QBlogPost
+from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 
 # --------------------------------------------------------------------
 
@@ -66,10 +65,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
+
         sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
         sql = sql.order_by(BlogPostMapped.Id.desc())
         sql = buildLimits(sql, offset, limit)
-        return (post for post in sql.all())
+        return self._trimmDeleted(sql.all())
 
     def getPublishedCount(self, blogId, creatorId=None, authorId=None, q=None):
         '''
@@ -78,6 +78,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
+
         return sql.count()
 
     def getUnpublished(self, blogId, creatorId=None, authorId=None, offset=None, limit=None, q=None):
@@ -87,10 +88,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert q is None or isinstance(q, QBlogPostUnpublished), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
-        sql = buildLimits(sql, offset, limit)
+
         sql = sql.order_by(BlogPostMapped.CreatedOn.desc())
         sql = sql.order_by(BlogPostMapped.Id.desc())
-        return (post for post in sql.all())
+        sql = buildLimits(sql, offset, limit)
+        return self._trimmDeleted(sql.all())
 
     def getOwned(self, blogId, creatorId, offset=None, limit=None, q=None):
         '''
@@ -102,10 +104,23 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             if q.isPublished.value: sql = sql.filter(BlogPostMapped.PublishedOn != None)
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
         sql = sql.filter(BlogPostMapped.Author == None)
-        sql = buildLimits(sql, offset, limit)
+
         sql = sql.order_by(BlogPostMapped.CreatedOn.desc())
         sql = sql.order_by(BlogPostMapped.Id.desc())
-        return (post for post in sql.all())
+        sql = buildLimits(sql, offset, limit)
+        return self._trimmDeleted(sql.all())
+
+    def getAll(self, blogId, creatorId=None, authorId=None, offset=None, limit=None, q=None):
+        '''
+        @see: IBlogPostService.getAll
+        '''
+        assert q is None or isinstance(q, QBlogPost), 'Invalid query %s' % q
+        sql = self._buildQuery(blogId, creatorId, authorId, q)
+
+        sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
+        sql = sql.order_by(BlogPostMapped.Id.desc())
+        sql = buildLimits(sql, offset, limit)
+        return self._trimmDeleted(sql.all())
 
     def insert(self, blogId, post):
         '''
@@ -163,6 +178,19 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         postEntry.CId = self._nextCId()
         self.session().merge(postEntry)
 
+    def delete(self, id):
+        '''
+        @see: IBlogPostService.delete
+        '''
+        if self.postService.delete(id):
+            postEntry = self.session().query(BlogPostEntry).get(id)
+            if postEntry:
+                assert isinstance(postEntry, BlogPostEntry)
+                postEntry.CId = self._nextCId()
+                self.session().flush((postEntry,))
+            return True
+        return False
+
     # ----------------------------------------------------------------
 
     def _buildQuery(self, blogId, creatorId=None, authorId=None, q=None):
@@ -176,8 +204,27 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sql = sql.filter((BlogPostMapped.Author == authorId) |
                              ((CollaboratorMapped.Id == authorId) &
                               (CollaboratorMapped.Person == BlogPostMapped.Creator)))
-        if q: sql = buildQuery(sql, q, BlogPostMapped)
+        addDeleted = False
+        if q:
+            sql = buildQuery(sql, q, BlogPostMapped)
+            addDeleted = QPostUnpublished.deletedOn in q or QWithCId.cId in q
+        if not addDeleted: sql = sql.filter(BlogPostMapped.DeletedOn == None)
         return sql
+
+    def _trimmDeleted(self, posts):
+        '''
+        Trim the information from the deleted posts.
+        '''
+        for post in posts:
+            assert isinstance(post, BlogPost)
+            if BlogPost.DeletedOn in post and post.DeletedOn is not None:
+                trimmed = BlogPost()
+                trimmed.Id = post.Id
+                trimmed.CId = post.CId
+                trimmed.DeletedOn = post.DeletedOn
+                yield trimmed
+            else:
+                yield post
 
     def _nextCId(self):
         '''

@@ -81,9 +81,18 @@ define([
                 };
                 new $.restAuth('LiveDesk/Blog').insert(data).done(function(liveBlog)
                 {
-                    $('#add-live-blog').dialog('close');
+                    $("#add-live-blog")
+                        .dialog('close')
+                        .find("[name='Language']:eq(0)").val('')
+                            .parents('.control-group').removeClass('error').end().end()
+                        .find("[data-value='Title']:eq(0)").html('').end()
+                        .find("[data-value='Description']:eq(0)").html('');
+
                     require([$.superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js'],
-                        function(EditApp){ new EditApp(liveBlog.href); $('#navbar-top').trigger('refresh-menu'); });
+                        function(EditApp){
+                            new EditApp(liveBlog.href).render();
+                            $('#navbar-top').trigger('refresh-menu');
+                        });
                 });
             });
         
