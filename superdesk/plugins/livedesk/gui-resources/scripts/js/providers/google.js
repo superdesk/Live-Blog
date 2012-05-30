@@ -13,8 +13,8 @@ define('providers/google', [
 	'tmpl!livedesk>providers/google/news-item',
 	'tmpl!livedesk>providers/google/images-item',
 	'tmpl!livedesk>providers/google-more',
-        'tmpl!livedesk>providers/no-results',
-        'tmpl!livedesk>providers/loading',
+    'tmpl!livedesk>providers/no-results',
+    'tmpl!livedesk>providers/loading'
 ], function( providers, str, $ ) {
 $.extend(providers.google, {
 	initialized: false,
@@ -22,7 +22,7 @@ $.extend(providers.google, {
 	urls: {
 		web: '',
 		news: '',
-		images: '',
+		images: ''
 	},
 	data: [],
 	init: function(){
@@ -38,7 +38,9 @@ $.extend(providers.google, {
 	render: function() {
 		var self = this;
 		this.el.tmpl('livedesk>providers/google', {}, function(){
-			self.el.on('click', '#ggl-search-controls>li', function(ev){
+			$(self.el)
+            .off('click.livedesk')
+            .on('click.livedesk', '#ggl-search-controls>li', function(ev){
 			  $(this).siblings().removeClass('active') .end()
 					 .addClass('active');			  
 			  var myArr = $(this).attr('id').split('-');
@@ -49,7 +51,8 @@ $.extend(providers.google, {
 			  $('#ggl-'+myArr[1]+'-holder').css('visibility', 'visible');
 			  self.startSearch(true);
 			})
-			.on('keyup','#google-search-text', function(e){
+            .off('keyup.livedesk')
+			.on('keyup.livedesk','#google-search-text', function(e){
 				if(e.keyCode == 13 && $(this).val().length > 0) {
 					//enter press on google search text
 					//check what search it is
@@ -106,7 +109,7 @@ $.extend(providers.google, {
                 var currentDate = new Date(), currentStr = currentDate.toLocaleDateString();// + ' ' + currentDate.toLocaleTimeString();
                 this.showLoading('#ggl-web-more');
                 $.getJSON(str.format(this.urls.web,{
-                    start: start, 
+                    start: start,
                     text: text
                 }), {}, function(data){
                     self.stopLoading('#ggl-web-more');
