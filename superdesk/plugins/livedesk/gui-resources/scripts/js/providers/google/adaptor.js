@@ -21,7 +21,6 @@ define('providers/google/adaptor', [
                             self.author = collabs[0].Id;
                         }
                     });
-                //new $.restAuth(theBlog)
             },
             web: function(obj) {
                 return {

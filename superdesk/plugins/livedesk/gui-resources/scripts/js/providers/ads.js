@@ -10,7 +10,8 @@ function(providers, $)
     $.extend(providers.ads,  
     {
         init: function(theBlog) 
-        {         
+        {
+            this.adaptor.init();
             var self = this,
             getAds = function()
             {
@@ -27,7 +28,7 @@ function(providers, $)
                             zIndex: 2700,
                             start: function() 
                             {
-                                $(this).data('post', self.adaptor.universal(this));
+                                $(this).data('data', self.adaptor.universal($(this)));
                             }
                         });
                     });
