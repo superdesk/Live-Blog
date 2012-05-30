@@ -13,8 +13,7 @@ define('providers/flickr', [
     'tmpl!livedesk>providers/flickr/licenses',
     'tmpl!livedesk>providers/load-more',
     'tmpl!livedesk>providers/no-results',
-    'tmpl!livedesk>providers/loading',
-    'jquery'
+    'tmpl!livedesk>providers/loading'
 ], function( providers,  $ ) {
 $.extend(providers.flickr, {
         initialized: false,
@@ -82,7 +81,7 @@ $.extend(providers.flickr, {
                     self.stopLoading('#flickr-image-more');
                     self.data = self.data.concat(data.photos.photo);
                     data.photos.photos = data.photos.photo;
-                    
+
                     if ( parseInt(data.photos.total) > 1 ) {
                         $.tmpl('livedesk>providers/flickr/image-item', data.photos, function(e,o) {
                             $('#flickr-image-results').append(o).find('.flickr').draggable(
