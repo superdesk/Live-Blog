@@ -91,7 +91,7 @@ def getSourcesIds():
 
 
 BLOGS = {
-         'GEN Live Desk Master Class': ('Doug', 'en', 'An in-depth demonstration of the '
+         'GEN Live Desk Master Class': ('David', 'en', 'An in-depth demonstration of the '
                                         'current state of development of the GEN Live Desk '
                                         'tool for live online news coverage.',
                                         datetime.now(), datetime.now()),
