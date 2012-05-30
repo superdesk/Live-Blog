@@ -19,8 +19,7 @@
     </section>
     <section class="blog-section">
     	<div class="tool-box-top">
-            <!--a><i class="icon-share-alt"></i> Share</a-->
-			<a href="https://twitter.com/share" class="twitter-share-button" 
+			<a href="https://twitter.com/share" class="twitter-share-button"
 				data-count="horizontal" data-url="{OutputLink}" data-text="{Title|t}">Tweet</a>
             <div class="pull-right update-success hide">
     			_("Blog information updated!")
@@ -31,15 +30,16 @@
         </div>
         <div class="btn-group pull-right">
 			<button data-toggle="dropdown" class="btn dropdown-toggle">_("Action"); <span class="caret"></span></button>
-			<ul class="dropdown-menu">
-    			<li><a href="javascript:void(0)">_("Show all");</a></li>
-    			<li><a href="javascript:void(0)">_("Show wrapups");</a></li>
-    			<li><a href="javascript:void(0)">_("Show alerts");</a></li>
+			<ul class="dropdown-menu filter-posts">
+    			<li><a href="javascript:void(0)" data-value="all">_("Show all");</a></li>
+				{#PostTypes}
+					<li><a href="javascript:void(0)" data-value="{Key}">_("Show") {Key} _("posts")</option>
+				{/PostTypes}
   			</ul>
 		</div>
         <ul class="nav nav-tabs">
 			<li class="active"><a href="#timeline-view" data-toggle="tab">_("Timeline");</a></li>
-			<li class=""><a href="#map-view" data-toggle="tab">_("Map View");</a></li>
+			<!-- li class=""><a href="#map-view" data-toggle="tab">_("Map View");</a></li-->
         </ul>
         <div class="tab-content">
 			<div class="tab-pane active" id="timeline-view">
