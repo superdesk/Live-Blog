@@ -446,7 +446,7 @@ define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
 		        $.extend(this.lastAdded.request.headers, {'X-HTTP-Method-Override': 'DELETE'});
 		    else
 		        this.lastAdded.request = {headers: {'X-HTTP-Method-Override': 'DELETE'}};
-			this.request({type: 'post', headers: this.lastAdded.request.headers, data: data});
+			this.request({type: 'get', headers: this.lastAdded.request.headers, data: data});
 			return this.doRequest(url ? url : getUrl.apply(this));
 		},
 		

@@ -122,16 +122,29 @@ define([
             new $.rest(postHref)
             .request({data:{'startEx.cId':latestPost}})
             .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Creator.Id, ' +
-                'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id')
+                'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, DeletedOn')
             .done(function(posts)
             {
                 if(!posts) return;
 
                 var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
-                for(var i=0; i<posts.length; i++) {
+                for(var i = 0; i<posts.length; i++) {
                     latestPost = Math.max(latestPost, parseInt(posts[i].CId));
-                    if((posts[i].Creator.Id == $.superdesk.login.Id) && (posts[i].IsModified === "True")) {
+
+                    if($.isDefined(posts[i].Creator)  && $.isDefined(posts[i].Creator.Id)
+                        && (posts[i].Creator.Id == $.superdesk.login.Id)
+                        && (posts[i].IsModified === "True")) {
+
                         posts.splice(i,1);
+                        i--;
+                    }
+                    if($.isDefined(posts[i].DeletedOn)) {
+                        $('#timeline-view .post-list li[data-post-id="'+posts[i].Id+'"]')
+                            .fadeTo(500, '0.1', function(){
+                                $(this).remove();
+                            })
+                        posts.splice(i,1);
+                        i--;
                     }
                 }
                 updateItemCount += posts.length;
@@ -153,9 +166,9 @@ define([
                                 }, 5000);
                             }
                         });
-                        //$('#timeline-view .post-list', content).prepend();
                         // edit posts
-                        $('#timeline-view .post-list li .editable', content)
+                        $('#timeline-view .post-list li', content)
+                            .find('.editable')
                             .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'})
                             .on('focusout.livedesk', function(){
                                 var el = this,
@@ -178,6 +191,20 @@ define([
                                         setTimeout(function(){
                                             $(el).parents('li').removeClass('update-success update-error');
                                         }, 5000);
+                                    });
+                            }).end()
+                            .find('a.close').on('click.livedesk', function(){
+                                var self = this,
+                                    el = $(self).parents('li'),
+                                    postId = $(el).attr('data-post-id');
+                                $('#delete-post .yes')
+                                    .on('click.livedesk',function(){
+                                        if(!blogHref) return;
+                                        new $.restAuth('Superdesk/Post/'+postId).delete().done(function(){
+                                            $(el).fadeTo(500, '0.1', function(){
+                                                $(this).remove();
+                                            })
+                                        });
                                     });
                             });
                         updateItemCount -= posts.length;
@@ -274,7 +301,8 @@ define([
                             $('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
                             {
                                 // edit posts
-                                $('#timeline-view .post-list li .editable', content)
+                                $('#timeline-view .post-list li', content)
+                                .find('.editable')
                                     .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'})
                                     .on('focusout.livedesk', function(){
                                         var el = this,
@@ -298,9 +326,22 @@ define([
                                                     $(el).parents('li').removeClass('update-success update-error');
                                                 }, 5000);
                                             });
-                                    });
-                                
-                                // bind update event for new results notification button
+                                    }).end()
+                                .find('a.close').on('click.livedesk', function(){
+                                    var self = this,
+                                        el = $(self).parents('li'),
+                                        postId = $(el).attr('data-post-id');
+                                        $('#delete-post .yes')
+                                            .on('click.livedesk',function(){
+                                                if(!blogHref) return;
+                                                new $.restAuth('Superdesk/Post/'+postId).delete().done(function(){
+                                                    $(el).fadeTo(500, '0.1', function(){
+                                                        $(this).remove();
+                                                    })
+                                                });
+                                            });
+                                });
+                                    // bind update event for new results notification button
                                 $('#timeline-view .new-results', content)
                                     .off('update.livedesk')
                                     .on('update.livedesk', function(e, count, callback, autoUpdate)

@@ -45,4 +45,17 @@
     <a href="#" class="btn btn-primary" data-dismiss="modal">_('Yes')</a>
   </div>
 </div>
+
+<div id="delete-post" class="modal hide">
+  <div class="modal-header"> <a data-dismiss="modal" class="close">×</a>
+    <h3>_("Delete post")</h3>
+  </div>
+  <div class="modal-body">
+  <p>_("Are you sure you want to delete the post") <strong id="post-name"></strong>?</p>
+  </div>
+  <div class="modal-footer">
+    <a data-dismiss="modal" class="no btn" href="#">_("No")</a>
+    <a data-dismiss="modal" class="yes btn btn-primary" href="#">_("Yes")</a>
+  </div>
+</div>
 {+body/}
