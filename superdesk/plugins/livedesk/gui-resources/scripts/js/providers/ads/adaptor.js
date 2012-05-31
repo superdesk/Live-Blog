@@ -22,7 +22,7 @@ define('providers/ads/adaptor', [
             {
                 return {
                     Content: $(obj).find('.result-text').html(),
-                    Type: 'normal',
+                    Type: 'advertisement',
                     Author: this.author
                 };
             }
