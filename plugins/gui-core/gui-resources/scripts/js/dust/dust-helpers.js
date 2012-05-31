@@ -1,4 +1,4 @@
-define('dust/dust-helpers', ['dust/dust', 'jquery', 'jquery/i18n', 'jquery/utils'], function(dust, $){
+define('dust/dust-helpers', ['dust/dust', 'jquery', 'utils/twitter', 'jquery/i18n', 'jquery/utils'], function(dust, $, twitter){
 var parseAttributeParams = function(params) {
 	if($.isDefined(params.param1) ) {
 		for(var i=1,count=params.length+1, aux=[];i<count;i++) {
@@ -78,6 +78,6 @@ var helpers = {
 dust.helpers = helpers;
 
 dust.filters.t = function(string){ return $('<div>'+string+'</div>').text(); }
-
+dust.filters.twitter_all = function(string) { return twitter.link.all(string); }
 return dust;
 });
