@@ -50,7 +50,7 @@ class EncodeIdentifier(IMetaEncode, WithIdentifier):
         meta = self.encoder.encode(obj, context)
         if meta is not None:
             assert isinstance(meta, Meta), 'Invalid meta return value %s' % meta
-            if isinstance(self.identifier, str): meta.identifier = self.identifier
+            if isinstance(self.identifier, str): meta.identifier = context.normalizer.normalize(self.identifier)
             else: meta.identifier = tuple(context.normalizer.normalize(iden) for iden in self.identifier)
             return meta
 
@@ -106,7 +106,7 @@ class EncodeGetterIdentifier(EncodeGetter, WithIdentifier):
         meta = EncodeGetter.encode(self, obj, context)
         if meta is not None:
             assert isinstance(meta, Meta), 'Invalid meta return value %s' % meta
-            if isinstance(self.identifier, str): meta.identifier = self.identifier
+            if isinstance(self.identifier, str): meta.identifier = context.normalizer.normalize(self.identifier)
             else: meta.identifier = tuple(context.normalizer.normalize(iden) for iden in self.identifier)
             return meta
 

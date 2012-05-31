@@ -10,24 +10,25 @@ Provides the parameters handler.
 '''
 from ally.container.ioc import injected
 from ally.core.http.spec import RequestHTTP
-from ally.core.impl.meta.general import ContextParse
 from ally.core.spec.codes import ILLEGAL_PARAM
 from ally.core.spec.meta import IMetaService, IMetaDecode, IMetaEncode, SAMPLE, \
-    Value, Object
-from ally.core.spec.resources import Invoker, ConverterPath
+    Value, Object, Context
+from ally.core.spec.resources import Invoker, ConverterPath, Path, Node, \
+    INodeInvokerListener
 from ally.core.spec.server import IProcessor, ProcessorsChain, Response
+from weakref import WeakKeyDictionary
 
 # --------------------------------------------------------------------
 
 @injected
-class ParameterHandler(IProcessor):
+class ParameterHandler(IProcessor, INodeInvokerListener):
     '''
     Implementation for a processor that provides the transformation of parameters into arguments.
     
     Provides on request: arguments
     Provides on response: NA
     
-    Requires on request: invoker, parameters
+    Requires on request: resourcePath, invoker, parameters
     Requires on response: NA
     '''
 
@@ -41,6 +42,9 @@ class ParameterHandler(IProcessor):
         'Invalid parameter meta service %s' % self.parameterMetaService
         assert isinstance(self.converterPath, ConverterPath), 'Invalid ConverterPath object %s' % self.converterPath
 
+        self._cacheDecode = WeakKeyDictionary()
+        self._cacheEncode = WeakKeyDictionary()
+
     def process(self, req, rsp, chain):
         '''
         @see: IProcessor.process
@@ -48,22 +52,32 @@ class ParameterHandler(IProcessor):
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        assert isinstance(req.resourcePath, Path), 'Invalid request %s has no resource path' % req
+        assert isinstance(req.resourcePath.node, Node), 'Invalid resource path %s has no node' % req.resourcePath
+
         if req.parameters:
             assert isinstance(req.invoker, Invoker), 'No invoker found on the request %s' % req
-            #TODO: meta caching
-            decode = self.parameterMetaService.createDecode(req.invoker)
-            assert isinstance(decode, IMetaDecode), 'Invalid meta decode %s' % decode
+            decode = self._cacheDecode.get(req.invoker)
+            if decode is None:
+                decode = self.parameterMetaService.createDecode(Context(invoker=req.invoker))
+                assert isinstance(decode, IMetaDecode), 'Invalid meta decode %s' % decode
+                req.resourcePath.node.addNodeListener(self)
+                self._cacheDecode[req.invoker] = decode
 
             illegal = []
-            context = ContextParse(self.converterPath, self.converterPath)
+            context = Context(converter=self.converterPath, normalizer=self.converterPath)
             while req.parameters:
                 name, value = req.parameters.popleft()
                 if not decode.decode(name, value, req.arguments, context): illegal.append((name, value))
 
             if illegal:
-                #TODO: meta caching
-                encode = self.parameterMetaService.createEncode(req.invoker)
-                assert isinstance(encode, IMetaEncode), 'Invalid meta encode %s' % encode
+                encode = self._cacheEncode.get(req.invoker)
+                if encode is None:
+                    encode = self.parameterMetaService.createEncode(Context(invoker=req.invoker))
+                    assert isinstance(encode, IMetaEncode), 'Invalid meta encode %s' % encode
+                    req.resourcePath.node.addNodeListener(self)
+                    self._cacheEncode[req.invoker] = encode
+
                 sample = encode.encode(SAMPLE, context)
                 if sample is None:
                     text = 'No parameters are allowed on this URL.\nReceived parameters \'%s\''
@@ -83,3 +97,12 @@ class ParameterHandler(IProcessor):
                 return
 
         chain.proceed()
+
+    # ----------------------------------------------------------------
+
+    def onInvokerChange(self, node, old, new):
+        '''
+        @see: INodeInvokerListener.onInvokerChange
+        '''
+        self._cacheDecode.pop(old, None)
+        self._cacheEncode.pop(old, None)

@@ -125,7 +125,7 @@ class MetaFetch:
     This type of meta is not rendered.
     '''
 
-    __slots__ = __immutable__ = ('meta', 'getValue')
+    __slots__ = ('meta', 'getValue')
 
     def __init__(self, meta, getValue):
         '''
@@ -150,7 +150,7 @@ class MetaPath(MetaLink):
     Provides the link on path meta.
     '''
 
-    __slots__ = __immutable__ = ('type', 'path', 'getValue')
+    __slots__ = ('type', 'path', 'getValue')
 
     def __init__(self, path, type, getValue):
         '''

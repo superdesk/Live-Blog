@@ -29,7 +29,7 @@ class Reference(TypeSupport):
     Provides the property reference that is provided by the property descriptor.
     '''
 
-    __slots__ = TypeSupport.__slots__ + ('_ally_ref_parent',)
+    __slots__ = ('_ally_ref_parent',)
 
     def __init__(self, type, parent=None):
         '''
@@ -176,7 +176,7 @@ class PropertyDelegateChange(Property):
     '''
     Provides the property descriptor that is delegating the __set__ and __delete__ to a descriptor.
     '''
-    __slots__ = Property.__slots__ + ('descriptor',)
+    __slots__ = ('descriptor',)
 
     def __init__(self, type, descriptor):
         '''
@@ -212,7 +212,7 @@ class PropertyDelegate(Property):
     '''
     Provides the property descriptor that is delegating to a descriptor.
     '''
-    __slots__ = Property.__slots__ + ('descriptor',)
+    __slots__ = ('descriptor',)
 
     def __init__(self, type, descriptor):
         '''
@@ -261,12 +261,12 @@ class PropertyDelegate(Property):
 
 # --------------------------------------------------------------------
 
-class CriteriaEntry:
+class CriteriaEntry(TypeSupport):
     '''
     Descriptor used for defining criteria entries in a query object.
     '''
 
-    __slots__ = TypeSupport.__slots__
+    __slots__ = ()
 
     def __init__(self, type):
         '''
@@ -414,7 +414,7 @@ class ContainerSupport(metaclass=ABCMeta):
             if contained is not None: return contained(self)
         return False
 
-    def __repr__(self):
+    def __str__(self):
         container = self._ally_type.container
         assert isinstance(container, Container), 'Invalid container %s' % container
         clazz = self.__class__
@@ -514,7 +514,7 @@ class QuerySupport(metaclass=ABCMeta):
                             if get is not None: return typ in get(self)
         return False
 
-    def __repr__(self):
+    def __str__(self):
         query = self._ally_type.query
         assert isinstance(query, Query), 'Invalid query %s' % query
         clazz = self.__class__

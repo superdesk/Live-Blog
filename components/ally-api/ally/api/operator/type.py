@@ -21,7 +21,7 @@ class TypeContainer(TypeClass):
     Provides the type for the properties container.
     '''
 
-    __slots__ = TypeClass.__slots__ + ('container',)
+    __slots__ = ('container',)
 
     def __init__(self, clazz, container):
         '''
@@ -63,7 +63,7 @@ class TypeModel(TypeContainer):
     Provides the type for the model.
     '''
 
-    __slots__ = TypeContainer.__slots__
+    __slots__ = ()
 
     def __init__(self, clazz, container):
         '''
@@ -92,7 +92,7 @@ class TypeCriteria(TypeContainer):
     Provides the type for the criteria.
     '''
 
-    __slots__ = TypeContainer.__slots__
+    __slots__ = ()
 
     def __init__(self, clazz, container):
         '''
@@ -112,7 +112,7 @@ class TypeQuery(TypeClass):
     Provides the type for the query.
     '''
 
-    __slots__ = TypeClass.__slots__ + ('query', 'owner')
+    __slots__ = ('query', 'owner')
 
     def __init__(self, clazz, query, owner):
         '''
@@ -160,7 +160,7 @@ class TypeProperty(Type):
     This type is used to wrap a container property as types.
     '''
 
-    __slots__ = Type.__slots__ + ('parent', 'property', 'container', 'type')
+    __slots__ = ('parent', 'property', 'container', 'type')
 
     def __init__(self, parent, property, type=None):
         '''
@@ -224,7 +224,7 @@ class TypeModelProperty(TypeProperty):
     This type is used to wrap a model property as types.
     '''
 
-    __slots__ = TypeProperty.__slots__
+    __slots__ = ()
 
     def __init__(self, parent, property, type=None):
         '''
@@ -242,7 +242,7 @@ class TypeCriteriaEntry(TypeClass):
     This type is used to wrap a query criteria as types.
     '''
 
-    __slots__ = TypeClass.__slots__ + ('parent', 'name', 'criteriaType', 'criteria')
+    __slots__ = ('parent', 'name', 'criteriaType', 'criteria')
 
     def __init__(self, parent, name):
         '''
@@ -313,7 +313,7 @@ class TypeService(TypeClass):
     Provides the type for the service.
     '''
 
-    __slots__ = TypeClass.__slots__ + ('service',)
+    __slots__ = ('service',)
 
     def __init__(self, clazz, service):
         '''

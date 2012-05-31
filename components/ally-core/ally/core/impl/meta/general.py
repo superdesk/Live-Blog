@@ -62,6 +62,7 @@ class WithIdentifier:
         '''
         if __debug__:
             if not isinstance(identifier, str):
+                assert identifier, 'At least an element is required in the identifier collection'
                 for iden in identifier: assert isinstance(iden, str), 'Invalid identifier element %s' % iden
 
         self.identifier = identifier
@@ -249,7 +250,9 @@ def obtainOnObj(attribute, creator):
     def obtain(obj):
         assert obj is not None, 'An object is required'
         value = getattr(obj, attribute, None)
-        if value is None: obj[attribute] = value = creator()
-        assert value is not None, 'No value provided by creator %s' % creator
+        if value is None:
+            value = creator()
+            assert value is not None, 'No value provided by creator %s' % creator
+            setattr(obj, attribute, value)
         return value
     return obtain

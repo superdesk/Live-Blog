@@ -1,7 +1,7 @@
 '''
 Created on May 21, 2012
 
-@package: ally core
+@package: ally core http
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -22,7 +22,8 @@ from ally.core.impl.meta.encode import EncodeValue, EncodeCollection, \
 from ally.core.impl.meta.general import getterOnDict, setterOnDict, getterOnObj, \
     getterChain, setterWithGetter, setterOnObj, setterToOthers, obtainOnDict, \
     getterOnObjIfIn, obtainOnObj, ContextParse
-from ally.core.spec.meta import IMetaService, Value, Object, SAMPLE, Collection
+from ally.core.spec.meta import IMetaService, Value, Object, SAMPLE, Collection, \
+    Context
 from ally.core.spec.resources import Invoker, Normalizer
 from collections import deque, Iterable
 import logging
@@ -35,11 +36,19 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
+class ContextParameter(Context):
+    '''
+    The context that contains the data required for creating encoder/decoder meta.
+    '''
+    invoker = Invoker
+
+# --------------------------------------------------------------------
+
 @injected
 class ParameterMetaService(IMetaService):
     '''
     @see: IMetaService impementation for handling the parameters meta.
-    This service will provide a decode meta that will be able to take as identifiers:
+    This service will provide a decode and encode meta that will be able to work with identifiers:
         string, list[string], tuple(string), deque[string]
     '''
 
@@ -75,17 +84,18 @@ class ParameterMetaService(IMetaService):
         self.reSplitValues = re.compile(self.regexSplitValues)
         self.reNormalizeValue = re.compile(self.regexNormalizeValue)
 
-    def createDecode(self, invoker):
+    def createDecode(self, context):
         '''
         @see: IMetaService.createDecode
         '''
-        assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
+        assert isinstance(context, ContextParameter), 'Invalid context %s' % context
+        assert isinstance(context.invoker, Invoker), 'Invalid invoker %s' % context.invoker
 
         root, ordering = DecodeParameters(self.separatorName), {}
 
         queries = deque()
         # We first process the primitive types.
-        for inp in invoker.inputs:
+        for inp in context.invoker.inputs:
             assert isinstance(inp, Input)
             typ = inp.type
             assert isinstance(typ, Type)
@@ -95,7 +105,7 @@ class ParameterMetaService(IMetaService):
                     assert isinstance(typ, Iter)
                     dprimitive = DecodeList(DecodeValue(list.append, typ.itemType))
                     dprimitive = DecodeSplit(dprimitive, self.reSplitValues, self.reNormalizeValue)
-                    dprimitive = DecodeGetter(obtainOnDict(inp.name, list), dprimitive)
+                    dprimitive = DecodeGetter(dprimitive, obtainOnDict(inp.name, list))
                 else:
                     dprimitive = DecodeValue(setterOnDict(inp.name), typ)
 
@@ -106,7 +116,7 @@ class ParameterMetaService(IMetaService):
 
         if queries:
             # We find out the model provided by the invoker
-            mainq = [(inp, k) for k, inp in enumerate(queries) if invoker.output.isOf(inp.type.owner)]
+            mainq = [(inp, k) for k, inp in enumerate(queries) if context.invoker.output.isOf(inp.type.owner)]
             if len(mainq) == 1:
                 # If we just have one main query that has the return type model as the owner we can strip the input
                 # name from the criteria names.
@@ -123,7 +133,7 @@ class ParameterMetaService(IMetaService):
 
         for name, asscending in ((self.nameOrderAsc, True), (self.nameOrderDesc, False)):
             if name in root.properties:
-                log.error('Name conflict for %r in %s', name, invoker)
+                log.error('Name conflict for %r in %s', name, context.invoker)
             else:
                 order = DecodeOrdering(self.separatorOrderName, asscending)
                 order.properties.update(ordering)
@@ -181,7 +191,7 @@ class ParameterMetaService(IMetaService):
                         assert isinstance(typ, Iter)
                         dprop = DecodeList(DecodeValue(list.append, typ.itemType))
                         dprop = DecodeSplit(dprop, self.reSplitValues, self.reNormalizeValue)
-                        dprop = DecodeGetter(getterChain(getterCriteria, obtainOnObj(prop, list)), dprop)
+                        dprop = DecodeGetter(dprop, getterChain(getterCriteria, obtainOnObj(prop, list)))
                     else:
                         dprop = DecodeValue(setterWithGetter(getterCriteria, setterOnObj(prop)), typ)
 
@@ -191,21 +201,22 @@ class ParameterMetaService(IMetaService):
                 if etype.name in ordering:
                     log.error('Name conflict for criteria %r ordering from %s', etype.name, queryType)
                 else:
-                    ordering[etype.name] = DecodeGetter(getterQuery, DecodeSetValue(setterOrdering(etype)))
+                    ordering[etype.name] = DecodeGetter(DecodeSetValue(setterOrdering(etype)), getterQuery)
 
     # ----------------------------------------------------------------
 
-    def createEncode(self, invoker):
+    def createEncode(self, context):
         '''
         @see: IMetaService.createEncode
         '''
-        assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
+        assert isinstance(context, ContextParameter), 'Invalid context %s' % context
+        assert isinstance(context.invoker, Invoker), 'Invalid invoker %s' % context.invoker
 
         root = EncodeParameters(self.separatorName)
 
         queries = deque()
         # We first process the primitive types.
-        for inp in invoker.inputs:
+        for inp in context.invoker.inputs:
             assert isinstance(inp, Input)
             typ = inp.type
             assert isinstance(typ, Type)
@@ -227,7 +238,7 @@ class ParameterMetaService(IMetaService):
 
         if queries:
             # We find out the model provided by the invoker
-            mainq, main = [inp for inp in queries if invoker.output.isOf(inp.type.owner)], None
+            mainq, main = [inp for inp in queries if context.invoker.output.isOf(inp.type.owner)], None
             if len(mainq) == 1:
                 # If we just have one main query that has the return type model as the owner we can strip the input
                 # name from the criteria names.
