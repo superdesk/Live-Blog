@@ -120,7 +120,7 @@ class ContentRequest(Content, model.Content):
     '''
     Provides the content of a request.
     '''
-    __slots__ = Content.__slots__ + ('length',)
+    __slots__ = ('length',)
 
     def __init__(self):
         '''
@@ -207,8 +207,8 @@ class Response(Content):
     '''
     Provides the response support.
     '''
-    __slots__ = Content.__slots__ + ('code', 'codeMessage', 'codeText', 'scheme', 'location', 'allows', 'encoderPath',
-                                     'obj', 'objType', 'objMeta', 'content')
+    __slots__ = ('code', 'codeMessage', 'codeText', 'scheme', 'location', 'allows', 'encoderPath', 'obj', 'objType',
+                 'objMeta', 'content')
 
     def __init__(self):
         '''

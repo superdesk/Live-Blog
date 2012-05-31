@@ -32,7 +32,7 @@ class Type(metaclass=abc.ABCMeta):
     The class that represents the API types used for mapping data.
     '''
 
-    __slots__ = ('isPrimitive', 'isContainable')
+    __slots__ = ('__weakref__', 'isPrimitive', 'isContainable')
 
     def __init__(self, isPrimitive=False, isContainable=True):
         '''
@@ -92,7 +92,7 @@ class TypeNone(Singletone, Type):
     Provides the type that matches None.
     '''
 
-    __slots__ = Type.__slots__
+    __slots__ = ()
 
     def __init__(self):
         '''
@@ -135,7 +135,7 @@ class TypeClass(Type):
     The class that represents the API types used for mapping data.
     '''
 
-    __slots__ = Type.__slots__ + ('clazz',)
+    __slots__ = ('clazz',)
 
     def __init__(self, clazz, isPrimitive=False, isContainable=True):
         '''
@@ -159,8 +159,7 @@ class TypeClass(Type):
         @return: boolean
             True if the type is of this type, False otherwise.
         '''
-        if self == type: return True
-        if isclass(type) and issubclass(type, self.clazz): return True
+        if isclass(type) and (issubclass(type, self.clazz) or issubclass(self.clazz, type)): return True
         if self == typeFor(type): return True
         return False
 
@@ -197,7 +196,7 @@ class TypePercentage(Singletone, TypeClass):
     Provides the type for percentage values.
     '''
 
-    __slots__ = TypeClass.__slots__
+    __slots__ = ()
 
     def __init__(self):
         '''
@@ -215,7 +214,7 @@ class TypeTranslated(Singletone, TypeClass):
     Provides the string type that contains as a value a message that should be translated.
     '''
 
-    __slots__ = TypeClass.__slots__
+    __slots__ = ()
 
     def __init__(self):
         '''
@@ -229,7 +228,7 @@ class TypeReference(Singletone, TypeClass):
     Provides the type representing a reference path.
     '''
 
-    __slots__ = TypeClass.__slots__
+    __slots__ = ()
 
     def __init__(self):
         '''
@@ -243,7 +242,7 @@ class TypeLocale(Singletone, TypeClass):
     Provides the type representing the user requested language for presentation.
     '''
 
-    __slots__ = TypeClass.__slots__
+    __slots__ = ()
 
     def __init__(self):
         '''
@@ -257,7 +256,7 @@ class TypeScheme(Singletone, TypeClass):
     Provides the type representing the used scheme.
     '''
 
-    __slots__ = TypeClass.__slots__
+    __slots__ = ()
 
     def __init__(self):
         '''
@@ -276,7 +275,7 @@ class Iter(TypeClass):
     not be able to validate also the elements.
     '''
 
-    __slots__ = TypeClass.__slots__ + ('itemType',)
+    __slots__ = ('itemType',)
 
     def __init__(self, itemType):
         '''
@@ -296,7 +295,9 @@ class Iter(TypeClass):
         '''
         @see: Type.isOf
         '''
-        return self == type or self.itemType.isOf(type)
+        if super().isOf(type): return True
+        if isclass(type) and (issubclass(type, self.__class__) or issubclass(self.__class__, type)): return True
+        return self.itemType.isOf(type)
 
     def __hash__(self):
         '''
@@ -324,7 +325,7 @@ class List(Iter):
     Unlike the iterator type the list type also validates the contained elements.
     '''
 
-    __slots__ = Iter.__slots__
+    __slots__ = ()
 
     def __init__(self, itemType):
         '''

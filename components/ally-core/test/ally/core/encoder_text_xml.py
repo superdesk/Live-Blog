@@ -15,7 +15,7 @@ from .samples.api.article import Article
 from .samples.api.article_type import ArticleType
 from .samples.impl.article import ArticleService
 from .samples.impl.article_type import ArticleTypeService
-from ally.api.type import Iter, Type, typeFor
+from ally.api.type import Iter, typeFor, TypeClass
 from ally.container import ioc, aop
 from ally.core.spec.resources import IResourcesLocator, Path, IResourcesRegister
 from ally.core.spec.server import Processors, Request, Response
@@ -109,7 +109,8 @@ class TestEncoderXML(unittest.TestCase):
 
             # Test list paths encoding
 
-            rsp.obj, rsp.objType = resourcesLocator.findPath(converterPath, []).findGetAllAccessible(), Iter(Type(Path))
+            rsp.obj = resourcesLocator.findPath(converterPath, []).findGetAllAccessible()
+            rsp.objType = Iter(TypeClass(Path))
             processors.newChain().process(req, rsp)
             xml = str(reduce(lambda full, add: full + add, rsp.content), 'utf8')
             self.assertTrue(re.sub('[\s]+', '', xml) == re.sub('[\s]+', '',

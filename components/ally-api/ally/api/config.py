@@ -25,6 +25,7 @@ from re import match
 import logging
 from ally.api.operator.descriptor import ContainerSupport, CriteriaSupport, \
     QuerySupport
+from ally.api.type import List
 
 # --------------------------------------------------------------------
 
@@ -118,6 +119,11 @@ def model(*args, name=None, **hints):
         assert isinstance(typ, TypeModel)
         propertyId = typ.container.propertyId
 
+    if isinstance(properties[propertyId], List):
+        raise DevelError('The id cannot be a List type, got %s' % properties[propertyId])
+    if isinstance(properties[propertyId], TypeModel):
+        raise DevelError('The id cannot be a model reference, got %s' % properties[propertyId])
+
     modelType = TypeModel(clazz, Model(properties, propertyId, name, hints))
     if replace:
         assert isclass(replace), 'Invalid class %s' % replace
@@ -140,7 +146,7 @@ def model(*args, name=None, **hints):
     clazz._ally_type = modelType # This specified the detected type for the model class by using 'typeFor'
     clazz._ally_reference = reference # The references to be returned by the properties when used only with class
     clazz.__new__ = ContainerSupport.__new__
-    clazz.__repr__ = ContainerSupport.__repr__
+    clazz.__str__ = ContainerSupport.__str__
     clazz.__contains__ = ContainerSupport.__contains__
 
     return clazz
@@ -198,7 +204,7 @@ def criteria(*args, main=None):
     clazz._ally_type = criteriaType # This specified the detected type for the model class by using 'typeFor'
     clazz._ally_reference = reference # The references to be returned by the properties when used only with class
     clazz.__new__ = CriteriaSupport.__new__
-    clazz.__repr__ = CriteriaSupport.__repr__
+    clazz.__str__ = CriteriaSupport.__str__
     clazz.__contains__ = CriteriaSupport.__contains__
 
     return clazz
@@ -238,14 +244,14 @@ def query(owner):
 
         clazz._ally_type = queryType # This specified the detected type for the model class by using 'typeFor'
         clazz.__new__ = QuerySupport.__new__
-        clazz.__repr__ = QuerySupport.__repr__
+        clazz.__str__ = QuerySupport.__str__
         clazz.__contains__ = QuerySupport.__contains__
 
         return clazz
 
     return decorator
 
-def call(*args, types=None, **hints):
+def call(*args, method=None, **hints):
     '''
     Used for decorating service methods that are used as APIs.
     
@@ -266,38 +272,42 @@ def call(*args, types=None, **hints):
             def assign(self, entity, toEntity):
                 doc string
                 <no method body required>
-            
-    @param types: tuple|list(Type|Type reference)
-        On the first position it will be considered the output type then the input types expected for the
-        service call. Can also be provided as arguments.
+
+    @param method: integer
+        One of the config module constants GET, INSERT, UPDATE, DELETE.
     @param hints: key arguments
-        Provides hints for the call, supported parameters:
+        Provides hints for the call, the hints are used for assembly.
             @keyword exposed: boolean
                 Indicates that the call is exposed for external interactions, usually all defined methods in a service
                 that are not decorated with call are considered unexposed calls.
-            @keyword method: integer
-                One of the config module constants GET, INSERT, UPDATE, DELETE.
     '''
-    if not args: return partial(call, types=types, **hints)
-    assert not types or isinstance(types, (tuple, list)), 'Invalid types %s' % types
-    if not isfunction(args[0]): return partial(call, types=args, **hints)
-    assert len(args) == 1, \
-    'Expected only one argument that is the decorator function, got %s arguments' % len(args)
-    function = args[0]
-    assert isfunction(function), 'Invalid function %s' % function
+    function = None
+    if not args: types = None
+    elif not isfunction(args[0]): types = args
+    else:
+        types = None
+        assert len(args) == 1, \
+        'Expected only one argument that is the decorator function, got %s arguments' % len(args)
+        function = args[0]
 
-    name, method = function.__name__, hints.pop('method', None)
-    if method is None:
-        for regex, m in NAME_TO_METHOD.items():
-            if match(regex, name):
-                method = m
-                break
-        else: raise DevelError('Cannot deduce method for function name "%s"' % name)
+    def decorator(function):
+        assert isfunction(function), 'Invalid function %s' % function
+        nonlocal method
+        name = function.__name__
+        if method is None:
+            for regex, m in NAME_TO_METHOD.items():
+                if match(regex, name):
+                    method = m
+                    break
+            else: raise DevelError('Cannot deduce method for function name "%s"' % name)
 
-    output, inputs = extractOuputInput(function, types, modelToId=method in (GET, DELETE))
+        output, inputs = extractOuputInput(function, types, modelToId=method in (GET, DELETE))
 
-    function._ally_call = Call(name, method, output, inputs, hints)
-    return abstractmethod(function)
+        function._ally_call = Call(name, method, output, inputs, hints)
+        return abstractmethod(function)
+
+    if function is not None: return decorator(function)
+    return decorator
 
 def service(*args, generic=None):
     '''
