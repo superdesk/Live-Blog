@@ -8,7 +8,7 @@ define([
     'tmpl!livedesk>edit-timeline'],
     function(providers, $)
     {
-        var config = { updateInterval: 5 },
+        var config = { updateInterval: 10 },
         latestPost = 0,
         providers = $.arrayValues(providers), 
         content = null,
@@ -115,7 +115,7 @@ define([
                 clearInterval(updateInterval);
                 return;
             }
-            update(); 
+            update(true); 
         },
         update = function(autoUpdate, callback)
         {
@@ -154,7 +154,7 @@ define([
                 {
                     $.tmpl('livedesk>edit-timeline', {Posts: posts}, function(e, o)
                     {
-                        $(o).find('li').each(function(){
+                        $($(o).find('li').get().reverse()).each(function(){
                             var el = $('#timeline-view .post-list li[data-post-id="'+$(this).attr('data-post-id')+'"]');
                             if($(el).length === 0) {
                                 $('#timeline-view .post-list', content).prepend($(this));
