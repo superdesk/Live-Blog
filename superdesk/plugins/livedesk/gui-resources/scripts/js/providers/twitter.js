@@ -231,7 +231,7 @@ $.extend(providers.twitter, {
             }
 
             var mainUrl = 'http://search.twitter.com/search.json';
-            var url = mainUrl + qstring + '&result_type=mixed&callback=?';
+            var url = mainUrl + qstring + '&result_type=recent&callback=?';
             this.showLoading('#twt-web-more');
             
             
