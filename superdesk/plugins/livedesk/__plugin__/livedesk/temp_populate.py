@@ -286,8 +286,8 @@ def createBlogPosts():
         createPostType(pst.Type)
         if pst.Type == 'advertisement':
             blogPostService.insert(getBlogsIds()[blog], pst)
-            pst.Id = None
-        blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
+        else:
+            blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
 
 # --------------------------------------------------------------------
 
