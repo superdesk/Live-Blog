@@ -16,7 +16,7 @@ from .samples.api.article import Article
 from .samples.api.article_type import ArticleType
 from .samples.impl.article import ArticleService
 from .samples.impl.article_type import ArticleTypeService
-from ally.api.type import Iter, TypeNone, Type, typeFor
+from ally.api.type import Iter, TypeNone, typeFor, TypeClass
 from ally.container import ioc, aop
 from ally.core.spec.resources import IResourcesLocator, Path, IResourcesRegister
 from ally.core.spec.server import Processors, Request, Response
@@ -104,7 +104,8 @@ class TestEncoderText(unittest.TestCase):
 
             # Test list paths convert
 
-            rsp.obj, rsp.objType = resourcesLocator.findPath(converterPath, []).findGetAllAccessible(), Iter(Type(Path))
+            rsp.obj = resourcesLocator.findPath(converterPath, []).findGetAllAccessible()
+            rsp.objType = Iter(TypeClass(Path))
             processors.newChain().process(req, rsp)
             self.assertEqual(encoder.obj,
                              {'Resources': [{'ArticleType': {'href': 'ArticleType'}}, {'Article': {'href': 'Article'}}]})

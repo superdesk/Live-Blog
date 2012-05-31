@@ -12,7 +12,6 @@ Provides implementations that provide general behavior or functionality.
 from inspect import isclass
 from threading import currentThread
 import sys
-from abc import ABCMeta
 
 # --------------------------------------------------------------------
 
@@ -44,9 +43,9 @@ class Singletone:
         '''
         Will always return the same instance.
         '''
-        if not hasattr(cls, '_singletone'):
-            cls._singletone = super().__new__(cls)
-        return cls._singletone
+        try: return cls._ally_singletone
+        except AttributeError: cls._ally_singletone = super().__new__(cls)
+        return cls._ally_singletone
 
 # --------------------------------------------------------------------
 
@@ -57,42 +56,6 @@ class MetaClassUnextendable(type):
 
     def __new__(cls, name, bases, namespace):
         raise TypeError('Cannot extend class in %s' % bases)
-
-class MetaClassBean(ABCMeta):
-    '''
-    Used for classes that behave like a data container only.
-    
-    example:
-        
-        class ABean(metaclass=MetaClassBean):
-            
-            aValue = str
-            aService = IService
-        
-        This class can now be checked against any object that has the specified attributes with values of the specified 
-        classes instance.
-    '''
-
-    def __init__(self, name, bases, namespace):
-        self._ally_bean_attributes = set()
-        for cls in bases:
-            try: self._ally_bean_attributes.update(cls._ally_bean_attributes)
-            except AttributeError: pass
-        for name, value in namespace.items():
-            if not name.startswith('_') and isclass(value): self._ally_bean_attributes.add(name)
-
-    def __instancecheck__(self, instance):
-        '''Override for isinstance(instance, cls)'''
-        if instance is None: return False
-        if super().__instancecheck__(instance): return True
-        if not self._ally_bean_attributes: return False
-
-        for name in self._ally_bean_attributes:
-            value = getattr(instance, name, None)
-            if value is None: return False
-            if not isinstance(value, getattr(self, name)): return False
-
-        return True
 
 # --------------------------------------------------------------------
 

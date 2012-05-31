@@ -9,17 +9,44 @@ Created on May 21, 2012
 Provides the meta specifications. 
 '''
 
-from ally.support.util import MetaClassBean
 from collections import Iterable
 import abc
+from inspect import isclass
+
 
 # --------------------------------------------------------------------
 
-MetaClassBean = MetaClassBean # Just to avoid IDE warning
+class MetaClass(abc.ABCMeta):
+    '''
+    Used for the meta objects to behave like a data container only.
+    The context can now be checked against any object that has the specified attributes with values of the specified 
+    classes instance.
+    '''
 
-# --------------------------------------------------------------------
+    def __init__(self, name, bases, namespace):
+        self._ally_meta_attributes = set()
+        for cls in bases:
+            try: self._ally_meta_attributes.update(cls._ally_meta_attributes)
+            except AttributeError: pass
+        for name, value in namespace.items():
+            if not name.startswith('_'):
+                assert isclass(value), 'Invalid context attribute value %s' % value
+                self._ally_meta_attributes.add(name)
 
-class Context(metaclass=MetaClassBean):
+    def __instancecheck__(self, instance):
+        '''Override for isinstance(instance, cls)'''
+        if instance is None: return False
+        if super().__instancecheck__(instance): return True
+        if not self._ally_meta_attributes: return False
+
+        for name in self._ally_meta_attributes:
+            value = getattr(instance, name, None)
+            if value is None: return False
+            if not isinstance(value, getattr(self, name)): return False
+
+        return True
+
+class Context(metaclass=MetaClass):
     '''
     A simple class that is a container for the context data.
     '''
@@ -34,7 +61,7 @@ class Context(metaclass=MetaClassBean):
 
 SAMPLE = object() # Marker used to instruct the encoders to provide a sample.
 
-class Meta(metaclass=MetaClassBean):
+class Meta(metaclass=MetaClass):
     '''
     The referenced encoded meta.
     
@@ -191,23 +218,23 @@ class IMetaService(metaclass=abc.ABCMeta):
     '''
 
     @abc.abstractclassmethod
-    def createDecode(self, invoker):
+    def createDecode(self, context):
         '''
         Create the meta decode specific for this service based on the provided invoker.
         
-        @param invoker: Invoker
-            The invoker to create the meta decode for.
+        @param context: Context
+            The context containing the data to create the meta decode for.
         @return: IMetaDecode
             The created meta decode.
         '''
 
     @abc.abstractclassmethod
-    def createEncode(self, invoker):
+    def createEncode(self, context):
         '''
         Create the meta encoder specific for this service based on the provided invoker.
         
-        @param invoker: Invoker
-            The invoker to create the meta encode for.
-        @return: IMetaEncode
-            The created meta encode.
+        @param context: Context
+            The context containing the data to create the meta encode for.
+        @return: IMetaEncode|None
+            The created meta encode, None if no encoding is available.
         '''

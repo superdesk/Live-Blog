@@ -13,6 +13,7 @@ from ally.api.type import Type, Input
 from datetime import date, datetime, time
 from re import match
 import abc
+from _weakrefset import WeakSet
 
 # --------------------------------------------------------------------
 
@@ -172,7 +173,7 @@ class PathExtended(Path):
     valid (to have a node for it self).
     @see: Path
     '''
-    __slots__ = Path.__slots__ + ('parent', 'index', 'matchesOwned')
+    __slots__ = ('parent', 'index', 'matchesOwned')
 
     def __init__(self, parent, matches, node, index=None):
         '''
@@ -543,8 +544,6 @@ class Node(metaclass=abc.ABCMeta):
             The invoker that provides the update of elements, populated by assemblers.
         @ivar delete: Invoker
             The invoker that provides the deletion of elements, populated by assemblers.
-        @ivar children: list[Node]
-            The list of node children's.
         '''
         assert parent is None or isinstance(parent, Node), 'Invalid parent %s, can be None' % parent
         assert isinstance(isGroup, bool), 'Invalid is group flag %s' % isGroup
@@ -552,16 +551,94 @@ class Node(metaclass=abc.ABCMeta):
         self.parent = parent
         self.isGroup = isGroup
         self.order = order
+
+        self._listeners = WeakSet()
+        self._structure = WeakSet()
+
         self.get = None
         self.insert = None
         self.update = None
         self.delete = None
-        self.children = []
+
+        self._children = []
         if parent is not None:
             assert isinstance(parent, Node), 'Invalid parent node %s' % parent
-            assert self not in parent.children, 'Already contains child node %s' % self
-            parent.children.append(self)
-            parent.children.sort(key=lambda node: node.order)
+            assert self not in parent._children, 'Already contains child node %s' % self
+            parent._children.append(self)
+            parent._children.sort(key=lambda node: node.order)
+            parent._onChildAdded(self)
+
+    def setGet(self, get):
+        '''
+        Set the get invoker.
+        
+        @param get: Invoker|None
+            The get invoker.
+        '''
+        assert get is None or isinstance(get, Invoker), 'Invalid invoker %s' % get
+        self._get = self._onInvokerChange(getattr(self, '_get', None), get)
+
+    def setInsert(self, insert):
+        '''
+        Set the insert invoker.
+        
+        @param insert: Invoker|None
+            The insert invoker.
+        '''
+        assert insert is None or isinstance(insert, Invoker), 'Invalid invoker %s' % insert
+        self._insert = self._onInvokerChange(getattr(self, '_insert', None), insert)
+
+    def setUpdate(self, update):
+        '''
+        Set the update invoker.
+        
+        @param update: Invoker|None
+            The update invoker.
+        '''
+        assert update is None or isinstance(update, Invoker), 'Invalid invoker %s' % update
+        self._update = self._onInvokerChange(getattr(self, '_update', None), update)
+
+    def setDelete(self, delete):
+        '''
+        Set the delete invoker.
+        
+        @param delete: Invoker|None
+            The delete invoker.
+        '''
+        assert delete is None or isinstance(delete, Invoker), 'Invalid invoker %s' % delete
+        self._delete = self._onInvokerChange(getattr(self, '_delete', None), delete)
+
+    def addNodeListener(self, listener):
+        '''
+        Adds a new listener to this node.
+        
+        @param listener: INodeInvokerListener|INodeChildListener
+            The listener to add.
+        '''
+        assert isinstance(listener, (INodeInvokerListener, INodeChildListener)), 'Invalid listener %s' % listener
+        self._listeners.add(listener)
+
+    def addStructureListener(self, listener):
+        '''
+        Adds a new listener to the node that will be notified whenever the node changes or any of the node children and
+        children children changes.
+        
+        @param listener: INodeInvokerListener|INodeChildListener
+            The listener to add.
+        '''
+        assert isinstance(listener, (INodeInvokerListener, INodeChildListener)), 'Invalid listener %s' % listener
+        self._structure.add(listener)
+
+    get = property(lambda self: self._get, setGet)
+    insert = property(lambda self: self._insert, setInsert)
+    update = property(lambda self: self._update, setUpdate)
+    delete = property(lambda self: self._delete, setDelete)
+    children = property(lambda self: iter(self._children), doc='''
+@ivar children: Iterable[Node]
+    The list of node children's.
+''')
+
+    # ----------------------------------------------------------------
 
     @abc.abstractmethod
     def tryMatch(self, converterPath, paths):
@@ -574,7 +651,7 @@ class Node(metaclass=abc.ABCMeta):
             The converter path to be used in matching the provided path(s).
         @param paths: deque[string]
             The path elements deque containing strings, this list will get consumed whenever a matching occurs.
-        @return: Match | list[Match] | boolean
+        @return: Match|list[Match]|boolean
             If a match has occurred than a match or a list with match objects will be returned or True if there
             is no match to provide by this node, if not than None or False is returned.
         '''
@@ -586,7 +663,7 @@ class Node(metaclass=abc.ABCMeta):
         Constructs a blank match object represented by this node, this is used in creating path for nodes.
         So basically this used when we need a path for a node.
 
-        @return: Match | list | None
+        @return: Match| list | None
             A match object or a list with match objects, None if there is no match needed by this node.
         '''
 
@@ -596,6 +673,101 @@ class Node(metaclass=abc.ABCMeta):
         Needs to have the equal implemented in order to determine if there isn't already a child node with the same
         specification in the parent.
         '''
+
+    # ----------------------------------------------------------------
+
+    def _onInvokerChange(self, old, new):
+        '''
+        Dispatches the invoker change event.
+        '''
+        for listener in self._listeners:
+            if isinstance(listener, INodeInvokerListener):
+                assert isinstance(listener, INodeInvokerListener)
+                listener.onInvokerChange(self, old, new)
+
+        self._onInvokerChangeStructure(self, old, new)
+        return new
+
+    def _onInvokerChangeStructure(self, node, old, new):
+        '''
+        Dispatches the invoker change event to the structure.
+        '''
+        for listener in self._structure:
+            if isinstance(listener, INodeInvokerListener):
+                assert isinstance(listener, INodeInvokerListener)
+                listener.onInvokerChange(node, old, new)
+
+        if self.parent is not None: self.parent._onInvokerChangeStructure(node, old, new)
+
+    def _onChildAdded(self, child):
+        '''
+        Dispatches the invoker change event.
+        '''
+        for listener in self._listeners:
+            if isinstance(listener, INodeChildListener):
+                assert isinstance(listener, INodeChildListener)
+                listener.onChildAdded(self, child)
+
+        self._onChildAddedStructure(self, child)
+
+    def _onChildAddedStructure(self, node, child):
+        '''
+        Dispatches the invoker change event to the structure.
+        '''
+        for listener in self._structure:
+            if isinstance(listener, INodeChildListener):
+                assert isinstance(listener, INodeChildListener)
+                listener.onChildAdded(node, child)
+
+        if self.parent is not None: self.parent._onChildAddedStructure(node, child)
+
+# --------------------------------------------------------------------
+
+class INodeChildListener(metaclass=abc.ABCMeta):
+    '''
+    Specification class for listeners for node structure changes.
+    '''
+
+    @abc.abstractclassmethod
+    def onChildAdded(self, node, child):
+        '''
+        Called when an invoker is changed on the node.
+        
+        @param node: Node
+            The node that has the invoker changed.
+        @param old: Invoker|None
+            The old invoker.
+        @param new: Invoker|None
+            The new invoker.
+        '''
+
+    @classmethod
+    def __subclasshook__(cls, C):
+        if cls is INodeChildListener: return any('onChildAdded' in B.__dict__ for B in C.__mro__)
+        return NotImplemented
+
+class INodeInvokerListener(metaclass=abc.ABCMeta):
+    '''
+    Specification class for listeners for invoker change.
+    '''
+
+    @abc.abstractclassmethod
+    def onInvokerChange(self, node, old, new):
+        '''
+        Called when an invoker is changed on the node.
+        
+        @param node: Node
+            The node that has the invoker changed.
+        @param old: Invoker|None
+            The old invoker.
+        @param new: Invoker|None
+            The new invoker.
+        '''
+
+    @classmethod
+    def __subclasshook__(cls, C):
+        if cls is INodeChildListener: return any('onInvokerChange' in B.__dict__ for B in C.__mro__)
+        return NotImplemented
 
 # --------------------------------------------------------------------
 

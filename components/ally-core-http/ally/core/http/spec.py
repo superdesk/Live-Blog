@@ -19,7 +19,7 @@ class ContentRequestHTTP(ContentRequest):
     '''
     Provides the content request extension with additional HTTP data.
     '''
-    __slots__ = ContentRequest.__slots__ + ('contentTypeAttributes',)
+    __slots__ = ('contentTypeAttributes',)
 
     def __init__(self):
         '''
@@ -36,7 +36,7 @@ class RequestHTTP(Request):
     '''
     Provides the request extension with additional HTTP data.
     '''
-    __slots__ = Request.__slots__ + ('path', 'headers', 'parameters', 'rootURI')
+    __slots__ = ('path', 'headers', 'parameters', 'rootURI')
 
     def __init__(self):
         '''
@@ -66,7 +66,7 @@ class ResponseHTTP(Response):
     '''
     Provides the response extension with additional HTTP data.
     '''
-    __slots__ = Response.__slots__ + ('headers',)
+    __slots__ = ('headers',)
 
     def __init__(self):
         '''

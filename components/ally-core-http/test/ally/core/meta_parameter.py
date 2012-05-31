@@ -69,19 +69,18 @@ class Service(IService):
 class TestParameter(unittest.TestCase):
 
     def testDecode(self):
+        metaService = ParameterMetaService()
+        ioc.initialize(metaService)
 
         service = typeFor(IService).service
         for call in service.calls:
             if call.name == 'get': break
         invoker = InvokerCall(Service(), call)
 
-        transform = ConverterPath()
-        context = Context(converter=transform, normalizer=transform)
-        metaService = ParameterMetaService()
-        ioc.initialize(metaService)
-
-        metaDecode = metaService.createDecode(invoker)
+        metaDecode = metaService.createDecode(Context(invoker=invoker))
         self.assertIsInstance(metaDecode, IMetaDecode)
+
+        context = Context(converter=ConverterPath(), normalizer=ConverterPath())
 
         args = {}
         self.assertTrue(metaDecode.decode('offset', '20', args, context))
@@ -135,26 +134,25 @@ class TestParameter(unittest.TestCase):
             if call.name == 'insert': break
         invoker = InvokerCall(Service(), call)
 
-        metaDecode = metaService.createDecode(invoker)
+        metaDecode = metaService.createDecode(Context(invoker=invoker))
         self.assertIsInstance(metaDecode, IMetaDecode)
 
         self.assertFalse(metaDecode.decode('offset', '20', args, context))
         self.assertFalse(metaDecode.decode('limit', '0', args, context))
 
     def testEncode(self):
+        metaService = ParameterMetaService()
+        ioc.initialize(metaService)
 
         service = typeFor(IService).service
         for call in service.calls:
             if call.name == 'get': break
         invoker = InvokerCall(Service(), call)
 
-        transform = ConverterPath()
-        context = Context(converter=transform, normalizer=transform)
-        metaService = ParameterMetaService()
-        ioc.initialize(metaService)
-
-        metaEncode = metaService.createEncode(invoker)
+        metaEncode = metaService.createEncode(Context(invoker=invoker))
         self.assertIsInstance(metaEncode, IMetaEncode)
+
+        context = Context(converter=ConverterPath(), normalizer=ConverterPath())
 
         args = {'offset': 20, 'limit':0}
         self.assertEqual([('offset', '20'), ('limit', '0')],
@@ -202,7 +200,7 @@ class TestParameter(unittest.TestCase):
             if call.name == 'insert': break
         invoker = InvokerCall(Service(), call)
 
-        metaEncode = metaService.createEncode(invoker)
+        metaEncode = metaService.createEncode(Context(invoker=invoker))
         self.assertIsInstance(metaEncode, IMetaEncode)
 
         self.assertTrue(metaEncode.encode(SAMPLE, context) is None)
