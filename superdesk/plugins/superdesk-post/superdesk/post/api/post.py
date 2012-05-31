@@ -32,6 +32,8 @@ class Post(Entity):
     Creator = auth(User)
     Author = Collaborator
     IsModified = bool
+    Meta = str
+    ContentPlain = str
     Content = str
     CreatedOn = datetime
     PublishedOn = datetime
