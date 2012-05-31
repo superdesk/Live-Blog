@@ -22,6 +22,9 @@ from superdesk.post.api.post import Post, QPostUnpublished, \
     QPost
 from ally.support.sqlalchemy.functions import current_timestamp
 from sql_alchemy.impl.entity import EntityGetServiceAlchemy
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.source.meta.source import SourceMapped
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -32,6 +35,8 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     '''
     Implementation for @see: IPostService
     '''
+    # Default source name --------------------------------------
+    default_source_name = 'internal'; wire.config('default_source_name', doc='''The default source name used when a source was not supplied''')
 
     def __init__(self):
         '''
@@ -104,6 +109,17 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         copy(post, postDb, exclude=COPY_EXCLUDE)
         postDb.typeId = self._typeId(post.Type)
         if post.CreatedOn is None: postDb.CreatedOn = current_timestamp()
+        if not postDb.Author:
+            colls = self.session().query(CollaboratorMapped).filter(CollaboratorMapped.Person == postDb.Creator).all()
+            if not colls:
+                coll = CollaboratorMapped()
+                coll.Person = postDb.Creator
+                src = self.session().query(SourceMapped).filter(SourceMapped.Name == PostServiceAlchemy.default_source_name).one()
+                coll.Source = src.Id
+                self.session().add(coll)
+                self.session().flush((coll,))
+                colls = (coll,)
+            postDb.Author = colls[0].Id
 
         self.session().add(postDb)
         self.session().flush((postDb,))
