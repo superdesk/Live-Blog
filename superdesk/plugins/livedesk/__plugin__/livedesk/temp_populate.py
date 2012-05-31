@@ -198,7 +198,7 @@ BLOG_COLLABORATORS = {
                       'Antoine': 'GEN Live Desk Master Class',
                       'David': 'GEN Live Desk Master Class',
                       'Doug': 'GEN Live Desk Master Class',
-                      'John': 'GEN Live Desk Master Class',
+                      'Guest': 'GEN Live Desk Master Class',
                      }
 
 def createBlogCollaborators():
@@ -284,6 +284,9 @@ def createBlogPosts():
         if author: pst.Author = getCollaboratorsIds()[author]
 
         createPostType(pst.Type)
+        if pst.Type == 'advertisement':
+            blogPostService.insert(getBlogsIds()[blog], pst)
+            pst.Id = None
         blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
 
 # --------------------------------------------------------------------
