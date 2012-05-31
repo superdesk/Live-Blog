@@ -138,7 +138,7 @@ define([
                         posts.splice(i,1);
                         i--;
                     }
-                    if($.isDefined(posts[i].DeletedOn)) {
+                    else if($.isDefined(posts[i].DeletedOn)) {
                         $('#timeline-view .post-list li[data-post-id="'+posts[i].Id+'"]')
                             .fadeTo(500, '0.1', function(){
                                 $(this).remove();
