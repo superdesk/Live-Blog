@@ -39,6 +39,8 @@ class PostMapped(Base, Post):
     Type = association_proxy('type', 'Key')
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id, ondelete='RESTRICT'), nullable=False)
     Author = Column('fk_author_id', ForeignKey(CollaboratorMapped.Id, ondelete='RESTRICT'))
+    Meta = Column('meta', String(1000))
+    ContentPlain = Column('content_plain', String(1000))
     Content = Column('content', String(1000), nullable=False)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     PublishedOn = Column('published_on', DateTime)
