@@ -24,7 +24,7 @@ class TypeModelAuth(TypeModel, IAuthenticated):
     Provides the type model that is marked to be authenticated.
     '''
 
-    __slots__ = TypeModel.__slots__ + ('_childTypeId',)
+    __slots__ = ('_childTypeId',)
 
     def __init__(self, clazz, container):
         '''
@@ -69,7 +69,7 @@ class TypeModelPropertyAuth(TypeModelProperty, IAuthenticated):
     '''
     Provides the type model property that is marked to be authenticated.
     '''
-    __slots__ = TypeModelProperty.__slots__
+    __slots__ = ()
 
     def __init__(self, parent, property, type):
         '''

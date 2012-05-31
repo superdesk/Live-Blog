@@ -417,7 +417,7 @@ class TypeModelMapped(TypeModel):
     A @see: TypeModel extension for mapped models.
     '''
 
-    __slots__ = TypeModel.__slots__ + ('base',)
+    __slots__ = ('base',)
 
     def __init__(self, clazz, base):
         '''

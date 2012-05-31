@@ -11,11 +11,54 @@ Provides basic meta decode implementations.
 
 from .general import ContextParse, WithSetter, WithGetter
 from ally.api.type import Type
+from ally.core.impl.meta.general import WithIdentifier
 from ally.core.spec.meta import IMetaDecode
 from ally.core.spec.resources import Normalizer, Converter
 from collections import deque
 
 # --------------------------------------------------------------------
+
+class DecodeIdentifier(IMetaDecode, WithIdentifier):
+    '''
+    Decoder that just checks if a identifier is in path, if so delegate to the contained decoder.
+    
+    Only recognizes the identifier as being a deque[string].
+    '''
+
+    def __init__(self, decoder, identifier):
+        '''
+        Construct with identifier.
+        @see: WithIdentifier.__init__
+        
+        @param decoder: IMetaDecode
+            The meta decode to delegate to if identifier is checked.
+        '''
+        assert isinstance(decoder, IMetaDecode), 'Invalid decoder %s' % decoder
+        WithIdentifier.__init__(self, identifier)
+
+        self.decoder = decoder
+
+    def decode(self, identifier, value, obj, context):
+        '''
+        @see: IMetaDecode.decode
+        '''
+        assert isinstance(context, ContextParse), 'Invalid context %s' % context
+        assert isinstance(context.normalizer, Normalizer), 'Invalid normalizer %s' % context.normalizer
+
+        if not isinstance(identifier, deque): return False
+        assert isinstance(identifier, deque)
+        if not identifier: return False
+
+        if isinstance(self.identifier, str):
+            if context.normalizer.normalize(self.identifier) != identifier[0]: return False
+            identifier.popleft()
+        else:
+            if len(identifier) < len(self.identifier): return False
+            for iden1, iden2 in zip(self.identifier, identifier):
+                if context.normalizer.normalize(iden1) != iden2: return False
+            for _k in range(0, len(self.identifier)): identifier.popleft()
+
+        return self.decoder.decode(identifier, value, obj, context)
 
 class DecodeGetter(IMetaDecode, WithGetter):
     '''
@@ -23,7 +66,7 @@ class DecodeGetter(IMetaDecode, WithGetter):
     If the value fetched is None than this decode will return False and not delegate to the contained decoder.
     '''
 
-    def __init__(self, getter, decoder):
+    def __init__(self, decoder, getter):
         '''
         Construct the get decoder.
         @see: WithGetter.__init__
@@ -44,6 +87,19 @@ class DecodeGetter(IMetaDecode, WithGetter):
         if obj is None: return False
         return self.decoder.decode(identifier, value, obj, context)
 
+class DecodeGetterIdentifier(DecodeIdentifier):
+    '''
+    Decode that provides also the functionality of @see: DecodeGetter and @see: DecodeIdentifier
+    '''
+
+    def __init__(self, decoder, getter, identifier):
+        '''
+        Construct the get decoder.
+        @see: DecodeIdentifier.__init__
+        @see: DecodeGetter.__init__
+        '''
+        DecodeIdentifier.__init__(self, DecodeGetter(decoder, getter), identifier)
+
 class DecodeSetValue(IMetaDecode, WithSetter):
     '''
     Sets the received value directly.
@@ -63,7 +119,6 @@ class DecodeSetValue(IMetaDecode, WithSetter):
         IMetaDecode.decode
         '''
         if not isinstance(identifier, deque): return False
-        assert isinstance(identifier, deque)
         if identifier: return False
         # If there are more elements in the paths it means that this decoder should not process the value
 
@@ -98,7 +153,6 @@ class DecodeValue(IMetaDecode, WithSetter):
         assert isinstance(context.converter, Converter)
 
         if not isinstance(identifier, deque): return False
-        assert isinstance(identifier, deque)
         if identifier: return False
         # If there are more elements in the paths it means that this decoder should not process the value
 
@@ -132,18 +186,18 @@ class DecodeObject(IMetaDecode):
         @see: IMetaDecode.decode
         '''
         assert isinstance(context, ContextParse), 'Invalid context %s' % context
-        assert isinstance(context.normalizer, Normalizer)
+        assert isinstance(context.normalizer, Normalizer), 'Invalid normalizer %s' % context.normalizer
 
         if not isinstance(identifier, deque): return False
         assert isinstance(identifier, deque)
+        if not identifier: return False
 
-        if identifier:
-            path = identifier[0]
-            for key, decoder in self.properties.items():
-                if path == context.normalizer.normalize(key):
-                    assert isinstance(decoder, IMetaDecode), 'Invalid meta decode %s' % decoder
-                    identifier.popleft()
-                    return decoder.decode(identifier, value, obj, context)
+        path = identifier[0]
+        for key, decoder in self.properties.items():
+            if path == context.normalizer.normalize(key):
+                assert isinstance(decoder, IMetaDecode), 'Invalid meta decode %s' % decoder
+                identifier.popleft()
+                return decoder.decode(identifier, value, obj, context)
         return False
 
 class DecodeList(IMetaDecode):
@@ -170,8 +224,6 @@ class DecodeList(IMetaDecode):
         '''
         if not isinstance(obj, list): return False
         if not isinstance(identifier, deque): return False
-        assert isinstance(obj, list)
-        assert isinstance(identifier, deque)
 
         if isinstance(value, (list, tuple)): values = value
         else: values = [value]
@@ -204,7 +256,6 @@ class DecodeFirst(IMetaDecode):
         @see: IMetaDecode.decode
         '''
         if not isinstance(identifier, deque): return False
-        assert isinstance(identifier, deque)
 
         for decoder in self.decoders:
             assert isinstance(decoder, IMetaDecode), 'Invalid meta decode %s' % decoder
