@@ -91,7 +91,7 @@ def getSourcesIds():
 
 
 BLOGS = {
-         'GEN Live Desk Master Class': ('David', 'en', 'An in-depth demonstration of the '
+         'GEN Live Desk Master Class': ('User1', 'en', 'An in-depth demonstration of the '
                                         'current state of development of the GEN Live Desk '
                                         'tool for live online news coverage.',
                                         datetime.now(), datetime.now()),
@@ -130,6 +130,16 @@ USERS = {
          'Mihail': ('Mihail', 'Nistor', 'mihai.nistor@sourcefabric.org'),
          'Mugur': ('Mugur', 'Rus', 'mugur.rus@sourcefabric.org'),
          'Sava': ('Sava', 'Tatic', 'sava.tatic@sourcefabric.org'),
+         'User1': ('User1', None, ''),
+         'User2': ('User2', None, ''),
+         'User3': ('User3', None, ''),
+         'User4': ('User4', None, ''),
+         'User5': ('User5', None, ''),
+         'User6': ('User6', None, ''),
+         'User7': ('User7', None, ''),
+         'User8': ('User8', None, ''),
+         'User9': ('User9', None, ''),
+         'User10': ('User10', None, ''),
        }
 
 _cache_users = {}
@@ -163,6 +173,16 @@ COLLABORATORS = {
                  'Mihail': 'internal',
                  'Mugur': 'internal',
                  'Sava': 'internal',
+                 'User1': 'internal',
+                 'User2': 'internal',
+                 'User3': 'internal',
+                 'User4': 'internal',
+                 'User5': 'internal',
+                 'User6': 'internal',
+                 'User7': 'internal',
+                 'User8': 'internal',
+                 'User9': 'internal',
+                 'User10': 'internal',
 
                  'advertisement': 'advertisement',
                  'internal': 'internal',
@@ -194,11 +214,16 @@ def getCollaboratorsIds():
 
 
 BLOG_COLLABORATORS = {
-                      'Adam': 'GEN Live Desk Master Class',
-                      'Antoine': 'GEN Live Desk Master Class',
-                      'David': 'GEN Live Desk Master Class',
-                      'Doug': 'GEN Live Desk Master Class',
-                      'Guest': 'GEN Live Desk Master Class',
+                      'User1': 'GEN Live Desk Master Class',
+                      'User2': 'GEN Live Desk Master Class',
+                      'User3': 'GEN Live Desk Master Class',
+                      'User4': 'GEN Live Desk Master Class',
+                      'User5': 'GEN Live Desk Master Class',
+                      'User6': 'GEN Live Desk Master Class',
+                      'User7': 'GEN Live Desk Master Class',
+                      'User8': 'GEN Live Desk Master Class',
+                      'User9': 'GEN Live Desk Master Class',
+                      'User10': 'GEN Live Desk Master Class',
                      }
 
 def createBlogCollaborators():
@@ -227,6 +252,16 @@ BLOG_ADMINS = {
                'Mihail': 'GEN Live Desk Master Class',
                'Mugur': 'GEN Live Desk Master Class',
                'Sava': 'GEN Live Desk Master Class',
+               'User1': 'GEN Live Desk Master Class',
+               'User2': 'GEN Live Desk Master Class',
+               'User3': 'GEN Live Desk Master Class',
+               'User4': 'GEN Live Desk Master Class',
+               'User5': 'GEN Live Desk Master Class',
+               'User6': 'GEN Live Desk Master Class',
+               'User7': 'GEN Live Desk Master Class',
+               'User8': 'GEN Live Desk Master Class',
+               'User9': 'GEN Live Desk Master Class',
+               'User10': 'GEN Live Desk Master Class',
                }
 
 def createBlogAdmins():
@@ -256,16 +291,16 @@ def createPostType(key):
 
 
 POSTS = [
-		 ('GEN Live Desk Master Class', 'normal', 'Adam', 'Adam', 'Hello world!'),
-         ('GEN Live Desk Master Class', 'quote', 'David', 'David', 'GEN Live Desk is a next-generation '
+		 ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'Hello world!'),
+         ('GEN Live Desk Master Class', 'quote', 'User2', 'User2', 'GEN Live Desk is a next-generation '
           'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
-         ('GEN Live Desk Master Class', 'normal', 'Doug', 'Doug', 'GEN Live Desk is free to download, '
+         ('GEN Live Desk Master Class', 'normal', 'User3', 'User3', 'GEN Live Desk is free to download, '
           'easily implemented into your website and alongside existing newsroom tools. It enhances rather '
           'than replaces. Helps convince an IT department!'),
-         ('GEN Live Desk Master Class', 'normal', 'Antoine', 'Antoine', 'With GEN Live Desk, you can '
+         ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'With GEN Live Desk, you can '
           'drive traffic with engaging content and (if relevant) use sponsorship, contextual adverts or '
           'paid subscriptions to increase revenue.'),
-         ('GEN Live Desk Master Class', 'wrapup', 'Adam', 'Adam', 'That is all for today folks. Join us '
+         ('GEN Live Desk Master Class', 'wrapup', 'User2', 'User2', 'That is all for today folks. Join us '
           'at GEN News World Media Summit to see Douglas Arellanes demoing the tool live.'),
          ('GEN Live Desk Master Class', 'advertisement', 'Mugur', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">GEN Live Desk is a new open source '
           'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
@@ -286,8 +321,8 @@ def createBlogPosts():
         createPostType(pst.Type)
         if pst.Type == 'advertisement':
             blogPostService.insert(getBlogsIds()[blog], pst)
-        else:
-            blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
+            pst.Id = None
+        blogPostService.insertAndPublish(getBlogsIds()[blog], pst)
 
 # --------------------------------------------------------------------
 
