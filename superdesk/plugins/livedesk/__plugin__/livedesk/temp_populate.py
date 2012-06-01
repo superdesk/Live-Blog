@@ -267,9 +267,9 @@ POSTS = [
           'paid subscriptions to increase revenue.'),
          ('GEN Live Desk Master Class', 'wrapup', 'Adam', 'Adam', 'That is all for today folks. Join us '
           'at GEN News World Media Summit to see Douglas Arellanes demoing the tool live.'),
-         ('GEN Live Desk Master Class', 'advertisement', 'Mugur', 'advertisement', 'GEN Live Desk is a new open source '
+         ('GEN Live Desk Master Class', 'advertisement', 'Mugur', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">GEN Live Desk is a new open source '
           'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
-          'be one of the first to test it! <a href="http://genlivedesk.org" target="_blank">http://genlivedesk.org</a>')
+          'be one of the first to test it!</a>')
          ]
 
 def createBlogPosts():
