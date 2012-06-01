@@ -5,7 +5,7 @@
        <div class="drag-bar"></div>
        <div class="arrow"></div>
        <div class="wrapup-content">
-            {Content}
+            {Content|s}
        </div>
       <div class="clear"></div>
     </li>
