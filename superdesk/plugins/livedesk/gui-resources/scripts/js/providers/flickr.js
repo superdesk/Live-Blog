@@ -5,7 +5,9 @@
 
 define('providers/flickr', [
     'providers',
-    'jquery','jquery/tmpl',
+    'jquery',
+    'jquery/jsonp',
+    'jquery/tmpl',
     'jqueryui/draggable',
      'providers/flickr/adaptor',
     'tmpl!livedesk>providers/flickr',
@@ -20,6 +22,7 @@ $.extend(providers.flickr, {
 	apykey : 'd2a7c7c0a94ae40d01aee8238845bdba',
         url : 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=%(apykey)s&text=%(text)s&format=json&nojsoncallback=1&per_page=8&page=%(start)s&license=%(license)s',
         licenseUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.licenses.getInfo&api_key=%(apykey)s&format=json&nojsoncallback=1',
+        infoUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=%(apykey)s&photo_id=%(id)s&secret=%(secret)s&format=json&nojsoncallback=1',
 	data: [],
 	init: function(){
                 //console.log('flickr main init');
@@ -60,6 +63,26 @@ $.extend(providers.flickr, {
         stopLoading : function(where) {
             $(where).html('');
         },
+        doOriginalUrl : function(data) {
+            for ( var i=0; i<data.photos.length; i++) {
+                var item = data.photos[i];
+                var fullUrl = str.format(this.infoUrl,{id: item.id, secret: item.secret, apykey: this.apykey});
+                $.ajax({
+                    url : fullUrl,
+                    dataType: 'json',
+                    success : function(data){
+                        var url = data.photo.urls.url[0]
+                        if (url.type == 'photopage') {
+                            var id = data.photo.id;
+                            $('[data-id="'+ id +'"]').attr('data-url',url._content);
+                        }
+                    },
+                    error : function(){
+                        //something went wrong
+                    }
+                })
+            }
+        },
         doFlickerImage : function(start) {
             var self = this;
             var text = $('#flickr-search-text').val();
@@ -97,6 +120,7 @@ $.extend(providers.flickr, {
                                 }
                             }
                             );
+                            self.doOriginalUrl(data.photos);
                         });			
 
                     //show the load more button
