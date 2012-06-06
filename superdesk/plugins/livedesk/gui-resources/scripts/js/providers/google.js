@@ -87,11 +87,11 @@ $.extend(providers.google, {
            }
 	},
         
-        showLoading : function(where) {
+    showLoading : function(where) {
              $(where).tmpl('livedesk>providers/loading', function(){
              });
         },
-        stopLoading : function(where) {
+    stopLoading : function(where) {
             $(where).html('');
         },
 	doWeb: function (start) {
@@ -129,7 +129,7 @@ $.extend(providers.google, {
                                 clone: true,
                                 start: function() {
                                     var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
-                                    $(this).data('data', self.adaptor.web(self.data[startx+idx]));
+                                    $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
                                 }
 
                             }
@@ -186,7 +186,10 @@ $.extend(providers.google, {
                     self.data = self.data.concat(data.responseData.results);
                     data.responseData.date = currentDate;
                     if ( data.responseData.results.length > 0 ) {
-                        $.tmpl('livedesk>providers/google/news-item', data.responseData, function(e,o) {
+                        $.tmpl('livedesk>providers/google/news-item', {
+                            results: data.responseData.results, 
+                            startx: start
+                        }, function(e,o) {
                             $('#ggl-news-results').append(o).find('.google').draggable(
                             {
                                 revert: 'invalid',
@@ -195,8 +198,8 @@ $.extend(providers.google, {
                                 zIndex: 2700,
                                 clone: true,
                                 start: function() {
-                                    var idx = parseInt($(this).attr('idx'),10);
-                                    $(this).data('data', self.adaptor.news(self.data[idx]));
+                                    var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
+                                    $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
                                 }
                             }
                             );
@@ -250,7 +253,10 @@ $.extend(providers.google, {
                     self.data = self.data.concat(data.responseData.results);
                     data.responseData.date = currentDate;
                     if ( data.responseData.results.length > 0 ) {
-                        $.tmpl('livedesk>providers/google/images-item', data.responseData, function(e,o) {
+                        $.tmpl('livedesk>providers/google/images-item', {
+                            results: data.responseData.results, 
+                            startx: start
+                        }, function(e,o) {
                             $('#ggl-images-results').append(o).find('li').draggable(
                             {
                                 revert: 'invalid',
@@ -259,8 +265,8 @@ $.extend(providers.google, {
                                 zIndex: 2700,
                                 clone: true,
                                 start: function() {
-                                    var idx = parseInt($(this).attr('idx'),10);
-                                    $(this).data('data', self.adaptor.images(self.data[idx]));
+                                    var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
+                                    $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
                                 }
                             }
                             );

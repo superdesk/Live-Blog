@@ -1,12 +1,14 @@
 define([
     'providers/enabled',
-    'jquery', 'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
+    'jquery', 
+	'utils/json_parse',
+	'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
     'jqueryui/texteditor', 'jquery/utils', 'jquery/avatar',
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>layouts/blog',
     'tmpl!livedesk>edit',
     'tmpl!livedesk>edit-timeline'],
-    function(providers, $)
+    function(providers, $, json_parse)
     {
         var config = { updateInterval: 10 },
         latestPost = 0,
@@ -121,12 +123,16 @@ define([
         {
             new $.rest(postHref)
             .request({data:{'startEx.cId':latestPost}})
-            .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Creator.Id, ' +
+            .xfilter('Id, CId, Content, CreatedOn, Type, Meta, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Creator.Id, ' +
                 'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, DeletedOn')
             .done(function(posts)
             {
                 if(!posts) return;
-
+				$.each(posts, function(){								
+					if(this.Meta !== undefined) {
+						this.Meta = json_parse(this.Meta);
+					}
+				});
                 var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
                 for(var i = 0; i<posts.length; i++) {
                     latestPost = Math.max(latestPost, parseInt(posts[i].CId));
@@ -294,12 +300,17 @@ define([
 
                     postHref = blogData.PostPublished.href;
                     this.get('PostPublished')
-                        .xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+                        .xfilter('Id, CId, Content, CreatedOn, Type, Meta, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
                         'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id')
                         .done(function(posts)
                         {
                             var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
-                            $('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
+							$.each(posts, function(){								
+								if(this.Meta !== undefined) {
+									this.Meta = json_parse(this.Meta);
+								}
+							});
+							$('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
                             {
                                 // edit posts
                                 $('#timeline-view .post-list li', content)
