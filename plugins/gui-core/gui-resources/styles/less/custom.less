@@ -1,3 +1,5 @@
+/* THIS IS NOT COMPILED INTO custom.css! it's added to bootstrap.css */
+
 @iconSpritePath:          "../../images/glyphicons-halflings.png";
 @iconWhiteSpritePath:     "../../images/glyphicons-halflings-white.png";
 
@@ -347,4 +349,36 @@
 .result-content .result-text {
 	display: inline-block !important;
 	min-width: 50px;
+}
+.main-section header 
+{
+	padding: 7px 20px 7px;
+	margin: -10px -20px 20px -20px;
+	background-color:#fafafa;
+	border-bottom: 1px solid #ddd;
+}
+section.configure-blog 
+{
+    margin: 0;
+    padding: 10px 20px 20px !important;
+    position: relative;
+    top: 105px;
+	background: #FFF;
+}
+section.configure-blog [data-value="OutputLink"]
+{
+	min-width: 252px;
+	height: 18px;
+	padding: 4px 8px;
+	display: inline-block; 
+	border: 1px solid rgba(82,168,236,0);
+	.border-radius(3px)
+}
+section.configure-blog [data-value="OutputLink"].focus
+{
+	border: 1px solid rgba(82,168,236,.8);
+	@shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
+	.box-shadow(@shadow);
+	outline: 0;
+	outline: thin dotted \9; /* IE6-9 */
 }
