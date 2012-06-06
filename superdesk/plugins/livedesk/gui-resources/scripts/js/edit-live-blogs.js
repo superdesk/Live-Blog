@@ -31,6 +31,9 @@ define([
         initEditBlog = function(theBlog)
         {
             content = $(this).find('[is-content]');
+            topSubMenu = $(this).find('[is-submenu]');
+            
+            // editor options
             var titleInput = content.find('section header h2'),
                 descrInput = content.find('article#blog-intro'),
                 editorSaveInfo = 
@@ -65,7 +68,7 @@ define([
             delete h2ctrl.html;
             delete h2ctrl.image;
             delete h2ctrl.link;
-            
+            // assign editors
             titleInput.texteditor
             ({
                 plugins: {controls: h2ctrl, save: editorSaveInfo},
@@ -77,6 +80,7 @@ define([
                 plugins:{ save: editorSaveInfo, controls: editorTitleControls }
             });
             
+            // provider tabs
             $('.tabbable')
             .on('show','a[data-toggle="tab"]', function(e)
             {
@@ -85,17 +89,20 @@ define([
                 providers[idx].el = $(el.attr('href'));
                 providers[idx].init(theBlog);
             })
-            .on('hide','a[data-toggle="tab"]', function(e)
-                    { console.log('cifi-cif'); })
             .find('.actived a').tab('show');
             
-            $(content).on('click.livedesk', 'li.wrapup', function()
+            // wrapup toggle
+            $(content)
+                .off('click.livedesk', 'li.wrapup')
+                .off('click.livedesk', '.filter-posts a')
+            .on('click.livedesk', 'li.wrapup', function()
             {
                 if($(this).hasClass('open'))
                     $(this).removeClass('open').addClass('closed').nextUntil('li.wrapup').hide();
                 else
                     $(this).removeClass('closed').addClass('open').nextUntil('li.wrapup').show();
-            }).on('click.livedesk', '.filter-posts a',function(){
+            })
+            .on('click.livedesk', '.filter-posts a',function(){
                 var datatype = $(this).attr('data-value');
                 if(datatype == 'all') {
                     $('#timeline-view li').show();
@@ -104,6 +111,24 @@ define([
                     $('#timeline-view li[data-post-type!="'+datatype+'"]').hide();
                 }
             });
+            
+            $(topSubMenu)
+                .off('click.livedesk', 'a[data-target="configure-blog"]')
+            .on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
+            {
+                event.preventDefault();
+                var blogHref = $(this).attr('href')
+                $.superdesk.getActions('modules.livedesk.edit.*')
+                .done(function(actions)
+                {
+                    $(actions).each(function()
+                    {
+                        if(this.Path == 'modules.livedesk.edit.configure' && this.ScriptPath)
+                            require([$.superdesk.apiUrl+this.ScriptPath], function(app) { new app(blogHref); });
+                    });
+                });
+            });
+            
         },
         postHref = null,
         updateInterval = 0,
@@ -117,6 +142,7 @@ define([
             }
             update(true); 
         },
+        // posts update
         update = function(autoUpdate, callback)
         {
             new $.rest(postHref)
@@ -240,11 +266,15 @@ define([
                 var self = this;
                 new $.restAuth(this.blogHref).xfilter('Creator.Name, Creator.Id').done(function(blogData)
                 {
-                    var data = $.extend({}, blogData, {ui: {content: 'is-content=1', side: 'is-side=1'}, providers: providers, PostTypes: postTypes}),
+                    var data = $.extend({}, blogData, {BlogHref: self.blogHref, 
+                            ui: {content: 'is-content=1', side: 'is-side=1', submenu: 'is-submenu', submenuActive1: 'active'}, 
+                            providers: providers, PostTypes: postTypes}),
                         content = $.superdesk.applyLayout('livedesk>edit', data, function(){
                             initEditBlog.call(this, self.blogHref);
+                            /* refresh twitter share button */
                             require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
                         });
+                    
                     $('.live-blog-content').droppable({
                         drop: function( event, ui ) {
 
