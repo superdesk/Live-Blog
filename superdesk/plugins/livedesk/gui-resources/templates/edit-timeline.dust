@@ -5,12 +5,46 @@
        <div class="drag-bar"></div>
        <div class="arrow"></div>
        <div class="wrapup-content">
-            {Content}
+            {Content|s}
        </div>
       <div class="clear"></div>
     </li>
 	{:else}
-		{@if cond="'{Author.Source.Name}'=='google' || '{Author.Source.Name}'=='flickr'"}
+		{@if cond="'{Author.Source.Name}'=='google'"}
+		<li class="{Author.Source.Name} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
+			<div class="drag-bar"></div>
+	        <div class="tool-box-right">
+	        	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
+	        </div>
+			{#Meta}
+			<div class="result-content">
+				<h3>
+					<a href="{url|s}" target="_blank">{title|s}</a>
+				</h3>
+				<p class="result-text">
+					{?image.tbUrl}
+					<img src="{image.tbUrl}" align="left"/>
+					{/image}
+					{Content|s}
+				</p>
+				<p class="attributes">
+					<i class="source-icon">
+						<img src="http://g.etfv.co/{url|s}" style="max-width: 16px" border="0">
+					</i>
+					<a class="author-name" target="_blank" href="{unescapedUrl|s}">
+						{?visibleUrl}
+							{visibleUrl}
+						{/visibleUrl}
+						{?publisher}
+							{publisher}
+						{/publisher}
+					</a>
+					<time>{CreatedOn}</time>
+				</p>				
+			</div>				
+			{/Meta}
+	    {/if}
+		{@if cond="'{Author.Source.Name}'=='flickr'"}
 		<li class="{Author.Source.Name} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
