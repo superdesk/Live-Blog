@@ -19,8 +19,9 @@ define('providers/flickr', [
 ], function( providers,  $ ) {
 $.extend(providers.flickr, {
         initialized: false,
+        per_page : 8,
 	apykey : 'd2a7c7c0a94ae40d01aee8238845bdba',
-        url : 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=%(apykey)s&text=%(text)s&format=json&nojsoncallback=1&per_page=8&page=%(start)s&license=%(license)s',
+        url : 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=%(apykey)s&text=%(text)s&format=json&nojsoncallback=1&per_page=%(per_page)s&page=%(start)s&license=%(license)s',
         licenseUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.licenses.getInfo&api_key=%(apykey)s&format=json&nojsoncallback=1',
         infoUrl : 'http://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=%(apykey)s&photo_id=%(id)s&secret=%(secret)s&format=json&nojsoncallback=1',
 	data: [],
@@ -92,13 +93,14 @@ $.extend(providers.flickr, {
             $('#flickr-image-more').html('');
             start = typeof start !== 'undefined' ? start : 1;
             if ( start == 1) {
+                self.data = [];
                 $('#flickr-image-results').html('');
             }
             
             var license = $('#flickr-license').val();
             
             
-            var fullUrl = str.format(this.url,{start: start, text: text, apykey: this.apykey, license : license});
+            var fullUrl = str.format(this.url,{start: start, text: text, apykey: this.apykey, license : license, per_page : this.per_page});
             this.showLoading('#flickr-image-more');
             $.getJSON(fullUrl, {}, function(data){
                     self.stopLoading('#flickr-image-more');
@@ -106,7 +108,11 @@ $.extend(providers.flickr, {
                     data.photos.photos = data.photos.photo;
 
                     if ( parseInt(data.photos.total) > 1 ) {
-                        $.tmpl('livedesk>providers/flickr/image-item', data.photos, function(e,o) {
+                        $.tmpl('livedesk>providers/flickr/image-item', 
+                        {
+                            photos : data.photos.photos,
+                            page : parseInt(start - 1)
+                        }, function(e,o) {
                             $('#flickr-image-results').append(o).find('.flickr').draggable(
                             {
                                 revert: 'invalid',
@@ -116,7 +122,11 @@ $.extend(providers.flickr, {
                                 zIndex: 2700,
                                 clone: true,
                                 start: function() {
-                                    $(this).data('data', self.adaptor.universal( $(this) ));
+                                    var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10);
+                                    var originalUrl = $(this).attr('data-url');
+                                    var itemNo = parseInt( (page * self.per_page) + idx );
+                                    self.data[itemNo].originalUrl = originalUrl;
+                                    $(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
                                 }
                             }
                             );

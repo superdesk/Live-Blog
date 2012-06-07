@@ -22,14 +22,14 @@ define('providers/google/adaptor', [
                         }
                     });
             },
-			universal: function(obj) {
-				var meta =  jQuery.extend(true, {}, obj);
-				delete meta.content;
-				return {
+            universal: function(obj) {
+		var meta =  jQuery.extend(true, {}, obj);
+		delete meta.content;
+		return {
                     Content: obj.content,
                     Type: 'normal',
                     Author: this.author,
-					Meta: meta
+                    Meta: meta
                 };
             },
 			// Todo remove this stuff
