@@ -42,8 +42,11 @@ define
                             superdesk.getActions('modules.livedesk.*')
                             .done(function(actions)
                             {
-                                require([superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js'],
-                                function(EditApp){ new EditApp(theBlog).render(); });
+                                $(actions).each(function()
+                                {
+                                    if(this.Path == 'modules.livedesk.edit' && this.ScriptPath)
+                                        require([superdesk.apiUrl+this.ScriptPath], function(EditApp){ new EditApp(theBlog).render(); });
+                                });
                             });
                         });
                 });
