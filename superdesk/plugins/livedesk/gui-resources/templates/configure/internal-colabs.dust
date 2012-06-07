@@ -2,7 +2,7 @@
 	{?Person}
 	<li class="">
 		<label class="checkbox">
-	    	<input type="checkbox" value="{Id}" data-value="Id" />
+	    	<input type="checkbox" value="{Id}" data-key="Id" />
 		</label>
 		<div class="tool-box-right">
 			<a href="javascript:void(0)" class="tool-box-button"><i class="icon-pencil"></i></a>
