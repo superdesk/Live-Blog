@@ -23,18 +23,26 @@ define('providers/flickr/adaptor', [
                     });
                 //new $.restAuth(theBlog)
             },
-            universal: function(content) {
-                
+            universal: function(obj) {
+		var meta =  jQuery.extend(true, {}, obj);                
+		return {
+                    Content: {title : meta.title},
+                    Type: 'normal',
+                    Author: this.author,
+                    Meta: meta
+                };
+            },
+            universalOld: function(content) {
                 var myClone = content.clone();
                 myClone.find('time').remove();
                 
                 var data = {
                     Content: myClone.find('.result-content').html(),
                     Type: 'normal',
-                    Author: this.author,
+                    Author: this.author
                 };
                 return data;
-            },
+            }
         }
     });
 	return providers;
