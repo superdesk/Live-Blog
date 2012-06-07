@@ -13,14 +13,14 @@
             		<label class="control-label">This Blogs output feed</label>
             		<div class="controls">
               			<a href="#" class="block-link" 
-              				data-value="OutputLink">http://www.livedesk.com/great-blog/</a>
+              				data-key="OutputLink">{OutputLink}</a>
              		</div>
           		</div>
           		<div class="control-group">
             		<label class="control-label">Language</label>
             		<div class="controls">
-              			<select class="span3" data-value="Language">
-                			<option>Choose language</option>
+              			<select class="span3" data-key="Language" data-value="{Language.Id}">
+                			<option value="">Choose language</option>
               			</select>
             		</div>
           		</div>
@@ -29,7 +29,7 @@
 				<legend>Define Collaborators</legend>
 				<div class="control-group">
                 	<label class="control-label" for="optionsCheckboxList">Internal Collaborators</label>
-                 	<div class="controls">
+                 	<div class="controls" style="height:210px; overflow:auto">
 						<ul class="collaborators-list" id="internal-colabs">
 							
 	                	</ul>
@@ -173,8 +173,8 @@
 
           <div class="form-actions">
             <button type="button" class="btn btn-primary" data-action="save">Save</button>{~s}
-            <button type="button" class="btn btn-primary">Save & Close</button>{~s}
-            <button class="btn">Cancel</button>
+            <button type="button" class="btn btn-primary" data-action="save-close">Save & Close</button>{~s}
+            <button type="button" class="btn" data-action="cancel">Cancel</button>
           </div>
         
       </form>
