@@ -129,6 +129,7 @@ $.extend(providers.google, {
                                 clone: true,
                                 start: function() {
                                     var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
+                                    self.data[startx+idx].type = 'web';
                                     $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
                                 }
 
@@ -199,6 +200,7 @@ $.extend(providers.google, {
                                 clone: true,
                                 start: function() {
                                     var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
+                                    self.data[startx+idx].type = 'news';
                                     $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
                                 }
                             }
@@ -266,6 +268,7 @@ $.extend(providers.google, {
                                 clone: true,
                                 start: function() {
                                     var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
+                                    self.data[startx+idx].type = 'images';
                                     $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
                                 }
                             }
