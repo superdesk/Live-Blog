@@ -7,8 +7,10 @@ function($)
     blogHref = null,
     blogData = null,
     currentColabIds = [],
+    gotColabs = null, // deferred
     getColabs = function()
     {
+        currentColabIds = [];
         new $.rest('Superdesk/Collaborator')
         .xfilter('Id,Name,Person.Id,Person.FullName,Person.EMail')
         .done(function(data)
@@ -22,8 +24,9 @@ function($)
             $(data).each(function()
             { 
                 currentColabIds.push(this.Id);
-                $('#internal-colabs [data-value="Id"][value="'+this.Id+'"]', content).attr('checked', true); 
+                $('#internal-colabs [data-key="Id"][value="'+this.Id+'"]', content).attr('checked', true); 
             });
+            gotColabs.resolve();
         });
     },
     aedit =
@@ -38,52 +41,93 @@ function($)
     },
     saveBlog = function()
     {
-        var data = { 
-            OutputLink: content.find('[data-value="OutputLink"]').text(),
-            Language: content.find('[data-value="Language"]:eq(0)').val()
-        };
-        new $.restAuth(blogHref).update(data).done(function(data)
-        {
-            console.log('saved');
-        });
+        var data = { OutputLink: content.find('[data-key="OutputLink"]').text() };
+        var langVal = $.trim(content.find('[data-key="Language"]:eq(0)').val());
+        if( langVal !== '' ) data.Language = langVal; 
+        new $.restAuth(blogHref).update(data).done(function(data){});
     },
     saveColabs = function()
     {
-        var updateColabIds = [],
-            deleteColabIds = [];
-        $('#internal-colabs [data-value="Id"]').each(function()
-        { 
-            if( $(this).is(':checked') ) updateColabIds.push($(this).val()); 
-        });
-        $(currentColabIds).each(function()
+        $.when(gotColabs).then(function()
         {
-            !$.inArray(this, updateColabIds) && deleteColabIds.push(this);
+            var newIds = [];
+            $('#internal-colabs [data-key="Id"]:checked').each(function()
+            { 
+                 newIds.push($(this).val());
+                 $.inArray( $(this).val(), currentColabIds ) === -1 &&
+                     new $.restAuth(blogData.Collaborator.href+$(this).val()+'/Add').insert().done(function(){ });
+                     //insertColabIds.push($(this).val()); 
+            });
+            for( var i in currentColabIds )
+                $.inArray(currentColabIds[i], newIds) === -1 &&
+                    new $.restAuth(blogData.Collaborator.href+currentColabIds[i]+'/Remove').delete().done(function(){ });
+                //deleteColabIds.push(currentColabIds[i]);
+            currentColabIds = newIds;
         });
-        console.log(deleteColabIds);
-        console.log(currentColabIds);
     },
     init = function()
     {
         content = $('[is-content]');
-        content.find('[data-value="OutputLink"]').texteditor({plugins: {toolbar: null, aedit: aedit}});
+        content.find('[data-key="OutputLink"]').texteditor({plugins: {toolbar: null, aedit: aedit}});
         
         // language select
         new $.rest('Superdesk/Language').xfilter('Id,Name').done(function(Languages)
         {
-            var html = '<option>'+_('Choose language')+'</option>';
+            var html = '<option value="">'+_('Choose language')+'</option>',
+                langInput = content.find('[data-key="Language"]');
             for( var i in Languages )
                 html += '<option value="'+Languages[i].Id+'">'+Languages[i].Name+'</option>';
-            content.find('[data-value="Language"]').html(html);
+            langInput.html(html).val(langInput.attr('data-value'));
         });
         
         getColabs();
         
-        $('[data-action="save"]', content).off('click.livedesk')
+        var topSubMenu = $(this).find('[is-submenu]');
+        $(topSubMenu)
+        .off('click.livedesk', 'a[data-target="configure-blog"]')
+        .on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
+        {
+            event.preventDefault();
+            var blogHref = $(this).attr('href')
+            $.superdesk.getActions('modules.livedesk.edit.*')
+            .done(function(actions)
+            {
+                $(actions).each(function()
+                {
+                    if(this.Path == 'modules.livedesk.edit.configure' && this.ScriptPath)
+                        require([$.superdesk.apiUrl+this.ScriptPath], function(app) { new app(blogHref); });
+                });
+            });
+        })
+        .off('click.livedesk', 'a[data-target="edit-blog"]')
+        .on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
+        {
+            event.preventDefault();
+            var blogHref = $(this).attr('href');
+            $.superdesk.getActions('modules.livedesk.*')
+            .done(function(actions)
+            {
+                $(actions).each(function()
+                {
+                    if(this.Path == 'modules.livedesk.edit' && this.ScriptPath)
+                        require([$.superdesk.apiUrl+this.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
+                });
+            });
+        });
+        $('[data-action="save"]', content)
+            .off('click.livedesk')
             .on('click.livedesk', function(){ saveBlog(); saveColabs(); });
+        $('[data-action="save-close"]', content)
+            .off('click.livedesk')
+            .on('click.livedesk', function(){ $.when(saveBlog(), saveColabs()).then(function(){ $('a[data-target="edit-blog"]').click(); }); });
+        $('[data-action="cancel"]', content)
+            .off('click.livedesk')
+            .on('click.livedesk', function(){ $('a[data-target="edit-blog"]').click(); });
     },
     app = function(theBlog)
     {
         blogHref = theBlog;
+        gotColabs = new $.Deferred;
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(data)
         {
             blogData = data;
