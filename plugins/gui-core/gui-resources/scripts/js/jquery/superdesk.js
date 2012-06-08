@@ -77,25 +77,62 @@ var superdesk =
 	/*!
 	 * cache repo
 	 */
-	cache: {actions: {}, scripts: {}},
+	cache: {actions: {}, scripts: {}, test: {}},
+	ACTIONS_PATH_SEP: '.',
 	/*!
 	 * @param string path 
 	 * @returns $.Deferred()
 	 */
 	getActions: function(path)
 	{
-		var dfd = $.Deferred();
-		if( !superdesk.cache.actions[path] )
+	    var dfd = $.Deferred(),
+	    searchCache = function()
+	    {
+	        var results = [], searchForSubs = false, searchPath = path; 
+	        if( path.lastIndexOf('*') === path.length-1 )
+	        {
+	            searchPath = path.substr(0, path.length-1-superdesk.ACTIONS_PATH_SEP.length);
+	            searchForSubs = true;
+	        }
+	        for( var i in superdesk.cache.actions )
+                if( superdesk.cache.actions[i].Path.indexOf(searchPath) === 0 )
+                {
+                    if( searchForSubs && superdesk.cache.actions[i].Path.length === searchPath.length ) continue;
+                    results.push(superdesk.cache.actions[i]);
+                }
+	        return results;    
+	    };
+	    var cachedResults = searchCache();
+	    if( cachedResults.length === 0 )
 		{
 			new $.rest('GUI/Action?path='+path)
 				.done(function(actions)
 				{ 
-					superdesk.cache.actions[path] = actions;
-					dfd.resolve(actions);
+				    for(var i in actions)
+                        superdesk.cache.actions[actions[i].Path] = actions[i];
+					dfd.resolve(searchCache());
 				});
 			return dfd;
 		}
-		return dfd.resolve(superdesk.cache.actions[path]);
+		return dfd.resolve(cachedResults);
+	},
+	
+	getAction: function(path)
+	{
+	    var dfd = $.Deferred();
+        if( !superdesk.cache.actions[path] )
+        {
+            var searchPath = path.substr(0, path.lastIndexOf(superdesk.ACTIONS_PATH_SEP)); 
+            new $.rest('GUI/Action?path='+searchPath+'.*')
+                .done(function(actions)
+                { 
+                    for(var i in actions)
+                        superdesk.cache.actions[actions[i].Path] = actions[i];
+                    dfd.resolve(superdesk.cache.actions[path]);
+                });
+            return dfd;
+        }
+        return dfd.resolve(superdesk.cache.actions[path]);
 	},
 	/*!
 	 * 
