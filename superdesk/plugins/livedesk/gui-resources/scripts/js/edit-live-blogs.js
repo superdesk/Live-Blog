@@ -118,14 +118,23 @@ define([
             {
                 event.preventDefault();
                 var blogHref = $(this).attr('href')
-                $.superdesk.getActions('modules.livedesk.edit.*')
-                .done(function(actions)
+                $.superdesk.getAction('modules.livedesk.configure')
+                .done(function(action)
                 {
-                    $(actions).each(function()
-                    {
-                        if(this.Path == 'modules.livedesk.edit.configure' && this.ScriptPath)
-                            require([$.superdesk.apiUrl+this.ScriptPath], function(app) { new app(blogHref); });
-                    });
+                    action.ScriptPath && 
+                        require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+                });
+            })
+                .off('click.livedesk', 'a[data-target="edit-blog"]')
+            .on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
+            {
+                event.preventDefault();
+                var blogHref = $(this).attr('href');
+                $.superdesk.getAction('modules.livedesk.edit')
+                .done(function(action)
+                {
+                    action.ScriptPath && 
+                        require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
                 });
             });
             
