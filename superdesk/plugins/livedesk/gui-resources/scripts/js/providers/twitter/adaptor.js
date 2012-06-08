@@ -25,24 +25,14 @@ define('providers/twitter/adaptor', [
             },
             universal: function(obj) {
 		var meta =  jQuery.extend(true, {}, obj);
+                delete meta.text
 		return {
-                    Content: {placeholder : 'placeholder'},
+                    Content: obj.text,
                     Type: 'normal',
                     Author: this.author,
                     Meta: meta
                 };
-            },
-            universalOld: function(content) {    
-                var myClone = content.clone();
-                myClone.find('time').remove();
-                myClone.find('.attributes').remove();
-                var data = {
-                    Content: myClone.find('.result-content').html(),
-                    Type: 'normal',
-                    Author: this.author,
-                };
-                return data;
-            },
+            }
         }
     });
 	return providers;
