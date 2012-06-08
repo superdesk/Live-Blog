@@ -20,17 +20,11 @@ define
                             superdesk.showLoader();
                             
                             // get modules.* actions
-                            superdesk.getActions('modules.livedesk.*')
-                            .done(function(actions)
+                            superdesk.getAction('modules.livedesk.add')
+                            .done(function(action)
                             {
-                                $(actions).each(function()
-                                {
-                                    // and display add action
-                                    if(this.Path == 'modules.livedesk.add' && this.ScriptPath)
-                                        require([superdesk.apiUrl+this.ScriptPath], function(AddApp) {
-                                            addApp = new AddApp();
-                                        });
-                                });
+                                action.ScriptPath &&
+                                    require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ addApp = new AddApp(); });
                             });
                         });
                     $(this).find('.submenu-blog').off('click.livedesk')
@@ -39,14 +33,11 @@ define
                             superdesk.showLoader();
                             
                             var theBlog = $(this).attr('data-blog-link');
-                            superdesk.getActions('modules.livedesk.*')
-                            .done(function(actions)
+                            superdesk.getAction('modules.livedesk.edit')
+                            .done(function(action)
                             {
-                                $(actions).each(function()
-                                {
-                                    if(this.Path == 'modules.livedesk.edit' && this.ScriptPath)
-                                        require([superdesk.apiUrl+this.ScriptPath], function(EditApp){ new EditApp(theBlog).render(); });
-                                });
+                                action.ScriptPath && 
+                                    require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(theBlog).render(); });
                             });
                         });
                 });
