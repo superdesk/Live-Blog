@@ -39,8 +39,8 @@ def modulesEditAction():
                   ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/edit-live-blogs.js'))
 
 @ioc.entity   
-def modulesConfigureBlogAction():
-    return Action('configure', Parent=modulesEditAction(), 
+def modulesConfigureAction():
+    return Action('configure', Parent=modulesAction(), 
                   ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/configure-blog.js'))
 
 @ioc.start
@@ -50,4 +50,4 @@ def registerActions():
     actionManagerService().add(modulesAction())
     actionManagerService().add(modulesAddAction())
     actionManagerService().add(modulesEditAction())
-    actionManagerService().add(modulesConfigureBlogAction())
+    actionManagerService().add(modulesConfigureAction())

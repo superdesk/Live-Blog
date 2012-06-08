@@ -44,7 +44,20 @@ function($)
         var data = { OutputLink: content.find('[data-key="OutputLink"]').text() };
         var langVal = $.trim(content.find('[data-key="Language"]:eq(0)').val());
         if( langVal !== '' ) data.Language = langVal; 
-        new $.restAuth(blogHref).update(data).done(function(data){});
+        new $.restAuth(blogHref).update(data).done(function(data)
+        {
+            
+            $('[is-submenu] .alert')
+                .removeClass('alert-error hide')
+                .addClass('alert-success').find('span').text(_('Configuration updated'));
+        })
+        .fail(function(data)
+        { 
+            console.log(arguments);
+            $('[is-submenu] .alert')
+                .removeClass('alert-success hide')
+                .addClass('alert-error').find('span').text(_('Error'));
+        });
     },
     saveColabs = function()
     {
@@ -89,14 +102,11 @@ function($)
         {
             event.preventDefault();
             var blogHref = $(this).attr('href')
-            $.superdesk.getActions('modules.livedesk.edit.*')
-            .done(function(actions)
+            $.superdesk.getActions('modules.livedesk.configure')
+            .done(function(action)
             {
-                $(actions).each(function()
-                {
-                    if(this.Path == 'modules.livedesk.edit.configure' && this.ScriptPath)
-                        require([$.superdesk.apiUrl+this.ScriptPath], function(app) { new app(blogHref); });
-                });
+                action.ScriptPath &&
+                    require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
             });
         })
         .off('click.livedesk', 'a[data-target="edit-blog"]')
@@ -104,14 +114,11 @@ function($)
         {
             event.preventDefault();
             var blogHref = $(this).attr('href');
-            $.superdesk.getActions('modules.livedesk.*')
-            .done(function(actions)
+            $.superdesk.getAction('modules.livedesk.edit')
+            .done(function(action)
             {
-                $(actions).each(function()
-                {
-                    if(this.Path == 'modules.livedesk.edit' && this.ScriptPath)
-                        require([$.superdesk.apiUrl+this.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
-                });
+                action.ScriptPath && 
+                    require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
             });
         });
         $('[data-action="save"]', content)
