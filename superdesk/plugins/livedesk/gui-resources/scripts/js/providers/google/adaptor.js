@@ -24,7 +24,7 @@ define('providers/google/adaptor', [
             },
             universal: function(obj) {
 		var meta =  jQuery.extend(true, {}, obj);
-		delete meta.content;
+                delete meta.content;
 		return {
                     Content: obj.content,
                     Type: 'normal',
