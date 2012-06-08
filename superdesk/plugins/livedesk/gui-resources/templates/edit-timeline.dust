@@ -69,7 +69,7 @@
                             <a href="http://farm{farm}.staticflickr.com/{server}/{id}_{secret}.jpg" target="_blank">
                                 <img alt="{title}" src='http://farm{farm}.staticflickr.com/{server}/{id}_{secret}_s.jpg'>
                             </a>
-                            <a href="{originalUrl}" target="_blank"><p>{title}</p></a>
+                            <a href="{originalUrl}" target="_blank"><p>{Content}</p></a>
                         </div>
                         {/Meta}		    
 	    {/if}
@@ -84,7 +84,7 @@
                     <figure><img src="{profile_image_url}" width="48" height="48" alt="1"></figure>
                     <div class="result-content">
                         <h3><span class="author">{from_user_name}({from_user})</span></h3>
-                        <p class="result-text">{text|s}</p>
+                        <p class="result-text">{Content|s}</p>
                         <p class="attributes"><i class="source-icon"></i>
                         <a href="http://twitter.com/{from_user}/status/{id_str}" target="_blank"><time>{created_at}</time></a>
                         </p>
@@ -95,7 +95,7 @@
                     <figure><img src="{user.profile_image_url}" width="48" height="48" alt="1"></figure>
                     <div class="result-content">
                         <h3><span class="author">{user.name}({user.screen_name})</span></h3>
-                        <p class="result-text">{text|s}</p>
+                        <p class="result-text">{Content|s}</p>
                         <p class="attributes"><i class="source-icon"></i>
                         <a href="http://twitter.com/{user.screen_name}/status/{id_str}" target="_blank"><time>{created_at}</time></a>
                         </p>

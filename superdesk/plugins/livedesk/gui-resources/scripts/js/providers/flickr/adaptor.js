@@ -26,7 +26,7 @@ define('providers/flickr/adaptor', [
             universal: function(obj) {
 		var meta =  jQuery.extend(true, {}, obj);                
 		return {
-                    Content: {title : meta.title},
+                    Content: obj.title,
                     Type: 'normal',
                     Author: this.author,
                     Meta: meta
