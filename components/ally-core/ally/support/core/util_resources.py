@@ -153,12 +153,6 @@ class ResourcesRegisterDelegate(IResourcesRegister):
         self.main = main
         self.others = others
 
-    def getRoot(self):
-        '''
-        @see: IResourcesRegister.getRoot
-        '''
-        return self.main.getRoot()
-
     def register(self, implementation):
         '''
         @see: IResourcesRegister.register

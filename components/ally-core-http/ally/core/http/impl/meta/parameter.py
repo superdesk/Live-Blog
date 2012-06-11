@@ -15,20 +15,20 @@ from ally.api.operator.type import TypeQuery, TypeCriteriaEntry, TypeCriteria
 from ally.api.type import Type, Input, Iter
 from ally.container.ioc import injected
 from ally.core.impl.meta.decode import DecodeObject, DecodeList, DecodeValue, \
-    DecodeFirst, DecodeSetValue, DecodeGetter, DecodeSplit
+    DecodeFirst, DecodeSetValue, DecodeGetter, DecodeSplit, DecodeSplitIndentifier
 from ally.core.impl.meta.encode import EncodeValue, EncodeCollection, \
-    EncodeObject, EncodeGetter, EncodeMerge, EncodeObjectExploded, EncodeGetValue, \
-    EncodeGetterIdentifier, EncodeIdentifier, EncodeJoin
+    EncodeObject, EncodeGetter, EncodeMerge, EncodeGetValue, EncodeGetterIdentifier, \
+    EncodeIdentifier, EncodeJoin, EncodeJoinIndentifier, EncodeExploded
 from ally.core.impl.meta.general import getterOnDict, setterOnDict, getterOnObj, \
     getterChain, setterWithGetter, setterOnObj, setterToOthers, obtainOnDict, \
-    getterOnObjIfIn, obtainOnObj, ContextParse
-from ally.core.spec.meta import IMetaService, Value, Object, SAMPLE, Collection, \
-    Context
+    getterOnObjIfIn, obtainOnObj
+from ally.core.spec.meta import IMetaService, Value, SAMPLE, Collection, Context
 from ally.core.spec.resources import Invoker, Normalizer
-from collections import deque, Iterable
+from collections import deque
 import logging
 import random
 import re
+from ally.core.spec.context import Transform
 
 # --------------------------------------------------------------------
 
@@ -81,8 +81,8 @@ class ParameterMetaService(IMetaService):
         assert isinstance(self.separatorValueEscape, str), \
         'Invalid separator escape for values %s' % self.separatorValueEscape
 
-        self.reSplitValues = re.compile(self.regexSplitValues)
-        self.reNormalizeValue = re.compile(self.regexNormalizeValue)
+        self._reSplitValues = re.compile(self.regexSplitValues)
+        self._reNormalizeValue = re.compile(self.regexNormalizeValue)
 
     def createDecode(self, context):
         '''
@@ -91,7 +91,7 @@ class ParameterMetaService(IMetaService):
         assert isinstance(context, ContextParameter), 'Invalid context %s' % context
         assert isinstance(context.invoker, Invoker), 'Invalid invoker %s' % context.invoker
 
-        root, ordering = DecodeParameters(self.separatorName), {}
+        root, ordering = DecodeObject(), {}
 
         queries = deque()
         # We first process the primitive types.
@@ -101,10 +101,10 @@ class ParameterMetaService(IMetaService):
             assert isinstance(typ, Type)
 
             if typ.isPrimitive:
-                if typ.isOf(Iter):
+                if isinstance(typ, Iter):
                     assert isinstance(typ, Iter)
                     dprimitive = DecodeList(DecodeValue(list.append, typ.itemType))
-                    dprimitive = DecodeSplit(dprimitive, self.reSplitValues, self.reNormalizeValue)
+                    dprimitive = DecodeSplit(dprimitive, self._reSplitValues, self._reNormalizeValue)
                     dprimitive = DecodeGetter(dprimitive, obtainOnDict(inp.name, list))
                 else:
                     dprimitive = DecodeValue(setterOnDict(inp.name), typ)
@@ -137,9 +137,9 @@ class ParameterMetaService(IMetaService):
             else:
                 order = DecodeOrdering(self.separatorOrderName, asscending)
                 order.properties.update(ordering)
-                root.properties[name] = DecodeSplit(order, self.reSplitValues, self.reNormalizeValue)
+                root.properties[name] = DecodeSplit(order, self._reSplitValues, self._reNormalizeValue)
 
-        return root
+        return DecodeSplitIndentifier(root, self.separatorName)
 
     def decodeQuery(self, queryType, getterQuery, decoders, ordering):
         '''
@@ -187,10 +187,10 @@ class ParameterMetaService(IMetaService):
 
                 for prop, typ in criteria.properties.items():
                     if prop in exclude: continue
-                    if typ.isOf(Iter):
+                    if isinstance(typ, Iter):
                         assert isinstance(typ, Iter)
                         dprop = DecodeList(DecodeValue(list.append, typ.itemType))
-                        dprop = DecodeSplit(dprop, self.reSplitValues, self.reNormalizeValue)
+                        dprop = DecodeSplit(dprop, self._reSplitValues, self._reNormalizeValue)
                         dprop = DecodeGetter(dprop, getterChain(getterCriteria, obtainOnObj(prop, list)))
                     else:
                         dprop = DecodeValue(setterWithGetter(getterCriteria, setterOnObj(prop)), typ)
@@ -212,7 +212,7 @@ class ParameterMetaService(IMetaService):
         assert isinstance(context, ContextParameter), 'Invalid context %s' % context
         assert isinstance(context.invoker, Invoker), 'Invalid invoker %s' % context.invoker
 
-        root = EncodeParameters(self.separatorName)
+        root = EncodeObject()
 
         queries = deque()
         # We first process the primitive types.
@@ -222,7 +222,7 @@ class ParameterMetaService(IMetaService):
             assert isinstance(typ, Type)
 
             if typ.isPrimitive:
-                if typ.isOf(Iter):
+                if isinstance(typ, Iter):
                     assert isinstance(typ, Iter)
                     eprimitive = EncodeCollection(EncodeValue(typ.itemType))
                     eprimitive = EncodeJoin(eprimitive, self.separatorValue, self.separatorValueEscape)
@@ -234,7 +234,7 @@ class ParameterMetaService(IMetaService):
                 assert isinstance(typ, TypeQuery)
                 queries.append(inp)
 
-        ordering = EncodeOrdering(self.nameOrderAsc, self.nameOrderDesc, self.separatorOrderName)
+        ordering = EncodeObject()
 
         if queries:
             # We find out the model provided by the invoker
@@ -259,9 +259,11 @@ class ParameterMetaService(IMetaService):
 
                 self.encodeQuery(inp.type, equery.properties, qordering.properties)
 
-        root.properties.append(EncodeJoin(ordering, self.separatorValue, self.separatorValueEscape))
+        ordering = EncodeOrdering(ordering, self.nameOrderAsc, self.nameOrderDesc, self.separatorOrderName)
+        ordering = EncodeJoin(ordering, self.separatorValue, self.separatorValueEscape)
+        root.properties.append(ordering)
 
-        return root
+        return EncodeJoinIndentifier(root, self.separatorName)
 
     def encodeQuery(self, queryType, encoders, ordering):
         '''
@@ -301,7 +303,7 @@ class ParameterMetaService(IMetaService):
 
             for prop, typ in criteria.properties.items():
                 if prop in exclude: continue
-                if typ.isOf(Iter):
+                if isinstance(typ, Iter):
                     assert isinstance(typ, Iter)
                     eprop = EncodeCollection(EncodeValue(typ.itemType))
                     eprop = EncodeJoin(eprop, self.separatorValue, self.separatorValueEscape)
@@ -390,36 +392,6 @@ class DecodeOrdering(DecodeObject):
 
         return True
 
-class DecodeParameters(DecodeObject):
-    '''
-    Provides the parameters decode. It will split the string identifiers based on the separator.
-    '''
-
-    def __init__(self, separator):
-        '''
-        Construct the decoder.
-        
-        @param separator: string
-            The separator to be used for converting the string identifier.
-        @param root: IMetaDecode
-            The root meta decode, usually this meta decode and its children only accept deque[string].
-        '''
-        assert isinstance(separator, str), 'Invalid separator %s' % separator
-        super().__init__()
-
-        self.separator = separator
-
-    def decode(self, identifier, value, obj, context):
-        '''
-        @see: IMetaDecode.decode
-        '''
-        if isinstance(identifier, str): identifier = identifier.split(self.separator)
-        if isinstance(identifier, (list, tuple)): identifier = deque(identifier)
-
-        if not isinstance(identifier, deque): return False
-
-        return super().decode(identifier, value, obj, context)
-
 # --------------------------------------------------------------------
 
 def getterOrdering(entryType):
@@ -441,12 +413,12 @@ def getterOrdering(entryType):
             if AsOrdered.ascending in criteria: return (criteria.ascending, criteria.priority)
     return getter
 
-class EncodeOrdering(EncodeObjectExploded):
+class EncodeOrdering(EncodeExploded):
     '''
     Provides the encoding for the ordering parameters.
     '''
 
-    def __init__(self, nameOrderAsc, nameOrderDesc, separator):
+    def __init__(self, encoder, nameOrderAsc, nameOrderDesc, separator):
         '''
         Construct the order encoder.
         
@@ -456,13 +428,11 @@ class EncodeOrdering(EncodeObjectExploded):
             The identifier used for descending order.
         @param separator: string
             The separator used for the criteria to be ordered.
-        @param separator: string
-            The separator used for the criteria to be ordered.
         '''
         assert isinstance(nameOrderAsc, str), 'Invalid order ascending name %s' % nameOrderAsc
         assert isinstance(nameOrderDesc, str), 'Invalid order descending name %s' % nameOrderDesc
         assert isinstance(separator, str), 'Invalid separator %s' % separator
-        super().__init__()
+        super().__init__(encoder)
 
         self.nameOrderAsc = nameOrderAsc
         self.nameOrderDesc = nameOrderDesc
@@ -472,16 +442,16 @@ class EncodeOrdering(EncodeObjectExploded):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, ContextParse), 'Invalid context %s' % context
-        assert isinstance(context.normalizer, Normalizer)
+        assert isinstance(context, Transform), 'Invalid context %s' % context
+        assert isinstance(context.normalizer, Normalizer), 'Invalid normalizer %s' % context.normalizer
         normalize = context.normalizer.normalize
 
-        metaObject = super().encode(obj, context)
-        if metaObject is None: return
-        assert isinstance(metaObject, Object)
+        metaCollection = super().encode(obj, context)
+        if metaCollection is None: return
+        assert isinstance(metaCollection, Collection)
 
         ordering, priortized = [], []
-        for meta in metaObject.properties:
+        for meta in metaCollection.items:
             assert isinstance(meta, Value), 'Invalid meta %s' % meta
             if meta.value is SAMPLE:
                 asscending, priority = random.choice((True, False)), random.randint(0, 10)
@@ -505,7 +475,7 @@ class EncodeOrdering(EncodeObjectExploded):
         ordering.sort(key=lambda order: not order[1]) # Order by asc/desc
         priortized.extend(ordering)
 
-        return Object(properties=self.groupMeta(priortized, normalize(self.nameOrderAsc), normalize(self.nameOrderDesc)))
+        return Collection(items=self.groupMeta(priortized, normalize(self.nameOrderAsc), normalize(self.nameOrderDesc)))
 
     def groupMeta(self, ordering, nameAsc, nameDesc):
         '''
@@ -536,46 +506,3 @@ class EncodeOrdering(EncodeObjectExploded):
                 group.clear()
                 group.append(ord[0])
                 asscending = ord[1]
-
-class EncodeParameters(EncodeObjectExploded):
-    '''
-    Provides the parameters encode. It will explode the contained meta's and join the identifiers based on the
-    separator.  
-    '''
-
-    def __init__(self, separator):
-        '''
-        Construct the encoder.
-        
-        @param separator: string
-            The separator to be used for joining the string identifier.
-        '''
-        assert isinstance(separator, str), 'Invalid separator %s' % separator
-        super().__init__()
-
-        self.separator = separator
-
-    def encode(self, obj, context):
-        '''
-        IMetaEncode.encode
-        '''
-        meta = super().encode(obj, context)
-        if meta is not None:
-            assert isinstance(meta, Object), 'Invalid meta object %s' % meta
-            meta.properties = self.joinIdentifiers(meta.properties)
-            return meta
-
-    def joinIdentifiers(self, metas):
-        '''
-        Join the identifiers from the provided metas.
-        
-        @param metas: Iterable[Meta]
-            The meta's to join the identifiers for.
-        '''
-        assert isinstance(metas, Iterable), 'Invalid meta\'s' % metas
-        for meta in metas:
-            assert isinstance(meta, Value), 'Invalid meta %s, only Value expected' % meta
-            if isinstance(meta.identifier, (list, tuple)):
-                meta.identifier = self.separator.join(meta.identifier)
-            yield meta
-

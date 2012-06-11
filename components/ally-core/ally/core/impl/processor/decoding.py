@@ -14,6 +14,7 @@ from ally.core.spec.codes import UNKNOWN_DECODING
 from ally.core.spec.server import IProcessor, ProcessorsChain, Request, Response, \
     Processors, ContentRequest
 from ally.api.config import INSERT, UPDATE
+from ally.core.spec.context import Transform, ContentSpec
 
 # --------------------------------------------------------------------
 
@@ -48,12 +49,15 @@ class DecodingHandler(IProcessor):
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
+        assert isinstance(rsp, Transform), 'Invalid transform response %s' % rsp
+        assert isinstance(rsp, ContentSpec), 'Invalid content response %s' % rsp
         content = req.content
         assert isinstance(content, ContentRequest), 'Invalid content on request %s' % content
+
         if req.method in (INSERT, UPDATE):
-            if not content.charSet: content.charSet = self.charSetDefault
-            if not content.contentLanguage: content.contentLanguage = rsp.contentLanguage
-            if not content.contentConverter: content.contentConverter = rsp.contentConverter
+            if not content.charSet: content.charSet = rsp.charSet de verificat cine ar pune aici valori
+            si de asemenea toate decodingurile
+            if not content.language: content.language = rsp.language
 
             decodingChain = self.decodings.newChain()
             assert isinstance(decodingChain, ProcessorsChain)
@@ -64,7 +68,7 @@ class DecodingHandler(IProcessor):
                 return
 
             if decodingChain.isConsumed():
-                rsp.setCode(UNKNOWN_DECODING, 'Content type \'%s\' not supported for decoding' % req.content.contentType)
+                rsp.setCode(UNKNOWN_DECODING, 'Content type \'%s\' not supported for decoding' % content.contentType)
                 return
 
         chain.proceed()

@@ -10,7 +10,7 @@ Runs the basic web server.
 '''
 
 from . import server_type, server_version, server_port
-from .processor import pathProcessors
+from .processor import pathHandlers
 from ally.container import ioc
 from ally.core.http.server import server_basic
 from threading import Thread
@@ -20,7 +20,7 @@ from threading import Thread
 @ioc.start
 def runServer():
     if server_type() == 'basic':
-        server_basic.RequestHandler.requestPaths = pathProcessors()
+        server_basic.pathHandlers = pathHandlers()
         server_basic.RequestHandler.server_version = server_version()
 
-        Thread(target=server_basic.run, args=(server_basic.RequestHandler, server_port())).start()
+        Thread(target=server_basic.run, args=(server_port(),)).start()

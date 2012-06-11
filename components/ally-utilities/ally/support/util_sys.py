@@ -258,3 +258,83 @@ def getAttrAndClass(clazz, name):
         if name in cls.__dict__: return cls.__dict__[name], cls
         classes.extend(cls.__bases__)
     raise AttributeError('The %s has not attribute %r' % (clazz, name))
+
+def extend(clazz, other):
+    '''
+    Safely extend the class with another class. By safely I mean that if there is a chance that the constructor of 
+    a class or base class has a chance of being called twice this method will raise an exception.
+    
+    @param clazz: class
+        The class to be extended, if is the case.
+    @param other: class
+        The class to extend with.
+    @return: class
+        The extended class.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    assert isclass(other), 'Invalid other class %s' % other
+
+    # If either of the classes extends the other then we will return that.
+    if issubclass(clazz, other): return clazz
+    if issubclass(other, clazz): return other
+    # Check to see if there is not a common base class.
+    classes = deque()
+    classes.extend(other.__bases__)
+    while classes:
+        base = classes.popleft()
+        if base is object: continue
+        if issubclass(clazz, base):
+            raise TypeError('Cannot extend because the class %s and other class %s share a common class %s' %
+                            (clazz, other, base))
+        classes.extend(base.__bases__)
+    # Now we create the extended class with a __init__ method that will initialize both classes.
+    def __init__(self):
+        clazz.__init__(self)
+        other.__init__(self)
+    name = '%s+%s' % (clazz.__name__, other.__name__)
+    namespace = {'__init__': __init__, '__module__': clazz.__module__, '__slots__': ()}
+    return type(name, (clazz, other), namespace)
+
+def validateTypeFor(clazz, name, vauleType, allowNone=True):
+    '''
+    Creates a property descriptor inside a class that provides a getter and a setter that validates the
+    set value against the provided value type.
+    
+    @param clazz: class
+        The class to validate the property for.
+    @param name: string
+        The name to use for the property.
+    @param vauleType: class|tuple(class)
+        The required type of the value to be set.
+    @param allowNone: boolean
+        If True will allow also the None value to be set, otherwise only values of type clazz are allowed.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    assert isinstance(name, str), 'Invalid name %s' % name
+    assert isclass(vauleType) or isinstance(vauleType, tuple), 'Invalid value type %s' % clazz
+    assert isinstance(allowNone, bool), 'Invalid allow flag %s' % allowNone
+
+    try:
+        descriptor, _clazz = getAttrAndClass(clazz, name)
+
+        get = getattr(descriptor, '__get__')
+
+        descriptor.__set__ # Just to raise AttributeError in case there is no __set__ on the descriptor
+        def set(self, value):
+            if not isinstance(value, vauleType):
+                raise ValueError('Invalid value %s for class %s' % (value, vauleType))
+            descriptor.__set__(self, value)
+
+        delete = getattr(descriptor, '__delete__', None)
+    except AttributeError:
+        get = lambda self: getattr(self, name)
+
+        def set(self, value):
+            if not isinstance(value, vauleType):
+                raise ValueError('Invalid value %s for class %s' % (value, vauleType))
+            self.__dict__[name] = value
+
+        def delete(self):
+            del self.__dict__[name]
+
+    setattr(clazz, name, property(get, set, delete))

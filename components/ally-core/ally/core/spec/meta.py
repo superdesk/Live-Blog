@@ -11,67 +11,20 @@ Provides the meta specifications.
 
 from collections import Iterable
 import abc
-from inspect import isclass
-
-
-# --------------------------------------------------------------------
-
-class MetaClass(abc.ABCMeta):
-    '''
-    Used for the meta objects to behave like a data container only.
-    The context can now be checked against any object that has the specified attributes with values of the specified 
-    classes instance.
-    '''
-
-    def __init__(self, name, bases, namespace):
-        self._ally_meta_attributes = set()
-        for cls in bases:
-            try: self._ally_meta_attributes.update(cls._ally_meta_attributes)
-            except AttributeError: pass
-        for name, value in namespace.items():
-            if not name.startswith('_'):
-                assert isclass(value), 'Invalid context attribute value %s' % value
-                self._ally_meta_attributes.add(name)
-
-    def __instancecheck__(self, instance):
-        '''Override for isinstance(instance, cls)'''
-        if instance is None: return False
-        if super().__instancecheck__(instance): return True
-        if not self._ally_meta_attributes: return False
-
-        for name in self._ally_meta_attributes:
-            value = getattr(instance, name, None)
-            if value is None: return False
-            if not isinstance(value, getattr(self, name)): return False
-
-        return True
-
-class Context(metaclass=MetaClass):
-    '''
-    A simple class that is a container for the context data.
-    '''
-
-    def __init__(self, **keyargs):
-        '''
-        Construct a context with the provided key arguments as context data.
-        '''
-        for key, value in keyargs.items(): setattr(self, key, value)
+from ally.support.util_design import Context
 
 # --------------------------------------------------------------------
 
 SAMPLE = object() # Marker used to instruct the encoders to provide a sample.
 
-class Meta(metaclass=MetaClass):
+class Meta(Context):
     '''
     The referenced encoded meta.
-    
-    @ivar identifier: object
-        The identifier associated with the encoded meta.
-    ...
-        Beside this values in this class there might be others depending on the nature of the meta encode, is
-        the duty of the meta encoder users to check and use the extra information found in a meta.
+
+    Beside this values in this class there might be others depending on the nature of the meta encode, is
+    the duty of the meta encoder users to check and use the extra information found in a meta.
     '''
-    identifier = object
+    __context__ = ('identifier',)
 
     def __init__(self, identifier=None):
         '''
@@ -85,11 +38,8 @@ class Meta(metaclass=MetaClass):
 class Value(Meta):
     '''
     Provides a value meta.
-    
-    @ivar  value: object
-        The value encoded.
     '''
-    value = object
+    __context__ = ('value',)
 
     def __init__(self, identifier=None, value=None):
         '''
@@ -99,18 +49,15 @@ class Value(Meta):
         @param value: object|None
             The value associated with the value meta.
         '''
-        super().__init__(identifier)
+        Meta.__init__(self, identifier)
 
         self.value = value
 
 class Attributed(Meta):
     '''
     Provides an attributed meta.
-    
-    @ivar attributes: Iterable[Value]
-        The attributes that decorate the value
     '''
-    attributes = Iterable
+    __context__ = ('attributes',)
 
     def __init__(self, identifier=None, attributes=()):
         '''
@@ -121,18 +68,15 @@ class Attributed(Meta):
             The attributes associated with the attributed meta.
         '''
         assert isinstance(attributes, Iterable), 'Invalid attributes %s' % attributes
-        super().__init__(identifier)
+        Meta.__init__(self, identifier)
 
         self.attributes = attributes
 
 class Object(Meta):
     '''
     Provides an object meta.
-    
-    @ivar properties: Iterable[Value]
-        The properties for the object.
     '''
-    properties = Iterable
+    __context__ = ('properties',)
 
     def __init__(self, identifier=None, properties=()):
         '''
@@ -143,18 +87,15 @@ class Object(Meta):
             The properties associated with the object meta.
         '''
         assert isinstance(properties, Iterable), 'Invalid properties %s' % properties
-        super().__init__(identifier)
+        Meta.__init__(self, identifier)
 
         self.properties = properties
 
 class Collection(Meta):
     '''
     Provides a collection meta.
-    
-    @ivar items: Iterable[Value]
-        The items of the collection.
     '''
-    items = Iterable
+    __context__ = ('items',)
 
     def __init__(self, identifier=None, items=()):
         '''
@@ -165,7 +106,7 @@ class Collection(Meta):
             The items associated with the collection meta.
         '''
         assert isinstance(items, Iterable), 'Invalid items %s' % items
-        super().__init__(identifier)
+        Meta.__init__(self, identifier)
 
         self.items = items
 

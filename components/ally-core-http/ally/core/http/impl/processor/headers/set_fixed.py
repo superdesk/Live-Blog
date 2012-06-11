@@ -1,17 +1,18 @@
 '''
-Created on Nov 15, 2011
+Created on Jun 5, 2012
 
 @package: ally core http
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides support for setting headers on responses.
+Provides support for setting fixed headers on responses.
 '''
 
 from ally.container.ioc import injected
-from ally.core.http.spec import ResponseHTTP
-from ally.core.spec.server import IProcessor, ProcessorsChain
+from ally.core.http.spec.extension import HTTPEncode
+from ally.core.http.spec.server import IEncoderHeader
+from ally.design.processor import Handler, processor, Chain
 import logging
 
 # --------------------------------------------------------------------
@@ -21,7 +22,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class HeaderSetHandler(IProcessor):
+class HeaderSetHandler(Handler):
     '''
     Provides the setting of static header values.
     '''
@@ -36,11 +37,16 @@ class HeaderSetHandler(IProcessor):
                 assert isinstance(name, str), 'Invalid header name %s' % name
                 assert isinstance(value, str), 'Invalid header value %s' % value
 
-    def process(self, req, rsp, chain):
+    @processor
+    def process(self, chain, response:HTTPEncode, **keyargs):
         '''
-        @see: IProcessor.process
+        Set the fixed header values on the response.
         '''
-        assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        rsp.headers.update(self.headers)
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+        assert isinstance(response, HTTPEncode), 'Invalid response %s' % response
+        assert isinstance(response.encoderHeader, IEncoderHeader), \
+        'Invalid header encoder %s' % response.encoderHeader
+
+        for name, value in self.headers.items(): response.encoderHeader.encode(name, value)
+
         chain.proceed()

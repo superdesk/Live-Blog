@@ -10,7 +10,7 @@ Contains the services for the development support.
 '''
 
 from ..ally_core.converter import converterPath
-from ..ally_core.resource_management import resourcesRegister, services
+from ..ally_core.resources import resourcesRoot, services
 from ally.container import ioc
 from development.request.api.request import IRequestService
 from development.request.impl.request import RequestService
@@ -27,7 +27,7 @@ def publish_development():
 @ioc.entity
 def requestService() -> IRequestService:
     b = RequestService(); yield b
-    b.resourcesRegister = resourcesRegister()
+    b.root = resourcesRoot()
     b.converterPath = converterPath()
 
 
