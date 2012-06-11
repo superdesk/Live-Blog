@@ -14,6 +14,7 @@ from ally.container.ioc import injected
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE
 from ally.core.spec.resources import Path, Node
 from ally.core.spec.server import IProcessor, Request, Response, ProcessorsChain
+from ally.core.spec.context import ConstructMetaModel
 
 # --------------------------------------------------------------------
 
@@ -24,12 +25,6 @@ class MethodInvokerHandler(IProcessor):
     with the resource node of the request, basically checks if the node has the invoke for the requested method.
     If the node has no invoke than this processor will stop the execution chain and provide an error response also
     providing the allows methods for the resource path node.
-    
-    Provides on request: invoker, objType
-    Provides on response: NA
-    
-    Requires on request: method, resourcePath
-    Requires on response: NA
     '''
 
     def process(self, req, rsp, chain):
@@ -67,7 +62,7 @@ class MethodInvokerHandler(IProcessor):
         else:
             self._sendNotAvailable(node, rsp, 'Path not available for this method')
             return
-        rsp.objType = req.invoker.output
+        ConstructMetaModel(req.invoker.output, self=rsp)
         chain.proceed()
 
     def _processAllow(self, node, rsp):

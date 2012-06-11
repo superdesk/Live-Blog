@@ -296,7 +296,6 @@ class Iter(TypeClass):
         @see: Type.isOf
         '''
         if super().isOf(type): return True
-        if isclass(type) and (issubclass(type, self.__class__) or issubclass(self.__class__, type)): return True
         return self.itemType.isOf(type)
 
     def __hash__(self):

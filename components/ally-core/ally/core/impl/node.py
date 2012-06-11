@@ -203,7 +203,7 @@ class NodeRoot(Node):
     @see: Node
     '''
 
-    def __init__(self, get):
+    def __init__(self):
         '''
         @see: Match.__init__
         
@@ -211,9 +211,6 @@ class NodeRoot(Node):
             The get invoker for the root node.
         '''
         super().__init__(None, True, ORDER_ROOT)
-        assert isinstance(get, Invoker), 'Invalid get invoker %s' % get
-        assert len(get.inputs) == 0, 'No inputs are allowed for the get on the root node'
-        self.get = get
         self._match = MatchRoot(self)
 
     def tryMatch(self, converterPath, paths):

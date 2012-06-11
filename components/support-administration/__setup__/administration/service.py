@@ -9,7 +9,7 @@ Created on Jan 9, 2012
 Contains the services for the administration support.
 '''
 
-from ..ally_core.resource_management import services
+from ..ally_core.resources import services
 from admin.introspection.api.component import IComponentService
 from admin.introspection.api.plugin import IPluginService
 from admin.introspection.impl.component import ComponentService

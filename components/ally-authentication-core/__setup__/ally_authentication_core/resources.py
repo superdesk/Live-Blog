@@ -9,19 +9,24 @@ Created on Nov 24, 2011
 Provides the configurations for the authentication resource manager.
 '''
 
-from ..ally_core.resource_management import resourcesRegister, resourcesManager
+from ..ally_core.resources import resourcesRegister, resourcesManager
 from .assembler import assemblersAuthentication
 from ally.container import ioc
+from ally.core.impl.node import NodeRoot
 from ally.core.impl.resources_management import ResourcesManager
-from ally.core.spec.resources import IResourcesLocator, IResourcesRegister
+from ally.core.spec.resources import IResourcesLocator, IResourcesRegister, Node
 from ally.support.core.util_resources import ResourcesRegisterDelegate
 
 # --------------------------------------------------------------------
 # Creating the resource manager
 
 @ioc.entity
+def resourcesRootAuthentication() -> Node: return NodeRoot()
+
+@ioc.entity
 def resourcesManagerAuthentication():
     b = ResourcesManager(); yield b
+    b.root = resourcesRootAuthentication()
     b.assemblers = assemblersAuthentication()
 
 @ioc.entity

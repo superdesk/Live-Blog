@@ -9,9 +9,6 @@ Created on May 23, 2012
 Provides general support for meta decoders and encoders. 
 '''
 
-from ally.core.spec.meta import Context
-from ally.core.spec.resources import Normalizer, Converter
-
 # --------------------------------------------------------------------
 
 class WithSetter:
@@ -66,15 +63,6 @@ class WithIdentifier:
                 for iden in identifier: assert isinstance(iden, str), 'Invalid identifier element %s' % iden
 
         self.identifier = identifier
-
-# --------------------------------------------------------------------
-
-class ContextParse(Context):
-    '''
-    The context that contains the parse services ak: Normalizer and Converter.
-    '''
-    normalizer = Normalizer
-    converter = Converter
 
 # --------------------------------------------------------------------
 

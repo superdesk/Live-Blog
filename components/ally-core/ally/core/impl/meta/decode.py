@@ -9,16 +9,35 @@ Created on May 23, 2012
 Provides basic meta decode implementations. 
 '''
 
-from .general import ContextParse, WithSetter, WithGetter
+from .general import WithSetter, WithGetter
 from ally.api.type import Type
 from ally.core.impl.meta.general import WithIdentifier
+from ally.core.spec.context import Transform
 from ally.core.spec.meta import IMetaDecode
 from ally.core.spec.resources import Normalizer, Converter
 from collections import deque
 
 # --------------------------------------------------------------------
 
-class DecodeIdentifier(IMetaDecode, WithIdentifier):
+class WithDecoder:
+    '''
+    Provides a base class that requires a decoder.
+    '''
+
+    def __init__(self, decoder):
+        '''
+        Construct the decoder wrapper.
+        
+        @param decoder: IMetaEncode
+            The decoder to be wrapped.
+        '''
+        assert isinstance(decoder, IMetaDecode), 'Invalid decoder %s' % decoder
+
+        self.decoder = decoder
+
+# --------------------------------------------------------------------
+
+class DecodeIdentifier(IMetaDecode, WithDecoder, WithIdentifier):
     '''
     Decoder that just checks if a identifier is in path, if so delegate to the contained decoder.
     
@@ -28,21 +47,20 @@ class DecodeIdentifier(IMetaDecode, WithIdentifier):
     def __init__(self, decoder, identifier):
         '''
         Construct with identifier.
+        @see: WithDecoder.__init__
         @see: WithIdentifier.__init__
         
         @param decoder: IMetaDecode
             The meta decode to delegate to if identifier is checked.
         '''
-        assert isinstance(decoder, IMetaDecode), 'Invalid decoder %s' % decoder
+        WithDecoder.__init__(self, decoder)
         WithIdentifier.__init__(self, identifier)
-
-        self.decoder = decoder
 
     def decode(self, identifier, value, obj, context):
         '''
         @see: IMetaDecode.decode
         '''
-        assert isinstance(context, ContextParse), 'Invalid context %s' % context
+        assert isinstance(context, Transform), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer), 'Invalid normalizer %s' % context.normalizer
 
         if not isinstance(identifier, deque): return False
@@ -60,7 +78,7 @@ class DecodeIdentifier(IMetaDecode, WithIdentifier):
 
         return self.decoder.decode(identifier, value, obj, context)
 
-class DecodeGetter(IMetaDecode, WithGetter):
+class DecodeGetter(IMetaDecode, WithDecoder, WithGetter):
     '''
     An encode that actually just uses a getter to fetch a value from the object and pass it to the contained decoder.
     If the value fetched is None than this decode will return False and not delegate to the contained decoder.
@@ -69,15 +87,14 @@ class DecodeGetter(IMetaDecode, WithGetter):
     def __init__(self, decoder, getter):
         '''
         Construct the get decoder.
+        @see: WithDecoder.__init__
         @see: WithGetter.__init__
         
         @param decoder: IMetaDecode
             The decoder to delegate with the obtained value.
         '''
-        assert isinstance(decoder, IMetaDecode), 'Invalid decoder %s' % decoder
+        WithDecoder.__init__(self, decoder)
         WithGetter.__init__(self, getter)
-
-        self.decoder = decoder
 
     def decode(self, identifier, value, obj, context):
         '''
@@ -149,7 +166,7 @@ class DecodeValue(IMetaDecode, WithSetter):
         '''
         IMetaDecode.decode
         '''
-        assert isinstance(context, ContextParse), 'Invalid context %s' % context
+        assert isinstance(context, Transform), 'Invalid context %s' % context
         assert isinstance(context.converter, Converter)
 
         if not isinstance(identifier, deque): return False
@@ -185,7 +202,7 @@ class DecodeObject(IMetaDecode):
         '''
         @see: IMetaDecode.decode
         '''
-        assert isinstance(context, ContextParse), 'Invalid context %s' % context
+        assert isinstance(context, Transform), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer), 'Invalid normalizer %s' % context.normalizer
 
         if not isinstance(identifier, deque): return False
@@ -263,7 +280,7 @@ class DecodeFirst(IMetaDecode):
         return False
 
 
-class DecodeSplit(IMetaDecode):
+class DecodeSplit(IMetaDecode, WithDecoder):
     '''
     Provides a @see: IMetaDecode that splits a string value into a list of values, if the received value is not a string
     then it will be delegated to the contained decoder as it is. 
@@ -272,6 +289,7 @@ class DecodeSplit(IMetaDecode):
     def __init__(self, decoder, splitValues, normalizeValue=None):
         '''
         Construct the list with separator.
+        @see: WithDecoder.__init__
         @see: DecodeList.__init__
         
         @param decoder: IMetaDecode
@@ -281,10 +299,9 @@ class DecodeSplit(IMetaDecode):
         @param normalizeValue: complied regex|None
             The regex to use in normalizing the splited values, if None no normalization will occur.
         '''
-        assert isinstance(decoder, IMetaDecode), 'Invalid decoder %s' % decoder
         assert splitValues is not None, 'A split values regex is required'
+        WithDecoder.__init__(self, decoder)
 
-        self.decoder = decoder
         self.splitValues = splitValues
         self.normalizeValue = normalizeValue
 
@@ -296,5 +313,37 @@ class DecodeSplit(IMetaDecode):
             value = self.splitValues.split(value)
             if self.normalizeValue is not None:
                 for k in range(0, len(value)): value[k] = self.normalizeValue.sub('', value[k])
+
+        return self.decoder.decode(identifier, value, obj, context)
+
+
+class DecodeSplitIndentifier(IMetaDecode, WithDecoder):
+    '''
+    Provides the parameters decode. It will split the string identifiers based on the separator.
+    '''
+
+    def __init__(self, decoder, separator):
+        '''
+        Construct the decoder.
+        @see: WithDecoder.__init__
+        
+        @param separator: string
+            The separator to be used for converting the string identifier.
+        @param root: IMetaDecode
+            The root meta decode, usually this meta decode and its children only accept deque[string].
+        '''
+        assert isinstance(separator, str), 'Invalid separator %s' % separator
+        WithDecoder.__init__(self, decoder)
+
+        self.separator = separator
+
+    def decode(self, identifier, value, obj, context):
+        '''
+        @see: IMetaDecode.decode
+        '''
+        if isinstance(identifier, str): identifier = identifier.split(self.separator)
+        if isinstance(identifier, (list, tuple)): identifier = deque(identifier)
+
+        if not isinstance(identifier, deque): return False
 
         return self.decoder.decode(identifier, value, obj, context)

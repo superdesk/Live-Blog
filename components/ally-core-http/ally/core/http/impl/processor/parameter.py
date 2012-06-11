@@ -9,7 +9,6 @@ Created on May 25, 2012
 Provides the parameters handler.
 '''
 from ally.container.ioc import injected
-from ally.core.http.spec import RequestHTTP
 from ally.core.spec.codes import ILLEGAL_PARAM
 from ally.core.spec.meta import IMetaService, IMetaDecode, IMetaEncode, SAMPLE, \
     Value, Object, Context
