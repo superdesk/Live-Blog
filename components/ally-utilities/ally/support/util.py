@@ -30,7 +30,7 @@ class Uninstantiable:
         '''
         Does not allow you to create an instance.
         '''
-        raise Exception('Cannot create an instance of %r class' % cls.__name__)
+        raise Exception('Cannot create an instance of \'%s\' class' % cls.__name__)
 
 # --------------------------------------------------------------------
 

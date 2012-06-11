@@ -13,11 +13,13 @@ from ally.api.config import model
 from ally.api.type import typeFor, List
 from ally.container import ioc
 from ally.core.impl.meta.model import ModelMetaService
-from ally.core.spec.meta import IMetaDecode, Context, IMetaEncode
+from ally.core.spec.meta import IMetaDecode, IMetaEncode, SAMPLE
 from ally.core.spec.resources import ConverterPath, Converter
 import unittest
 from collections import deque
-from ally.core.impl.meta.encode import EncodeObjectExploded, EncodeJoin
+from ally.core.impl.meta.encode import EncodeJoin, EncodeExploded, \
+    EncodeJoinIndentifier
+from ally.support.util_design import Context
 
 # --------------------------------------------------------------------
 
@@ -41,7 +43,7 @@ class TestModel(unittest.TestCase):
         modelService = ModelMetaService()
         ioc.initialize(modelService)
 
-        metaDecode = modelService.createDecode(Context(type=typeFor(ModelId)))
+        metaDecode = modelService.createDecode(Context(modelType=typeFor(ModelId)))
         self.assertIsInstance(metaDecode, IMetaDecode)
 
         context = Context(converter=Converter(), converterId=ConverterPath(), normalizer=ConverterPath())
@@ -66,30 +68,43 @@ class TestModel(unittest.TestCase):
         modelService = ModelMetaService()
         ioc.initialize(modelService)
 
-        metaEncode = modelService.createEncode(Context(type=typeFor(ModelId)))
+        metaEncode = modelService.createEncode(Context(modelType=typeFor(ModelId)))
         self.assertIsInstance(metaEncode, IMetaEncode)
 
         # We wrap the encode with explode and join in order to be able to validate results.
-        explode = EncodeObjectExploded()
-        explode.properties.append(EncodeJoin(metaEncode, ','))
-        metaEncode = explode
+        metaEncode = EncodeJoinIndentifier(EncodeJoin(EncodeExploded(metaEncode), ','), '/')
 
         context = Context(converter=Converter(), converterId=ConverterPath(), normalizer=ConverterPath())
 
-        m = ModelId()
-        m.Id = 12
-        self.assertEqual([(['ModelId', 'Id'], '12')],
-                         [(m.identifier, m.value) for m in metaEncode.encode(m, context).properties])
+        model = ModelId()
+        model.Id = 12
+        self.assertEqual([('ModelId/Id', '12')],
+                         [(m.identifier, m.value) for m in metaEncode.encode(model, context).items])
 
-        m.ModelKey = 'The key'
-        self.assertEqual([(['ModelId', 'Id'], '12'), (['ModelId', 'ModelKey'], 'The key')],
-                         [(m.identifier, m.value) for m in metaEncode.encode(m, context).properties])
+        model.ModelKey = 'The key'
+        self.assertEqual([('ModelId/Id', '12'), ('ModelId/ModelKey', 'The key')],
+                         [(m.identifier, m.value) for m in metaEncode.encode(model, context).items])
 
-        m.Name = 'Uau Name'
-        m.Flags = ['1', '2', '3']
-        self.assertEqual([(['ModelId', 'Id'], '12'), (['ModelId', 'Name'], 'Uau Name'),
-                          (['ModelId', 'Flags'], '1,2,3'), (['ModelId', 'ModelKey'], 'The key')],
-                         [(m.identifier, m.value) for m in metaEncode.encode(m, context).properties])
+        model.Name = 'Uau Name'
+        model.Flags = ['1', '2', '3']
+        self.assertEqual([('ModelId/Id', '12'), ('ModelId/Name', 'Uau Name'), ('ModelId/Flags/Value', '1'),
+                          ('ModelId/Flags/Value', '2'), ('ModelId/Flags/Value', '3'), ('ModelId/ModelKey', 'The key')],
+                         [(m.identifier, m.value) for m in metaEncode.encode(model, context).items])
+
+        metaEncode = modelService.createEncode(Context(modelType=typeFor(List(ModelId))))
+        self.assertIsInstance(metaEncode, IMetaEncode)
+
+        # We wrap the encode with explode and join in order to be able to validate results.
+        metaEncode = EncodeJoinIndentifier(EncodeJoin(EncodeExploded(metaEncode), ','), '/')
+
+        model = [model]
+        self.assertEqual([('ModelIdList/ModelId/Id', '12'), ('ModelIdList/ModelId/Name', 'Uau Name'),
+                          ('ModelIdList/ModelId/Flags/Value', '1'), ('ModelIdList/ModelId/Flags/Value', '2'),
+                          ('ModelIdList/ModelId/Flags/Value', '3'), ('ModelIdList/ModelId/ModelKey', 'The key')],
+                         [(m.identifier, m.value) for m in metaEncode.encode(model, context).items])
+
+        self.assertTrue([(m.identifier, m.value) for m in metaEncode.encode(SAMPLE, context).items])
+
 
 # --------------------------------------------------------------------
 

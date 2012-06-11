@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 @injected
 class DecodingContentHandler(IProcessor):
     '''
-    Provides the decoder for JSON content.
+    Provides the decoder for content.
     
     Provides on request: arguments
     Provides on response: NA

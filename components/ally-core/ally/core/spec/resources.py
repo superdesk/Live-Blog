@@ -13,7 +13,7 @@ from ally.api.type import Type, Input
 from datetime import date, datetime, time
 from re import match
 import abc
-from _weakrefset import WeakSet
+from weakref import WeakSet
 
 # --------------------------------------------------------------------
 
@@ -778,15 +778,6 @@ class IResourcesRegister(metaclass=abc.ABCMeta):
     '''
 
     @abc.abstractmethod
-    def getRoot(self):
-        '''
-        Provides the root node of this resource repository.
-        
-        @return: Node
-            The root Node.
-        '''
-
-    @abc.abstractmethod
     def register(self, implementation):
         '''
         Register the provided API service implementation into the resource node tree.
@@ -832,14 +823,14 @@ class IResourcesLocator(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def findGetAllAccessible(self, fromPath):
+    def findGetAllAccessible(self, fromPath=None):
         '''
         Finds all GET paths that can be directly accessed without the need of any path update based on the
         provided from path, basically all paths that can be directly related to the provided path without any
         additional information.
         
-        @param fromPath: Path
-            The path to make the search based on.
-        @return: list[PathExtended]
-            A list of PathExtended from the provided from path that are accessible, empty list if none found.
+        @param fromPath: Path|None
+            The path to make the search based on, if None will provide the available paths for the root.
+        @return: list[Path]
+            A list of Path from the provided from path that are accessible, empty list if none found.
         '''

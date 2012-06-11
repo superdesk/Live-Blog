@@ -6,14 +6,15 @@ Created on Nov 24, 2011
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the configurations for the resource manager.
+Provides the configurations for the resources.
 '''
 
 from .assembler import assemblers
 from ally.container import ioc
 from ally.core.impl.resources_management import ResourcesManager
-from ally.core.spec.resources import IResourcesLocator, IResourcesRegister
+from ally.core.spec.resources import IResourcesLocator, IResourcesRegister, Node
 from ally.exception import DevelError
+from ally.core.impl.node import NodeRoot
 
 # --------------------------------------------------------------------
 # Creating the resource manager
@@ -22,8 +23,12 @@ from ally.exception import DevelError
 def services(): return []
 
 @ioc.entity
+def resourcesRoot() -> Node: return NodeRoot()
+
+@ioc.entity
 def resourcesManager():
     b = ResourcesManager(); yield b
+    b.root = resourcesRoot()
     b.assemblers = assemblers()
 
 @ioc.entity

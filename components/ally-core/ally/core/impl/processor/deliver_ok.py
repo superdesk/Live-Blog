@@ -29,6 +29,7 @@ class DeliverOkHandler(IProcessor):
     '''
 
     forMethod = int
+    # The method to respond with Ok for.
 
     def __init__(self):
         assert isinstance(self.forMethod, int), 'Invalid for method %s' % self.forMethod

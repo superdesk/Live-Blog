@@ -11,13 +11,10 @@ Provides the multipart form-data conversion to url encoded content.
 
 from .decoder_multipart import DecodingMultiPartHandler, ContentMultipart
 from ally.container.ioc import injected
-from ally.core.spec.server import ContentRequest
 from ally.exception import DevelError
-from ally.support.core.util_server import ContentDelegate
 from io import BytesIO
 from urllib.parse import urlencode
 import logging
-from ally.core.http.spec import ContentRequestHTTP
 
 # --------------------------------------------------------------------
 
