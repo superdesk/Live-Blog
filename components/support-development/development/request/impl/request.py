@@ -14,8 +14,8 @@ from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.api.operator.type import TypeModelProperty
 from ally.container.ioc import injected
 from ally.core.impl.node import MatchProperty, NodeProperty
-from ally.core.spec.resources import Node, Match, ConverterPath, \
-    IResourcesRegister, Invoker, InvokerInfo
+from ally.core.spec.resources import Node, Match, ConverterPath, Invoker, \
+    InvokerInfo
 from ally.exception import InputError, Ref, DevelError
 from ally.internationalization import _
 from ally.support.api.util_service import trimIter
@@ -34,15 +34,18 @@ class RequestService(IRequestService):
     '''
 
     methodNames = {GET: 'GET', INSERT:'INSERT', UPDATE:'UPDATE', DELETE:'DELETE'}
-    resourcesRegister = IResourcesRegister
+    # The method values associated with names.
+    root = Node
+    # The root node to provide the requests for.
     converterPath = ConverterPath
+    # The path converter to use in representing the requests.
 
     def __init__(self):
         '''
         Constructs the request introspect service.
         '''
-        assert isinstance(self.resourcesRegister, IResourcesRegister), \
-        'Invalid resource register %s' % self.resourcesRegister
+        assert isinstance(self.methodNames, dict), 'Invalid method names %s' % self.methodNames
+        assert isinstance(self.root, Node), 'Invalid root node %s' % self.root
         assert isinstance(self.converterPath, ConverterPath), 'Invalid converter path %s' % self.converterPath
 
         self._requestId = 1
@@ -94,7 +97,7 @@ class RequestService(IRequestService):
         '''
         Refreshes the requests.
         '''
-        self._process(self.resourcesRegister.getRoot())
+        self._process(self.root)
 
     def _process(self, node):
         '''

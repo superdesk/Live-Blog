@@ -156,7 +156,7 @@ class TestParameter(unittest.TestCase):
 
         args = {'offset': 20, 'limit':0}
         self.assertEqual([('offset', '20'), ('limit', '0')],
-                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).properties])
+                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).items])
 
         q = QMainModel(name='Gabriel')
         q.name.ascending = True
@@ -165,7 +165,7 @@ class TestParameter(unittest.TestCase):
         q.when.priority = 2
         args = {'q': q}
         self.assertEqual([('name', 'Gabriel'), ('asc', 'name'), ('desc', 'when')],
-                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).properties])
+                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).items])
 
         q = QMainModel()
         q.name.ascending = True
@@ -174,7 +174,7 @@ class TestParameter(unittest.TestCase):
         q.when.priority = 2
         args = {'q': q}
         self.assertEqual([('asc', 'name,when')],
-                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).properties])
+                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).items])
 
         qa = QAModel()
         qa.name.like = 'Gabriel'
@@ -186,15 +186,15 @@ class TestParameter(unittest.TestCase):
         args = {'qa': qa}
         self.assertEqual([('qa.something', 'startAndEnd'), ('qa.something.until', 'until'), ('qa.name', 'Gabriel'),
                           ('desc', 'qa.name')],
-                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).properties])
+                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).items])
 
         args = {'offset': 20, 'limit':0, 'q': q, 'qa': qa}
         self.assertEqual([('offset', '20'), ('limit', '0'), ('qa.something', 'startAndEnd'),
                           ('qa.something.until', 'until'), ('qa.name', 'Gabriel'), ('asc', 'name'), ('desc', 'qa.name'),
                           ('asc', 'when')],
-                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).properties])
+                         [(m.identifier, m.value) for m in metaEncode.encode(args, context).items])
 
-        self.assertTrue([(m.identifier, m.value) for m in metaEncode.encode(SAMPLE, context).properties])
+        self.assertTrue([(m.identifier, m.value) for m in metaEncode.encode(SAMPLE, context).items])
 
         for call in service.calls:
             if call.name == 'insert': break

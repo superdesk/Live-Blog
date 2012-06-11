@@ -13,7 +13,7 @@ from . import server_pattern_rest
 from ..ally_core.converter import contentNormalizer, converterPath
 from ..ally_core.processor import decoding, handlersResources, methodInvoker, \
     converter, handlersExplainError, requestTypes, invokingHandler
-from ..ally_core.resource_management import resourcesLocator
+from ..ally_core.resources import resourcesLocator
 from .meta_service import parameterMetaService
 from ally.container import ioc
 from ally.core.http.impl.processor.formatting import FormattingProviderHandler
@@ -85,8 +85,8 @@ def formattingProvider() -> IProcessor:
     return b
 
 @ioc.entity
-def pathProcessors():
-    return [(re.compile(server_pattern_rest()), Processors(*handlersResources()))]
+def pathHandlers():
+    return [(server_pattern_rest(), handlersResources())]
 
 # --------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ def updateHandlersRedirect():
 
 @ioc.before(handlersResources)
 def updateHandlersResources():
-    handlers = [uri(), headerStandard(), formattingProvider()]
+    handlers = [headers(), uri(), formattingProvider()]
     if allow_method_override(): handlers.insert(0, methodOverride()) # Add also the method override if so configured
     for proc in handlers: handlersResources().insert(handlersResources().index(methodInvoker()), proc)
 

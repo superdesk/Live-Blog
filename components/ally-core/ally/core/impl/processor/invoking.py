@@ -53,8 +53,8 @@ class InvokingHandler(IProcessor):
         assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
         assert isinstance(req, Request), 'Invalid request %s' % req
         assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        path = req.resourcePath
-        assert isinstance(path, Path)
+        assert isinstance(req.path, Path)
+
         callback = self._callback.get(req.method)
         if not callback: raise AssertionError('Cannot process request method %s' % req.method)
 
@@ -62,11 +62,11 @@ class InvokingHandler(IProcessor):
         invoke = [req.invoker, arguments, rsp, callback]
 
         if req.method == DELETE:
-            arguments.update(path.toArguments(req.invoker))
+            arguments.update(req.path.toArguments(req.invoker))
         else:
-            arguments.update(path.toArguments(req.invoker))
+            arguments.update(req.path.toArguments(req.invoker))
             arguments.update(req.arguments)
-            if req.method == INSERT: invoke.append(path)
+            if req.method == INSERT: invoke.append(req.path)
 
         if self._invoke(*invoke): chain.proceed()
 

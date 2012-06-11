@@ -9,8 +9,7 @@ Created on Nov 24, 2011
 Provides the configurations for the authentication processors.
 '''
 
-from ..ally_authentication_core.resource_management import \
-    resourcesLocatorAuthentication
+from ..ally_authentication_core.resources import resourcesLocatorAuthentication
 from ..ally_core.converter import converterPath
 from ..ally_core.processor import handlersRedirect, redirect, handlersResources
 from ..ally_core_http.processor import handlersFetching, pathProcessors, uri, \

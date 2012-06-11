@@ -11,16 +11,35 @@ like: None, string, tuple(string).
 '''
 
 from ally.api.type import Type
-from ally.core.impl.meta.general import WithGetter, ContextParse, WithIdentifier
+from ally.core.impl.meta.general import WithGetter, WithIdentifier
 from ally.core.spec.meta import IMetaEncode, Value, Collection, Object, Meta, \
     SAMPLE
 from ally.core.spec.resources import Converter, Normalizer
 from collections import deque, Iterable
 from itertools import chain
+from ally.core.spec.context import Transform
 
 # --------------------------------------------------------------------
 
-class EncodeIdentifier(IMetaEncode, WithIdentifier):
+class WithEncoder:
+    '''
+    Provides a base class that requires an encoder.
+    '''
+
+    def __init__(self, encoder):
+        '''
+        Construct the encode wrapper.
+        
+        @param encoder: IMetaEncode
+            The encoder to be wrapped.
+        '''
+        assert isinstance(encoder, IMetaEncode), 'Invalid encoder %s' % encoder
+
+        self.encoder = encoder
+
+# --------------------------------------------------------------------
+
+class EncodeIdentifier(IMetaEncode, WithEncoder, WithIdentifier):
     '''
     Encoder that just sets an identifier on the returned meta from a contained encoder.
     
@@ -30,21 +49,20 @@ class EncodeIdentifier(IMetaEncode, WithIdentifier):
     def __init__(self, encoder, identifier):
         '''
         Construct with identifier.
+        @see: WithEncoder.__init__
         @see: WithIdentifier.__init__
         
         @param encoder: IMetaEncode
             The meta encode to set the identifier to the returned meta.
         '''
-        assert isinstance(encoder, IMetaEncode), 'Invalid encoder %s' % encoder
+        WithEncoder.__init__(self, encoder)
         WithIdentifier.__init__(self, identifier)
-
-        self.encoder = encoder
 
     def encode(self, obj, context):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, ContextParse), 'Invalid context %s' % context
+        assert isinstance(context, Transform), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer)
 
         meta = self.encoder.encode(obj, context)
@@ -54,7 +72,7 @@ class EncodeIdentifier(IMetaEncode, WithIdentifier):
             else: meta.identifier = tuple(context.normalizer.normalize(iden) for iden in self.identifier)
             return meta
 
-class EncodeGetter(IMetaEncode, WithGetter):
+class EncodeGetter(IMetaEncode, WithEncoder, WithGetter):
     '''
     An encode that actually just uses a getter to fetch a value from the object and pass it to the contained encoder.
     If the value fetched is None than this encode will return None and not delegate to the contained encoder.
@@ -63,15 +81,14 @@ class EncodeGetter(IMetaEncode, WithGetter):
     def __init__(self, encoder, getter):
         '''
         Construct the get encoder.
+        @see: WithEncoder.__init__
         @see: WithGetter.__init__
         
         @param encoder: IMetaEncode
             The meta encode to delegate with the obtained value.
         '''
-        assert isinstance(encoder, IMetaEncode), 'Invalid encoder %s' % encoder
+        WithEncoder.__init__(self, encoder)
         WithGetter.__init__(self, getter)
-
-        self.encoder = encoder
 
     def encode(self, obj, context):
         '''
@@ -100,7 +117,7 @@ class EncodeGetterIdentifier(EncodeGetter, WithIdentifier):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, ContextParse), 'Invalid context %s' % context
+        assert isinstance(context, Transform), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer)
 
         meta = EncodeGetter.encode(self, obj, context)
@@ -151,7 +168,7 @@ class EncodeValue(IMetaEncode):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, ContextParse), 'Invalid context %s' % context
+        assert isinstance(context, Transform), 'Invalid context %s' % context
         assert isinstance(context.converter, Converter)
 
         if obj is SAMPLE: value = 'a %s value' % self.type
@@ -179,31 +196,32 @@ class EncodeObject(IMetaEncode):
         properties = (encode.encode(obj, context) for encode in self.properties)
         return Object(properties=properties)
 
-class EncodeObjectExploded(EncodeObject):
+class EncodeExploded(IMetaEncode, WithEncoder):
     '''
     Encoder that explodes the returned Object properties.
     
     Only handles string type identifiers like: string, list[string], tuple(string)
     '''
 
-    def __init__(self):
+    def __init__(self, encoder):
         '''
         Construct the encode exploded.
-        @see: EncodeObject.__init__
+        @see: WithEncoder.__init__
+        
+        @param encoder: IMetaEncode
+            The encoder to explode.
         '''
-        super().__init__()
+        WithEncoder.__init__(self, encoder)
 
     def encode(self, obj, context):
         '''
         IMetaEncode.encode
         '''
         metas = deque()
-        for encode in self.properties:
-            assert isinstance(encode, IMetaEncode), 'Invalid encode %s' % encode
-            meta = encode.encode(obj, context)
-            if meta is not None: self.process(self.push([], meta), meta, metas)
+        meta = self.encoder.encode(obj, context)
+        if meta is not None: self.process(self.push([], meta), meta, metas)
 
-        if metas: return Object(properties=iter(metas))
+        if metas: return Collection(items=iter(metas))
 
     def process(self, identifier, meta, metas):
         '''
@@ -223,6 +241,13 @@ class EncodeObjectExploded(EncodeObject):
                 if prop is None: continue
                 assert isinstance(prop, Meta), 'Invalid encode meta return %s' % prop
                 self.process(self.push(identifier, prop), prop, metas)
+
+        elif isinstance(meta, Collection):
+            assert isinstance(meta, Collection)
+            for item in meta.items:
+                if item is None: continue
+                assert isinstance(item, Meta), 'Invalid encode meta return %s' % item
+                self.process(self.push(identifier, item), item, metas)
 
         else:
             assert isinstance(meta, Meta), 'Invalid meta %s' % meta
@@ -275,7 +300,9 @@ class EncodeCollection(IMetaEncode):
         '''
         IMetaEncode.encode
         '''
+        if obj is SAMPLE: obj = (SAMPLE,)
         assert isinstance(obj, Iterable), 'Invalid object %s' % obj
+
         items = (self.itemEncode.encode(item, context) for item in obj)
         return Collection(items=items)
 
@@ -322,16 +349,17 @@ class EncodeMerge(IMetaEncode):
 
         return Object(properties=iter(metas))
 
-class EncodeJoin(IMetaEncode):
+class EncodeJoin(IMetaEncode, WithEncoder):
     '''
     Provides a @see: IMetaEncode that joins the returned meta Collection if the collection items are all meta Value of
-    string. So if the assigned encoder returns a Collection meta of Value string it will join that.
+    string and have the same identifiers. So if the assigned encoder returns a Collection meta of Value string
+    it will join that.
     '''
 
     def __init__(self, encoder, separator, separatorEscape=None):
         '''
         Construct the list with separator.
-        @see: DecodeList.__init__
+        @see: WithEncoder.__init__
         
         @param encoder: IMetaEncode
             The encoder to join the Collection for.
@@ -340,12 +368,11 @@ class EncodeJoin(IMetaEncode):
         @param separatorEscape: string|None
             The value to use in escaping the separator string in the value items.
         '''
-        assert isinstance(encoder, IMetaEncode), 'Invalid encoder %s' % encoder
         assert isinstance(separator, str), 'Invalid separator %s' % separator
         assert separatorEscape is None or isinstance(separatorEscape, str), \
         'Invalid separator escape %s' % separatorEscape
+        WithEncoder.__init__(self, encoder)
 
-        self.encoder = encoder
         self.separator = separator
         self.separatorEscape = separatorEscape
 
@@ -371,25 +398,30 @@ class EncodeJoin(IMetaEncode):
         '''
         assert isinstance(metas, Iterable), 'Invalid metas %s' % metas
 
-        values = deque()
+        tried = deque()
         for meta in metas:
             if meta is None: continue
+            tried.append(meta)
             if isinstance(meta, Value):
-                values.append(meta)
-
                 assert isinstance(meta, Value)
-                if not isinstance(meta.value, str):
-                    # The item value is not string so will return it as it is.
-                    return values
+                if not isinstance(meta.value, str) or tried[0].identifier != meta.identifier:
+                    # The item value is not string or has a different identifier, so will return it as it is.
+                    return tried
             else:
-                return values
+                return tried
 
-        if self.separatorEscape is not None:
-            values = [value.value.replace(self.separator, self.separatorEscape) for value in values]
-        else:
-            values = [value.value for value in values]
+        if not tried: return None
 
-        return Value(identifier, self.separator.join(values))
+        if len(tried) > 1:
+            if self.separatorEscape is not None:
+                values = [value.value.replace(self.separator, self.separatorEscape) for value in tried]
+            else:
+                values = [value.value for value in tried]
+
+            if not identifier: identifier = tried[0].identifier
+
+            return Value(identifier, self.separator.join(values))
+        return tried[0]
 
     def process(self, meta):
         '''
@@ -406,7 +438,7 @@ class EncodeJoin(IMetaEncode):
             tried = self.tryJoin(meta.identifier, items)
             if isinstance(tried, Value): return tried
 
-            meta.items = chain(tried, self.wrap(items))
+            meta.items = self.wrap(chain(tried, items))
         elif isinstance(meta, Object):
             assert isinstance(meta, Object)
             # We will check if any of the child meta will be valid for join
@@ -427,3 +459,46 @@ class EncodeJoin(IMetaEncode):
             if meta is None: continue
 
             yield self.process(meta)
+
+class EncodeJoinIndentifier(EncodeExploded):
+    '''
+    Provides the parameters encode. It will explode the contained meta's and join the identifiers based on the
+    separator.  
+    '''
+
+    def __init__(self, encoder, separator):
+        '''
+        Construct the encoder.
+        @see: EncodeExploded.__init__
+        
+        @param separator: string
+            The separator to be used for joining the string identifier.
+        '''
+        assert isinstance(separator, str), 'Invalid separator %s' % separator
+        EncodeExploded.__init__(self, encoder)
+
+        self.separator = separator
+
+    def encode(self, obj, context):
+        '''
+        IMetaEncode.encode
+        '''
+        meta = super().encode(obj, context)
+        if meta is not None:
+            assert isinstance(meta, Collection), 'Invalid meta object %s' % meta
+            meta.items = self.joinIdentifiers(meta.items)
+            return meta
+
+    def joinIdentifiers(self, metas):
+        '''
+        Join the identifiers from the provided metas.
+        
+        @param metas: Iterable[Meta]
+            The meta's to join the identifiers for.
+        '''
+        assert isinstance(metas, Iterable), 'Invalid meta\'s' % metas
+        for meta in metas:
+            assert isinstance(meta, Value), 'Invalid meta %s, only Value expected' % meta
+            if isinstance(meta.identifier, (list, tuple)):
+                meta.identifier = self.separator.join(meta.identifier)
+            yield meta
