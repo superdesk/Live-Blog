@@ -57,7 +57,7 @@ class ContentTypeDecodeHandler(Handler):
             if len(value) > 1:
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameContentType
                 response.message = 'Invalid value \'%s\' for header \'%s\''\
-                ', expected only one value entry' % (value, self.nameContentType)
+                ', expected only one type entry' % (value, self.nameContentType)
                 return
             value, attributes = value[0]
             requestCnt.type = value

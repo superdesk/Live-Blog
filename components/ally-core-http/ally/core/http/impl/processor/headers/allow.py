@@ -15,7 +15,7 @@ from ally.core.http.spec.extension import HTTPDecode, HTTPEncode
 from ally.core.http.spec.server import IEncoderHeader
 from ally.core.spec.extension import CharSet, CharSetsAccepted, TypeAccepted
 from ally.core.spec.server import Response
-from ally.design.processor import Handler, Chain
+from ally.design.processor import Handler, Chain, processor
 
 # --------------------------------------------------------------------
 
@@ -40,6 +40,7 @@ class AllowHandler(Handler):
         self.extendOnRequest.extend((CharSetsAccepted, TypeAccepted))
         self.extendOnRequestContent.extend((CharSet,))
 
+    @processor
     def process(self, chain, response:(Response, HTTPEncode), **keyargs):
         '''
         Encode the allow headers.

@@ -152,6 +152,42 @@ class IHandler(metaclass=abc.ABCMeta):
 
 # --------------------------------------------------------------------
 
+def extend(clazz, other):
+    '''
+    Safely extend the class with another class. By safely I mean that if there is a chance that the constructor of 
+    a class or base class has a chance of being called twice this method will raise an exception.
+    
+    @param clazz: class
+        The class to be extended, if is the case.
+    @param other: class
+        The class to extend with.
+    @return: class
+        The extended class.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    assert isclass(other), 'Invalid other class %s' % other
+
+    # If either of the classes extends the other then we will return that.
+    if issubclass(clazz, other): return clazz
+    if issubclass(other, clazz): return other
+    # Check to see if there is not a common base class.
+    classes = deque()
+    classes.extend(other.__bases__)
+    while classes:
+        base = classes.popleft()
+        if base is object: continue
+        if issubclass(clazz, base):
+            raise TypeError('Cannot extend because the class %s and other class %s share a common class %s' %
+                            (clazz, other, base))
+        classes.extend(base.__bases__)
+    # Now we create the extended class with a __init__ method that will initialize both classes.
+    def __init__(self):
+        clazz.__init__(self)
+        other.__init__(self)
+    name = '%s+%s' % (clazz.__name__, other.__name__)
+    namespace = {'__init__': __init__, '__module__': clazz.__module__, '__slots__': ()}
+    return type(name, (clazz, other), namespace)
+
 def assemble(processing, processor, required=None, extends=None, **arguments):
     '''
     Assembles into the provided processing context the provided processor based on the required classes and
@@ -206,7 +242,7 @@ def assemble(processing, processor, required=None, extends=None, **arguments):
             assert isclass(clazz), 'Invalid extend class %s for argument %s' % (clazz, name)
 
             if current is None: current = clazz
-            else: current = extends(current, clazz)
+            else: current = extend(current, clazz)
 
         setattr(processing.classes, name, current)
 
