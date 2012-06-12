@@ -56,26 +56,26 @@ class ILanguageService(IEntityCRUDService):
     '''
 
     @call
-    def getByCode(self, code:Language.Code, locales:List(Locale)) -> Language:
+    def getByCode(self, code:Language.Code, locales:List(Locale)=()) -> Language:
         '''
         Provides the language having the specified code.
         '''
 
     @call(webName='Available')
-    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10,
+    def getAllAvailable(self, locales:List(Locale)=(), offset:int=None, limit:int=10,
                         q:QLanguage=None) -> Iter(Language):
         '''
         Provides all the available languages.
         '''
 
     @call
-    def getById(self, id:LanguageEntity.Id, locales:List(Locale)) -> LanguageEntity:
+    def getById(self, id:LanguageEntity.Id, locales:List(Locale)=()) -> LanguageEntity:
         '''
         Provides the language based on the id.
         '''
 
     @call
-    def getAll(self, locales:List(Locale), offset:int=None, limit:int=None) -> Iter(LanguageEntity):
+    def getAll(self, locales:List(Locale)=(), offset:int=None, limit:int=None) -> Iter(LanguageEntity):
         '''
         Provides all the languages available in the system.
         '''

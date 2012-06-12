@@ -47,13 +47,13 @@ class ICountryService:
     '''
 
     @call
-    def getByCode(self, code:Country.Code, locales:List(Locale)) -> Country:
+    def getByCode(self, code:Country.Code, locales:List(Locale)=()) -> Country:
         '''
         Provides the countries having the specified code.
         '''
 
     @call
-    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10, q:QCountry=None) -> Iter(Country):
+    def getAllAvailable(self, locales:List(Locale)=(), offset:int=None, limit:int=10, q:QCountry=None) -> Iter(Country):
         '''
         Provides all the available countries.
         '''
