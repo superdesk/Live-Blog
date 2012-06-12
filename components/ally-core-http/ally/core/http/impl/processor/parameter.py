@@ -11,76 +11,77 @@ Provides the parameters handler.
 from ally.container.ioc import injected
 from ally.core.spec.codes import ILLEGAL_PARAM
 from ally.core.spec.meta import IMetaService, IMetaDecode, IMetaEncode, SAMPLE, \
-    Value, Object, Context
-from ally.core.spec.resources import Invoker, ConverterPath, Path, Node, \
+    Value, Object
+from ally.core.spec.resources import Invoker, Path, Node, \
     INodeInvokerListener
-from ally.core.spec.server import IProcessor, ProcessorsChain, Response
+from ally.core.spec.server import Response, Request
 from weakref import WeakKeyDictionary
+from ally.design.processor import Handler, Chain, mokup, processor
+from ally.core.http.spec.extension import URI
+from ally.core.spec.extension import Invoke, CharConvert, Arguments
+
+# --------------------------------------------------------------------
+
+@mokup(Request, CharConvert, URI, Invoke)
+class _Request(Request, CharConvert, URI, Invoke, Arguments):
+    ''' Used as a mokup class '''
 
 # --------------------------------------------------------------------
 
 @injected
-class ParameterHandler(IProcessor, INodeInvokerListener):
+class ParameterHandler(Handler, INodeInvokerListener):
     '''
     Implementation for a processor that provides the transformation of parameters into arguments.
-    
-    Provides on request: arguments
-    Provides on response: NA
-    
-    Requires on request: resourcePath, invoker, parameters
-    Requires on response: NA
     '''
 
     parameterMetaService = IMetaService
     # The parameters meta service that will provide the decoding and encoding.
-    converterPath = ConverterPath
-    # The converter path used in parsing the parameter values.
 
     def __init__(self):
         assert isinstance(self.parameterMetaService, IMetaService), \
         'Invalid parameter meta service %s' % self.parameterMetaService
-        assert isinstance(self.converterPath, ConverterPath), 'Invalid ConverterPath object %s' % self.converterPath
 
         self._cacheDecode = WeakKeyDictionary()
         self._cacheEncode = WeakKeyDictionary()
 
-    def process(self, req, rsp, chain):
+    @processor
+    def process(self, chain, request:_Request, response:Response, **keyargs):
         '''
-        @see: IProcessor.process
+        Process the parameters into arguments.
         '''
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        assert isinstance(req.resourcePath, Path), 'Invalid request %s has no resource path' % req
-        assert isinstance(req.resourcePath.node, Node), 'Invalid resource path %s has no node' % req.resourcePath
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+        assert isinstance(request, _Request), 'Invalid request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(request.path, Path), 'Invalid request %s has no resource path' % request
+        assert isinstance(request.path.node, Node), 'Invalid resource path %s has no node' % request.path
 
-        if req.parameters:
-            assert isinstance(req.invoker, Invoker), 'No invoker found on the request %s' % req
-            decode = self._cacheDecode.get(req.invoker)
+        if request.parameters:
+            assert isinstance(request.invoker, Invoker), 'No invoker available for %s' % request
+            decode = self._cacheDecode.get(request.invoker)
             if decode is None:
-                decode = self.parameterMetaService.createDecode(Context(invoker=req.invoker))
+                decode = self.parameterMetaService.createDecode(request)
                 assert isinstance(decode, IMetaDecode), 'Invalid meta decode %s' % decode
-                req.resourcePath.node.addNodeListener(self)
-                self._cacheDecode[req.invoker] = decode
+                request.path.node.addNodeListener(self)
+                self._cacheDecode[request.invoker] = decode
 
             illegal = []
-            context = Context(converter=self.converterPath, normalizer=self.converterPath)
-            while req.parameters:
-                name, value = req.parameters.popleft()
-                if not decode.decode(name, value, req.arguments, context): illegal.append((name, value))
+            while request.parameters:
+                name, value = request.parameters.popleft()
+                if not decode.decode(name, value, request.arguments, request): illegal.append((name, value))
 
             if illegal:
-                encode = self._cacheEncode.get(req.invoker)
+                encode = self._cacheEncode.get(request.invoker)
                 if encode is None:
-                    encode = self.parameterMetaService.createEncode(Context(invoker=req.invoker))
+                    encode = self.parameterMetaService.createEncode(request)
                     assert isinstance(encode, IMetaEncode), 'Invalid meta encode %s' % encode
-                    req.resourcePath.node.addNodeListener(self)
-                    self._cacheEncode[req.invoker] = encode
+                    request.resourcePath.node.addNodeListener(self)
+                    self._cacheEncode[request.invoker] = encode
 
-                sample = encode.encode(SAMPLE, context)
+                response.code, response.text = ILLEGAL_PARAM, 'Illegal parameter'
+                sample = encode.encode(SAMPLE, request)
                 if sample is None:
-                    text = 'No parameters are allowed on this URL.\nReceived parameters \'%s\''
-                    text %= ','.join(name for name, _value in illegal)
+                    response.message = 'No parameters are allowed on this URL.\nReceived parameters \'%s\''
+                    response.message %= ','.join(name for name, _value in illegal)
                 else:
                     assert isinstance(sample, Object), 'Invalid sample %s' % sample
                     allowed = []
@@ -89,10 +90,8 @@ class ParameterHandler(IProcessor, INodeInvokerListener):
                         if isinstance(meta.value, str): value = meta.value
                         else: value = meta.value
                         allowed.append('%s=%s' % (meta.identifier, meta.value))
-                    text = 'Illegal parameter or value:\n%s\nthe allowed parameters are:\n%s'
-                    text %= ('\n'.join('%s=%s' % param for param in illegal), '\n'.join(allowed))
-
-                rsp.setCode(ILLEGAL_PARAM, text, 'Illegal parameter')
+                    response.message = 'Illegal parameter or value:\n%s\nthe allowed parameters are:\n%s'
+                    response.message %= ('\n'.join('%s=%s' % param for param in illegal), '\n'.join(allowed))
                 return
 
         chain.proceed()
