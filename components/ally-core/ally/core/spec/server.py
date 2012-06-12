@@ -86,25 +86,6 @@ if __debug__:
     validateTypeFor(Content, 'length', int)
     validateTypeFor(Content, 'source', (IStream, GeneratorType))
 
-class Linked:
-    '''
-    The specification for a linked source.
-    
-    @ivar next: callable
-        The callable used for getting the next content.
-    '''
-    __slots__ = ('next',)
-    de continuat cu multipart.
-
-    @abc.abstractclassmethod
-    def next(self):
-        '''
-        Closes the current source and provide the next content.
-        
-        @return: Content|None
-            The next content block or None if there is no more available.
-        '''
-
 class Request:
     '''
     Container for request data.
