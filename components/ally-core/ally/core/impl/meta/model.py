@@ -20,12 +20,12 @@ from ally.core.impl.meta.encode import EncodeCollection, EncodeObject, \
     EncodeValue, EncodeGetterIdentifier, EncodeIdentifier
 from ally.core.impl.meta.general import obtainOnDict, setterOnObj, \
     getterOnObjIfIn, obtainOnObj
-from ally.core.spec.context import TransformModel, ConstructMetaModel
 from ally.core.spec.meta import IMetaService, SAMPLE, Value
 from ally.core.spec.resources import Converter
 from collections import deque
 from weakref import WeakKeyDictionary
 import logging
+from ally.core.spec.extension import ContructMeta, CharConvertId
 
 # --------------------------------------------------------------------
 
@@ -64,12 +64,12 @@ class ModelMetaService(IMetaService):
         '''
         @see: IMetaService.createDecode
         '''
-        assert isinstance(context, ConstructMetaModel), 'Invalid context %s' % context
-        assert isinstance(context.modelType, TypeModel), 'Invalid model type %s' % context.modelType
-        clazz, model = context.modelType.clazz, context.modelType.container
+        assert isinstance(context, ContructMeta), 'Invalid context %s' % context
+        assert isinstance(context.metaForType, TypeModel), 'Invalid model type %s' % context.metaForType
+        clazz, model = context.metaForType.clazz, context.metaForType.container
         assert isinstance(model, Model)
 
-        decoder = self._cacheDecode.get(context.modelType, None)
+        decoder = self._cacheDecode.get(context.metaForType, None)
         if decoder is not None: return decoder
 
         decoder = DecodeObject()
@@ -87,9 +87,9 @@ class ModelMetaService(IMetaService):
                 dprop = DecodeValue(setter, propType)
             decoder.properties[prop] = dprop
 
-        decoder = DecodeGetterIdentifier(decoder, obtainOnDict(context.modelType, clazz), model.name)
+        decoder = DecodeGetterIdentifier(decoder, obtainOnDict(context.metaForType, clazz), model.name)
 
-        self._cacheDecode[context.modelType] = decoder
+        self._cacheDecode[context.metaForType] = decoder
         return decoder
 
     # --------------------------------------------------------------------
@@ -98,8 +98,8 @@ class ModelMetaService(IMetaService):
         '''
         @see: IMetaService.createEncode
         '''
-        assert isinstance(context, ConstructMetaModel), 'Invalid context %s' % context
-        typ = context.modelType
+        assert isinstance(context, ContructMeta), 'Invalid context %s' % context
+        typ = context.metaForType
         assert isinstance(typ, Type), 'Invalid context type %s' % typ
 
         encoder = self._cacheEncode.get(typ)
@@ -189,7 +189,7 @@ class DecodeId(DecodeValue):
         '''
         IMetaDecode.decode
         '''
-        assert isinstance(context, TransformModel), 'Invalid context %s' % context
+        assert isinstance(context, CharConvertId), 'Invalid context %s' % context
         assert isinstance(context.converterId, Converter)
 
         if not isinstance(identifier, deque): return False
@@ -215,7 +215,7 @@ class EncodeId(EncodeValue):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, TransformModel), 'Invalid context %s' % context
+        assert isinstance(context, CharConvertId), 'Invalid context %s' % context
         assert isinstance(context.converterId, Converter)
 
         if obj is SAMPLE: value = 'a %s id value' % self.type

@@ -10,34 +10,11 @@ Testing for the  classes utility.
 '''
 
 import unittest
-from ally.support.util_sys import extend, validateTypeFor
+from ally.support.util_sys import validateTypeFor
 
 # --------------------------------------------------------------------
 
-class TestClass(unittest.TestCase):
-
-    def testExtend(self):
-        class A:
-
-            def __init__(self):
-                self.a = 'a'
-
-        class B:
-
-            def __init__(self):
-                self.b = 'b'
-
-        class C(A):
-
-            def __init__(self):
-                self.c = 'c'
-
-        AB = extend(A, B)
-        ab = AB()
-        self.assertTrue(ab.a == 'a')
-        self.assertTrue(ab.b == 'b')
-
-        self.assertRaises(TypeError, extend, AB, C)
+class TestSys(unittest.TestCase):
 
     def testPropertyValidated(self):
         class A:

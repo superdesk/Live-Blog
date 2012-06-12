@@ -9,29 +9,32 @@ Created on Jan 5, 2012
 Provides support for SQL alchemy a processor for automatic session handling.
 '''
 
-from ally.core.spec.server import IProcessor, Response, ProcessorsChain
+from ally.core.spec.server import Response
+from ally.design.processor import Handler, Chain
 from ally.support.sqlalchemy.session import rollback, commit, ATTR_KEEP_ALIVE, \
     endSessions
 
 # --------------------------------------------------------------------
 
-class AlchemySessionHandler(IProcessor):
+class AlchemySessionHandler(Handler):
     '''
     Implementation for a processor that provides the SQLAlchemy session handling.
     '''
 
-    def process(self, req, rsp, chain):
+    def process(self, chain, response:Response, **keyargs):
         '''
-        @see: IProcessor.process
+        Provides the SQL Alchemy session support.
         '''
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+        assert isinstance(response, Response), 'Invalid response %s' % response
+
         ATTR_KEEP_ALIVE.set(True)
         try:
-            chain.process(req, rsp)
+            chain.process(response=response, **keyargs)
         except:
             endSessions(rollback)
             raise
-        if rsp.code.isSuccess: endSessions(commit)
+
+        if response.code and response.code.isSuccess: endSessions(commit)
         else: endSessions(rollback)
         ATTR_KEEP_ALIVE.clear()
