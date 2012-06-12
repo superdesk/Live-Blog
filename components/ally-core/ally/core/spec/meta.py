@@ -11,20 +11,19 @@ Provides the meta specifications.
 
 from collections import Iterable
 import abc
-from ally.support.util_design import Context
 
 # --------------------------------------------------------------------
 
 SAMPLE = object() # Marker used to instruct the encoders to provide a sample.
 
-class Meta(Context):
+class Meta:
     '''
     The referenced encoded meta.
 
     Beside this values in this class there might be others depending on the nature of the meta encode, is
     the duty of the meta encoder users to check and use the extra information found in a meta.
     '''
-    __context__ = ('identifier',)
+    __slots__ = ('identifier',)
 
     def __init__(self, identifier=None):
         '''
@@ -39,7 +38,7 @@ class Value(Meta):
     '''
     Provides a value meta.
     '''
-    __context__ = ('value',)
+    __slots__ = ('value',)
 
     def __init__(self, identifier=None, value=None):
         '''
@@ -57,7 +56,7 @@ class Attributed(Meta):
     '''
     Provides an attributed meta.
     '''
-    __context__ = ('attributes',)
+    __slots__ = ('attributes',)
 
     def __init__(self, identifier=None, attributes=()):
         '''
@@ -76,7 +75,7 @@ class Object(Meta):
     '''
     Provides an object meta.
     '''
-    __context__ = ('properties',)
+    __slots__ = ('properties',)
 
     def __init__(self, identifier=None, properties=()):
         '''
@@ -95,7 +94,7 @@ class Collection(Meta):
     '''
     Provides a collection meta.
     '''
-    __context__ = ('items',)
+    __slots__ = ('items',)
 
     def __init__(self, identifier=None, items=()):
         '''
