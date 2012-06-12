@@ -13,13 +13,13 @@ from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.container.ioc import injected
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE
 from ally.core.spec.resources import Path, Node
-from ally.core.spec.server import IProcessor, Request, Response, ProcessorsChain
-from ally.core.spec.context import ConstructMetaModel
+from ally.core.spec.server import Request, Response
+from ally.design.processor import Handler, processor, Chain, ext
+from ally.core.spec.extension import Invoke
 
 # --------------------------------------------------------------------
 
-@injected
-class MethodInvokerHandler(IProcessor):
+class MethodInvokerHandler(Handler):
     '''
     Implementation for a processor that validates if the request method (GET, INSERT, UPDATE, DELETE) is compatible
     with the resource node of the request, basically checks if the node has the invoke for the requested method.
@@ -27,21 +27,22 @@ class MethodInvokerHandler(IProcessor):
     providing the allows methods for the resource path node.
     '''
 
-    def process(self, req, rsp, chain):
+    @processor
+    def process(self, chain, request:(Request, ext(Invoke)), response:Response, **keyargs):
         '''
         @see: IProcessor.process
         '''
-        assert isinstance(req, Request), 'Invalid request %s' % req
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        path = req.resourcePath
-        assert isinstance(path, Path)
-        node = path.node
-        assert isinstance(node, Node), \
-        'The node has to be available in the path %s problems in previous processors' % path
-        if req.method == GET: # Retrieving
-            req.invoker = node.get
-            if req.invoker is None:
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(request, Invoke), 'Invalid request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(request.path, Path), 'Invalid request path %s' % request.path
+        node = request.path.node
+        assert isinstance(node, Node), 'Invalid request path node %s' % node
+
+        if request.method == GET: # Retrieving
+            request.invoker = node.get
+            if request.invoker is None:
                 self._sendNotAvailable(node, rsp, 'Path not available for get')
                 return
         elif req.method == INSERT: # Inserting

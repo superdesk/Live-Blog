@@ -9,6 +9,7 @@ Created on Jun 1, 2012
 Contains the extension classes for the server request/response.
 '''
 
+from ally.api.type import Type
 from ally.core.spec.meta import Meta
 from ally.core.spec.resources import Normalizer, Converter, Invoker
 from ally.support.util_sys import validateTypeFor
@@ -77,9 +78,9 @@ if __debug__:
     validateTypeFor(CharConvert, 'normalizer', Normalizer)
     validateTypeFor(CharConvert, 'converter', Converter)
 
-class CharConvertModel(CharConvert):
+class CharConvertId:
     '''
-    The container with string transformation services that has an aditional id converter.
+    The container with string transformation services that has an additional id converter.
     
     @ivar converterId: Converter
         The converter to use for model id's.
@@ -88,13 +89,51 @@ class CharConvertModel(CharConvert):
 
     def __init__(self):
         '''
-        Construct the conversion container.
+        Construct the id conversion container.
         '''
         self.converterId = None
 
 if __debug__:
     # Used to validate the values for the container in debug mode.
-    validateTypeFor(CharConvertModel, 'converterId', Converter)
+    validateTypeFor(CharConvertId, 'converterId', Converter)
+
+class Language:
+    '''
+    Container for text content language.
+    
+    @ivar language: string
+        The language for the content.
+    '''
+    __slots__ = ('language',)
+
+    def __init__(self):
+        '''
+        Construct the language specifications.
+        '''
+        self.language = None
+
+if __debug__:
+    # Used to validate the values for the container in debug mode.
+    validateTypeFor(Language, 'language', str)
+
+class LanguagesAccepted:
+    '''
+    Container for accepted content languages.
+    
+    @ivar accLanguages: list[string]
+        The languages accepted for response.
+    '''
+    __slots__ = ('accLanguages',)
+
+    def __init__(self):
+        '''
+        Construct the accepted content languages.
+        '''
+        self.accLanguages = []
+
+if __debug__:
+    # Used to validate the values for the container in debug mode.
+    validateTypeFor(LanguagesAccepted, 'accLanguages', list, False)
 
 # --------------------------------------------------------------------
 # General extensions
@@ -125,58 +164,87 @@ class Invoke:
     
     @ivar invoker: Invoker
         The invoker to be used for calling the service.
-    @ivar arguments: dictionary{string, object}
-        A dictionary containing as a key the argument name, this dictionary needs to be populated by the 
-        processors as seen fit, also the parameters need to be transformed to arguments.
-    @ivar argumentsByType: dictionary{Type, object}
-        A dictionary containing as a key the argument type, this dictionary needs to be populated by the 
-        processors with any system values that might be used for invoking, the actual use of this arguments depends
-        on the invoking processor.
     '''
-    __slots__ = ('invoker', 'arguments', 'argumentsByType')
+    __slots__ = ('invoker',)
 
     def __init__(self):
         '''
         Construct the invoke.
         '''
         self.invoker = None
-        self.arguments = {}
-        self.argumentsByType = {}
 
 if __debug__:
     # Used to validate the values for the container in debug mode.
     validateTypeFor(Invoke, 'invoker', Invoker)
-    validateTypeFor(Invoke, 'arguments', dict, False)
-    validateTypeFor(Invoke, 'argumentsByType', dict, False)
 
-class AdditionalArguments:
+class Arguments:
     '''
-    Container for additional arguments.
+    Container for invoking arguments.
     
-    @ivar forType: dictionary{Type, object}
-        A dictionary containing as a key the argument type, this dictionary needs to be populated by the 
-        processors with any system values that might be used for invoking, the actual use of this arguments depends
-        on the invoking processor.
+    @ivar arguments: dictionary{string, object}
+        A dictionary containing as a key the argument name, this dictionary needs to be populated by the 
+        processors as seen fit, also the parameters need to be transformed to arguments.
     '''
-    __slots__ = ('forType',)
+    __slots__ = ('arguments',)
 
     def __init__(self):
         '''
         Construct the invoke.
         '''
-        self.forType = {}
+        self.arguments = {}
 
 if __debug__:
     # Used to validate the values for the container in debug mode.
-    validateTypeFor(AdditionalArguments, 'forType', dict, False)
+    validateTypeFor(Arguments, 'arguments', dict, False)
 
-class Render:
+class ArgumentsAdditional:
+    '''
+    Container for additional arguments.
+    
+    dictionary{Type, object}
+        A dictionary containing as a key the argument type, this dictionary needs to be populated by the 
+        processors with any system values that might be used for invoking, the actual use of this arguments depends
+        on the invoking processor.
+    '''
+    __slots__ = ('argumentsOfType',)
+
+    def __init__(self):
+        '''
+        Construct the invoke.
+        '''
+        self.argumentsOfType = {}
+
+if __debug__:
+    # Used to validate the values for the container in debug mode.
+    validateTypeFor(ArgumentsAdditional, 'argumentsOfType', dict, False)
+
+class ContructMeta:
+    '''
+    Container for constructing the meta for a provided type.
+    
+    @ivar metaForType: Type
+        The type to construct the meta for.
+    '''
+    __slots__ = ('metaForType',)
+
+    def __init__(self):
+        '''
+        Constructs the container.
+        '''
+        self.metaForType = None
+
+if __debug__:
+    # Used to validate the values for the container in debug mode.
+    validateTypeFor(ContructMeta, 'metaForType', Type)
+
+class RenderMeta:
     '''
     Container for rendering the response content.
     
     @ivar meta: Meta
         The meta object to be rendered.
     '''
+    __slots__ = ('meta',)
 
     def __init__(self):
         '''
@@ -186,4 +254,4 @@ class Render:
 
 if __debug__:
     # Used to validate the values for the container in debug mode.
-    validateTypeFor(Render, 'meta', Meta)
+    validateTypeFor(RenderMeta, 'meta', Meta)

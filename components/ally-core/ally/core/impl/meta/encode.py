@@ -17,7 +17,7 @@ from ally.core.spec.meta import IMetaEncode, Value, Collection, Object, Meta, \
 from ally.core.spec.resources import Converter, Normalizer
 from collections import deque, Iterable
 from itertools import chain
-from ally.core.spec.context import Transform
+from ally.core.spec.extension import CharConvert
 
 # --------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ class EncodeIdentifier(IMetaEncode, WithEncoder, WithIdentifier):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, Transform), 'Invalid context %s' % context
+        assert isinstance(context, CharConvert), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer)
 
         meta = self.encoder.encode(obj, context)
@@ -117,7 +117,7 @@ class EncodeGetterIdentifier(EncodeGetter, WithIdentifier):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, Transform), 'Invalid context %s' % context
+        assert isinstance(context, CharConvert), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer)
 
         meta = EncodeGetter.encode(self, obj, context)
@@ -168,7 +168,7 @@ class EncodeValue(IMetaEncode):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, Transform), 'Invalid context %s' % context
+        assert isinstance(context, CharConvert), 'Invalid context %s' % context
         assert isinstance(context.converter, Converter)
 
         if obj is SAMPLE: value = 'a %s value' % self.type

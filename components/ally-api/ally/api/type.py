@@ -22,8 +22,6 @@ import abc
 
 _classType = {}
 # Dictionary having as a key the class and as a value the type of that class.
-formattedType = []
-# The types that require formatting Uninstantiable classes
 
 # --------------------------------------------------------------------
 
@@ -410,7 +408,6 @@ class Number(Uninstantiable, float):
     Only used as a class, do not create an instance.
     '''
 _classType[Number] = _classType[numbers.Number] = _classType[float] = TypeClass(numbers.Number, True)
-formattedType.append(Number)
 
 class Percentage(Uninstantiable, float):
     '''
@@ -418,7 +415,6 @@ class Percentage(Uninstantiable, float):
     Only used as a class, do not create an instance.
     '''
 _classType[Percentage] = TypePercentage()
-formattedType.append(Percentage)
 
 class String(Uninstantiable, str):
     '''
@@ -433,7 +429,6 @@ class Date(Uninstantiable, date):
     Only used as a class, do not create an instance.
     '''
 _classType[Date] = _classType[date] = TypeClass(date, True)
-formattedType.append(Date)
 
 class Time(Uninstantiable, time):
     '''
@@ -441,7 +436,6 @@ class Time(Uninstantiable, time):
     Only used as a class, do not create an instance.
     '''
 _classType[Time] = _classType[time] = TypeClass(time, True)
-formattedType.append(Time)
 
 class DateTime(Uninstantiable, datetime):
     '''
@@ -449,7 +443,6 @@ class DateTime(Uninstantiable, datetime):
     Only used as a class, do not create an instance.
     '''
 _classType[DateTime] = _classType[datetime] = TypeClass(datetime, True)
-formattedType.append(DateTime)
 
 # --------------------------------------------------------------------
 # Special types

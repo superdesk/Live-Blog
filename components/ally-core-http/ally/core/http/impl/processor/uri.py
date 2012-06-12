@@ -11,16 +11,14 @@ Provides the URI request path handler.
 
 from ally.api.type import Scheme
 from ally.container.ioc import injected
-from ally.core.http.spec.extension import URI, HTTPDecode, HTTPEncode
 from ally.core.http.spec.server import IEncoderPath, IDecoderHeader
-from ally.core.spec.codes import RESOURCE_NOT_FOUND, RESOURCE_FOUND
-from ally.core.spec.extension import TypeAccepted, CharConvert, \
-    AdditionalArguments
-from ally.core.spec.resources import ConverterPath, Path, IResourcesLocator
-from ally.core.spec.server import Response, Request, Content
-from ally.design.processor import Chain, processor, Handler, mokup
+from ally.core.spec.codes import RESOURCE_NOT_FOUND, RESOURCE_FOUND, Code
+from ally.core.spec.resources import ConverterPath, Path, IResourcesLocator, \
+    Converter, Normalizer
+from ally.design.processor import Chain, processor, Handler
 from urllib.parse import urlencode, urlunsplit, urlsplit
 import logging
+from ally.design.context import Context, requires, defines, optional
 
 # --------------------------------------------------------------------
 
@@ -28,13 +26,46 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-@mokup(Request, HTTPDecode, URI)
-class _Request(Request, HTTPDecode, URI, CharConvert, TypeAccepted, AdditionalArguments):
-    ''' Used as a mokup class '''
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    scheme = requires(str)
+    uriRoot = requires(str)
+    uri = requires(str)
+    decoderHeader = requires(IDecoderHeader)
+    # ---------------------------------------------------------------- Optional
+    argumentsOfType = optional(dict)
+    # ---------------------------------------------------------------- Defined
+    path = defines(Path, doc='''
+    @rtype: Path
+    The path to the resource node.
+    ''')
+    normalizer = defines(Normalizer, doc='''
+    @rtype: Normalizer
+    The normalizer to use for decoding parameters names.
+    ''')
+    converter = defines(Converter, doc='''
+    @rtype: Converter
+    The converter to use for the parameters values.
+    ''')
 
-@mokup(Response)
-class _Response(Response, HTTPEncode):
-    ''' Used as a mokup class '''
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+    encoderPath = defines(IEncoderPath)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    type = defines(str)
+    converterId = defines(Converter)
 
 # --------------------------------------------------------------------
 
@@ -59,15 +90,15 @@ class URIHandler(Handler):
         assert isinstance(self.headerHost, str), 'Invalid string %s' % self.headerHost
 
     @processor
-    def process(self, chain, request:_Request, response:_Response, responseCnt:Content, **keyargs):
+    def process(self, chain, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
         Process the URI to a resource path.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, _Request), 'Invalid required request %s' % request
+        assert isinstance(request, Request), 'Invalid required request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         assert isinstance(request.uri, str), 'Invalid request URI %s' % request.uri
-        assert isinstance(response, _Response), 'Invalid response %s' % response
-        assert isinstance(responseCnt, Content), 'Invalid response content %s' % responseCnt
 
         paths = request.uri.split('/')
         i = paths[-1].rfind('.') if len(paths) > 0 else -1
@@ -89,32 +120,35 @@ class URIHandler(Handler):
 
         request.converter = self.converterPath
         request.normalizer = self.converterPath
-        request.forType[Scheme] = request.scheme
+
+        if Request.argumentsOfType in request: request.argumentsOfType[Scheme] = request.scheme
 
         response.code = RESOURCE_FOUND
         response.encoderPath = self.createEncoderPath(request, extension)
-        if extension:
-            responseCnt.type = extension
-            request.accTypes.insert(0, extension)
+        responseCnt.converterId = self.converterPath
+        if extension: responseCnt.type = extension
 
         chain.proceed()
 
-    def createEncoderPath(self, req, extension=None):
+    # ----------------------------------------------------------------
+
+    def createEncoderPath(self, request, extension=None):
         '''
         Creates the path encoder for the provided request.
         
-        @param req: _Request
+        @param request: Request
             The request to create the path encoder for.
         @param extension: string
             The extension to use on the encoded paths.
         '''
-        assert isinstance(req, _Request), 'Invalid request %s' % req
-        assert isinstance(req.decoderHeader, IDecoderHeader), 'Invalid request decoder header %s' % req.decoderHeader
-        assert isinstance(req.uriRoot, str), 'Invalid request root URI %s' % req.uriRoot
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(request.decoderHeader, IDecoderHeader), \
+        'Invalid request decoder header %s' % request.decoderHeader
+        assert isinstance(request.uriRoot, str), 'Invalid request root URI %s' % request.uriRoot
         assert extension is None or isinstance(extension, str), 'Invalid extension %s' % extension
 
-        host = req.decoderHeader.retrieve(self.headerHost)
-        return EncoderPathURI(req.scheme, host, req.uriRoot, self.converterPath, extension)
+        host = request.decoderHeader.retrieve(self.headerHost)
+        return EncoderPathURI(request.scheme, host, request.uriRoot, self.converterPath, extension)
 
 # --------------------------------------------------------------------
 
