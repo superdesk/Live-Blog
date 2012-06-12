@@ -11,18 +11,18 @@ Provides the content delivery handler.
 
 from ally.api.config import GET
 from ally.container.ioc import injected
-from ally.core.http.spec import RequestHTTP
+from ally.core.http.spec.extension import URI
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
     RESOURCE_NOT_FOUND
-from ally.core.spec.server import IProcessor, Response, ProcessorsChain
-from ally.support.util_io import readGenerator
+from ally.core.spec.server import Response, Request, Content
+from ally.design.processor import Handler, Chain, processor
+from ally.zip.util_zip import normOSPath, normZipPath
 from os.path import isdir, isfile, join, dirname, normpath, sep
+from urllib.parse import unquote
 from zipfile import ZipFile
+import json
 import logging
 import os
-from ally.zip.util_zip import normOSPath, normZipPath
-import json
-from urllib.parse import unquote
 
 # --------------------------------------------------------------------
 
@@ -31,60 +31,52 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-class ContentDeliveryHandler(IProcessor):
+class ContentDeliveryHandler(Handler):
     '''
     Implementation for a processor that delivers the content based on the URL.
-    
-    Provides on request: NA
-    Provides on response: NA
-    
-    Requires on request: method, resourcePath
-    Requires on response: NA
-
-    @ivar repositoryPath: string
-        The directory where the file repository is
-
-    @see: IProcessor
     '''
-
-    _linkExt = '.link'
-
-    _zipHeader = 'ZIP'
-
-    _fsHeader = 'FS'
-
-    _linkTypes = dict
 
     repositoryPath = str
     # The directory where the file repository is
+    _linkExt = '.link'
+    # Extension to mark the link files in the repository.
+    _zipHeader = 'ZIP'
+    # Marker used in the link file to indicate that a link is inside a zip file.
+    _fsHeader = 'FS'
+    # Marker used in the link file to indicate that a link is file system
 
     def __init__(self):
-        assert isinstance(self.repositoryPath, str), \
-            'Invalid repository path value %s' % self.repositoryPath
+        assert isinstance(self.repositoryPath, str), 'Invalid repository path value %s' % self.repositoryPath
+
         self.repositoryPath = normpath(self.repositoryPath)
         if not os.path.exists(self.repositoryPath): os.makedirs(self.repositoryPath)
+
         assert isdir(self.repositoryPath) and os.access(self.repositoryPath, os.R_OK), \
             'Unable to access the repository directory %s' % self.repositoryPath
-        super().__init__()
-        self._linkTypes = { self._fsHeader : self._processLink,
-                           self._zipHeader : self._processZiplink }
 
-    def process(self, req, rsp, chain):
-        '''
-        @see: IProcessor.process
-        '''
-        assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
+        self._linkTypes = {self._fsHeader:self._processLink, self._zipHeader:self._processZiplink}
 
-        if req.method != GET:
-            rsp.addAllows(GET)
-            return rsp.setCode(METHOD_NOT_AVAILABLE, 'Path not available for method')
+    @processor
+    def process(self, chain, request:(Request, URI), response:Response, responseCnt:Content, **keyargs):
+        '''
+        Provide the file content as a response.
+        '''
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(request, URI), 'Invalid request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, Content), 'Invalid response content %s' % responseCnt
+
+        if request.method != GET:
+            response.allows |= GET
+            response.code, response.text = METHOD_NOT_AVAILABLE, 'Path only available for GET'
+            return
 
         # Make sure the given path points inside the repository
-        entryPath = normOSPath(join(self.repositoryPath, normZipPath(unquote(req.path))))
+        entryPath = normOSPath(join(self.repositoryPath, normZipPath(unquote(request.uri))))
         if not entryPath.startswith(self.repositoryPath):
-            return rsp.setCode(RESOURCE_NOT_FOUND, 'Out of repository path')
+            response.code, response.text = RESOURCE_NOT_FOUND, 'Out of repository path'
+            return
 
         # Initialize the read file handler with None value
         # This will be set upon successful file open
@@ -110,10 +102,10 @@ class ContentDeliveryHandler(IProcessor):
                 linkPath = subLinkPath
 
         if rf is None:
-            rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid content resource')
+            response.code, response.text = METHOD_NOT_AVAILABLE, 'Invalid content resource'
         else:
-            rsp.setCode(RESOURCE_FOUND, 'Resource found')
-            rsp.content = readGenerator(rf)
+            response.code = RESOURCE_FOUND
+            responseCnt.source = rf
 
     # ----------------------------------------------------------------
 

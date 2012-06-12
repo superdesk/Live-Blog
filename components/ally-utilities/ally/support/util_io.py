@@ -110,11 +110,15 @@ def readGenerator(fileObj, bufferSize=1024):
         The buffer size used for returning data chunks.
     '''
     assert hasattr(fileObj, 'read'), 'Invalid file object %s does not have a read method' % fileObj
+    assert hasattr(fileObj, 'close'), 'Invalid file object %s does not have a close method' % fileObj
     assert isinstance(bufferSize, int), 'Invalid buffer size %s' % bufferSize
+
     with fileObj:
         while True:
             buffer = fileObj.read(bufferSize)
-            if not buffer: break
+            if not buffer:
+                fileObj.close()
+                break
             yield buffer
 
 def openURI(path):
