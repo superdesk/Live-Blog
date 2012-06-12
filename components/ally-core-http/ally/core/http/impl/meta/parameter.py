@@ -22,25 +22,17 @@ from ally.core.impl.meta.encode import EncodeValue, EncodeCollection, \
 from ally.core.impl.meta.general import getterOnDict, setterOnDict, getterOnObj, \
     getterChain, setterWithGetter, setterOnObj, setterToOthers, obtainOnDict, \
     getterOnObjIfIn, obtainOnObj
-from ally.core.spec.meta import IMetaService, Value, SAMPLE, Collection, Context
+from ally.core.spec.meta import IMetaService, Value, SAMPLE, Collection
 from ally.core.spec.resources import Invoker, Normalizer
 from collections import deque
 import logging
 import random
 import re
-from ally.core.spec.context import Transform
+from ally.core.spec.extension import Invoke, CharConvert
 
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-
-# --------------------------------------------------------------------
-
-class ContextParameter(Context):
-    '''
-    The context that contains the data required for creating encoder/decoder meta.
-    '''
-    invoker = Invoker
 
 # --------------------------------------------------------------------
 
@@ -88,7 +80,7 @@ class ParameterMetaService(IMetaService):
         '''
         @see: IMetaService.createDecode
         '''
-        assert isinstance(context, ContextParameter), 'Invalid context %s' % context
+        assert isinstance(context, Invoke), 'Invalid context %s' % context
         assert isinstance(context.invoker, Invoker), 'Invalid invoker %s' % context.invoker
 
         root, ordering = DecodeObject(), {}
@@ -209,7 +201,7 @@ class ParameterMetaService(IMetaService):
         '''
         @see: IMetaService.createEncode
         '''
-        assert isinstance(context, ContextParameter), 'Invalid context %s' % context
+        assert isinstance(context, Invoke), 'Invalid context %s' % context
         assert isinstance(context.invoker, Invoker), 'Invalid invoker %s' % context.invoker
 
         root = EncodeObject()
@@ -437,7 +429,7 @@ class EncodeOrdering(EncodeExploded):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, Transform), 'Invalid context %s' % context
+        assert isinstance(context, CharConvert), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer), 'Invalid normalizer %s' % context.normalizer
         normalize = context.normalizer.normalize
 
