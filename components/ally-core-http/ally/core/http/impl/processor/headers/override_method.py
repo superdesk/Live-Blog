@@ -12,15 +12,34 @@ Provides the method override header handling.
 from ally.api.config import DELETE, GET, INSERT, UPDATE
 from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
-from ally.core.http.spec.extension import HTTPDecode
 from ally.core.http.spec.server import IDecoderHeader
-from ally.core.spec.server import Response, Request
+from ally.core.spec.codes import Code
+from ally.design.context import Context, requires, defines
 from ally.design.processor import Handler, processor, Chain
 import logging
 
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
+
+# --------------------------------------------------------------------
+
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    decoderHeader = requires(IDecoderHeader)
+    # ---------------------------------------------------------------- Defined
+    method = defines(int)
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
 
 # --------------------------------------------------------------------
 
@@ -50,13 +69,12 @@ class MethodOverrideHandler(Handler):
         assert isinstance(self.methodsOverride, dict), 'Invalid methods override %s' % self.methodsOverride
 
     @processor
-    def process(self, chain, request:(Request, HTTPDecode), response:Response, **keyargs):
+    def process(self, chain, request:Request, response:Response, **keyargs):
         '''
         Overrides the request method based on a provided header.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
-        assert isinstance(request, HTTPDecode), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
 
@@ -81,7 +99,7 @@ class MethodOverrideHandler(Handler):
                 return
 
             if over not in allowed:
-                response.code, response.text = INVALID_HEADER_VALUE, 'Cannot override method with \'%s\'' % value
+                response.code, response.text = INVALID_HEADER_VALUE, 'Override method \'%s\' not allowed' % value
                 return
 
             assert log.debug('Successfully overridden method %s with %s', request.method, over) or True
