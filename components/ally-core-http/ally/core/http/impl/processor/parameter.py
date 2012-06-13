@@ -8,23 +8,47 @@ Created on May 25, 2012
 
 Provides the parameters handler.
 '''
+
 from ally.container.ioc import injected
-from ally.core.spec.codes import ILLEGAL_PARAM
+from ally.core.spec.codes import ILLEGAL_PARAM, Code
 from ally.core.spec.meta import IMetaService, IMetaDecode, IMetaEncode, SAMPLE, \
     Value, Object
-from ally.core.spec.resources import Invoker, Path, Node, \
-    INodeInvokerListener
-from ally.core.spec.server import Response, Request
+from ally.core.spec.resources import Invoker, Path, Node, INodeInvokerListener, \
+    Converter, Normalizer
+from ally.design.context import Context, requires, defines
+from ally.design.processor import Handler, Chain, processor
 from weakref import WeakKeyDictionary
-from ally.design.processor import Handler, Chain, mokup, processor
-from ally.core.http.spec.extension import URI
-from ally.core.spec.extension import Invoke, CharConvert, Arguments
 
 # --------------------------------------------------------------------
 
-@mokup(Request, CharConvert, URI, Invoke)
-class _Request(Request, CharConvert, URI, Invoke, Arguments):
-    ''' Used as a mokup class '''
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    parameters = requires(list)
+    path = requires(Path)
+    invoker = requires(Invoker)
+    normalizer = requires(Normalizer)
+    converter = requires(Converter)
+    # ---------------------------------------------------------------- Defined
+    arguments = defines(Path, doc='''
+    @rtype: dictionary{string, object}
+    A dictionary containing as a key the argument name, this dictionary needs to be populated by the 
+    processors as seen fit, also the parameters need to be transformed to arguments.
+    ''')
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+    message = defines(str, doc='''
+    @rtype: object
+    A message for the code, can be any object that can be used by the framework for reporting an error.
+    ''')
 
 # --------------------------------------------------------------------
 
@@ -45,18 +69,18 @@ class ParameterHandler(Handler, INodeInvokerListener):
         self._cacheEncode = WeakKeyDictionary()
 
     @processor
-    def process(self, chain, request:_Request, response:Response, **keyargs):
+    def process(self, chain, request:Request, response:Response, **keyargs):
         '''
         Process the parameters into arguments.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, _Request), 'Invalid request %s' % request
+        assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(request.path, Path), 'Invalid request %s has no resource path' % request
         assert isinstance(request.path.node, Node), 'Invalid resource path %s has no node' % request.path
+        assert isinstance(request.invoker, Invoker), 'No invoker available for %s' % request
 
         if request.parameters:
-            assert isinstance(request.invoker, Invoker), 'No invoker available for %s' % request
             decode = self._cacheDecode.get(request.invoker)
             if decode is None:
                 decode = self.parameterMetaService.createDecode(request)
@@ -74,7 +98,7 @@ class ParameterHandler(Handler, INodeInvokerListener):
                 if encode is None:
                     encode = self.parameterMetaService.createEncode(request)
                     assert isinstance(encode, IMetaEncode), 'Invalid meta encode %s' % encode
-                    request.resourcePath.node.addNodeListener(self)
+                    request.path.node.addNodeListener(self)
                     self._cacheEncode[request.invoker] = encode
 
                 response.code, response.text = ILLEGAL_PARAM, 'Illegal parameter'

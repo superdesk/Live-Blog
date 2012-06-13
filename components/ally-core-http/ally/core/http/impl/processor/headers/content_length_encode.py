@@ -10,10 +10,25 @@ Provides the encoding for the content length header.
 '''
 
 from ally.container.ioc import injected
-from ally.core.http.spec.extension import HTTPEncode
 from ally.core.http.spec.server import IEncoderHeader
-from ally.core.spec.server import Content
+from ally.design.context import Context, requires
 from ally.design.processor import Handler, Chain, processor
+
+# --------------------------------------------------------------------
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    encoderHeader = requires(IEncoderHeader)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    length = requires(int)
 
 # --------------------------------------------------------------------
 
@@ -30,13 +45,13 @@ class ContentLengthEncodeHandler(Handler):
         assert isinstance(self.nameContentLength, str), 'Invalid content length name %s' % self.nameContentLength
 
     @processor
-    def process(self, chain, response:HTTPEncode, responseCnt:Content, **keyargs):
+    def process(self, chain, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
         Encodes the content length.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(response, HTTPEncode), 'Invalid response %s' % response
-        assert isinstance(responseCnt, Content), 'Invalid response content %s' % responseCnt
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid response header encoder %s' % response.encoderHeader
 

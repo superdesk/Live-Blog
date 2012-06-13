@@ -34,7 +34,7 @@ def requires(*types, doc=None):
     @param doc: string
         The documentation associated with the attribute.
     '''
-    return Attribute(DEFINED, types, doc)
+    return Attribute(REQUIRED, types, doc)
 
 def optional(*types, doc=None):
     '''
@@ -45,7 +45,7 @@ def optional(*types, doc=None):
     @keyword doc: string
         The documentation associated with the attribute.
     '''
-    return Attribute(DEFINED, (type,), doc)
+    return Attribute(OPTIONAL, types, doc)
 
 # --------------------------------------------------------------------
 
@@ -81,6 +81,7 @@ class Attribute:
         self.types = types
         self.doc = doc
 
+        self.name = None
         self.descriptor = None
 
     # ----------------------------------------------------------------
@@ -102,7 +103,7 @@ class Attribute:
         self.descriptor.__set__(obj, value)
 
 # --------------------------------------------------------------------
-ALLOWED = {'__module__'}
+ALLOWED = {'__module__', '__doc__'}
 # The allowed attributes in a context class.
 class ContextMetaClass(ABCMeta):
     '''
@@ -130,10 +131,11 @@ class ContextMetaClass(ABCMeta):
 
         for key, attribute in attributes.items():
             assert isinstance(attribute, Attribute)
+            attribute.name = key
             attribute.descriptor = getattr(self, key)
             setattr(self, key, attribute)
 
-        self._ally_attributes = attributes
+        self.__attributes__ = attributes
 
         return self
 
@@ -142,15 +144,19 @@ class Context(metaclass=ContextMetaClass):
     The base context class, this class needs to be inherited by all classes that need to behave like a data context.
     '''
     __slots__ = ()
+    __attributes__ = {}
 
     @classmethod
     def __subclasshook__(cls, C):
         if cls is Context: return Context in C.__mro__
         if issubclass(C, Context):
-            for name, attr in cls._ally_attributes.items():
-                if name not in C._ally_attributes: return False
-                oattr = C._ally_attributes[name]
+            for name, attr in cls.__attributes__.items():
                 assert isinstance(attr, Attribute)
+
+                if attr.status & OPTIONAL or attr.status & DEFINED: continue
+                if name not in C.__attributes__: return False
+                oattr = C.__attributes__[name]
+
                 assert isinstance(oattr, Attribute)
 
                 for typ in attr.types:
@@ -159,9 +165,11 @@ class Context(metaclass=ContextMetaClass):
             return True
         return NotImplemented
 
-    def __contains__(self, obj):
-        if not isinstance(obj, Attribute): return False
-        assert isinstance(obj, Attribute)
-        try: obj.descriptor.__get__(self)
+    def __contains__(self, atrr):
+        if not isinstance(atrr, Attribute): return False
+        assert isinstance(atrr, Attribute)
+        try:
+            value = getattr(self, atrr.name)
+            # Check if the value is of the expected types.
+            return isinstance(value, atrr.types)
         except AttributeError: return False
-        return True

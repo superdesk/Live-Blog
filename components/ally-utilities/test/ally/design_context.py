@@ -1,15 +1,16 @@
 '''
 Created on Jun 13, 2012
 
-@package: utilities
+@package: ally core http
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Testing for the sys utility.
+Provides testing for the parameters decoding.
 '''
 
 import unittest
+from ally.design.context import defines, optional
 
 # --------------------------------------------------------------------
 
@@ -18,37 +19,40 @@ class TestDesign(unittest.TestCase):
     def testContext(self):
         from ally.design.context import Context, requires
         class A(Context):
-            property1 = requires(str)
-            property2 = requires(int)
+            p1 = requires(str)
+            p2 = defines(int)
 
         class B(Context):
-            property1 = requires(str)
+            p1 = optional(str)
 
         class C(Context):
-            property2 = requires(int)
+            p2 = requires(int)
 
         class D(Context):
-            property2 = requires(str)
+            p2 = requires(str)
 
         a = A()
+        self.assertIsInstance(a, Context)
         self.assertIsInstance(a, A)
         self.assertIsInstance(a, B)
         self.assertIsInstance(a, C)
         self.assertNotIsInstance(a, D)
+        self.assertFalse(B.p1 in a)
 
-        self.assertRaises(AssertionError, setattr, a, 'property1', 12)
-        a.property1 = 'astr'
-        self.assertEqual(a.property1, 'astr')
+        self.assertRaises(AssertionError, setattr, a, 'p1', 12)
+        a.p1 = 'astr'
+        self.assertEqual(a.p1, 'astr')
 
         c = C()
+        self.assertIsInstance(a, Context)
         self.assertNotIsInstance(c, A)
-        self.assertNotIsInstance(c, B)
+        self.assertIsInstance(c, B)
         self.assertNotIsInstance(c, D)
         self.assertIsInstance(c, C)
 
-        self.assertRaises(AssertionError, setattr, c, 'property2', 'astr')
-        c.property2 = 12
-        self.assertEqual(c.property2, 12)
+        self.assertRaises(AssertionError, setattr, c, 'p2', 'astr')
+        c.p2 = 12
+        self.assertEqual(c.p2, 12)
 
 # --------------------------------------------------------------------
 

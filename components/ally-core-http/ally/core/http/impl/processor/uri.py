@@ -56,16 +56,32 @@ class Response(Context):
     The response context.
     '''
     # ---------------------------------------------------------------- Defined
-    code = defines(Code)
-    text = defines(str)
-    encoderPath = defines(IEncoderPath)
+    code = defines(Code, doc='''
+    @rtype: Code
+    The code of the response.
+    ''')
+    text = defines(str, doc='''
+    @rtype: string
+    A small text message for the code, usually palced in the reponse.
+    ''')
+    encoderPath = defines(IEncoderPath, doc='''
+    @rtype: IEncoderPath
+    The path encoder used for encoding paths that will be rendered in the response.
+    ''')
 
 class ResponseContent(Context):
     '''
     The response content context.
     '''
-    type = defines(str)
-    converterId = defines(Converter)
+    # ---------------------------------------------------------------- Defined
+    type = defines(str, doc='''
+    @rtype: string
+    The response content type.
+    ''')
+    converterId = defines(Converter, doc='''
+    @rtype: Converter
+    The converter to use for model id's.
+    ''')
 
 # --------------------------------------------------------------------
 
