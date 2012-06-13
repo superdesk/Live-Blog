@@ -11,17 +11,46 @@ Provides the content type header decoding.
 
 from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
-from ally.core.http.spec.extension import HTTPDecode, ContentType
 from ally.core.http.spec.server import IDecoderHeader
-from ally.core.spec.extension import CharSet
-from ally.core.spec.server import Response, Content
-from ally.design.processor import Handler, processor, Chain, mokup
+from ally.design.processor import Handler, processor, Chain
+from ally.design.context import Context, requires, defines
+from ally.core.spec.codes import Code
 
 # --------------------------------------------------------------------
 
-@mokup(Content)
-class _ContentRequest(Content, CharSet, ContentType):
-    ''' Used as a mokup class '''
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    decoderHeader = requires(IDecoderHeader)
+
+class RequestContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    type = defines(str, doc='''
+    @rtype: string
+    The request content type.
+    ''')
+    typeAttr = defines(str, doc='''
+    @rtype: dictionary{string, string}
+    The content request type attributes.
+    ''')
+    charSet = defines(str, doc='''
+    @rtype: string
+    The character set for the text content.
+    ''')
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+    message = defines(str)
 
 # --------------------------------------------------------------------
 
@@ -42,14 +71,14 @@ class ContentTypeDecodeHandler(Handler):
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
 
     @processor
-    def process(self, chain, request:HTTPDecode, requestCnt:_ContentRequest, response:Response, **keyargs):
+    def process(self, chain, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
         '''
         Provides the content type decode for the request.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, HTTPDecode), 'Invalid request %s' % request
+        assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(requestCnt, _ContentRequest), 'Invalid request content %s' % requestCnt
+        assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
 
         value = request.decoderHeader.decode(self.nameContentType)

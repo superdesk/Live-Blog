@@ -18,7 +18,7 @@ from ally.design.processor import Handler, Chain, processor
 # --------------------------------------------------------------------
 
 @injected
-class ContentLengthEncodeHandler(Handler):
+class ContentLanguageEncodeHandler(Handler):
     '''
     Implementation for a processor that provides the encoding of content language HTTP response header.
     '''

@@ -5,11 +5,27 @@ Provides the content type header encoding.
 '''
 
 from ally.container.ioc import injected
-from ally.core.http.spec.extension import HTTPEncode
 from ally.core.http.spec.server import IEncoderHeader
-from ally.core.spec.extension import CharSet
-from ally.core.spec.server import Content
+from ally.design.context import Context, requires, optional
 from ally.design.processor import Handler, processor
+
+# --------------------------------------------------------------------
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    encoderHeader = requires(IEncoderHeader)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    type = requires(str)
+    # ---------------------------------------------------------------- Optional
+    charSet = optional(str)
 
 # --------------------------------------------------------------------
 
@@ -30,19 +46,18 @@ class ContentTypeEncodeHandler(Handler):
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
 
     @processor
-    def process(self, chain, response:HTTPEncode, responseCnt:Content, **keyargs):
+    def process(self, chain, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
         Encodes the content type for the response.
         '''
-        assert isinstance(response, HTTPEncode), 'Invalid response %s' % response
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid header encoder %s' % response.encoderHeader
-        assert isinstance(responseCnt, Content), 'Invalid response content %s' % responseCnt
 
         if responseCnt.type:
             value = responseCnt.type
-            if isinstance(responseCnt, CharSet):
-                assert isinstance(responseCnt, CharSet)
+            if ResponseContent.charSet in responseCnt:
                 if responseCnt.charSet: value = (value, (self.attrContentTypeCharSet, responseCnt.charSet))
 
             response.encoderHeader.encode(self.nameContentType, value)
