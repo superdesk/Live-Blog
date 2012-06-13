@@ -11,9 +11,7 @@ Module containing specifications for the server processing.
 
 from ally.core.spec.codes import Code
 from ally.core.spec.resources import Path
-from ally.design.processor import Classes
 from ally.support.util_sys import validateTypeFor
-from inspect import isclass
 from types import GeneratorType
 import abc
 import logging
@@ -140,31 +138,31 @@ if __debug__:
     validateTypeFor(Response, 'code', Code)
     validateTypeFor(Response, 'text', str)
     validateTypeFor(Response, 'allows', int, False)
-
-class ClassesServer(Classes):
-    '''
-    The processing argument classes.
-    '''
-
-    def __init__(self, request=Request, response=Response, requestCnt=Content, responseCnt=Content):
-        '''
-        Construct the classes used for the server processing.
-        
-        @param request: class
-            The class for the 'request' argument
-        @param response: class
-            The class for the 'response' argument
-        @param requestCnt: class
-            The class for the 'request content' argument
-        @param responseCnt: class
-            The class for the 'response requestCnt' argument
-        '''
-        assert isclass(request), 'Invalid request class %s' % request
-        assert isclass(response), 'Invalid response class %s' % response
-        assert isclass(requestCnt), 'Invalid content request class %s' % requestCnt
-        assert isclass(responseCnt), 'Invalid content response class %s' % responseCnt
-
-        self.request = request
-        self.response = response
-        self.requestCnt = requestCnt
-        self.responseCnt = responseCnt
+#TODO: remove
+#class ClassesServer(Classes):
+#    '''
+#    The processing argument classes.
+#    '''
+#
+#    def __init__(self, request=Request, response=Response, requestCnt=Content, responseCnt=Content):
+#        '''
+#        Construct the classes used for the server processing.
+#        
+#        @param request: class
+#            The class for the 'request' argument
+#        @param response: class
+#            The class for the 'response' argument
+#        @param requestCnt: class
+#            The class for the 'request content' argument
+#        @param responseCnt: class
+#            The class for the 'response requestCnt' argument
+#        '''
+#        assert isclass(request), 'Invalid request class %s' % request
+#        assert isclass(response), 'Invalid response class %s' % response
+#        assert isclass(requestCnt), 'Invalid content request class %s' % requestCnt
+#        assert isclass(responseCnt), 'Invalid content response class %s' % responseCnt
+#
+#        self.request = request
+#        self.response = response
+#        self.requestCnt = requestCnt
+#        self.responseCnt = responseCnt

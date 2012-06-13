@@ -10,14 +10,23 @@ Provides support for setting fixed headers on responses.
 '''
 
 from ally.container.ioc import injected
-from ally.core.http.spec.extension import HTTPEncode
 from ally.core.http.spec.server import IEncoderHeader
 from ally.design.processor import Handler, processor, Chain
 import logging
+from ally.design.context import Context, requires
 
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
+
+# --------------------------------------------------------------------
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    encoderHeader = requires(IEncoderHeader)
 
 # --------------------------------------------------------------------
 
@@ -38,12 +47,12 @@ class HeaderSetHandler(Handler):
                 assert isinstance(value, str), 'Invalid header value %s' % value
 
     @processor
-    def process(self, chain, response:HTTPEncode, **keyargs):
+    def process(self, chain, response:Response, **keyargs):
         '''
         Set the fixed header values on the response.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(response, HTTPEncode), 'Invalid response %s' % response
+        assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid header encoder %s' % response.encoderHeader
 

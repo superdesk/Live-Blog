@@ -10,12 +10,41 @@ Provides the standard headers handling.
 '''
 
 from ally.container.ioc import injected
-from ally.core.http.spec.extension import Headers, HTTPDecode, HTTPEncode, URI
 from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
-from ally.design.processor import Handler, Chain, ext
+from ally.design.context import Context, defines, requires, optional
+from ally.design.processor import Handler, Chain, processor
 from collections import deque, Iterable
-from internationalization.scanner import process
 import re
+
+# --------------------------------------------------------------------
+
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    headers = requires(dict)
+    # ---------------------------------------------------------------- Optional
+    parameters = optional(list)
+    # ---------------------------------------------------------------- Defined
+    decoderHeader = defines(IDecoderHeader, doc='''
+    @rtype: IDecoderHeader
+    The decoder used for reading the headers.
+    ''')
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    headers = defines(dict, doc='''
+    @rtype: dictionary{string, string}
+    The raw headers for the response.
+    ''')
+    encoderHeader = defines(IEncoderHeader, doc='''
+    @rtype: IEncoderPath
+    The path encoder used for encoding paths that will be rendered in the response.
+    ''')
 
 # --------------------------------------------------------------------
 
@@ -45,23 +74,22 @@ class HeaderHandler(Handler):
         self.reSeparatorAttr = re.compile(self.separatorAttr)
         self.reSeparatorValue = re.compile(self.separatorValue)
 
-    @process
-    def process(self, chain, request:(Headers, ext(HTTPDecode)), response:(HTTPEncode, Headers), **keyargs):
+    @processor
+    def process(self, chain, request:Request, response:Response, **keyargs):
         '''
         Provide the headers encoders and decoders.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, Headers), 'Invalid request %s' % request
-        assert isinstance(request, HTTPDecode), 'Invalid request %s' % request
-        assert isinstance(response, HTTPEncode), 'Invalid response %s' % response
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
 
-        if isinstance(request, URI):
-            assert isinstance(request, URI)
+        if Request.parameters in request:
             request.decoderHeader = DecoderHeader(self, request.headers, request.parameters)
         else:
             request.decoderHeader = DecoderHeader(self, request.headers)
 
-        response.encoderHeader = EncoderHeader(self, response)
+        response.encoderHeader = EncoderHeader(self)
+        response.headers = response.encoderHeader.headers
 
         chain.proceed()
 

@@ -10,42 +10,40 @@ Provides HTTP server specification.
 '''
 
 import abc
-from ally.core.spec.server import Request, Response
-from ally.core.http.spec.extension import Headers, URI
-
-# --------------------------------------------------------------------
-# Additional HTTP methods.
-
-METHOD_OPTIONS = 16
-
-# --------------------------------------------------------------------
-
-class RequestHTTP(Request, Headers, URI):
-    '''
-    Container for HTTP request data. 
-    '''
-    __slots__ = ()
-
-    def __init__(self):
-        '''
-        Construct the HTTP request container.
-        '''
-        Request.__init__(self)
-        Headers.__init__(self)
-        URI.__init__(self)
-
-class ResponseHTTP(Response, Headers):
-    '''
-    Container for HTTP response data. 
-    '''
-    __slots__ = ()
-
-    def __init__(self):
-        '''
-        Construct the HTTP response container.
-        '''
-        Request.__init__(self)
-        Headers.__init__(self)
+#TODO: remove
+## --------------------------------------------------------------------
+## Additional HTTP methods.
+#
+#METHOD_OPTIONS = 16
+#
+## --------------------------------------------------------------------
+#
+#class RequestHTTP(Request, Headers, URI):
+#    '''
+#    Container for HTTP request data. 
+#    '''
+#    __slots__ = ()
+#
+#    def __init__(self):
+#        '''
+#        Construct the HTTP request container.
+#        '''
+#        Request.__init__(self)
+#        Headers.__init__(self)
+#        URI.__init__(self)
+#
+#class ResponseHTTP(Response, Headers):
+#    '''
+#    Container for HTTP response data. 
+#    '''
+#    __slots__ = ()
+#
+#    def __init__(self):
+#        '''
+#        Construct the HTTP response container.
+#        '''
+#        Request.__init__(self)
+#        Headers.__init__(self)
 
 # --------------------------------------------------------------------
 

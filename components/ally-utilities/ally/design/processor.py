@@ -6,15 +6,13 @@ Created on Jun 11, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Module containing a processor dynamic execution chain. There is a handler that composes an execution chain with 
-dynamic parameters.
+Module containing the support for a chained processors execution of context type objects.
 '''
 
-from ally.support.util import Uninstantiable
+from ally.design.context import Context, Attribute, DEFINED, OPTIONAL
 from ally.support.util_sys import callerLocals
 from collections import Iterable, deque
 from inspect import isclass, isfunction, getfullargspec
-from itertools import chain
 import abc
 import logging
 
@@ -23,6 +21,128 @@ import logging
 log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
+
+class Call:
+    '''
+    Container for a call.
+    '''
+    __slots__ = ('call', 'contexts')
+
+    def __init__(self, call, contexts):
+        '''
+        Construct the call.
+        
+        @param call: callable
+            The callable of the call.
+        @param contexts: dictionary{string, context class}
+            The contexts to be associated with the call.
+        '''
+        assert callable(call), 'Invalid call %s' % call
+        assert isinstance(contexts, dict), 'Invalid contexts %s' % contexts
+        if __debug__:
+            for key, context in contexts.items():
+                assert isinstance(key, str), 'Invalid context name %s' % key
+                assert isclass(context), 'Invalid class %s for %s' % (context, key)
+                assert issubclass(context, Context), 'Invalid context class %s for %s' % (context, key)
+
+        self.call = call
+        self.contexts = contexts
+
+class Calls:
+    '''
+    Container for the the processor calls with contexts specifications.
+    '''
+    __slots__ = ('calls',)
+
+    def __init__(self):
+        '''
+        Construct the calls container.
+        '''
+        self.calls = []
+
+    def add(self, call, contexts):
+        '''
+        Add to the calls container the provided call that will be associated with the contexts.
+        
+        @param call: callable
+            The call to be added.
+        @param contexts: dictionary{string, context class}
+            The contexts to be associated with the call.
+        '''
+        self.calls.append(Call(call, contexts))
+
+class IHandler(metaclass=abc.ABCMeta):
+    '''
+    The handler prepares the processing that will be used for creating execution chains.
+    '''
+
+    @abc.abstractmethod
+    def prepare(self, calls):
+        '''
+        Prepare the calls for processing.
+        
+        @param calls: Calls
+            The processors calls to prepare.
+        '''
+
+# --------------------------------------------------------------------
+
+class Contexts:
+    '''
+    Container for the context classes.
+    '''
+
+    def __init__(self, **contexts):
+        '''
+        Construct the contexts container.
+        
+        @param contexts: key arguments of contexts
+            The key arguments to be used in calling the processors.
+        '''
+        for name, context in contexts.items(): setattr(self, name, context)
+
+    if __debug__:
+
+        def __setattr__(self, name, value):
+            '''
+            Used for validating that all values that are set are of the context type.
+            '''
+            assert isinstance(name, str), 'Invalid name %s' % name
+            assert isinstance(value, Context), 'Invalid context %s' % value
+
+            object.__setattr__(self, name, value)
+
+class Processing:
+    '''
+    Container for processor's, provides chains for their execution.
+    !!! Attention, never ever use a processing in multiple threads, only one thread is allowed to execute 
+    a processing at one time.
+    '''
+    __slots__ = ('ctxs', 'processors')
+
+    def __init__(self, ctxs, processors):
+        '''
+        @param ctxs: Contexts
+            The context classes associated with the processing.
+        @param processors: list[callable]
+            The processors used by this processing.
+        '''
+        assert isinstance(ctxs, Contexts), 'Invalid contexts %s' % ctxs
+        assert isinstance(processors, list), 'Invalid processors %s' % processors
+        if __debug__:
+            for proc in processors: assert callable(proc), 'invalid processor %s' % proc
+
+        self.ctxs = ctxs
+        self.processors = processors
+
+    def newChain(self):
+        '''
+        Constructs a new processors chain.
+        
+        @return: Chain
+            The chain of processors.
+        '''
+        return Chain(self.processors)
 
 class Chain:
     '''
@@ -86,246 +206,6 @@ class Chain:
         '''
         return self._consumed
 
-class Classes:
-    '''
-    Container for the processing classes.
-    '''
-
-    def __init__(self, **classes):
-        '''
-        Construct the classes container.
-        
-        @param classes: key arguments of class
-            The key arguments to be used in calling the processors.
-        '''
-        for name, clazz in classes.items():
-            assert isclass(clazz), 'Invalid class %s' % clazz
-            setattr(self, name, clazz)
-
-class Processing:
-    '''
-    Container for processor's, provides chains for their execution.
-    !!! Attention, never ever use a processing in multiple threads, only one thread is allowed to execute 
-    a processing at one time.
-    '''
-    __slots__ = ('classes', 'processors')
-
-    def __init__(self, handlers, classes):
-        '''
-        @param handlers: Iterable(IHandler)
-            The list of handlers that will compose this processing.
-        @param classes: Classes
-            The classes container.
-        '''
-        assert isinstance(handlers, Iterable), 'Invalid handlers %s' % handlers
-        assert isinstance(classes, Classes), 'Invalid classes %s' % classes
-
-        self.classes = classes
-        self.processors = []
-
-        for handler in handlers:
-            assert isinstance(handler, IHandler), 'Invalid handler %s' % handler
-            handler.prepare(self)
-
-    def newChain(self):
-        '''
-        Constructs a new processors chain.
-        
-        @return: Chain
-            The chain of processors.
-        '''
-        return Chain(self.processors)
-
-class IHandler(metaclass=abc.ABCMeta):
-    '''
-    The handler prepares the processing that will be used for creating execution chains.
-    '''
-
-    @abc.abstractmethod
-    def prepare(self, processing):
-        '''
-        Prepare the context for processing.
-        
-        @param processing: Processing
-            The processors context to prepare.
-        '''
-
-# --------------------------------------------------------------------
-
-def extend(clazz, other):
-    '''
-    Safely extend the class with another class. By safely I mean that if there is a chance that the constructor of 
-    a class or base class has a chance of being called twice this method will raise an exception.
-    
-    @param clazz: class
-        The class to be extended, if is the case.
-    @param other: class
-        The class to extend with.
-    @return: class
-        The extended class.
-    '''
-    assert isclass(clazz), 'Invalid class %s' % clazz
-    assert isclass(other), 'Invalid other class %s' % other
-
-    # If either of the classes extends the other then we will return that.
-    if issubclass(clazz, other): return clazz
-    if issubclass(other, clazz): return other
-    # Check to see if there is not a common base class.
-    classes = deque()
-    classes.extend(other.__bases__)
-    while classes:
-        base = classes.popleft()
-        if base is object: continue
-        if issubclass(clazz, base):
-            raise TypeError('Cannot extend because the class %s and other class %s share a common class %s' %
-                            (clazz, other, base))
-        classes.extend(base.__bases__)
-    # Now we create the extended class with a __init__ method that will initialize both classes.
-    def __init__(self):
-        clazz.__init__(self)
-        other.__init__(self)
-    name = '%s+%s' % (clazz.__name__, other.__name__)
-    namespace = {'__init__': __init__, '__module__': clazz.__module__, '__slots__': ()}
-    return type(name, (clazz, other), namespace)
-
-def assemble(processing, processor, required=None, extends=None, **arguments):
-    '''
-    Assembles into the provided processing context the provided processor based on the required classes and
-    extend classes.
-    
-    @param processing: Processing
-        The processing to assemble into.
-    @param processor: callable
-        The processor callable to be assembled.
-    @param required: dictionary{string, class|tuple(class)}|None
-        The required classes for the arguments that will be passed to the processor. The key is name of the argument
-        and the value represents the class or classes required for that argument.
-    @param extends: dictionary{string, class|tuple(class)}|None
-        The extended classes for the arguments that will be passed to the processor. The key is name of the argument
-        and the value represents the class or classes that will extend the argument value.
-    @param arguments: key arguments of class
-        The arguments classes for the processor, if a class is a Mokup it will be used based on the mokup
-        specifications, otherwise the provided class is considered a required class.
-    '''
-    assert isinstance(processing, Processing), 'Invalid processing %s' % processing
-    assert callable(processor), 'Invalid processor %s' % processor
-
-    if required is None: required = {}
-    if extends is None: extends = {}
-    assert isinstance(required, dict), 'Invalid required %s' % required
-    assert isinstance(extends, dict), 'Invalid extend %s' % extends
-
-    required = {name:classes if isinstance(classes, tuple) else (classes,) for name, classes in required.items()}
-    extends = {name:classes if isinstance(classes, tuple) else (classes,) for name, classes in extends.items()}
-
-    if arguments: append(required, extends, arguments)
-
-    for name, classes in required.items():
-        current = getattr(processing.classes, name, None)
-        if current is None:
-            log.info('Excluded processor %s because there is no argument \'%s\' provided', processor, name)
-            return
-        for clazz in classes:
-            assert isclass(clazz), 'Invalid required class %s for argument %s' % (clazz, name)
-            if not issubclass(current, clazz):
-                log.info('Excluded processor %s because the current class %s is not extending %s',
-                         processor, current, clazz) or True
-                return
-
-    processing.processors.append(processor)
-
-    for name, classes in extends.items():
-        if not isinstance(classes, tuple): classes = (classes,)
-        current = getattr(processing.classes, name, None)
-
-        for clazz in classes:
-            assert isclass(clazz), 'Invalid extend class %s for argument %s' % (clazz, name)
-
-            if current is None: current = clazz
-            else: current = extend(current, clazz)
-
-        setattr(processing.classes, name, current)
-
-def ext(clazz):
-    '''
-    Marks the provided class as an extend class whenever is passed on as an append class.
-    
-    @param clazz: class
-        The class to mark as extend.
-    '''
-    assert isclass(clazz), 'Invalid class %s' % clazz
-
-    return Mark(clazz, False)
-
-def append(required, extends, classes):
-    '''
-    Appends on the required and extends dictionary the provided arguments.
-    
-    @param required: dictionary{string, tuple(class)}
-        The required argument classes.
-    @param extends: dictionary{string, tuple(class)}
-        The extend argument classes.
-    @param classes: dictionary{name, class|tuple(class)|Mark|tuple(Mark))
-        The arguments classes for the processor, if a class is a Mokup it will be used based on the mokup
-        specifications, otherwise the provided class is considered a required class.
-    '''
-    assert isinstance(required, dict), 'Invalid required %s' % required
-    assert isinstance(extends, dict), 'Invalid extends %s' % extends
-    assert isinstance(classes, dict), 'Invalid classes %s' % classes
-
-    for name, clazzes in classes.items():
-        assert isinstance(name, str), 'Invalid argument name %s' % name
-        if not isinstance(clazzes, tuple): clazzes = (clazzes,)
-        for clazz in clazzes:
-            requiredAdd, extendAdd = None, None
-            if isinstance(clazz, Mark):
-                assert isinstance(clazz, Mark)
-                if clazz.required: requiredAdd = (clazz.clazz,)
-                else: extendAdd = (clazz.clazz,)
-            else:
-                assert isclass(clazz), 'Invalid argument \'%s\' with class %s' % (name, clazz)
-                if issubclass(clazz, Mokup):
-                    requiredAdd = clazz._ally_mokup_required
-                    extendAdd = clazz._ally_mokup_extend
-                else: requiredAdd = (clazz,)
-
-            if requiredAdd:
-                clazzes = required.get(name)
-                if clazzes:
-                    assert isinstance(clazzes, tuple), \
-                    'Invalid required clazzes %s for argument %s' % (clazzes, name)
-                    clazzes = clazzes + requiredAdd
-                else: clazzes = requiredAdd
-                required[name] = clazzes
-
-            if extendAdd:
-                clazzes = extends.get(name)
-                assert isinstance(clazzes, tuple), \
-                'Invalid extend clazzes %s for argument %s' % (clazzes, name)
-                if clazzes: clazzes = clazzes + extendAdd
-                else: clazzes = extendAdd
-                extends[name] = clazzes
-
-def mokup(*required):
-    '''
-    Provides a decorator for mokup classes used mainly for type hinting, this decorator will make the class
-    uninstantiable and also provide the specifications for assembly.
-    
-    @param required: arguments[class]
-        The required classes of the mokup, the decorated class should directly extend all classes(required+extended).
-    '''
-    if __debug__:
-        for clazz in required: assert isclass(clazz), 'Invalid class %s' % clazz
-
-    def decorator(clazz):
-        assert isclass(clazz), 'Invalid decorated class %s' % clazz
-        namespace = dict(_ally_mokup_required=required,
-                         _ally_mokup_extend=set(clazz.__bases__).difference(required))
-        namespace['__module__'] = clazz.__module__
-        return type('%s$Mokup' % clazz.__name__, (Mokup,) + clazz.__bases__, namespace)
-
-    return decorator
-
 # --------------------------------------------------------------------
 
 def processor(function):
@@ -340,20 +220,20 @@ def processor(function):
     assert 'self' == fnArgs.args[0], \
     'The processor needs to be tagged in a class definition (needs self as the first argument)'
 
-    arguments = {}
+    contexts = {}
     for name in fnArgs.args[2:]:
         clazz = fnArgs.annotations.get(name)
-        assert clazz is not None, 'Expected an annotation of class or tuple(class) for argument %s'
-        arguments[name] = clazz
-
-    required, extends = {}, {}
-    append(required, extends, arguments)
+        if clazz is None: raise TypeError('Expected an annotation of class for argument %s' % name)
+        if not isclass(clazz): raise TypeError('Not a class %s for argument %s' % (clazz, name))
+        if not issubclass(clazz, Context): raise TypeError('Not a context class %s for argument %s' % (clazz, name))
+        contexts[name] = clazz
+    if not contexts: raise TypeError('Cannot have a processor with no context')
 
     locals = callerLocals()
     processors = locals.get('processors')
-    if processors is None: locals['processors'] = processors = []
+    if processors is None: locals['processors'] = processors = {}
 
-    processors.append(Processor(function, required, extends))
+    processors[function.__name__] = (function, contexts)
 
     return function
 
@@ -363,85 +243,111 @@ class Handler(IHandler):
     @see: processor.
     '''
 
-    def prepare(self, processing):
+    def prepare(self, calls):
         '''
         @see: IHandler.prepare
         '''
-        assert hasattr(self, 'processors'), 'No processors available'
-        assert isinstance(processing, Processing), 'Invalid processing %s' % processing
+        assert hasattr(self, 'processors'), 'No processors available of handler %s' % self
+        assert isinstance(calls, Calls), 'Invalid calls %s' % calls
 
-        for processor in self.processors:
-            assert isinstance(processor, Processor), 'Invalid processor %s' % processor
-            assemble(processing, processor.processor, processor.required, processor.extends)
+        for call, contexts in self.processors.values(): calls.add(call, contexts)
 
 # --------------------------------------------------------------------
 
-class Mark:
+class AssembleError(Exception):
     '''
-    Used for marking classes for appending.
+    Raised when there is an assemble problem.
     '''
-    __slots__ = ('clazz', 'required')
 
-    def __init__(self, clazz, required):
-        '''
-        Construct the mark.
-        
-        @param clazz: class
-            The class marked.
-        @param required: boolean
-            True if the class is a required class or False for an extend class.
-        '''
-        assert isclass(clazz), 'Invalid class %s' % clazz
-        assert isinstance(required, bool), 'Invalid required flag %s' % required
-
-        self.clazz = clazz
-        self.required = required
-
-class Mokup(Uninstantiable, metaclass=abc.ABCMeta):
+def assemble(handlers, **context):
     '''
-    The mokup base class.
+    Assemble the handlers with the provided contexts.
+    
+    @param handlers: Iterable(IHandler)
+        The handlers to assemble with the contexts.
+    @param context: key arguments of context classes
+        The context to assemble for the handlers.
+    @return: Processing
+        The processing for handling the contexts with the handlers.
     '''
-    _ally_mokup_required = () # Contains all the required classes
-    _ally_mokup_extend = () # Contains all the extending classes
+    def callMessage(call):
+        if isfunction(call):
+            cd = call.__code__
+            return '\n  File "%s", line %i, in %s' % (cd.co_filename, cd.co_firstlineno, call.__name__)
+        return str(call)
 
-    @classmethod
-    def __subclasshook__(cls, C):
-        for clazz in chain(cls._ally_mokup_required, cls._ally_mokup_extend):
-            if not issubclass(C, clazz): return False
-        return True
+    assert isinstance(handlers, Iterable), 'Invalid handlers %s' % handlers
+    if __debug__:
+        for key, ctx in context.items():
+            assert isclass(ctx), 'Invalid class %s for %s' % (ctx, key)
+            assert issubclass(ctx, Context), 'Invalid context class %s for %s' % (ctx, key)
 
-class Processor:
-    '''
-    Class that contains the specifications for a processor.
-    '''
-    __slots__ = ('processor', 'required', 'extends')
+    calls = Calls()
+    for handler in handlers:
+        assert isinstance(handler, IHandler), 'Invalid handler %s' % handler
+        handler.prepare(calls)
 
-    def __init__(self, processor, required, extends):
-        '''
-        Construct the processor.
-        
-        @param processor: callable
-            The processor callable.
-        @param required: dictionary{string, tuple(class)}
-            The required argument classes.
-        @param extends: dictionary{string, tuple(class)}
-            The extend argument classes.
-        '''
-        assert callable(processor), 'Invalid processor %s' % processor
-        assert isinstance(required, dict), 'Invalid required %s' % required
-        assert isinstance(extends, dict), 'Invalid extends %s' % extends
-        if __debug__:
-            for name, classes in required:
-                assert isinstance(name, str), 'Invalid required name %s' % name
-                assert isinstance(classes, tuple), 'Invalid required classes %s' % classes
-                for clazz in classes:
-                    assert isclass(clazz), 'Invalid argument %s required class %s' % (name, clazz)
-            for name, classes in extends:
-                assert isinstance(name, str), 'Invalid extend name %s' % name
-                assert isinstance(classes, tuple), 'Invalid extend classes %s' % classes
-                for clazz in classes:
-                    assert isclass(clazz), 'Invalid argument %s extend class %s' % (name, clazz)
 
-        self.processor = processor
-        self.required = required
-        self.extends = extends
+    # First we obtain all the attributes of the contexts, while checking for types compatibility we also index the
+    # calls based on attribute definers, optional and attribute requires.
+    attributeTypes, definers, optionals, requires = {}, {}, {}, {}
+    for k, call in enumerate(calls.calls):
+        assert isinstance(call, Call), 'Invalid call %s' % call
+        for name, contex in call.contexts.items():
+            for nameAttribute, attribute in contex.__attributes__.items():
+                assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
+                key = (name, nameAttribute)
+                types = attributeTypes.get(key)
+                if types is None: attributeTypes[key] = set(attribute.types)
+                else:
+                    # Checking the attribute types
+                    common = types.intersection(attribute.types)
+                    if not common:
+                        typNames = [typ.__name__ for typ in types]
+                        attrNames = [typ.__name__ for typ in attribute.types]
+                        raise AssembleError('The attributes types %s are not compatible with types %s for'
+                                            ' attribute \'%s\' of \'%s\' at:%s' %
+                                            (typNames, attrNames, nameAttribute, name, callMessage(call.call)))
+                    attributeTypes[key] = common
+
+                # Indexing the definers, optional and requires for the attribute
+                if attribute.status & DEFINED:
+                    attrs = definers.get(k)
+                    if attrs is None: attrs = definers[k] = set()
+                    attrs.add(key)
+                elif attribute.status & OPTIONAL:
+                    attrs = optionals.get(k)
+                    if attrs is None: attrs = optionals[k] = set()
+                    attrs.add(key)
+                else:
+                    attrs = requires.get(k)
+                    if attrs is None: attrs = requires[k] = set()
+                    attrs.add(key)
+
+    # Now we sort the calls based on the indexed calls.
+    i, ordered = 0, list(range(0, len(calls.calls)))
+    while i < len(ordered):
+        for j in range(i + 1, len(ordered)):
+            call1, call2 = ordered[i], ordered[j]
+            definer1, require1 = definers.get(call1), requires.get(call1)
+            definer2, require2 = definers.get(call2), requires.get(call2)
+
+            # Check if call2 defines anything for call1
+            if definer2 and require1 and not definer2.isdisjoint(require1):
+                # The call2 defines stuff for call1 we need to check if doesn't apply reversed
+                if definer1 and not definer1.isdisjoint(require2):
+                    first = ['%s.%s' % attr for attr in definer2.intersection(require1)]
+                    second = ['%s.%s' % attr for attr in definer1.intersection(require2)]
+                    raise AssembleError('First call defines attributes %s required by the second call, but also '
+                                        'the second call defines attributes %s required by the first call:'
+                                        '\nFirst call at:%s\nSecond call at:%s' % (first, second,
+                                        callMessage(calls.calls[call1].call)), callMessage(calls.calls[call2].call))
+
+                k, ordered[i] = ordered[i], ordered[j]
+                ordered[j] = k
+                i -= 1
+                break
+
+        i += 1
+
+    print(ordered)

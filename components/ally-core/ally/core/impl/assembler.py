@@ -329,7 +329,7 @@ class AssembleOneByOne(AssembleBase):
             except:
                 info = invoker.infoAPI or invoker.infoIMPL
                 assert isinstance(info, InvokerInfo)
-                raise AssembleError('Problems assembling invoker at:\nFile "%s", line %i, in %s' %
+                raise AssembleError('Problems assembling invoker at:\n  File "%s", line %i, in %s' %
                                     (info.file, info.line, info.name))
 
     @abc.abstractmethod
