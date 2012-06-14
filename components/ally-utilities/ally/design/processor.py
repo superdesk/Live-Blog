@@ -22,15 +22,15 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class Call:
+class Processsor:
     '''
-    Container for a call.
+    Container for a processor.
     '''
     __slots__ = ('call', 'contexts')
 
     def __init__(self, call, contexts):
         '''
-        Construct the call.
+        Construct the processor.
         
         @param call: callable
             The callable of the call.
@@ -75,6 +75,15 @@ class IHandler(metaclass=abc.ABCMeta):
     '''
     The handler prepares the processing that will be used for creating execution chains.
     '''
+
+    @abc.abstractmethod
+    def processors(self):
+        '''
+        Provide the processors associated with the handler.
+        
+        @return: Iterable[Processor]
+            The collection of processor associated with the handler.
+        '''
 
     @abc.abstractmethod
     def prepare(self, calls):
@@ -254,39 +263,64 @@ class Handler(IHandler):
 
 # --------------------------------------------------------------------
 
-class AssembleError(Exception):
+class HandlersError(Exception):
     '''
-    Raised when there is an assemble problem.
+    Raised when there is a handler problem.
     '''
 
-def assemble(handlers, **context):
+class Handlers:
+    '''
+    Container for handlers, also provides the handlers assembly services.
+    '''
+    __slots__ = ('names', 'handlers')
+
+    def __init__(self, *names):
+        '''
+        Construct the handlers container.
+        
+        @param names: arguments[string]
+            All the names of the expected contexts for the contained handlers. The names must be given in the order
+            that they are expected to be resolved, this will help for a better assembly order.
+        '''
+        assert names, 'At least a context name is expected'
+        if __debug__:
+            for name in names: assert isinstance(name, str), 'Invalid name %s' % name
+
+        self.names = names
+        self.handlers = []
+
+    def add(self, *handlers):
+        '''
+        The handlers to add.
+        
+        @param handlers: arguments[IHandler|list[IHandler]|tuple(IHandler)]
+            The handlers to add.
+        '''
+
+    # ----------------------------------------------------------------
+
+
+
+def assemble(handlers, *order, **context):
     '''
     Assemble the handlers with the provided contexts.
     
     @param handlers: Iterable(IHandler)
         The handlers to assemble with the contexts.
+    @param order: arguments[string]
+        The order in which the contexts should be resolved.
     @param context: key arguments of context classes
         The context to assemble for the handlers.
     @return: Processing
         The processing for handling the contexts with the handlers.
     '''
-    def callMessage(call):
-        if isfunction(call):
-            cd = call.__code__
-            return '\n  File "%s", line %i, in %s' % (cd.co_filename, cd.co_firstlineno, call.__name__)
-        return str(call)
-
-    assert isinstance(handlers, Iterable), 'Invalid handlers %s' % handlers
     if __debug__:
         for key, ctx in context.items():
             assert isclass(ctx), 'Invalid class %s for %s' % (ctx, key)
             assert issubclass(ctx, Context), 'Invalid context class %s for %s' % (ctx, key)
+        for name in order: assert isinstance(name, str), 'Invalid order name %s' % name
 
-    calls = Calls()
-    for handler in handlers:
-        assert isinstance(handler, IHandler), 'Invalid handler %s' % handler
-        handler.prepare(calls)
-
+    calls = prepare(handlers)
 
     # First we obtain all the attributes of the contexts, while checking for types compatibility we also index the
     # calls based on attribute definers, optional and attribute requires.
@@ -307,7 +341,7 @@ def assemble(handlers, **context):
                         attrNames = [typ.__name__ for typ in attribute.types]
                         raise AssembleError('The attributes types %s are not compatible with types %s for'
                                             ' attribute \'%s\' of \'%s\' at:%s' %
-                                            (typNames, attrNames, nameAttribute, name, callMessage(call.call)))
+                                            (typNames, attrNames, nameAttribute, name, messageFor(call.call)))
                     attributeTypes[key] = common
 
                 # Indexing the definers, optional and requires for the attribute
@@ -324,13 +358,34 @@ def assemble(handlers, **context):
                     if attrs is None: attrs = requires[k] = set()
                     attrs.add(key)
 
+    # First we sort based on the provided order
+    ordered = []
+    for ord in order:
+        # Based on the order context, the order is base on the number of defined attribute, so if a call defines many
+        # attributes is placed higher up, the idea is that if something fails at least we didn't struggle with a lot 
+        # of attributes. Also the calls are ordered based on who requires the least.
+        defined = []
+        for k, attrs in definers.items():
+            if k in ordered: continue
+            count = 0
+            for key in attrs:
+                if key[0] == ord: count += 1
+            defined.append((k, count))
+
+        defined.sort(key=lambda pack: pack[1])
+
+        for pack in defined: ordered.append(pack[0])
+
+    for k in range(0, len(calls.calls)):
+        if k not in ordered: ordered.append(k)
+
     # Now we sort the calls based on the indexed calls.
-    i, ordered = 0, list(range(0, len(calls.calls)))
+    i = 0
     while i < len(ordered):
         for j in range(i + 1, len(ordered)):
-            call1, call2 = ordered[i], ordered[j]
-            definer1, require1 = definers.get(call1), requires.get(call1)
-            definer2, require2 = definers.get(call2), requires.get(call2)
+            k1, k2 = ordered[i], ordered[j]
+            definer1, require1 = definers.get(k1), requires.get(k1)
+            definer2, require2 = definers.get(k2), requires.get(k2)
 
             # Check if call2 defines anything for call1
             if definer2 and require1 and not definer2.isdisjoint(require1):
@@ -341,13 +396,56 @@ def assemble(handlers, **context):
                     raise AssembleError('First call defines attributes %s required by the second call, but also '
                                         'the second call defines attributes %s required by the first call:'
                                         '\nFirst call at:%s\nSecond call at:%s' % (first, second,
-                                        callMessage(calls.calls[call1].call)), callMessage(calls.calls[call2].call))
+                                        messageFor(calls.calls[k1].call)), messageFor(calls.calls[k2].call))
 
                 k, ordered[i] = ordered[i], ordered[j]
                 ordered[j] = k
                 i -= 1
                 break
+            else:
+                optional1, optional2 = optionals.get(k1), requires.get(k2)
+
+                # We check if there are some optionals to be handled
+                if definer2 and optional1 and not definer2.isdisjoint(optional1):
+                    # We check to see if there is not a conflict with the required
+                    if not definer1 or not require2 or definer1.isdisjoint(require2):
+                        # We check to see if there is not a conflict with the other optionals
+                        if not optional2 or definer1.isdisjoint(optional2):
+                            k, ordered[i] = ordered[i], ordered[j]
+                            ordered[j] = k
+                            i -= 1
+                            break
 
         i += 1
 
-    print(ordered)
+    #TODO: continue with the implementation
+    #TODO: remove
+    print('------------------------------------------------------------')
+    print(''.join([messageFor(calls.calls[k].call) for k in ordered]))
+
+def prepare(handlers):
+    '''
+    Prepares the call for the handlers.
+    
+    @param handlers: Iterable(IHandler)
+        The handlers to prepare the calls for.
+    @return: Calls
+        The prepared calls.
+    '''
+    assert isinstance(handlers, Iterable), 'Invalid handlers %s' % handlers
+
+    calls = Calls()
+    for handler in handlers:
+        assert isinstance(handler, IHandler), 'Invalid handler %s' % handler
+        handler.prepare(calls)
+
+    return calls
+
+def messageFor(call):
+    '''
+    Provides a call message used for exceptions.
+    '''
+    if isfunction(call):
+        cd = call.__code__
+        return '\n  File "%s", line %i, in %s' % (cd.co_filename, cd.co_firstlineno, call.__name__)
+    return str(call)

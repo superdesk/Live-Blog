@@ -10,21 +10,39 @@ Provides the accept headers handling.
 '''
 
 from ally.container.ioc import injected
-from ally.core.http.spec.extension import HTTPDecode
 from ally.core.http.spec.server import IDecoderHeader
-from ally.core.spec.extension import CharSetsAccepted, TypeAccepted, \
-    LanguagesAccepted, ArgumentsAdditional
-from ally.design.processor import Handler, mokup, Chain, processor
+from ally.design.processor import Handler, Chain, processor
 from ally.api.type import List, Locale
+from ally.design.context import Context, requires, optional, defines
 
 # --------------------------------------------------------------------
 
 LIST_LOCALE = List(Locale)
 # The locale list used to set as an additional argument.
 
-@mokup(HTTPDecode)
-class _Request(HTTPDecode, TypeAccepted, CharSetsAccepted, LanguagesAccepted, ArgumentsAdditional):
-    ''' Used as a mokup class '''
+# --------------------------------------------------------------------
+
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    decoderHeader = requires(IDecoderHeader)
+    # ---------------------------------------------------------------- Optional
+    argumentsOfType = optional(dict)
+    # ---------------------------------------------------------------- Defined
+    accTypes = defines(list, doc='''
+    @rtype: list[string]
+    The content types accepted for response.
+    ''')
+    accCharSets = defines(list, doc='''
+    @rtype: list[string]
+    The character sets accepted for response.
+    ''')
+    accLanguages = defines(list, doc='''
+    @rtype: list[string]
+    The languages accepted for response.
+    ''')
 
 # --------------------------------------------------------------------
 
@@ -47,23 +65,32 @@ class AcceptHandler(Handler):
         assert isinstance(self.nameAcceptLanguage, str), 'Invalid accept languages name %s' % self.nameAcceptLanguage
 
     @processor
-    def process(self, chain, request:_Request, **keyargs):
+    def decode(self, chain, request:Request, **keyargs):
         '''
         Decode the accepted headers.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, _Request), 'Invalid request %s' % request
+        assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid decoder header %s' % request.decoderHeader
 
         value = request.decoderHeader.decode(self.nameAccept)
-        if value: request.accTypes.extend(val for val, _attr in value)
+        if value:
+            accTypes = list(val for val, _attr in value)
+            if Request.accTypes in request: request.accTypes.extend(accTypes)
+            else: request.accTypes = accTypes
 
         value = request.decoderHeader.decode(self.nameAcceptCharset)
-        if value: request.accCharSets.extend(val for val, _attr in value)
+        if value:
+            accCharSets = list(val for val, _attr in value)
+            if Request.accCharSets in request: request.accCharSets.extend(accCharSets)
+            else: request.accCharSets = accCharSets
 
         value = request.decoderHeader.decode(self.nameAcceptLanguage)
         if value:
-            request.accLanguages.extend(val for val, _attr in value)
-            request.argumentsOfType[LIST_LOCALE] = request.accLanguages
+            accLanguages = list(val for val, _attr in value)
+            if Request.accLanguages in request: request.accLanguages.extend(accLanguages)
+            else: request.accLanguages = accLanguages
+
+            if Request.argumentsOfType in request: request.argumentsOfType[LIST_LOCALE] = request.accLanguages
 
         chain.proceed()
