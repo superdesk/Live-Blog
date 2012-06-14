@@ -602,17 +602,29 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     { 
                         var $self = $(this),
                             placeholderText = $(this).attr('placeholder');
-                        placeholderText && $(this).text() === '' && $(this).prepend(placeholder.html(placeholderText));
+                        if(!placeholderText) return false;
+                        $(this).text() === '' && $(this).prepend(placeholder.html(placeholderText));
                     });
                     
-                    $(elements).on('focusin.texteditor', function()
+                    $(elements)
+                    .on('focusin.texteditor', function()
+                    {
+                        $(this).addClass('focus');
+                    })
+                    .filter('[placeholder]')
+                    .on('focusin.texteditor', function()
                     {
                         var $self = $(this),
                             hasContent = $self.data('has-content');
                         !hasContent && placeholder.remove(); 
-                        $self.addClass('focus');
                     });
-                    $(elements).on('focusout.texteditor', function()
+                    $(elements)
+                    .on('focusout.texteditor', function()
+                    {
+                        $(this).removeClass('focus');
+                    })
+                    .filter('[placeholder]')
+                    .on('focusout.texteditor', function()
                     {
                         var $self = $(this),
                             placeholderText = $self.attr('placeholder');
@@ -621,8 +633,6 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             $self.prepend(placeholder.html(placeholderText)).data('has-content', false); 
                         else 
                             $self.data('has-content', true);
-                        
-                        $self.removeClass('focus');
                     });
                 }
             },
@@ -631,6 +641,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                 isDragged: false,
                 _create: function(elements)
                 {
+                    if(!this.plugins.toolbar) return false;
                     var toolbar = this.plugins.toolbar.element,
                         self = this.plugins.draggableToolbar,
                         isDragged;
@@ -660,6 +671,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                 blockElements: [],
                 _create: function(elements)
                 {
+                    if(!this.plugins.toolbar) return false;
                     var toolbar = this.plugins.toolbar.element,
                         self = this;
                     
@@ -803,7 +815,11 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
             {
                 console.log(this);
             });*/
-            this.plugins.toolbar.element  && this.plugins.toolbar.element.remove();
+            try
+            {
+                this.plugins.toolbar.element  && this.plugins.toolbar.element.remove();
+            }
+            catch(e){}
             
         }
     }); 
