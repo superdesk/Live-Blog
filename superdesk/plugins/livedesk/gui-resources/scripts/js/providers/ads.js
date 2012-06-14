@@ -15,7 +15,7 @@ function(providers, $)
             var self = this,
             getAds = function()
             {
-                new $.restAuth(theBlog+'/PostType/advertisement/Post')
+                new $.restAuth(theBlog+'/PostType/advertisement/Post/Unpublished')
                 .xfilter('CreatedOn,Content,PublishedOn,Type,Id,CId').done(function(data)
                 {
                     $.tmpl('livedesk>providers/ads/items', {Posts: data}, function(e, o)
