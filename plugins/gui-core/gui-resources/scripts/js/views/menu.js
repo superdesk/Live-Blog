@@ -27,7 +27,7 @@ function($, superdesk, dust)
         			    { 
         			        $(subs).each(function()
         			        { 
-        			            require([config.api_url + this.ScriptPath], function(x){ x.init(Subz); }); 
+        			            require([config.api_url + this.ScriptPath], function(x){ x && x.init && x.init(Subz); }); 
         			        });
         			    });
         			}
