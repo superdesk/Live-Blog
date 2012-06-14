@@ -13,6 +13,8 @@ from ..api.blog_collaborator import IBlogCollaboratorService
 from ally.container.ioc import injected
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
     BlogCollaboratorEntry
+from superdesk.person.meta.person import PersonMapped
+from superdesk.source.meta.source import SourceMapped
 from sqlalchemy.exc import OperationalError
 from ally.exception import InputError, Ref
 from ally.internationalization import _
@@ -49,6 +51,7 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         @see: IBlogCollaboratorService.getAll
         '''
         sql = self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Blog == blogId)
+        sql = sql.join(PersonMapped).join(SourceMapped).order_by(BlogCollaboratorMapped.Name)
         return sql.all()
 
     def addCollaborator(self, blogId, collaboratorId):
