@@ -11,11 +11,19 @@ Provides the allow headers handling.
 
 from ally.api.config import GET, DELETE, INSERT, UPDATE
 from ally.container.ioc import injected
-from ally.core.http.spec.extension import HTTPDecode, HTTPEncode
 from ally.core.http.spec.server import IEncoderHeader
-from ally.core.spec.extension import CharSet, CharSetsAccepted, TypeAccepted
-from ally.core.spec.server import Response
 from ally.design.processor import Handler, Chain, processor
+from ally.design.context import Context, requires
+
+# --------------------------------------------------------------------
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    allows = requires(int)
+    encoderHeader = requires(IEncoderHeader)
 
 # --------------------------------------------------------------------
 
@@ -35,23 +43,17 @@ class AllowHandler(Handler):
         assert isinstance(self.nameAllow, str), 'Invalid allow name %s' % self.nameAllow
         assert isinstance(self.methodsAllow, (list, tuple)), 'Invalid methods allow %s' % self.methodsAllow
 
-        self.requiredOnRequest.extend((HTTPDecode,))
-
-        self.extendOnRequest.extend((CharSetsAccepted, TypeAccepted))
-        self.extendOnRequestContent.extend((CharSet,))
-
     @processor
-    def process(self, chain, response:(Response, HTTPEncode), **keyargs):
+    def encode(self, chain, response:Response, **keyargs):
         '''
         Encode the allow headers.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(response, HTTPEncode), 'Invalid response %s' % response
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid response header encoder %s' % response.encoderHeader
 
-        if response.allows != 0:
+        if Response.allows in response and response.allows != 0:
             value = [name for mark, name in self.methodsAllow if response.allows & mark != 0]
             response.encoderHeader.encode(self.nameAllow, *value)
 

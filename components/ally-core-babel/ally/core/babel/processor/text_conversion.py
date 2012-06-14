@@ -12,16 +12,14 @@ Provides the converters for the response content and request content.
 from ally.api.operator.container import Model
 from ally.api.operator.type import TypeModel
 from ally.api.type import Type, Percentage, Number, Date, DateTime, Time, \
-    Boolean, List
+    Boolean, List, Locale as TypeLocale
 from ally.container.ioc import injected
-from ally.core.http.spec.extension import HTTPDecode, HTTPEncode
+from ally.core.babel.spec.codes import INVALID_FORMATING
 from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
-from ally.core.spec.codes import INVALID_FORMATING
-from ally.core.spec.extension import CharConvert, Language, ArgumentsAdditional, \
-    LanguagesAccepted
+from ally.core.spec.codes import Code
 from ally.core.spec.resources import Converter, Normalizer
-from ally.core.spec.server import Response
-from ally.design.processor import Handler, processor, Chain, mokup
+from ally.design.context import Context, defines, requires, optional
+from ally.design.processor import Handler, processor, Chain
 from ally.internationalization import _
 from babel import numbers as bn, dates as bd
 from babel.core import Locale
@@ -36,7 +34,7 @@ log = logging.getLogger(__name__)
 
 FORMATTED_TYPE = (Number, Percentage, Date, Time, DateTime)
 # The formatted types for the babel converter.
-LIST_LOCALE = List(Locale)
+LIST_LOCALE = List(TypeLocale)
 # The locale list used to set as an additional argument.
 
 class FormatError(Exception):
@@ -48,17 +46,61 @@ class FormatError(Exception):
         self.message = message
         super().__init__(message)
 
-@mokup(HTTPDecode)
-class _Request(HTTPDecode, LanguagesAccepted, ArgumentsAdditional):
-    ''' Used as a mokup class '''
-@mokup()
-class _Content(Language, CharConvert):
-    ''' Used as a mokup class '''
+# --------------------------------------------------------------------
+
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    decoderHeader = requires(IDecoderHeader)
+    # ---------------------------------------------------------------- Optional
+    accLanguages = optional(list)
+    argumentsOfType = optional(dict)
+
+class ResponseDecode(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+    message = defines(str)
+
+class ContentDecode(Context):
+    '''
+    The decoding content context.
+    '''
+    # ---------------------------------------------------------------- Optional
+    language = optional(str)
+    # ---------------------------------------------------------------- Defined
+    normalizer = defines(Normalizer, doc='''
+    @rtype: Normalizer
+    The normalizer to use for decoding request content.
+    ''')
+    converter = defines(Converter, doc='''
+    @rtype: Converter
+    The converter to use for decoding request content.
+    ''')
+
+class ResponseEncode(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    encoderHeader = requires(IEncoderHeader)
+
+class ContentEncode(Context):
+    '''
+    The encoding content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    converter = requires(Converter)
 
 # --------------------------------------------------------------------
 
 @injected
-class CharConvertBabelHandler(Handler):
+class BabelConversionHandler(Handler):
     '''
     Implementation based on Babel for a processor that provides the converters based on language and object formating 
     for the response content and request content.
@@ -97,14 +139,14 @@ class CharConvertBabelHandler(Handler):
         assert isinstance(self.defaults, dict), 'Invalid defaults %s' % self.defaults
 
     @processor
-    def processRequestCnt(self, chain, request:HTTPDecode, requestCnt:_Content, response:Response, **keyargs):
+    def decodeRequest(self, chain, request:Request, requestCnt:ContentDecode, response:ResponseDecode, **keyargs):
         '''
         Provide the character conversion for request content.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, HTTPDecode), 'Invalid request %s' % request
-        assert isinstance(requestCnt, _Content), 'Invalid request content %s' % requestCnt
-        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(requestCnt, ContentDecode), 'Invalid request content %s' % requestCnt
+        assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
         assert isinstance(request.decoderHeader, IDecoderHeader), \
         'Invalid header decoder %s' % request.decoderHeader
 
@@ -114,7 +156,7 @@ class CharConvertBabelHandler(Handler):
             if value: formats[clsTyp] = value
 
         locale = None
-        if requestCnt.language:
+        if ContentDecode.language in requestCnt:
             try: locale = Locale.parse(requestCnt.language, sep='-')
             except: assert log.debug('Invalid request content language %s', requestCnt.language) or True
 
@@ -135,15 +177,14 @@ class CharConvertBabelHandler(Handler):
         chain.proceed()
 
     @processor
-    def processResponseCnt(self, chain, request:_Request, response:Response, responseCnt:_Content, **keyargs):
+    def decodeResponse(self, chain, request:Request, response:ResponseDecode, responseCnt:ContentDecode, **keyargs):
         '''
         Provide the character conversion for response content.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, HTTPDecode), 'Invalid request %s' % request
-        assert isinstance(request, LanguagesAccepted), 'Invalid request %s' % request
-        assert isinstance(responseCnt, _Content), 'Invalid response content %s' % responseCnt
-        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(responseCnt, ContentDecode), 'Invalid response content %s' % responseCnt
+        assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
         assert isinstance(request.decoderHeader, IDecoderHeader), \
         'Invalid header decoder %s' % request.decoderHeader
 
@@ -153,25 +194,28 @@ class CharConvertBabelHandler(Handler):
             if value: formats[clsTyp] = value
 
         locale = None
-        if responseCnt.language:
+        if ContentDecode.language in responseCnt:
             try: locale = Locale.parse(responseCnt.language, sep='-')
             except: assert log.debug('Invalid response content language %s', responseCnt.language) or True
 
         if locale is None:
-            for lang in request.accLanguages:
-                try: locale = Locale.parse(lang, sep='-')
-                except:
-                    assert log.debug('Invalid accepted content language %s', lang) or True
-                    continue
-                assert log.debug('Accepted language %s for response', locale) or True
-                break
-            else:
+            if Request.accLanguages in request:
+                for lang in request.accLanguages:
+                    try: locale = Locale.parse(lang, sep='-')
+                    except:
+                        assert log.debug('Invalid accepted content language %s', lang) or True
+                        continue
+                    assert log.debug('Accepted language %s for response', locale) or True
+                    break
+
+            if locale is None:
                 locale = Locale.parse(self.languageDefault)
-                request.accLanguages.insert(0, self.languageDefault)
-                request.argumentsOfType[LIST_LOCALE] = request.accLanguages
+                if Request.accLanguages in request: request.accLanguages.insert(0, self.languageDefault)
+                if Request.argumentsOfType in request: request.argumentsOfType[LIST_LOCALE] = request.accLanguages
                 assert log.debug('No language specified for the response, set default %s', locale) or True
 
-            request.argumentsOfType[Locale] = responseCnt.language = str(locale)
+            if Request.argumentsOfType in request:
+                request.argumentsOfType[TypeLocale] = responseCnt.language = str(locale)
 
         try: formats = self.processFormats(locale, formats)
         except FormatError as e:
@@ -186,13 +230,13 @@ class CharConvertBabelHandler(Handler):
         chain.proceed()
 
     @processor
-    def processResponseCntHeaders(self, chain, response:HTTPEncode, responseCnt:CharConvert, **keyargs):
+    def encode(self, chain, response:ResponseEncode, responseCnt:ContentEncode, **keyargs):
         '''
         Provide the response formatting header encode.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(responseCnt, CharConvert), 'Invalid response content %s' % responseCnt
-        assert isinstance(response, HTTPEncode), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ContentEncode), 'Invalid response content %s' % responseCnt
+        assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid response header encoder %s' % response.encoderHeader
 

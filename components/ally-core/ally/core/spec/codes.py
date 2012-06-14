@@ -34,13 +34,12 @@ class Code:
 # Response codes.
 UNKNOWN_ENCODING = Code(400, False) # HTTP code 400 Bad Request
 UNKNOWN_DECODING = Code(400, False) # HTTP code 400 Bad Request
-UNKNOWN_FORMAT = Code(400, False) # HTTP code 400 Bad Request
-UNKNOWN_LANGUAGE = Code(400, False) # HTTP code 400 Bad Request
-INVALID_FORMATING = Code(400, False) # HTTP code 400 Bad Request
 BAD_CONTENT = Code(400, False) # HTTP code 400 Bad Request
 ILLEGAL_PARAM = Code(400, False) # HTTP code 400 Bad Request
 RESOURCE_NOT_FOUND = Code(404, False) # HTTP code 404 Not Found
 METHOD_NOT_AVAILABLE = Code(501, False) # HTTP code 501 Unsupported method
+INCOMPLETE_ARGUMENTS = Code(400, False) # HTTP code 400 Bad Request
+INPUT_ERROR = Code(400, False) # HTTP code 400 Bad Request
 CANNOT_DELETE = Code(404, False) # HTTP code 404 Not Found
 CANNOT_UPDATE = Code(404, False) # HTTP code 404 Not Found
 CANNOT_INSERT = Code(404, False) # HTTP code 404 Not Found

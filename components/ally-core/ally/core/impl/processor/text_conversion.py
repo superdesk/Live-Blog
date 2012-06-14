@@ -10,10 +10,10 @@ Provides the converters for the response content and request content.
 '''
 
 from ally.container.ioc import injected
-from ally.core.spec.extension import CharConvert
 from ally.core.spec.resources import Converter, Normalizer
 from ally.design.processor import Handler, processor, Chain
 import logging
+from ally.design.context import Context, defines
 
 # --------------------------------------------------------------------
 
@@ -21,8 +21,24 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
+class Content(Context):
+    '''
+    The content context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    normalizer = defines(Normalizer, doc='''
+    @rtype: Normalizer
+    The normalizer to use for decoding request content.
+    ''')
+    converter = defines(Converter, doc='''
+    @rtype: Converter
+    The converter to use for decoding request content.
+    ''')
+
+# --------------------------------------------------------------------
+
 @injected
-class CharConverSetHandler(Handler):
+class ConversionSetHandler(Handler):
     '''
     Provides the standard transform services for the model decoding, this will be populated on the response and request
     content.
@@ -37,12 +53,12 @@ class CharConverSetHandler(Handler):
         assert isinstance(self.converter, Converter), 'Invalid converter %s' % self.converter
 
     @processor
-    def processRequestCnt(self, chain, requestCnt:CharConvert, **keyargs):
+    def decodeRequest(self, chain, requestCnt:Content, **keyargs):
         '''
         Provide the character conversion for request content.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(requestCnt, CharConvert), 'Invalid request content %s' % requestCnt
+        assert isinstance(requestCnt, Content), 'Invalid request content %s' % requestCnt
 
         requestCnt.normalizer = self.normalizer
         requestCnt.converter = self.converter
@@ -50,12 +66,12 @@ class CharConverSetHandler(Handler):
         chain.proceed()
 
     @processor
-    def processResponseCnt(self, chain, responseCnt:CharConvert, **keyargs):
+    def decodeResponse(self, chain, responseCnt:Content, **keyargs):
         '''
         Provide the character conversion for request content.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(responseCnt, CharConvert), 'Invalid response content %s' % responseCnt
+        assert isinstance(responseCnt, Content), 'Invalid response content %s' % responseCnt
 
         responseCnt.normalizer = self.normalizer
         responseCnt.converter = self.converter

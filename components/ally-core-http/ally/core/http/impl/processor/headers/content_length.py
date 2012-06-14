@@ -6,23 +6,63 @@ Created on Jun 11, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the decoding for the content length header.
+Provides the decoding/encoding for the content length header.
 '''
 
 from ally.container.ioc import injected
-from ally.core.http.spec.codes import INVALID_HEADER_VALUE
-from ally.core.http.spec.extension import HTTPDecode
-from ally.core.http.spec.server import IDecoderHeader
-from ally.core.spec.server import Response, Content, IStream
+from ally.core.http.spec.server import IEncoderHeader, IDecoderHeader
+from ally.design.context import Context, requires, defines
 from ally.design.processor import Handler, Chain, processor
+from ally.core.spec.codes import Code
+from ally.core.http.spec.codes import INVALID_HEADER_VALUE
+from ally.core.spec.server import IStream
+
+# --------------------------------------------------------------------
+
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    decoderHeader = requires(IDecoderHeader)
+
+class RequestContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    length = requires(int)
+    source = requires(IStream)
+
+class ResponseDecode(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+    message = defines(str)
+
+class ResponseEncode(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    encoderHeader = requires(IEncoderHeader)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    length = requires(int)
 
 # --------------------------------------------------------------------
 
 @injected
-class ContentLengthDecodeHandler(Handler):
+class ContentLengthHandler(Handler):
     '''
-    Implementation for a processor that provides the decoding of content length HTTP request header, also wraps
-    the source stream in order to enforce the length when reading the source stream.
+    Implementation for a processor that provides the decoding/encoding of content length HTTP response header.
     '''
 
     nameContentLength = 'Content-Length'
@@ -32,14 +72,14 @@ class ContentLengthDecodeHandler(Handler):
         assert isinstance(self.nameContentLength, str), 'Invalid content length name %s' % self.nameContentLength
 
     @processor
-    def process(self, chain, request:HTTPDecode, requestCnt:Content, response:Response, **keyargs):
+    def decode(self, chain, request:Request, requestCnt:RequestContent, response:ResponseDecode, **keyargs):
         '''
         Decodes the request content length also wraps the content source if is the case.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, HTTPDecode), 'Invalid request %s' % request
-        assert isinstance(requestCnt, Content), 'Invalid request content %s' % requestCnt
-        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
+        assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
         assert isinstance(request.decoderHeader, IDecoderHeader), \
         'Invalid header decoder %s' % request.decoderHeader
 
@@ -52,6 +92,22 @@ class ContentLengthDecodeHandler(Handler):
                 ', expected an integer value' % (value, self.nameContentLength)
                 return
             else: requestCnt.source = StreamLengthLimited(requestCnt.source, requestCnt.length)
+
+        chain.proceed()
+
+    @processor
+    def encode(self, chain, response:ResponseEncode, responseCnt:ResponseContent, **keyargs):
+        '''
+        Encodes the content length.
+        '''
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+        assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
+        assert isinstance(response.encoderHeader, IEncoderHeader), \
+        'Invalid response header encoder %s' % response.encoderHeader
+
+        if ResponseContent.length in responseCnt:
+            response.encoderHeader.encode(self.nameContentLength, str(responseCnt.length))
 
         chain.proceed()
 

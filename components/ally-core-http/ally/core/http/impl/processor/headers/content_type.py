@@ -6,14 +6,14 @@ Created on Jun 11, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the content type header decoding.
+Provides the content type header decoding/encoding.
 '''
 
 from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
-from ally.core.http.spec.server import IDecoderHeader
+from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
 from ally.design.processor import Handler, processor, Chain
-from ally.design.context import Context, requires, defines
+from ally.design.context import Context, requires, defines, optional
 from ally.core.spec.codes import Code
 
 # --------------------------------------------------------------------
@@ -43,7 +43,7 @@ class RequestContent(Context):
     The character set for the text content.
     ''')
 
-class Response(Context):
+class ResponseDecode(Context):
     '''
     The response context.
     '''
@@ -52,12 +52,28 @@ class Response(Context):
     text = defines(str)
     message = defines(str)
 
+class ResponseEncode(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    encoderHeader = requires(IEncoderHeader)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    type = requires(str)
+    # ---------------------------------------------------------------- Optional
+    charSet = optional(str)
+
 # --------------------------------------------------------------------
 
 @injected
-class ContentTypeDecodeHandler(Handler):
+class ContentTypeHandler(Handler):
     '''
-    Implementation for a processor that provides the decoding of content type HTTP request header.
+    Implementation for a processor that provides the decoding/encoding of content type HTTP request header.
     '''
 
     nameContentType = 'Content-Type'
@@ -71,13 +87,13 @@ class ContentTypeDecodeHandler(Handler):
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
 
     @processor
-    def process(self, chain, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
+    def decode(self, chain, request:Request, requestCnt:RequestContent, response:ResponseDecode, **keyargs):
         '''
-        Provides the content type decode for the request.
+        Decode the content type for the request.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
-        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
         assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
 
@@ -92,5 +108,24 @@ class ContentTypeDecodeHandler(Handler):
             requestCnt.type = value
             requestCnt.typeAttr = attributes
             requestCnt.charSet = attributes.get(self.attrContentTypeCharSet, requestCnt.charSet)
+
+        chain.proceed()
+
+    @processor
+    def encode(self, chain, response:ResponseEncode, responseCnt:ResponseContent, **keyargs):
+        '''
+        Encodes the content type for the response.
+        '''
+        assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
+        assert isinstance(response.encoderHeader, IEncoderHeader), \
+        'Invalid header encoder %s' % response.encoderHeader
+
+        if ResponseContent.type in responseCnt:
+            value = responseCnt.type
+            if ResponseContent.charSet in responseCnt:
+                if responseCnt.charSet: value = (value, (self.attrContentTypeCharSet, responseCnt.charSet))
+
+            response.encoderHeader.encode(self.nameContentType, value)
 
         chain.proceed()

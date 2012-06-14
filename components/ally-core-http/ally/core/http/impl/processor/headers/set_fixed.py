@@ -47,7 +47,7 @@ class HeaderSetHandler(Handler):
                 assert isinstance(value, str), 'Invalid header value %s' % value
 
     @processor
-    def process(self, chain, response:Response, **keyargs):
+    def encode(self, chain, response:Response, **keyargs):
         '''
         Set the fixed header values on the response.
         '''
