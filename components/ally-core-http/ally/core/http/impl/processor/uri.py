@@ -42,6 +42,10 @@ class Request(Context):
     @rtype: Path
     The path to the resource node.
     ''')
+    arguments = defines(dict, doc='''
+    @rtype: dictionary{string, object}
+    The dictionary containing the arguments that will be passes to the invoker that provides the response object.
+    ''')
     normalizer = defines(Normalizer, doc='''
     @rtype: Normalizer
     The normalizer to use for decoding parameters names.

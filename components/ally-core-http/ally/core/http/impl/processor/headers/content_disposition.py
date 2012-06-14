@@ -11,10 +11,42 @@ Provides the content disposition header decoding.
 
 from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
-from ally.core.http.spec.extension import HTTPDecode, ContentDisposition
 from ally.core.http.spec.server import IDecoderHeader
-from ally.core.spec.server import Response
-from ally.design.processor import Handler, processor, Chain, ext
+from ally.design.processor import Handler, processor, Chain
+from ally.design.context import Context, requires, defines
+from ally.core.spec.codes import Code
+
+# --------------------------------------------------------------------
+
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    decoderHeader = requires(IDecoderHeader)
+
+class RequestContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    disposition = defines(str, doc='''
+    @rtype: string
+    The content disposition.
+    ''')
+    dispositionAttr = defines(dict, doc='''
+    @rtype: dictionary{string, string}
+    The content disposition attributes.
+    ''')
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+    message = defines(str)
 
 # --------------------------------------------------------------------
 
@@ -32,14 +64,14 @@ class ContentDispositionHandler(Handler):
         'Invalid content disposition header name %s' % self.nameContentDisposition
 
     @processor
-    def process(self, chain, request:HTTPDecode, requestCnt:ext(ContentDisposition), response:Response, **keyargs):
+    def decode(self, chain, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
         '''
         Provides the content type decode for the request.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, HTTPDecode), 'Invalid request %s' % request
+        assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(requestCnt, ContentDisposition), 'Invalid request content %s' % requestCnt
+        assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
 
         value = request.decoderHeader.decode(self.nameContentDisposition)

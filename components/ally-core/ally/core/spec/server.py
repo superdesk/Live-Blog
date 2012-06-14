@@ -138,31 +138,3 @@ if __debug__:
     validateTypeFor(Response, 'code', Code)
     validateTypeFor(Response, 'text', str)
     validateTypeFor(Response, 'allows', int, False)
-#TODO: remove
-#class ClassesServer(Classes):
-#    '''
-#    The processing argument classes.
-#    '''
-#
-#    def __init__(self, request=Request, response=Response, requestCnt=Content, responseCnt=Content):
-#        '''
-#        Construct the classes used for the server processing.
-#        
-#        @param request: class
-#            The class for the 'request' argument
-#        @param response: class
-#            The class for the 'response' argument
-#        @param requestCnt: class
-#            The class for the 'request content' argument
-#        @param responseCnt: class
-#            The class for the 'response requestCnt' argument
-#        '''
-#        assert isclass(request), 'Invalid request class %s' % request
-#        assert isclass(response), 'Invalid response class %s' % response
-#        assert isclass(requestCnt), 'Invalid content request class %s' % requestCnt
-#        assert isclass(responseCnt), 'Invalid content response class %s' % responseCnt
-#
-#        self.request = request
-#        self.response = response
-#        self.requestCnt = requestCnt
-#        self.responseCnt = responseCnt

@@ -69,7 +69,7 @@ class MethodOverrideHandler(Handler):
         assert isinstance(self.methodsOverride, dict), 'Invalid methods override %s' % self.methodsOverride
 
     @processor
-    def process(self, chain, request:Request, response:Response, **keyargs):
+    def decode(self, chain, request:Request, response:Response, **keyargs):
         '''
         Overrides the request method based on a provided header.
         '''

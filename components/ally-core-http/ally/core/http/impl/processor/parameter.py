@@ -32,11 +32,7 @@ class Request(Context):
     normalizer = requires(Normalizer)
     converter = requires(Converter)
     # ---------------------------------------------------------------- Defined
-    arguments = defines(Path, doc='''
-    @rtype: dictionary{string, object}
-    A dictionary containing as a key the argument name, this dictionary needs to be populated by the 
-    processors as seen fit, also the parameters need to be transformed to arguments.
-    ''')
+    arguments = defines(dict)
 
 class Response(Context):
     '''
@@ -91,6 +87,7 @@ class ParameterHandler(Handler, INodeInvokerListener):
             illegal = []
             while request.parameters:
                 name, value = request.parameters.popleft()
+                if Request.arguments not in request: request.arguments = {}
                 if not decode.decode(name, value, request.arguments, request): illegal.append((name, value))
 
             if illegal:
@@ -114,6 +111,7 @@ class ParameterHandler(Handler, INodeInvokerListener):
                         if isinstance(meta.value, str): value = meta.value
                         else: value = meta.value
                         allowed.append('%s=%s' % (meta.identifier, meta.value))
+                    #TODO: make the parameters message more user friendly
                     response.message = 'Illegal parameter or value:\n%s\nthe allowed parameters are:\n%s'
                     response.message %= ('\n'.join('%s=%s' % param for param in illegal), '\n'.join(allowed))
                 return
