@@ -10,12 +10,42 @@ Provides the requested method validation handler.
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
-from ally.container.ioc import injected
-from ally.core.spec.codes import METHOD_NOT_AVAILABLE
-from ally.core.spec.resources import Path, Node
-from ally.core.spec.server import Request, Response
-from ally.design.processor import Handler, processor, Chain, ext
-from ally.core.spec.extension import Invoke
+from ally.core.spec.codes import METHOD_NOT_AVAILABLE, Code
+from ally.core.spec.resources import Path, Node, Invoker
+from ally.design.processor import Handler, processor, Chain
+from ally.design.context import Context, requires, defines
+from ally.api.type import Type
+
+# --------------------------------------------------------------------
+
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    method = requires(int)
+    path = requires(Path)
+    # ---------------------------------------------------------------- Defined
+    invoker = defines(Invoker, doc='''
+    @rtype: Invoker
+    The invoker to be used for calling the service.
+    ''')
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+    allows = defines(int, doc='''
+    @rtype: integer
+    Contains the allow flags for the methods.
+    ''')
+    metaForType = defines(Type, doc='''
+    @rtype: Type
+    The type to construct the meta for.
+    ''')
 
 # --------------------------------------------------------------------
 
@@ -28,13 +58,12 @@ class MethodInvokerHandler(Handler):
     '''
 
     @processor
-    def process(self, chain, request:(Request, ext(Invoke)), response:Response, **keyargs):
+    def provide(self, chain, request:Request, response:Response, **keyargs):
         '''
-        @see: IProcessor.process
+        Provide the invoker based on the request method to be used in getting the data for the response.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
-        assert isinstance(request, Invoke), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(request.path, Path), 'Invalid request path %s' % request.path
         node = request.path.node
@@ -43,44 +72,53 @@ class MethodInvokerHandler(Handler):
         if request.method == GET: # Retrieving
             request.invoker = node.get
             if request.invoker is None:
-                self._sendNotAvailable(node, rsp, 'Path not available for get')
+                response.code, response.text = METHOD_NOT_AVAILABLE, 'Path not available for GET'
+                response.allows = self.allowedFor(node)
                 return
-        elif req.method == INSERT: # Inserting
-            req.invoker = node.insert
-            if req.invoker is None:
-                self._sendNotAvailable(node, rsp, 'Path not available for post')
+        elif request.method == INSERT: # Inserting
+            request.invoker = node.insert
+            if request.invoker is None:
+                response.code, response.text = METHOD_NOT_AVAILABLE, 'Path not available for POST'
+                response.allows = self.allowedFor(node)
                 return
-        elif req.method == UPDATE: # Updating
-            req.invoker = node.update
-            if req.invoker is None:
-                self._sendNotAvailable(node, rsp, 'Path not available for put')
+        elif request.method == UPDATE: # Updating
+            request.invoker = node.update
+            if request.invoker is None:
+                response.code, response.text = METHOD_NOT_AVAILABLE, 'Path not available for PUT'
+                response.allows = self.allowedFor(node)
                 return
-        elif req.method == DELETE: # Deleting
-            req.invoker = node.delete
-            if req.invoker is None:
-                self._sendNotAvailable(node, rsp, 'Path not available for delete')
+        elif request.method == DELETE: # Deleting
+            request.invoker = node.delete
+            if request.invoker is None:
+                response.code, response.text = METHOD_NOT_AVAILABLE, 'Path not available for DELETE'
+                response.allows = self.allowedFor(node)
                 return
         else:
-            self._sendNotAvailable(node, rsp, 'Path not available for this method')
+            response.code, response.text = METHOD_NOT_AVAILABLE, 'Path not available for method'
+            response.allows = self.allowedFor(node)
             return
-        ConstructMetaModel(req.invoker.output, self=rsp)
+
+        response.metaForType = request.invoker.output
+
         chain.proceed()
 
-    def _processAllow(self, node, rsp):
-        '''
-        Set the allows for the response based on the provided node.
-        '''
-        assert isinstance(node, Node)
-        assert isinstance(rsp, Response)
-        if node.get is not None:
-            rsp.addAllows(GET)
-        if node.insert is not None:
-            rsp.addAllows(INSERT)
-        if node.update is not None:
-            rsp.addAllows(UPDATE)
-        if node.delete is not None:
-            rsp.addAllows(DELETE)
+    # ----------------------------------------------------------------
 
-    def _sendNotAvailable(self, node, rsp, message):
-        self._processAllow(node, rsp)
-        rsp.setCode(METHOD_NOT_AVAILABLE, message)
+    def allowedFor(self, node):
+        '''
+        Get the allow flags for the provided node.
+        
+        @param node: Node
+            The node to get the allow flags.
+        @return: integer
+            The allow falgs.
+        '''
+        assert isinstance(node, Node), 'Invalid node %s' % node
+
+        allows = 0
+        if node.get is not None: allows |= GET
+        if node.insert is not None: allows |= INSERT
+        if node.update is not None: allows |= UPDATE
+        if node.delete is not None: allows |= DELETE
+
+        return allows

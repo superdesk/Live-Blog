@@ -82,9 +82,9 @@ class Path:
         
         @param invoker: Invoker
             The invoker to construct arguments for.
-        @return: dictionary
-            Return the dictionary of arguments of this path the key is the name of the argument, can be empty list
-            if there are no arguments.
+        @return: dictionary{string, object}
+            Return the dictionary of arguments of this path the key is the name of the argument, can be empty
+            dictionary if there are no arguments.
         '''
         args = {}
         for match in self.matches:

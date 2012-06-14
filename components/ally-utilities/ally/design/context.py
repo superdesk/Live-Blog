@@ -14,20 +14,22 @@ from inspect import isclass
 
 # --------------------------------------------------------------------
 
-def defines(type, **keyargs):
+def defines(*types, doc=None):
     '''
-    Construct a defining attribute for the context.
+    Construct a defining attribute for the context. The defines attribute means that the context can provide a value
+    for the attribute, but is not mandatory.
     
-    @param type: class
-        The type of the defined attribute.
+    @param types: arguments[class]
+        The types of the defined attribute.
     @keyword doc: string
         The documentation associated with the attribute.
     '''
-    return Attribute(DEFINED, (type,), **keyargs)
+    return Attribute(DEFINED, types, doc)
 
 def requires(*types, doc=None):
     '''
-    Construct a required attribute for the context.
+    Construct a required attribute for the context. The requires attribute means that the context is valid only if
+    there is a value for the attribute, the context should not change the value.
     
     @param types: arguments[class]
         The types of the required attribute, the attribute value can be any one of the provided attributes.
@@ -38,7 +40,8 @@ def requires(*types, doc=None):
 
 def optional(*types, doc=None):
     '''
-    Construct an optional attribute for the context.
+    Construct an optional attribute for the context. The optional attribute means that the context is valid even if
+    there is no value for the attribute and also if is the case the value can be provided or changed.
     
     @param types: arguments[class]
         The types of the optional attribute, the attribute value can be any one of the provided attributes.

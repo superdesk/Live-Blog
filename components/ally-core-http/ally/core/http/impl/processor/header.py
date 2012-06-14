@@ -83,7 +83,7 @@ class HeaderHandler(Handler):
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
 
-        if Request.parameters in request:
+        if self.useParameters and Request.parameters in request:
             request.decoderHeader = DecoderHeader(self, request.headers, request.parameters)
         else:
             request.decoderHeader = DecoderHeader(self, request.headers)
