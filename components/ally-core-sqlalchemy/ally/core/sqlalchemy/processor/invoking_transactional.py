@@ -10,7 +10,6 @@ Provides support for SQL alchemy a processor for automatic session handling.
 '''
 
 from ally.core.impl.processor.invoking import InvokingHandler, Request, Response
-from ally.design.processor import processor
 from ally.support.sqlalchemy.session import rollback, commit, ATTR_KEEP_ALIVE, \
     endSessions
 
@@ -21,11 +20,11 @@ class InvokingWithTransactionHandler(InvokingHandler):
     Implementation for a processor that provides the SQLAlchemy session handling.
     '''
 
-    @processor
-    def invoke(self, chain, request:Request, response:Response, **keyargs):
+    def process(self, chain, request:Request, response:Response, **keyargs):
         '''
+        @see: InvokingHandler.process
+        
         Wraps the invoking and all processors after invoking in a transaction.
-        @see: InvokingHandler.invoke
         '''
         assert isinstance(response, Response), 'Invalid response %s' % response
 

@@ -17,7 +17,7 @@ from ally.core.spec.codes import DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS,
     METHOD_NOT_AVAILABLE, INCOMPLETE_ARGUMENTS, INPUT_ERROR
 from ally.core.spec.resources import Path, Invoker
 from ally.design.context import Context, defines, requires
-from ally.design.processor import Handler, Chain, processor
+from ally.design.processor import Handler, Chain, HandlerProcessor
 from ally.exception import DevelError, InputError
 from collections import deque
 import logging
@@ -53,7 +53,7 @@ class Response(Context):
 
 # --------------------------------------------------------------------
 
-class InvokingHandler(Handler):
+class InvokingHandler(HandlerProcessor):
     '''
     Implementation for a processor that makes the actual call to the request method corresponding invoke on the
     resource path node. The invoking will use all the obtained arguments from the previous processors and perform
@@ -66,6 +66,8 @@ class InvokingHandler(Handler):
         '''
         Construct the handler.
         '''
+        super().__init__()
+
         self.invokeCallBack = {
                                GET: self.afterGet,
                                INSERT: self.afterInsert,
@@ -73,9 +75,10 @@ class InvokingHandler(Handler):
                                DELETE: self.afterDelete
                                }
 
-    @processor
-    def invoke(self, chain, request:Request, response:Response, **keyargs):
+    def process(self, chain, request:Request, response:Response, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Invoke the request invoker. This processor will return True on success False on Failure.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain

@@ -16,7 +16,7 @@ from ally.core.spec.meta import IMetaService, IMetaDecode, IMetaEncode, SAMPLE, 
 from ally.core.spec.resources import Invoker, Path, Node, INodeInvokerListener, \
     Converter, Normalizer
 from ally.design.context import Context, requires, defines
-from ally.design.processor import Handler, Chain, processor
+from ally.design.processor import Chain, HandlerProcessor
 from weakref import WeakKeyDictionary
 
 # --------------------------------------------------------------------
@@ -49,7 +49,7 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ParameterHandler(Handler, INodeInvokerListener):
+class ParameterHandler(HandlerProcessor, INodeInvokerListener):
     '''
     Implementation for a processor that provides the transformation of parameters into arguments.
     '''
@@ -60,13 +60,15 @@ class ParameterHandler(Handler, INodeInvokerListener):
     def __init__(self):
         assert isinstance(self.parameterMetaService, IMetaService), \
         'Invalid parameter meta service %s' % self.parameterMetaService
+        super().__init__()
 
         self._cacheDecode = WeakKeyDictionary()
         self._cacheEncode = WeakKeyDictionary()
 
-    @processor
     def process(self, chain, request:Request, response:Response, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Process the parameters into arguments.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain

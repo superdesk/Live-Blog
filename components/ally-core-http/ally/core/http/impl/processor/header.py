@@ -12,7 +12,7 @@ Provides the standard headers handling.
 from ally.container.ioc import injected
 from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
 from ally.design.context import Context, defines, requires, optional
-from ally.design.processor import Handler, Chain, processor
+from ally.design.processor import Chain, HandlerProcessor
 from collections import deque, Iterable
 import re
 
@@ -49,7 +49,7 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class HeaderHandler(Handler):
+class HeaderHandler(HandlerProcessor):
     '''
     Provides encoder/decoder for handling HTTP headers.
     '''
@@ -69,14 +69,16 @@ class HeaderHandler(Handler):
         assert isinstance(self.separatorMain, str), 'Invalid main separator %s' % self.separatorMain
         assert isinstance(self.separatorAttr, str), 'Invalid attribute separator %s' % self.separatorAttr
         assert isinstance(self.separatorValue, str), 'Invalid value separator %s' % self.separatorValue
+        super().__init__()
 
         self.reSeparatorMain = re.compile(self.separatorMain)
         self.reSeparatorAttr = re.compile(self.separatorAttr)
         self.reSeparatorValue = re.compile(self.separatorValue)
 
-    @processor
     def process(self, chain, request:Request, response:Response, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Provide the headers encoders and decoders.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain

@@ -10,11 +10,65 @@ Provides HTTP server specification.
 '''
 
 import abc
+from ally.design.context import Context, defines, requires, optional
+from ally.core.spec.server import IStream
+from types import GeneratorType
+from ally.core.spec.codes import Code
 
 # --------------------------------------------------------------------
 # Additional HTTP methods.
 
 METHOD_OPTIONS = 16
+
+# --------------------------------------------------------------------
+
+class RequestHTTP(Context):
+    '''
+    Context for HTTP request data. 
+    '''
+    # ---------------------------------------------------------------- Defined
+    scheme = defines(str, doc='''
+    @rtype: string
+    The scheme URI protocol name to be used for the response.
+    ''')
+    uriRoot = defines(str, doc='''
+    @rtype: string
+    The root URI to be considered for constructing a request path, basically the relative path root.
+    ''')
+    uri = defines(str, doc='''
+    @rtype: string
+    The relative request URI.
+    ''')
+    headers = defines(dict, doc='''
+    @rtype: dictionary{string, string}
+    The raw headers.
+    ''')
+
+class RequestContentHTTP(Context):
+    '''
+    Context for HTTP request content data. 
+    '''
+    # ---------------------------------------------------------------- Defined
+    source = defines(IStream, doc='''
+    @rtype: IStream
+    The source for the content.
+    ''')
+
+class ResponseHTTP(Context):
+    '''
+    Context for HTTP response data. 
+    '''
+    # ---------------------------------------------------------------- Required
+    code = requires(Code)
+    # ---------------------------------------------------------------- Optional
+    text = optional(str)
+
+class ResponseContentHTTP(Context):
+    '''
+    Context for HTTP request response data. 
+    '''
+    # ---------------------------------------------------------------- Required
+    source = requires(IStream, GeneratorType)
 
 # --------------------------------------------------------------------
 

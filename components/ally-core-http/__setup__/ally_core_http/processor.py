@@ -10,21 +10,27 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from . import server_pattern_rest
-from ..ally_core.converter import contentNormalizer, converterPath
-from ..ally_core.processor import decoding, handlersResources, methodInvoker, \
-    converter, handlersExplainError, requestTypes, invokingHandler
+from ..ally_core.processor import argumentsOfType, invoking, resourcesAssembly
 from ..ally_core.resources import resourcesLocator
 from .meta_service import parameterMetaService
 from ally.container import ioc
-from ally.core.http.impl.processor.formatting import FormattingProviderHandler
-from ally.core.http.impl.processor.header import HeaderStandardHandler
-from ally.core.http.impl.processor.meta_filter import MetaFilterHandler
-from ally.core.http.impl.processor.method_override import MethodOverrideHandler
+from ally.core.http.impl.processor.header import HeaderHandler
+from ally.core.http.impl.processor.headers.accept import AcceptDecodeHandler
+from ally.core.http.impl.processor.headers.allow import AllowEncodeHandler
+from ally.core.http.impl.processor.headers.content_disposition import \
+    ContentDispositionDecodeHandler
+from ally.core.http.impl.processor.headers.content_language import \
+    ContentLanguageDecodeHandler, ContentLanguageEncodeHandler
+from ally.core.http.impl.processor.headers.content_length import \
+    ContentLengthDecodeHandler, ContentLengthEncodeHandler
+from ally.core.http.impl.processor.headers.content_type import \
+    ContentTypeDecodeHandler, ContentTypeEncodeHandler
+from ally.core.http.impl.processor.headers.override_method import \
+    MethodOverrideDecodeHandler
 from ally.core.http.impl.processor.parameter import ParameterHandler
 from ally.core.http.impl.processor.uri import URIHandler
-from ally.core.spec.server import IProcessor, Processors
-import re
-from ..ally_core.processor import handlersRedirect
+from ally.core.spec.resources import ConverterPath
+from ally.design.processor import Handler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -45,74 +51,78 @@ def allow_method_override():
 # --------------------------------------------------------------------
 
 @ioc.entity
-def methodOverride() -> IProcessor:
-    b = MethodOverrideHandler()
-    b.readFromParams = read_from_params()
-    return b
+def converterPath() -> ConverterPath: return ConverterPath()
 
 @ioc.entity
-def uri() -> IProcessor:
+def header() -> Handler:
+    b = HeaderHandler()
+    b.useParameters = read_from_params()
+    return b
+
+# --------------------------------------------------------------------
+# Header decoders
+
+@ioc.entity
+def contentTypeDecode() -> Handler: return ContentTypeDecodeHandler()
+
+@ioc.entity
+def contentDispositionDecode() -> Handler: return ContentDispositionDecodeHandler()
+
+@ioc.entity
+def contentLengthDecode() -> Handler: return ContentLengthDecodeHandler()
+
+@ioc.entity
+def contentLanguageDecode() -> Handler: return ContentLanguageDecodeHandler()
+
+@ioc.entity
+def acceptDecode() -> Handler: return AcceptDecodeHandler()
+
+@ioc.entity
+def methodOverrideDecode() -> Handler: return MethodOverrideDecodeHandler()
+
+# --------------------------------------------------------------------
+# Header encoders
+
+@ioc.entity
+def contentTypeEncode() -> Handler: return ContentTypeEncodeHandler()
+
+@ioc.entity
+def contentLengthEncode() -> Handler: return ContentLengthEncodeHandler()
+
+@ioc.entity
+def contentLanguageEncode() -> Handler: return ContentLanguageEncodeHandler()
+
+@ioc.entity
+def allowEncode() -> Handler: return AllowEncodeHandler()
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def uri() -> Handler:
     b = URIHandler()
     b.resourcesLocator = resourcesLocator()
     b.converterPath = converterPath()
     return b
 
 @ioc.entity
-def parameter() -> IProcessor:
+def parameter() -> Handler:
     b = ParameterHandler()
-    b.converterPath = converterPath()
     b.parameterMetaService = parameterMetaService()
     return b
 
 @ioc.entity
-def headerStandard() -> IProcessor:
-    b = HeaderStandardHandler()
-    b.readFromParams = read_from_params()
-    return b
-
-@ioc.entity
-def metaFilter() -> IProcessor:
-    b = MetaFilterHandler()
-    b.normalizer = contentNormalizer()
-    b.fetching = Processors(*handlersFetching())
-    b.readFromParams = read_from_params()
-    return b
-
-@ioc.entity
-def formattingProvider() -> IProcessor:
-    b = FormattingProviderHandler()
-    b.readFromParams = read_from_params()
-    return b
-
-@ioc.entity
 def pathHandlers():
-    return [(server_pattern_rest(), handlersResources())]
+    return [(server_pattern_rest(), resourcesAssembly())]
 
 # --------------------------------------------------------------------
 
-@ioc.entity
-def handlersFetching():
-    '''
-    The specific handlers to be used for an actual invoking procedure, used by the meta filter to actually fetch 
-    entities whenever the X-Filter is used and there is no compound method available.
-    '''
-    return [methodInvoker(), requestTypes(), invokingHandler()]
+@ioc.before(resourcesAssembly)
+def updateResourcesAssembly():
+    resourcesAssembly().add(header(), uri(), contentTypeDecode(), contentLengthDecode(), contentLanguageDecode(),
+                            contentDispositionDecode(), acceptDecode(), after=argumentsOfType())
 
-# --------------------------------------------------------------------
+    resourcesAssembly().add(contentTypeEncode(), contentLengthEncode(), contentLanguageEncode(), allowEncode(),
+                            after=invoking())
 
-@ioc.before(handlersExplainError)
-def updateHandlersExplainError():
-    handlersExplainError().insert(0, headerStandard())
-
-@ioc.before(handlersRedirect)
-def updateHandlersRedirect():
-    handlersRedirect().insert(handlersRedirect().index(decoding()), parameter())
-
-@ioc.before(handlersResources)
-def updateHandlersResources():
-    handlers = [headers(), uri(), formattingProvider()]
-    if allow_method_override(): handlers.insert(0, methodOverride()) # Add also the method override if so configured
-    for proc in handlers: handlersResources().insert(handlersResources().index(methodInvoker()), proc)
-
-    handlersResources().insert(handlersResources().index(converter()), metaFilter())
-    handlersResources().insert(handlersResources().index(decoding()), parameter())
+    if allow_method_override():
+        resourcesAssembly().add(methodOverrideDecode(), before=uri())

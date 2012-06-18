@@ -19,7 +19,7 @@ from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
 from ally.core.spec.codes import Code
 from ally.core.spec.resources import Converter, Normalizer
 from ally.design.context import Context, defines, requires, optional
-from ally.design.processor import Handler, processor, Chain
+from ally.design.processor import Chain, HandlerProcessor
 from ally.internationalization import _
 from babel import numbers as bn, dates as bd
 from babel.core import Locale
@@ -58,16 +58,7 @@ class Request(Context):
     accLanguages = optional(list)
     argumentsOfType = optional(dict)
 
-class ResponseDecode(Context):
-    '''
-    The response context.
-    '''
-    # ---------------------------------------------------------------- Defined
-    code = defines(Code)
-    text = defines(str)
-    message = defines(str)
-
-class ContentDecode(Context):
+class RequestContentDecode(Context):
     '''
     The decoding content context.
     '''
@@ -83,24 +74,36 @@ class ContentDecode(Context):
     The converter to use for decoding request content.
     ''')
 
-class ResponseEncode(Context):
+class ResponseDecode(Context):
     '''
     The response context.
     '''
-    # ---------------------------------------------------------------- Required
-    encoderHeader = requires(IEncoderHeader)
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+    message = defines(str)
 
-class ContentEncode(Context):
+class ResponseContentDecode(Context):
     '''
-    The encoding content context.
+    The decoding content context.
     '''
-    # ---------------------------------------------------------------- Required
-    converter = requires(Converter)
-
+    # ---------------------------------------------------------------- Defined
+    language = defines(str, doc='''
+    @rtype: string
+    The language that the converter is using for the response.
+    ''')
+    normalizer = defines(Normalizer, doc='''
+    @rtype: Normalizer
+    The normalizer to use for decoding request content.
+    ''')
+    converter = defines(Converter, doc='''
+    @rtype: Converter
+    The converter to use for decoding request content.
+    ''')
 # --------------------------------------------------------------------
 
 @injected
-class BabelConversionHandler(Handler):
+class BabelConversionDecodeHandler(HandlerProcessor):
     '''
     Implementation based on Babel for a processor that provides the converters based on language and object formating 
     for the response content and request content.
@@ -114,8 +117,6 @@ class BabelConversionHandler(Handler):
     # The format name for the headers that specify the required format for the response content.
     formatContentNameX = 'X-FormatContent-%s'
     # The format name for the headers that specify the format for the request content.
-    presentFormating = True
-    # If true will present the used formatting in the response header.
     formats = {
                Date:('full', 'long', 'medium', 'short'),
                Time:('full', 'long', 'medium', 'short'),
@@ -137,16 +138,20 @@ class BabelConversionHandler(Handler):
         assert isinstance(self.formatContentNameX, str), 'Invalid name content format %s' % self.formatContentNameX
         assert isinstance(self.formats, dict), 'Invalid formats %s' % self.formats
         assert isinstance(self.defaults, dict), 'Invalid defaults %s' % self.defaults
+        super().__init__()
 
-    @processor
-    def decodeRequest(self, chain, request:Request, requestCnt:ContentDecode, response:ResponseDecode, **keyargs):
+    def process(self, chain, request:Request, requestCnt:RequestContentDecode, response:ResponseDecode,
+                responseCnt:ResponseContentDecode, **keyargs):
         '''
-        Provide the character conversion for request content.
+        @see: HandlerProcessor.process
+        
+        Provide the character conversion for response content.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
-        assert isinstance(requestCnt, ContentDecode), 'Invalid request content %s' % requestCnt
+        assert isinstance(requestCnt, RequestContentDecode), 'Invalid request content %s' % requestCnt
         assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContentDecode), 'Invalid response content %s' % responseCnt
         assert isinstance(request.decoderHeader, IDecoderHeader), \
         'Invalid header decoder %s' % request.decoderHeader
 
@@ -156,7 +161,7 @@ class BabelConversionHandler(Handler):
             if value: formats[clsTyp] = value
 
         locale = None
-        if ContentDecode.language in requestCnt:
+        if RequestContentDecode.language in requestCnt:
             try: locale = Locale.parse(requestCnt.language, sep='-')
             except: assert log.debug('Invalid request content language %s', requestCnt.language) or True
 
@@ -174,27 +179,13 @@ class BabelConversionHandler(Handler):
         requestCnt.converter = ConverterBabel(locale, formats)
         requestCnt.normalizer = self.normalizer
 
-        chain.proceed()
-
-    @processor
-    def decodeResponse(self, chain, request:Request, response:ResponseDecode, responseCnt:ContentDecode, **keyargs):
-        '''
-        Provide the character conversion for response content.
-        '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, Request), 'Invalid request %s' % request
-        assert isinstance(responseCnt, ContentDecode), 'Invalid response content %s' % responseCnt
-        assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
-        assert isinstance(request.decoderHeader, IDecoderHeader), \
-        'Invalid header decoder %s' % request.decoderHeader
-
         formats = {}
         for clsTyp in FORMATTED_TYPE:
             value = request.decoderHeader.retrieve(self.formatNameX % clsTyp.__name__)
             if value: formats[clsTyp] = value
 
         locale = None
-        if ContentDecode.language in responseCnt:
+        if ResponseContentDecode.language in responseCnt:
             try: locale = Locale.parse(responseCnt.language, sep='-')
             except: assert log.debug('Invalid response content language %s', responseCnt.language) or True
 
@@ -214,8 +205,10 @@ class BabelConversionHandler(Handler):
                 if Request.argumentsOfType in request: request.argumentsOfType[LIST_LOCALE] = request.accLanguages
                 assert log.debug('No language specified for the response, set default %s', locale) or True
 
+            responseCnt.language = str(locale)
+
             if Request.argumentsOfType in request:
-                request.argumentsOfType[TypeLocale] = responseCnt.language = str(locale)
+                request.argumentsOfType[TypeLocale] = responseCnt.language
 
         try: formats = self.processFormats(locale, formats)
         except FormatError as e:
@@ -226,24 +219,6 @@ class BabelConversionHandler(Handler):
 
         responseCnt.converter = ConverterBabel(locale, formats)
         responseCnt.normalizer = self.normalizer
-
-        chain.proceed()
-
-    @processor
-    def encode(self, chain, response:ResponseEncode, responseCnt:ContentEncode, **keyargs):
-        '''
-        Provide the response formatting header encode.
-        '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(responseCnt, ContentEncode), 'Invalid response content %s' % responseCnt
-        assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
-        assert isinstance(response.encoderHeader, IEncoderHeader), \
-        'Invalid response header encoder %s' % response.encoderHeader
-
-        if isinstance(responseCnt.converter, ConverterBabel):
-            assert isinstance(responseCnt.converter, ConverterBabel)
-            for clsTyp, format in responseCnt.converter.formats.items():
-                response.encoderHeader.encode(self.formatContentNameX % clsTyp.__name__, format)
 
         chain.proceed()
 
@@ -271,8 +246,6 @@ class BabelConversionHandler(Handler):
             if clsTyp not in formats: formats[clsTyp] = default
 
         return formats
-
-# --------------------------------------------------------------------
 
 class ConverterBabel(Converter):
     '''
@@ -343,3 +316,53 @@ class ConverterBabel(Converter):
         if objType.isOf(DateTime):
             return datetime.strptime(strValue, '%Y-%m-%d %H:%M:%S')
         raise TypeError('Invalid object type %s for Babel converter' % objType)
+
+# --------------------------------------------------------------------
+
+class ResponseEncode(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    encoderHeader = requires(IEncoderHeader)
+
+class ResponseContentEncode(Context):
+    '''
+    The encoding content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    converter = requires(Converter)
+
+# --------------------------------------------------------------------
+
+@injected
+class BabelConversionEncodeHandler(HandlerProcessor):
+    '''
+    Implementation based on Babel for a processor that encodes the Babel converter format.
+    '''
+
+    formatContentNameX = 'X-FormatContent-%s'
+    # The format name for the headers that specify the format for the request content.
+
+    def __init__(self):
+        assert isinstance(self.formatContentNameX, str), 'Invalid name content format %s' % self.formatContentNameX
+        super().__init__()
+
+    def process(self, chain, response:ResponseEncode, responseCnt:ResponseContentEncode, **keyargs):
+        '''
+        @see: HandlerProcessor.process
+        
+        Provide the response formatting header encode.
+        '''
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+        assert isinstance(responseCnt, ResponseContentEncode), 'Invalid response content %s' % responseCnt
+        assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
+        assert isinstance(response.encoderHeader, IEncoderHeader), \
+        'Invalid response header encoder %s' % response.encoderHeader
+
+        if isinstance(responseCnt.converter, ConverterBabel):
+            assert isinstance(responseCnt.converter, ConverterBabel)
+            for clsTyp, format in responseCnt.converter.formats.items():
+                response.encoderHeader.encode(self.formatContentNameX % clsTyp.__name__, format)
+
+        chain.proceed()
