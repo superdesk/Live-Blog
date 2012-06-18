@@ -16,7 +16,7 @@ function($, superdesk, dust)
     		{
     		    displayMenu = [];
         		$(menu).each(function()
-        		{ 
+        		{
         		    var Subs = null;
         			if(this.ChildrenCount > 0)
         			{
