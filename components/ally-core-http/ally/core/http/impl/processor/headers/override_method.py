@@ -15,7 +15,7 @@ from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.server import IDecoderHeader
 from ally.core.spec.codes import Code
 from ally.design.context import Context, requires, defines
-from ally.design.processor import Handler, processor, Chain
+from ally.design.processor import Chain, HandlerProcessor
 import logging
 
 # --------------------------------------------------------------------
@@ -44,7 +44,7 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class MethodOverrideHandler(Handler):
+class MethodOverrideDecodeHandler(HandlerProcessor):
     '''
     Provides the method override processor.
     '''
@@ -67,10 +67,12 @@ class MethodOverrideHandler(Handler):
         assert isinstance(self.nameXMethodOverride, str), 'Invalid method override name %s' % self.nameXMethodOverride
         assert isinstance(self.methods, dict), 'Invalid methods %s' % self.methods
         assert isinstance(self.methodsOverride, dict), 'Invalid methods override %s' % self.methodsOverride
+        super().__init__()
 
-    @processor
-    def decode(self, chain, request:Request, response:Response, **keyargs):
+    def process(self, chain, request:Request, response:Response, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Overrides the request method based on a provided header.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain

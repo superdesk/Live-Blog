@@ -11,9 +11,9 @@ Provides the converters for the response content and request content.
 
 from ally.container.ioc import injected
 from ally.core.spec.resources import Converter, Normalizer
-from ally.design.processor import Handler, processor, Chain
-import logging
 from ally.design.context import Context, defines
+from ally.design.processor import Chain, HandlerProcessor
+import logging
 
 # --------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ class Content(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ConversionSetHandler(Handler):
+class ConversionSetHandler(HandlerProcessor):
     '''
     Provides the standard transform services for the model decoding, this will be populated on the response and request
     content.
@@ -51,29 +51,19 @@ class ConversionSetHandler(Handler):
     def __init__(self):
         assert isinstance(self.normalizer, Normalizer), 'Invalid normalizer %s' % self.normalizer
         assert isinstance(self.converter, Converter), 'Invalid converter %s' % self.converter
+        super().__init__()
 
-    @processor
-    def decodeRequest(self, chain, requestCnt:Content, **keyargs):
+    def process(self, chain, requestCnt:Content, responseCnt:Content, **keyargs):
         '''
-        Provide the character conversion for request content.
+        @see: HandlerProcessor.process
+        
+        Provide the character conversion for request and response content.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(requestCnt, Content), 'Invalid request content %s' % requestCnt
-
-        requestCnt.normalizer = self.normalizer
-        requestCnt.converter = self.converter
-
-        chain.proceed()
-
-    @processor
-    def decodeResponse(self, chain, responseCnt:Content, **keyargs):
-        '''
-        Provide the character conversion for request content.
-        '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(responseCnt, Content), 'Invalid response content %s' % responseCnt
 
-        responseCnt.normalizer = self.normalizer
-        responseCnt.converter = self.converter
+        requestCnt.normalizer = responseCnt.normalizer = self.normalizer
+        requestCnt.converter = responseCnt.converter = self.converter
 
         chain.proceed()
