@@ -12,9 +12,9 @@ Provides the content disposition header decoding.
 from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.server import IDecoderHeader
-from ally.design.processor import Handler, processor, Chain
-from ally.design.context import Context, requires, defines
 from ally.core.spec.codes import Code
+from ally.design.context import Context, requires, defines
+from ally.design.processor import Chain, HandlerProcessor
 
 # --------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ContentDispositionHandler(Handler):
+class ContentDispositionDecodeHandler(HandlerProcessor):
     '''
     Implementation for a processor that provides the decoding of content disposition HTTP request header.
     '''
@@ -62,10 +62,12 @@ class ContentDispositionHandler(Handler):
     def __init__(self):
         assert isinstance(self.nameContentDisposition, str), \
         'Invalid content disposition header name %s' % self.nameContentDisposition
+        super().__init__()
 
-    @processor
-    def decode(self, chain, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
+    def process(self, chain, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Provides the content type decode for the request.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain

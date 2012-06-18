@@ -11,7 +11,7 @@ Provides the accept headers handling.
 
 from ally.container.ioc import injected
 from ally.core.http.spec.server import IDecoderHeader
-from ally.design.processor import Handler, Chain, processor
+from ally.design.processor import HandlerProcessor, Chain
 from ally.api.type import List, Locale
 from ally.design.context import Context, requires, optional, defines
 
@@ -47,7 +47,7 @@ class Request(Context):
 # --------------------------------------------------------------------
 
 @injected
-class AcceptHandler(Handler):
+class AcceptDecodeHandler(HandlerProcessor):
     '''
     Implementation for a processor that provides the decoding of accept HTTP request headers.
     '''
@@ -63,10 +63,12 @@ class AcceptHandler(Handler):
         assert isinstance(self.nameAccept, str), 'Invalid accept name %s' % self.nameAccept
         assert isinstance(self.nameAcceptCharset, str), 'Invalid accept charset name %s' % self.nameAcceptCharset
         assert isinstance(self.nameAcceptLanguage, str), 'Invalid accept languages name %s' % self.nameAcceptLanguage
+        super().__init__()
 
-    @processor
-    def decode(self, chain, request:Request, **keyargs):
+    def process(self, chain, request:Request, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Decode the accepted headers.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain

@@ -12,7 +12,7 @@ Provides the integration of the additional arguments into the main arguments.
 from ally.api.type import Input, typeFor
 from ally.core.spec.resources import Invoker, Path
 from ally.design.context import defines, Context, requires
-from ally.design.processor import Handler, processor, Chain
+from ally.design.processor import Chain, HandlerProcessor
 
 # --------------------------------------------------------------------
 
@@ -26,6 +26,29 @@ class RequestProvide(Context):
     A dictionary containing as a key the argument type, this dictionary needs to be populated by the 
     processors with any system values that might be used for invoking, the actual use of this arguments depends
     ''')
+
+# --------------------------------------------------------------------
+
+class ArgumentsOfTypeHandler(HandlerProcessor):
+    '''
+    Implementation for a processor that provides the integration of the additional arguments into the invoke arguments.
+    This processor will provide the argument by type.
+    '''
+
+    def process(self, chain, request:RequestProvide, **keyargs):
+        '''
+        @see: HandlerProcessor.process
+        
+        Provides the additional arguments by type to be populated.
+        '''
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+        assert isinstance(request, RequestProvide), 'Invalid request %s' % request
+
+        request.argumentsOfType = {}
+
+        chain.proceed()
+
+# --------------------------------------------------------------------
 
 class Request(Context):
     '''
@@ -43,26 +66,15 @@ class Request(Context):
 
 # --------------------------------------------------------------------
 
-class ArgumentsHandler(Handler):
+class ArgumentsBuildHandler(HandlerProcessor):
     '''
     Implementation for a processor that provides the integration of the additional arguments into the invoke arguments.
     '''
 
-    @processor
-    def provide(self, chain, request:RequestProvide, **keyargs):
+    def process(self, chain, request:Request, **keyargs):
         '''
-        Provides the additional arguments by type to be populated.
-        '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(request, RequestProvide), 'Invalid request %s' % request
-
-        request.argumentsOfType = {}
-
-        chain.proceed()
-
-    @processor
-    def build(self, chain, request:Request, **keyargs):
-        '''
+        @see: HandlerProcessor.process
+        
         Transpose the additional arguments into the main arguments.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
@@ -80,7 +92,7 @@ class ArgumentsHandler(Handler):
 
                 for argType, value in request.argumentsOfType.items():
                     if typeFor(argType) == inp.type:
-                        request.arguments[inp.name] = value
+                        if inp.name not in request.arguments: request.arguments[inp.name] = value
                         break
 
         request.arguments.update(request.path.toArguments(request.invoker))
