@@ -90,16 +90,12 @@ var superdesk =
 	    {
 	        var results = [], searchForSubs = false, searchPath = path; 
 	        if( path.lastIndexOf('*') === path.length-1 )
-	        {
-	            searchPath = path.substr(0, path.length-1-superdesk.ACTIONS_PATH_SEP.length);
-	            searchForSubs = true;
-	        }
+	            searchPath = path.substr(0, path.length-1);
+
 	        for( var i in superdesk.cache.actions )
                 if( superdesk.cache.actions[i].Path.indexOf(searchPath) === 0 )
-                {
-                    if( searchForSubs && superdesk.cache.actions[i].Path.length === searchPath.length ) continue;
                     results.push(superdesk.cache.actions[i]);
-                }
+
 	        return results;    
 	    };
 	    var cachedResults = searchCache();
