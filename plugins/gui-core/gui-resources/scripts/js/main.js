@@ -6,7 +6,8 @@ requirejs.config
     templatePaths:
 	{
 	    'default': 'lib/core/templates/',
-		'plugin': 'gui/superdesk/{plugin}/templates/'
+		'plugin': 'gui/superdesk/{plugin}/templates/',
+		'models': 'gui/superdesk/{plugin}/scripts/js/models/'
 	},
 	paths: 
 	{
@@ -19,7 +20,9 @@ requirejs.config
 		'gettext': config.js_url + '/gettext',
         'order': config.js_url + '/require/order',
 		'tmpl': config.js_url + '/require/tmpl',
-		'i18n': config.js_url + '/require/i18n'
+		'model': config.js_url + '/require/model',
+		'i18n': config.js_url + '/require/i18n',
+		'gizmo': config.js_url + '/gizmo'
 	}
 });
 require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
