@@ -36,6 +36,10 @@ define('gizmo', ['jquery'], function()
                 read: function(cb, failCb, alwaysCb)
                 { 
                     return $.ajax(source, Sync.options).done(cb).fail(failCb); 
+                },
+                update: function(data, cb, failCb, alwaysCb)
+                {
+                    data = typeof data == 'function' ? data.call(this) : data;
                 }
             }
         },
@@ -45,38 +49,78 @@ define('gizmo', ['jquery'], function()
     
     Model.prototype = 
     {
+        changed: false,
         defaults: {},
-        _construct: function(data)
+        data: {},
+        /*!
+         * constructor
+         */ 
+        _construct: function(data, options)
         {
             if( typeof data == 'string' ) this.href = data;
-            if( typeof data == 'object' ) $.extend(this, data);
+            if( typeof data == 'object' ) $.extend(this.data, data);
+            if( options && typeof options == 'object' ) $.extend(this.options, data);
             return this.pushUnique();
         },
+        /*!
+         * adapter for data sync
+         */
         dataAdapter: Sync.dataAdapter,
+        /*!
+         * @param format
+         */
+        feed: function(format)
+        {
+            for( var i in this.data ) console.log(this.data[i])
+            
+        },
+        /*!
+         * data sync call
+         */
         sync: function()
         { 
             var self = this;
-            return (this.href && 
-                this.dataAdapter(this.href).read(function(data)
+            if( this.changed )
+                return (this.href && this.dataAdapter(this.href).update(this.feed(), function()
                 {
-                    self.parse(data);
-                    $(self).trigger('update');
+                    self.changed = false;
                 })); 
+            
+            return (this.href && this.dataAdapter(this.href).read(function(data)
+            {
+                self.parse(data);
+                $(self).trigger('update');
+            }));  
         },
+        /*!
+         * @param data the data to parse into the model
+         */
         parse: function(data)
         {
             for( var i in data ) 
             {
                 if( this.defaults[i] &&  typeof this.defaults[i] === 'function' )
                 {
-                    this[i] = new this.defaults[i](data[i].href);
+                    this.data[i] = new this.defaults[i](data[i].href);
                     continue;
                 }
-                this[i] = data[i];
+                this.data[i] = data[i];
             }
+        },
+        get: function(key)
+        {
+            return this.data[key];
+        },
+        set: function(key, val)
+        {
+            var data = {}; data[key] = val;
+            this.parse(data);
+            this.changed = true;
+            return this;
         },
         hash: function(){ return this.href; }
     };
+    // Model's base options
     var options = Model.options = {};
     Model.extend = function(props)
     {
@@ -98,6 +142,7 @@ define('gizmo', ['jquery'], function()
         {
             return uniqueList;
         };
+        // create a new property from original options one
         Model.prototype.options = $.extend({}, options);
         Model.prototype.constructor = Model;
         return Model;

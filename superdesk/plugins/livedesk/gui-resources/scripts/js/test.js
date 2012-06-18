@@ -1,12 +1,17 @@
 define(['gizmo', 'gui/superdesk/livedesk/scripts/js/models/collaborator'], 
 function(giz, Collaborator)
 {
+    console.log('here');
     giz.Model.options.x = 'y' 
     console.dir(giz.Model.options);
     var c = new Collaborator('http://localhost:8080/resources/Superdesk/Collaborator/1');
     c.options.ceva = 'altceva';
     console.dir(c.options);
     console.dir(giz.Model.options);
+    
+    c.sync().done(function(){ console.log(c); c.set('a', 'b'); console.log(c.sync()); })
+    
+    
         /*var Source = Model.extend(),
     Collaborator = Model.extend({ defaults:{ Post: CollaboratorPost }}),
     Post = Model.extend({ defaults:{ Author: Collaborator }}),
