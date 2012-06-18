@@ -14,7 +14,7 @@ from setuptools import setup, find_packages
 # --------------------------------------------------------------------
 
 setup(
-    name="ally_authentication_core",
+    name="ally_authentication",
     version="1.0",
     packages=find_packages(),
     install_requires=['ally_api >= 1.0'],
