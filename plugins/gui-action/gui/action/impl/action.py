@@ -44,7 +44,7 @@ class ActionManagerService(IActionManagerService):
                 actions = [action for action in actions if action.Path == path.strip('"')]
             # match a word placeholder *
             elif path.find('*') != -1:
-                p = '^'+re.sub(r'\\\*', '\w+', re.escape(path))+'$'
+                p = '^'+re.sub(r'\\\*', '(\d|\w|-|_)+', re.escape(path))+'$'
                 actions = [action for action in actions if re.match(p, action.Path)]
             # normal match, paths starting with path string
             else: 
