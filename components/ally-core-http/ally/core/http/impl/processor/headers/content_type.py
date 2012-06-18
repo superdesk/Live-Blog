@@ -12,9 +12,9 @@ Provides the content type header decoding/encoding.
 from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
-from ally.design.processor import Handler, processor, Chain
-from ally.design.context import Context, requires, defines, optional
 from ally.core.spec.codes import Code
+from ally.design.context import Context, requires, defines, optional
+from ally.design.processor import Chain, HandlerProcessor
 
 # --------------------------------------------------------------------
 
@@ -52,28 +52,12 @@ class ResponseDecode(Context):
     text = defines(str)
     message = defines(str)
 
-class ResponseEncode(Context):
-    '''
-    The response context.
-    '''
-    # ---------------------------------------------------------------- Required
-    encoderHeader = requires(IEncoderHeader)
-
-class ResponseContent(Context):
-    '''
-    The response content context.
-    '''
-    # ---------------------------------------------------------------- Required
-    type = requires(str)
-    # ---------------------------------------------------------------- Optional
-    charSet = optional(str)
-
 # --------------------------------------------------------------------
 
 @injected
-class ContentTypeHandler(Handler):
+class ContentTypeDecodeHandler(HandlerProcessor):
     '''
-    Implementation for a processor that provides the decoding/encoding of content type HTTP request header.
+    Implementation for a processor that provides the decoding of content type HTTP request header.
     '''
 
     nameContentType = 'Content-Type'
@@ -85,10 +69,12 @@ class ContentTypeHandler(Handler):
         assert isinstance(self.nameContentType, str), 'Invalid content type header name %s' % self.nameContentType
         assert isinstance(self.attrContentTypeCharSet, str), \
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
+        super().__init__()
 
-    @processor
-    def decode(self, chain, request:Request, requestCnt:RequestContent, response:ResponseDecode, **keyargs):
+    def process(self, chain, request:Request, requestCnt:RequestContent, response:ResponseDecode, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Decode the content type for the request.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
@@ -111,9 +97,47 @@ class ContentTypeHandler(Handler):
 
         chain.proceed()
 
-    @processor
-    def encode(self, chain, response:ResponseEncode, responseCnt:ResponseContent, **keyargs):
+# --------------------------------------------------------------------
+
+class ResponseEncode(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    encoderHeader = requires(IEncoderHeader)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    type = requires(str)
+    # ---------------------------------------------------------------- Optional
+    charSet = optional(str)
+
+# --------------------------------------------------------------------
+
+@injected
+class ContentTypeEncodeHandler(HandlerProcessor):
+    '''
+    Implementation for a processor that provides the encoding of content type HTTP request header.
+    '''
+
+    nameContentType = 'Content-Type'
+    # The header name where the content type is specified.
+    attrContentTypeCharSet = 'charset'
+    # The name of the content type attribute where the character set is provided.
+
+    def __init__(self):
+        assert isinstance(self.nameContentType, str), 'Invalid content type header name %s' % self.nameContentType
+        assert isinstance(self.attrContentTypeCharSet, str), \
+        'Invalid char set attribute name %s' % self.attrContentTypeCharSet
+        super().__init__()
+
+    def process(self, chain, response:ResponseEncode, responseCnt:ResponseContent, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Encodes the content type for the response.
         '''
         assert isinstance(response, ResponseEncode), 'Invalid response %s' % response

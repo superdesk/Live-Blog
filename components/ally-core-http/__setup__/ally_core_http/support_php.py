@@ -21,4 +21,5 @@ def php_zend_support() -> bool:
 
 @ioc.before(content_types_json)
 def updateContentTypesJSON():
-    if php_zend_support(): content_types_json()['application/x-www-form-urlencoded'] = 'application/x-www-form-urlencoded'
+    if php_zend_support():
+        content_types_json()['application/x-www-form-urlencoded'] = 'application/x-www-form-urlencoded'

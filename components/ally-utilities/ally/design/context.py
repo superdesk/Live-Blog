@@ -17,7 +17,8 @@ from inspect import isclass
 def defines(*types, doc=None):
     '''
     Construct a defining attribute for the context. The defines attribute means that the context can provide a value
-    for the attribute, but is not mandatory.
+    for the attribute, but is not mandatory also whenever managing an attribute if this type is a good idea to check
+    if there aren't already values provided. For a group of contexts a defines attribute can be defined multiple times.
     
     @param types: arguments[class]
         The types of the defined attribute.
@@ -25,6 +26,18 @@ def defines(*types, doc=None):
         The documentation associated with the attribute.
     '''
     return Attribute(DEFINED, types, doc)
+
+def optional(*types, doc=None):
+    '''
+    Construct an optional attribute for the context. The optional attribute means that the context is valid even if
+    there is no value for the attribute. The optional can also update or change the value for the attribute.
+    
+    @param types: arguments[class]
+        The types of the optional attribute, the attribute value can be any one of the provided attributes.
+    @keyword doc: string
+        The documentation associated with the attribute.
+    '''
+    return Attribute(OPTIONAL, types, doc)
 
 def requires(*types, doc=None):
     '''
@@ -38,26 +51,14 @@ def requires(*types, doc=None):
     '''
     return Attribute(REQUIRED, types, doc)
 
-def optional(*types, doc=None):
-    '''
-    Construct an optional attribute for the context. The optional attribute means that the context is valid even if
-    there is no value for the attribute and also if is the case the value can be provided or changed.
-    
-    @param types: arguments[class]
-        The types of the optional attribute, the attribute value can be any one of the provided attributes.
-    @keyword doc: string
-        The documentation associated with the attribute.
-    '''
-    return Attribute(OPTIONAL, types, doc)
-
 # --------------------------------------------------------------------
 
 DEFINED = 1 << 1
-# Status flag for defined properties.
+# Status flag for defined attributes.
 REQUIRED = 1 << 2
-# Status flag for required properties.
+# Status flag for required attributes.
 OPTIONAL = 1 << 3
-# Status flag for optional properties.
+# Status flag for optional attributes.
 
 class Attribute:
     '''
@@ -147,12 +148,13 @@ class Context(metaclass=ContextMetaClass):
     The base context class, this class needs to be inherited by all classes that need to behave like a data context.
     '''
     __slots__ = ()
-    __attributes__ = {}
 
     @classmethod
     def __subclasshook__(cls, C):
         if cls is Context: return Context in C.__mro__
-        if issubclass(C, Context):
+        if isinstance(C, ContextMetaClass):
+            assert isinstance(C, ContextMetaClass)
+
             for name, attr in cls.__attributes__.items():
                 assert isinstance(attr, Attribute)
 

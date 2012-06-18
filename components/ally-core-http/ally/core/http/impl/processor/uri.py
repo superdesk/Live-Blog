@@ -15,7 +15,7 @@ from ally.core.http.spec.server import IEncoderPath, IDecoderHeader
 from ally.core.spec.codes import RESOURCE_NOT_FOUND, RESOURCE_FOUND, Code
 from ally.core.spec.resources import ConverterPath, Path, IResourcesLocator, \
     Converter, Normalizer
-from ally.design.processor import Chain, processor, Handler
+from ally.design.processor import Chain, HandlerProcessor
 from urllib.parse import urlencode, urlunsplit, urlsplit
 import logging
 from ally.design.context import Context, requires, defines, optional
@@ -90,7 +90,7 @@ class ResponseContent(Context):
 # --------------------------------------------------------------------
 
 @injected
-class URIHandler(Handler):
+class URIHandler(HandlerProcessor):
     '''
     Implementation for a processor that provides the searches based on the request URL the resource path, also
     populates the parameters and extension format on the request.
@@ -108,10 +108,12 @@ class URIHandler(Handler):
         'Invalid resources locator %s' % self.resourcesLocator
         assert isinstance(self.converterPath, ConverterPath), 'Invalid ConverterPath object %s' % self.converterPath
         assert isinstance(self.headerHost, str), 'Invalid string %s' % self.headerHost
+        super().__init__()
 
-    @processor
     def process(self, chain, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Process the URI to a resource path.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain

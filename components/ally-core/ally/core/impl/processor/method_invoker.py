@@ -10,11 +10,11 @@ Provides the requested method validation handler.
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
+from ally.api.type import Type
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE, Code
 from ally.core.spec.resources import Path, Node, Invoker
-from ally.design.processor import Handler, processor, Chain
 from ally.design.context import Context, requires, defines
-from ally.api.type import Type
+from ally.design.processor import Chain, HandlerProcessor
 
 # --------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ class Response(Context):
 
 # --------------------------------------------------------------------
 
-class MethodInvokerHandler(Handler):
+class MethodInvokerHandler(HandlerProcessor):
     '''
     Implementation for a processor that validates if the request method (GET, INSERT, UPDATE, DELETE) is compatible
     with the resource node of the request, basically checks if the node has the invoke for the requested method.
@@ -57,9 +57,13 @@ class MethodInvokerHandler(Handler):
     providing the allows methods for the resource path node.
     '''
 
-    @processor
-    def provide(self, chain, request:Request, response:Response, **keyargs):
+    def __init__(self):
+        super().__init__()
+
+    def process(self, chain, request:Request, response:Response, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Provide the invoker based on the request method to be used in getting the data for the response.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
