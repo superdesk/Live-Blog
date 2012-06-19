@@ -10,11 +10,14 @@ Provides the encoding processing node.
 '''
 
 from ally.container.ioc import injected
-from ally.core.spec.codes import UNKNOWN_ENCODING
-from ally.core.spec.server import IProcessor, Request, Response, ProcessorsChain, \
-    Processors
-import logging
+from ally.core.spec.codes import UNKNOWN_ENCODING, Code
+from ally.design.context import Context, defines, requires
+from ally.design.processor import Assembly, Handler, Processing, NO_VALIDATION, \
+    Processor, Chain
+from functools import partial
 import codecs
+import itertools
+import logging
 
 # --------------------------------------------------------------------
 
@@ -22,69 +25,121 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    accTypes = requires(list)
+    accCharSets = requires(list)
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    type = defines(str, doc='''
+    @rtype: string
+    The response content type.
+    ''')
+    charSet = defines(str, doc='''
+    @rtype: string
+    The character set for the text content.
+    ''')
+
+# --------------------------------------------------------------------
+
 @injected
-class EncodingProcessorsHandler(IProcessor):
+class EncodingHandler(Handler):
     '''
     Implementation for a processor that provides the support for executing the encoding processors. The encoding
     just like decoding uses an internal processor chain execution. If a processor is successful in the encoding
     process it has to stop the chain execution.
-    
-    Provides on request: NA
-    Provides on response: contentType
-    
-    Requires on request: accCharSets, accContentTypes
-    Requires on response: [contentType]
     '''
 
+    contentTypeDefault = None
+    # The default content type to use
     charSetDefault = str
     # The default character set to be used if none provided for the content.
-    encodings = Processors
+    encodingAssembly = Assembly
     # The encoding processors, if a processor is successful in the encoding process it has to stop the 
     # chain execution.
 
     def __init__(self):
-        assert isinstance(self.encodings, Processors), 'Invalid encodings processors %s' % self.encodings
+        assert isinstance(self.encodingAssembly, Assembly), 'Invalid encodings assembly %s' % self.encodingAssembly
+        assert self.contentTypeDefault is None or isinstance(self.contentTypeDefault, str), \
+        'Invalid default content type %s' % self.contentTypeDefault
         assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
 
-    def process(self, req, rsp, chain):
+        contexts = dict(request=Request, response=Response, responseCnt=ResponseContent)
+        encodingProcessing = self.encodingAssembly.create(NO_VALIDATION, **contexts)
+        assert isinstance(encodingProcessing, Processing), 'Invalid processing %s' % encodingProcessing
+        contexts = encodingProcessing.contexts
+
+        call = partial(self.process, encodingProcessing)
+        callCode = self.process.__code__
+        super().__init__(Processor(contexts, call, 'process', callCode.co_filename, callCode.co_firstlineno))
+
+    def process(self, encodingProcessing, chain, request, response, responseCnt, **keyargs):
         '''
-        @see: IProcessor.process
+        Encodes the response object.
+        
+        @param encodingProcessing: Processing
+            The processing that provides the encoding chain.
+            
+        The rest of the parameters are contexts.
         '''
-        assert isinstance(req, Request), 'Invalid request %s' % req
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
+        assert isinstance(encodingProcessing, Processing), 'Invalid encoding processing %s' % encodingProcessing
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         # Resolving the character set
-        if rsp.charSet:
-            try: codecs.lookup(rsp.charSet)
-            except LookupError: rsp.charSet = None
-        if not rsp.charSet:
-            for charSet in req.accCharSets:
+        if ResponseContent.charSet in responseCnt:
+            try: codecs.lookup(responseCnt.charSet)
+            except LookupError: responseCnt.charSet = None
+
+        if not responseCnt.charSet:
+            for charSet in request.accCharSets:
                 try: codecs.lookup(charSet)
                 except LookupError: continue
-                rsp.charSet = charSet
+                responseCnt.charSet = charSet
                 break
-            else: rsp.charSet = self.charSetDefault
+            else: responseCnt.charSet = self.charSetDefault
 
-        if rsp.contentType:
-            encodingChain = self.encodings.newChain()
-            assert isinstance(encodingChain, ProcessorsChain)
-            encodingChain.process(req, rsp)
+        if ResponseContent.type in responseCnt:
+            encodingChain = encodingProcessing.newChain()
+            assert isinstance(encodingChain, Chain), 'Invalid chain %s' % encodingChain
+
+            encodingChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
             if encodingChain.isConsumed():
-                rsp.setCode(UNKNOWN_ENCODING,
-                            'Content type %r not supported for encoding' % rsp.contentType)
+                response.code = UNKNOWN_ENCODING
+                response.text = 'Content type \'%s\' not supported for encoding' % responseCnt.type
                 return
         else:
-            contentTypes = list(req.accContentTypes)
-            contentTypes.append(None) # Adding None in case some encoder is configured as default.
-            for contentType in contentTypes:
-                rsp.contentType = contentType
-                encodingChain = self.encodings.newChain()
-                assert isinstance(encodingChain, ProcessorsChain)
-                encodingChain.process(req, rsp)
+            # Adding None in case some encoder is configured as default.
+            for contentType in itertools.chain(request.accTypes, (self.contentTypeDefault,)):
+                responseCnt.type = contentType
+
+                encodingChain = encodingProcessing.newChain()
+                assert isinstance(encodingChain, Chain), 'Invalid chain %s' % encodingChain
+
+                encodingChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
                 if not encodingChain.isConsumed(): break
             else:
-                rsp.setCode(UNKNOWN_ENCODING,
-                        'Accepted content types %r not supported for encoding' % ', '.join(req.accContentTypes))
+                response.code = UNKNOWN_ENCODING
+                response.text = 'Accepted content types \'%s\' not supported for encoding' % \
+                ', '.join(request.accTypes)
                 return
+
         chain.proceed()
+

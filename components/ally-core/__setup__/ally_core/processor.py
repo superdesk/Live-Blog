@@ -9,14 +9,16 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
+from ..ally_core.encoder_decoder import encodingAssembly
 from ally.container import ioc
+from ally.core.impl.processor.arguments import ArgumentsOfTypeHandler, \
+    ArgumentsBuildHandler
+from ally.core.impl.processor.encoding import EncodingHandler
 from ally.core.impl.processor.invoking import InvokingHandler
 from ally.core.impl.processor.method_invoker import MethodInvokerHandler
 from ally.core.impl.processor.text_conversion import ConversionSetHandler
 from ally.core.spec.resources import Normalizer, Converter
 from ally.design.processor import Handler, Assembly
-from ally.core.impl.processor.arguments import ArgumentsOfTypeHandler, \
-    ArgumentsBuildHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -54,6 +56,9 @@ def converter() -> Converter: return Converter()
 # --------------------------------------------------------------------
 
 @ioc.entity
+def argumentsOfType() -> Handler: return ArgumentsOfTypeHandler()
+
+@ioc.entity
 def methodInvoker() -> Handler: return MethodInvokerHandler()
 
 @ioc.entity
@@ -64,16 +69,20 @@ def conversion() -> Handler:
     return b
 
 @ioc.entity
-def argumentsOfType() -> Handler: return ArgumentsOfTypeHandler()
-
-@ioc.entity
 def argumentsBuild() -> Handler: return ArgumentsBuildHandler()
 
 @ioc.entity
 def invoking() -> Handler: return InvokingHandler()
 
+@ioc.entity
+def encoding() -> Handler:
+    b = EncodingHandler()
+    b.charSetDefault = default_characterset()
+    b.encodingAssembly = encodingAssembly()
+    return b
+
 # --------------------------------------------------------------------
 
 @ioc.before(resourcesAssembly)
 def updateResourcesAssembly():
-    resourcesAssembly().add(argumentsOfType(), methodInvoker(), conversion(), argumentsBuild(), invoking())
+    resourcesAssembly().add(argumentsOfType(), methodInvoker(), conversion(), argumentsBuild(), invoking(), encoding())

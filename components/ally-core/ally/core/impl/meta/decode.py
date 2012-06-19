@@ -9,13 +9,11 @@ Created on May 23, 2012
 Provides basic meta decode implementations. 
 '''
 
-from .general import WithSetter, WithGetter
+from .general import WithIdentifier, Conversion, WithSetter, WithGetter
 from ally.api.type import Type
-from ally.core.impl.meta.general import WithIdentifier
 from ally.core.spec.meta import IMetaDecode
 from ally.core.spec.resources import Normalizer, Converter
 from collections import deque
-from ally.core.spec.extension import CharConvert
 
 # --------------------------------------------------------------------
 
@@ -60,7 +58,7 @@ class DecodeIdentifier(IMetaDecode, WithDecoder, WithIdentifier):
         '''
         @see: IMetaDecode.decode
         '''
-        assert isinstance(context, CharConvert), 'Invalid context %s' % context
+        assert isinstance(context, Conversion), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer), 'Invalid normalizer %s' % context.normalizer
 
         if not isinstance(identifier, deque): return False
@@ -166,7 +164,7 @@ class DecodeValue(IMetaDecode, WithSetter):
         '''
         IMetaDecode.decode
         '''
-        assert isinstance(context, CharConvert), 'Invalid context %s' % context
+        assert isinstance(context, Conversion), 'Invalid context %s' % context
         assert isinstance(context.converter, Converter)
 
         if not isinstance(identifier, deque): return False
@@ -202,7 +200,7 @@ class DecodeObject(IMetaDecode):
         '''
         @see: IMetaDecode.decode
         '''
-        assert isinstance(context, CharConvert), 'Invalid context %s' % context
+        assert isinstance(context, Conversion), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer), 'Invalid normalizer %s' % context.normalizer
 
         if not isinstance(identifier, deque): return False

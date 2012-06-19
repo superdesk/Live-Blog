@@ -21,14 +21,14 @@ from ally.core.impl.meta.encode import EncodeValue, EncodeCollection, \
     EncodeIdentifier, EncodeJoin, EncodeJoinIndentifier, EncodeExploded
 from ally.core.impl.meta.general import getterOnDict, setterOnDict, getterOnObj, \
     getterChain, setterWithGetter, setterOnObj, setterToOthers, obtainOnDict, \
-    getterOnObjIfIn, obtainOnObj
-from ally.core.spec.meta import IMetaService, Value, SAMPLE, Collection
+    getterOnObjIfIn, obtainOnObj, Conversion
+from ally.core.spec.meta import MetaService, Value, SAMPLE, Collection
 from ally.core.spec.resources import Invoker, Normalizer
+from ally.design.context import requires, Context
 from collections import deque
 import logging
 import random
 import re
-from ally.core.spec.extension import Invoke, CharConvert
 
 # --------------------------------------------------------------------
 
@@ -36,10 +36,19 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-@injected
-class ParameterMetaService(IMetaService):
+class Invoke(Context):
     '''
-    @see: IMetaService impementation for handling the parameters meta.
+    The container with string transformation services.
+    '''
+    # ---------------------------------------------------------------- Required
+    invoker = requires(Invoker)
+
+# --------------------------------------------------------------------
+
+@injected
+class ParameterMetaService(MetaService):
+    '''
+    @see: MetaService impementation for handling the parameters meta.
     This service will provide a decode and encode meta that will be able to work with identifiers:
         string, list[string], tuple(string), deque[string]
     '''
@@ -72,13 +81,14 @@ class ParameterMetaService(IMetaService):
         'Invalid regex for value normalize %s' % self.regexNormalizeValue
         assert isinstance(self.separatorValueEscape, str), \
         'Invalid separator escape for values %s' % self.separatorValueEscape
+        super().__init__(Invoke, Conversion)
 
         self._reSplitValues = re.compile(self.regexSplitValues)
         self._reNormalizeValue = re.compile(self.regexNormalizeValue)
 
     def createDecode(self, context):
         '''
-        @see: IMetaService.createDecode
+        @see: MetaService.createDecode
         '''
         assert isinstance(context, Invoke), 'Invalid context %s' % context
         assert isinstance(context.invoker, Invoker), 'Invalid invoker %s' % context.invoker
@@ -199,7 +209,7 @@ class ParameterMetaService(IMetaService):
 
     def createEncode(self, context):
         '''
-        @see: IMetaService.createEncode
+        @see: MetaService.createEncode
         '''
         assert isinstance(context, Invoke), 'Invalid context %s' % context
         assert isinstance(context.invoker, Invoker), 'Invalid invoker %s' % context.invoker
@@ -429,7 +439,7 @@ class EncodeOrdering(EncodeExploded):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, CharConvert), 'Invalid context %s' % context
+        assert isinstance(context, Conversion), 'Invalid context %s' % context
         assert isinstance(context.normalizer, Normalizer), 'Invalid normalizer %s' % context.normalizer
         normalize = context.normalizer.normalize
 

@@ -9,23 +9,23 @@ Created on May 30, 2012
 Provides the models meta encoders and decoders.
 '''
 
+from .decode import DecodeObject, DecodeValue, DecodeGetterIdentifier, \
+    DecodeList, DecodeGetter
+from .general import obtainOnDict, setterOnObj, getterOnObjIfIn, obtainOnObj, \
+    Conversion
 from ally.api.operator.container import Model
 from ally.api.operator.type import TypeModel, TypeModelProperty, TypeProperty
 from ally.api.type import Type, Iter, TypeNone, Boolean, Integer, Number, \
     Percentage, String, Time, Date, DateTime, typeFor
 from ally.container.ioc import injected
-from ally.core.impl.meta.decode import DecodeObject, DecodeValue, \
-    DecodeGetterIdentifier, DecodeList, DecodeGetter
 from ally.core.impl.meta.encode import EncodeCollection, EncodeObject, \
     EncodeValue, EncodeGetterIdentifier, EncodeIdentifier
-from ally.core.impl.meta.general import obtainOnDict, setterOnObj, \
-    getterOnObjIfIn, obtainOnObj
-from ally.core.spec.meta import IMetaService, SAMPLE, Value
+from ally.core.spec.meta import MetaService, SAMPLE, Value
 from ally.core.spec.resources import Converter
+from ally.design.context import Context, requires
 from collections import deque
 from weakref import WeakKeyDictionary
 import logging
-from ally.core.spec.extension import ContructMeta, CharConvertId
 
 # --------------------------------------------------------------------
 
@@ -33,10 +33,26 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-@injected
-class ModelMetaService(IMetaService):
+class ContructMeta(Context):
     '''
-    @see: IMetaService impementation for handling the models meta.
+    Container for constructing the meta for a provided type.
+    '''
+    # ---------------------------------------------------------------- Required
+    metaForType = requires(Type)
+
+class ConversionId(Context):
+    '''
+    The container with string conversion for model id's.
+    '''
+    # ---------------------------------------------------------------- Required
+    converterId = requires(Converter)
+
+# --------------------------------------------------------------------
+
+@injected
+class ModelMetaService(MetaService):
+    '''
+    @see: MetaService impementation for handling the models meta.
     This service will provide a decode that will be able to work with identifiers:
         string, list[string], tuple(string), deque[string]
         
@@ -54,6 +70,7 @@ class ModelMetaService(IMetaService):
         assert isinstance(self.nameList, str), 'Invalid name list %s' % self.nameList
         assert isinstance(self.nameValue, str), 'Invalid name value %s' % self.nameValue
         assert isinstance(self.typeOrders, list), 'Invalid type orders %s' % self.typeOrders
+        super().__init__(ContructMeta, Conversion + ConversionId)
 
         self._typeOrders = [typeFor(typ) for typ in self.typeOrders]
 
@@ -62,7 +79,7 @@ class ModelMetaService(IMetaService):
 
     def createDecode(self, context):
         '''
-        @see: IMetaService.createDecode
+        @see: MetaService.createDecode
         '''
         assert isinstance(context, ContructMeta), 'Invalid context %s' % context
         assert isinstance(context.metaForType, TypeModel), 'Invalid model type %s' % context.metaForType
@@ -96,7 +113,7 @@ class ModelMetaService(IMetaService):
 
     def createEncode(self, context):
         '''
-        @see: IMetaService.createEncode
+        @see: MetaService.createEncode
         '''
         assert isinstance(context, ContructMeta), 'Invalid context %s' % context
         typ = context.metaForType
@@ -189,7 +206,7 @@ class DecodeId(DecodeValue):
         '''
         IMetaDecode.decode
         '''
-        assert isinstance(context, CharConvertId), 'Invalid context %s' % context
+        assert isinstance(context, ConversionId), 'Invalid context %s' % context
         assert isinstance(context.converterId, Converter)
 
         if not isinstance(identifier, deque): return False
@@ -215,7 +232,7 @@ class EncodeId(EncodeValue):
         '''
         IMetaEncode.encode
         '''
-        assert isinstance(context, CharConvertId), 'Invalid context %s' % context
+        assert isinstance(context, ConversionId), 'Invalid context %s' % context
         assert isinstance(context.converterId, Converter)
 
         if obj is SAMPLE: value = 'a %s id value' % self.type

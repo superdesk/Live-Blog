@@ -9,6 +9,19 @@ Created on May 23, 2012
 Provides general support for meta decoders and encoders. 
 '''
 
+from ally.core.spec.resources import Normalizer, Converter
+from ally.design.context import Context, requires
+
+# --------------------------------------------------------------------
+
+class Conversion(Context):
+    '''
+    The container with string transformation services.
+    '''
+    # ---------------------------------------------------------------- Required
+    normalizer = requires(Normalizer)
+    converter = requires(Converter)
+
 # --------------------------------------------------------------------
 
 class WithSetter:
