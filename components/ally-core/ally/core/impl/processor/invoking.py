@@ -17,7 +17,7 @@ from ally.core.spec.codes import DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS,
     METHOD_NOT_AVAILABLE, INCOMPLETE_ARGUMENTS, INPUT_ERROR
 from ally.core.spec.resources import Path, Invoker
 from ally.design.context import Context, defines, requires
-from ally.design.processor import Handler, Chain, HandlerProcessor
+from ally.design.processor import Chain, HandlerProcessor
 from ally.exception import DevelError, InputError
 from collections import deque
 import logging
