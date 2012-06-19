@@ -9,14 +9,10 @@ Created on Nov 24, 2011
 Provides the configurations for the processors encoders and decoders.
 '''
 
-from .converter import contentNormalizer, converterPath
 from ally.container import ioc
-from ally.core.impl.processor.decoder_none import DecodingNoneHandler
-from ally.core.impl.processor.decoder_text import DecodingTextHandler
-from ally.core.impl.processor.decoder_xml import DecodingXMLHandler
-from ally.core.spec.server import IProcessor
-from ally.core.impl.processor.encoder_text import EncodingTextHandler
-from ally.core.impl.processor.decoder_content import DecodingContentHandler
+from ally.design.processor import Handler, Assembly
+from ally.core.impl.processor.encoder.text import EncoderTextHandler
+from ..ally_core.meta_service import modelMetaService
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
@@ -50,14 +46,16 @@ def content_types_yaml() -> dict:
             'yaml':'text/yaml',
             }
 
+# --------------------------------------------------------------------
+
 @ioc.entity
-def encodingXML() -> IProcessor:
-    from ally.core.impl.processor.encoder_xml import EncodingXMLHandler
-    b = EncodingXMLHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.converterId = converterPath()
-    b.contentTypes = content_types_xml()
-    b.encodingError = 'xmlcharrefreplace'
+def encodingAssembly() -> Assembly:
+    '''
+    The assembly containing the response encoders.
+    '''
+    return Assembly()
+
+# --------------------------------------------------------------------
 
 @ioc.entity
 def encoderTextJSON():
@@ -66,13 +64,12 @@ def encoderTextJSON():
     return encodeJSON
 
 @ioc.entity
-def encodingJSON() -> IProcessor:
-    b = EncodingTextHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.converterId = converterPath()
+def encodingJSON() -> Handler:
+    b = EncoderTextHandler(); yield b
     b.contentTypes = content_types_json()
     b.encodingError = 'backslashreplace'
     b.encoder = encoderTextJSON()
+    b.modelMetaService = modelMetaService()
 
 @ioc.entity
 def encoderTextYAML():
@@ -81,81 +78,21 @@ def encoderTextYAML():
     return encodeYAML
 
 @ioc.entity
-def encodingYAML() -> IProcessor:
-    b = EncodingTextHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.converterId = converterPath()
+def encodingYAML() -> Handler:
+    b = EncoderTextHandler(); yield b
     b.contentTypes = content_types_yaml()
     b.encodingError = 'backslashreplace'
     b.encoder = encoderTextYAML()
+    b.modelMetaService = modelMetaService()
 
 # --------------------------------------------------------------------
 # Creating the decoding processors
 
-@ioc.entity
-def decodingNone() -> IProcessor: return DecodingNoneHandler()
-
-@ioc.entity
-def decodingContent() -> IProcessor: return DecodingContentHandler()
-
-@ioc.entity
-def decodingXML() -> IProcessor:
-    b = DecodingXMLHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.converterId = converterPath()
-    b.contentTypes = list(content_types_xml().keys())
-
-@ioc.entity
-def decoderTextJSON():
-    import json
-    import codecs
-    def decodeJSON(content, charSet):
-        return json.load(codecs.getreader(charSet)(content))
-    return decodeJSON
-
-@ioc.entity
-def decodingJSON() -> IProcessor:
-    b = DecodingTextHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.decoder = decoderTextJSON()
-    b.converterId = converterPath()
-    b.contentTypes = list(content_types_json().keys())
-
-@ioc.entity
-def decoderTextYAML():
-    import yaml
-    import codecs
-    def decodeYAML(content, charSet):
-        return yaml.load(codecs.getreader(charSet)(content))
-    return decodeYAML
-
-@ioc.entity
-def decodingYAML() -> IProcessor:
-    b = DecodingTextHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.decoder = decoderTextYAML()
-    b.converterId = converterPath()
-    b.contentTypes = list(content_types_yaml().keys())
-
 # --------------------------------------------------------------------
 
-@ioc.entity
-def handlersEncoding():
-    '''
-    The handlers used for encoding.
-    '''
-    b = [encodingXML(), encodingJSON()]
-    try: b.append(encodingYAML())
+@ioc.before(encodingAssembly)
+def updateEncodingAssembly():
+    encodingAssembly().add(encodingJSON())
+    try: encodingAssembly().add(encodingYAML())
     except ImportError: pass
-    return b
-
-@ioc.entity
-def handlersDecoding():
-    '''
-    The handlers used for decoding.
-    '''
-    b = [decodingContent(), decodingXML(), decodingJSON(), decodingNone()]
-    try: b.append(decodingYAML())
-    except ImportError: pass
-    return b
 

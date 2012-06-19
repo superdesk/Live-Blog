@@ -11,6 +11,7 @@ Provides the meta specifications.
 
 from collections import Iterable
 import abc
+from ally.design.context import ContextMetaClass
 
 # --------------------------------------------------------------------
 
@@ -152,10 +153,25 @@ class IMetaEncode(metaclass=abc.ABCMeta):
             Returns the encoded meta, None if their is nothing to encode for the provided object.
         '''
 
-class IMetaService(metaclass=abc.ABCMeta):
+class MetaService(metaclass=abc.ABCMeta):
     '''
     Service specification that provides that handles meta.
     '''
+
+    def __init__(self, createContextMeta, processContextMeta):
+        '''
+        Construct the meta services.
+        
+        @param createContextMeta: ContextMetaClass
+            The context meta class representing the meta service creation.
+        @param processContextMeta: ContextMetaClass
+            The context meta class representing the meta processing.
+        '''
+        assert isinstance(createContextMeta, ContextMetaClass), 'Invalid context meta class %s' % createContextMeta
+        assert isinstance(processContextMeta, ContextMetaClass), 'Invalid context meta class %s' % processContextMeta
+
+        self.createContextMeta = createContextMeta
+        self.processContextMeta = processContextMeta
 
     @abc.abstractclassmethod
     def createDecode(self, context):

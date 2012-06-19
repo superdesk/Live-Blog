@@ -10,7 +10,8 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from . import server_pattern_rest
-from ..ally_core.processor import argumentsOfType, invoking, resourcesAssembly
+from ..ally_core.processor import argumentsOfType, encoding, resourcesAssembly, \
+    methodInvoker
 from ..ally_core.resources import resourcesLocator
 from .meta_service import parameterMetaService
 from ally.container import ioc
@@ -121,8 +122,9 @@ def updateResourcesAssembly():
     resourcesAssembly().add(header(), uri(), contentTypeDecode(), contentLengthDecode(), contentLanguageDecode(),
                             contentDispositionDecode(), acceptDecode(), after=argumentsOfType())
 
-    resourcesAssembly().add(contentTypeEncode(), contentLengthEncode(), contentLanguageEncode(), allowEncode(),
-                            after=invoking())
+    resourcesAssembly().add(parameter(), after=methodInvoker())
+
+    resourcesAssembly().add(contentTypeEncode(), contentLanguageEncode(), allowEncode(), after=encoding())
 
     if allow_method_override():
         resourcesAssembly().add(methodOverrideDecode(), before=uri())

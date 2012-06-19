@@ -11,10 +11,11 @@ thread serving requests one at a time).
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
-from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP
+from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
+    RequestContentHTTP, ResponseContentHTTP
 from ally.core.spec.codes import Code
-from ally.core.spec.server import Content, IStream, ClassesServer
-from ally.design.processor import Processing, Chain
+from ally.core.spec.server import IStream
+from ally.design.processor import Processing, Chain, Assembly
 from ally.support.util_io import readGenerator
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qsl
@@ -32,12 +33,12 @@ class RequestHandler(BaseHTTPRequestHandler):
     The server class that handles the HTTP requests.
     '''
 
-    pathHandlers = list
-    # A list that contains tuples having on the first position a regex for matching a path, and as a value 
+    pathProcessing = list
+    # A list that contains tuples having on the first position a regex for matching a path, and the second value 
     # the processing for handling the path.
 
     def __init__(self, *args):
-        assert isinstance(self.pathHandlers, list), 'Invalid path handlers %s' % self.pathHandlers
+        assert isinstance(self.pathProcessing, list), 'Invalid path processing %s' % self.pathProcessing
         super().__init__(*args)
 
     def do_GET(self):
@@ -61,30 +62,33 @@ class RequestHandler(BaseHTTPRequestHandler):
         url = urlparse(self.path)
         path = url.path.lstrip('/')
 
-        for regex, processing in self.pathHandlers:
+        for regex, processing in self.pathProcessing:
             match = regex.match(path)
             if match:
                 uriRoot = path[:match.end()]
                 if not uriRoot.endswith('/'): uriRoot += '/'
 
                 assert isinstance(processing, Processing), 'Invalid processing %s' % processing
-                chain = processing.newChain()
-                req, rsp = processing.classes.request(), processing.classes.response()
-                cntReq, cntRsp = processing.classes.requestCnt(), processing.classes.responseCnt()
-                assert isinstance(chain, Chain), 'Invalid chain %s' % chain
-                assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
-                assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
-                assert isinstance(cntReq, Content), 'Invalid request content %s' % cntReq
-                assert isinstance(cntRsp, Content), 'Invalid response content %s' % cntRsp
+                request, requestCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
+                response, responseCnt = processing.contexts['response'](), processing.contexts['responseCnt']()
 
-                req.scheme, req.uriRoot, req.uri = url.scheme, uriRoot, path[match.end():]
-                req.parameters.extend(parse_qsl(url.query, True, False))
+                chain = processing.newChain()
+
+                assert isinstance(chain, Chain), 'Invalid chain %s' % chain
+                assert isinstance(request, RequestHTTP), 'Invalid request %s' % request
+                assert isinstance(response, ResponseHTTP), 'Invalid response %s' % response
+                assert isinstance(requestCnt, RequestContentHTTP), 'Invalid request content %s' % requestCnt
+                assert isinstance(responseCnt, ResponseContentHTTP), 'Invalid response content %s' % responseCnt
+
+                request.scheme, request.uriRoot, request.uri = url.scheme, uriRoot, path[match.end():]
+                request.parameters = parse_qsl(url.query, True, False)
                 break
         else:
             self.send_response(404)
             self.end_headers()
             return
 
+        de continuat
         req.method = method
         req.headers.update(self.headers)
         cntReq.source = self.rfile
@@ -115,17 +119,20 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 # --------------------------------------------------------------------
 
-pathHandlers = list
+pathAssemblies = list
 # A list that contains tuples having on the first position a string pattern for matching a path, and as a value 
-# a list of handlers to be used for creating the context for handling the request for the path.
+# the assembly to be used for creating the context for handling the request for the path.
 
 def run(port=80):
-    assert isinstance(pathHandlers, list), 'Invalid path handlers %s' % pathHandlers
-    RequestHandler.pathHandlers = []
-    for pattern, handlers in pathHandlers:
+    assert isinstance(pathAssemblies, list), 'Invalid path assemblies %s' % pathAssemblies
+    RequestHandler.pathProcessing = []
+    for pattern, assembly in pathAssemblies:
         assert isinstance(pattern, str), 'Invalid pattern %s' % pattern
-        classes = ClassesServer(RequestHTTP, ResponseHTTP)
-        RequestHandler.pathHandlers.append((re.compile(pattern), Processing(handlers, classes)))
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+
+        processing = assembly.create(request=RequestHTTP, requestCnt=RequestContentHTTP,
+                                     response=ResponseHTTP, responseCnt=ResponseContentHTTP)
+        RequestHandler.pathProcessing.append((re.compile(pattern), processing))
 
     try:
         server = HTTPServer(('', port), RequestHandler)

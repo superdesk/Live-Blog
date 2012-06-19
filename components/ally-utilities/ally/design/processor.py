@@ -33,7 +33,7 @@ class Processor:
         Construct the processor for the provided context having the provided call. The name, fileName and lineNumber
         are used mainly as a reference whenever reporting a problem related to the processor.
         
-        @param contexts: dictionary{string, Context class}
+        @param contexts: dictionary{string, ContextMetaClass}
             The contexts to be associated with the processor.
         @param call: callable
             The call of the processor.
@@ -263,8 +263,17 @@ class HandlerProcessor(Handler):
 
 # --------------------------------------------------------------------
 
-EMPTY_SET = set()
-# Empty set used when there is nothing to place
+NO_INPUT_CONTEXTS_VALIDATION = 1 << 1
+# Assembly create flag that dictates that no input contexts missing validation should be performed.
+NO_MISSING_VALIDATION = 1 << 2
+# Assembly create flag that dictates that no missing validation should be performed.
+NO_UNUSED_VALIDATION = 1 << 3
+# Assembly create flag that dictates that no unused attributes validation should be performed.
+NO_VALIDATION = NO_INPUT_CONTEXTS_VALIDATION | NO_MISSING_VALIDATION | NO_UNUSED_VALIDATION
+# Assembly create flag that dictates that no validation should be performed.
+
+ONLY_AVAILABLE = 1 << 4
+# Assembly create flag that dictates that only the available processors should be used.
 
 class AssemblyError(Exception):
     '''
@@ -311,86 +320,91 @@ class Assembly:
             self._processors.insert(index, processor)
             index += 1
 
-    def create(self, **contexts):
+    def create(self, *flags, **contexts):
         '''
         Create a processing based on all the processors in the assembly.
         
-        @param contexts: key arguments of context class
+        @param flags: arguments[integer]
+            Flags that dictate the behavior of the processing creation.
+        @param contexts: key arguments of ContextMetaClass
             Key arguments that have as a value the context classes that the processing chain will be used with.
         @return: Processing
             A processing created based on the current structure of the assembly.
         '''
-        defines, requires = self._indexTypes(self._processors)
-        self._indexContexts(contexts, defines, requires)
-        missing = set(requires)
-        missing.difference_update(defines)
+        flag = 0
+        for f in flags:
+            assert isinstance(f, int), 'Invalid flag %s' % f
+            flag |= f
 
-        if missing:
-            raise AssemblyError('Cannot resolve any definers for attributes:\n%s' %
-                                '\n'.join('\t%s.%s' % key for key in missing))
-
-        return
-
-
-
-        dependencies = self._indexDependencies(self._processors)
-
-        before = deque()
-        for index in range(0, len(self._processors)):
-            requiredAfter = dependencies[index]
-            if requiredAfter:
-                broken = requiredAfter.difference(requiredAfter.intersection(before))
-                if broken:
-                    raise AssemblyError('The processor at:%s\nneeds to have the processors after it, not before '
-                                        'it:%s' % (self._location(index),
-                                                   ''.join(self._location(bindex) for bindex in broken)))
-
-            before.append(index)
-
-#        return
-        #TODO: remove
-        print('------------------------------------------------------------')
-        print(''.join([self._location(index) for index in range(0, len(self._processors))]))
-
-    def createWithAvailable(self, **contexts):
-        '''
-        Create a processing based on the processors in the assembly that are available. A processor is available
-        if it has all the requirements of the contexts satisfied.
-        
-        @param contexts: key arguments of context class
-            Key arguments that have as a value the context classes that the processing chain will be used with.
-        @return: Processing
-            A processing created based on the current structure of the assembly.
-        '''
         processors = self._processors
 
-        # First we filter for all processors that are available
-        while True:
-            defines, requires = self._indexTypes(processors)
-            self._indexContexts(contexts, defines, requires)
-            defined = set(requires)
-            defined.intersection_update(defines)
+        if flag & ONLY_AVAILABLE:
+            # First we filter for all processors that are available
+            while True:
+                defines, optional, requires = self._indexTypes(processors)
+                self._indexContexts(contexts, defines, optional, requires)
+                defined = set(requires)
+                defined.intersection_update(defines)
 
-            notDefined = set(requires)
-            notDefined.difference_update(defined)
+                notDefined = set(requires)
+                notDefined.difference_update(defined)
 
-            filtered = self._filterByAttributes(processors, excludeIfRequires=notDefined)
-            if len(filtered) == len(processors): break
+                filtered = self._filterExcludeIfRequiresAny(processors, notDefined)
+                if len(filtered) == len(processors): break
+                processors = filtered
+
             processors = filtered
 
-        processors = filtered
+        defines, optional, requires = self._indexTypes(processors)
+        if not (flag & NO_UNUSED_VALIDATION): unused = set(defines)
+        if flag & NO_INPUT_CONTEXTS_VALIDATION: missing = set(requires)
+        else: missing = None
+        self._indexContexts(contexts, defines, optional, requires)
 
-        # We remove all processors that provide data that is not used
-        de continuat cu filtratul procesoarelor care fac define la valori fara nimic
-        si de asemenea si la creatul normal ar trebui validat the procesoare care nu fac nimic
-        si de validat requires pentru contextele date ca parametri.
+        if not (flag & NO_MISSING_VALIDATION):
+            if missing is None: missing = set(requires)
+            missing.difference_update(defines)
+            if missing:
+                raise AssemblyError('Cannot resolve any definers for attributes:\n%s' %
+                                    '\n'.join('\t%s.%s' % key for key in missing))
 
-        #TODO: remove
-        print('------------------------------------------------------------')
-        print(defined)
-        print('------------------------------------------------------------')
-        print(''.join([self._location(proc) for proc in processors]))
+        if not (flag & NO_UNUSED_VALIDATION):
+            # We check for unused attributes
+            unused.difference_update(requires)
+            unused.difference_update(optional)
+            if unused: raise AssemblyError('Unused attributes:\n%s' % '\n'.join(['\t%s.%s' % key for key in unused]))
 
+        self._validateOrder(processors)
+
+        if not processors: raise AssemblyError('No processors available to create a processing')
+
+
+        contextsAttributes = {}
+
+        for key, types in defines.items():
+            name, nameAttribute = key
+
+            attributes = contextsAttributes.get(name)
+            if attributes is None: attributes = contextsAttributes[name] = dict()
+
+            attributes[nameAttribute] = Attribute(DEFINED, tuple(types), doc='Generated by assembly')
+
+        for key, types in requires.items():
+            name, nameAttribute = key
+
+            attributes = contextsAttributes.get(name)
+            if attributes is None: attributes = contextsAttributes[name] = dict()
+            if nameAttribute not in attributes:
+                attributes[nameAttribute] = Attribute(REQUIRED, tuple(types), doc='Generated by assembly')
+
+        contextsAssembly = {name: ContextMetaClass(name[0].upper() + name[1:], (Context,), attributes)
+                            for name, attributes in contextsAttributes.items()}
+        processing = Processing(contextsAssembly)
+        for processor in processors:
+            assert isinstance(processor, Processor), 'Invalid processor %s' % processor
+            processor.register(processing)
+
+        return processing
 
     # ----------------------------------------------------------------
 
@@ -444,17 +458,19 @@ class Assembly:
 
     # ----------------------------------------------------------------
 
-    def _indexContexts(self, contexts, defines, requires):
+    def _indexContexts(self, contexts, defines, optional, requires):
         '''
         Indexes the provided contexts into the provided defines and requires dictionaries.
         
         @param defines: dictionary{tuple(string, string):set(class)}
+        @param optional: dictionary{tuple(string, string):set(class)}
         @param requires: dictionary{tuple(string, string):set(class)}
             The keys of the dictionaries are tuple having on the first position the context argument name and as the
             second position the attribute name within the context.
         '''
         assert isinstance(contexts, dict), 'Invalid contexts %s' % contexts
         assert isinstance(defines, dict), 'Invalid defines %s' % defines
+        assert isinstance(optional, dict), 'Invalid optional %s' % optional
         assert isinstance(requires, dict), 'Invalid requires %s' % requires
 
         for name, context in contexts.items():
@@ -466,19 +482,22 @@ class Assembly:
                 key = (name, nameAttribute)
 
                 checkRequiredvsDefined = False
-                if attribute.status & REQUIRED:
+                if attribute.status & (REQUIRED | OPTIONAL):
                     typesRequired = requires.get(key)
                     if typesRequired is None: requires[key] = set(attribute.types)
                     else:
                         common = typesRequired.intersection(attribute.types)
-                        if not common:
-                            raise AssemblyError('The required attributes types %s are not compatible with the '
-                            'context \'%s\' attribute \'%s\' required types %s' %
-                            ([typ.__name__ for typ in typesRequired], name, nameAttribute,
-                             [typ.__name__ for typ in attribute.types]))
+                        if attribute.status & REQUIRED:
+                            if not common:
+                                raise AssemblyError('The required attributes types %s are not compatible with the '
+                                'context \'%s\' attribute \'%s\' required types %s' %
+                                ([typ.__name__ for typ in typesRequired], name, nameAttribute,
+                                 [typ.__name__ for typ in attribute.types]))
 
-                        requires[key] = common
-                        checkRequiredvsDefined = True
+                            requires[key] = common
+                            checkRequiredvsDefined = True
+
+                        elif common: optional[key] = common
 
                 elif attribute.status & DEFINED:
                     typesDefined = defines.get(key)
@@ -505,6 +524,7 @@ class Assembly:
             The list of processors to index the attributes types for.
         @return: tuple of two
             defines: dictionary{tuple(string, string):set(class)}
+            optional: dictionary{tuple(string, string):set(class)}
             requires: dictionary{tuple(string, string):set(class)}
             
             The keys of the dictionaries are tuple having on the first position the context argument name and as the
@@ -512,16 +532,16 @@ class Assembly:
         '''
         assert isinstance(processors, Iterable), 'Invalid processors %s' % processors
 
-        defines, requires = {}, {}
+        defines, optional, requires = {}, {}, {}
         for processor in processors:
             assert isinstance(processor, Processor), 'Invalid processor %s' % processor
             assert isinstance(processor.contexts, dict), 'Invalid processor contexts %s' % processor.contexts
 
-            try: self._indexContexts(processor.contexts, defines, requires)
+            try: self._indexContexts(processor.contexts, defines, optional, requires)
             except AssemblyError as e:
                 raise AssemblyError('Problems with processor at:%s\n%s' % (self._location(processor), e))
 
-        return defines, requires
+        return defines, optional, requires
 
     def _indexAttributes(self, processors):
         '''
@@ -590,13 +610,13 @@ class Assembly:
         dependencies = []
         for index in range(0, len(processors)):
             beforeProcessor, afterProcessor = set(), set()
-            definersProc = definers.get(index, EMPTY_SET)
-            optionalProc = optional.get(index, EMPTY_SET)
-            requiresProc = requires.get(index, EMPTY_SET)
+            definersProc = definers.get(index, set())
+            optionalProc = optional.get(index, set())
+            requiresProc = requires.get(index, set())
             for indexOther in range(0, index):
-                definersOther = definers.get(indexOther, EMPTY_SET)
-                optionalOther = optional.get(indexOther, EMPTY_SET)
-                requiresOther = requires.get(indexOther, EMPTY_SET)
+                definersOther = definers.get(indexOther, set())
+                optionalOther = optional.get(indexOther, set())
+                requiresOther = requires.get(indexOther, set())
 
                 definesRequired = definersProc.intersection(requiresOther)
                 otherDefinesRequired = definersOther.intersection(requiresProc)
@@ -639,25 +659,21 @@ class Assembly:
 
     # ----------------------------------------------------------------
 
-    def _filterByAttributes(self, processors, excludeIfDefines=EMPTY_SET, excludeIfRequires=EMPTY_SET):
+    def _filterExcludeIfRequiresAny(self, processors, requires):
         '''
-        Filters the list of processors based on the attributes.
+        Filters the processors by excluding based on the attributes.
         
         @param processors: Iterable(Processor)
             The list of processors to filter.
-        @param excludeIfDefines: set(tuple(string, string))|None
-            The attributes that need not to be defined by the filtered processors, if None will not filter by.
-        @param excludeIfRequires: set(tuple(string, string))|None
-            The attributes that need not to be required by the filtered processors, if None will not filter by.
-            
+        @param requires: set(tuple(string, string))|None
+            The attributes that need not to be required by the filtered processors.
             The sets contain tuples having on the first position the context argument name and as the second
             position the attribute name within the context.
         @return: list[Processor]
             The list of filtered processors.
         '''
         assert isinstance(processors, Iterable), 'Invalid processors %s' % processors
-        assert isinstance(excludeIfDefines, set), 'Invalid exclude if defines %s' % excludeIfDefines
-        assert isinstance(excludeIfRequires, set), 'Invalid exclude if  requires %s' % excludeIfRequires
+        assert isinstance(requires, set), 'Invalid requires %s' % requires
 
         filtered = []
         for processor in processors:
@@ -674,11 +690,7 @@ class Assembly:
                     key = (name, nameAttribute)
 
                     if attribute.status & REQUIRED:
-                        if key in excludeIfRequires:
-                            valid = False
-                            break
-                    elif attribute.status & DEFINED:
-                        if key in excludeIfDefines:
+                        if key in requires:
                             valid = False
                             break
                 if not valid: break
@@ -686,3 +698,67 @@ class Assembly:
             if valid: filtered.append(processor)
 
         return filtered
+
+    def _filterExcludeIfDefinesAll(self, processors, defines):
+        '''
+        Filters the processors by excluding based on the attributes.
+        
+        @param processors: Iterable(Processor)
+            The list of processors to filter.
+        @param defines: set(tuple(string, string))|None
+            All the attributes that need not to be defined by the filtered processors.
+            The sets contain tuples having on the first position the context argument name and as the second
+            position the attribute name within the context.
+        @return: list[Processor]
+            The list of filtered processors.
+        '''
+        assert isinstance(processors, Iterable), 'Invalid processors %s' % processors
+        assert isinstance(defines, set), 'Invalid defines %s' % defines
+
+        filtered = []
+        for processor in processors:
+            assert isinstance(processor, Processor), 'Invalid processor %s' % processor
+            assert isinstance(processor.contexts, dict), 'Invalid processor contexts %s' % processor.contexts
+
+            valid = False
+            for name, context in processor.contexts.items():
+                assert isinstance(context, ContextMetaClass), 'Invalid context class %s' % context
+
+                for nameAttribute, attribute in context.__attributes__.items():
+                    assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
+
+                    key = (name, nameAttribute)
+
+                    if attribute.status & DEFINED:
+                        if key not in defines:
+                            valid = True
+                            break
+                if valid: break
+
+            if valid: filtered.append(processor)
+
+        return filtered
+
+    def _validateOrder(self, processors):
+        '''
+        Validates if the order of the processors is correct.
+        
+        @param processors: list[Processor]
+            The list of processors to check for the order.
+        '''
+        assert isinstance(processors, list), 'Invalid processors %s' % processors
+
+        dependencies = self._indexDependencies(processors)
+
+        before = deque()
+        for index in range(0, len(self._processors)):
+            requiredAfter = dependencies[index]
+            if requiredAfter:
+                broken = requiredAfter.difference(requiredAfter.intersection(before))
+                if broken:
+                    raise AssemblyError('The processor at:%s\nneeds to have the processors after it, not before '
+                                        'it:%s' % (self._location(processors[index]),
+                                                   ''.join(self._location(processors[bindex]) for bindex in broken)))
+
+            before.append(index)
+
