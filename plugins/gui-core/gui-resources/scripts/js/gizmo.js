@@ -31,19 +31,30 @@ define('gizmo', ['jquery'], function()
     {
         dataAdapter: function(source)
         {
-            var self = this;
+            var reset = function()
+            {
+                Sync.options = {}; 
+            };
             return { 
                 read: function(cb, failCb, alwaysCb)
                 { 
-                    return $.ajax(source, Sync.options).done(cb).fail(failCb); 
+                    var options = $.extend({}, Sync.readOptions, Sync.options);
+                    reset();
+                    return $.ajax(source, options).done(cb).fail(failCb); 
                 },
                 update: function(data, cb, failCb, alwaysCb)
                 {
-                    data = typeof data == 'function' ? data.call(this) : data;
+                    var options = $.extend({}, Sync.updateOptions, Sync.options, {data: data});
+                    reset();
+                    return $.ajax(source, options).done(cb).fail(failCb);
                 }
             }
         },
-        options: {dataType: 'json', type: 'get', headers: {'Accept' : 'text/json'}}
+        options: {},
+        readOptions: {dataType: 'json', type: 'get', headers: {'Accept' : 'text/json'}},
+        updateOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'PUT'}},
+        insertOptions: {type: 'post'},
+        deleteOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'DELETE'}}
     };
         
     
@@ -66,13 +77,23 @@ define('gizmo', ['jquery'], function()
          * adapter for data sync
          */
         dataAdapter: Sync.dataAdapter,
+        xfilter: function(data)
+        {
+            $.extend( Sync.options, {
+                headers: {
+                    'X-Filter': arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(data) ? data.join(',') : data
+            }});
+            return this;
+        },
         /*!
          * @param format
          */
         feed: function(format)
         {
-            for( var i in this.data ) console.log(this.data[i])
-            
+            var ret = {};
+            for( var i in this.data ) 
+                ret[i] = this.data[i] instanceof Model ? this.data[i].relationHash() : this.data[i];
+            return ret;
         },
         /*!
          * data sync call
@@ -80,16 +101,19 @@ define('gizmo', ['jquery'], function()
         sync: function()
         { 
             var self = this;
-            if( this.changed )
+            
+            if( this.changed ) // if changed do an update on the server and return
                 return (this.href && this.dataAdapter(this.href).update(this.feed(), function()
                 {
                     self.changed = false;
+                    $(self).triggerHandler('update');
                 })); 
             
+            // simply read data from server
             return (this.href && this.dataAdapter(this.href).read(function(data)
             {
                 self.parse(data);
-                $(self).trigger('update');
+                $(self).triggerHandler('read');
             }));  
         },
         /*!
@@ -118,7 +142,11 @@ define('gizmo', ['jquery'], function()
             this.changed = true;
             return this;
         },
-        hash: function(){ return this.href; }
+        hash: function(){ return this.data.href; },
+        /*!
+         * used to relate models. a general standard key would suffice
+         */
+        relationHash: function(){ return this.data.Id; }
     };
     // Model's base options
     var options = Model.options = {};
@@ -164,8 +192,8 @@ define('gizmo', ['jquery'], function()
                 this.dataAdapter(this.options.href).read(function(data)
                 {
                     self.parse(data);
-                    $(self).trigger('update');
-                    $(self._list).trigger('update');
+                    $(self).triggerHandler('update');
+                    $(self._list).triggerHandler('update');
                 })); 
         },
         parse: function(data)
