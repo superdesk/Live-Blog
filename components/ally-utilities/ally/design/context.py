@@ -106,6 +106,15 @@ class Attribute:
         assert isinstance(value, self.types), 'Invalid value \'%s\' for %s' % (value, self.types)
         self.descriptor.__set__(obj, value)
 
+    def __str__(self):
+        status = 'UNKNOWN'
+        if self.status & DEFINED: status = 'DEFINES'
+        elif self.status & REQUIRED: status = 'REQUIRED'
+        elif self.status & OPTIONAL: status = 'OPTIONAL'
+
+        return ''.join((self.__class__.__name__, '(', status, '=' , self.name or '', ':',
+                        ','.join(type.__name__ for type in self.types), ')'))
+
 # --------------------------------------------------------------------
 ALLOWED = {'__module__', '__doc__'}
 # The allowed attributes in a context class.
@@ -143,6 +152,36 @@ class ContextMetaClass(ABCMeta):
 
         return self
 
+    def __add__(self, other):
+        '''
+        Composes this context meta with the provided context meta.
+        
+        @param other: ContextMetaClass
+            The other context meta to compose with.
+        @return: ContextMetaClass
+            The context meta that contains the attributes from this context meta and the provided context meta.
+        '''
+        assert isinstance(other, ContextMetaClass), 'Invalid other context meta %s' % other
+        names = set(self.__attributes__)
+        names.update(other.__attributes__)
+
+        attributes = {}
+        for name in names:
+            attr = self.__attributes__.get(name)
+            attro = other.__attributes__.get(name)
+            if attr is not None:
+                assert isinstance(attr, Attribute), 'Invalid attribute %s' % attr
+                if attro is not None:
+                    assert isinstance(attro, Attribute), 'Invalid attribute %s' % attro
+                    attrnew = combine(attr, attro)
+                else: attrnew = Attribute(attr.status, attr.types, doc=attr.doc)
+            else: attrnew = Attribute(attro.status, attro.types, doc=attro.doc)
+
+            attributes[name] = attrnew
+
+        return ContextMetaClass('%s+%s' % (self.__name__, other.__name__), (Context,), attributes)
+
+
 class Context(metaclass=ContextMetaClass):
     '''
     The base context class, this class needs to be inherited by all classes that need to behave like a data context.
@@ -178,3 +217,61 @@ class Context(metaclass=ContextMetaClass):
             # Check if the value is of the expected types.
             return isinstance(value, atrr.types)
         except AttributeError: return False
+
+# --------------------------------------------------------------------
+
+def docFrom(attr1, attr2):
+    '''
+    Combines the documentation of the two attributes.
+    
+    @param attr1: Attribute
+    @param attr2: Attribute
+        The attributes to combine the documentation for.
+    @return: string|None
+        The combined documentation.
+    '''
+    assert isinstance(attr1, Attribute), 'Invalid attribute %s' % attr1
+    assert isinstance(attr2, Attribute), 'Invalid attribute %s' % attr2
+
+    docs = []
+    if attr1.doc is not None: docs.append(attr1.doc)
+    if attr2.doc is not None: docs.append(attr2.doc)
+
+    if docs: return '\n'.join(docs)
+
+def combine(attr1, attr2):
+    '''
+    Combines the two attributes in a single one.
+    
+    @param attr1: Attribute
+    @param attr2: Attribute
+        The attributes to be combined.
+    @return: Attribute
+        The combined attribute.
+    '''
+    assert isinstance(attr1, Attribute), 'Invalid attribute %s' % attr1
+    assert isinstance(attr2, Attribute), 'Invalid attribute %s' % attr2
+
+    if attr1.status & DEFINED:
+        types = set(attr1.types)
+        if attr2.status & DEFINED:
+            types.update(attr2.types)
+            return Attribute(attr1.status | attr2.status, tuple(types), doc=docFrom(attr1, attr2))
+
+        elif attr2.status & REQUIRED:
+            types.intersection_update(attr2.types)
+            if not types: raise TypeError('Cannot combine attributes \'%s\' and \'%s\'' % (attr1, attr2))
+            return Attribute(attr2.status, tuple(types), doc=docFrom(attr1, attr2))
+
+        else:
+            # The second attribute is most likely optional, so is not take in consideration at all
+            return Attribute(attr1.status, attr1.types, doc=docFrom(attr1, attr2))
+
+    elif attr2.status & DEFINED:
+        return combine(attr2, attr1)
+
+    else:
+        # In this case most likely both attributes are optional
+        types = set(attr1.types)
+        types.update(attr2.types)
+        return Attribute(attr1.status | attr2.status, tuple(types), doc=docFrom(attr1, attr2))

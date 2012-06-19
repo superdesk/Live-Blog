@@ -14,6 +14,7 @@ from os.path import isfile
 from os import stat
 from zipfile import ZipFile
 from datetime import datetime
+from collections import Iterable
 
 # --------------------------------------------------------------------
 
@@ -120,6 +121,24 @@ def readGenerator(fileObj, bufferSize=1024):
                 fileObj.close()
                 break
             yield buffer
+
+def convertToBytes(iterable, charSet, encodingError):
+    '''
+    Provides a generator that converts from string to bytes based on string data from another Iterable.
+    
+    @param iterable: Iterable
+        The iterable providing the strings to convert.
+    @param charSet: string
+        The character set to encode based on.
+    @param encodingError: string
+        The encoding error resolving.
+    '''
+    assert isinstance(iterable, Iterable), 'Invalid iterable %s' % iterable
+    assert isinstance(charSet, str), 'Invalid character set %s' % charSet
+    assert isinstance(encodingError, str), 'Invalid encoding error set %s' % encodingError
+    for value in iterable:
+        assert isinstance(value, str), 'Invalid value %s received' % value
+        yield value.encode(encoding=charSet, errors=encodingError)
 
 def openURI(path):
     '''

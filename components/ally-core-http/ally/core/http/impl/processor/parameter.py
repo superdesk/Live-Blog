@@ -11,10 +11,9 @@ Provides the parameters handler.
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import ILLEGAL_PARAM, Code
-from ally.core.spec.meta import IMetaService, IMetaDecode, IMetaEncode, SAMPLE, \
+from ally.core.spec.meta import MetaService, IMetaDecode, IMetaEncode, SAMPLE, \
     Value, Object
-from ally.core.spec.resources import Invoker, Path, Node, INodeInvokerListener, \
-    Converter, Normalizer
+from ally.core.spec.resources import Invoker, Path, Node, INodeInvokerListener
 from ally.design.context import Context, requires, defines
 from ally.design.processor import Chain, HandlerProcessor
 from weakref import WeakKeyDictionary
@@ -29,8 +28,6 @@ class Request(Context):
     parameters = requires(list)
     path = requires(Path)
     invoker = requires(Invoker)
-    normalizer = requires(Normalizer)
-    converter = requires(Converter)
     # ---------------------------------------------------------------- Defined
     arguments = defines(dict)
 
@@ -54,13 +51,16 @@ class ParameterHandler(HandlerProcessor, INodeInvokerListener):
     Implementation for a processor that provides the transformation of parameters into arguments.
     '''
 
-    parameterMetaService = IMetaService
+    parameterMetaService = MetaService
     # The parameters meta service that will provide the decoding and encoding.
 
     def __init__(self):
-        assert isinstance(self.parameterMetaService, IMetaService), \
+        assert isinstance(self.parameterMetaService, MetaService), \
         'Invalid parameter meta service %s' % self.parameterMetaService
         super().__init__()
+        # We also add the meta context to the request context
+        self.processor.contexts['request'] += self.parameterMetaService.createContextMeta + \
+        self.parameterMetaService.processContextMeta
 
         self._cacheDecode = WeakKeyDictionary()
         self._cacheEncode = WeakKeyDictionary()
