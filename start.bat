@@ -1,4 +1,4 @@
 @ECHO OFF
 setlocal
-set PYTHONPATH=superdesk/plugins/livedesk;plugins/gui-core;plugins/sandbox
-C:\Python32\python.exe superdesk/distribution/application.py
+set PYTHONPATH=superdesk/plugins/livedesk;plugins/gui-core;plugins/test-dev
+python.exe superdesk/distribution/application.py

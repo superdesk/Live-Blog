@@ -1,6 +1,79 @@
-define('gizmo', ['jquery'], function()
+define('gizmo', ['jquery', 'utils/extend', 'utils/class'], function()
 {
-    var Model = function(data){ return false; },
+	var Classed = Class.extend({
+		getProperty: function(prop)
+		{
+			if (!this[prop]) return null;
+			return $.isFunction(this[prop]) ? this[prop]() : this[prop];
+		}
+	});
+	var View = Classed.extend({
+		_constructor: function(prop)
+		{
+			var self = this;
+			for (var name in prop) {
+			  this[name] = prop[name];
+			}
+			self.init();
+			self.render();
+			self.delegateEvents();
+		},
+		namespace: 'view',
+		init: function(){ return this; },
+		delegateEvents: function(events)
+		{
+			var self = this;
+			if (!(events || (events = this.getProperty('events')))) return;
+			for(var selector in events) {
+				var one = events[selector];
+				for(var evnt in one) {
+					var other = one[evnt], sel = null, dat = {}, fn;
+					if(typeof other === 'string') {
+						fn  = other;
+						if($.isFunction(self[fn]))
+							$(selector, this.el).on(evnt + this.getNamespace(), self[fn].bind(self));
+					}else if($.isArray(other)) {
+						fn = other[0];
+						if($.isFunction(other[1]) && (other.length>1) && (other.length<=2)) {
+							sel = other[0];
+							fn = other[1];
+							if($.isFunction(self[fn]))
+								$(selector, this.el).on(evnt + this.getNamespace(), sel, self[fn].bind(self));
+						} else if($.isFunction(other[2]) && (other.length>2)) {
+							dat = other[0];
+							sel = other[1];
+							fn = other[2];
+							if($.isFunction(self[fn]))
+								$(selector, this.el).on(evnt + this.getNamespace(), sel, dat, self[fn].bind(self));
+						} else {
+							if($.isFunction(self[fn]))
+								$(selector, this.el).on(evnt + this.getNamespace(), self[fn].bind(self));
+						}
+					}
+				}
+			}
+		},
+		getNamespace: function()
+		{
+			return '.'+this.getProperty('namespace');
+		},
+		undelegateEvents: function()
+		{
+			$(this.el).off(this.getNamespace());
+		},
+		render: function(){ return this; },
+		remove: function()
+		{
+			$(this.el).remove();
+			return this;
+		},
+		setElement: function(el)
+		{
+			this.el = el;
+		}
+	});
+    
+	var Model = function(data){ return false; },
     Collection = function()
     {
         this.model = Model;
@@ -17,7 +90,7 @@ define('gizmo', ['jquery'], function()
                 this.model = arguments[i];
                 continue;
             }
-            var type = Object.prototype.toString.call(arguments[i]);
+            var type = Object.prototype.toString.call(arguments[i])
             if( type == '[object Array]' )
                 buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]);
             if( type == '[object Object]' )
@@ -63,7 +136,6 @@ define('gizmo', ['jquery'], function()
         changed: false,
         defaults: {},
         data: {},
-        hashKey: 'href',
         /*!
          * constructor
          */ 
@@ -143,47 +215,11 @@ define('gizmo', ['jquery'], function()
             this.changed = true;
             return this;
         },
-        /*!
-         * represents the formula to identify the model uniquely
-         */
-        hash: function(){ return this.data[this.hashKey]; },
+        hash: function(){ return this.data.href; },
         /*!
          * used to relate models. a general standard key would suffice
          */
         relationHash: function(){ return this.data.Id; }
-    };
-    
-    var Uniq = function(){};
-    Uniq.prototype = 
-    {
-        items: {},
-        counts: {},
-        get: function( obj, key )
-        {
-            if( this.items[key] ) delete obj;
-            else this.items[key] = obj;
-            this.counts[key]++;
-            return this.items[key];
-        },
-        set: function(key, val)
-        {
-            if( !this.items[key] ) this.items[key] = val;
-            this.counts[key]++;
-            this.garbage();
-            return this.items[key];
-        },
-        garbage: function()
-        {
-            for( var key in this.counts ) 
-            {
-                this.counts[key]--;
-                if( this.counts[key] == 0 )
-                {
-                    $(this.items[key]).trigger('garbage');
-                    delete this.items[key];
-                }
-            }
-        }
     };
     // Model's base options
     var options = Model.options = {};
@@ -197,17 +233,15 @@ define('gizmo', ['jquery'], function()
             if( this._construct ) return this._construct.apply(this, arguments);
         };
         var uniqueList = {};
-        var uniq = new Uniq;
         Model.prototype = proto;
         Model.prototype.pushUnique = function()
         {
-            return uniq.set(this.hash(), this);
-            //if( !uniqueList[this.hash()] ) uniqueList[this.hash()] = this;
-            //return uniqueList[this.hash()];
+            if( !uniqueList[this.hash()] ) uniqueList[this.hash()] = this;
+            return uniqueList[this.hash()];
         };
         Model.prototype.getUniques = function()
         {
-            return uniq;
+            return uniqueList;
         };
         // create a new property from original options one
         Model.prototype.options = $.extend({}, options);
@@ -227,13 +261,13 @@ define('gizmo', ['jquery'], function()
         sync: function()
         {
             var self = this;
-            return (this.options.href && !this.synced &&
+            return (this.options.href && 
                 this.dataAdapter(this.options.href).read(function(data)
                 {
                     self.parse(data);
-                    $(self).triggerHandler('read');
-                    $(self._list).triggerHandler('read');
-                }));
+                    $(self).triggerHandler('update');
+                    $(self._list).triggerHandler('update');
+                })); 
         },
         parse: function(data)
         {
@@ -254,8 +288,6 @@ define('gizmo', ['jquery'], function()
             theData = extracListData(data);
             for( var i in theData ) 
                 this._list.push( new this.options.model(theData[i]) );
-            
-            $(this._list).on('garbage', function(){ this.synced = false; })
             this.total = data.total;
         }
     };
