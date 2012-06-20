@@ -1,28 +1,29 @@
-define(['gizmo', 'gui/superdesk/livedesk/scripts/js/models/collaborator'], 
+define(['gizmo', 
+        'gui/superdesk/livedesk/scripts/js/models/collaborator',
+        'gui/superdesk/livedesk/scripts/js/models/collaborator-post'], 
 function(giz, Collaborator)
 {
     return {init: function(){
         
-    console.clear();
+        
+        
+    //console.clear();
     //giz.Model.options.x = 'y';
     //console.dir('-----', giz.Model.options);
-    var c = new Collaborator('http://localhost:8080/resources/Superdesk/Collaborator/1');
+    var c = new Collaborator('http://localhost:8080/resources/Superdesk/Collaborator/22');
     //c.options.ceva = 'altceva';
     //console.dir('-----', c.options);
     //console.dir('-----', giz.Model.options);
     
     console.dir(c);
     
-    console.log(c.xfilter('Id', 'Name').sync());
-    /*.done(function()
+    
+    c.sync().done(function()
     {
         console.log('after sync');
-        console.dir(c);
-        console.dir(c.getUniques());
+        c.get('Post').get('http://localhost:8080/resources/Superdesk/Post/2').done(function(){ console.log(arguments); });
     });
-    setTimeout(function(){ c.sync(); }, 10000);
-    
-    $(c).triggerHandler('relationHash');*/
+    setTimeout(function(){ c.sync(); }, 3000);
     
     
         /*var Source = Model.extend(),
