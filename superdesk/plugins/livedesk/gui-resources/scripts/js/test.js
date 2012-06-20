@@ -11,13 +11,18 @@ function(giz, Collaborator)
     //console.dir('-----', c.options);
     //console.dir('-----', giz.Model.options);
     
-    c.xfilter('Id', 'Name').sync().done(function()
+    console.dir(c);
+    
+    console.log(c.xfilter('Id', 'Name').sync());
+    /*.done(function()
     {
-        console.log('a');
+        console.log('after sync');
+        console.dir(c);
+        console.dir(c.getUniques());
     });
     setTimeout(function(){ c.sync(); }, 10000);
     
-    $(c).triggerHandler('relationHash');
+    $(c).triggerHandler('relationHash');*/
     
     
         /*var Source = Model.extend(),
