@@ -14,10 +14,13 @@ from setuptools import setup, find_packages
 # --------------------------------------------------------------------
 
 setup(
-    name="gui_core",
+    name="livedesk",
     version="1.0",
     packages=find_packages(),
-    install_requires=['ally_api >= 1.0', 'ally_core_plugin >= 1.0', 'support_cdm >= 1.0'],
+    install_requires=['ally_api >= 1.0', 'ally_core_sqlalchemy >= 1.0', 'gui_action >= 1.0',
+                      'gui_core >= 1.0', 'internationalization >= 1.0', 'superdesk_collaborator >= 1.0',
+                      'superdesk_language >= 1.0', 'superdesk_person >= 1.0', 'superdesk_post >= 1.0',
+                      'superdesk_source >= 1.0', 'superdesk_user >= 1.0'],
     platforms=['all'],
     zip_safe=True,
     package_data={
@@ -27,9 +30,9 @@ setup(
     # metadata for upload to PyPI
     author="Gabriel Nistor",
     author_email="gabriel.nistor@sourcefabric.org",
-    description="Ally framework - GUI core plugin",
-    long_description='The plugin that contains the core GUI resources',
+    description="Livedesk plugin",
+    long_description='Implementation of the Livedesk plugin',
     license="GPL v3",
-    keywords="Ally REST framework plugin GUI",
+    keywords="Ally REST framework plugin Livedesk",
     url="http://www.sourcefabric.org/en/superdesk/", # project home page
 )
