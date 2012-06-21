@@ -14,19 +14,21 @@ from setuptools import setup, find_packages
 # --------------------------------------------------------------------
 
 setup(
-    name="gui_action",
+    name="superdesk_post",
     version="1.0",
     packages=find_packages(),
-    install_requires=['ally_api >= 1.0'],
+    install_requires=['ally_api >= 1.0', 'ally_core_sqlalchemy >= 1.0', 'internationalization >= 1.0',
+                      'superdesk >= 1.0', 'superdesk_collaborator >= 1.0', 'superdesk_source >= 1.0',
+                      'superdesk_user >= 1.0'],
     platforms=['all'],
     zip_safe=True,
 
     # metadata for upload to PyPI
     author="Gabriel Nistor",
     author_email="gabriel.nistor@sourcefabric.org",
-    description="Ally framework - GUI actions plugin",
-    long_description='The plugin that implements that actions management service',
+    description="Superdesk post plugin",
+    long_description='Post management functionality (model, service)',
     license="GPL v3",
-    keywords="Ally REST framework plugin GUI",
+    keywords="Ally REST framework plugin Livedesk",
     url="http://www.sourcefabric.org/en/superdesk/", # project home page
 )
