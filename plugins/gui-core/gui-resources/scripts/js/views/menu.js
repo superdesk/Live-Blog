@@ -20,11 +20,11 @@ function($, superdesk, dust)
         		    var Subs = null;
         			if(this.ChildrenCount > 0)
         			{
-        			    Subs = 'data-submenu='+this.Path;
-        			    Subz = '[data-submenu="'+this.Path+'"]';
+        			    var Subs = 'data-submenu='+this.Path,
+        			        Subz = '[data-submenu="'+this.Path+'"]';
         			    superdesk.getActions(this.Path + '.*')
         			    .done(function(subs)
-        			    { 
+        			    {
         			        $(subs).each(function()
         			        { 
         			            require([config.api_url + this.ScriptPath], function(x){ x && x.init && x.init(Subz); }); 
