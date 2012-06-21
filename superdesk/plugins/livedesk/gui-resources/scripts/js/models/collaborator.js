@@ -1,7 +1,8 @@
 define(['gizmo',
         'gui/superdesk/livedesk/scripts/js/models/post',
-        'gui/superdesk/livedesk/scripts/js/models/source'], 
-function(giz, Post, Source)
+        'gui/superdesk/livedesk/scripts/js/models/source',
+        'gui/superdesk/livedesk/scripts/js/models/person'], 
+function(giz, Post, Source, Person)
 {
     return giz.Model.extend
     ({ 
@@ -10,7 +11,8 @@ function(giz, Post, Source)
             Post: [Post],
             PostPublished: [Post],
             PostUnpublished: [Post],
-            Source: Source 
+            Source: Source,
+            Person: Person
         }
     });
 });
