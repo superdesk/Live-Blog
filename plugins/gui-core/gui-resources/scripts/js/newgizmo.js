@@ -75,13 +75,10 @@ define(['jquery', 'utils/extend', 'utils/class'], function()
 	var View = Classed.extend({
 		_constructor: function(prop)
 		{
-			var self = this;
-			for (var name in prop) {
-			  this[name] = prop[name];
-			}
-			self.init();
-			self.render();
-			self.delegateEvents();
+			$.extend(this, prop);
+			this._ensureElement();
+			this.init();			
+			this.delegateEvents();
 		},
 		namespace: 'view',
 		init: function(){ return this; },
@@ -96,23 +93,17 @@ define(['jquery', 'utils/extend', 'utils/class'], function()
 					if(typeof other === 'string') {
 						fn  = other;
 						if($.isFunction(self[fn]))
-							$(selector, this.el).on(evnt + this.getNamespace(), self[fn].bind(self));
+							$(this.el).on(evnt + this.getNamespace(), selector, self[fn].bind(self));
 					}else if($.isArray(other)) {
 						fn = other[0];
 						if($.isFunction(other[1]) && (other.length>1) && (other.length<=2)) {
-							sel = other[0];
+							dat = other[0];
 							fn = other[1];
 							if($.isFunction(self[fn]))
-								$(selector, this.el).on(evnt + this.getNamespace(), sel, self[fn].bind(self));
-						} else if($.isFunction(other[2]) && (other.length>2)) {
-							dat = other[0];
-							sel = other[1];
-							fn = other[2];
-							if($.isFunction(self[fn]))
-								$(selector, this.el).on(evnt + this.getNamespace(), sel, dat, self[fn].bind(self));
+								$(this.el).on(evnt + this.getNamespace(),selector, dat, self[fn].bind(self));
 						} else {
 							if($.isFunction(self[fn]))
-								$(selector, this.el).on(evnt + this.getNamespace(), self[fn].bind(self));
+								$(this.el).on(evnt + this.getNamespace(), selector, self[fn].bind(self));
 						}
 					}
 				}
@@ -135,6 +126,21 @@ define(['jquery', 'utils/extend', 'utils/class'], function()
 		setElement: function(el)
 		{
 			this.el = el;
+			this._ensureElement();
+		},
+		_ensureElement: function()
+		{
+			if(!$(this.el).length) {
+				this.el = this.el.trim();
+				if(this.el[0]=='.') {
+					this.el = $('<div class="'+this.el.substr(0,1)+'"></div>');
+				} else
+				if(this.el[0]=='#') {
+					this.el = $('<div id="'+this.el.substr(0,1)+'"></div>');
+				} else {
+					this.el = $('<div></div>');
+				}
+			}
 		}
 	});
 	var Model = Classed.extend({
