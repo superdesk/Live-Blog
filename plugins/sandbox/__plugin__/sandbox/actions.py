@@ -19,10 +19,10 @@ from ..gui_core.gui_core import getPublishedGui
 @ioc.entity   
 def menuAction():
     return Action('sandbox', Parent=defaults.menuAction(), Label=NC_('Menu', 'Sandbox'),
-                  ScriptPath=getPublishedGui('sandbox/scripts/js/menu-sandbox.js'))
+                  ScriptPath=getPublishedGui('superdesk/sandbox/scripts/js/menu-sandbox.js'))
 @ioc.entity   
 def modulesAction():
-    return Action('sandbox', Parent=defaults.modulesAction(), ScriptPath=getPublishedGui('sandbox/scripts/js/sandbox.js'))
+    return Action('sandbox', Parent=defaults.modulesAction(), ScriptPath=getPublishedGui('superdesk/sandbox/scripts/js/sandbox.js'))
 
 @ioc.start
 def registerActions():
