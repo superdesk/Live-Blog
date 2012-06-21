@@ -58,20 +58,31 @@ define('gizmo', ['jquery'], function()
                 {
                     var options = $.extend({}, Sync.updateOptions, Sync.options, userOptions, {data: data});
                     return $.ajax(source, options);
+                },
+                insert: function(data, userOptions)
+                {
+                    var options = $.extend({}, Sync.insertOptions, Sync.options, userOptions, {data: data});
+                    return $.ajax(source, options);
+                },
+                remove: function()
+                {
+                    var options = $.extend({}, Sync.removeOptions, Sync.options);
+                    return $.ajax(source, options);
                 }
             };
         },
+        // bunch of options for each type of operation 
         options: {},
         readOptions: {dataType: 'json', type: 'get', headers: {'Accept' : 'text/json'}},
         updateOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'PUT'}},
-        insertOptions: {type: 'post'},
-        deleteOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'DELETE'}}
+        insertOptions: {dataType: 'json', type: 'post'},
+        removeOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'DELETE'}}
     };
         
     
     Model.prototype = 
     {
-        changed: false,
+        _changed: false,
         defaults: {},
         data: {},
         hashKey: 'href',
@@ -80,18 +91,23 @@ define('gizmo', ['jquery'], function()
          */ 
         _construct: function(data, options)
         {
-            this.changed = false;
+            this._changed = false;
             this.data = {}; 
             this._xfilter = null;
+            this._clientHash;
             if( typeof data == 'string' ) this.href = data;
             if( typeof data == 'object' ) $.extend(this.data, data);
-            if( options && typeof options == 'object' ) $.extend(this.options, data);
+            if( options && typeof options == 'object' ) $.extend(this, options);
+            
             return this.pushUnique();
         },
         /*!
          * adapter for data sync
          */
         dataAdapter: Sync.dataAdapter,
+        /*!
+         * custom functionality for ally-py api
+         */
         xfilter: function(data)
         {
             this._xfilter = {headers: {'X-Filter': arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(data) ? data.join(',') : data}};
@@ -104,7 +120,7 @@ define('gizmo', ['jquery'], function()
         {
             var ret = {};
             for( var i in this.data ) 
-                ret[i] = this.data[i] instanceof Model ? this.data[i].relationHash() : this.data[i];
+                ret[i] = this.data[i] instanceof Model ? this.data[i].relationHash() || this.data[i].hash() : this.data[i];
             return ret;
         },
         /*!
@@ -114,10 +130,24 @@ define('gizmo', ['jquery'], function()
         { 
             var self = this, ret;
             
-            if( this.changed ) // if changed do an update on the server and return
+            if( this._clientHash )
+            {
+                var href = this.href || arguments[0];
+                ret = (this.dataAdapter(href).insert(this.feed()).done(function(data)
+                {
+                    self._changed = false;
+                    self.parse(data);
+                    self._uniq.replace(self._clientHash, self.hash(), self);
+                    self._clientHash = null;
+                    $(self).triggerHandler('insert');
+                })); 
+                return ret;
+            }
+            
+            if( this._changed ) // if changed do an update on the server and return
                 ret = (this.href && this.dataAdapter(this.href).update(this.feed(), this._xfilter).done(function()
                 {
-                    self.changed = false;
+                    self._changed = false;
                     $(self).triggerHandler('update');
                 })); 
             
@@ -137,17 +167,25 @@ define('gizmo', ['jquery'], function()
         {
             for( var i in data ) 
             {
-                if( this.defaults[i] &&  typeof this.defaults[i] === 'function' )
-                {
-                    this.data[i] = new this.defaults[i](data[i].href);
-                    continue;
-                }
-                if(this.defaults[i] && $.isArray(this.defaults[i]))
-                {
-                    delete this.data[i];
-                    this.data[i] = new Collection(this.defaults[i][0], data[i].href); 
-                    continue;
-                }
+                if( this.defaults[i] )
+                    switch(true)
+                    {
+                        case typeof this.defaults[i] === 'function': // a model
+                            this.data[i] = new this.defaults[i](data[i].href);
+                            !data[i].href && this.data[i].relationHash(data[i]);
+                            continue;
+                            break;
+                        case $.isArray(this.defaults[i]): // a collection
+                            delete this.data[i];
+                            this.data[i] = new Collection(this.defaults[i][0], data[i].href); 
+                            continue;
+                            break;
+                        case this.defaults[i] instanceof Collection: // an already defined collection
+                            this.data[i] = this.defaults[i];
+                            continue;
+                            break;
+                    }
+
                 this.data[i] = data[i];
             }
         },
@@ -157,21 +195,34 @@ define('gizmo', ['jquery'], function()
         },
         set: function(key, val)
         {
-            var data = {}; data[key] = val;
+            var data = {}; 
+            if( val ) data[key] = val;
+            else data = key;
             this.parse(data);
-            this.changed = true;
+            this._changed = true;
             return this;
+        },
+        /*!
+         * used for new models not yet saved on the api
+         */
+        _getClientHash: function()
+        {
+            if( !this._clientHash ) this._clientHash = (new Date()).getTime();
+            return this._clientHash;
         },
         /*!
          * represents the formula to identify the model uniquely
          */
-        hash: function(){ return this.data[this.hashKey] || this.href; },
+        hash: function(){ return this.data[this.hashKey] || this.href || this._getClientHash(); },
         /*!
          * used to relate models. a general standard key would suffice
          */
-        relationHash: function(){ return this.data.Id; }
+        relationHash: function(val){ if(val) this.data.Id = val; return this.data.Id; }
     };
     
+    /*!
+     * defs for unique storage of models
+     */
     Uniq.prototype = 
     {
         items: {}, counts: {}, instances: [],
@@ -192,6 +243,15 @@ define('gizmo', ['jquery'], function()
             this.garbage();
             this.counts[key] = this.counts[key] ? this.counts[key]+1 : 10;
             return this.items[key];
+        },
+        /*!
+         * replace a key with another key value actually
+         */
+        replace: function(key, newKey, val)
+        {
+            delete this.items[key];
+            delete this.counts[key];
+            return this.set(newKey, val);
         },
         /*!
          * 
@@ -250,16 +310,22 @@ define('gizmo', ['jquery'], function()
             return dfd;
         },
         dataAdapter: Sync.dataAdapter,
+        /*!
+         * 
+         */
         setHref: function(href)
         {
             this.options.href = href;
             return this;
         },
+        /*!
+         * 
+         */
         sync: function()
         {
             var self = this;
             return (this.options.href &&
-                this.dataAdapter(this.options.href).read(/*HARDCODE*/,{headers: {'X-Filter': 'Id'}}).done(function(data)
+                this.dataAdapter(this.options.href).read(/*HARDCODE*/{headers: {'X-Filter': 'Id'}}).done(function(data)
                 {
                     self.parse(data);
                     self.desynced = false;
@@ -267,6 +333,9 @@ define('gizmo', ['jquery'], function()
                     $(self._list).triggerHandler('read');
                 }));
         },
+        /*!
+         * 
+         */
         parse: function(data)
         {
             // get the important list data from request
