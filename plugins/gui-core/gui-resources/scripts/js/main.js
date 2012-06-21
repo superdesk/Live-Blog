@@ -23,6 +23,7 @@ requirejs.config
 		'model': config.js_url + '/require/model',
 		'i18n': config.js_url + '/require/i18n',
 		'gizmo': config.js_url + '/gizmo'
+		'newgizmo': config.js_url + '/newgizmo'		
 	}
 });
 require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
