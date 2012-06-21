@@ -1,1 +1,4 @@
-sandbox
+sandbox: {#persons},{+block}{name}{/block}{/persons}
+
+<button id="sandbox-button">click</button>
+<div id="sandbox-place"></div>
