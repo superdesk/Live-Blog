@@ -1,7 +1,7 @@
 define(['gizmo', 
         'gui/superdesk/livedesk/scripts/js/models/collaborator',
-        'gui/superdesk/livedesk/scripts/js/models/collaborator-post'], 
-function(giz, Collaborator)
+        'gui/superdesk/livedesk/scripts/js/models/post'], 
+function(giz, Collaborator, Post)
 {
     return {init: function(){
         
@@ -10,13 +10,17 @@ function(giz, Collaborator)
     //console.clear();
     //giz.Model.options.x = 'y';
     //console.dir('-----', giz.Model.options);
-    var c = new Collaborator('http://localhost:8080/resources/Superdesk/Collaborator/22');
+    //var c = new Collaborator('http://localhost:8080/resources/Superdesk/Collaborator/22');
+    var p = new Collaborator();
+    p.set({'Source': 1, 'Person': 1})
+        .sync('http://localhost:8080/resources/Superdesk/Collaborator/')
+        .done(function(){ console.log(p); });
+    
     //c.options.ceva = 'altceva';
     //console.dir('-----', c.options);
     //console.dir('-----', giz.Model.options);
-    
+/*    
     console.dir(c);
-    
     
     c.sync().done(function()
     {
@@ -24,7 +28,7 @@ function(giz, Collaborator)
         c.get('Post').get('http://localhost:8080/resources/Superdesk/Post/2').done(function(){ console.log(arguments); });
     });
     setTimeout(function(){ c.sync(); }, 3000);
-    
+*/    
     
         /*var Source = Model.extend(),
     Collaborator = Model.extend({ defaults:{ Post: CollaboratorPost }}),
