@@ -1,28 +1,45 @@
 define('gizmo', ['jquery'], function()
 {
-    var Model = function(data){ return false; },
+    var Model = function(data)
+    { 
+        
+    },
+    Uniq = function()
+    { 
+        this.items = {}; 
+        this.counts = {};
+        $(this.instances).trigger('garbage');
+        this.instances.push(this);
+    },
     Collection = function()
     {
         this.model = Model;
         this._list = [];
         this.options = {};
+        this.desynced = true;
         
         var buildData = buildOptions = function(){ void(0); },
             self = this;
             
         for( var i in arguments ) 
         {
-            if( typeof arguments[i] === 'function')
+            switch( Object.prototype.toString.call(arguments[i]) )
             {
-                this.model = arguments[i];
-                continue;
+                case '[object Function]': // a model
+                    this.model = arguments[i]; 
+                    break;
+                case '[object String]': // a data source
+                    this.options.href = arguments[i]; 
+                    break;
+                case '[object Array]': // a list of models, a function we're going to call after setting options
+                    buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]); 
+                    break;
+                case '[object Object]': // options, same technique as above
+                    buildOptions = (function(args){ return function(){ this.options = args; }})(arguments[i]);
+                    break;
             }
-            var type = Object.prototype.toString.call(arguments[i]);
-            if( type == '[object Array]' )
-                buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]);
-            if( type == '[object Object]' )
-                buildOptions = (function(args){ return function(){ this.options = args; }})(arguments[i]);
         }
+        // callbacks in order
         buildOptions.call(this);
         buildData.call(this);
     };
@@ -31,36 +48,41 @@ define('gizmo', ['jquery'], function()
     {
         dataAdapter: function(source)
         {
-            var reset = function()
-            {
-                Sync.options = {}; 
-            };
             return { 
-                read: function(cb, failCb, alwaysCb)
+                read: function(userOptions)
                 { 
-                    var options = $.extend({}, Sync.readOptions, Sync.options);
-                    reset();
-                    return $.ajax(source, options).done(cb).fail(failCb); 
+                    var options = $.extend({}, Sync.readOptions, Sync.options, userOptions);
+                    return $.ajax(source, options); 
                 },
-                update: function(data, cb, failCb, alwaysCb)
+                update: function(data, userOptions)
                 {
-                    var options = $.extend({}, Sync.updateOptions, Sync.options, {data: data});
-                    reset();
-                    return $.ajax(source, options).done(cb).fail(failCb);
+                    var options = $.extend({}, Sync.updateOptions, Sync.options, userOptions, {data: data});
+                    return $.ajax(source, options);
+                },
+                insert: function(data, userOptions)
+                {
+                    var options = $.extend({}, Sync.insertOptions, Sync.options, userOptions, {data: data});
+                    return $.ajax(source, options);
+                },
+                remove: function()
+                {
+                    var options = $.extend({}, Sync.removeOptions, Sync.options);
+                    return $.ajax(source, options);
                 }
-            }
+            };
         },
+        // bunch of options for each type of operation 
         options: {},
         readOptions: {dataType: 'json', type: 'get', headers: {'Accept' : 'text/json'}},
         updateOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'PUT'}},
-        insertOptions: {type: 'post'},
-        deleteOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'DELETE'}}
+        insertOptions: {dataType: 'json', type: 'post'},
+        removeOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'DELETE'}}
     };
         
     
     Model.prototype = 
     {
-        changed: false,
+        _changed: false,
         defaults: {},
         data: {},
         hashKey: 'href',
@@ -69,21 +91,26 @@ define('gizmo', ['jquery'], function()
          */ 
         _construct: function(data, options)
         {
+            this._changed = false;
+            this.data = {}; 
+            this._xfilter = null;
+            this._clientHash;
             if( typeof data == 'string' ) this.href = data;
             if( typeof data == 'object' ) $.extend(this.data, data);
-            if( options && typeof options == 'object' ) $.extend(this.options, data);
+            if( options && typeof options == 'object' ) $.extend(this, options);
+            
             return this.pushUnique();
         },
         /*!
          * adapter for data sync
          */
         dataAdapter: Sync.dataAdapter,
+        /*!
+         * custom functionality for ally-py api
+         */
         xfilter: function(data)
         {
-            $.extend( Sync.options, {
-                headers: {
-                    'X-Filter': arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(data) ? data.join(',') : data
-            }});
+            this._xfilter = {headers: {'X-Filter': arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(data) ? data.join(',') : data}};
             return this;
         },
         /*!
@@ -93,7 +120,7 @@ define('gizmo', ['jquery'], function()
         {
             var ret = {};
             for( var i in this.data ) 
-                ret[i] = this.data[i] instanceof Model ? this.data[i].relationHash() : this.data[i];
+                ret[i] = this.data[i] instanceof Model ? this.data[i].relationHash() || this.data[i].hash() : this.data[i];
             return ret;
         },
         /*!
@@ -101,21 +128,37 @@ define('gizmo', ['jquery'], function()
          */
         sync: function()
         { 
-            var self = this;
+            var self = this, ret;
             
-            if( this.changed ) // if changed do an update on the server and return
-                return (this.href && this.dataAdapter(this.href).update(this.feed(), function()
+            if( this._clientHash )
+            {
+                var href = this.href || arguments[0];
+                ret = (this.dataAdapter(href).insert(this.feed()).done(function(data)
                 {
-                    self.changed = false;
+                    self._changed = false;
+                    self.parse(data);
+                    self._uniq.replace(self._clientHash, self.hash(), self);
+                    self._clientHash = null;
+                    $(self).triggerHandler('insert');
+                })); 
+                return ret;
+            }
+            
+            if( this._changed ) // if changed do an update on the server and return
+                ret = (this.href && this.dataAdapter(this.href).update(this.feed(), this._xfilter).done(function()
+                {
+                    self._changed = false;
                     $(self).triggerHandler('update');
                 })); 
             
             // simply read data from server
-            return (this.href && this.dataAdapter(this.href).read(function(data)
+            ret = (this.href && this.dataAdapter(this.href).read(this._xfilter).done(function(data)
             {
                 self.parse(data);
                 $(self).triggerHandler('read');
             }));  
+            this._xfilter = null;
+            return ret;
         },
         /*!
          * @param data the data to parse into the model
@@ -124,11 +167,25 @@ define('gizmo', ['jquery'], function()
         {
             for( var i in data ) 
             {
-                if( this.defaults[i] &&  typeof this.defaults[i] === 'function' )
-                {
-                    this.data[i] = new this.defaults[i](data[i].href);
-                    continue;
-                }
+                if( this.defaults[i] )
+                    switch(true)
+                    {
+                        case typeof this.defaults[i] === 'function': // a model
+                            this.data[i] = new this.defaults[i](data[i].href);
+                            !data[i].href && this.data[i].relationHash(data[i]);
+                            continue;
+                            break;
+                        case $.isArray(this.defaults[i]): // a collection
+                            delete this.data[i];
+                            this.data[i] = new Collection(this.defaults[i][0], data[i].href); 
+                            continue;
+                            break;
+                        case this.defaults[i] instanceof Collection: // an already defined collection
+                            this.data[i] = this.defaults[i];
+                            continue;
+                            break;
+                    }
+
                 this.data[i] = data[i];
             }
         },
@@ -138,40 +195,67 @@ define('gizmo', ['jquery'], function()
         },
         set: function(key, val)
         {
-            var data = {}; data[key] = val;
+            var data = {}; 
+            if( val ) data[key] = val;
+            else data = key;
             this.parse(data);
-            this.changed = true;
+            this._changed = true;
             return this;
+        },
+        /*!
+         * used for new models not yet saved on the api
+         */
+        _getClientHash: function()
+        {
+            if( !this._clientHash ) this._clientHash = (new Date()).getTime();
+            return this._clientHash;
         },
         /*!
          * represents the formula to identify the model uniquely
          */
-        hash: function(){ return this.data[this.hashKey]; },
+        hash: function(){ return this.data[this.hashKey] || this.href || this._getClientHash(); },
         /*!
          * used to relate models. a general standard key would suffice
          */
-        relationHash: function(){ return this.data.Id; }
+        relationHash: function(val){ if(val) this.data.Id = val; return this.data.Id; }
     };
     
-    var Uniq = function(){};
+    /*!
+     * defs for unique storage of models
+     */
     Uniq.prototype = 
     {
-        items: {},
-        counts: {},
+        items: {}, counts: {}, instances: [],
+        /*!
+         * 
+         */
         get: function( obj, key )
         {
-            if( this.items[key] ) delete obj;
-            else this.items[key] = obj;
-            this.counts[key]++;
+            this.counts[key] = this.counts[key] ? this.counts[key]+1 : 10;
             return this.items[key];
         },
+        /*!
+         * 
+         */
         set: function(key, val)
         {
             if( !this.items[key] ) this.items[key] = val;
-            this.counts[key]++;
             this.garbage();
+            this.counts[key] = this.counts[key] ? this.counts[key]+1 : 10;
             return this.items[key];
         },
+        /*!
+         * replace a key with another key value actually
+         */
+        replace: function(key, newKey, val)
+        {
+            delete this.items[key];
+            delete this.counts[key];
+            return this.set(newKey, val);
+        },
+        /*!
+         * 
+         */
         garbage: function()
         {
             for( var key in this.counts ) 
@@ -179,7 +263,7 @@ define('gizmo', ['jquery'], function()
                 this.counts[key]--;
                 if( this.counts[key] == 0 )
                 {
-                    $(this.items[key]).trigger('garbage');
+                    $(this.items[key]).triggerHandler('garbage');
                     delete this.items[key];
                 }
             }
@@ -196,19 +280,13 @@ define('gizmo', ['jquery'], function()
         {
             if( this._construct ) return this._construct.apply(this, arguments);
         };
-        var uniqueList = {};
         var uniq = new Uniq;
         Model.prototype = proto;
         Model.prototype.pushUnique = function()
         {
             return uniq.set(this.hash(), this);
-            //if( !uniqueList[this.hash()] ) uniqueList[this.hash()] = this;
-            //return uniqueList[this.hash()];
         };
-        Model.prototype.getUniques = function()
-        {
-            return uniq;
-        };
+        Model.prototype._uniq = uniq;
         // create a new property from original options one
         Model.prototype.options = $.extend({}, options);
         Model.prototype.constructor = Model;
@@ -220,21 +298,44 @@ define('gizmo', ['jquery'], function()
         _list: [],
         get: function(key)
         {
-            for( var i in this._list ) if( key == this._list[i].hash() ) return this._list[i];
-            return undefined;
+            var dfd = $.Deferred(),
+                self = this;
+                searchKey = function()
+                {
+                    for( var i in self._list )
+                        if( key == self._list[i].hash() || key == self._list[i].relationHash() ) 
+                            return dfd.resolve(self._list[i]);
+                };
+            this.desynced && this.sync().done(function(){ dfd.resolve(searchKey()); }) ? dfd : searchKey();
+            return dfd;
         },
         dataAdapter: Sync.dataAdapter,
+        /*!
+         * 
+         */
+        setHref: function(href)
+        {
+            this.options.href = href;
+            return this;
+        },
+        /*!
+         * 
+         */
         sync: function()
         {
             var self = this;
-            return (this.options.href && !this.synced &&
-                this.dataAdapter(this.options.href).read(function(data)
+            return (this.options.href &&
+                this.dataAdapter(this.options.href).read(/*HARDCODE*/{headers: {'X-Filter': 'Id'}}).done(function(data)
                 {
                     self.parse(data);
+                    self.desynced = false;
                     $(self).triggerHandler('read');
                     $(self._list).triggerHandler('read');
                 }));
         },
+        /*!
+         * 
+         */
         parse: function(data)
         {
             // get the important list data from request
@@ -251,11 +352,10 @@ define('gizmo', ['jquery'], function()
                 }
                 return ret;
             },
-            theData = extracListData(data);
+            theData = extractListData(data);
             for( var i in theData ) 
-                this._list.push( new this.options.model(theData[i]) );
-            
-            $(this._list).on('garbage', function(){ this.synced = false; })
+                this._list.push( new this.model(theData[i]) );
+            $(this._list).on('garbage', function(){ this.desynced = true; })
             this.total = data.total;
         }
     };
