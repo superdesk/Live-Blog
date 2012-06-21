@@ -24,6 +24,7 @@ requirejs.config
 		'i18n': config.js_url + '/require/i18n',
                 'concat' : config.js_url + '/concat',
 		'gizmo': config.js_url + '/gizmo'
+		'newgizmo': config.js_url + '/newgizmo'		
 	}
 });
 
