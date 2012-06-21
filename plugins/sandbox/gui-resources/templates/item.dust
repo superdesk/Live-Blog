@@ -1,0 +1,4 @@
+{+block}
+ <li>{name}
+ </li>
+{/block}
