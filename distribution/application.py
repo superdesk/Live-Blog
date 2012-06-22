@@ -43,7 +43,9 @@ if __name__ == '__main__':
         if path not in sys.path: sys.path.append(path)
 
     try: import ally_deploy_application
-    except ImportError: print('=' * 50, 'Application cannot be started, no application deploy available')
+    except ImportError:
+        print('=' * 50, 'Application cannot be started, no application deploy available')
+        traceback.print_exc()
     else:
         try:
             file = os.path.join(os.path.dirname(__file__), ally_deploy_application.configurationsFilePath)

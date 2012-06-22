@@ -1,7 +1,7 @@
 '''
 Created on Jul 14, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -14,7 +14,7 @@ from ally.api.type import Type
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE, Code
 from ally.core.spec.resources import Path, Node, Invoker
 from ally.design.context import Context, requires, defines
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.processor import HandlerProcessorProceed
 
 # --------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ class Response(Context):
 
 # --------------------------------------------------------------------
 
-class MethodInvokerHandler(HandlerProcessor):
+class MethodInvokerHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that validates if the request method (GET, INSERT, UPDATE, DELETE) is compatible
     with the resource node of the request, basically checks if the node has the invoke for the requested method.
@@ -60,15 +60,16 @@ class MethodInvokerHandler(HandlerProcessor):
     def __init__(self):
         super().__init__()
 
-    def process(self, chain, request:Request, response:Response, **keyargs):
+    def process(self, request:Request, response:Response, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Provide the invoker based on the request method to be used in getting the data for the response.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
+        if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
+
         assert isinstance(request.path, Path), 'Invalid request path %s' % request.path
         node = request.path.node
         assert isinstance(node, Node), 'Invalid request path node %s' % node
@@ -104,8 +105,6 @@ class MethodInvokerHandler(HandlerProcessor):
 
         response.metaForType = request.invoker.output
 
-        chain.proceed()
-
     # ----------------------------------------------------------------
 
     def allowedFor(self, node):
@@ -115,7 +114,7 @@ class MethodInvokerHandler(HandlerProcessor):
         @param node: Node
             The node to get the allow flags.
         @return: integer
-            The allow falgs.
+            The allow flags.
         '''
         assert isinstance(node, Node), 'Invalid node %s' % node
 

@@ -11,9 +11,9 @@ Provides support for setting fixed headers on responses.
 
 from ally.container.ioc import injected
 from ally.core.http.spec.server import IEncoderHeader
-from ally.design.processor import Chain, HandlerProcessor
-import logging
 from ally.design.context import Context, requires
+from ally.design.processor import HandlerProcessorProceed
+import logging
 
 # --------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class HeaderSetEncodeHandler(HandlerProcessor):
+class HeaderSetEncodeHandler(HandlerProcessorProceed):
     '''
     Provides the setting of static header values.
     '''
@@ -47,17 +47,14 @@ class HeaderSetEncodeHandler(HandlerProcessor):
                 assert isinstance(value, str), 'Invalid header value %s' % value
         super().__init__()
 
-    def process(self, chain, response:Response, **keyargs):
+    def process(self, response:Response, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Set the fixed header values on the response.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid header encoder %s' % response.encoderHeader
 
         for name, value in self.headers.items(): response.encoderHeader.encode(name, value)
-
-        chain.proceed()

@@ -12,7 +12,7 @@ Provides the allow headers handling.
 from ally.api.config import GET, DELETE, INSERT, UPDATE
 from ally.container.ioc import injected
 from ally.core.http.spec.server import IEncoderHeader
-from ally.design.processor import HandlerProcessor, Chain
+from ally.design.processor import HandlerProcessorProceed
 from ally.design.context import Context, requires
 
 # --------------------------------------------------------------------
@@ -28,7 +28,7 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class AllowEncodeHandler(HandlerProcessor):
+class AllowEncodeHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that provides the encoding of allow HTTP request headers.
     '''
@@ -44,19 +44,16 @@ class AllowEncodeHandler(HandlerProcessor):
         assert isinstance(self.methodsAllow, (list, tuple)), 'Invalid methods allow %s' % self.methodsAllow
         super().__init__()
 
-    def process(self, chain, response:Response, **keyargs):
+    def process(self, response:Response, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Encode the allow headers.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid response header encoder %s' % response.encoderHeader
 
-        if Response.allows in response and response.allows != 0:
+        if Response.allows in response:
             value = [name for mark, name in self.methodsAllow if response.allows & mark != 0]
             response.encoderHeader.encode(self.nameAllow, *value)
-
-        chain.proceed()

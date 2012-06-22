@@ -33,7 +33,6 @@ class Code:
 # --------------------------------------------------------------------
 # Response codes.
 UNKNOWN_ENCODING = Code(400, False) # HTTP code 400 Bad Request
-UNKNOWN_DECODING = Code(400, False) # HTTP code 400 Bad Request
 BAD_CONTENT = Code(400, False) # HTTP code 400 Bad Request
 ILLEGAL_PARAM = Code(400, False) # HTTP code 400 Bad Request
 RESOURCE_NOT_FOUND = Code(404, False) # HTTP code 404 Not Found

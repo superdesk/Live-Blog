@@ -10,10 +10,9 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from . import server_pattern_rest
-from ..ally_core.processor import argumentsOfType, encoding, resourcesAssembly, \
-    methodInvoker
+from ..ally_core.processor import argumentsPrepare, encoding, assemblyResources, \
+    methodInvoker, updateAssemblyResourcesForCore
 from ..ally_core.resources import resourcesLocator
-from .meta_service import parameterMetaService
 from ally.container import ioc
 from ally.core.http.impl.processor.header import HeaderHandler
 from ally.core.http.impl.processor.headers.accept import AcceptDecodeHandler
@@ -32,6 +31,7 @@ from ally.core.http.impl.processor.parameter import ParameterHandler
 from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.spec.resources import ConverterPath
 from ally.design.processor import Handler
+from ally.core.http.impl.processor.internal_error import InternalErrorHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -53,6 +53,9 @@ def allow_method_override():
 
 @ioc.entity
 def converterPath() -> ConverterPath: return ConverterPath()
+
+@ioc.entity
+def internalError(): return InternalErrorHandler()
 
 @ioc.entity
 def header() -> Handler:
@@ -106,25 +109,23 @@ def uri() -> Handler:
     return b
 
 @ioc.entity
-def parameter() -> Handler:
-    b = ParameterHandler()
-    b.parameterMetaService = parameterMetaService()
-    return b
+def parameter() -> Handler: return ParameterHandler()
 
 @ioc.entity
-def pathHandlers():
-    return [(server_pattern_rest(), resourcesAssembly())]
+def pathAssemblies():
+    return [(server_pattern_rest(), assemblyResources())]
 
 # --------------------------------------------------------------------
 
-@ioc.before(resourcesAssembly)
-def updateResourcesAssembly():
-    resourcesAssembly().add(header(), uri(), contentTypeDecode(), contentLengthDecode(), contentLanguageDecode(),
-                            contentDispositionDecode(), acceptDecode(), after=argumentsOfType())
+@ioc.after(updateAssemblyResourcesForCore)
+def updateAssemblyResourcesForCoreHTTP():
+    assemblyResources().add(internalError(), before=argumentsPrepare())
+    assemblyResources().add(header(), uri(), contentTypeDecode(), contentLengthDecode(), contentLanguageDecode(),
+                            contentDispositionDecode(), acceptDecode(), after=argumentsPrepare())
 
-    resourcesAssembly().add(parameter(), after=methodInvoker())
+    assemblyResources().add(parameter(), after=methodInvoker())
 
-    resourcesAssembly().add(contentTypeEncode(), contentLanguageEncode(), allowEncode(), after=encoding())
+    assemblyResources().add(contentTypeEncode(), contentLanguageEncode(), allowEncode(), after=encoding())
 
     if allow_method_override():
-        resourcesAssembly().add(methodOverrideDecode(), before=uri())
+        assemblyResources().add(methodOverrideDecode(), before=uri())
