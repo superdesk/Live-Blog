@@ -16,10 +16,12 @@ from os import chdir, getcwd
 # --------------------------------------------------------------------
 
 if __name__ == '__main__':
+    sys.argv[0] = 'setup.py'
     sys.argv.insert(1, 'bdist_egg')
     currentDir = getcwd()
     setupScripts = glob(join(dirname(__file__), '*', 'setup.py'))
     for script in setupScripts:
         chdir(dirname(script))
         module = imp.load_source('setup', script)
+        print("\n".rjust(79, '-'))
     chdir(currentDir)
