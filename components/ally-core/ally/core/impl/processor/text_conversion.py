@@ -1,7 +1,7 @@
 '''
 Created on Aug 10, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -12,7 +12,7 @@ Provides the converters for the response content and request content.
 from ally.container.ioc import injected
 from ally.core.spec.resources import Converter, Normalizer
 from ally.design.context import Context, defines
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.processor import HandlerProcessorProceed
 import logging
 
 # --------------------------------------------------------------------
@@ -38,7 +38,7 @@ class Content(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ConversionSetHandler(HandlerProcessor):
+class ConversionSetHandler(HandlerProcessorProceed):
     '''
     Provides the standard transform services for the model decoding, this will be populated on the response and request
     content.
@@ -53,17 +53,14 @@ class ConversionSetHandler(HandlerProcessor):
         assert isinstance(self.converter, Converter), 'Invalid converter %s' % self.converter
         super().__init__()
 
-    def process(self, chain, requestCnt:Content, responseCnt:Content, **keyargs):
+    def process(self, requestCnt:Content, responseCnt:Content, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Provide the character conversion for request and response content.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(requestCnt, Content), 'Invalid request content %s' % requestCnt
         assert isinstance(responseCnt, Content), 'Invalid response content %s' % responseCnt
 
         requestCnt.normalizer = responseCnt.normalizer = self.normalizer
         requestCnt.converter = responseCnt.converter = self.converter
-
-        chain.proceed()

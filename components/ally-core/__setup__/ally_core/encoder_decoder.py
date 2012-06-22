@@ -10,9 +10,8 @@ Provides the configurations for the processors encoders and decoders.
 '''
 
 from ally.container import ioc
-from ally.design.processor import Handler, Assembly
 from ally.core.impl.processor.encoder.text import EncoderTextHandler
-from ..ally_core.meta_service import modelMetaService
+from ally.design.processor import Handler, Assembly
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
@@ -58,32 +57,30 @@ def encodingAssembly() -> Assembly:
 # --------------------------------------------------------------------
 
 @ioc.entity
-def encoderTextJSON():
+def encodeTextJSON():
     from json.encoder import JSONEncoder
     def encodeJSON(obj, charSet): return JSONEncoder().iterencode(obj)
     return encodeJSON
 
 @ioc.entity
-def encodingJSON() -> Handler:
+def encoderJSON() -> Handler:
     b = EncoderTextHandler(); yield b
     b.contentTypes = content_types_json()
     b.encodingError = 'backslashreplace'
-    b.encoder = encoderTextJSON()
-    b.modelMetaService = modelMetaService()
+    b.encoder = encodeTextJSON()
 
 @ioc.entity
-def encoderTextYAML():
+def encodeTextYAML():
     import yaml
     def encodeYAML(obj, charSet): yield yaml.dump(obj, default_flow_style=False)
     return encodeYAML
 
 @ioc.entity
-def encodingYAML() -> Handler:
+def encoderYAML() -> Handler:
     b = EncoderTextHandler(); yield b
     b.contentTypes = content_types_yaml()
     b.encodingError = 'backslashreplace'
-    b.encoder = encoderTextYAML()
-    b.modelMetaService = modelMetaService()
+    b.encoder = encodeTextYAML()
 
 # --------------------------------------------------------------------
 # Creating the decoding processors
@@ -92,7 +89,7 @@ def encodingYAML() -> Handler:
 
 @ioc.before(encodingAssembly)
 def updateEncodingAssembly():
-    encodingAssembly().add(encodingJSON())
-    try: encodingAssembly().add(encodingYAML())
+    encodingAssembly().add(encoderJSON())
+    try: encodingAssembly().add(encoderYAML())
     except ImportError: pass
 

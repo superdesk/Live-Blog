@@ -15,10 +15,10 @@ from ally.core.http.spec.server import IEncoderPath, IDecoderHeader
 from ally.core.spec.codes import RESOURCE_NOT_FOUND, RESOURCE_FOUND, Code
 from ally.core.spec.resources import ConverterPath, Path, IResourcesLocator, \
     Converter, Normalizer
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.context import Context, requires, defines, optional
+from ally.design.processor import HandlerProcessorProceed
 from urllib.parse import urlencode, urlunsplit, urlsplit
 import logging
-from ally.design.context import Context, requires, defines, optional
 
 # --------------------------------------------------------------------
 
@@ -42,10 +42,6 @@ class Request(Context):
     @rtype: Path
     The path to the resource node.
     ''')
-    arguments = defines(dict, doc='''
-    @rtype: dictionary{string, object}
-    The dictionary containing the arguments that will be passes to the invoker that provides the response object.
-    ''')
     normalizer = defines(Normalizer, doc='''
     @rtype: Normalizer
     The normalizer to use for decoding parameters names.
@@ -66,7 +62,7 @@ class Response(Context):
     ''')
     text = defines(str, doc='''
     @rtype: string
-    A small text message for the code, usually palced in the reponse.
+    A small text message for the code, usually placed in the response.
     ''')
     encoderPath = defines(IEncoderPath, doc='''
     @rtype: IEncoderPath
@@ -90,7 +86,7 @@ class ResponseContent(Context):
 # --------------------------------------------------------------------
 
 @injected
-class URIHandler(HandlerProcessor):
+class URIHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that provides the searches based on the request URL the resource path, also
     populates the parameters and extension format on the request.
@@ -110,13 +106,12 @@ class URIHandler(HandlerProcessor):
         assert isinstance(self.headerHost, str), 'Invalid string %s' % self.headerHost
         super().__init__()
 
-    def process(self, chain, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
+    def process(self, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Process the URI to a resource path.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid required request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
@@ -138,7 +133,7 @@ class URIHandler(HandlerProcessor):
             response.code, response.text = RESOURCE_NOT_FOUND, 'Cannot find resources for path'
             assert log.debug('No resource found for URI %s', request.uri) or True
             return
-        assert log.debug('Found resource for URL %s', request.uri) or True
+        assert log.debug('Found resource for URI %s', request.uri) or True
 
         request.converter = self.converterPath
         request.normalizer = self.converterPath
@@ -149,8 +144,6 @@ class URIHandler(HandlerProcessor):
         response.encoderPath = self.createEncoderPath(request, extension)
         responseCnt.converterId = self.converterPath
         if extension: responseCnt.type = extension
-
-        chain.proceed()
 
     # ----------------------------------------------------------------
 

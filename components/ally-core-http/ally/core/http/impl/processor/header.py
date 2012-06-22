@@ -12,7 +12,7 @@ Provides the standard headers handling.
 from ally.container.ioc import injected
 from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
 from ally.design.context import Context, defines, requires, optional
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.processor import HandlerProcessorProceed
 from collections import deque, Iterable
 import re
 
@@ -49,7 +49,7 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class HeaderHandler(HandlerProcessor):
+class HeaderHandler(HandlerProcessorProceed):
     '''
     Provides encoder/decoder for handling HTTP headers.
     '''
@@ -75,25 +75,18 @@ class HeaderHandler(HandlerProcessor):
         self.reSeparatorAttr = re.compile(self.separatorAttr)
         self.reSeparatorValue = re.compile(self.separatorValue)
 
-    def process(self, chain, request:Request, response:Response, **keyargs):
+    def process(self, request:Request, response:Response, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Provide the headers encoders and decoders.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
 
-        if self.useParameters and Request.parameters in request:
-            request.decoderHeader = DecoderHeader(self, request.headers, request.parameters)
-        else:
-            request.decoderHeader = DecoderHeader(self, request.headers)
-
+        request.decoderHeader = DecoderHeader(self, request.headers, request.parameters if self.useParameters else None)
         response.encoderHeader = EncoderHeader(self)
         response.headers = response.encoderHeader.headers
-
-        chain.proceed()
 
 # --------------------------------------------------------------------
 

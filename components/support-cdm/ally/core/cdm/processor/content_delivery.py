@@ -11,11 +11,10 @@ Provides the content delivery handler.
 
 from ally.api.config import GET
 from ally.container.ioc import injected
-from ally.core.http.spec.extension import URI
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
-    RESOURCE_NOT_FOUND
-from ally.core.spec.server import Response, Request, Content
-from ally.design.processor import Handler, Chain, processor
+    RESOURCE_NOT_FOUND, Code
+from ally.design.context import Context, requires, defines
+from ally.design.processor import Chain, HandlerProcessor
 from ally.zip.util_zip import normOSPath, normZipPath
 from os.path import isdir, isfile, join, dirname, normpath, sep
 from urllib.parse import unquote
@@ -23,6 +22,7 @@ from zipfile import ZipFile
 import json
 import logging
 import os
+from types import GeneratorType
 
 # --------------------------------------------------------------------
 
@@ -30,8 +30,47 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    scheme = requires(str)
+    uri = requires(str)
+    method = requires(int)
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code, doc='''
+    @rtype: Code
+    The code of the response.
+    ''')
+    text = defines(str, doc='''
+    @rtype: string
+    A small text message for the code, usually placed in the response.
+    ''')
+    allows = defines(int, doc='''
+    @rtype: integer
+    Contains the allow flags for the methods.
+    ''')
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    source = defines(GeneratorType, doc='''
+    @rtype: GeneratorType
+    The generator that provides the response content in bytes.
+    ''')
+
+# --------------------------------------------------------------------
+
 @injected
-class ContentDeliveryHandler(Handler):
+class ContentDeliveryHandler(HandlerProcessor):
     '''
     Implementation for a processor that delivers the content based on the URL.
     '''
@@ -47,25 +86,24 @@ class ContentDeliveryHandler(Handler):
 
     def __init__(self):
         assert isinstance(self.repositoryPath, str), 'Invalid repository path value %s' % self.repositoryPath
-
         self.repositoryPath = normpath(self.repositoryPath)
         if not os.path.exists(self.repositoryPath): os.makedirs(self.repositoryPath)
-
         assert isdir(self.repositoryPath) and os.access(self.repositoryPath, os.R_OK), \
             'Unable to access the repository directory %s' % self.repositoryPath
+        super().__init__()
 
         self._linkTypes = {self._fsHeader:self._processLink, self._zipHeader:self._processZiplink}
 
-    @processor
-    def process(self, chain, request:(Request, URI), response:Response, responseCnt:Content, **keyargs):
+    def process(self, chain, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
+        @see: HandlerProcessor.process
+        
         Provide the file content as a response.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
-        assert isinstance(request, URI), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(responseCnt, Content), 'Invalid response content %s' % responseCnt
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         if request.method != GET:
             response.allows |= GET

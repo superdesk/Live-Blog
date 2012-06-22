@@ -9,13 +9,11 @@ Created on Jan 5, 2012
 Provides the configurations for delivering files from the local file system.
 '''
 
-from ..ally_core.processor import explainError
-from ..ally_core_http.processor import pathProcessors
 from ally.container import ioc
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
-from ally.core.spec.server import Processors, IProcessor
 from os import path
 import re
+from ally.design.processor import Handler
 
 # --------------------------------------------------------------------
 
@@ -38,7 +36,7 @@ def repository_path():
 # Creating the processors used in handling the request
 
 @ioc.entity
-def localContentHandler() -> IProcessor:
+def contentDelivery() -> Handler:
     h = ContentDeliveryHandler()
     h.repositoryPath = repository_path()
     return h
@@ -47,7 +45,7 @@ def localContentHandler() -> IProcessor:
 
 @ioc.entity
 def contentHandlers():
-    return [explainError(), localContentHandler()]
+    return [explainError(), contentDelivery()]
 
 @ioc.before(pathProcessors)
 def updatePathProcessors():
