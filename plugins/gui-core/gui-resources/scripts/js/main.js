@@ -22,7 +22,7 @@ requirejs.config
 		'tmpl': config.js_url + '/require/tmpl',
 		'model': config.js_url + '/require/model',
 		'i18n': config.js_url + '/require/i18n',
-		'gizmo': config.js_url + '/gizmo'
+		'gizmo': config.js_url + '/gizmo',
 		'newgizmo': config.js_url + '/newgizmo'		
 	}
 });
