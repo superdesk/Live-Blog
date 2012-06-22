@@ -7,7 +7,7 @@ define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data
         
         test("should be defined", function() 
         {
-            ok(giz, 'gizmo defined');
+            ok( giz, 'gizmo defined' );
         });
           
         // models
@@ -27,20 +27,34 @@ define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data
         ajaxMap = data.ajaxMap;
         $.ajax = function( url, options ) 
         {
-            var d = new $.Deferred;
-            ajaxMap[url] ? d.resolve(ajaxMap[url]) : d.reject();
+            var d = new $.Deferred,
+                isDelete = options.type && options.type == 'get' && 
+                            options.headers && options.headers['X-HTTP-Method-Override'] && 
+                            options.headers['X-HTTP-Method-Override'] == "DELETE";
+            ajaxMap[url] || isDelete ? d.resolve(ajaxMap[url] || null) : d.reject();
             return d;
         };
         
-        test("should parse complex parts", function()
+        test("model should read complex data", function()
         {
             var c = new Collaborator('Collaborator/1');
-            $(c).on('read', function()
+            $(c).on( 'read', function()
             { 
-                ok(this.get('Source') instanceof giz.Model, 'model computes sub-models'); 
-                ok(this.get('Post') instanceof giz.Collection, 'model computes sub-collections');
+                ok( typeof this.get('Name') === 'string', 'model computes primitive properties')
+                ok( this.get('Source') instanceof giz.Model, 'model computes sub-models' ); 
+                ok( this.get('Post') instanceof giz.Collection, 'model computes sub-collections' );
             });
             c.sync();
+        });
+        
+        test("can delete from collection", function()
+        {
+            var p = new giz.Collection('Collaborator/1/Post', Post);
+            $(p).on( 'read', function()
+            {
+                p.remove(2);
+            });
+            p.sync();
         });
     };
     
