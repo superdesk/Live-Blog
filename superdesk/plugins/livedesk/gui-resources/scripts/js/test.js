@@ -11,10 +11,13 @@ function(giz, Collaborator, Post)
     //giz.Model.options.x = 'y';
     //console.dir('-----', giz.Model.options);
     //var c = new Collaborator('http://localhost:8080/resources/Superdesk/Collaborator/22');
-    var p = new Collaborator();
-    p.set({'Source': 1, 'Person': 1})
-        .sync('http://localhost:8080/resources/Superdesk/Collaborator/')
-        .done(function(){ console.log(p); });
+    var p = new giz.Collection('http://localhost:8080/resources/Superdesk/Collaborator/', Collaborator);
+
+        p.get(50).done(function(Colab){ Colab && Colab.remove().sync() });
+        
+    //p.set({'Source': 1, 'Person': 1})
+    //    .sync('http://localhost:8080/resources/Superdesk/Collaborator/')
+    //    .done(function(){ console.log(p); });
     
     //c.options.ceva = 'altceva';
     //console.dir('-----', c.options);

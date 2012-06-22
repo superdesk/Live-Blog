@@ -20,6 +20,8 @@ define('gizmo', ['jquery'], function()
         this.options = {};
         this.desynced = true;
         
+        $(this._list).on('garbage', function(){ this.desynced = true; })
+        
         var buildData = buildOptions = function(){ void(0); },
             self = this;
             
@@ -78,7 +80,7 @@ define('gizmo', ['jquery'], function()
         readOptions: {dataType: 'json', type: 'get', headers: {'Accept' : 'text/json'}},
         updateOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'PUT'}},
         insertOptions: {dataType: 'json', type: 'post'},
-        removeOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'DELETE'}}
+        removeOptions: {type: 'get', headers: {'X-HTTP-Method-Override': 'DELETE'}}
     };
         
     
@@ -87,7 +89,6 @@ define('gizmo', ['jquery'], function()
         _changed: false,
         defaults: {},
         data: {},
-        hashKey: 'href',
         /*!
          * constructor
          */ 
@@ -96,7 +97,7 @@ define('gizmo', ['jquery'], function()
             this._changed = false;
             this.data = {}; 
             this._xfilter = null;
-            this._clientHash;
+            this._clientHash = null;
             if( typeof data == 'string' ) this.href = data;
             if( typeof data == 'object' ) $.extend(this.data, data);
             if( options && typeof options == 'object' ) $.extend(this, options);
@@ -133,11 +134,15 @@ define('gizmo', ['jquery'], function()
             var self = this, ret;
             
             if( this._forDelete )
-                return this.dataAdapter(href).remove().done(function(){ delete self; });
+                return this.dataAdapter(arguments[0] || this.href).remove().done(function()
+                { 
+                    $(self).triggerHandler('delete');
+                    delete self; 
+                });
             
             if( this._clientHash )
             {
-                var href = this.href || arguments[0];
+                var href = arguments[0] || this.href;
                 return this.dataAdapter(href).insert(this.feed()).done(function(data)
                 {
                     self._changed = false;
@@ -168,6 +173,7 @@ define('gizmo', ['jquery'], function()
         remove: function()
         {
             this._forDelete = true;
+            return this;
         },
         /*!
          * @param data the data to parse into the model
@@ -222,7 +228,11 @@ define('gizmo', ['jquery'], function()
         /*!
          * represents the formula to identify the model uniquely
          */
-        hash: function(){ return this.data[this.hashKey] || this.href || this._getClientHash(); },
+        hash: function()
+        {
+            if( !this.href && this.data.href ) this.href = this.data.href;
+            return this.data.href || this.href || this._getClientHash(); 
+        },
         /*!
          * used to relate models. a general standard key would suffice
          */
@@ -313,11 +323,17 @@ define('gizmo', ['jquery'], function()
                 searchKey = function()
                 {
                     for( var i in self._list )
+                    {
                         if( key == self._list[i].hash() || key == self._list[i].relationHash() ) 
                             return dfd.resolve(self._list[i]);
+                    }
                 };
             this.desynced && this.sync().done(function(){ dfd.resolve(searchKey()); }) ? dfd : searchKey();
             return dfd;
+        },
+        remove: function(key)
+        {
+            return this.get(key).done(function(item){ item.remove().sync(); });  
         },
         dataAdapter: Sync.dataAdapter,
         /*!
@@ -363,9 +379,9 @@ define('gizmo', ['jquery'], function()
                 return ret;
             },
             theData = extractListData(data);
-            for( var i in theData ) 
+            for( var i in theData )
                 this._list.push( new this.model(theData[i]) );
-            $(this._list).on('garbage', function(){ this.desynced = true; })
+
             this.total = data.total;
         }
     };
