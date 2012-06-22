@@ -11,7 +11,7 @@ Provides the accept headers handling.
 
 from ally.container.ioc import injected
 from ally.core.http.spec.server import IDecoderHeader
-from ally.design.processor import HandlerProcessor, Chain
+from ally.design.processor import HandlerProcessorProceed
 from ally.api.type import List, Locale
 from ally.design.context import Context, requires, optional, defines
 
@@ -47,7 +47,7 @@ class Request(Context):
 # --------------------------------------------------------------------
 
 @injected
-class AcceptDecodeHandler(HandlerProcessor):
+class AcceptDecodeHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that provides the decoding of accept HTTP request headers.
     '''
@@ -65,34 +65,22 @@ class AcceptDecodeHandler(HandlerProcessor):
         assert isinstance(self.nameAcceptLanguage, str), 'Invalid accept languages name %s' % self.nameAcceptLanguage
         super().__init__()
 
-    def process(self, chain, request:Request, **keyargs):
+    def process(self, request:Request, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Decode the accepted headers.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid decoder header %s' % request.decoderHeader
 
         value = request.decoderHeader.decode(self.nameAccept)
-        if value:
-            accTypes = list(val for val, _attr in value)
-            if Request.accTypes in request: request.accTypes.extend(accTypes)
-            else: request.accTypes = accTypes
+        if value: request.accTypes = list(val for val, _attr in value)
 
         value = request.decoderHeader.decode(self.nameAcceptCharset)
-        if value:
-            accCharSets = list(val for val, _attr in value)
-            if Request.accCharSets in request: request.accCharSets.extend(accCharSets)
-            else: request.accCharSets = accCharSets
+        if value: request.accCharSets = list(val for val, _attr in value)
 
         value = request.decoderHeader.decode(self.nameAcceptLanguage)
         if value:
-            accLanguages = list(val for val, _attr in value)
-            if Request.accLanguages in request: request.accLanguages.extend(accLanguages)
-            else: request.accLanguages = accLanguages
-
+            request.accLanguages = list(val for val, _attr in value)
             if Request.argumentsOfType in request: request.argumentsOfType[LIST_LOCALE] = request.accLanguages
-
-        chain.proceed()

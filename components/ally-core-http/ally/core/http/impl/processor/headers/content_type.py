@@ -14,7 +14,7 @@ from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
 from ally.core.spec.codes import Code
 from ally.design.context import Context, requires, defines, optional
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.processor import HandlerProcessorProceed
 
 # --------------------------------------------------------------------
 
@@ -34,13 +34,13 @@ class RequestContent(Context):
     @rtype: string
     The request content type.
     ''')
-    typeAttr = defines(str, doc='''
-    @rtype: dictionary{string, string}
-    The content request type attributes.
-    ''')
     charSet = defines(str, doc='''
     @rtype: string
     The character set for the text content.
+    ''')
+    typeAttr = defines(dict, doc='''
+    @rtype: dictionary{string, string}
+    The content request type attributes.
     ''')
 
 class ResponseDecode(Context):
@@ -55,7 +55,7 @@ class ResponseDecode(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ContentTypeDecodeHandler(HandlerProcessor):
+class ContentTypeDecodeHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that provides the decoding of content type HTTP request header.
     '''
@@ -71,13 +71,12 @@ class ContentTypeDecodeHandler(HandlerProcessor):
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
         super().__init__()
 
-    def process(self, chain, request:Request, requestCnt:RequestContent, response:ResponseDecode, **keyargs):
+    def process(self, request:Request, requestCnt:RequestContent, response:ResponseDecode, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Decode the content type for the request.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
         assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
@@ -86,16 +85,15 @@ class ContentTypeDecodeHandler(HandlerProcessor):
         value = request.decoderHeader.decode(self.nameContentType)
         if value:
             if len(value) > 1:
+                if ResponseDecode.code in response and not response.code.isSuccess: return
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameContentType
                 response.message = 'Invalid value \'%s\' for header \'%s\''\
                 ', expected only one type entry' % (value, self.nameContentType)
                 return
             value, attributes = value[0]
             requestCnt.type = value
+            requestCnt.charSet = attributes.get(self.attrContentTypeCharSet, None)
             requestCnt.typeAttr = attributes
-            requestCnt.charSet = attributes.get(self.attrContentTypeCharSet, requestCnt.charSet)
-
-        chain.proceed()
 
 # --------------------------------------------------------------------
 
@@ -118,7 +116,7 @@ class ResponseContent(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ContentTypeEncodeHandler(HandlerProcessor):
+class ContentTypeEncodeHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that provides the encoding of content type HTTP request header.
     '''
@@ -134,9 +132,9 @@ class ContentTypeEncodeHandler(HandlerProcessor):
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
         super().__init__()
 
-    def process(self, chain, response:ResponseEncode, responseCnt:ResponseContent, **keyargs):
+    def process(self, response:ResponseEncode, responseCnt:ResponseContent, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Encodes the content type for the response.
         '''
@@ -152,4 +150,3 @@ class ContentTypeEncodeHandler(HandlerProcessor):
 
             response.encoderHeader.encode(self.nameContentType, value)
 
-        chain.proceed()

@@ -1,7 +1,7 @@
 '''
 Created on Jun 30, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -17,7 +17,7 @@ from ally.core.spec.codes import DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS,
     METHOD_NOT_AVAILABLE, INCOMPLETE_ARGUMENTS, INPUT_ERROR
 from ally.core.spec.resources import Path, Invoker
 from ally.design.context import Context, defines, requires
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.processor import HandlerProcessorProceed
 from ally.exception import DevelError, InputError
 from collections import deque
 import logging
@@ -53,7 +53,7 @@ class Response(Context):
 
 # --------------------------------------------------------------------
 
-class InvokingHandler(HandlerProcessor):
+class InvokingHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that makes the actual call to the request method corresponding invoke on the
     resource path node. The invoking will use all the obtained arguments from the previous processors and perform
@@ -75,15 +75,16 @@ class InvokingHandler(HandlerProcessor):
                                DELETE: self.afterDelete
                                }
 
-    def process(self, chain, request:Request, response:Response, **keyargs):
+    def process(self, request:Request, response:Response, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
-        Invoke the request invoker. This processor will return True on success False on Failure.
+        Invoke the request invoker.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
+        if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
+
         assert isinstance(request.path, Path), 'Invalid request path %s' % request.path
         assert isinstance(request.invoker, Invoker), 'Invalid invoker %s' % request.invoker
 
@@ -92,7 +93,7 @@ class InvokingHandler(HandlerProcessor):
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Cannot process method'
             response.message = 'Method cannot be processed for invoker \'%s\', something is wrong in the setups'
             response.message %= request.invoker.name
-            return False
+            return
 
         arguments = deque()
         for inp in request.invoker.inputs:
@@ -104,27 +105,22 @@ class InvokingHandler(HandlerProcessor):
                 response.message = 'No value for mandatory input \'%s\' for invoker \'%s\''
                 response.message %= (inp.name, request.invoker.name)
                 log.info('No value for mandatory input %s for invoker %s', inp, request.invoker)
-                return False
+                return
         try:
             value = request.invoker.invoke(*arguments)
             assert log.debug('Successful on calling invoker \'%s\' with values %s', request.invoker,
                              tuple(arguments)) or True
 
-            if not callBack(request.invoker, value, response): return False
+            callBack(request.invoker, value, response)
         except DevelError as e:
             assert isinstance(e, DevelError)
             response.code, response.text = BAD_CONTENT, 'Invoking problem'
             response.message = e.message
             log.info('Problems with the invoked content: %s', e.message, exc_info=True)
-            return False
         except InputError as e:
             response.code, response.text = INPUT_ERROR, 'Input error'
             response.message = e
             assert log.debug('User input exception: %s', e, exc_info=True) or True
-            return False
-
-        chain.proceed()
-        return True
 
     # ----------------------------------------------------------------
 
@@ -144,7 +140,6 @@ class InvokingHandler(HandlerProcessor):
         assert isinstance(response, Response), 'Invalid response %s' % response
 
         response.obj = value
-        return True
 
     def afterInsert(self, invoker, value, response):
         '''
@@ -169,11 +164,10 @@ class InvokingHandler(HandlerProcessor):
             else:
                 response.code, response.text = CANNOT_INSERT, 'Cannot insert'
                 assert log.debug('Cannot insert resource') or True
-                return False
+                return
         else:
             response.obj = value
         response.code, response.text = INSERT_SUCCESS, 'Successfully created'
-        return True
 
     def afterUpdate(self, invoker, value, response):
         '''
@@ -201,12 +195,10 @@ class InvokingHandler(HandlerProcessor):
             else:
                 response.code, response.text = CANNOT_UPDATE, 'Cannot update'
                 assert log.debug('Cannot update resource') or True
-                return False
         else:
             #If an entity is returned than we will render that.
             response.code, response.text = UPDATE_SUCCESS, 'Successfully updated'
             response.obj = value
-        return True
 
     def afterDelete(self, invoker, value, response):
         '''
@@ -231,9 +223,7 @@ class InvokingHandler(HandlerProcessor):
             else:
                 response.code, response.text = CANNOT_DELETE, 'Cannot delete'
                 assert log.debug('Cannot deleted resource') or True
-                return False
         else:
             #If an entity is returned than we will render that.
             response.code, response.text = DELETED_SUCCESS, 'Successfully deleted'
             response.obj = value
-        return True

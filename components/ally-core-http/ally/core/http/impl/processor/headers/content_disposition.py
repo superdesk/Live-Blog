@@ -14,7 +14,7 @@ from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.server import IDecoderHeader
 from ally.core.spec.codes import Code
 from ally.design.context import Context, requires, defines
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.processor import HandlerProcessorProceed
 
 # --------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ContentDispositionDecodeHandler(HandlerProcessor):
+class ContentDispositionDecodeHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that provides the decoding of content disposition HTTP request header.
     '''
@@ -64,13 +64,12 @@ class ContentDispositionDecodeHandler(HandlerProcessor):
         'Invalid content disposition header name %s' % self.nameContentDisposition
         super().__init__()
 
-    def process(self, chain, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
+    def process(self, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Provides the content type decode for the request.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
@@ -79,6 +78,7 @@ class ContentDispositionDecodeHandler(HandlerProcessor):
         value = request.decoderHeader.decode(self.nameContentDisposition)
         if value:
             if len(value) > 1:
+                if Response.code in response and not response.code.isSuccess: return
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameContentDisposition
                 response.message = 'Invalid value \'%s\' for header \'%s\''\
                 ', expected only one value entry' % (value, self.nameContentDisposition)
@@ -86,5 +86,3 @@ class ContentDispositionDecodeHandler(HandlerProcessor):
             value, attributes = value[0]
             requestCnt.disposition = value
             requestCnt.dispositionAttr = attributes
-
-        chain.proceed()

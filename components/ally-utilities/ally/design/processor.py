@@ -101,6 +101,22 @@ class Contextual(Function):
     '''
     __slots__ = ()
 
+    @staticmethod
+    def contextsFrom(arguments, annotations):
+        '''
+        Provides the contexts based on the provided list of arguments and annotations.
+        '''
+        contexts = {}
+        for name in arguments:
+            clazz = annotations.get(name)
+            if clazz is None: raise TypeError('Expected an annotation of class for argument %s' % name)
+            if not isclass(clazz): raise TypeError('Not a class %s for argument %s' % (clazz, name))
+            if not issubclass(clazz, Context): raise TypeError('Not a context class %s for argument %s' % (clazz, name))
+            contexts[name] = clazz
+        if not contexts: raise TypeError('Cannot have a function with no context')
+
+        return contexts
+
     def __init__(self, function):
         '''
         Constructs a processor based on a function.
@@ -116,16 +132,37 @@ class Contextual(Function):
         assert 'self' == fnArgs.args[0], \
         'The processor needs to be tagged in a class definition (needs self as the first argument)'
 
-        contexts = {}
-        for name in fnArgs.args[2:]:
-            clazz = fnArgs.annotations.get(name)
-            if clazz is None: raise TypeError('Expected an annotation of class for argument %s' % name)
-            if not isclass(clazz): raise TypeError('Not a class %s for argument %s' % (clazz, name))
-            if not issubclass(clazz, Context): raise TypeError('Not a context class %s for argument %s' % (clazz, name))
-            contexts[name] = clazz
-        if not contexts: raise TypeError('Cannot have a function with no context')
+        super().__init__(self.contextsFrom(fnArgs.args[2:], fnArgs.annotations), function)
 
-        super().__init__(contexts, function)
+class ContextualProceed(Processor):
+    '''
+    A processor that takes as the call a function and uses the annotations on the function arguments to extract the
+    contexts. The function will not receive the chain as an argument and will always proceed.
+    '''
+
+    def __init__(self, function):
+        '''
+        Constructs a processor based on a function.
+        @see: Processor.__init__
+        
+        @param function: function|method
+            The function of the processor with the arguments annotated.
+        '''
+        assert isfunction(function) or ismethod(function), 'Invalid function %s' % function
+        fnArgs = getfullargspec(function)
+
+        assert len(fnArgs.args) > 1, 'The processor function needs at least one argument (self)'
+        assert 'self' == fnArgs.args[0], \
+        'The processor needs to be tagged in a class definition (needs self as the first argument)'
+
+        def call(chain, **keyargs):
+            assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+            function(**keyargs)
+            chain.proceed()
+        assert isfunction(function) or ismethod(function), 'Invalid function %s' % function
+        cd = function.__code__
+        super().__init__(Contextual.contextsFrom(fnArgs.args[1:], fnArgs.annotations), call, function.__name__,
+                         cd.co_filename, cd.co_firstlineno)
 
 # --------------------------------------------------------------------
 
@@ -261,19 +298,37 @@ class HandlerProcessor(Handler):
             The processing chain.
         '''
 
+class HandlerProcessorProceed(Handler):
+    '''
+    A handler that contains a processor derived on the contextual 'process' function.
+    '''
+
+    def __init__(self):
+        '''
+        Construct the handler with the processor automatically created from the 'process' function.
+        '''
+        super().__init__(ContextualProceed(self.process))
+
+    @abc.abstractclassmethod
+    def process(self, **keyargs):
+        '''
+        The contextual process function used by the handler, this process will not require a chain and will always
+        proceed with the execution.
+        '''
+
 # --------------------------------------------------------------------
 
 NO_INPUT_CONTEXTS_VALIDATION = 1 << 1
 # Assembly create flag that dictates that no input contexts missing validation should be performed.
 NO_MISSING_VALIDATION = 1 << 2
 # Assembly create flag that dictates that no missing validation should be performed.
-NO_UNUSED_VALIDATION = 1 << 3
-# Assembly create flag that dictates that no unused attributes validation should be performed.
-NO_VALIDATION = NO_INPUT_CONTEXTS_VALIDATION | NO_MISSING_VALIDATION | NO_UNUSED_VALIDATION
+NO_VALIDATION = NO_INPUT_CONTEXTS_VALIDATION | NO_MISSING_VALIDATION
 # Assembly create flag that dictates that no validation should be performed.
 
-ONLY_AVAILABLE = 1 << 4
+ONLY_AVAILABLE = 1 << 3
 # Assembly create flag that dictates that only the available processors should be used.
+CREATE_REPORT = 1 << 4
+# Assembly create flag that dictates that a report should be created, this will modify the return value for the create.
 
 class AssemblyError(Exception):
     '''
@@ -328,8 +383,11 @@ class Assembly:
             Flags that dictate the behavior of the processing creation.
         @param contexts: key arguments of ContextMetaClass
             Key arguments that have as a value the context classes that the processing chain will be used with.
-        @return: Processing
+        @return: Processing|tuple of two
+            processing: Processing
             A processing created based on the current structure of the assembly.
+            report: string
+            A text containing the report for the processing creation
         '''
         flag = 0
         for f in flags:
@@ -337,72 +395,68 @@ class Assembly:
             flag |= f
 
         processors = self._processors
+        assContext = AssemblyContext()
 
-        if flag & ONLY_AVAILABLE:
-            # First we filter for all processors that are available
+        if flag & (ONLY_AVAILABLE | CREATE_REPORT):
+            # Contains the unavailable processors as a tuples having on the first position the list of processors that
+            # are not available and on the second the attributes that determined the unavailability.
+            processorsAvailable, processorsUnavailable = list(processors), []
             while True:
-                defines, optional, requires = self._indexTypes(processors)
-                self._indexContexts(contexts, defines, optional, requires)
-                defined = set(requires)
-                defined.intersection_update(defines)
+                assContext.clear().add(processorsAvailable, contexts)
 
-                notDefined = set(requires)
-                notDefined.difference_update(defined)
+                requiredOnly = assContext.requiredOnly()
+                if not requiredOnly: break
+                processorsAvailable, excluded = self._filterIfAny(processorsAvailable, requiredOnly)
+                if not excluded: break
 
-                filtered = self._filterExcludeIfRequiresAny(processors, notDefined)
-                if len(filtered) == len(processors): break
-                processors = filtered
+                processorsUnavailable.append((excluded, requiredOnly))
 
-            processors = filtered
+            if flag & ONLY_AVAILABLE: processors = processorsAvailable
 
-        defines, optional, requires = self._indexTypes(processors)
-        if not (flag & NO_UNUSED_VALIDATION): unused = set(defines)
-        if flag & NO_INPUT_CONTEXTS_VALIDATION: missing = set(requires)
-        else: missing = None
-        self._indexContexts(contexts, defines, optional, requires)
+        assContext.clear().addProcessors(processors)
+        missing = assContext.required() if flag & NO_INPUT_CONTEXTS_VALIDATION else None
+        assContext.addContexts(contexts)
 
         if not (flag & NO_MISSING_VALIDATION):
-            if missing is None: missing = set(requires)
-            missing.difference_update(defines)
+            if missing is None: missing = assContext.required()
+            missing.difference_update(assContext.defined())
             if missing:
                 raise AssemblyError('Cannot resolve any definers for attributes:\n%s' %
                                     '\n'.join('\t%s.%s' % key for key in missing))
-
-        if not (flag & NO_UNUSED_VALIDATION):
-            # We check for unused attributes
-            unused.difference_update(requires)
-            unused.difference_update(optional)
-            if unused: raise AssemblyError('Unused attributes:\n%s' % '\n'.join(['\t%s.%s' % key for key in unused]))
 
         self._validateOrder(processors)
 
         if not processors: raise AssemblyError('No processors available to create a processing')
 
-
-        contextsAttributes = {}
-
-        for key, types in defines.items():
-            name, nameAttribute = key
-
-            attributes = contextsAttributes.get(name)
-            if attributes is None: attributes = contextsAttributes[name] = dict()
-
-            attributes[nameAttribute] = Attribute(DEFINED, tuple(types), doc='Generated by assembly')
-
-        for key, types in requires.items():
-            name, nameAttribute = key
-
-            attributes = contextsAttributes.get(name)
-            if attributes is None: attributes = contextsAttributes[name] = dict()
-            if nameAttribute not in attributes:
-                attributes[nameAttribute] = Attribute(REQUIRED, tuple(types), doc='Generated by assembly')
-
-        contextsAssembly = {name: ContextMetaClass(name[0].upper() + name[1:], (Context,), attributes)
-                            for name, attributes in contextsAttributes.items()}
-        processing = Processing(contextsAssembly)
+        processing = Processing(assContext.create())
         for processor in processors:
             assert isinstance(processor, Processor), 'Invalid processor %s' % processor
             processor.register(processing)
+
+        if flag & CREATE_REPORT:
+            report = []
+
+            if processorsUnavailable:
+                entries = []
+                for procs, attrs in processorsUnavailable:
+                    entry = 'Processors at:%s' % ''.join(location(proc) for proc in procs)
+                    entry = '%s\n\t-required attributes: %s' % (entry, ', '.join('%s.%s' % key for key in sorted(attrs)))
+                    entries.append(entry)
+                report.append('\nThe following processors have been removed because they require attributes that are '
+                              'not defined by any other processor:\n%s' % '\n'.join(entries))
+
+            definedOnly = assContext.definedOnly()
+            if definedOnly:
+                report.append('\nThe following attributes are not used by any processor:\n\t%s' %
+                              ', '.join('%s.%s' % key for key in sorted(definedOnly)))
+
+            if not report: report.append('Nothing to report, everything fits nicely')
+
+            report.insert(0, '-' * 50 + ' Assembly report')
+            report.append('-' * 50)
+            report.append('')
+
+            return processing, '\n'.join(report)
 
         return processing
 
@@ -442,106 +496,6 @@ class Assembly:
 
             else:
                 yield self._processorFrom(processorOrHandler)
-
-    def _location(self, processor):
-        '''
-        Provides a processor location message used for exceptions.
-        
-        @param index: integer
-            The processor index to have the location message.
-        @return: string
-            The location message.
-        '''
-        assert isinstance(processor, Processor), 'Invalid processor %s' % processor
-
-        return '\n  File "%s", line %i, in %s' % (processor.fileName, processor.lineNumber, processor.name)
-
-    # ----------------------------------------------------------------
-
-    def _indexContexts(self, contexts, defines, optional, requires):
-        '''
-        Indexes the provided contexts into the provided defines and requires dictionaries.
-        
-        @param defines: dictionary{tuple(string, string):set(class)}
-        @param optional: dictionary{tuple(string, string):set(class)}
-        @param requires: dictionary{tuple(string, string):set(class)}
-            The keys of the dictionaries are tuple having on the first position the context argument name and as the
-            second position the attribute name within the context.
-        '''
-        assert isinstance(contexts, dict), 'Invalid contexts %s' % contexts
-        assert isinstance(defines, dict), 'Invalid defines %s' % defines
-        assert isinstance(optional, dict), 'Invalid optional %s' % optional
-        assert isinstance(requires, dict), 'Invalid requires %s' % requires
-
-        for name, context in contexts.items():
-            assert isinstance(context, ContextMetaClass), 'Invalid context class %s' % context
-
-            for nameAttribute, attribute in context.__attributes__.items():
-                assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
-
-                key = (name, nameAttribute)
-
-                checkRequiredvsDefined = False
-                if attribute.status & (REQUIRED | OPTIONAL):
-                    typesRequired = requires.get(key)
-                    if typesRequired is None: requires[key] = set(attribute.types)
-                    else:
-                        common = typesRequired.intersection(attribute.types)
-                        if attribute.status & REQUIRED:
-                            if not common:
-                                raise AssemblyError('The required attributes types %s are not compatible with the '
-                                'context \'%s\' attribute \'%s\' required types %s' %
-                                ([typ.__name__ for typ in typesRequired], name, nameAttribute,
-                                 [typ.__name__ for typ in attribute.types]))
-
-                            requires[key] = common
-                            checkRequiredvsDefined = True
-
-                        elif common: optional[key] = common
-
-                elif attribute.status & DEFINED:
-                    typesDefined = defines.get(key)
-                    if typesDefined is None: defines[key] = set(attribute.types)
-                    else: typesDefined.update(attribute.types)
-
-                    checkRequiredvsDefined = True
-
-                if checkRequiredvsDefined:
-                    typesRequired = requires.get(key)
-                    if typesRequired: typesDefined = defines.get(key)
-                    if typesRequired and typesDefined and typesRequired != typesDefined and \
-                    typesDefined.issuperset(typesRequired):
-                        raise AssemblyError('The defined attributes types %s are not compatible with the context'
-                        ' \'%s\' attribute \'%s\' required types %s' %
-                        ([typ.__name__ for typ in typesDefined], name, nameAttribute,
-                         [typ.__name__ for typ in typesRequired]))
-
-    def _indexTypes(self, processors):
-        '''
-        Indexes and combines the types for the provided processors.
-        
-        @param processors: Iterable(Processor)
-            The list of processors to index the attributes types for.
-        @return: tuple of two
-            defines: dictionary{tuple(string, string):set(class)}
-            optional: dictionary{tuple(string, string):set(class)}
-            requires: dictionary{tuple(string, string):set(class)}
-            
-            The keys of the dictionaries are tuple having on the first position the context argument name and as the
-            second position the attribute name within the context.
-        '''
-        assert isinstance(processors, Iterable), 'Invalid processors %s' % processors
-
-        defines, optional, requires = {}, {}, {}
-        for processor in processors:
-            assert isinstance(processor, Processor), 'Invalid processor %s' % processor
-            assert isinstance(processor.contexts, dict), 'Invalid processor contexts %s' % processor.contexts
-
-            try: self._indexContexts(processor.contexts, defines, optional, requires)
-            except AssemblyError as e:
-                raise AssemblyError('Problems with processor at:%s\n%s' % (self._location(processor), e))
-
-        return defines, optional, requires
 
     def _indexAttributes(self, processors):
         '''
@@ -610,13 +564,13 @@ class Assembly:
         dependencies = []
         for index in range(0, len(processors)):
             beforeProcessor, afterProcessor = set(), set()
-            definersProc = definers.get(index, set())
-            optionalProc = optional.get(index, set())
-            requiresProc = requires.get(index, set())
+            definersProc = definers.get(index, frozenset())
+            optionalProc = optional.get(index, frozenset())
+            requiresProc = requires.get(index, frozenset())
             for indexOther in range(0, index):
-                definersOther = definers.get(indexOther, set())
-                optionalOther = optional.get(indexOther, set())
-                requiresOther = requires.get(indexOther, set())
+                definersOther = definers.get(indexOther, frozenset())
+                optionalOther = optional.get(indexOther, frozenset())
+                requiresOther = requires.get(indexOther, frozenset())
 
                 definesRequired = definersProc.intersection(requiresOther)
                 otherDefinesRequired = definersOther.intersection(requiresProc)
@@ -631,7 +585,7 @@ class Assembly:
                         ', but also the second processor defines attributes %s required by the first processor:'
                         '\nFirst processor at:%s\nSecond processor at:%s' %
                         (['%s.%s' % attr for attr in definesRequired], ['%s.%s' % attr for attr in otherDefinesRequired],
-                        self._location(processors[index]), self._location(processors[indexOther])))
+                        location(processors[index]), location(processors[indexOther])))
 
                 elif definesRequired: isSmaller = True
 
@@ -657,25 +611,26 @@ class Assembly:
 
         return dependencies
 
-    # ----------------------------------------------------------------
-
-    def _filterExcludeIfRequiresAny(self, processors, requires):
+    def _filterIfAny(self, processors, requires):
         '''
         Filters the processors by excluding based on the attributes.
         
         @param processors: Iterable(Processor)
             The list of processors to filter.
-        @param requires: set(tuple(string, string))|None
+        @param requires: set(tuple(string, string))
             The attributes that need not to be required by the filtered processors.
             The sets contain tuples having on the first position the context argument name and as the second
             position the attribute name within the context.
-        @return: list[Processor]
-            The list of filtered processors.
+        @return: tuple of two
+            filtered: list[Processor]
+                The list of filtered processors.
+            excluded: list[Processor]
+                The list of excluded processors.
         '''
         assert isinstance(processors, Iterable), 'Invalid processors %s' % processors
         assert isinstance(requires, set), 'Invalid requires %s' % requires
 
-        filtered = []
+        filtered, excluded = [], []
         for processor in processors:
             assert isinstance(processor, Processor), 'Invalid processor %s' % processor
             assert isinstance(processor.contexts, dict), 'Invalid processor contexts %s' % processor.contexts
@@ -696,48 +651,9 @@ class Assembly:
                 if not valid: break
 
             if valid: filtered.append(processor)
+            else: excluded.append(processor)
 
-        return filtered
-
-    def _filterExcludeIfDefinesAll(self, processors, defines):
-        '''
-        Filters the processors by excluding based on the attributes.
-        
-        @param processors: Iterable(Processor)
-            The list of processors to filter.
-        @param defines: set(tuple(string, string))|None
-            All the attributes that need not to be defined by the filtered processors.
-            The sets contain tuples having on the first position the context argument name and as the second
-            position the attribute name within the context.
-        @return: list[Processor]
-            The list of filtered processors.
-        '''
-        assert isinstance(processors, Iterable), 'Invalid processors %s' % processors
-        assert isinstance(defines, set), 'Invalid defines %s' % defines
-
-        filtered = []
-        for processor in processors:
-            assert isinstance(processor, Processor), 'Invalid processor %s' % processor
-            assert isinstance(processor.contexts, dict), 'Invalid processor contexts %s' % processor.contexts
-
-            valid = False
-            for name, context in processor.contexts.items():
-                assert isinstance(context, ContextMetaClass), 'Invalid context class %s' % context
-
-                for nameAttribute, attribute in context.__attributes__.items():
-                    assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
-
-                    key = (name, nameAttribute)
-
-                    if attribute.status & DEFINED:
-                        if key not in defines:
-                            valid = True
-                            break
-                if valid: break
-
-            if valid: filtered.append(processor)
-
-        return filtered
+        return filtered, excluded
 
     def _validateOrder(self, processors):
         '''
@@ -751,14 +667,206 @@ class Assembly:
         dependencies = self._indexDependencies(processors)
 
         before = deque()
-        for index in range(0, len(self._processors)):
+        for index in range(0, len(processors)):
             requiredAfter = dependencies[index]
             if requiredAfter:
                 broken = requiredAfter.difference(requiredAfter.intersection(before))
                 if broken:
                     raise AssemblyError('The processor at:%s\nneeds to have the processors after it, not before '
-                                        'it:%s' % (self._location(processors[index]),
-                                                   ''.join(self._location(processors[bindex]) for bindex in broken)))
+                                        'it:%s' % (location(processors[index]),
+                                                   ''.join(location(processors[bindex]) for bindex in broken)))
 
             before.append(index)
 
+class AssemblyContext:
+    '''
+    Contains the data for an attribute assembly.
+    '''
+    __slots__ = ('attributes',)
+
+    def __init__(self):
+        '''
+        Construct the attributes assembly.
+        '''
+        self.attributes = {}
+
+    definedOnly = lambda self: set(key for key, attr in self.attributes.items() if attr.status == DEFINED)
+    defined = lambda self: set(key for key, attr in self.attributes.items() if attr.status & DEFINED)
+    optionalOnly = lambda self: set(key for key, attr in self.attributes.items() if attr.status == OPTIONAL)
+    optional = lambda self: set(key for key, attr in self.attributes.items() if attr.status & OPTIONAL)
+    requiredOnly = lambda self: set(key for key, attr in self.attributes.items() if attr.status == REQUIRED)
+    required = lambda self: set(key for key, attr in self.attributes.items() if attr.status & REQUIRED)
+
+    def create(self):
+        '''
+        Creates the contexts based on this assembly.
+        '''
+        assert self.attributes, 'No attributes available'
+
+        contexts = {}
+        for key, assAttr in self.attributes.items():
+            assert isinstance(assAttr, AssemblyAttribute)
+
+            name, nameAttribute = key
+
+            attributes = contexts.get(name)
+            if attributes is None: attributes = contexts[name] = dict()
+
+            try: attributes[nameAttribute] = assAttr.create()
+            except AssemblyError:
+                raise AssemblyError('Cannot create attribute \'%s\' from context \'%s\'' % (nameAttribute, name))
+
+        return {name: ContextMetaClass(name[0].upper() + name[1:], (Context,), attributes)
+                            for name, attributes in contexts.items()}
+
+    # ----------------------------------------------------------------
+
+    def add(self, processors=None, contexts=None):
+        '''
+        Adds processors or contexts or both to this assembly.
+        
+        @param processors: Iterable(Processor)|None
+            The processors to add.
+        @param contexts: dictionary{string, ContextMetaClass}|None
+            The contexts to add.
+        '''
+        if processors is not None: self.addProcessors(processors)
+        if contexts is not None: self.addContexts(contexts)
+
+    def addProcessors(self, processors):
+        '''
+        Add the processors to this attributes assembly.
+        
+        @param processors: Iterable(Processor)
+            The processors to add.
+        '''
+        assert isinstance(processors, Iterable), 'Invalid processors %s' % processors
+
+        for processor in processors:
+            assert isinstance(processor, Processor), 'Invalid processor %s' % processor
+            assert isinstance(processor.contexts, dict), 'Invalid processor contexts %s' % processor.contexts
+
+            try: self.addContexts(processor.contexts)
+            except AssemblyError:
+                raise AssemblyError('Cannot assemble attributes for processor at:%s' % location(processor))
+
+    def addContexts(self, contexts):
+        '''
+        Add the contexts to this attributes assembly.
+        
+        @param contexts: dictionary{string, ContextMetaClass}
+            The contexts to add.
+        '''
+        assert isinstance(contexts, dict), 'Invalid contexts %s' % contexts
+
+        for name, context in contexts.items():
+            assert isinstance(name, str), 'Invalid context name %s' % name
+            assert isinstance(context, ContextMetaClass), 'Invalid context class %s' % context
+
+            for nameAttribute, attribute in context.__attributes__.items():
+                assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
+
+                key = (name, nameAttribute)
+
+                assAttr = self.attributes.get(key)
+                if not assAttr: assAttr = self.attributes[key] = AssemblyAttribute()
+
+                try: assAttr.add(attribute)
+                except AssemblyError:
+                    raise AssemblyError('Cannot assemble attribute \'%s\' from context \'%s\'' % (nameAttribute, name))
+
+    def clear(self):
+        '''
+        Clears the assembly of any attributes and data.
+        
+        @return: self
+            Same instance for chaining purposes.
+        '''
+        self.attributes.clear()
+        return self
+
+class AssemblyAttribute:
+    '''
+    Contains the data for an attribute assembly.
+    '''
+    __slots__ = ('status', 'defined', 'required', 'doc')
+
+    def __init__(self):
+        '''
+        Construct the attribute assembly.
+        '''
+        self.status = 0
+        self.defined = set()
+        self.required = set()
+        self.doc = None
+
+    def create(self):
+        '''
+        Creates the attribute based on this assembly.
+        '''
+        if self.defined and self.required:
+            types = self.defined.intersection(self.required)
+            if not types:
+                raise AssemblyError('Invalid defined %s and required %s assembly types' %
+                                    ([typ.__name__ for typ in self.defined], [typ.__name__ for typ in self.required]))
+        elif self.defined: types = self.defined
+        elif self.required: types = self.required
+        else: raise AssemblyError('Invalid assembly has no types')
+
+        return Attribute(self.status, tuple(types), self.doc)
+
+    # ----------------------------------------------------------------
+
+    def add(self, attribute):
+        '''
+        Combines this attribute assembly with the provided attribute.
+        
+        @param attr: Attribute
+            The attributes to be combined with.
+        '''
+        assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
+
+        if attribute.status & DEFINED:
+            if not self.defined: self.defined.update(attribute.types)
+            else:
+                if self.defined.isdisjoint(attribute.types):
+                    raise AssemblyError('The defined assembly types %s are not compatible with the defined types %s '
+                                        'of attribute %s' % ([typ.__name__ for typ in self.defined],
+                                                             [typ.__name__ for typ in attribute.types], attribute))
+                self.defined.intersection_update(attribute.types)
+
+        if attribute.status & (REQUIRED | OPTIONAL):
+            if not self.required: self.required.update(attribute.types)
+            else:
+                if self.required.isdisjoint(attribute.types):
+                    raise AssemblyError('The required assembly types %s are not compatible with the required types %s '
+                                        'of attribute %s' % ([typ.__name__ for typ in self.required],
+                                                             [typ.__name__ for typ in attribute.types], attribute))
+                    self.required.intersection_update(attribute.types)
+
+        if self.required and self.defined and self.required != self.defined and self.defined.issuperset(self.required):
+                raise AssemblyError('The defined attributes types %s are not compatible with the required types %s' %
+                ([typ.__name__ for typ in self.defined], [typ.__name__ for typ in self.required]))
+
+        self.status |= attribute.status
+
+        docs = []
+        if self.doc is not None: docs.append(self.doc)
+        if attribute.doc is not None: docs.append(attribute.doc)
+
+        if docs: self.doc = '\n'.join(docs)
+
+# --------------------------------------------------------------------
+
+def location(processor):
+    '''
+    Provides a processor location message used for exceptions.
+    
+    @param index: integer
+        The processor index to have the location message.
+    @return: string
+        The location message.
+    '''
+    assert isinstance(processor, Processor), 'Invalid processor %s' % processor
+
+    return '\n  File "%s", line %i, in %s' % (processor.fileName, processor.lineNumber, processor.name)

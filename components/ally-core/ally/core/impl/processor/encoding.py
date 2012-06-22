@@ -1,7 +1,7 @@
 '''
 Created on Jul 12, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -11,13 +11,13 @@ Provides the encoding processing node.
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import UNKNOWN_ENCODING, Code
-from ally.design.context import Context, defines, requires
+from ally.design.context import Context, defines, optional
 from ally.design.processor import Assembly, Handler, Processing, NO_VALIDATION, \
     Processor, Chain
-from functools import partial
 import codecs
 import itertools
 import logging
+from ally.exception import DevelError
 
 # --------------------------------------------------------------------
 
@@ -29,9 +29,9 @@ class Request(Context):
     '''
     The request context.
     '''
-    # ---------------------------------------------------------------- Required
-    accTypes = requires(list)
-    accCharSets = requires(list)
+    # ---------------------------------------------------------------- Optional
+    accTypes = optional(list)
+    accCharSets = optional(list)
 
 class Response(Context):
     '''
@@ -65,8 +65,8 @@ class EncodingHandler(Handler):
     process it has to stop the chain execution.
     '''
 
-    contentTypeDefault = None
-    # The default content type to use
+    contentTypeDefaults = [None]
+    # The default content types to use
     charSetDefault = str
     # The default character set to be used if none provided for the content.
     encodingAssembly = Assembly
@@ -75,8 +75,8 @@ class EncodingHandler(Handler):
 
     def __init__(self):
         assert isinstance(self.encodingAssembly, Assembly), 'Invalid encodings assembly %s' % self.encodingAssembly
-        assert self.contentTypeDefault is None or isinstance(self.contentTypeDefault, str), \
-        'Invalid default content type %s' % self.contentTypeDefault
+        assert isinstance(self.contentTypeDefaults, (list, tuple)), \
+        'Invalid default content type %s' % self.contentTypeDefaults
         assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
 
         contexts = dict(request=Request, response=Response, responseCnt=ResponseContent)
@@ -84,11 +84,15 @@ class EncodingHandler(Handler):
         assert isinstance(encodingProcessing, Processing), 'Invalid processing %s' % encodingProcessing
         contexts = encodingProcessing.contexts
 
-        call = partial(self.process, encodingProcessing)
-        callCode = self.process.__code__
-        super().__init__(Processor(contexts, call, 'process', callCode.co_filename, callCode.co_firstlineno))
+        def call(chain, **keyargs):
+            assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
+            self.process(encodingProcessing, **keyargs)
+            chain.proceed()
 
-    def process(self, encodingProcessing, chain, request, response, responseCnt, **keyargs):
+        cd = self.process.__code__
+        super().__init__(Processor(contexts, call, 'process', cd.co_filename, cd.co_firstlineno))
+
+    def process(self, encodingProcessing, request, response, responseCnt, **keyargs):
         '''
         Encodes the response object.
         
@@ -98,7 +102,6 @@ class EncodingHandler(Handler):
         The rest of the parameters are contexts.
         '''
         assert isinstance(encodingProcessing, Processing), 'Invalid encoding processing %s' % encodingProcessing
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
@@ -107,9 +110,10 @@ class EncodingHandler(Handler):
         if ResponseContent.charSet in responseCnt:
             try: codecs.lookup(responseCnt.charSet)
             except LookupError: responseCnt.charSet = None
+        else: responseCnt.charSet = None
 
-        if not responseCnt.charSet:
-            for charSet in request.accCharSets:
+        if responseCnt.charSet is None:
+            for charSet in request.accCharSets or ():
                 try: codecs.lookup(charSet)
                 except LookupError: continue
                 responseCnt.charSet = charSet
@@ -120,26 +124,23 @@ class EncodingHandler(Handler):
             encodingChain = encodingProcessing.newChain()
             assert isinstance(encodingChain, Chain), 'Invalid chain %s' % encodingChain
 
+            responseWasInError = Response.code in response and not response.code.isSuccess
             encodingChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
-            if encodingChain.isConsumed():
+            if encodingChain.isConsumed() and not responseWasInError:
+                if Response.code in response and not response.code.isSuccess: return
                 response.code = UNKNOWN_ENCODING
                 response.text = 'Content type \'%s\' not supported for encoding' % responseCnt.type
                 return
+
+        # Adding None in case some encoder is configured as default.
+        for contentType in itertools.chain(request.accTypes or (), self.contentTypeDefaults):
+            responseCnt.type = contentType
+
+            encodingChain = encodingProcessing.newChain()
+            assert isinstance(encodingChain, Chain), 'Invalid chain %s' % encodingChain
+
+            encodingChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
+            if not encodingChain.isConsumed(): break
         else:
-            # Adding None in case some encoder is configured as default.
-            for contentType in itertools.chain(request.accTypes, (self.contentTypeDefault,)):
-                responseCnt.type = contentType
-
-                encodingChain = encodingProcessing.newChain()
-                assert isinstance(encodingChain, Chain), 'Invalid chain %s' % encodingChain
-
-                encodingChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
-                if not encodingChain.isConsumed(): break
-            else:
-                response.code = UNKNOWN_ENCODING
-                response.text = 'Accepted content types \'%s\' not supported for encoding' % \
-                ', '.join(request.accTypes)
-                return
-
-        chain.proceed()
-
+            raise DevelError('There is no encoding available, this is more likely a setup issues since the '
+                             'default content types should have resolved the encoding')

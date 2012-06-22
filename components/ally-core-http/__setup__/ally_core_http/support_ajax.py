@@ -9,13 +9,14 @@ Created on Nov 24, 2011
 Provides the javascript setup required by browser for ajax.
 '''
 
-from ..ally_core.processor import methodInvoker
-from .processor import handlersResources
+from ..ally_core.processor import assemblyResources
+from ..ally_core_http.processor import uri, updateAssemblyResourcesForCoreHTTP
 from ally.container import ioc
-from ally.core.http.spec import METHOD_OPTIONS
+from ally.core.http.impl.processor.headers.set_fixed import \
+    HeaderSetEncodeHandler
+from ally.core.http.spec.server import METHOD_OPTIONS
 from ally.core.impl.processor.deliver_ok import DeliverOkHandler
-from ally.core.spec.server import IProcessor
-from ally.core.http.impl.processor.header_set import HeaderSetHandler
+from ally.design.processor import Handler
 
 # --------------------------------------------------------------------
 
@@ -36,21 +37,20 @@ def headers_ajax() -> dict:
 # --------------------------------------------------------------------
 
 @ioc.entity
-def headerSet() -> IProcessor:
-    b = HeaderSetHandler()
+def headerSetEncode() -> Handler:
+    b = HeaderSetEncodeHandler()
     b.headers = headers_ajax()
     return b
 
 @ioc.entity
-def deliverOkHandler() -> IProcessor:
+def deliverOkHandler() -> Handler:
     b = DeliverOkHandler()
     b.forMethod = METHOD_OPTIONS
     return b
 
 # --------------------------------------------------------------------
 
-@ioc.before(handlersResources)
-def updateHandlersResources():
+@ioc.after(updateAssemblyResourcesForCoreHTTP)
+def updateAssemblyResourcesForCoreHTTPAjax():
     if ajax_cross_domain():
-        handlersResources().insert(handlersResources().index(methodInvoker()), deliverOkHandler())
-        handlersResources().insert(0, headerSet())
+        assemblyResources().add(headerSetEncode(), deliverOkHandler(), before=uri())
