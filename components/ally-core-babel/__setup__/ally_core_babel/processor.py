@@ -10,7 +10,9 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from ..ally_core.processor import conversion, normalizer, default_language, \
-    resourcesAssembly, invoking
+    assemblyResources
+from ..ally_core_http.processor import contentTypeEncode, \
+    updateAssemblyResourcesForCoreHTTP
 from ally.container import ioc
 from ally.core.babel.processor.text_conversion import \
     BabelConversionDecodeHandler, BabelConversionEncodeHandler
@@ -45,7 +47,7 @@ def babelConversionEncode() -> Handler: return BabelConversionEncodeHandler()
 
 # --------------------------------------------------------------------
 
-@ioc.before(resourcesAssembly)
-def updateResourcesAssembly():
-    if present_formatting(): resourcesAssembly().add(babelConversionEncode(), after=invoking())
+@ioc.after(updateAssemblyResourcesForCoreHTTP)
+def updateAssemblyResourcesForCoreBabel():
+    if present_formatting(): assemblyResources().add(babelConversionEncode(), after=contentTypeEncode())
 

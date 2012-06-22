@@ -15,7 +15,7 @@ from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.server import IDecoderHeader
 from ally.core.spec.codes import Code
 from ally.design.context import Context, requires, defines
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.processor import HandlerProcessorProceed
 import logging
 
 # --------------------------------------------------------------------
@@ -30,8 +30,7 @@ class Request(Context):
     '''
     # ---------------------------------------------------------------- Required
     decoderHeader = requires(IDecoderHeader)
-    # ---------------------------------------------------------------- Defined
-    method = defines(int)
+    method = requires(int)
 
 class Response(Context):
     '''
@@ -44,7 +43,7 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class MethodOverrideDecodeHandler(HandlerProcessor):
+class MethodOverrideDecodeHandler(HandlerProcessorProceed):
     '''
     Provides the method override processor.
     '''
@@ -69,15 +68,16 @@ class MethodOverrideDecodeHandler(HandlerProcessor):
         assert isinstance(self.methodsOverride, dict), 'Invalid methods override %s' % self.methodsOverride
         super().__init__()
 
-    def process(self, chain, request:Request, response:Response, **keyargs):
+    def process(self, request:Request, response:Response, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Overrides the request method based on a provided header.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
+        if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
+
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
 
         value = request.decoderHeader.decode(self.nameXMethodOverride)
@@ -106,5 +106,3 @@ class MethodOverrideDecodeHandler(HandlerProcessor):
 
             assert log.debug('Successfully overridden method %s with %s', request.method, over) or True
             request.method = over
-
-        chain.proceed()

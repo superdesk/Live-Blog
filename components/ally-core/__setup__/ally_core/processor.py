@@ -9,9 +9,9 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from ..ally_core.encoder_decoder import encodingAssembly
+from .encoder_decoder import encodingAssembly
 from ally.container import ioc
-from ally.core.impl.processor.arguments import ArgumentsOfTypeHandler, \
+from ally.core.impl.processor.arguments import ArgumentsPrepareHandler, \
     ArgumentsBuildHandler
 from ally.core.impl.processor.encoding import EncodingHandler
 from ally.core.impl.processor.invoking import InvokingHandler
@@ -19,6 +19,7 @@ from ally.core.impl.processor.method_invoker import MethodInvokerHandler
 from ally.core.impl.processor.text_conversion import ConversionSetHandler
 from ally.core.spec.resources import Normalizer, Converter
 from ally.design.processor import Handler, Assembly
+from ally.core.impl.processor.encoding_meta import EncodingMetaHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -41,13 +42,6 @@ def explain_detailed_error():
 # --------------------------------------------------------------------
 
 @ioc.entity
-def resourcesAssembly() -> Assembly:
-    '''
-    The assembly containing the handlers that will be used in processing a REST request.
-    '''
-    return Assembly()
-
-@ioc.entity
 def normalizer() -> Normalizer: return Normalizer()
 
 @ioc.entity
@@ -56,7 +50,14 @@ def converter() -> Converter: return Converter()
 # --------------------------------------------------------------------
 
 @ioc.entity
-def argumentsOfType() -> Handler: return ArgumentsOfTypeHandler()
+def assemblyResources() -> Assembly:
+    '''
+    The assembly containing the handlers that will be used in processing a REST request.
+    '''
+    return Assembly()
+
+@ioc.entity
+def argumentsPrepare() -> Handler: return ArgumentsPrepareHandler()
 
 @ioc.entity
 def methodInvoker() -> Handler: return MethodInvokerHandler()
@@ -75,6 +76,9 @@ def argumentsBuild() -> Handler: return ArgumentsBuildHandler()
 def invoking() -> Handler: return InvokingHandler()
 
 @ioc.entity
+def encodingMeta() -> Handler: return EncodingMetaHandler()
+
+@ioc.entity
 def encoding() -> Handler:
     b = EncodingHandler()
     b.charSetDefault = default_characterset()
@@ -83,6 +87,7 @@ def encoding() -> Handler:
 
 # --------------------------------------------------------------------
 
-@ioc.before(resourcesAssembly)
-def updateResourcesAssembly():
-    resourcesAssembly().add(argumentsOfType(), methodInvoker(), conversion(), argumentsBuild(), invoking(), encoding())
+@ioc.before(assemblyResources)
+def updateAssemblyResourcesForCore():
+    assemblyResources().add(argumentsPrepare(), methodInvoker(), conversion(), argumentsBuild(), invoking(),
+                            encodingMeta(), encoding())

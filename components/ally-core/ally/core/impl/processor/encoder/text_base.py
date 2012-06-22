@@ -10,7 +10,7 @@ Provides the text base encoder processor handler.
 '''
 
 from ally.container.ioc import injected
-from ally.core.spec.meta import MetaService, IMetaEncode
+from ally.core.spec.meta import Meta
 from ally.design.context import Context, defines, requires
 from ally.design.processor import HandlerProcessor, Chain
 from ally.support.util_io import convertToBytes
@@ -24,13 +24,6 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class Response(Context):
-    '''
-    The response context.
-    '''
-    # ---------------------------------------------------------------- Required
-    obj = requires(object)
-
 class ResponseContent(Context):
     '''
     The response content context.
@@ -38,10 +31,11 @@ class ResponseContent(Context):
     # ---------------------------------------------------------------- Required
     type = requires(str)
     charSet = requires(str)
+    meta = requires(Meta)
     # ---------------------------------------------------------------- Defined
     source = defines(GeneratorType, doc='''
-    @rtype: GeneratorType
-    The generator that provides the response content in bytes.
+    @rtype: generator
+    The generator containing the response content.
     ''')
 
 # --------------------------------------------------------------------
@@ -58,27 +52,18 @@ class EncoderTextBaseHandler(HandlerProcessor):
     encodingError = str
     # The encoding error resolving.
 
-    modelMetaService = MetaService
-    # The model meta service that will provide the decoding and encoding.
-
     def __init__(self):
         assert isinstance(self.contentTypes, dict), 'Invalid content types %s' % self.contentTypes
         assert isinstance(self.encodingError, str), 'Invalid string %s' % self.encodingError
-        assert isinstance(self.modelMetaService, MetaService), 'Invalid model meta service %s' % self.modelMetaService
         super().__init__()
-        # We also add the meta context to the response context
-        self.processor.contexts['response'] += self.modelMetaService.createContextMeta
-        # We also add the meta processing context to the response content context
-        self.processor.contexts['responseCnt'] += self.modelMetaService.processContextMeta
 
-    def process(self, chain, response:Response, responseCnt:ResponseContent, **keyargs):
+    def process(self, chain, responseCnt:ResponseContent, **keyargs):
         '''
         @see: HandlerProcessor.process
         
         Encode the ressponse object.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         # Check if the response is for this encoder
@@ -90,11 +75,9 @@ class EncoderTextBaseHandler(HandlerProcessor):
                 assert log.debug('Normalized content type %r to %r', responseCnt.type, contentType) or True
                 responseCnt.type = contentType
 
-            metaEncode = self.modelMetaService.createEncode(response)
-            assert isinstance(metaEncode, IMetaEncode), 'Invalid meta encode %s' % metaEncode
+            assert isinstance(responseCnt.meta, Meta), 'Invalid meta encode %s' % responseCnt.meta
 
-            meta = metaEncode.encode(response.obj, responseCnt)
-            source = self.renderMeta(meta, responseCnt.charSet)
+            source = self.renderMeta(responseCnt.meta, responseCnt.charSet)
             responseCnt.source = convertToBytes(source, responseCnt.charSet, self.encodingError)
 
             return # We need to stop the chain if we war able to provide the encoding

@@ -31,6 +31,10 @@ class RequestHTTP(Context):
     @rtype: string
     The scheme URI protocol name to be used for the response.
     ''')
+    method = defines(int, doc='''
+    @rtype: integer
+    The method of the request.
+    ''')
     uriRoot = defines(str, doc='''
     @rtype: string
     The root URI to be considered for constructing a request path, basically the relative path root.

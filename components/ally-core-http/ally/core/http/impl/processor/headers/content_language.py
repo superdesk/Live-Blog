@@ -13,7 +13,7 @@ from ally.api.type import Locale
 from ally.container.ioc import injected
 from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
 from ally.design.context import Context, requires, defines, optional
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.processor import HandlerProcessorProceed
 
 # --------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ class RequestContent(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ContentLanguageDecodeHandler(HandlerProcessor):
+class ContentLanguageDecodeHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that provides the decoding of content language HTTP request header.
     '''
@@ -51,13 +51,12 @@ class ContentLanguageDecodeHandler(HandlerProcessor):
         assert isinstance(self.nameContentLanguage, str), 'Invalid content language name %s' % self.nameContentLanguage
         super().__init__()
 
-    def process(self, chain, request:Request, requestCnt:RequestContent, **keyargs):
+    def process(self, request:Request, requestCnt:RequestContent, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Provides the content language decode for the request.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
@@ -65,9 +64,7 @@ class ContentLanguageDecodeHandler(HandlerProcessor):
         value = request.decoderHeader.retrieve(self.nameContentLanguage)
         if value:
             requestCnt.language = value
-            if Request.argumentsOfType in request: request.argumentsOfType[Locale] = value
-
-        chain.proceed()
+            if Request.argumentsOfType in request: request.argumentsOfType[Locale] = requestCnt.language
 
 # --------------------------------------------------------------------
 
@@ -88,7 +85,7 @@ class ResponseContent(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ContentLanguageEncodeHandler(HandlerProcessor):
+class ContentLanguageEncodeHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that provides the encoding of content language HTTP request header.
     '''
@@ -100,13 +97,12 @@ class ContentLanguageEncodeHandler(HandlerProcessor):
         assert isinstance(self.nameContentLanguage, str), 'Invalid content language name %s' % self.nameContentLanguage
         super().__init__()
 
-    def process(self, chain, response:Response, responseCnt:ResponseContent, **keyargs):
+    def process(self, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
-        @see: HandlerProcessor.process
+        @see: HandlerProcessorProceed.process
         
         Encodes the content language.
         '''
-        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         assert isinstance(response.encoderHeader, IEncoderHeader), \
@@ -114,5 +110,3 @@ class ContentLanguageEncodeHandler(HandlerProcessor):
 
         if ResponseContent.language in responseCnt:
             response.encoderHeader.encode(self.nameContentLanguage, responseCnt.language)
-
-        chain.proceed()
