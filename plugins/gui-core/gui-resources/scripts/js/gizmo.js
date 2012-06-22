@@ -2,7 +2,9 @@ define('gizmo', ['jquery'], function()
 {
     var Model = function(data)
     { 
-        
+        this._forDelete = false;
+        this._changed = false;
+        this._data = {};
     },
     Uniq = function()
     { 
@@ -130,18 +132,20 @@ define('gizmo', ['jquery'], function()
         { 
             var self = this, ret;
             
+            if( this._forDelete )
+                return this.dataAdapter(href).remove().done(function(){ delete self; });
+            
             if( this._clientHash )
             {
                 var href = this.href || arguments[0];
-                ret = (this.dataAdapter(href).insert(this.feed()).done(function(data)
+                return this.dataAdapter(href).insert(this.feed()).done(function(data)
                 {
                     self._changed = false;
                     self.parse(data);
                     self._uniq.replace(self._clientHash, self.hash(), self);
                     self._clientHash = null;
                     $(self).triggerHandler('insert');
-                })); 
-                return ret;
+                }); 
             }
             
             if( this._changed ) // if changed do an update on the server and return
@@ -150,15 +154,20 @@ define('gizmo', ['jquery'], function()
                     self._changed = false;
                     $(self).triggerHandler('update');
                 })); 
+            else
+                // simply read data from server
+                ret = (this.href && this.dataAdapter(this.href).read(this._xfilter).done(function(data)
+                {
+                    self.parse(data);
+                    $(self).triggerHandler('read');
+                }));
             
-            // simply read data from server
-            ret = (this.href && this.dataAdapter(this.href).read(this._xfilter).done(function(data)
-            {
-                self.parse(data);
-                $(self).triggerHandler('read');
-            }));  
             this._xfilter = null;
             return ret;
+        },
+        remove: function()
+        {
+            this._forDelete = true;
         },
         /*!
          * @param data the data to parse into the model
@@ -265,6 +274,7 @@ define('gizmo', ['jquery'], function()
                 {
                     $(this.items[key]).triggerHandler('garbage');
                     delete this.items[key];
+                    delete this.counts[key];
                 }
             }
         }
