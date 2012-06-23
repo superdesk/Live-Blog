@@ -22,7 +22,7 @@ setup(
     platforms=['all'],
     zip_safe=True,
     package_data={
-        '': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less', '*.dust', '*.html'],
+        '': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less', '*.dust', '*.html', '*.xml'],
     },
 
     # metadata for upload to PyPI
