@@ -26,4 +26,3 @@ test/__init__.py
 test/cdm/__init__.py
 test/cdm/impl/__init__.py
 test/cdm/impl/local_filesystem.py
-test/cdm/impl/test.py
