@@ -1,0 +1,3 @@
+ally_api >= 1.0
+ally_core_plugin >= 1.0
+support_cdm >= 1.0
