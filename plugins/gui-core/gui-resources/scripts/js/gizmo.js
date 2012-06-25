@@ -20,8 +20,6 @@ define('gizmo', ['jquery'], function()
         this.options = {};
         this.desynced = true;
         
-        $(this._list).on('garbage', function(){ this.desynced = true; })
-        
         var buildData = buildOptions = function(){ void(0); },
             self = this;
             
@@ -137,7 +135,7 @@ define('gizmo', ['jquery'], function()
                 return this.dataAdapter(arguments[0] || this.href).remove().done(function()
                 { 
                     $(self).triggerHandler('delete');
-                    delete self; 
+                    self._uniq.remove(self.hash());
                 });
             
             if( this._clientHash )
@@ -287,11 +285,16 @@ define('gizmo', ['jquery'], function()
                     delete this.counts[key];
                 }
             }
+        },
+        remove: function(key)
+        {
+            delete this.items[key];
+            delete this.counts[key];
         }
     };
     // Model's base options
     var options = Model.options = {};
-    Model.extend = function(props)
+    Model.extend = extendFnc = function(props)
     {
         var proto = new this;
         for( var name in props ) proto[name] = props[name];
@@ -310,6 +313,7 @@ define('gizmo', ['jquery'], function()
         // create a new property from original options one
         Model.prototype.options = $.extend({}, options);
         Model.prototype.constructor = Model;
+        Model.extend = extendFnc;
         return Model;
     };
     
@@ -327,13 +331,20 @@ define('gizmo', ['jquery'], function()
                         if( key == self._list[i].hash() || key == self._list[i].relationHash() ) 
                             return dfd.resolve(self._list[i]);
                     }
+                    dfd.reject();
                 };
             this.desynced && this.sync().done(function(){ dfd.resolve(searchKey()); }) ? dfd : searchKey();
             return dfd;
         },
         remove: function(key)
         {
-            return this.get(key).done(function(item){ item.remove().sync(); });  
+            for( var i in this._list )
+                if( key == this._list[i].hash() || key == this._list[i].relationHash() )
+                {
+                    Array.prototype.splice.call(this._list, i, 1);
+                    break;
+                }
+            return this;
         },
         dataAdapter: Sync.dataAdapter,
         /*!
@@ -354,6 +365,10 @@ define('gizmo', ['jquery'], function()
                 this.dataAdapter(this.options.href).read(/*HARDCODE*/{headers: {'X-Filter': 'Id'}}).done(function(data)
                 {
                     self.parse(data);
+                    
+                    $(self._list).on('delete', function(){ self.remove(this.hash()); });
+                    $(this._list).on('garbage', function(){ this.desynced = true; });
+
                     self.desynced = false;
                     $(self).triggerHandler('read');
                     $(self._list).triggerHandler('read');
@@ -379,9 +394,9 @@ define('gizmo', ['jquery'], function()
                 return ret;
             },
             theData = extractListData(data);
+            this._list = [];
             for( var i in theData )
                 this._list.push( new this.model(theData[i]) );
-
             this.total = data.total;
         }
     };
