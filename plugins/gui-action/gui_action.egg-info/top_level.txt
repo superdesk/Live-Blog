@@ -1,0 +1,2 @@
+gui
+__plugin__

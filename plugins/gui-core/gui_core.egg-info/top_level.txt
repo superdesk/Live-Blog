@@ -1,0 +1,3 @@
+gui
+gui-resources
+__plugin__

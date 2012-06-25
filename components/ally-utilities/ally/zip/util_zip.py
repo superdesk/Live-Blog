@@ -11,7 +11,7 @@ Contains ZIP utils
 
 import os
 from os.path import normpath, dirname
-from zipfile import is_zipfile
+from zipfile import is_zipfile, ZipFile
 
 # --------------------------------------------------------------------
 
@@ -71,3 +71,25 @@ def getZipFilePath(filePath, stopPath=''):
         if nextSubPath == parentPath: break
         parentPath = nextSubPath
     raise IOError('Invalid ZIP path %s' % filePath)
+
+def validateInZipPath(zipFile, inFilePath):
+    '''
+    Verify if the given ZIP file object contains the given path. Returns nothing.
+    If the path does not exist in the ZIP file raises KeyError exception.
+    
+    @param zipFile: ZipFile
+        The ZIP file object to check
+    @param inFilePath: str
+        The path that should be validated to exist in the ZIP file
+    '''
+    assert isinstance(zipFile, ZipFile), 'Invalid zip file object %s' % zipFile
+    assert isinstance(inFilePath, str), 'Invalid file path %s' % inFilePath
+    try: zipFile.getinfo(inFilePath)
+    except KeyError as k:
+        found = False
+        if inFilePath.endswith(ZIPSEP):
+            names = zipFile.namelist()
+            for name in names:
+                if name.startswith(inFilePath):
+                    found = True; break
+        if not found: raise k
