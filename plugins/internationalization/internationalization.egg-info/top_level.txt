@@ -1,0 +1,3 @@
+internationalization
+test
+__plugin__
