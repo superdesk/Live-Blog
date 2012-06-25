@@ -21,7 +21,10 @@ define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data
                 PostUnpublished: [Post],
                 Source: Source,
                 Person: Person
-            }});
+            }})
+            xtest = Post.extend();
+
+        console.dir(Post);
 
         // hacks
         ajaxMap = data.ajaxMap;
@@ -47,12 +50,22 @@ define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data
             c.sync();
         });
         
-        test("can delete from collection", function()
+        asyncTest("should handle delete", function()
         {
-            var p = new giz.Collection('Collaborator/1/Post', Post);
+            var p = new giz.Collection('Collaborator/1/Post', Post),
+                item = 1,
+                testHasOneLess = function()
+                { 
+                    p.get(item).done(function(){ ok(false, 'item stil present in collection after atempt on its removal'); start(); })
+                        .fail(function(){ ok(true, 'item gone from collection after its removal! yay!'); start(); }); 
+                };
+            // on sync we get an item and try to remove it
             $(p).on( 'read', function()
             {
-                p.remove(2);
+                p.get(item).done(function(model)
+                {
+                    model.remove().sync().done( testHasOneLess );
+                });
             });
             p.sync();
         });
