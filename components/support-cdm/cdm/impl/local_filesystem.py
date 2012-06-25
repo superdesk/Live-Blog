@@ -10,7 +10,7 @@ Contains the Content Delivery Manager implementation for local file system
 '''
 
 from ally.container.ioc import injected
-from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath, getZipFilePath
+from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath, getZipFilePath, validateInZipPath
 from cdm.spec import ICDM, UnsupportedProtocol, PathNotFound
 from datetime import datetime
 from io import StringIO
@@ -513,5 +513,5 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         assert isfile(zipFilePath) and os.access(zipFilePath, os.R_OK), \
             'Unable to read file path %s' % filePath
         zipFile = ZipFile(zipFilePath)
-        zipFile.getinfo(inFilePath)
+        validateInZipPath(zipFile, inFilePath)
         self._createLinkToZipFile(path, zipFilePath, inFilePath)

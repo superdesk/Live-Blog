@@ -1,0 +1,3 @@
+admin
+__setup__
+__plugin__
