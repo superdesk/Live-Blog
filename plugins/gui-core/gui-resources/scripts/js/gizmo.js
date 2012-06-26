@@ -131,19 +131,20 @@ define('gizmo', ['jquery'], function()
         { 
             var self = this, ret;
             
-            if( this._forDelete )
+            if( this._forDelete ) // handle delete
                 return this.dataAdapter(arguments[0] || this.href).remove().done(function()
                 { 
                     $(self).triggerHandler('delete');
                     self._uniq.remove(self.hash());
                 });
             
-            if( this._clientHash )
+            if( this._clientHash ) // handle insert
             {
                 var href = arguments[0] || this.href;
                 return this.dataAdapter(href).insert(this.feed()).done(function(data)
                 {
                     self._changed = false;
+                    //console.log('insert', href, data);
                     self.parse(data);
                     self._uniq.replace(self._clientHash, self.hash(), self);
                     self._clientHash = null;
@@ -198,7 +199,6 @@ define('gizmo', ['jquery'], function()
                             continue;
                             break;
                     }
-
                 this.data[i] = data[i];
             }
         },
@@ -293,7 +293,7 @@ define('gizmo', ['jquery'], function()
         }
     };
     // Model's base options
-    var options = Model.options = {};
+    var options = Model.options = {}, extendFnc;
     Model.extend = extendFnc = function(props)
     {
         var proto = new this;
@@ -320,6 +320,7 @@ define('gizmo', ['jquery'], function()
     Collection.prototype = 
     {
         _list: [],
+        getList: function(){ return this._list },
         get: function(key)
         {
             var dfd = $.Deferred(),
@@ -328,6 +329,7 @@ define('gizmo', ['jquery'], function()
                 {
                     for( var i in self._list )
                     {
+                        //console.log( key, self._list[i], key == self._list[i].hash(), key == self._list[i].relationHash() )
                         if( key == self._list[i].hash() || key == self._list[i].relationHash() ) 
                             return dfd.resolve(self._list[i]);
                     }
@@ -365,7 +367,7 @@ define('gizmo', ['jquery'], function()
                 this.dataAdapter(this.options.href).read(/*HARDCODE*/{headers: {'X-Filter': 'Id'}}).done(function(data)
                 {
                     self.parse(data);
-                    
+
                     $(self._list).on('delete', function(){ self.remove(this.hash()); });
                     $(this._list).on('garbage', function(){ this.desynced = true; });
 
@@ -397,7 +399,14 @@ define('gizmo', ['jquery'], function()
             this._list = [];
             for( var i in theData )
                 this._list.push( new this.model(theData[i]) );
+            
             this.total = data.total;
+        },
+        insert: function(model)
+        {
+            this.desynced = false;
+            if( !(model instanceof Model) ) model = new this.model(model);
+            return model.sync(this.options.href);
         }
     };
     
