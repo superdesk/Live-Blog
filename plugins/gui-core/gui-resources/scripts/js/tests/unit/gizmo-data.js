@@ -44,11 +44,11 @@ define(function()
             },
             "Collaborator/1/Post/Published":
             {
-                
+                'PostList': []
             },
             "Collaborator/1/Post/Unpublished":
             {
-                
+                'PostList': []
             },
             
             
