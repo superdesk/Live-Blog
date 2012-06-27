@@ -136,15 +136,43 @@ define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data
             p.sync();
         });
         
-        test("can be extended", function()
+        asyncTest("can be extended", function()
         {
             var newSync = $.extend({}, giz.Sync, 
             {
-                options: { headers: { 'Authentication': 1 } }
+                options: { headers: { 'Authentication': 1 } },
+                href: function(source)
+                {
+                    return 'my/'+source;
+                },
+                reset: function()
+                {
+                    try{ delete this.options.headers['X-Filter']; }catch(e){}
+                }
             }),
-            X = giz.Model.extend({ syncAdapter: newSync });
+            authModel = giz.Model.extend
+            ({ 
+                syncAdapter: newSync,
+                xfilter: function()
+                {
+                    if( this.syncAdapter.options.headers ) this.syncAdapter.options.headers = {};
+                    this.syncAdapter.options.headers['X-Filter']
+                        = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(data) ? data.join(',') : data;
+                    return this;
+                }
+            });
                 
-            ok((new X).syncAdapter.options.headers.Authentication == 1, 'has new "sync" object with slightly different options');
+            ok((new authModel).syncAdapter.options.headers.Authentication == 1, 
+                    'has new "sync" object with slightly different options');
+            
+            var p = new authModel('Person/1');
+            $(p).on('read', function()
+            {
+                ok(this.get('Collaborator').href == "my/Person/1/Collaborator", 'model reads authenticated resources');
+            });
+            // a bit of testing on xfilter as well
+            p.xfilter('Id', 'Name').sync();
+            start();
         })
     };
     

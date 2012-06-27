@@ -1,17 +1,12 @@
-define(['gizmo', 
+define(['gizmo', 'gizmo/superdesk',
         /*'gui/superdesk/livedesk/scripts/js/models/collaborator',
         'gui/superdesk/livedesk/scripts/js/models/post'*/], 
-function(giz, Collaborator, Post)
+function(giz, superGizmo, Collaborator, Post)
 {
     return {init: function(){
 
-        var newSync = $.extend({}, giz.Sync, 
-        {
-            options: { headers: { 'Authentication': 1 } }
-        }),
-        X = giz.Model.extend({ dataAdapter: newSync.dataAdapter });
-    
-    console.log(X.prototype.dataAdapter('http://localhost:8080/resources/my/Superdesk/Collaborator/22').read());
+        console.dir(superGizmo);
+        
 
     
     
