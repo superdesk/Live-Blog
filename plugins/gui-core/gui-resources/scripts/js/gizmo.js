@@ -50,30 +50,27 @@ define('gizmo', ['jquery'], function()
     {
         request: function(source)
         {
-            var self = this;
+            var self = this,
+                reqFnc = function(data, predefinedOptions, userOptions)
+                {
+                    var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data});
+                    self.reset();
+                    return $.ajax(self.href(source), options);
+                };
+                
             return { 
-                read: function(userOptions)
-                {
-                    var options = $.extend(true, {}, self.readOptions, self.options, userOptions);
-                    return $.ajax(source, options); 
-                },
-                update: function(data, userOptions)
-                {
-                    var options = $.extend(true, {}, self.updateOptions, self.options, userOptions, {data: data});
-                    return $.ajax(source, options);
-                },
-                insert: function(data, userOptions)
-                {
-                    var options = $.extend(true, {}, self.insertOptions, self.options, userOptions, {data: data});
-                    return $.ajax(source, options);
-                },
-                remove: function()
-                {
-                    var options = $.extend(true, {}, self.removeOptions, self.options);
-                    return $.ajax(source, options);
-                }
+                
+                read: function(userOptions){ return reqFnc({}, self.readOptions, userOptions); },
+                
+                update: function(data, userOptions){ return reqFnc(data, self.updateOptions, userOptions); },
+                
+                insert: function(data, userOptions){ return reqFnc(data, self.insertOptions, userOptions); },
+                
+                remove: function(userOptions){ return reqFnc({}, self.removeOptions, userOptions); }
             };
         },
+        href: function(source){ return source; },
+        reset: $.noop,
         // bunch of options for each type of operation 
         options: {},
         readOptions: {dataType: 'json', type: 'get', headers: {'Accept' : 'text/json'}},
@@ -95,7 +92,6 @@ define('gizmo', ['jquery'], function()
         {
             this._changed = false;
             this.data = {}; 
-            this._xfilter = null;
             this._clientHash = null;
             if( typeof data == 'string' ) this.href = data;
             if( typeof data == 'object' ) $.extend(this.data, data);
@@ -107,14 +103,6 @@ define('gizmo', ['jquery'], function()
          * adapter for data sync
          */
         syncAdapter: Sync,
-        /*!
-         * custom functionality for ally-py api
-         */
-        xfilter: function(data)
-        {
-            this._xfilter = {headers: {'X-Filter': arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(data) ? data.join(',') : data}};
-            return this;
-        },
         /*!
          * @param format
          */
@@ -154,20 +142,19 @@ define('gizmo', ['jquery'], function()
             }
             
             if( this._changed ) // if changed do an update on the server and return
-                ret = (this.href && dataAdapter(this.href).update(this.feed(), this._xfilter).done(function()
+                ret = (this.href && dataAdapter(this.href).update(this.feed()).done(function()
                 {
                     self._changed = false;
                     $(self).triggerHandler('update');
                 })); 
             else
                 // simply read data from server
-                ret = (this.href && dataAdapter(this.href).read(this._xfilter).done(function(data)
+                ret = (this.href && dataAdapter(this.href).read().done(function(data)
                 {
                     self.parse(data);
                     $(self).triggerHandler('read');
                 }));
             
-            this._xfilter = null;
             return ret;
         },
         remove: function()
