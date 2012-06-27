@@ -4,7 +4,7 @@ define('gizmo', ['jquery'], function()
     { 
         this._forDelete = false;
         this._changed = false;
-        this._data = {};
+        this.data = {};
     },
     Uniq = function()
     { 
@@ -97,7 +97,7 @@ define('gizmo', ['jquery'], function()
             if( typeof data == 'object' ) $.extend(this.data, data);
             if( options && typeof options == 'object' ) $.extend(this, options);
             
-            return this.pushUnique();
+            return this.pushUnique ? this.pushUnique() : this;
         },
         /*!
          * adapter for data sync
@@ -124,7 +124,7 @@ define('gizmo', ['jquery'], function()
                 return dataAdapter(arguments[0] || this.href).remove().done(function()
                 { 
                     $(self).triggerHandler('delete');
-                    self._uniq.remove(self.hash());
+                    self._uniq && self._uniq.remove(self.hash());
                 });
             
             if( this._clientHash ) // handle insert
@@ -133,9 +133,8 @@ define('gizmo', ['jquery'], function()
                 return dataAdapter(href).insert(this.feed()).done(function(data)
                 {
                     self._changed = false;
-                    //console.log('insert', href, data);
                     self.parse(data);
-                    self._uniq.replace(self._clientHash, self.hash(), self);
+                    self._uniq && self._uniq.replace(self._clientHash, self.hash(), self);
                     self._clientHash = null;
                     $(self).triggerHandler('insert');
                 }); 
@@ -282,7 +281,7 @@ define('gizmo', ['jquery'], function()
     };
     // Model's base options
     var options = Model.options = {}, extendFnc;
-    Model.extend = extendFnc = function(props)
+    Model.extend = extendFnc = function(props, userProto)
     {
         var proto = new this;
         for( var name in props ) proto[name] = props[name];
@@ -301,8 +300,9 @@ define('gizmo', ['jquery'], function()
         // create a new property from original options one
         Model.prototype.options = $.extend({}, options);
         Model.prototype.constructor = Model;
+        // extend with user defined proto
+        userProto && $.extend(Model.prototype, userProto);
         Model.extend = extendFnc;
-        
         return Model;
     };
     
