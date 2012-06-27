@@ -48,27 +48,28 @@ define('gizmo', ['jquery'], function()
     
     Sync = 
     {
-        dataAdapter: function(source)
+        request: function(source)
         {
+            var self = this;
             return { 
                 read: function(userOptions)
-                { 
-                    var options = $.extend({}, Sync.readOptions, Sync.options, userOptions);
+                {
+                    var options = $.extend(true, {}, self.readOptions, self.options, userOptions);
                     return $.ajax(source, options); 
                 },
                 update: function(data, userOptions)
                 {
-                    var options = $.extend({}, Sync.updateOptions, Sync.options, userOptions, {data: data});
+                    var options = $.extend(true, {}, self.updateOptions, self.options, userOptions, {data: data});
                     return $.ajax(source, options);
                 },
                 insert: function(data, userOptions)
                 {
-                    var options = $.extend({}, Sync.insertOptions, Sync.options, userOptions, {data: data});
+                    var options = $.extend(true, {}, self.insertOptions, self.options, userOptions, {data: data});
                     return $.ajax(source, options);
                 },
                 remove: function()
                 {
-                    var options = $.extend({}, Sync.removeOptions, Sync.options);
+                    var options = $.extend(true, {}, self.removeOptions, self.options);
                     return $.ajax(source, options);
                 }
             };
@@ -105,7 +106,7 @@ define('gizmo', ['jquery'], function()
         /*!
          * adapter for data sync
          */
-        dataAdapter: Sync.dataAdapter,
+        syncAdapter: Sync,
         /*!
          * custom functionality for ally-py api
          */
@@ -129,10 +130,10 @@ define('gizmo', ['jquery'], function()
          */
         sync: function()
         { 
-            var self = this, ret;
+            var self = this, ret, dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
             
             if( this._forDelete ) // handle delete
-                return this.dataAdapter(arguments[0] || this.href).remove().done(function()
+                return dataAdapter(arguments[0] || this.href).remove().done(function()
                 { 
                     $(self).triggerHandler('delete');
                     self._uniq.remove(self.hash());
@@ -141,7 +142,7 @@ define('gizmo', ['jquery'], function()
             if( this._clientHash ) // handle insert
             {
                 var href = arguments[0] || this.href;
-                return this.dataAdapter(href).insert(this.feed()).done(function(data)
+                return dataAdapter(href).insert(this.feed()).done(function(data)
                 {
                     self._changed = false;
                     //console.log('insert', href, data);
@@ -153,14 +154,14 @@ define('gizmo', ['jquery'], function()
             }
             
             if( this._changed ) // if changed do an update on the server and return
-                ret = (this.href && this.dataAdapter(this.href).update(this.feed(), this._xfilter).done(function()
+                ret = (this.href && dataAdapter(this.href).update(this.feed(), this._xfilter).done(function()
                 {
                     self._changed = false;
                     $(self).triggerHandler('update');
                 })); 
             else
                 // simply read data from server
-                ret = (this.href && this.dataAdapter(this.href).read(this._xfilter).done(function(data)
+                ret = (this.href && dataAdapter(this.href).read(this._xfilter).done(function(data)
                 {
                     self.parse(data);
                     $(self).triggerHandler('read');
@@ -242,13 +243,13 @@ define('gizmo', ['jquery'], function()
      */
     Uniq.prototype = 
     {
-        items: {}, counts: {}, instances: [],
+        items: {}, counts: {}, instances: [], startCount: 10,
         /*!
          * 
          */
         get: function( obj, key )
         {
-            this.counts[key] = this.counts[key] ? this.counts[key]+1 : 10;
+            this.counts[key] = this.counts[key] ? this.counts[key]+1 : this.startCount;
             return this.items[key];
         },
         /*!
@@ -258,7 +259,7 @@ define('gizmo', ['jquery'], function()
         {
             if( !this.items[key] ) this.items[key] = val;
             this.garbage();
-            this.counts[key] = this.counts[key] ? this.counts[key]+1 : 10;
+            this.counts[key] = this.counts[key] ? this.counts[key]+1 : this.startCount;
             return this.items[key];
         },
         /*!
@@ -314,6 +315,7 @@ define('gizmo', ['jquery'], function()
         Model.prototype.options = $.extend({}, options);
         Model.prototype.constructor = Model;
         Model.extend = extendFnc;
+        
         return Model;
     };
     
@@ -348,7 +350,7 @@ define('gizmo', ['jquery'], function()
                 }
             return this;
         },
-        dataAdapter: Sync.dataAdapter,
+        syncAdapter: Sync,
         /*!
          * 
          */
@@ -364,7 +366,7 @@ define('gizmo', ['jquery'], function()
         {
             var self = this;
             return (this.options.href &&
-                this.dataAdapter(this.options.href).read(/*HARDCODE*/{headers: {'X-Filter': 'Id'}}).done(function(data)
+                this.syncAdapter.request.call(this.syncAdapter, this.options.href).read(/*HARDCODE*/{headers: {'X-Filter': 'Id'}}).done(function(data)
                 {
                     self.parse(data);
 
@@ -410,5 +412,5 @@ define('gizmo', ['jquery'], function()
         }
     };
     
-    return { Model: Model, Collection: Collection };
+    return { Model: Model, Collection: Collection, Sync: Sync };
 })
