@@ -74,6 +74,14 @@ define(function()
                 "FirstName": "Person", 
                 "EMail": "person@email.com"
             },
+            "Person/2":
+            {
+                "Collaborator": {"href": "Person/2/Collaborator"}, 
+                "FullName": "Test Person 2", 
+                "Id": "2", 
+                "FirstName": "Person", 
+                "EMail": "le-person@email.com"
+            },
             "Person/1/Collaborator":
             {
                 
