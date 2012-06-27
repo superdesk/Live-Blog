@@ -168,12 +168,29 @@ define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data
             var p = new authModel('Person/1');
             $(p).on('read', function()
             {
-                ok(this.get('Collaborator').href == "my/Person/1/Collaborator", 'model reads authenticated resources');
+                ok(this.get('Collaborator').href == "my/Person/1/Collaborator", 
+                        'model reads authenticated resources');
             });
             // a bit of testing on xfilter as well
             p.xfilter('Id', 'Name').sync();
+            
+            var notUniqueModel = giz.Model.extend({},
+                {
+                    pushUnique: null,
+                    _uniq: null
+                }),
+                p1 = new notUniqueModel('Person/1'),
+                p2 = new notUniqueModel('Person/1');
+            
+            $.when( p1.sync(), p2.sync() ).then(function()
+            {
+                p1.set('FullName', 'Something else');
+                ok(p1.data.FullName != p2.data.FullName, 'can override unique behavior');
+            });
+            
             start();
-        })
+            
+        });
     };
     
     return {run: run};
