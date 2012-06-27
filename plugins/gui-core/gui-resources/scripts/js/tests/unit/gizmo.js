@@ -135,6 +135,17 @@ define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data
             });
             p.sync();
         });
+        
+        test("can be extended", function()
+        {
+            var newSync = $.extend({}, giz.Sync, 
+            {
+                options: { headers: { 'Authentication': 1 } }
+            }),
+            X = giz.Model.extend({ syncAdapter: newSync });
+                
+            ok((new X).syncAdapter.options.headers.Authentication == 1, 'has new "sync" object with slightly different options');
+        })
     };
     
     return {run: run};
