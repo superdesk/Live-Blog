@@ -1,19 +1,27 @@
 define(['gizmo', 
-        'gui/superdesk/livedesk/scripts/js/models/collaborator',
-        'gui/superdesk/livedesk/scripts/js/models/post'], 
+        /*'gui/superdesk/livedesk/scripts/js/models/collaborator',
+        'gui/superdesk/livedesk/scripts/js/models/post'*/], 
 function(giz, Collaborator, Post)
 {
     return {init: function(){
-        
-        
-        
+
+        var newSync = $.extend({}, giz.Sync, 
+        {
+            options: { headers: { 'Authentication': 1 } }
+        }),
+        X = giz.Model.extend({ dataAdapter: newSync.dataAdapter });
+    
+    console.log(X.prototype.dataAdapter('http://localhost:8080/resources/my/Superdesk/Collaborator/22').read());
+
+    
+    
     //console.clear();
     //giz.Model.options.x = 'y';
     //console.dir('-----', giz.Model.options);
     //var c = new Collaborator('http://localhost:8080/resources/Superdesk/Collaborator/22');
-    var p = new giz.Collection('http://localhost:8080/resources/Superdesk/Collaborator/', Collaborator);
+    //var p = new giz.Collection('http://localhost:8080/resources/Superdesk/Collaborator/', Collaborator);
 
-        p.get(50).done(function(Colab){ Colab && Colab.remove().sync() });
+    //    p.get(50).done(function(Colab){ Colab && Colab.remove().sync() });
         
     //p.set({'Source': 1, 'Person': 1})
     //    .sync('http://localhost:8080/resources/Superdesk/Collaborator/')
