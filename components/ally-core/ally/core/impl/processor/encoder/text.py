@@ -11,8 +11,8 @@ Provides the text encoder processor handler that creates text objects to be enco
 
 from .text_base import EncoderTextBaseHandler
 from ally.container.ioc import injected
+from ally.core.spec.meta import Meta, Object, Value, Collection
 import logging
-from ally.core.spec.meta import Meta, Object, Value, Attributed, Collection
 
 # --------------------------------------------------------------------
 
@@ -41,8 +41,6 @@ class EncoderTextHandler(EncoderTextBaseHandler):
         '''
         return self.encoder(self.convertMeta(meta), charSet)
 
-    # --------------------------------------------------------------------
-
     def convertMeta(self, meta):
         '''
         Convert the provided meta to a text object.
@@ -56,16 +54,11 @@ class EncoderTextHandler(EncoderTextBaseHandler):
 
         if isinstance(meta, Object):
             assert isinstance(meta, Object)
-            return {prop.identifier:self.convertMeta(prop) for prop in meta.properties}
+            return {meta.identifier:{prop.identifier:self.convertMeta(prop) for prop in meta.properties}}
 
         if isinstance(meta, Collection):
             assert isinstance(meta, Collection)
-            obj = {meta.identifier:[self.convertMeta(item) for item in meta.items]}
-            if isinstance(meta, Attributed):
-                assert isinstance(meta, Attributed)
-                for attr in meta.attributes: obj[attr.identifier] = self.convertMeta(attr)
-            return obj
-
+            return {meta.identifier:[self.convertMeta(item) for item in meta.items]}
 
         assert isinstance(meta, Value), 'Unknown meta %s' % meta
         return meta.value

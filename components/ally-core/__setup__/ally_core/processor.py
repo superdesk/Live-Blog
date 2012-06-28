@@ -20,6 +20,7 @@ from ally.core.impl.processor.text_conversion import ConversionSetHandler
 from ally.core.spec.resources import Normalizer, Converter
 from ally.design.processor import Handler, Assembly
 from ally.core.impl.processor.encoding_meta import EncodingMetaHandler
+from ally.core.impl.processor.explain_error import ExplainErrorHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -79,6 +80,9 @@ def invoking() -> Handler: return InvokingHandler()
 def encodingMeta() -> Handler: return EncodingMetaHandler()
 
 @ioc.entity
+def explainError(): return ExplainErrorHandler()
+
+@ioc.entity
 def encoding() -> Handler:
     b = EncodingHandler()
     b.charSetDefault = default_characterset()
@@ -90,4 +94,4 @@ def encoding() -> Handler:
 @ioc.before(assemblyResources)
 def updateAssemblyResourcesForCore():
     assemblyResources().add(argumentsPrepare(), methodInvoker(), conversion(), argumentsBuild(), invoking(),
-                            encodingMeta(), encoding())
+                            encodingMeta(), explainError(), encoding())
