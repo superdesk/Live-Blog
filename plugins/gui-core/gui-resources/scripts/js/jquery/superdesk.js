@@ -2,7 +2,7 @@ define(['jquery','jquery/rest','history','history/adapter'], function ($) {
 
 var superdesk = 
 {
-    apiUrl: config.api_url, 
+    apiUrl: typeof config !== 'undefined' ? config.api_url : '', 
 	/*!
 	 * repository for templates
 	 */

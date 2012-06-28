@@ -9,9 +9,8 @@ define('gizmo', ['jquery'], function()
     Uniq = function()
     { 
         this.items = {}; 
-        this.counts = {};
-        $(this.instances).trigger('garbage');
-        this.instances.push(this);
+        //$(this.instances).trigger('garbage');
+        //this.instances.push(this);
     },
     Collection = function()
     {
@@ -79,7 +78,7 @@ define('gizmo', ['jquery'], function()
         removeOptions: {type: 'get', headers: {'X-HTTP-Method-Override': 'DELETE'}}
     };
         
-    
+    var uniqueIdCounter = 0;
     Model.prototype = 
     {
         _changed: false,
@@ -96,6 +95,9 @@ define('gizmo', ['jquery'], function()
             if( typeof data == 'string' ) this.href = data;
             if( typeof data == 'object' ) $.extend(this.data, data);
             if( options && typeof options == 'object' ) $.extend(this, options);
+         
+            //this.exTime = new Date
+            //this.exTime.setMinutes(this.exTime.getMinutes() + 5);
             
             return this.pushUnique ? this.pushUnique() : this;
         },
@@ -117,8 +119,11 @@ define('gizmo', ['jquery'], function()
          * data sync call
          */
         sync: function()
-        { 
+        {    
             var self = this, ret, dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
+            
+            // trigger an event before sync
+            $(self).triggerHandler('sync');
             
             if( this._forDelete ) // handle delete
                 return dataAdapter(arguments[0] || this.href).remove().done(function()
@@ -191,6 +196,7 @@ define('gizmo', ['jquery'], function()
         },
         get: function(key)
         {
+            $(this).triggerHandler('get-prop');
             return this.data[key];
         },
         set: function(key, val)
@@ -207,7 +213,7 @@ define('gizmo', ['jquery'], function()
          */
         _getClientHash: function()
         {
-            if( !this._clientHash ) this._clientHash = (new Date()).getTime();
+            if( !this._clientHash ) this._clientHash = "mcid-"+String(uniqueIdCounter++);
             return this._clientHash;
         },
         /*!
@@ -229,23 +235,22 @@ define('gizmo', ['jquery'], function()
      */
     Uniq.prototype = 
     {
-        items: {}, counts: {}, instances: [], startCount: 10,
-        /*!
-         * 
-         */
-        get: function( obj, key )
+        items: {}, 
+        garbageTime: 1500, //300000,
+        refresh: function(val)
         {
-            this.counts[key] = this.counts[key] ? this.counts[key]+1 : this.startCount;
-            return this.items[key];
+            if( !val._exTime ) val._exTime = new Date;
+            val._exTime.setTime(val._exTime.getTime() + this.garbageTime); 
         },
         /*!
          * 
          */
         set: function(key, val)
         {
+            var self = this;
+            $(val).on('sync get get-prop set-prop', function(){ self.refresh(this); });
+            self.refresh(val);
             if( !this.items[key] ) this.items[key] = val;
-            this.garbage();
-            this.counts[key] = this.counts[key] ? this.counts[key]+1 : this.startCount;
             return this.items[key];
         },
         /*!
@@ -254,7 +259,6 @@ define('gizmo', ['jquery'], function()
         replace: function(key, newKey, val)
         {
             delete this.items[key];
-            delete this.counts[key];
             return this.set(newKey, val);
         },
         /*!
@@ -262,46 +266,44 @@ define('gizmo', ['jquery'], function()
          */
         garbage: function()
         {
-            for( var key in this.counts ) 
+            //console.log('running garbage on '+Object.keys(this.items).length+' items');
+            for( var key in this.items ) 
             {
-                this.counts[key]--;
-                if( this.counts[key] == 0 )
+                if( this.items[key]._exTime && this.items[key]._exTime < new Date ) 
                 {
+                    //console.log('removing model: '+key);
                     $(this.items[key]).triggerHandler('garbage');
                     delete this.items[key];
-                    delete this.counts[key];
-                }
+                }    
             }
         },
         remove: function(key)
         {
             delete this.items[key];
-            delete this.counts[key];
         }
     };
     // Model's base options
-    var options = Model.options = {}, extendFnc;
-    Model.extend = extendFnc = function(props, userProto)
+    var options = Model.options = {}, 
+    extendFnc = function(props)
     {
         var proto = new this;
+//            uniq = new Uniq;
+//        proto.pushUnique = function()
+//        {
+//            return uniq.set(this.hash(), this);
+//        };
+//        proto._uniq = uniq;
+        $.extend(proto, props);
         for( var name in props ) proto[name] = props[name];
         
         function Model()
         {
             if( this._construct ) return this._construct.apply(this, arguments);
         };
-        var uniq = new Uniq;
         Model.prototype = proto;
-        Model.prototype.pushUnique = function()
-        {
-            return uniq.set(this.hash(), this);
-        };
-        Model.prototype._uniq = uniq;
         // create a new property from original options one
         Model.prototype.options = $.extend({}, options);
         Model.prototype.constructor = Model;
-        // extend with user defined proto
-        userProto && $.extend(Model.prototype, userProto);
         Model.extend = extendFnc;
         return Model;
     };
@@ -395,9 +397,12 @@ define('gizmo', ['jquery'], function()
         {
             this.desynced = false;
             if( !(model instanceof Model) ) model = new this.model(model);
+            this._list.push(model);
             return model.sync(this.options.href);
         }
     };
     
-    return { Model: Model, Collection: Collection, Sync: Sync };
-})
+    Model.extend = Collection.extend = extendFnc;
+    
+    return { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq };
+});
