@@ -25,12 +25,13 @@ from ally.core.impl.meta.general import obtainOnDict, setterOnDict, getterChain,
     getterOnDict, getterOnObjIfIn, Conversion
 from ally.core.spec.codes import ILLEGAL_PARAM, Code
 from ally.core.spec.meta import IMetaDecode, IMetaEncode, SAMPLE, Value, Object, \
-    Collection
+    Collection, Meta
 from ally.core.spec.resources import Invoker, Path, Node, INodeInvokerListener, \
     Normalizer
 from ally.design.context import Context, requires, defines
 from ally.design.processor import HandlerProcessorProceed
 from collections import deque
+from itertools import chain
 from weakref import WeakKeyDictionary
 import logging
 import random
@@ -59,9 +60,13 @@ class Response(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
-    message = defines(str, doc='''
+    errorMessage = defines(str, doc='''
     @rtype: object
-    A message for the code, can be any object that can be used by the framework for reporting an error.
+    The error message for the code.
+    ''')
+    errorDetails = defines(Meta, doc='''
+    @rtype: Meta
+    The error meta describing a detailed situation for the error.
     ''')
 
 # --------------------------------------------------------------------
@@ -131,8 +136,10 @@ class ParameterHandler(HandlerProcessorProceed, INodeInvokerListener):
 
             illegal = []
             while request.parameters:
-                name, value = request.parameters.popleft()
-                if not decode.decode(name, value, request.arguments, request): illegal.append((name, value))
+                name, value = request.parameters[0]
+                del request.parameters[0]
+                if not decode.decode(name, value, request.arguments, request):
+                    illegal.append((name, value))
 
             if illegal:
                 encode = self._cacheEncode.get(request.invoker)
@@ -144,20 +151,18 @@ class ParameterHandler(HandlerProcessorProceed, INodeInvokerListener):
 
                 response.code, response.text = ILLEGAL_PARAM, 'Illegal parameter'
                 sample = encode.encode(SAMPLE, request)
+                metaIllegal = (Object('illegal', (Value('name', name) for name, _value in illegal)),)
                 if sample is None:
-                    response.message = 'No parameters are allowed on this URL.\nReceived parameters \'%s\''
-                    response.message %= ','.join(name for name, _value in illegal)
+                    response.errorMessage = 'No parameters are allowed on this URL'
+                    response.errorDetails = Collection('parameters', metaIllegal)
                 else:
-                    assert isinstance(sample, Object), 'Invalid sample %s' % sample
-                    allowed = []
-                    for meta in sample.properties:
-                        assert isinstance(meta, Value), 'Invalid meta %s' % meta
-                        if isinstance(meta.value, str): value = meta.value
-                        else: value = meta.value
-                        allowed.append('%s=%s' % (meta.identifier, meta.value))
-                    #TODO: make the parameters message more user friendly
-                    response.message = 'Illegal parameter or value:\n%s\nthe allowed parameters are:\n%s'
-                    response.message %= ('\n'.join('%s=%s' % param for param in illegal), '\n'.join(allowed))
+                    assert isinstance(sample, Collection), 'Invalid sample %s' % sample
+
+                    metaSample = (Object('sample', (Value('name', meta.identifier), Value('expected', meta.value)))
+                                  for meta in sample.items)
+
+                    response.errorMessage = 'Illegal parameter or value'
+                    response.errorDetails = Collection('parameter', chain(metaIllegal, (Object('sample', metaSample),)))
 
     # ----------------------------------------------------------------
 

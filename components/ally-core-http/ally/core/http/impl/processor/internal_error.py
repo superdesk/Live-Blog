@@ -18,6 +18,11 @@ from io import BytesIO, StringIO
 from types import GeneratorType
 import traceback
 from ally.support.util_io import readGenerator, convertToBytes
+import logging
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -70,6 +75,7 @@ class InternalErrorHandler(HandlerProcessor):
             chain.process(response=response, responseCnt=responseCnt, **keyargs)
             # We process the chain internally so we might cache any exception.
         except:
+            log.exception('Exception occurred while processing the chain')
             error = StringIO()
             traceback.print_exc(file=error)
         else:
@@ -80,6 +86,7 @@ class InternalErrorHandler(HandlerProcessor):
                 try:
                     for bytes in responseCnt.source: content.write(bytes)
                 except:
+                    log.exception('Exception occurred while processing the chain')
                     error = StringIO()
                     traceback.print_exc(file=error)
                 else:
