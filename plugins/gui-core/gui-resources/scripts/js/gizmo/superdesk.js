@@ -1,6 +1,8 @@
-define(['gizmo', 'jquery/superdesk'], function(giz, superdesk)
+define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
 {
-    var newSync = $.extend({}, giz.Sync, 
+    var Model = giz.Model.extend({}),
+    
+    newSync = $.extend({}, giz.Sync, 
     {
         options: { headers: { 'Authentication': 1 } },
         href: function(source)
@@ -12,6 +14,7 @@ define(['gizmo', 'jquery/superdesk'], function(giz, superdesk)
             try{ delete this.options.headers['X-Filter']; }catch(e){}
         }
     }),
+    
     authModel = giz.Model.extend
     ({ 
         syncAdapter: newSync,
@@ -23,5 +26,15 @@ define(['gizmo', 'jquery/superdesk'], function(giz, superdesk)
             return this;
         }
     });
-    return {Model: giz.Model, AuthModel: authModel, Collection: giz.Collection, Sync: newSync}
+    
+    Model.extend = function()
+    {
+        var Model = giz.Model.extend.apply(this, arguments);
+        
+        var uniq = new giz.UniqueContainer;
+        $.extend( Model.prototype, { _uniq: uniq, pushUnique: function(){ return uniq.set(this.hash(), this); } }, arguments[0] );
+        return Model;
+    };
+    
+    return { Model: Model, AuthModel: authModel, Collection: giz.Collection, Sync: newSync };
 });
