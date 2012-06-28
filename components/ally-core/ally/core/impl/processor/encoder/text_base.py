@@ -80,7 +80,7 @@ class EncoderTextBaseHandler(HandlerProcessor):
             source = self.renderMeta(responseCnt.meta, responseCnt.charSet)
             responseCnt.source = convertToBytes(source, responseCnt.charSet, self.encodingError)
 
-            return # We need to stop the chain if we war able to provide the encoding
+            return # We need to stop the chain if we have been able to provide the encoding
 
         chain.proceed()
 

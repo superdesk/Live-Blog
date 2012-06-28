@@ -85,6 +85,7 @@ class ContentLengthDecodeHandler(HandlerProcessorProceed):
                 return
             else: requestCnt.source = StreamLengthLimited(requestCnt.source, requestCnt.length)
 
+#TODO: maybe place this in an input content handler that uses length for handling the input.
 class StreamLengthLimited(IStream):
     '''
     Provides a class that implements the @see: IStream that limits the reading from another stream based on the

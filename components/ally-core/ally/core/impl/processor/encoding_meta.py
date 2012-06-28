@@ -87,19 +87,19 @@ class EncodingMetaHandler(HandlerProcessorProceed):
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
+        if ResponseContent.meta in responseCnt: return # Skip in case the response content has a meta
 
         assert isinstance(response.metaForType, Type), 'Invalid response meta for type %s' % response.metaForType
 
         encoder = self._cacheEncode.get(response.metaForType)
-        if encoder is not None: return encoder
-
-        encoder = self.encodeType(response.metaForType)
         if encoder is None:
-            response.code, response.text = BAD_CONTENT, 'Cannot encode response object'
-            return
-        assert isinstance(encoder, IMetaEncode), 'Invalid meta encoder %s' % encoder
+            encoder = self.encodeType(response.metaForType)
+            if encoder is None:
+                response.code, response.text = BAD_CONTENT, 'Cannot encode response object'
+                return
+            assert isinstance(encoder, IMetaEncode), 'Invalid meta encoder %s' % encoder
 
-        self._cacheEncode[response.metaForType] = encoder
+            self._cacheEncode[response.metaForType] = encoder
 
         responseCnt.meta = encoder.encode(response.obj, responseCnt)
 

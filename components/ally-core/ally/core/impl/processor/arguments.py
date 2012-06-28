@@ -76,6 +76,7 @@ class ArgumentsBuildHandler(HandlerProcessorProceed):
         Transpose the additional arguments into the main arguments.
         '''
         assert isinstance(request, Request), 'Invalid request %s' % request
+        if Request.invoker not in request: return # If there is no invoker it means that no arguments need to be processed
         assert isinstance(request.path, Path), 'Invalid request path %s' % request.path
         assert isinstance(request.invoker, Invoker), 'Invalid request invoker %s' % request.invoker
 

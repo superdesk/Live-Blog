@@ -11,6 +11,7 @@ Provides the configurations for the processors encoders and decoders.
 
 from ally.container import ioc
 from ally.core.impl.processor.encoder.text import EncoderTextHandler
+from ally.core.impl.processor.encoder.xml import EncoderXMLHandler
 from ally.design.processor import Handler, Assembly
 
 # --------------------------------------------------------------------
@@ -82,6 +83,12 @@ def encoderYAML() -> Handler:
     b.encodingError = 'backslashreplace'
     b.encoder = encodeTextYAML()
 
+@ioc.entity
+def encoderXML() -> Handler:
+    b = EncoderXMLHandler(); yield b
+    b.contentTypes = content_types_xml()
+    b.encodingError = 'xmlcharrefreplace'
+
 # --------------------------------------------------------------------
 # Creating the decoding processors
 
@@ -90,6 +97,7 @@ def encoderYAML() -> Handler:
 @ioc.before(encodingAssembly)
 def updateEncodingAssembly():
     encodingAssembly().add(encoderJSON())
+    encodingAssembly().add(encoderXML())
     try: encodingAssembly().add(encoderYAML())
     except ImportError: pass
 
