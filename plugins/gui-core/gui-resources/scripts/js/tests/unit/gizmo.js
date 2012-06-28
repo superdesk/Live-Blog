@@ -1,5 +1,5 @@
-requirejs.config({ paths:{ jquery: '../jquery', gizmo: '../gizmo' }});
-define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data)
+requirejs.config({ paths:{ jquery: '../jquery', gizmo: '../gizmo', history: '../history' }});
+define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q, giz, data)
 {
     var xtest = xasyncTest = $.noop, 
     run = function()
@@ -49,6 +49,21 @@ define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data
             ajaxMap[url] || isDelete ? d.resolve(ajaxMap[url] || null) : d.reject();
             return d;
         };
+        
+        /*asyncTest("@_@", function()
+        {
+            var c = new giz.Collection('Collaborator/1/Post', Post),
+                p = new Post();
+            
+            $(c).on('read', function(){ console.log(c.getList(), Post.prototype._uniq.items);  });
+            c.sync();
+            
+            p.set({ "Author": 1, "Creator": 1, "Content": "GEN Live Desk" });
+            setTimeout(function(){ c.insert(p); c.sync(); }, 3000);
+            start();
+        });
+        
+        return;*/
         
         test("model should read complex data", function()
         {
@@ -174,17 +189,13 @@ define(['jquery', 'qunit', 'gizmo', 'unit/gizmo-data'], function($, q, giz, data
             // a bit of testing on xfilter as well
             p.xfilter('Id', 'Name').sync();
             
-            var notUniqueModel = giz.Model.extend({},
-                {
-                    pushUnique: null,
-                    _uniq: null
-                }),
+            var notUniqueModel = giz.Model.extend({ pushUnique: null, _uniq: null }),
                 p1 = new notUniqueModel('Person/1'),
                 p2 = new notUniqueModel('Person/1');
             
             $.when( p1.sync(), p2.sync() ).then(function()
             {
-                p1.set('FullName', 'Something else');
+                p1.set('FullName', p2.FullName + ' Something else');
                 ok(p1.data.FullName != p2.data.FullName, 'can override unique behavior');
             });
             
