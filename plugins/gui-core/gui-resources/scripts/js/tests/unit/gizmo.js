@@ -10,14 +10,16 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
         {
             ok( giz, 'gizmo defined' );
         });
+        
           
         // models
         var Post = giz.Model.extend({ defaults:{ Author: Collaborator }}),
             Source = giz.Model.extend(),
             Person = giz.Model.extend(),
+            ColabPost = giz.Collection.extend({model: Post}),
             Collaborator = giz.Model.extend({ defaults:
             { 
-                Post: [Post],
+                Post: ColabPost,
                 PostPublished: [Post],
                 PostUnpublished: [Post],
                 Source: Source,
@@ -26,6 +28,9 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             // this should be solved by require.js
             Post.prototype.defaults.Author = Collaborator;
 
+        //console.dir(new giz.Collection('Collaborator/1/Post/Published', Post));
+        //return;  
+            
         // hacks
         ajaxMap = data.ajaxMap;
         $.ajax = function( url, options ) 
@@ -36,7 +41,7 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
                 isDelete = options.type && options.type == 'get' && 
                             options.headers && options.headers['X-HTTP-Method-Override'] && 
                             options.headers['X-HTTP-Method-Override'] == "DELETE";
-            
+
             if( ajaxMap[url] && isInsert ) // simulate insert
                 for( var i in ajaxMap[url] )
                 { 
@@ -50,21 +55,6 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             return d;
         };
         
-        /*asyncTest("@_@", function()
-        {
-            var c = new giz.Collection('Collaborator/1/Post', Post),
-                p = new Post();
-            
-            $(c).on('read', function(){ console.log(c.getList(), Post.prototype._uniq.items);  });
-            c.sync();
-            
-            p.set({ "Author": 1, "Creator": 1, "Content": "GEN Live Desk" });
-            setTimeout(function(){ c.insert(p); c.sync(); }, 3000);
-            start();
-        });
-        
-        return;*/
-        
         test("model should read complex data", function()
         {
             var c = new Collaborator('Collaborator/1');
@@ -76,7 +66,7 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             });
             c.sync();
         });
-        
+
         asyncTest("should handle insert", function()
         {
             var p = new Post(),
@@ -96,7 +86,6 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             {  
                 ok(event.type == 'insert', 'triggers "insert" handler');
                 csync();
-                start();    
             });
             p.set({ 'Author': 1, 'Content': 'Test content', 'Id': 3})
                 .sync('Collaborator/1/Post/Published');
@@ -104,8 +93,9 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             // insert from collection
             var p1 = new Post;
             p1.set({ 'Author': 1, 'Content': 'Test content', 'Id': 4});
-            c.insert(p1).done(csync); 
+            c.insert(p1).done(csync);
             c.insert({ 'Author': 1, 'Content': 'Test content', 'Id': 4}).done(csync);
+            start();
         });
         
         asyncTest("should handle update", function()
@@ -149,6 +139,7 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
                 });
             });
             p.sync();
+            start();
         });
         
         asyncTest("can be extended", function()
@@ -202,6 +193,15 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             start();
             
         });
+        
+        module('gizmo/superdesk.js');
+        
+        // TODO test for delete xfilter
+        test('differential sync', function()
+        {
+        //    console.log(new Post instanceof giz.AuthModel);
+        });
+        
     };
     
     return {run: run};
