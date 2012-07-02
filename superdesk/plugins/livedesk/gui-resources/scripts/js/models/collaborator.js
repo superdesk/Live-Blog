@@ -4,6 +4,7 @@ define(['gizmo',
         'gui/superdesk/livedesk/scripts/js/models/person'], 
 function(giz, Post, Source, Person)
 {
+    // Collaborator
     return giz.Model.extend
     ({ 
         defaults:
