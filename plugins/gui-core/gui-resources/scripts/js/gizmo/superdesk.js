@@ -1,32 +1,58 @@
 define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
 {
-    var Model = giz.Model.extend({}),
-    
-    newSync = $.extend({}, giz.Sync, 
+    var syncReset = function() // reset specific data and headers for superdesk
     {
-        options: { headers: { 'Authentication': 1 } },
+        try
+        { 
+            delete this.options.headers['X-Filter'];
+            delete this.options.data['startEx.CId'];
+        }
+        catch(e){}
+    }, 
+    newSync = $.extend({}, giz.Sync,
+    {
+        reset: syncReset
+    }),
+    authSync = $.extend({}, newSync, 
+    {
+        options: { headers: { 'Authorization': 1 } },
         href: function(source)
         {
-            return 'my/'+source;
-        },
-        reset: function()
-        {
-            try{ delete this.options.headers['X-Filter']; }catch(e){}
+            return source.indexOf('my/') === 0 ? source : 'my/'+source;
         }
     }),
-    
-    authModel = giz.Model.extend
-    ({ 
+    xfilter = function() // x-filter implementation
+    {
+        if( !this.syncAdapter.options.headers ) this.syncAdapter.options.headers = {};
+        this.syncAdapter.options.headers['X-Filter']
+            = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];
+        return this;
+    },
+    since = function(val) // change id implementation
+    {
+        $.extend( this.options, { data:{ 'startEx.CId': val }} );
+    },
+    Model = giz.Model.extend // superdesk Model 
+    ({
+        isDeleted: function(){ return this._forDelete && this.data.DeletedOn; },
         syncAdapter: newSync,
-        xfilter: function()
-        {
-            if( this.syncAdapter.options.headers ) this.syncAdapter.options.headers = {};
-            this.syncAdapter.options.headers['X-Filter']
-                = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(data) ? data.join(',') : data;
-            return this;
-        }
+        xfilter: xfilter,
+        since: since
+    }),
+    AuthModel = Model.extend // authenticated superdesk Model
+    ({ 
+        syncAdapter: authSync, xfilter: xfilter, since: since
+    }),
+    Collection = giz.Collection.extend
+    ({
+        xfilter: xfilter, since: since, syncAdapter: newSync
+    }),
+    AuthCollection = Collection.extend
+    ({
+        xfilter: xfilter, since: since, syncAdapter: authSync
     });
     
+    // finally add unique container model
     Model.extend = function()
     {
         var Model = giz.Model.extend.apply(this, arguments);
@@ -36,5 +62,9 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         return Model;
     };
     
-    return { Model: Model, AuthModel: authModel, Collection: giz.Collection, Sync: newSync };
+    return { 
+        Model: Model, AuthModel: AuthModel, 
+        Collection: Collection, AuthCollection: AuthCollection, 
+        Sync: newSync, AuthSync: authSync 
+    };
 });
