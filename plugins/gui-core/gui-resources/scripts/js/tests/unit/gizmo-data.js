@@ -42,10 +42,8 @@ define(function()
                 ], 
                 "total": "2"
             },
-            "Collaborator/1/Post/Published":
-            {
-                'PostList': []
-            },
+            "Collaborator/1/Post/Published":{ 'PostList': [] },
+            "my/Collaborator/1/Post/Published":{ 'PostList': [] },
             "Collaborator/1/Post/Unpublished":
             {
                 'PostList': []
