@@ -1,53 +1,64 @@
-define(['gizmo', 'gizmo/superdesk',
-        /*'gui/superdesk/livedesk/scripts/js/models/collaborator',
-        'gui/superdesk/livedesk/scripts/js/models/post'*/], 
-function(giz, superGizmo, Collaborator, Post)
+define(['gizmo/superdesk'], 
+function(giz)
 {
-    return {init: function(){
-
-        console.dir(superGizmo);
-        
-
-    
-    
-    //console.clear();
-    //giz.Model.options.x = 'y';
-    //console.dir('-----', giz.Model.options);
-    //var c = new Collaborator('http://localhost:8080/resources/Superdesk/Collaborator/22');
-    //var p = new giz.Collection('http://localhost:8080/resources/Superdesk/Collaborator/', Collaborator);
-
-    //    p.get(50).done(function(Colab){ Colab && Colab.remove().sync() });
-        
-    //p.set({'Source': 1, 'Person': 1})
-    //    .sync('http://localhost:8080/resources/Superdesk/Collaborator/')
-    //    .done(function(){ console.log(p); });
-    
-    //c.options.ceva = 'altceva';
-    //console.dir('-----', c.options);
-    //console.dir('-----', giz.Model.options);
-/*    
-    console.dir(c);
-    
-    c.sync().done(function()
+    giz.Model.prototype.syncAdapter.href = function(source)
     {
-        console.log('after sync');
-        c.get('Post').get('http://localhost:8080/resources/Superdesk/Post/2').done(function(){ console.log(arguments); });
-    });
-    setTimeout(function(){ c.sync(); }, 3000);
-*/    
+        return 'http://localhost:8080/resources/'+source;
+    };
+    giz.AuthModel.prototype.syncAdapter.href = function(source)
+    {
+        return 'http://localhost:8080/resources/my/'+source;
+    };
+    giz.Collection.prototype.syncAdapter.href = function(source)
+    {
+        return 'http://localhost:8080/resources/'+source;
+    };
+
+    var PostType = giz.Model.extend({}),
+        PostTypes = new giz.Collection('Superdesk/PostType'),
+        Posts = new giz.Collection(),
+        PostOwned = new giz.Collection(),
+        PostPublished = new giz.Collection(),
+        PostUnpublished = new giz.Collection(),
+        User = giz.Model.extend(),
+        Language = giz.Model.extend(),
+        Blog = giz.AuthModel.extend({ defaults: 
+        {
+            Post: Posts,
+            PostOwned: PostOwned,
+            PostPublished: PostPublished,
+            PostUnpublished: PostUnpublished,
+            Creator: User,
+            Language: Language
+        }});
     
-        /*var Source = Model.extend(),
-    Collaborator = Model.extend({ defaults:{ Post: CollaboratorPost }}),
-    Post = Model.extend({ defaults:{ Author: Collaborator }}),
-    CollaboratorPost = new Collection({ model: Post }),
-    Collaborator = Model.extend
-    ({ 
-        defaults: { Post: CollaboratorPost, Source: Source } 
-    });
+    EditApp = function( theBlog ){ this.init( theBlog ); };
+    EditApp.prototype = 
+    {
+        init: function(theBlog)
+        {
+            theBlog = 'LiveDesk/Blog/1';
+            this.blogHref = theBlog;
+            blogHref = theBlog;
+            this.render();
+        },
+        render: function()
+        {
+            var self = this;
+            $(PostTypes).on('read', function(){ self.prerender(this.getList()); });
+            PostTypes.xfilter('Key').sync();
+        },
+        prerender: function(postTypes)
+        {
+            var b = new Blog(this.blogHref);
+            
+            $(b).on('read', function()
+            {
+                console.log(this, arguments);
+            });
+            b.xfilter('Creator.Name', 'Creator.Id').sync();
+        }
+    };
     
-var p = new Post('http://localhost:8080/resources/Superdesk/Post/1'); 
-    console.log(p.sync().done(function(){console.log(p)}))
-    */
-    
-    }};
+    new EditApp;
 });
