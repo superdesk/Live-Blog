@@ -105,7 +105,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if q and QBlogPost.isPublished in q:
             if q.isPublished.value: sql = sql.filter(BlogPostMapped.PublishedOn != None)
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
-        sql = sql.filter(BlogPostMapped.Author == None)
+        #sql = sql.filter(BlogPostMapped.Author == None)
 
         sql = sql.order_by(desc_op(BlogPostMapped.ordering))
         sql = buildLimits(sql, offset, limit)
