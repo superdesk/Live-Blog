@@ -1,4 +1,4 @@
-requirejs.config({ paths:{ jquery: '../jquery', gizmo: '../gizmo', history: '../history' }});
+requirejs.config({ paths:{ jquery: '../jquery', gizmo: '../gizmo', history: '../history', utils: '../utils' }});
 define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q, giz, data)
 {
     var xtest = xasyncTest = $.noop, 
@@ -195,6 +195,11 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
         });
         
         module('gizmo/superdesk.js');
+        
+        test('cross actions', function()
+        {
+            //Post.on('insert', function(){  })
+        });
         
         // TODO test for delete xfilter
         test('differential sync', function()
