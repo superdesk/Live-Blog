@@ -1,4 +1,4 @@
-define('gizmo', ['jquery'], function()
+define('gizmo', ['jquery', 'utils/class'], function($)
 {
     var Model = function(data){},
     Uniq = function()
@@ -107,6 +107,7 @@ define('gizmo', ['jquery'], function()
                     self._uniq && self._uniq.replace(self._clientHash, self.hash(), self);
                     self._clientHash = null;
                     $(self).triggerHandler('insert');
+                    $(self.class).trigger('insert');
                 });
             }
             
@@ -253,7 +254,7 @@ define('gizmo', ['jquery'], function()
     };
     // Model's base options
     var options = Model.options = {}, extendFnc, cextendFnc;
-    Model.extend = extendFnc = function(props)
+    /*Model.extend = extendFnc = function(props)
     {
         var proto = new this;
         $.extend(proto, props);
@@ -267,8 +268,23 @@ define('gizmo', ['jquery'], function()
         // create a new property from original options one
         Model.prototype.options = $.extend({}, options);
         Model.prototype.constructor = Model;
+        
         Model.extend = extendFnc;
         return Model;
+    };*/
+    
+    Model.extend = extendFnc = function(props)
+    {
+        var newly;
+        newly = Class.extend.call(this, props);
+        newly.extend = extendFnc;
+        newly.prototype.class= newly;
+        newly.on = function(event, handler, obj)
+        {
+            $(newly).on(event, function(evnt){ handler.call(obj, evnt); }); 
+        };
+        newly.trigger = function(event){ $(newly).triggerHandler(event); };
+        return newly;
     };
     
     Collection.prototype = 
@@ -405,6 +421,11 @@ define('gizmo', ['jquery'], function()
             model.hash();
             var x = model.sync(this.options.href);
             return x;
+        },
+        
+        on: function(evt, fun, obj)
+        {
+            $(this).on(evt, function(evnt){ fun.call(obj, evnt); });
         }
     };
     
@@ -424,7 +445,107 @@ define('gizmo', ['jquery'], function()
         Collection.prototype.constructor = Collection;
         Collection.extend = cextendFnc;
         return Collection;
-    };;
+    };
     
-    return { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq };
+    // view
+    
+    var Render = Class.extend
+    ({     
+        getProperty: function(prop)
+        {
+            if (!this[prop]) return null;
+            return (typeof this[prop] === 'function') ? this[prop]() : this[prop];
+        }
+    }),
+    View = Render.extend
+    ({
+        tagName: 'div',
+        attributes: { className: '', id: ''},
+        namespace: 'view',      
+        _constructor: function(data, options)
+        {
+            $.extend(this, data);
+            options = $.extend({}, { init: true, events: true, ensure: true}, options);
+            options.ensure && this._ensureElement();
+            options.init && this.init.apply(this, arguments);
+            options.events && this.delegateEvents();
+        },
+        _ensureElement: function()
+        {
+            var className = this.attributes.className,
+                id = this.attributes.id,
+                el ='';
+            if(!$(this.el).length) {
+                if($.isString(this.el)) {
+                    if(this.el[0]=='.') {
+                        className = className + this.el.substr(0,1);
+                    } 
+                    if(this.el[0]=='#') {
+                        id = this.el.substr(0,1);
+                    }
+                }
+                el = '<'+this.tagName;
+                if(className !== '') {
+                    el = el + ' class="'+className+'"';
+                }
+                if(id !== '') {
+                    el = el + ' id="'+id+'"';
+                }
+                el = el + '></'+this.tagName+'>';
+                this.el = $(el);
+            }
+        },      
+        init: function(){ return this; },
+        resetEvents: function()
+        {
+            this.undelegateEvents();
+            this.delegateEvents();
+        },
+        delegateEvents: function(events)
+        {
+            var self = this;
+            if (!(events || (events = this.getProperty('events')))) return;
+            for(var selector in events) {
+                var one = events[selector];
+                for(var evnt in one) {
+                    var other = one[evnt], sel = null, dat = {}, fn;
+                    if(typeof other === 'string') {
+                        fn  = other;
+                        if($.isFunction(self[fn])) {
+                            console.log(evnt + this.getNamespace(), selector, fn);
+                            console.log('it is: ',$(this.el));
+                            if(selector === "")
+                                $(this.el).on(evnt + this.getNamespace(), self[fn].bind(self));
+                            $(this.el).on(evnt + this.getNamespace(), selector, self[fn].bind(self));
+                        }
+                    }
+                }
+            }
+        },
+        getNamespace: function()
+        {
+            return '.'+this.getProperty('namespace');
+        },
+        undelegateEvents: function()
+        {
+            $(this.el).off(this.getNamespace());
+        },
+        render: function(){ 
+            
+            this.delegateEvents();
+            return this; 
+        },
+        remove: function()
+        {
+            $(this.el).remove();
+            return this;
+        },
+        setElement: function(el)
+        {
+            this.el = $(el);
+            this._ensureElement();
+        }
+    });
+    
+    return { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq, View: View };
 });
