@@ -9,9 +9,9 @@ function(giz, Post, Source, Person)
     ({ 
         defaults:
         { 
-            Post: [Post],
-            PostPublished: [Post],
-            PostUnpublished: [Post],
+            Post: new giz.Collection(Post),
+            PostPublished: new giz.Collection(Post),
+            PostUnpublished: new giz.Collection(Post),
             Source: Source,
             Person: Person
         }
