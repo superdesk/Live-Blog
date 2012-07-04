@@ -88,12 +88,12 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             var self = this, ret, dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
             this.hash();
             // trigger an event before sync
-            $(self).triggerHandler('sync');
+            self.triggerHandler('sync');
             
             if( this._forDelete ) // handle delete
                 return dataAdapter(arguments[0] || this.href).remove().done(function()
                 { 
-                    $(self).triggerHandler('delete');
+                    self.triggerHandler('delete');
                     self._uniq && self._uniq.remove(self.hash());
                 });
 
@@ -106,8 +106,8 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                     self.parse(data);
                     self._uniq && self._uniq.replace(self._clientHash, self.hash(), self);
                     self._clientHash = null;
-                    $(self).triggerHandler('insert');
-                    $(self.class).trigger('insert');
+                    self.triggerHandler('insert')
+						.class.trigger('insert');
                 });
             }
             
@@ -115,14 +115,14 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                 ret = (this.href && dataAdapter(this.href).update(this.feed()).done(function()
                 {
                     self._changed = false;
-                    $(self).triggerHandler('update');
+                    self.triggerHandler('update');
                 })); 
             else
                 // simply read data from server
                 ret = (this.href && dataAdapter(this.href).read().done(function(data)
                 {
                     self.parse(data);
-                    $(self).triggerHandler('read');
+                    self.triggerHandler('read');
                 }));
             
             return ret;
@@ -197,7 +197,39 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         /*!
          * used to relate models. a general standard key would suffice
          */
-        relationHash: function(val){ if(val) this.data.Id = val; return this.data.Id; }
+        relationHash: function(val){ if(val) this.data.Id = val; return this.data.Id; },
+		/*!
+		 * used to place events on this model, 
+		 * scope of the call method is sent as obj argument
+		 */
+		on: function(evt, handler, obj)
+		{
+			if(obj === undefined)
+				$(this).on(evt, handler);
+			else
+				$(this).on(evt, function(){
+					handler.call(obj, evt);
+				});
+			return this;
+		},	
+        /*!
+         * used to trigger model events
+		 * this also calls the model method with the event name
+         */
+		trigger: function(evt)
+		{
+			$(this).trigger(evt);
+			return this;
+		},
+        /*!
+         * used to trigger handle of model events
+		 * this doens't call any method see: trigger
+         */
+		triggerHandler: function(evt)
+		{
+			$(this).triggerHandler(evt);
+			return this;
+		}
     };
     
     /*!
@@ -283,6 +315,9 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         {
             $(newly).on(event, function(evnt){ handler.call(obj, evnt); }); 
         };
+        // create a new property from original options one
+        newly.prototype.options = $.extend({}, options);
+
         newly.trigger = function(event){ $(newly).triggerHandler(event); };
         return newly;
     };
@@ -356,6 +391,16 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             this.options.href = href;
             return this;
         },
+		each: function(fn){
+			$.each(this._list, fn);
+		},		
+        feed: function(format)
+        {
+            var ret = [];
+            for( var i in this._list ) 
+                ret[i] = this._list[i].feed();
+            return ret;
+        },		
         /*!
          * 
          */
@@ -422,11 +467,38 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             var x = model.sync(this.options.href);
             return x;
         },
-        
-        on: function(evt, fun, obj)
-        {
-            $(this).on(evt, function(evnt){ fun.call(obj, evnt); });
-        }
+		/*!
+		 * used to place events on this model, 
+		 * scope of the call method is sent as obj argument
+		 */
+		on: function(evt, handler, obj)
+		{
+			if(obj === undefined)
+				$(this).on(evt, handler);
+			else
+				$(this).on(evt, function(){
+					handler.call(obj, evt);
+				});
+			return this;
+		},	
+        /*!
+         * used to trigger model events
+		 * this also calls the model method with the event name
+         */
+		trigger: function(evt)
+		{
+			$(this).trigger(evt);
+			return this;
+		},
+        /*!
+         * used to trigger handle of model events
+		 * this doens't call any method see: trigger
+         */
+		triggerHandler: function(evt)
+		{
+			$(this).triggerHandler(evt);
+			return this;
+		}        
     };
     
     Collection.extend = cextendFnc = function(props)
@@ -512,8 +584,6 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                     if(typeof other === 'string') {
                         fn  = other;
                         if($.isFunction(self[fn])) {
-                            console.log(evnt + this.getNamespace(), selector, fn);
-                            console.log('it is: ',$(this.el));
                             if(selector === "")
                                 $(this.el).on(evnt + this.getNamespace(), self[fn].bind(self));
                             $(this.el).on(evnt + this.getNamespace(), selector, self[fn].bind(self));
