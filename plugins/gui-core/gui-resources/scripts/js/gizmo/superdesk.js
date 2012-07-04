@@ -65,6 +65,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     return { 
         Model: Model, AuthModel: AuthModel, 
         Collection: Collection, AuthCollection: AuthCollection, 
-        Sync: newSync, AuthSync: authSync 
+        Sync: newSync, AuthSync: authSync,
+		View: giz.View
     };
 });
