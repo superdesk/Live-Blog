@@ -32,10 +32,10 @@ define(['jquery', 'jquery/utils', 'utils/extend', 'utils/class'], function()
 		_constructor: function(data, options)
 		{
 			$.extend(this, data);
-			options = $.extend({}, { init: true, events: true, ensure: true}, options);
-			options.ensure && this._ensureElement();
+			options = $.extend({}, { init: true, element: true}, options);
+			options.element && this._ensureElement();
 			options.init && this.init.apply(this, arguments);
-			options.events && this.delegateEvents();
+			options.element && this.delegateEvents();
 		},
 		_ensureElement: function()
 		{
@@ -79,8 +79,6 @@ define(['jquery', 'jquery/utils', 'utils/extend', 'utils/class'], function()
 					if(typeof other === 'string') {
 						fn  = other;
 						if($.isFunction(self[fn])) {
-							console.log(evnt + this.getNamespace(), selector, fn);
-							console.log('it is: ',$(this.el));
 							if(selector === "")
 								$(this.el).on(evnt + this.getNamespace(), self[fn].bind(self));
 							$(this.el).on(evnt + this.getNamespace(), selector, self[fn].bind(self));
