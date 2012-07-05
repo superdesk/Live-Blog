@@ -146,9 +146,13 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                 if( this.defaults[i] )
                     switch(true)
                     {
-                        case typeof this.defaults[i] === 'function': // a model
+                        case typeof this.defaults[i] === 'function': // a model or collection constructor
+                            console.group('inside parse: ' + i)
+                            console.dir(this.defaults[i].prototype);
+                            console.dir(new this.defaults[i](data[i].href));
                             this.data[i] = new this.defaults[i](data[i].href);
-                            !data[i].href && this.data[i].relationHash(data[i]);
+                            //!data[i].href && this.data[i].relationHash(data[i]);
+                            console.groupEnd();
                             continue;
                             break;
                         case $.isArray(this.defaults[i]): // a collection
@@ -328,7 +332,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         getList: function(){ return this._list },
         _construct: function()
         {
-            this.model = Model;
+            if( !this.model ) this.model = Model;
             this._list = [];
             this.options = {};
             this.desynced = true;
@@ -421,7 +425,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                                 model = data.list[i];
                                 break;
                             }
-
+                        
                         if( !model ) self._list.push(data.list[i]);
                         else if( model.isDeleted() ) self._list[i].remove();
                     }
@@ -455,8 +459,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             list = [];
             for( var i in theData )
                 list.push( new this.model(theData[i]) );
-            
-            return {list: list, total: data.total}
+            return {list: list, total: data.total};
         },
         insert: function(model)
         {
@@ -503,6 +506,14 @@ define('gizmo', ['jquery', 'utils/class'], function($)
     
     Collection.extend = cextendFnc = function(props)
     {
+        var newly;
+        newly = Class.extend.call(this, props);
+        newly.extend = cextendFnc;
+        newly.prototype.class= newly;
+        newly.trigger = function(event){ $(newly).triggerHandler(event); };
+        return newly;
+    };
+    /*{
         var proto = new this;
         $.extend(proto, props);
         for( var name in props ) proto[name] = props[name];
@@ -517,7 +528,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         Collection.prototype.constructor = Collection;
         Collection.extend = cextendFnc;
         return Collection;
-    };
+    };*/
     
     // view
     
