@@ -8,7 +8,7 @@ function(providers)
         {
             var args = arguments;
             require(['providers','providers/colabs'], 
-                function(providers){ providers.colabs.init.apply(providers.colabs, args); });
+                function(providers){ providers.colabs.initTab.apply(providers.colabs, args); });
         }
     };
     return providers;
