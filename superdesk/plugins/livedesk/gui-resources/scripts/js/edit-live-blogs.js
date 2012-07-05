@@ -88,8 +88,8 @@ define([
             {
                 var el = $(e.target);
                 var idx = parseInt(el.attr('data-idx'));
-				providers[idx].el = $(el.attr('href'));		
-                providers[idx].init(theBlog);
+				providers[idx].el = $(el.attr('href'));	
+				providers[idx].init(theBlog);
             })
             .find('.actived a').tab('show');
             
