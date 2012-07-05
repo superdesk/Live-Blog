@@ -4,7 +4,7 @@ define(['gizmo/superdesk',
         'gui/superdesk/livedesk/scripts/js/models/user',
         'gui/superdesk/livedesk/scripts/js/models/language',
         'gui/superdesk/livedesk/scripts/js/models/post'], 
-function(giz, Admin, Collaborator, User, Language, Post)
+function(giz, Admin, Collaborators, User, Language, Post)
 {
     // Blog
     return giz.Model.extend
@@ -12,12 +12,12 @@ function(giz, Admin, Collaborator, User, Language, Post)
         defaults:
         { 
             Admin: Admin,
-            Collaborator: Collaborator,
+            Collaborator: Collaborators,
             Creator: User,
             Language: Language,
-            Post: new giz.Collection(Post),
-            PostPublished: new giz.Collection(Post),
-            PostUnpublished: new giz.Collection(Post)
+            Post:               giz.Collection.extend({ model: Post }),
+            PostPublished:      giz.Collection.extend({ model: Post }),
+            PostUnpublished:    giz.Collection.extend({ model: Post })
         }
     });
 });
