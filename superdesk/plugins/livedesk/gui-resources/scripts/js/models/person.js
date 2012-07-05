@@ -1,5 +1,5 @@
-define(['gizmo'], 
+define(['gizmo/superdesk'], 
 function(giz)
 {
-    return giz.Model.extend();
+    return giz.Model.extend({});
 });

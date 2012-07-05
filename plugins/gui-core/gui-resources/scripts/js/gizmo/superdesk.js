@@ -32,6 +32,14 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     {
         $.extend( this.options, { data:{ 'startEx.CId': val }} );
     },
+    asc = function(col)
+    {
+        $.extend( this.options, { data:{ asc: col }} );
+    },
+    desc = function(col)
+    {
+        $.extend( this.options, { data:{ desc: col }} );
+    },
     Model = giz.Model.extend // superdesk Model 
     ({
         isDeleted: function(){ return this._forDelete && this.data.DeletedOn; },
