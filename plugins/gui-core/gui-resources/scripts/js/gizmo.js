@@ -147,12 +147,8 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                     switch(true)
                     {
                         case typeof this.defaults[i] === 'function': // a model or collection constructor
-                            console.group('inside parse: ' + i)
-                            console.dir(this.defaults[i].prototype);
-                            console.dir(new this.defaults[i](data[i].href));
                             this.data[i] = new this.defaults[i](data[i].href);
-                            //!data[i].href && this.data[i].relationHash(data[i]);
-                            console.groupEnd();
+                            !data[i].href && this.data[i].relationHash && this.data[i].relationHash(data[i]);
                             continue;
                             break;
                         case $.isArray(this.defaults[i]): // a collection
