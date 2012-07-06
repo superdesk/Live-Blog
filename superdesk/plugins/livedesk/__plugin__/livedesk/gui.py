@@ -14,6 +14,6 @@ from ..gui_core.gui_core import publishGui
 
 @ioc.start
 def publishJS():
-    publishGui('superdesk/livedesk')
+    publishGui('livedesk')
     
     
