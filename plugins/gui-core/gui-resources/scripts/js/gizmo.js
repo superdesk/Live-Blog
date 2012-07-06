@@ -58,7 +58,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             this.data = {};
             this._clientHash = null;
             if( typeof data == 'string' ) this.href = data;
-            if( typeof data == 'object' ) $.extend(this.data, data);
+            if( typeof data == 'object' ) $.extend(this.data, this.parse(data));
             if( options && typeof options == 'object' ) $.extend(this, options);
          
             //this.exTime = new Date
@@ -73,11 +73,13 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         /*!
          * @param format
          */
-        feed: function(format)
+        feed: function(format, deep)
         {
             var ret = {};
             for( var i in this.data ) 
-                ret[i] = this.data[i] instanceof Model ? this.data[i].relationHash() || this.data[i].hash() : this.data[i];
+                ret[i] = this.data[i] instanceof Model ? 
+                        (deep ? this.data[i].feed(deep) : this.data[i].relationHash() || this.data[i].hash()) : 
+                        this.data[i];
             return ret;
         },
         /*!
@@ -143,24 +145,24 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         {
             for( var i in data ) 
             {
-                if( this.defaults[i] )
-                    switch(true)
-                    {
-                        case typeof this.defaults[i] === 'function': // a model or collection constructor
-                            this.data[i] = new this.defaults[i](data[i].href);
-                            !data[i].href && this.data[i].relationHash && this.data[i].relationHash(data[i]);
-                            continue;
-                            break;
-                        case $.isArray(this.defaults[i]): // a collection
-                            delete this.data[i];
-                            this.data[i] = new Collection(this.defaults[i][0], data[i].href); 
-                            continue;
-                            break;
-                        case this.defaults[i] instanceof Collection: // an already defined collection
-                            this.data[i] = this.defaults[i];
-                            continue;
-                            break;
-                    }
+                if( this.defaults[i] ) switch(true)
+                {
+                    case typeof this.defaults[i] === 'function': // a model or collection constructor
+                        this.data[i] = new this.defaults[i](data[i]);
+                        !data[i].href && this.data[i].relationHash && this.data[i].relationHash(data[i]);
+                        continue;
+                        break;
+                    case $.isArray(this.defaults[i]): // a collection
+                        delete this.data[i];
+                        this.data[i] = new Collection(this.defaults[i][0], data[i].href); 
+                        continue;
+                        break;
+                    case this.defaults[i] instanceof Collection: // an instance of some colelction/model
+                    case this.defaults[i] instanceof Model:
+                        this.data[i] = this.defaults[i];
+                        continue;
+                        break;
+                }
                 this.data[i] = data[i];
             }
         },
@@ -394,11 +396,11 @@ define('gizmo', ['jquery', 'utils/class'], function($)
 		each: function(fn){
 			$.each(this._list, fn);
 		},		
-        feed: function(format)
+        feed: function(format, deep)
         {
             var ret = [];
             for( var i in this._list ) 
-                ret[i] = this._list[i].feed();
+                ret[i] = this._list[i].feed(format, deep);
             return ret;
         },		
         /*!
