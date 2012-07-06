@@ -5,7 +5,7 @@ requirejs.config
 	waitSeconds: 15,
     templatePaths:
 	{
-	    'default': 'lib/core/templates/',
+	    'default': 'gui/core/templates/',
 		'plugin': 'gui/superdesk/{plugin}/templates/',
 		'models': 'gui/superdesk/{plugin}/scripts/js/models/'
 	},
@@ -27,8 +27,6 @@ requirejs.config
 		'newgizmo': config.js_url + '/newgizmo'		
 	}
 });
-
-
 require(['concat'], function(){
     require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
     function(MenuView, $, superdesk)
