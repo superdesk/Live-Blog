@@ -56,6 +56,8 @@ function(providers, $, giz, Blog, Collaborator)
         
         initTab: function(blogUrl)
         {
+            console.log(this.el);
+            
             $('.search-result-list', this.el).html('');
             colabsList = [];
             var blog = new Blog(blogUrl),
@@ -63,24 +65,32 @@ function(providers, $, giz, Blog, Collaborator)
             blog.on('read', function()
             { 
                 var collaborators = this.get('Collaborator');
-                collaborators.on('read', self.setupColabStream);
-                collaborators.xfilter('Person.Id', 'Person.FullName', 'Person.EMail', 
-                        'Post', 'PostPublished', 'PostUnpublished').sync();
+                collaborators.on('read', function()
+                { 
+                    self.setupHeader.call(self, this);
+                    self.setupColabStream.call(self, this); 
+                });
+                collaborators.xfilter('Person.Id', 'Person.FullName', 'Person.EMail', 'Post').sync();
             });
             blog.sync();
         },
-        setupColabStream: function()
+        setupHeader: function(colabs)
         {
-            this.each(function()
+            console.log(colabs._list[0].get('Person').get('FullName'));
+            $(this.el).tmpl('livedesk>providers/colabs', {Colabs: colabs.feed('json', true)}, function(e, o){ console.log(this, arguments); });
+        },
+        setupColabStream: function(colabs)
+        {
+            var self = this;
+            colabs.each(function()
             {
                 var colab = this;
                 colab.sync().done(function()
                 { 
                     var person = colab.get('Person'),
                         posts = colab.get('Post');
-                    //console.log(person, postPublished, postUnpublished);
-                    $.when(person.xfilter('*').sync(), posts.xfilter('*').sync())
-                    .then(function()
+
+                    posts.xfilter('*').sync().done(function()
                     {
                         //for(var i=0; i<postList.length; i++)
                         //posts.each(function()
@@ -91,7 +101,6 @@ function(providers, $, giz, Blog, Collaborator)
                                 {Person: person.feed('json'), Posts: posts.feed('json')}, 
                         function(e, o)
                         {
-                            
                             $('.search-result-list', self.el).prepend(o);
                             $('.search-result-list li.draggable', self.el).draggable
                             ({
@@ -135,7 +144,11 @@ function(providers, $, giz, Blog, Collaborator)
         }
     });
     
-    providers.colabs = new ColabView();
-
+    var el = providers.colabs.el, className = providers.colabs.className, adaptor = providers.colabs.adaptor;
+    providers.colabs = new ColabView(null,{init: false, ensure: false, events: false});
+    providers.colabs.el = el;
+    providers.colabs.className = className;
+    providers.colabs.adaptor = adaptor;
+    
     return providers;
 });
