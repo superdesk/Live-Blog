@@ -13,7 +13,7 @@ function(providers, $)
     
     $.extend(providers.colabs,  
     {
-        init: function(theBlog) 
+        initTab: function(theBlog) 
         {         
             $('.search-result-list', this.el).html('')
             colabsList = [];
@@ -106,7 +106,6 @@ function(providers, $)
 
             new $.restAuth(theBlog).get('Collaborator').resetData().done(function(listData)
             {
-
                 var colabsHrefs = this.extractListData(listData);
                 $(colabsHrefs).each(function()
                 { 
@@ -120,6 +119,7 @@ function(providers, $)
                         colab = $.avatar.parse(colab);
                         colab._latestPost = 0;
                         colabsList.push(colab);
+                        console.log(self.el);
                         if(colabsList.length == colabsHrefs.length)
                             $(self.el).tmpl('livedesk>providers/colabs', {Colabs: colabsList}, setupHeader);
 
