@@ -58,24 +58,21 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
     Requires on request: headers, params, invoker
     Requires on response: NA
     '''
-
     sessionName = 'SessionId'
     # The header name for the session identifier.
-
-    loginTokenTimeout = 5
+    login_token_timeout = 5
     # The number of seconds after which the login token expires.
-
+    session_token_timeout = 3600
+    # The number of seconds after which the session expires.
     userKeyGenerator = IAuthenticate
     # The implementation of IAuthenticate that permits the retrieval of the user secret key
-
-    sessionTokenTimeout = 3600
-    # The number of seconds after which the session expires.
 
     def __init__(self):
         super().__init__()
         assert isinstance(self.nameAuthentication, str), 'Invalid name authentication %s' % self.nameAuthentication
+
         node = NodePath(self.resourcesRegister.getRoot(), True, 'Authentication')
-        node.get = InvokerFunction(GET, self.getLoginToken, typeFor(String),
+        node.get = InvokerFunction(GET, self.loginToken, typeFor(String),
                                    [
                                     Input('userName', typeFor(String)),
                                     ], {})
@@ -89,7 +86,7 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         self._sessions = {}
         self._sessionsExpirations = deque()
 
-    def getLoginToken(self, userName):
+    def loginToken(self, userName):
         '''
         Return a token for the client to encrypt using the user key.
 
@@ -98,9 +95,11 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         @return: string
             The token for the client to encrypt.
         '''
+        assert isinstance(self.userKeyGenerator, IAuthenticate), 'Invalid user key generator %s' % self.userKeyGenerator
+
         # check if the user exists
         self.userKeyGenerator.getUserKey(userName)
-        return self._createSession(userName, self.loginTokenTimeout)
+        return self._createSession(userName, self.login_token_timeout)
 
     def login(self, userName, loginToken, hashedLoginToken):
         '''
@@ -115,6 +114,8 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         @return: string|None
             The new session identifier if the login was successful.
         '''
+        assert isinstance(self.userKeyGenerator, IAuthenticate), 'Invalid user key generator %s' % self.userKeyGenerator
+
         self._cleanExpiredSessions()
         if loginToken not in self._sessions:
             raise InputError('Invalid login token %s' % loginToken)
@@ -122,7 +123,7 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         verifyToken = hmac.new(userName + userKey, loginToken, hashlib.sha512())
         if verifyToken != hashedLoginToken:
             raise InputError('Invalid credentials')
-        return self._createSession(userName, self.loginTokenTimeout)
+        return self._createSession(userName, self.session_token_timeout)
 
     def process(self, req, rsp, chain):
         '''
@@ -177,6 +178,7 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
             The session identifier
         '''
         assert timeout is None or isinstance(timeout, timedelta), 'Invalid time delta %s' % timeout
+
         h = hashlib.sha512()
         h.update(urandom(len(userName) + randint(10, 20)))
         sessionId = h.hexdigest()
