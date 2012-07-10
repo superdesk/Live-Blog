@@ -23,6 +23,7 @@ from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.impl.processor.redirect import RedirectHandler
 from ally.core.spec.server import Processors, Processor
 import re
+from ally.core.authentication.api.authentication import IAuthenticate
 
 # --------------------------------------------------------------------
 
@@ -30,6 +31,16 @@ import re
 def server_pattern_authenticated():
     ''' The pattern used for matching the REST authenticated resources paths in HTTP URL's'''
     return '^resources\/my(/|(?=\\.)|$)'
+
+@ioc.config
+def login_token_timeout():
+    ''' The number of seconds after which the login token expires. '''
+    return 10
+
+@ioc.config
+def session_token_timeout():
+    ''' The number of seconds after which the session expires. '''
+    return 3600
 
 # --------------------------------------------------------------------
 
@@ -83,7 +94,7 @@ def handlersResourcesAuthentication():
     handlers.insert(handlers.index(redirect()), redirectAuthentication())
     handlers.remove(redirect())
 
-#TODO: see hot to incorporate the auth in fetch
+#TODO: see how to incorporate the auth in fetch
 #    handlers.insert(handlers.index(metaFilter()), metaFilterAuthentication())
 #    handlers.remove(metaFilter())
 
