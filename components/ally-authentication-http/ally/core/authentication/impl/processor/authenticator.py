@@ -9,6 +9,13 @@ Created on Aug 9, 2011
 Provides the authentication header handling.
 '''
 
+import logging
+import hashlib
+import hmac
+from collections import deque
+from os import urandom
+from random import randint
+from sys import getdefaultencoding
 from ally.api.operator.authentication.type import TypeAuthentication
 from ally.container.ioc import injected
 from ally.core.http.impl.processor.header import HeaderHTTPBase, VALUE_NO_PARSE
@@ -16,18 +23,12 @@ from ally.core.http.spec import RequestHTTP, INVALID_HEADER_VALUE, UNAUTHORIZED
 from ally.core.spec.resources import Invoker, IResourcesRegister
 from ally.core.spec.server import Processor, ProcessorsChain, Response
 from ally.exception import DevelError, InputError
-import logging
 from ally.core.impl.node import NodePath
 from ally.core.impl.invoker import InvokerFunction
 from ally.api.config import GET, INSERT
 from ally.api.type import Input, typeFor, String
-import hashlib
 from datetime import datetime, timedelta
 from ally.core.authentication.api.authentication import IAuthenticate
-import hmac
-from collections import deque
-from os import urandom
-from random import randint
 
 # --------------------------------------------------------------------
 
@@ -60,9 +61,9 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
     '''
     sessionName = 'SessionId'
     # The header name for the session identifier.
-    login_token_timeout = 5
+    login_token_timeout = timedelta(seconds=10)
     # The number of seconds after which the login token expires.
-    session_token_timeout = 3600
+    session_token_timeout = timedelta(seconds=3600)
     # The number of seconds after which the session expires.
     userKeyGenerator = IAuthenticate
     # The implementation of IAuthenticate that permits the retrieval of the user secret key
@@ -128,7 +129,8 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         if loginToken not in self._sessions:
             raise InputError('Invalid login token %s' % loginToken)
         userKey = self.userKeyGenerator.getUserKey(userName)
-        verifyToken = hmac.new(userName + userKey, loginToken, hashlib.sha512())
+        verifyToken = hmac.new(bytes(userName + userKey, getdefaultencoding()),
+                               bytes(loginToken, getdefaultencoding()), hashlib.sha512).hexdigest()
         if verifyToken != hashedLoginToken:
             raise InputError('Invalid credentials')
         return self._createSession(userName, self.session_token_timeout)
@@ -165,7 +167,7 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         '''
         Deletes the sessions that expired.
         '''
-        now = str(datetime.utcnow())
+        now = datetime.utcnow()
         while len(self._sessionsExpirations):
             expireTime, sessionId = self._sessionsExpirations[0]
             if expireTime <= now:
