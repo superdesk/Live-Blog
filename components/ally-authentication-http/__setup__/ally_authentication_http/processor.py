@@ -23,7 +23,7 @@ from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.impl.processor.redirect import RedirectHandler
 from ally.core.spec.server import Processors, Processor
 import re
-from ally.core.authentication.api.authentication import IAuthenticate
+from __setup__.ally_core.resource_management import resourcesRegister
 
 # --------------------------------------------------------------------
 
@@ -69,6 +69,8 @@ def redirectAuthentication() -> Processor:
 def authentication() -> Processor:
     b = AuthenticationHandler()
     b.readFromParams = read_from_params()
+    b.readFromParams = False
+    b.resourcesRegister = resourcesRegister()
     return b
 
 # --------------------------------------------------------------------
