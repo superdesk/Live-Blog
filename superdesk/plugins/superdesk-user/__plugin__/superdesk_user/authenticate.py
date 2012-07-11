@@ -12,11 +12,11 @@ Provides authentication register function.
 # --------------------------------------------------------------------
 
 from ally.container import ioc, support
-from ally.core.authentication.api.authentication import IAuthenticate
 from __plugin__.ally_authentication_http.authentication import registerAuthentication
+from superdesk.user.api.user import IUserService
 
 # --------------------------------------------------------------------
 
 @ioc.start
 def register():
-    registerAuthentication(support.entityFor(IAuthenticate))
+    registerAuthentication(support.entityFor(IUserService))
