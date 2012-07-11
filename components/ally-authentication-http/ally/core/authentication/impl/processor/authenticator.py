@@ -13,7 +13,7 @@ from ally.api.operator.authentication.type import TypeAuthentication
 from ally.container.ioc import injected
 from ally.core.http.impl.processor.header import HeaderHTTPBase, VALUE_NO_PARSE
 from ally.core.http.spec import RequestHTTP, INVALID_HEADER_VALUE, UNAUTHORIZED
-from ally.core.spec.resources import Invoker
+from ally.core.spec.resources import Invoker, IResourcesRegister
 from ally.core.spec.server import Processor, ProcessorsChain, Response
 from ally.exception import DevelError, InputError
 import logging
@@ -66,10 +66,18 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
     # The number of seconds after which the session expires.
     userKeyGenerator = IAuthenticate
     # The implementation of IAuthenticate that permits the retrieval of the user secret key
+    resourcesRegister = IResourcesRegister
+    # The resources register used in getting the node structure.
 
     def __init__(self):
+        assert isinstance(self.sessionName, str), 'Invalid session name %s' % self.sessionName
+        assert isinstance(self.login_token_timeout, int), \
+        'Invalid login token timeout value %s' % self.login_token_timeout
+        assert isinstance(self.session_token_timeout, int), \
+        'Invalid session token timeout value %s' % self.session_token_timeout
+        assert isinstance(self.resourcesRegister, IResourcesRegister), \
+        'Invalid resources manager %s' % self.resourcesManager
         super().__init__()
-        assert isinstance(self.nameAuthentication, str), 'Invalid name authentication %s' % self.nameAuthentication
 
         node = NodePath(self.resourcesRegister.getRoot(), True, 'Authentication')
         node.get = InvokerFunction(GET, self.loginToken, typeFor(String),

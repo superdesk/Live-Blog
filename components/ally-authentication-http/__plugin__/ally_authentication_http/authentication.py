@@ -9,11 +9,15 @@ Created on July 10, 2012
 Provides authentication register function.
 '''
 
+from ally.container.ioc import activate, deactivate
+from __setup__.ally_authentication_http.processor import authentication
+
 # --------------------------------------------------------------------
 
 def registerAuthentication(authenticate):
     '''
     '''
-    import ally_deploy_application
-    authenticationHandler = ally_deploy_application.assembly.processForPartialName('ally_authentication_http.processor.authentication')
-    authenticationHandler.userKeyGenerator = authenticate
+    from ally_deploy_application import assembly
+    activate(assembly)
+    authentication().userKeyGenerator = authenticate
+    deactivate()
