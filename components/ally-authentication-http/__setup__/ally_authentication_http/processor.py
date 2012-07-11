@@ -24,6 +24,7 @@ from ally.core.impl.processor.redirect import RedirectHandler
 from ally.core.spec.server import Processors, Processor
 import re
 from __setup__.ally_core.resource_management import resourcesRegister
+from datetime import timedelta
 
 # --------------------------------------------------------------------
 
@@ -35,12 +36,12 @@ def server_pattern_authenticated():
 @ioc.config
 def login_token_timeout():
     ''' The number of seconds after which the login token expires. '''
-    return 10
+    return timedelta(seconds=10)
 
 @ioc.config
 def session_token_timeout():
     ''' The number of seconds after which the session expires. '''
-    return 3600
+    return timedelta(seconds=3600)
 
 # --------------------------------------------------------------------
 

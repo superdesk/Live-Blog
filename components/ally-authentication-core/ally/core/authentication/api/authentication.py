@@ -27,5 +27,5 @@ class IAuthenticate(metaclass=abc.ABCMeta):
             The user login name for which to return the secret key.
         @return: string
             Returns the user key.
-        @raise InputException: If the user login name is not valid.
+        @raise InputError: If the user login name is not valid.
         '''
