@@ -302,3 +302,19 @@ def validateTypeFor(clazz, name, vauleType, allowNone=True):
             del self.__dict__[name]
 
     setattr(clazz, name, property(get, set, delete))
+
+def validateType(name, vauleType, allowNone=True):
+    '''
+    Decorator for @see: validateTypeFor that will only apply the validation if the application is in debug mode.
+    
+    @param name: string
+        The name to use for the property.
+    @param vauleType: class|tuple(class)
+        The required type of the value to be set.
+    @param allowNone: boolean
+        If True will allow also the None value to be set, otherwise only values of type clazz are allowed.
+    '''
+    def decorator(clazz):
+        if __debug__: validateTypeFor(clazz, name, vauleType, allowNone)
+        return clazz
+    return decorator

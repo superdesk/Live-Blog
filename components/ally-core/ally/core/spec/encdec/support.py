@@ -11,6 +11,10 @@ Provides static functions support for exploit processing.
 
 # --------------------------------------------------------------------
 
+SAMPLE = object() # Marker used to instruct the encoders to provide a sample.
+
+# --------------------------------------------------------------------
+
 def getSame(obj):
     '''
     Function that just returns the same value received.

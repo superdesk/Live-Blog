@@ -10,6 +10,7 @@ Provides the configurations for encoders and decoders.
 '''
 
 from ally.container import ioc
+from ally.core.http.impl.encdec.parameter import ParameterDecoderEncoder
 
 # --------------------------------------------------------------------
 
@@ -19,6 +20,13 @@ def content_types_urlencoded() -> dict:
     return {
             'application/x-www-form-urlencoded': None,
             }
+
+# --------------------------------------------------------------------
+# Create the encoders
+
+@ioc.entity
+def parameterDecoderEncoder():
+    return ParameterDecoderEncoder()
 
 # --------------------------------------------------------------------
 # Creating the decoding processors
