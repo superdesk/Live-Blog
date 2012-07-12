@@ -1,5 +1,6 @@
 define(['gizmo/superdesk'], 
-function(giz)
+function(Gizmo)
 {
-    return giz.Model.extend({});
+    return Gizmo.Model.extend({
+	}, { register: 'Person' } );
 });
