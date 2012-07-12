@@ -45,7 +45,7 @@ class IEntityGetService:
         
         @param id: object
             The id of the entity to find.
-        @raise InputException: If the id is not valid. 
+        @raise InputError: If the id is not valid. 
         '''
 
 @service
@@ -96,7 +96,7 @@ class IEntityCRUDService:
             The entity to be inserted.
         
         @return: The id of the entity
-        @raise InputException: If the entity is not valid. 
+        @raise InputError: If the entity is not valid. 
         '''
 
     @call
