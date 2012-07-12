@@ -5,9 +5,8 @@ requirejs.config
 	waitSeconds: 15,
     templatePaths:
 	{
-	    'default': 'gui/core/templates/',
-		'plugin': 'gui/superdesk/{plugin}/templates/',
-		'models': 'gui/superdesk/{plugin}/scripts/js/models/'
+	    'default': 'lib/core/templates/',
+		'plugin': 'lib/{plugin}/templates/',
 	},
 	paths: 
 	{
@@ -26,7 +25,7 @@ requirejs.config
 		'newgizmo': config.js_url + '/newgizmo'		
 	}
 });
-require(['gui/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
+require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
 function(MenuView, $, superdesk)
 {
     var makeMenu = function(){ var menuView = new MenuView; }, 
@@ -34,7 +33,7 @@ function(MenuView, $, superdesk)
     {
         var args = arguments,
             self = this;
-        require(['gui/core/scripts/js/views/auth'], function(AuthApp)
+        require(['lib/core/scripts/js/views/auth'], function(AuthApp)
         {
             AuthApp.success = makeMenu;
             AuthApp.require.apply(self, arguments); 
