@@ -37,7 +37,7 @@ class InputError(Exception):
         '''
         Initializes the exception based on the message(s) which will be used as a key.
         
-        @param message: arguments(String|Ref|InputException)
+        @param message: arguments(String|Ref|InputError)
             The message(s) that compose this input exception.
         '''
         assert message, 'Expected at least one message'
