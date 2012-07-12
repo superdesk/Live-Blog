@@ -213,3 +213,26 @@ class Context(metaclass=ContextMetaClass):
 
         return NotImplemented
 
+# --------------------------------------------------------------------
+
+def asData(context, *classes):
+    '''
+    Provides the data that is represented in the provided context classes.
+    
+    @param context: object
+        The context object to get the data from.
+    @param classes: arguments[ContextMetaClass]
+        The context classes to construct the data based on.
+    '''
+    assert context is not None, 'A context is required'
+
+    data = {}
+    for clazz in classes:
+        assert isinstance(clazz, ContextMetaClass), 'Invalid context class %s' % clazz
+
+        for name, attribute in clazz.__attributes__.items():
+            assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
+
+            if attribute in context: data[name] = attribute.__get__(context)
+
+    return data

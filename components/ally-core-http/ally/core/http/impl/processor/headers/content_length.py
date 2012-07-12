@@ -13,7 +13,7 @@ from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.server import IEncoderHeader, IDecoderHeader
 from ally.core.spec.codes import Code
-from ally.core.spec.server import IStream
+from ally.core.spec.server import IInputStream
 from ally.design.context import Context, requires, defines
 from ally.design.processor import HandlerProcessorProceed
 
@@ -36,7 +36,7 @@ class RequestContent(Context):
     The content source length in bytes. 
     ''')
     # ---------------------------------------------------------------- Required
-    source = requires(IStream)
+    source = requires(IInputStream)
 
 class ResponseDecode(Context):
     '''
@@ -86,9 +86,9 @@ class ContentLengthDecodeHandler(HandlerProcessorProceed):
             else: requestCnt.source = StreamLengthLimited(requestCnt.source, requestCnt.length)
 
 #TODO: maybe place this in an input content handler that uses length for handling the input.
-class StreamLengthLimited(IStream):
+class StreamLengthLimited(IInputStream):
     '''
-    Provides a class that implements the @see: IStream that limits the reading from another stream based on the
+    Provides a class that implements the @see: IInputStream that limits the reading from another stream based on the
     provided length.
     '''
 
@@ -101,7 +101,7 @@ class StreamLengthLimited(IStream):
         @param length: integer
             The number of bytes to allow the read from the wrapped stream.
         '''
-        assert isinstance(stream, IStream), 'Invalid stream %s' % stream
+        assert isinstance(stream, IInputStream), 'Invalid stream %s' % stream
         assert isinstance(length, int), 'Invalid length %s' % length
 
         self._stream = stream
@@ -111,7 +111,7 @@ class StreamLengthLimited(IStream):
 
     def read(self, nbytes=None):
         '''
-        @see: IStream.read
+        @see: IInputStream.read
         '''
         if self._closed: raise ValueError('I/O operation on a closed content file')
         count = nbytes
@@ -129,7 +129,7 @@ class StreamLengthLimited(IStream):
 
     def close(self):
         '''
-        @see: IStream.close
+        @see: IInputStream.close
         '''
         self._closed = True
 

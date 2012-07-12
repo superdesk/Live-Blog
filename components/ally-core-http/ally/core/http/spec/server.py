@@ -9,11 +9,11 @@ Created on Jun 1, 2012
 Provides HTTP server specification.
 '''
 
-import abc
-from ally.design.context import Context, defines, requires, optional
-from ally.core.spec.server import IStream
-from types import GeneratorType
 from ally.core.spec.codes import Code
+from ally.core.spec.server import IInputStream, IOutputStream
+from ally.design.context import Context, defines, requires, optional
+from collections import Iterable
+import abc
 
 # --------------------------------------------------------------------
 # Additional HTTP methods.
@@ -57,8 +57,8 @@ class RequestContentHTTP(Context):
     Context for HTTP request content data. 
     '''
     # ---------------------------------------------------------------- Defined
-    source = defines(IStream, doc='''
-    @rtype: IStream
+    source = defines(IInputStream, doc='''
+    @rtype: IInputStream
     The source for the content.
     ''')
 
@@ -77,7 +77,7 @@ class ResponseContentHTTP(Context):
     Context for HTTP request response data. 
     '''
     # ---------------------------------------------------------------- Required
-    source = requires(IStream, GeneratorType)
+    source = requires(IOutputStream, Iterable)
 
 # --------------------------------------------------------------------
 
