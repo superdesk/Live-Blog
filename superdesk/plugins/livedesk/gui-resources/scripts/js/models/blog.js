@@ -1,23 +1,23 @@
 define(['gizmo/superdesk', 
-        'gui/superdesk/livedesk/scripts/js/models/blog-admin',
-        'gui/superdesk/livedesk/scripts/js/models/blog-collaborator',
-        'gui/superdesk/livedesk/scripts/js/models/user',
-        'gui/superdesk/livedesk/scripts/js/models/language',
-        'gui/superdesk/livedesk/scripts/js/models/post'], 
-function(giz, Admin, Collaborators, User, Language, Post)
+        'livedesk/models/blog-admin',
+        'livedesk/models/blog-collaborator',
+        'livedesk/models/user',
+        'livedesk/models/language',
+        'livedesk/models/post'], 
+function(Gizmo)
 {
     // Blog
     return giz.Model.extend
     ({ 
         defaults:
         { 
-            Admin: Admin,
+            Admin: Gizmo.Model.Admin,
             Collaborator: Collaborators,
             Creator: User,
             Language: Language,
-            Post:               giz.Collection.extend({ model: Post }),
-            PostPublished:      giz.Collection.extend({ model: Post }),
-            PostUnpublished:    giz.Collection.extend({ model: Post })
+            Post:               Gizmo.Collection.extend({ model: Gizmo.Model.Post }),
+            PostPublished:      Gizmo.Collection.extend({ model: Gizmo.Model.Post }),
+            PostUnpublished:    Gizmo.Collection.extend({ model: Gizmo.Model.Post })
         }
-    });
+    }, { register: 'Blog' } );
 });

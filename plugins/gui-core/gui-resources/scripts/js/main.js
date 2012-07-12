@@ -5,9 +5,8 @@ requirejs.config
 	waitSeconds: 15,
     templatePaths:
 	{
-	    'default': 'gui/core/templates/',
-		'plugin': 'gui/superdesk/{plugin}/templates/',
-		'models': 'gui/superdesk/{plugin}/scripts/js/models/'
+	    'default': 'lib/core/templates/',
+		'plugin': 'lib/{plugin}/templates/',
 	},
 	paths: 
 	{

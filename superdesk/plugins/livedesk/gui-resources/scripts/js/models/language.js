@@ -1,6 +1,6 @@
 define(['gizmo/superdesk'], 
-function(giz)
+function(Gizmo)
 {
-    // Language
-    return giz.Model.extend();
+    return Gizmo.Model.extend({
+	}, { register: 'Language' } );
 });
