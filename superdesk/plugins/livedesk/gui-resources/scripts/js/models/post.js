@@ -1,19 +1,25 @@
 define(['gizmo/superdesk', 
-        'gui/superdesk/livedesk/scripts/js/models/collaborator',
-        'gui/superdesk/livedesk/scripts/js/models/blog',
-        'gui/superdesk/livedesk/scripts/js/models/user',
-        'gui/superdesk/livedesk/scripts/js/models/post-type'], 
-function(giz, Collaborator, Blog, User, PostType)
+/*        'livedesk/models/collaborator',
+        'livedesk/models/blog',
+        'livedesk/models/user',
+        'livedesk/models/posttype'
+*/
+], 
+function(Gizmo)
 {
-    // Post
-    return giz.Model.extend
+	return Gizmo.AuthModel.extend({
+		url: new Gizmo.Url('/Post')
+	}, { register: 'Post' } );
+	/*
+    return Gizmo.AuthModel.extend
     ({ 
-        defaults:
+		url: new Gizmo.Url('/Post'),
+		defaults:
         { 
             Author: Collaborator,
             Blog: Blog,
             Creator: User,
             PostType: PostType
         }
-    });
+    }, { register: 'Post' } );*/
 });
