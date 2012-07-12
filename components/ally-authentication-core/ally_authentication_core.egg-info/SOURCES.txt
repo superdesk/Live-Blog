@@ -7,6 +7,8 @@ __setup__/ally_authentication_core/resource_management.py
 ally/__init__.py
 ally/core/__init__.py
 ally/core/authentication/__init__.py
+ally/core/authentication/api/__init__.py
+ally/core/authentication/api/authentication.py
 ally/core/authentication/impl/__init__.py
 ally/core/authentication/impl/assembler.py
 ally_authentication_core.egg-info/PKG-INFO
