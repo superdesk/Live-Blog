@@ -29,6 +29,7 @@ from ally.api.config import GET, INSERT
 from ally.api.type import Input, typeFor, String
 from datetime import datetime, timedelta
 from ally.core.authentication.api.authentication import IAuthenticate
+import threading
 
 # --------------------------------------------------------------------
 
@@ -171,8 +172,12 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         while len(self._sessionsExpirations):
             expireTime, sessionId = self._sessionsExpirations[0]
             if expireTime <= now:
-                self._sessionsExpirations.popleft()
-                self._sessions.pop(sessionId)
+                m = threading.Lock()
+                m.acquire()
+                try:
+                    self._sessionsExpirations.popleft()
+                    self._sessions.pop(sessionId)
+                finally: m.release()
             else:
                 break
 
@@ -193,8 +198,12 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         h.update(urandom(len(userName) + randint(10, 20)))
         sessionId = h.hexdigest()
         s = Session(sessionId, userName, datetime.utcnow())
-        if timeout:
-            s.expireTime = s.createTime + timeout
-            self._sessionsExpirations.append((s.expireTime, sessionId))
-        self._sessions[sessionId] = s
+        m = threading.Lock()
+        m.acquire()
+        try:
+            if timeout:
+                s.expireTime = s.createTime + timeout
+                self._sessionsExpirations.append((s.expireTime, sessionId))
+            self._sessions[sessionId] = s
+        finally: m.release()
         return sessionId
