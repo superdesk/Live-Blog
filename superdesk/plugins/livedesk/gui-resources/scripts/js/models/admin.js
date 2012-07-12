@@ -1,13 +1,12 @@
 define(['gizmo/superdesk', 
-        'gui/superdesk/livedesk/scripts/js/models/blog'], 
-function(giz, Blog)
+        'livedesk/models/blog'], 
+function(Gizmo)
 {
-    // Admin
-    return giz.Model.extend
+    return Gizmo.Model.extend
     ({ 
         defaults:
         { 
-            Blog: Blog
+            Blog: Gizmo.Model.Blog
         }
-    });
+    }, { register: 'Admin' } );
 });

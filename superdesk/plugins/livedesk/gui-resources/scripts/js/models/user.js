@@ -1,18 +1,18 @@
 define([ 'gizmo',
-         'gui/superdesk/livedesk/scripts/js/models/post',
-         'gui/superdesk/livedesk/scripts/js/models/blog' ], 
-function(giz, Post, Blog)
+         'livedesk/models/post',
+         'livedesk/models/blog' ], 
+function(Gizmo, Post, Blog)
 {
     // User
-    return giz.Model.extend
+    return Gizmo.Model.extend
     ({ 
         defaults:
         { 
-            Blog: new giz.Collection(Blog),
-            BlogAdmin: new giz.Collection(Blog),
-            Post: new giz.Collection(Post),
-            PostPublished: new giz.Collection(Post),
-            PostUnpublished: new giz.Collection(Post)
+            Blog: new Gizmo.Collection(Gizmo.Model.Blog),
+            BlogAdmin: new Gizmo.Collection(Gizmo.Model.Blog),
+            Post: new Gizmo.Collection(Gizmo.Model.Post),
+            PostPublished: new Gizmo.Collection(Gizmo.Model.Post),
+            PostUnpublished: new Gizmo.Collection(Gizmo.Model.Post)
         }
     });
 });
