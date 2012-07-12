@@ -60,7 +60,7 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
     Requires on request: headers, params, invoker
     Requires on response: NA
     '''
-    sessionName = 'SessionId'
+    sessionName = 'Authorization'
     # The header name for the session identifier.
     login_token_timeout = timedelta(seconds=10)
     # The number of seconds after which the login token expires.
