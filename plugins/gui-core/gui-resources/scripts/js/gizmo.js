@@ -1,6 +1,7 @@
 define('gizmo', ['jquery', 'utils/class'], function($)
 {
-    var Model = function(data){},
+    var Register = function(){},
+	Model = function(data){},
     Uniq = function()
     { 
         this.items = {}; 
@@ -8,7 +9,53 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         //this.instances.push(this);
     },
     Collection = function(){},
-    
+	Url = Class.extend({
+		_constructor: function(arg) {		
+			this.data = { root: ''};
+			switch( Object.prototype.toString.call(arg) )
+			{
+				case '[object String]':
+					this.data.url = arg; 
+					break;
+				case '[object Array]': 
+					this.data.url = arg[0];
+					if(arg[1] !== undefined) this.data.xfilter = url[0];
+					break;
+				case '[object Object]': // options, same technique as above
+					this.data.url = arg.url
+					if(arg.xfilter !== undefined) this.data.xfilter = arg.xfilter;
+					break;
+			}			
+			return this;
+		},
+		xfilter: function() {
+			this.data.xfilter = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];		
+			return this;
+		},
+		root: function(root) {
+			this.data.root = root;
+			return this;
+		},
+		get: function(){
+			return this.data.root + this.data.url;
+		},
+		order: function(key, direction) {
+			this.data.order = direction+'='+key;
+			return this;
+		},
+		filter: function(key, value) {
+			this.data.filter = key+'='+value;
+			return this;
+		},
+		
+		options: function() {
+			
+			var options = {};
+			if(this.data.xfilter)
+				options.headers = { 'X-Filter': this.data.xfilter};
+			return options;
+		}
+	}),    
     Sync = 
     {
         request: function(source)
@@ -16,9 +63,16 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             var self = this,
                 reqFnc = function(data, predefinedOptions, userOptions)
                 {
-                    var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data});
-                    self.reset();
-                    return $.ajax(self.href(source), options);
+					if(source instanceof Url) {
+						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data}, source.options());
+						self.reset();
+						console.log('Source: ',source.get());
+						return $.ajax(self.href(source.get()), options);
+					} else {				
+						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data});
+						self.reset();
+						return $.ajax(self.href(source), options);
+					}
                 };
                 
             return { 
@@ -86,7 +140,8 @@ define('gizmo', ['jquery', 'utils/class'], function($)
          * data sync call
          */
         sync: function()
-        {    
+        {   
+			console.log('sync once', arguments.calee);
             var self = this, ret, dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
             this.hash();
             // trigger an event before sync
@@ -109,7 +164,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                     self._uniq && self._uniq.replace(self._clientHash, self.hash(), self);
                     self._clientHash = null;
                     self.triggerHandler('insert')
-						.class.trigger('insert');
+						.class.triggerHandler('insert', self);
                 });
             }
             
@@ -227,9 +282,9 @@ define('gizmo', ['jquery', 'utils/class'], function($)
          * used to trigger handle of model events
 		 * this doens't call any method see: trigger
          */
-		triggerHandler: function(evt)
+		triggerHandler: function(evt, data)
 		{
-			$(this).triggerHandler(evt);
+			$(this).triggerHandler(evt, data);
 			return this;
 		}
     };
@@ -306,22 +361,25 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         Model.extend = extendFnc;
         return Model;
     };*/
-    
-    Model.extend = extendFnc = function(props)
+    Model.extend = extendFnc = function(props, options)
     {
         var newly;
         newly = Class.extend.call(this, props);
         newly.extend = extendFnc;
-        newly.prototype.class= newly;
+        newly.prototype.class = newly;
         newly.on = function(event, handler, obj)
         {
-            $(newly).on(event, function(evnt){ handler.call(obj, evnt); }); 
+            $(newly).on(event, function(){ handler.apply(obj, arguments); }); 
         };
+        if(options && options.register) {
+			Register[options.register] = newly;
+			delete options.register;
+		}
         // create a new property from original options one
         newly.prototype.options = $.extend({}, options);
 
-        newly.trigger = function(event){ $(newly).triggerHandler(event); };
-        return newly;
+        newly.triggerHandler = function(event, data){ console.log('trigger: ',data);$(newly).triggerHandler(event, data); };
+		return newly;
     };
     
     Collection.prototype = 
@@ -352,6 +410,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                         buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]); 
                         break;
                     case '[object Object]': // options, same technique as above
+						console.log(arguments[i], arguments[i] instanceof Url);
                         buildOptions = (function(args){ return function(){ this.options = args; }})(arguments[i]);
                         break;
                 }
@@ -508,7 +567,9 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         newly = Class.extend.call(this, props);
         newly.extend = cextendFnc;
         newly.prototype.class= newly;
-        newly.trigger = function(event){ $(newly).triggerHandler(event); };
+        newly.triggerHandler = function(event){ $(newly).triggerHandler(event); };
+        if(options && options.register)
+			Collection[options.register] = newly;		
         return newly;
     };
     /*{
@@ -607,7 +668,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         },
         undelegateEvents: function()
         {
-            $(this.el).off(this.getNamespace());
+            $(this.el).off(this.getProperty('namespace'));
         },
         render: function(){ 
             
@@ -626,5 +687,5 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         }
     });
     
-    return { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq, View: View };
+    return { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq, View: View, Url: Url, Register: Register};
 });
