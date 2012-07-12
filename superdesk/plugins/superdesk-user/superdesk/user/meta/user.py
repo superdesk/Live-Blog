@@ -26,6 +26,7 @@ class UserMapped(PersonMapped, User):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Name = Column('name', String(20), nullable=False, unique=True)
+    Password = Column('password', String(255), nullable=False, unique=False)
 
     # Non REST model attribute --------------------------------------
     userId = Column('fk_person_id', ForeignKey(PersonMapped.Id), primary_key=True)
