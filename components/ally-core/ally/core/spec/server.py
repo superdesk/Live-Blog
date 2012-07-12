@@ -18,9 +18,9 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class IStream(metaclass=abc.ABCMeta):
+class IInputStream(metaclass=abc.ABCMeta):
     '''
-    The specification for a linked stream.
+    The specification for an input stream.
     '''
     __slots__ = ()
 
@@ -45,9 +45,31 @@ class IStream(metaclass=abc.ABCMeta):
 
     @classmethod
     def __subclasshook__(cls, C):
-        if cls is IStream:
+        if cls is IInputStream:
             if (any('read' in B.__dict__ for B in C.__mro__) and
                 any('close' in B.__dict__ for B in C.__mro__)):
                 return True
         return NotImplemented
 
+class IOutputStream(metaclass=abc.ABCMeta):
+    '''
+    The specification for an output stream.
+    '''
+    __slots__ = ()
+
+    @abc.abstractclassmethod
+    def write(self, bytes):
+        '''
+        Write the bytes or bytearray object, b and return the number of bytes written. When in non-blocking mode,
+        a BlockingIOError is raised if the buffer needs to be written out but the raw stream blocks.
+        
+        @param bytes: bytearray
+            The bytes to write.
+        '''
+
+    @classmethod
+    def __subclasshook__(cls, C):
+        if cls is IOutputStream:
+            if (any('write' in B.__dict__ for B in C.__mro__)):
+                return True
+        return NotImplemented

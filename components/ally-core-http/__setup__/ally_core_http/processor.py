@@ -10,9 +10,10 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from . import server_pattern_rest
-from ..ally_core.processor import argumentsPrepare, encoding, assemblyResources, \
-    methodInvoker, updateAssemblyResourcesForCore
+from ..ally_core.processor import argumentsPrepare, assemblyResources, \
+    methodInvoker, updateAssemblyResourcesForCore, encoder
 from ..ally_core.resources import resourcesLocator
+from ..ally_core_http.encoder_decoder import parameterDecoderEncoder
 from ally.container import ioc
 from ally.core.http.impl.processor.header import HeaderHandler
 from ally.core.http.impl.processor.headers.accept import AcceptDecodeHandler
@@ -27,11 +28,11 @@ from ally.core.http.impl.processor.headers.content_type import \
     ContentTypeDecodeHandler, ContentTypeEncodeHandler
 from ally.core.http.impl.processor.headers.override_method import \
     MethodOverrideDecodeHandler
+from ally.core.http.impl.processor.internal_error import InternalErrorHandler
 from ally.core.http.impl.processor.parameter import ParameterHandler
 from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.spec.resources import ConverterPath
 from ally.design.processor import Handler
-from ally.core.http.impl.processor.internal_error import InternalErrorHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -109,7 +110,10 @@ def uri() -> Handler:
     return b
 
 @ioc.entity
-def parameter() -> Handler: return ParameterHandler()
+def parameter() -> Handler:
+    b = ParameterHandler()
+    b.parameterDecoderEncoder = parameterDecoderEncoder()
+    return b
 
 @ioc.entity
 def pathAssemblies():
@@ -125,7 +129,7 @@ def updateAssemblyResourcesForCoreHTTP():
 
     assemblyResources().add(parameter(), after=methodInvoker())
 
-    assemblyResources().add(contentTypeEncode(), contentLanguageEncode(), allowEncode(), after=encoding())
+    assemblyResources().add(contentTypeEncode(), contentLanguageEncode(), allowEncode(), after=encoder())
 
     if allow_method_override():
         assemblyResources().add(methodOverrideDecode(), before=uri())

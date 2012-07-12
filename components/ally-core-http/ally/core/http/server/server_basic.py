@@ -14,7 +14,7 @@ from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
     RequestContentHTTP, ResponseContentHTTP
 from ally.core.spec.codes import Code
-from ally.core.spec.server import IStream
+from ally.core.spec.server import IOutputStream
 from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
     CREATE_REPORT
 from ally.support.util_io import readGenerator
@@ -106,7 +106,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         if rspCnt.source is not None:
-            if isinstance(rspCnt.source, IStream): source = readGenerator(rspCnt.source)
+            if isinstance(rspCnt.source, IOutputStream): source = readGenerator(rspCnt.source)
             else: source = rspCnt.source
 
             for bytes in source: self.wfile.write(bytes)

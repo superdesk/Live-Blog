@@ -9,18 +9,18 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from .encoder_decoder import encodingAssembly
+from .encoder_decoder import renderAssembly, modelEncoder
 from ally.container import ioc
 from ally.core.impl.processor.arguments import ArgumentsPrepareHandler, \
     ArgumentsBuildHandler
-from ally.core.impl.processor.encoding import EncodingHandler
 from ally.core.impl.processor.invoking import InvokingHandler
 from ally.core.impl.processor.method_invoker import MethodInvokerHandler
 from ally.core.impl.processor.text_conversion import ConversionSetHandler
 from ally.core.spec.resources import Normalizer, Converter
 from ally.design.processor import Handler, Assembly
-from ally.core.impl.processor.encoding_meta import EncodingMetaHandler
 from ally.core.impl.processor.explain_error import ExplainErrorHandler
+from ally.core.impl.processor.renderer import RendererHandler
+from ally.core.impl.processor.encoder import EncoderHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -77,21 +77,24 @@ def argumentsBuild() -> Handler: return ArgumentsBuildHandler()
 def invoking() -> Handler: return InvokingHandler()
 
 @ioc.entity
-def encodingMeta() -> Handler: return EncodingMetaHandler()
+def encoder() -> Handler:
+    b = EncoderHandler()
+    b.modelEncoder = modelEncoder()
+    return b
 
 @ioc.entity
 def explainError(): return ExplainErrorHandler()
 
 @ioc.entity
-def encoding() -> Handler:
-    b = EncodingHandler()
+def renderer() -> Handler:
+    b = RendererHandler()
     b.charSetDefault = default_characterset()
-    b.encodingAssembly = encodingAssembly()
+    b.renderAssembly = renderAssembly()
     return b
 
 # --------------------------------------------------------------------
 
 @ioc.before(assemblyResources)
 def updateAssemblyResourcesForCore():
-    assemblyResources().add(argumentsPrepare(), methodInvoker(), conversion(), argumentsBuild(), invoking(),
-                            encodingMeta(), explainError(), encoding())
+    assemblyResources().add(argumentsPrepare(), renderer(), methodInvoker(), conversion(), argumentsBuild(), invoking(),
+                            encoder(), explainError())
