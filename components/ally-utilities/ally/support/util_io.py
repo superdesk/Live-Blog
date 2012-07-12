@@ -122,6 +122,22 @@ def readGenerator(fileObj, bufferSize=1024):
                 break
             yield buffer
 
+def writeGenerator(generator, fileObj):
+    '''
+    Provides a generator that read data from the provided file object.
+    
+    @param generator: Iterable
+        The generator to get the content to be writen.
+    @param fileObj: a file like object with a 'write' method
+        The file object to have the generator write data from.
+    '''
+    assert isinstance(generator, Iterable), 'Invalid generator %s' % generator
+    assert hasattr(fileObj, 'write'), 'Invalid file object %s does not have a write method' % fileObj
+    assert hasattr(fileObj, 'close'), 'Invalid file object %s does not have a close method' % fileObj
+
+    for bytes in generator: fileObj.write(bytes)
+    fileObj.close()
+
 def convertToBytes(iterable, charSet, encodingError):
     '''
     Provides a generator that converts from string to bytes based on string data from another Iterable.

@@ -42,9 +42,9 @@ class Response(Context):
     @rtype: integer
     Contains the allow flags for the methods.
     ''')
-    metaForType = defines(Type, doc='''
+    objType = defines(Type, doc='''
     @rtype: Type
-    The type to construct the meta for.
+    The type of the object provided by the invoker.
     ''')
 
 # --------------------------------------------------------------------
@@ -103,7 +103,7 @@ class MethodInvokerHandler(HandlerProcessorProceed):
             response.allows = self.allowedFor(node)
             return
 
-        response.metaForType = request.invoker.output
+        response.objType = request.invoker.output
 
     # ----------------------------------------------------------------
 

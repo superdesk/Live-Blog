@@ -10,9 +10,10 @@ Provides the configurations for the processors encoders and decoders.
 '''
 
 from ally.container import ioc
-from ally.core.impl.processor.encoder.text import EncoderTextHandler
-from ally.core.impl.processor.encoder.xml import EncoderXMLHandler
+from ally.core.impl.processor.render.text import RenderTextHandler
+from ally.core.impl.processor.render.xml import RenderXMLHandler
 from ally.design.processor import Handler, Assembly
+from ally.core.impl.encdec.model_encoder import ModelEncoder
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
@@ -47,57 +48,59 @@ def content_types_yaml() -> dict:
             }
 
 # --------------------------------------------------------------------
+# Create the encoders
 
 @ioc.entity
-def encodingAssembly() -> Assembly:
+def modelEncoder():
+    return ModelEncoder()
+
+# --------------------------------------------------------------------
+# Create the renders
+
+@ioc.entity
+def renderAssembly() -> Assembly:
     '''
-    The assembly containing the response encoders.
+    The assembly containing the response renders.
     '''
     return Assembly()
 
-# --------------------------------------------------------------------
+@ioc.entity
+def renderTextJSON():
+    import json
+    def renderJSON(obj, charSet, out): json.dump(obj, out)
+    return renderJSON
 
 @ioc.entity
-def encodeTextJSON():
-    from json.encoder import JSONEncoder
-    def encodeJSON(obj, charSet): return JSONEncoder().iterencode(obj)
-    return encodeJSON
-
-@ioc.entity
-def encoderJSON() -> Handler:
-    b = EncoderTextHandler(); yield b
+def renderJSON() -> Handler:
+    b = RenderTextHandler(); yield b
     b.contentTypes = content_types_json()
-    b.encodingError = 'backslashreplace'
-    b.encoder = encodeTextJSON()
+    b.rendererTextObject = renderTextJSON()
 
 @ioc.entity
-def encodeTextYAML():
+def renderTextYAML():
     import yaml
-    def encodeYAML(obj, charSet): yield yaml.dump(obj, default_flow_style=False)
-    return encodeYAML
+    def renderYAML(obj, charSet, out): yaml.dump(obj, out, default_flow_style=False)
+    return renderYAML
 
 @ioc.entity
-def encoderYAML() -> Handler:
-    b = EncoderTextHandler(); yield b
+def renderYAML() -> Handler:
+    b = RenderTextHandler(); yield b
     b.contentTypes = content_types_yaml()
-    b.encodingError = 'backslashreplace'
-    b.encoder = encodeTextYAML()
+    b.rendererTextObject = renderTextYAML()
 
 @ioc.entity
-def encoderXML() -> Handler:
-    b = EncoderXMLHandler(); yield b
+def renderXML() -> Handler:
+    b = RenderXMLHandler(); yield b
     b.contentTypes = content_types_xml()
-    b.encodingError = 'xmlcharrefreplace'
 
 # --------------------------------------------------------------------
 # Creating the decoding processors
 
 # --------------------------------------------------------------------
 
-@ioc.before(encodingAssembly)
-def updateEncodingAssembly():
-    encodingAssembly().add(encoderJSON())
-    encodingAssembly().add(encoderXML())
-    try: encodingAssembly().add(encoderYAML())
+@ioc.before(renderAssembly)
+def updateRenderAssembly():
+    renderAssembly().add(renderJSON())
+    renderAssembly().add(renderXML())
+    try: renderAssembly().add(renderYAML())
     except ImportError: pass
-

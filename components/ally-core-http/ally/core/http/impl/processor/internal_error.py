@@ -11,11 +11,11 @@ Provide the internal error representation. This is usually when the server fails
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import Code, INTERNAL_ERROR
-from ally.core.spec.server import IStream
+from ally.core.spec.server import IOutputStream
 from ally.design.context import defines, Context
 from ally.design.processor import HandlerProcessor, Chain
 from io import BytesIO, StringIO
-from types import GeneratorType
+from collections import Iterable
 import traceback
 from ally.support.util_io import readGenerator, convertToBytes
 import logging
@@ -40,7 +40,7 @@ class ResponseContent(Context):
     The response content context.
     '''
     # ---------------------------------------------------------------- Optional
-    source = defines(GeneratorType, IStream)
+    source = defines(IOutputStream, Iterable)
 
 # --------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ class InternalErrorHandler(HandlerProcessor):
             error = StringIO()
             traceback.print_exc(file=error)
         else:
-            if __debug__ and isinstance(responseCnt.source, GeneratorType):
+            if __debug__ and isinstance(responseCnt.source, Iterable):
                 # If in debug mode and the response content has a source generator then we will try to read that
                 # in order to catch any exception before the actual streaming.
                 content = BytesIO()
@@ -106,7 +106,7 @@ class InternalErrorHandler(HandlerProcessor):
         @param error: StringIO
             The error stream that contains the stack info.
         '''
-        assert isinstance(error, IStream), 'Invalid error stream %s' % error
+        assert isinstance(error, IOutputStream), 'Invalid error stream %s' % error
 
         yield 'Internal server error occurred, this is a major issue so please contact your administrator\n\n'
         error.seek(0)
