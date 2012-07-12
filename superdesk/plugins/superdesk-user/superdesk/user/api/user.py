@@ -21,6 +21,7 @@ class User(Person):
     Provides the user model.
     '''
     Name = str
+    Password = str
 
 # --------------------------------------------------------------------
 
