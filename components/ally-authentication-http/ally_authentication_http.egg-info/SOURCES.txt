@@ -1,5 +1,8 @@
 setup.cfg
 setup.py
+__plugin__/__init__.py
+__plugin__/ally_authentication_http/__init__.py
+__plugin__/ally_authentication_http/authentication.py
 __setup__/__init__.py
 __setup__/ally_authentication_http/__init__.py
 __setup__/ally_authentication_http/processor.py
@@ -16,3 +19,10 @@ ally_authentication_http.egg-info/dependency_links.txt
 ally_authentication_http.egg-info/requires.txt
 ally_authentication_http.egg-info/top_level.txt
 ally_authentication_http.egg-info/zip-safe
+test/__init__.py
+test/ally/__init__.py
+test/ally/core/__init__.py
+test/ally/core/authentication/__init__.py
+test/ally/core/authentication/impl/__init__.py
+test/ally/core/authentication/impl/processor/__init__.py
+test/ally/core/authentication/impl/processor/authenticator.py
