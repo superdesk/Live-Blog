@@ -28,6 +28,7 @@ from superdesk.source.meta.type import SourceTypeMapped
 from superdesk.person.api.person import QPerson
 from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
 from superdesk.post.meta.type import PostTypeMapped
+import hashlib
 
 # --------------------------------------------------------------------
 
@@ -154,6 +155,7 @@ def getUsersIds():
             else:
                 usr = User()
                 usr.Name = name
+                usr.Password = hashlib.sha512(b'a').hexdigest()
                 usr.FirstName, usr.LastName, usr.EMail = USERS[name]
                 users[name] = userService.insert(usr)
     return _cache_users

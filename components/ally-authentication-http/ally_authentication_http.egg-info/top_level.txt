@@ -1,2 +1,4 @@
+test
 __setup__
 ally
+__plugin__
