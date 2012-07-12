@@ -18,7 +18,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         options: { headers: { 'Authorization': 1 } },
         href: function(source)
         {
-            return source.indexOf('my/') === 0 ? source : 'my/'+source;
+            return source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
         }
     }),
     xfilter = function() // x-filter implementation
@@ -74,6 +74,8 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         Model: Model, AuthModel: AuthModel, 
         Collection: Collection, AuthCollection: AuthCollection, 
         Sync: newSync, AuthSync: authSync,
-		View: giz.View
+		View: giz.View,
+		Url: giz.Url,
+		Register: giz.Register		
     };
 });
