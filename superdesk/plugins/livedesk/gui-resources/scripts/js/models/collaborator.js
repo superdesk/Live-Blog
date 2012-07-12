@@ -1,20 +1,19 @@
 define(['gizmo/superdesk',
-        'gui/superdesk/livedesk/scripts/js/models/post',
-        'gui/superdesk/livedesk/scripts/js/models/source',
-        'gui/superdesk/livedesk/scripts/js/models/person'], 
-function(giz, Post, Source, Person)
+        'livedesk/models/post',
+        'livedesk/models/source',
+        'livedesk/models/person'], 
+function(Gizmo)
 {
     // Collaborator
-    var Collaborator = giz.Model.extend
+    return Gizmo.Model.extend
     ({ 
         defaults:
         { 
-            Post: giz.Collection.extend({ model: Post }),
-            PostPublished: giz.Collection.extend({ model: Post }),
-            PostUnpublished: giz.Collection.extend({ model: Post }),
-            Source: Source,
-            Person: Person
+            Post: Gizmo.Collection.extend({ model: Gizmo.Model.Post }),
+            PostPublished: Gizmo.Collection.extend({ model: Gizmo.Model.Post }),
+            PostUnpublished: Gizmo.Collection.extend({ model: Gizmo.Model.Post }),
+            Source: Gizmo.Model.Source,
+            Person: Gizmo.Model.Person
         }
-    });
-    return Collaborator;
+    }, { register: 'Collaborator' } );
 });
