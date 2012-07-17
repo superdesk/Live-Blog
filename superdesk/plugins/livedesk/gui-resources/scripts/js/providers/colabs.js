@@ -86,7 +86,7 @@ function(providers, $, giz, Blog, Collaborator)
                     var person = colab.get('Person'),
                         posts = colab.get('Post');
 
-                    posts.xfilter('*').sync().done(function()
+                    posts.on('read', function()
                     {
                         //for(var i=0; i<postList.length; i++)
                         //posts.each(function()
@@ -123,6 +123,9 @@ function(providers, $, giz, Blog, Collaborator)
                         
                         
                     });
+                    
+                    posts.xfilter('*').sync();
+                    
                 });
             });
         },
