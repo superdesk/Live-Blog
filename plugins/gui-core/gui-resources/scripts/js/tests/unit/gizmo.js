@@ -11,7 +11,31 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             ok( giz, 'gizmo defined' );
         });
         
-        /*asyncTest("xxxxx", function()
+        /*
+        asyncTest("change set", function()
+        {
+            var Collaborator = giz.Model.extend({ helloYesThisDog: true }),
+            Collaborators = giz.Collection.extend({ model: Collaborator}),
+            User = giz.Model.extend(),
+            Blog = giz.Model.extend
+            ({ 
+                defaults:
+                { 
+                    Collaborator: Collaborators,
+                    Creator: User
+                }
+            });
+            b = new Blog('http://localhost:8080/resources/my/LiveDesk/Blog/1');
+            b.on('read', function()
+            {
+                b.set('Description', 'Pula');
+                b.set('Creator', 77);
+                b.sync();
+            });
+            b.sync();
+        });
+        
+        asyncTest("xxxxx", function()
         {
             var Collaborator = giz.Model.extend({ helloYesThisDog: true }), 
             Collaborators = giz.Collection.extend({ model: Collaborator}), 
