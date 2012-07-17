@@ -110,6 +110,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             this._forDelete = false;
             this._changed = false;
             this.data = {};
+            this.changeset = {};
             this._clientHash = null;
             if( typeof data == 'string' ) this.href = data;
             if( typeof data == 'object' ) $.extend(this.data, this.parse(data));
@@ -127,13 +128,14 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         /*!
          * @param format
          */
-        feed: function(format, deep)
+        feed: function(format, deep, fromData)
         {
-            var ret = {};
-            for( var i in this.data ) 
-                ret[i] = this.data[i] instanceof Model ? 
-                        (deep ? this.data[i].feed(deep) : this.data[i].relationHash() || this.data[i].hash()) : 
-                        this.data[i];
+            var ret = {},
+                feedData = fromData ? fromData : this.data;
+            for( var i in feedData ) 
+                ret[i] = feedData[i] instanceof Model ? 
+                        (deep ? feedData[i].feed(deep) : feedData[i].relationHash() || feedData[i].hash()) : 
+                        feedData[i];
             return ret;
         },
         /*!
@@ -169,9 +171,12 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             }
             
             if( this._changed ) // if changed do an update on the server and return
-                ret = (this.href && dataAdapter(this.href).update(this.feed()).done(function()
+                ret = (this.href && dataAdapter(this.href)
+                        .update(arguments[1] ? this.feed() : this.feed('json', false, this.changeset))
+                        .done(function()
                 {
                     self._changed = false;
+                    self.changeset = {};
                     self.triggerHandler('update');
                 })); 
             else
@@ -195,15 +200,20 @@ define('gizmo', ['jquery', 'utils/class'], function($)
         },
         /*!
          * @param data the data to parse into the model
+         * @param updateChangeset whether to update changeset or not
          */
-        parse: function(data)
+        parse: function(data, updateChangeset)
         {
             for( var i in data ) 
             {
                 if( this.defaults[i] ) switch(true)
                 {
                     case typeof this.defaults[i] === 'function': // a model or collection constructor
-                        this.data[i] = new this.defaults[i](data[i]);
+                        var newModel = new this.defaults[i](data[i]);
+                        if( updateChangeset && newModel != this.data[i] )
+                            this.changeset[i] = newModel;
+                        this.data[i] = newModel;
+                        console.log(this.data[i]);
                         !data[i].href && this.data[i].relationHash && this.data[i].relationHash(data[i]);
                         continue;
                         break;
@@ -218,6 +228,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                         continue;
                         break;
                 }
+                if( updateChangeset && data[i] != val ) this.changeset[i] = data[i];
                 this.data[i] = data[i];
             }
         },
