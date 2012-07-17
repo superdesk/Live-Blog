@@ -28,14 +28,16 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             b = new Blog('http://localhost:8080/resources/my/LiveDesk/Blog/1');
             b.on('read', function()
             {
-                b.set('Description', 'Pula');
-                b.set('Creator', 77);
-                b.sync();
+                b.set('Description', 'x');
+                b.set('Title', 'x');
+                console.log(b)
             });
             b.sync();
         });
         
-        asyncTest("xxxxx", function()
+        return;
+        
+        /*asyncTest("xxxxx", function()
         {
             var Collaborator = giz.Model.extend({ helloYesThisDog: true }), 
             Collaborators = giz.Collection.extend({ model: Collaborator}), 
