@@ -14,7 +14,7 @@ from .gui_core import getGuiPath, lib_folder_format, publishLib
 from ally.container import ioc
 from ally.support.util_io import openURI
 from io import BytesIO
-from __plugin__.gui_core.gui_core import getPublishedLib
+from __plugin__.gui_core.gui_core import getPublishedLib, gui_folder_format
 import logging
 
 # --------------------------------------------------------------------
@@ -73,6 +73,8 @@ def updateDemoFile():
         bootPath = lib_folder_format() % 'core/'
         with openURI(getGuiPath(ui_demo_file())) as f:
             out = f.read().replace(b'{server_url}', bytes(server_url(), 'utf-8'))
+            out = out.replace(b'{gui}', bytes(gui_folder_format(), 'utf-8'));
+            out = out.replace(b'{lib_core}', bytes(bootPath, 'utf-8'));
             cdmGUI().publishFromFile(bootPath + ui_demo_file(), BytesIO(out))
     except Exception as e: 
         print('Error publishing demo client file:', e)
