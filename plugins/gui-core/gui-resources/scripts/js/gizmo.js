@@ -210,10 +210,11 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                 {
                     case typeof this.defaults[i] === 'function': // a model or collection constructor
                         var newModel = new this.defaults[i](data[i]);
-                        if( updateChangeset && newModel != this.data[i] )
+                        
+                        if( updateChangeset && newModel != this.data[i])
                             this.changeset[i] = newModel;
+                        
                         this.data[i] = newModel;
-                        console.log(this.data[i]);
                         !data[i].href && this.data[i].relationHash && this.data[i].relationHash(data[i]);
                         continue;
                         break;
@@ -228,7 +229,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                         continue;
                         break;
                 }
-                if( updateChangeset && data[i] != val ) this.changeset[i] = data[i];
+                if( updateChangeset && this.data[i] != data[i] ) this.changeset[i] = data[i];
                 this.data[i] = data[i];
             }
         },
@@ -242,7 +243,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             var data = {}; 
             if( val ) data[key] = val;
             else data = key;
-            this.parse(data);
+            this.parse(data, true);
             this._changed = true;
             return this;
         },
