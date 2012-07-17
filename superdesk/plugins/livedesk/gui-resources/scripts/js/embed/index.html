@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style>
+            .embed-livedesk {
+                display:block;
+            }
+        </style>
+        <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+        <script src="gizmo.js"></script>
+    </head>
+    <body>
+        <div id="loader-smack"><div>
+        <div id="livedesk-root"></div>
+        <script>(function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "livedeskembed.js";
+            fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'livedesk-jssdk'));
+        </script>
+    </body>
+</html>
