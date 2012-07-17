@@ -1,11 +1,9 @@
 define( 'providers/colabs', 
 [ 'providers', 'jquery', 'gizmo/superdesk', 
   
-  'gui/superdesk/livedesk/scripts/js/models/blog',
-  'gui/superdesk/livedesk/scripts/js/models/collaborator',
+  config.guiJs('livedesk', 'models/blog'),
+  config.guiJs('livedesk', 'models/collaborator'),
   
-  'jquery/rest',
-  'jquery/avatar',
   'providers/colabs/adaptor',
   'tmpl!livedesk>providers/colabs',
   'tmpl!livedesk>providers/colabs/items' ],
@@ -56,8 +54,6 @@ function(providers, $, giz, Blog, Collaborator)
         
         initTab: function(blogUrl)
         {
-            console.log(this.el);
-            
             $('.search-result-list', this.el).html('');
             colabsList = [];
             var blog = new Blog(blogUrl),
@@ -149,6 +145,6 @@ function(providers, $, giz, Blog, Collaborator)
     providers.colabs.el = el;
     providers.colabs.className = className;
     providers.colabs.adaptor = adaptor;
-    
+
     return providers;
 });
