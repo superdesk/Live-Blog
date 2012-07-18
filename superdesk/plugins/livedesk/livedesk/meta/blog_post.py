@@ -19,6 +19,7 @@ from sqlalchemy.sql.expression import case
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.post import PostMapped
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from sqlalchemy.types import REAL
 
 # --------------------------------------------------------------------
 
@@ -30,9 +31,10 @@ class BlogPostDefinition:
     __tablename__ = 'livedesk_post'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    CId = Column('id_change', INTEGER(unsigned=True))
+    CId = declared_attr(lambda cls: Column('id_change', INTEGER(unsigned=True)))
     Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False))
     # Non REST model attribute --------------------------------------
+    ordering = declared_attr(lambda cls: Column('ordering', REAL))
     blogPostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
     # Never map over the inherited id
 
@@ -58,5 +60,3 @@ class BlogPostMapped(BlogPostDefinition, PostMapped, BlogPost):
     def _AuthorPerson(cls):
         return case([(cls.author == None, cls.Creator)], else_=
                     case([(CollaboratorMapped.Person != None, CollaboratorMapped.Person)]))
-
-
