@@ -28,6 +28,7 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
+from sqlalchemy.sql.operators import desc_op
 
 # --------------------------------------------------------------------
 
@@ -67,8 +68,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
 
-        sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
-        sql = sql.order_by(BlogPostMapped.Id.desc())
+        sql = sql.order_by(desc_op(BlogPostMapped.ordering))
         sql = buildLimits(sql, offset, limit)
         return self._trimmDeleted(sql.all())
 
@@ -90,14 +90,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
 
-        sql = sql.order_by(BlogPostMapped.CreatedOn.desc())
-        sql = sql.order_by(BlogPostMapped.Id.desc())
+        sql = sql.order_by(desc_op(BlogPostMapped.ordering))
         sql = buildLimits(sql, offset, limit)
         return self._trimmDeleted(sql.all())
 
     def getOwned(self, blogId, creatorId, typeId=None, offset=None, limit=None, q=None):
         '''
-        @see: IBlogPostService.getUnpublishedOwned
+        @see: IBlogPostService.getOwned
         '''
         assert q is None or isinstance(q, QBlogPost), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, typeId, creatorId, None, q)
@@ -106,8 +105,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
         sql = sql.filter(BlogPostMapped.Author == None)
 
-        sql = sql.order_by(BlogPostMapped.CreatedOn.desc())
-        sql = sql.order_by(BlogPostMapped.Id.desc())
+        sql = sql.order_by(desc_op(BlogPostMapped.ordering))
         sql = buildLimits(sql, offset, limit)
         return self._trimmDeleted(sql.all())
 
@@ -118,11 +116,10 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert q is None or isinstance(q, QBlogPost), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
 
-        sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
-        sql = sql.order_by(BlogPostMapped.Id.desc())
+        sql = sql.order_by(desc_op(BlogPostMapped.ordering))
         sql = buildLimits(sql, offset, limit)
         return self._trimmDeleted(sql.all())
-    
+
     def insert(self, blogId, post):
         '''
         @see: IBlogPostService.insert
@@ -149,6 +146,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
         postEntry.CId = self._nextCId()
+        postEntry.ordering = self._nextOrdering(blogId)
         self.session().merge(postEntry)
 
         return postId
@@ -163,6 +161,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
         postEntry.CId = self._nextCId()
+        postEntry.ordering = self._nextOrdering(blogId)
         self.session().add(postEntry)
 
         return postEntry.blogPostId
@@ -178,6 +177,44 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
         postEntry.CId = self._nextCId()
         self.session().merge(postEntry)
+
+    def reorder(self, blogId, postId, refPostId, before=True):
+        '''
+        @see: IBlogPostService.reorder
+        '''
+        sql = self.session().query(BlogPostMapped.ordering)
+        sql = sql.filter(BlogPostMapped.Blog == blogId)
+        sql = sql.filter(BlogPostMapped.Id == refPostId)
+        order = sql.scalar()
+
+        if not order: raise InputError(Ref(_('Invalid before post')))
+
+        sql = self.session().query(BlogPostMapped.ordering)
+        sql = sql.filter(BlogPostMapped.Blog == blogId)
+        sql = sql.filter(BlogPostMapped.Id != postId)
+        if before:
+            sql = sql.filter(BlogPostMapped.ordering > order)
+            sql = sql.order_by(BlogPostMapped.ordering)
+        else:
+            sql = sql.filter(BlogPostMapped.ordering < order)
+            sql = sql.order_by(desc_op(BlogPostMapped.ordering))
+
+        sql = sql.limit(1)
+
+        orderPrev = sql.scalar()
+
+        if orderPrev: order = (order + orderPrev) / 2
+        else: order -= 1
+
+        sql = self.session().query(BlogPostMapped)
+        sql = sql.filter(BlogPostMapped.Blog == blogId)
+        sql = sql.filter(BlogPostMapped.Id == postId)
+
+        post = self.getById(blogId, postId)
+        assert isinstance(post, BlogPostMapped)
+
+        post.ordering = order
+        self.session().merge(post)
 
     def delete(self, id):
         '''
@@ -200,7 +237,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         sql = self.session().query(BlogPostMapped)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
-        
+
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
         if authorId:
@@ -212,7 +249,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sql = buildQuery(sql, q, BlogPostMapped)
             addDeleted = QPostUnpublished.deletedOn in q or QWithCId.cId in q
         if not addDeleted: sql = sql.filter(BlogPostMapped.DeletedOn == None)
-        
+
         return sql
 
     def _trimmDeleted(self, posts):
@@ -235,5 +272,13 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         Provides the next change Id.
         '''
         max = self.session().query(fn.max(BlogPostMapped.CId)).scalar()
+        if max: return max + 1
+        return 1
+
+    def _nextOrdering(self, blogId):
+        '''
+        Provides the next ordering.
+        '''
+        max = self.session().query(fn.max(BlogPostMapped.ordering)).filter(BlogPostMapped.Blog == blogId).scalar()
         if max: return max + 1
         return 1
