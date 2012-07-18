@@ -10,7 +10,7 @@ API specifications for livedesk blog posts.
 '''
 
 from .blog import Blog
-from ally.api.config import service, call, INSERT, query
+from ally.api.config import service, call, INSERT, query, UPDATE
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.post.api.post import Post, QPostUnpublished, \
     QPost, IPostService
@@ -136,6 +136,12 @@ class IBlogPostService:
         Update the post for the blog.
         '''
 
+    @call(method=UPDATE, webName='Reorder')
+    def reorder(self, blogId:Blog.Id, postId:Post.Id, refPostId:Post.Id, before:bool=True):
+        '''
+        Reorder the post.
+        '''
+
     @call(replaceFor=IPostService)
     def delete(self, id:Post.Id) -> bool:
         '''
@@ -146,4 +152,3 @@ class IBlogPostService:
             
         @return: True if the delete is successful, false otherwise.
         '''
-

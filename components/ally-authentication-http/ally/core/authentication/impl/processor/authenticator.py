@@ -73,9 +73,9 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
 
     def __init__(self):
         assert isinstance(self.sessionName, str), 'Invalid session name %s' % self.sessionName
-        assert isinstance(self.login_token_timeout, int), \
+        assert isinstance(self.login_token_timeout, timedelta), \
         'Invalid login token timeout value %s' % self.login_token_timeout
-        assert isinstance(self.session_token_timeout, int), \
+        assert isinstance(self.session_token_timeout, timedelta), \
         'Invalid session token timeout value %s' % self.session_token_timeout
         assert isinstance(self.resourcesRegister, IResourcesRegister), \
         'Invalid resources manager %s' % self.resourcesManager
