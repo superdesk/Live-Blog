@@ -31,8 +31,8 @@ var livedeskEmbed = {
     },
     
     startLoading : function() {
-        console.log('starting to load');
-        $('#loader-smack').html('merge jQuery');
+        //console.log('starting to load');
+        //$('#loader-smack').html('merge jQuery');
         
         var 
         User = $.gizmo.Model.extend({}),
@@ -62,22 +62,24 @@ var livedeskEmbed = {
             init: function(href)
             {
                 this.post = new Post(href);
-                this.render();
+                return this.render();
             },
             render: function()
             {
                 // pus in ceva html 
-                this.post.get('Content')
+                console.log(this.post.get('Content') );
+                return '<div style="display:block">' + this.post.get('Content') + '</div>';
             }
         }),
         TimelineView = $.gizmo.View.extend
         ({
             events: 
             {
-                '[pula="ceva-click-shucar"]': {'click': 'altceva'}
+                '[uberclick="ceva-click-shucar"]': {'click': 'altceva'}
             },
-            init: function()
+            init: function(el)
             {
+                this.el = el;
                 this.blog = new Blog('http://localhost:8080/resources/LiveDesk/Blog/1');
                 var self = this;
                 this.blog.on('read', function()
@@ -90,15 +92,16 @@ var livedeskEmbed = {
             },
             render: function()
             {
+                var self = this;
                 this.blog.get('Post').each(function()
                 {
-                    (new PostItemView).init(this.hash());
+                    self.el.append( (new PostItemView).init(this.hash()) )
                 })
             }
             
         });
         
-        console.log((new TimelineView).init());
+        (new TimelineView).init($('#livedesk-root'));
     }
 };
 livedeskEmbed.init();
