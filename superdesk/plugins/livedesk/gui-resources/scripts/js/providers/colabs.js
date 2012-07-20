@@ -10,17 +10,46 @@ define( 'providers/colabs',
   
 function(providers, $, giz, Blog, Collaborator)
 {
-    var config = { updateInterval: 30 },
+    var config = { updateInterval: 10 },
         colabsList = [], 
         updateInterval = 0,
-        intervalRunning = false;
+        intervalRunning = false,
+        updateItemCount = 0;
     
-    
-    var ColabView = giz.View.extend
+    // single post item view
+    var PostView = giz.View.extend
+    ({
+        init: function()
+        {
+            var self = this;
+            this.model.on('update', function(){ self.render(true); });
+        },
+        render: function(update)
+        {
+            var self = this;
+            $.tmpl( 'livedesk>providers/colabs/items', {Posts: this.model.feed('json')}, function(e, o)
+            {
+                if(update) $(self.el).replaceWith($(o));
+                else self.el = $(o);
+                
+                // make draggable
+                self.el.hasClass('draggable') && self.el.draggable
+                ({
+                    helper: 'clone',
+                    appendTo: 'body',
+                    zIndex: 2700,
+                    start: function(){ $(this).data('post', providers.colabs.adaptor.universal(this)); }
+                });
+            });
+            return self;
+        }
+    }),
+    // main view
+    ColabView = giz.View.extend
     ({
         events: 
         {
-            '.collaborators-header': {'click': 'toggleHeader'},
+            '.collaborators-header .feed-info .label': {'click': 'toggleHeader'},
             '.new-results': {'update.livedesk': 'showNewResults'}
         },
         
@@ -40,29 +69,34 @@ function(providers, $, giz, Blog, Collaborator)
                 $(this).removeClass('label-info').data('is-off', true);
             }
         },
-        
-        showNewResults: function()
+        /*!
+         * @param e event
+         * @param count
+         * @param callback
+         */
+        showNewResults: function(e, count, callback, auto)
         {
-            var self = $(this);
-            $(this).removeClass('hide')
-                .text(count+" "+_('new items! Update')).one('click.livedesk', function()
+            var self = $('.new-results', this.el),
+                cb = function()
                 { 
                     self.addClass('hide'); 
                     callback.apply(this);
-                });
+                };
+            auto ? cb() : self.removeClass('hide').text( count+" "+_('new items! Update') ).one('click.livedesk', cb);
         },
         
-        initTab: function(blogUrl)
+        init: function()
         {
             $('.search-result-list', this.el).html('');
-            colabsList = [];
-            var blog = new Blog(blogUrl),
+            var blog = new Blog(this.blogUrl),
                 self = this;
+            self.colabsList = [];
             blog.on('read', function()
             { 
                 var collaborators = this.get('Collaborator');
                 collaborators.on('read', function()
-                { 
+                {
+                    self.colabsList = this;
                     self.setupHeader.call(self, this);
                     self.setupColabStream.call(self, this); 
                 });
@@ -70,84 +104,139 @@ function(providers, $, giz, Blog, Collaborator)
             });
             blog.sync();
         },
-        setupHeader: function(colabs)
-        {
-            console.log(colabs._list[0].get('Person').get('FullName'));
-            $(this.el).tmpl('livedesk>providers/colabs', {Colabs: colabs.feed('json', true)}, function(e, o){ console.log(this, arguments); });
-        },
-        setupColabStream: function(colabs)
-        {
-            var self = this;
-            colabs.each(function()
-            {
-                var colab = this;
-                colab.sync().done(function()
-                { 
-                    var person = colab.get('Person'),
-                        posts = colab.get('Post');
-
-                    posts.on('read', function()
-                    {
-                        //for(var i=0; i<postList.length; i++)
-                        //posts.each(function()
-                        //{ 
-                        //    colab._latestPost = Math.max(colab._latestPost, parseInt(posts[i].CId));
-                        //});
-                        $.tmpl( 'livedesk>providers/colabs/items', 
-                                {Person: person.feed('json'), Posts: posts.feed('json')}, 
-                        function(e, o)
-                        {
-                            $('.search-result-list', self.el).prepend(o);
-                            $('.search-result-list li.draggable', self.el).draggable
-                            ({
-                                helper: 'clone',
-                                appendTo: 'body',
-                                zIndex: 2700,
-                                start: function() 
-                                {
-                                    $(this).data('post', self.adaptor.universal(this));
-                                }
-                            });
-                          
-                            clearInterval(updateInterval);
-                            updateInterval = setInterval(function()
-                            {
-                                if(!$('.search-result-list:visible', self.el).length) 
-                                {
-                                    clearInterval(updateInterval);
-                                    return;
-                                }
-                                update(); 
-                            }, config.updateInterval*1000);
-                      });
-                        
-                        
-                    });
-                    
-                    posts.xfilter('*').sync();
-                    
-                });
-            });
-        },
+        
         update: function()
         {
-            $(colabsList).each(function()
+            this.colabsList.each(function()
             {
-                console.log(this);
+                // get post list and sync it with the server
+                this.get('Post').sync({data: {'startEx.cId': this._latestPost}});
             });
         },
         
+        /*!
+         * display list header
+         */
+        setupHeader: function(colabs)
+        {
+            $(this.el).tmpl('livedesk>providers/colabs', {Colabs: colabs.feed('json', true)});
+        },
+        
+        readPostsHandle: function()
+        {
+            
+        },
+        
+        /*!
+         * setup post list
+         */
+        setupColabStream: function(colabs)
+        {
+            var self = this,
+                initial = colabs.count();
+            colabs.each(function()
+            {
+                var colab = this;
+                
+                colab._latestPost = 0;
+                colab._viewModels = [];
+                colab.on('read', function()
+                { 
+                    // get posts for each collaborator
+                    colab.get('Post').xfilter('*')
+                        .on('read', function()
+                        { 
+                            var appendPosts = [];
+
+                            this.each(function()
+                            {
+                                if( $.inArray( this.get('Id'), colab._viewModels ) === -1 )
+                                {
+                                    appendPosts.push(this);
+                                    colab._viewModels.push(this.get('Id'));
+                                }
+                                colab._latestPost = Math.max(colab._latestPost, parseInt(this.get('CId')));
+                            });
+                            
+                            updateItemCount += appendPosts.length;
+                            
+                            appendPosts.length && $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
+                            {
+                                $(appendPosts).each(function()
+                                { 
+                                    $('.search-result-list', self.el).append( (new PostView({ model: this })).render().el );
+                                });
+                                updateItemCount -= appendPosts.length;
+                            }, initial ? true : false]);
+                            
+                            initial -= 1;
+                            
+                        }).sync();
+                    
+                    clearInterval(updateInterval);
+                    updateInterval = setInterval(function()
+                    {
+                        if(!$('.search-result-list:visible', self.el).length) 
+                        {
+                            clearInterval(updateInterval);
+                            return;
+                        }
+                        self.update(); 
+                    }, config.updateInterval*1000);
+                    
+//                    var person = colab.get('Person'),
+//                        posts = colab.get('Post');
+//
+//                        console.log(posts instanceof giz.Collection);
+//                        
+//                        posts.xfilter('*').sync();
+//                        .done(function()
+//                    {
+//                        /*for(var i=0; i<postList.length; i++)
+//                        posts.each(function()
+//                        { 
+//                            colab._latestPost = Math.max(colab._latestPost, parseInt(posts[i].CId));
+//                        });*/
+//                        $.tmpl( 'livedesk>providers/colabs/items', 
+//                                {Person: person.feed('json'), Posts: posts.feed('json')}, 
+//                        function(e, o)
+//                        {
+//                            $('.search-result-list', self.el).prepend(o);
+//                            $('.search-result-list li.draggable', self.el).draggable
+//                            ({
+//                                helper: 'clone',
+//                                appendTo: 'body',
+//                                zIndex: 2700,
+//                                start: function() 
+//                                {
+//                                    $(this).data('post', self.adaptor.universal(this));
+//                                }
+//                            });
+//                          
+//                            clearInterval(updateInterval);
+//                            updateInterval = setInterval(function()
+//                            {
+//                                if(!$('.search-result-list:visible', self.el).length) 
+//                                {
+//                                    clearInterval(updateInterval);
+//                                    return;
+//                                }
+//                                update(); 
+//                            }, config.updateInterval*1000);
+//                        });
+//                    });
+                    
+                }).sync();
+                
+            });
+        },
         render: function()
         {
             
         }
     });
-    
-    var el = providers.colabs.el, className = providers.colabs.className, adaptor = providers.colabs.adaptor;
-    providers.colabs = new ColabView(null,{init: false, ensure: false, events: false});
-    providers.colabs.el = el;
-    providers.colabs.className = className;
-    providers.colabs.adaptor = adaptor;
 
+    $.extend( providers.colabs, { initTab: function(blogUrl){ new ColabView({ el: this.el, blogUrl: blogUrl }); } });
+    
     return providers;
 });
