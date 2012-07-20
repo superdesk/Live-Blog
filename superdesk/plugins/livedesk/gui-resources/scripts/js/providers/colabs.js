@@ -110,7 +110,7 @@ function(providers, $, giz, Blog, Collaborator)
             this.colabsList.each(function()
             {
                 // get post list and sync it with the server
-                this.get('Post').sync({data: {'startEx.cId': this._latestPost}});
+                this.get('Post').xfilter('*').sync({data: {'startEx.cId': this._latestPost}});
             });
         },
         
@@ -143,6 +143,7 @@ function(providers, $, giz, Blog, Collaborator)
                 colab.on('read', function()
                 { 
                     // get posts for each collaborator
+                    // TODO isolate the callback
                     colab.get('Post').xfilter('*')
                         .on('read', function()
                         { 
@@ -155,6 +156,7 @@ function(providers, $, giz, Blog, Collaborator)
                                     appendPosts.push(this);
                                     colab._viewModels.push(this.get('Id'));
                                 }
+                                //console.log(this, Math.max(colab._latestPost, parseInt(this.get('CId'))));
                                 colab._latestPost = Math.max(colab._latestPost, parseInt(this.get('CId')));
                             });
                             
@@ -164,7 +166,7 @@ function(providers, $, giz, Blog, Collaborator)
                             {
                                 $(appendPosts).each(function()
                                 { 
-                                    $('.search-result-list', self.el).append( (new PostView({ model: this })).render().el );
+                                    $('.search-result-list', self.el).prepend( (new PostView({ model: this })).render().el );
                                 });
                                 updateItemCount -= appendPosts.length;
                             }, initial ? true : false]);
