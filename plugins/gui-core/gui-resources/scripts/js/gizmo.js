@@ -66,7 +66,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
 					if(source instanceof Url) {
 						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data}, source.options());
 						self.reset();
-						console.log('Source: ',source.get());
+						//console.log('Source: ',source.get());
 						return $.ajax(self.href(source.get()), options);
 					} else {				
 						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data});
@@ -143,7 +143,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
          */
         sync: function()
         {   
-			console.log('sync once', arguments.calee);
+			//console.log('sync once', arguments.calee);
             var self = this, ret, dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
             this.hash();
             // trigger an event before sync
@@ -181,7 +181,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                 })); 
             else
                 // simply read data from server
-                ret = (this.href && dataAdapter(this.href).read().done(function(data)
+                ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
                 {
                     self.parse(data);
                     self.triggerHandler('read');
@@ -209,11 +209,12 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                 if( this.defaults[i] ) switch(true)
                 {
                     case typeof this.defaults[i] === 'function': // a model or collection constructor
+                        
                         var newModel = new this.defaults[i](data[i]);
                         
                         if( updateChangeset && newModel != this.data[i])
                             this.changeset[i] = newModel;
-                        
+
                         this.data[i] = newModel;
                         !data[i].href && this.data[i].relationHash && this.data[i].relationHash(data[i]);
                         continue;
@@ -355,24 +356,6 @@ define('gizmo', ['jquery', 'utils/class'], function($)
     };
     // Model's base options
     var options = Model.options = {}, extendFnc, cextendFnc;
-    /*Model.extend = extendFnc = function(props)
-    {
-        var proto = new this;
-        $.extend(proto, props);
-        for( var name in props ) proto[name] = props[name];
-        
-        function Model()
-        {
-            if( this._construct ) return this._construct.apply(this, arguments);
-        };
-        Model.prototype = proto;
-        // create a new property from original options one
-        Model.prototype.options = $.extend({}, options);
-        Model.prototype.constructor = Model;
-        
-        Model.extend = extendFnc;
-        return Model;
-    };*/
     Model.extend = extendFnc = function(props, options)
     {
         var newly;
@@ -397,7 +380,8 @@ define('gizmo', ['jquery', 'utils/class'], function($)
     Collection.prototype = 
     {
         _list: [],
-        getList: function(){ return this._list },
+        getList: function(){ return this._list; },
+        count: function(){ return this._list.length; },
         _construct: function()
         {
             if( !this.model ) this.model = Model;
@@ -422,7 +406,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
                         buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]); 
                         break;
                     case '[object Object]': // options, same technique as above
-						console.log(arguments[i], arguments[i] instanceof Url);
+						//console.log(arguments[i], arguments[i] instanceof Url);
                         buildOptions = (function(args){ return function(){ this.options = args; }})(arguments[i]);
                         break;
                 }
@@ -475,13 +459,13 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             return ret;
         },		
         /*!
-         * 
+         * @param options 
          */
         sync: function()
         {
             var self = this;
             return (this.options.href &&
-                this.syncAdapter.request.call(this.syncAdapter, this.options.href).read().done(function(data)
+                this.syncAdapter.request.call(this.syncAdapter, this.options.href).read(arguments[0]).done(function(data)
                 {
                     var data = self.parse(data);
                      // important or it will infiloop
@@ -545,12 +529,10 @@ define('gizmo', ['jquery', 'utils/class'], function($)
 		 */
 		on: function(evt, handler, obj)
 		{
-			if(obj === undefined)
+			if( obj === undefined )
 				$(this).on(evt, handler);
 			else
-				$(this).on(evt, function(){
-					handler.call(obj, evt);
-				});
+				$(this).on(evt, function(){ handler.call(obj, evt); });
 			return this;
 		},	
         /*!
