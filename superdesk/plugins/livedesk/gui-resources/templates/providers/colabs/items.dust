@@ -11,7 +11,7 @@
         {/Person}
 	</figure>
 	<div class="result-content">
-    	<h3><span class="author">{#Person}{FullName}{/Person}</span></h3>
+    	<h3><span class="author">{AuthorName}</span></h3>
     	<p class="result-text">{Content|s}</p>
     	<p class="attributes"><time>{PublishedOn}</time></p>
 	</div>
