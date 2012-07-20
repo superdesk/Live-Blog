@@ -119,7 +119,23 @@ define('gizmo', ['jquery', 'utils/class'], function($)
             //this.exTime = new Date
             //this.exTime.setMinutes(this.exTime.getMinutes() + 5);
             
-            return this.pushUnique ? this.pushUnique() : this;
+            var newInstance = this.pushUnique ? this.pushUnique() : this; 
+            
+            // identify changes from new data
+            // TODO optimize
+            if( typeof data == 'object' ) 
+            {
+                var changes = {}, changed = false;
+                for( var i in data ) 
+                    if( !newInstance.data[i] || (data[i] != newInstance.data[i] && typeof data[i] != 'object') )
+                    {
+                        newInstance.data[i] = changes[i] = data[i];
+                        changed = true;
+                    }
+                changed && newInstance.triggerHandler('update', [changes]);
+            }
+            
+            return newInstance;
         },
         /*!
          * adapter for data sync
@@ -253,6 +269,7 @@ define('gizmo', ['jquery', 'utils/class'], function($)
          */
         _getClientHash: function()
         {
+            //console.log('client hash', this._getClientHash());
             if( !this._clientHash ) this._clientHash = "mcid-"+String(uniqueIdCounter++);
             return this._clientHash;
         },
