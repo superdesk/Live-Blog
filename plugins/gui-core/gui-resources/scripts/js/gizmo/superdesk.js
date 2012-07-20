@@ -66,7 +66,14 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         var Model = giz.Model.extend.apply(this, arguments);
         
         var uniq = new giz.UniqueContainer;
-        $.extend( Model.prototype, { _uniq: uniq, pushUnique: function(){ return uniq.set(this.hash(), this); } }, arguments[0] );
+        $.extend( Model.prototype, 
+        { 
+            _uniq: uniq, 
+            pushUnique: function()
+            { 
+                return uniq.set(this.hash(), this); 
+            } 
+        }, arguments[0] );
         return Model;
     };
     
