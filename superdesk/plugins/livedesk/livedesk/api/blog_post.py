@@ -30,6 +30,7 @@ class BlogPost(Post):
     Provides the blog post model.
     '''
     CId = int
+    Order = float
     Blog = Blog
     AuthorPerson = Person
     AuthorName = str
