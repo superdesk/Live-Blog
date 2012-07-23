@@ -1,0 +1,1 @@
+<li class="{classActived}"><a href="#{link}" data-toggle="tab"><i class="{className}"></i></a></li>
