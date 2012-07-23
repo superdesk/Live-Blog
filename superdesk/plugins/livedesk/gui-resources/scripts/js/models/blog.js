@@ -4,11 +4,12 @@ define([ 'gizmo/superdesk',
     config.guiJs('livedesk', 'models/posts'),
     config.guiJs('livedesk', 'models/collaborators')],
     
-function(giz, User, Language, Posts, Collaborators)
+function(Gizmo, User, Language, Posts, Collaborators)
 {
     // Blog
-    return giz.Model.extend
-    ({ 
+    return Gizmo.AuthModel.extend
+    ({
+		url: new Gizmo.Url('Blog'),
         defaults:
         { 
             Creator: User,
