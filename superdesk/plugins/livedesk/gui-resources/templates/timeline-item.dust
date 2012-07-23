@@ -1,7 +1,6 @@
-<ul class="post-list wraped">
-{#Posts}
+{#Post}
 	{@if cond="'{Type.Key}'=='wrapup'"}
-    <li class="wrapup open" data-post-id="{Id}" data-post-type="{Type.Key}">
+    <li class="wrapup open timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
        <div class="drag-bar"></div>
        <div class="arrow"></div>
        <div class="wrapup-content">
@@ -11,7 +10,7 @@
     </li>
 	{:else}
 		{@if cond="'{Author.Source.Name}'=='google' || '{Author.Source.Name}'=='flickr'"}
-		<li class="{Author.Source.Name} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
+		<li class="{Author.Source.Name} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
@@ -35,7 +34,7 @@
 			</div>			
 	    {/if}
 	    {@if cond="'{Author.Source.Name}'=='twitter'"}
-		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
+		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
@@ -64,7 +63,7 @@
 			</div>			
 	    {/if}
 	    {@if cond="'{Author.Source.Name}'=='advertisement'"}
-		<li class="{Author.Source.Name} {Type.Key} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
+		<li class="{Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 	        <div class="tool-box-right">
 	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
 	        </div>
@@ -87,7 +86,7 @@
 			</div>			
 	    {/if}
 		{@if cond="'{Author.Source.Name}'!='twitter' && '{Author.Source.Name}'!='google' && '{Author.Source.Name}'!='flickr' && '{Author.Source.Name}'!='advertisement'"}
-		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable" data-post-id="{Id}" data-post-type="{Type.Key}">
+		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
@@ -126,5 +125,4 @@
 			<div class="clear"></div>
 		</li>
 	{/if}
-{/Posts}
-</ul>
+{/Post}

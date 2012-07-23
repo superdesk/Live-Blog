@@ -2,7 +2,7 @@ requirejs.config({
 	paths: { 
 		'providers': 'lib/livedesk/scripts/js/providers', 
 		'livedesk/models': 'lib/livedesk/scripts/js/models', 
-		'collections_livedesk': 'lib/livedesk/scripts/js/collections/' 
+		'livedesk/collections': 'lib/livedesk/scripts/js/collections/' 
 } });
 define
 ([
@@ -42,7 +42,7 @@ define
                             .done(function(action)
                             {
                                 action.ScriptPath && 
-                                    require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(theBlog).render(); });
+                                    require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); });
                             });
                         });
                 });
