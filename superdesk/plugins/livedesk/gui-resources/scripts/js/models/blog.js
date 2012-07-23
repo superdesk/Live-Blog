@@ -1,14 +1,15 @@
 define(['gizmo/superdesk', 
-        'livedesk/models/blog-admin',
+        /*'livedesk/models/blog-admin',
         'livedesk/models/blog-collaborator',
         'livedesk/models/user',
         'livedesk/models/language',
-        'livedesk/models/post'], 
+        'livedesk/models/post'*/], 
 function(Gizmo)
 {
     // Blog
-    return giz.Model.extend
-    ({ 
+    return Gizmo.AuthModel.extend
+    ({
+		url: new Gizmo.Url('Blog'),/*
         defaults:
         { 
             Admin: Gizmo.Model.Admin,
@@ -18,6 +19,6 @@ function(Gizmo)
             Post:               Gizmo.Collection.extend({ model: Gizmo.Model.Post }),
             PostPublished:      Gizmo.Collection.extend({ model: Gizmo.Model.Post }),
             PostUnpublished:    Gizmo.Collection.extend({ model: Gizmo.Model.Post })
-        }
+        }*/
     }, { register: 'Blog' } );
 });
