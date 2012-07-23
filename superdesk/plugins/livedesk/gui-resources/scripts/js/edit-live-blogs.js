@@ -1,425 +1,276 @@
 define([
     'providers/enabled',
-    'jquery', 
-	'utils/json_parse',
+    'gizmo/superdesk',
+	'jquery', 
+	'livedesk/models/blog',
+	'livedesk/models/post',
 	'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
-    'jqueryui/texteditor', 'jquery/utils', 'jquery/avatar',
+    'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 'jquery/avatar',
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>layouts/blog',
     'tmpl!livedesk>edit',
-    'tmpl!livedesk>edit-timeline'],
-    function(providers, $, json_parse)
-    {
-        var config = { updateInterval: 10 },
-        latestPost = 0,
-        providers = $.arrayValues(providers), 
-        content = null,
-        blogHref = null,
-        editorImageControl = function()
-        {
-            // call super
-            var command = $.ui.texteditor.prototype.plugins.controls.image.apply(this, arguments);
-            // do something on insert event
-            $(command).on('image-inserted.text-editor', function()
-            {
-                var img = $(this.lib.selectionHas('img'));
-                if( !img.parents('figure.blog-image:eq(0)').length )
-                    img.wrap('<figure class="blog-image" />');
-            });
-            return command;
-        },
-        editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
-        h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
-        initEditBlog = function(theBlog)
-        {
-            content = $(this).find('[is-content]');
-            topSubMenu = $(this).find('[is-submenu]');
-            
-            // editor options
-            var titleInput = content.find('section header h2'),
-                descrInput = content.find('article#blog-intro'),
-                editorSaveInfo = 
-                {
-                    _create: function(elements)
-                    {
-                        $(elements).on('focusout.livedesk', function()
-                        {
-                            if(!blogHref) return;
-                            new $.rest(blogHref).update
-                            ({
-                                Title: $.styledNodeHtml(titleInput), 
-                                Description: $.styledNodeHtml(descrInput)
-                            })
-                            .done(function()
-                            {  
-                                content.find('.tool-box-top .update-success').removeClass('hide')
-                                setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
-                            })
-                            .fail(function()
-                            { 
-                                content.find('.tool-box-top .update-error').removeClass('hide')
-                                setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
-                            });
-                        });
-                    }
-                };
-            
-            delete h2ctrl.justifyRight;
-            delete h2ctrl.justifyLeft;
-            delete h2ctrl.justifyCenter; 
-            delete h2ctrl.html;
-            delete h2ctrl.image;
-            delete h2ctrl.link;
-            // assign editors
-            titleInput.texteditor
-            ({
-                plugins: {controls: h2ctrl, save: editorSaveInfo},
-                floatingToolbar: 'top'
-            });
-            descrInput.texteditor
-            ({
-                floatingToolbar: 'top', 
-                plugins:{ save: editorSaveInfo, controls: editorTitleControls }
-            });
-            
-            // provider tabs
-            $('.tabbable')
-            .on('show','a[data-toggle="tab"]', function(e)
-            {
-                var el = $(e.target);
-                var idx = parseInt(el.attr('data-idx'));
-				providers[idx].el = $(el.attr('href'));	
-				providers[idx].init(theBlog);
-            })
-            .find('.actived a').tab('show');
-            
-            // wrapup toggle
-            $(content)
-                .off('click.livedesk', 'li.wrapup')
-                .off('click.livedesk', '.filter-posts a')
-            .on('click.livedesk', 'li.wrapup', function()
-            {
-                if($(this).hasClass('open'))
-                    $(this).removeClass('open').addClass('closed').nextUntil('li.wrapup').hide();
-                else
-                    $(this).removeClass('closed').addClass('open').nextUntil('li.wrapup').show();
-            })
-            .on('click.livedesk', '.filter-posts a',function(){
-                var datatype = $(this).attr('data-value');
-                if(datatype == 'all') {
-                    $('#timeline-view li').show();
-                } else {
-                    $('#timeline-view li').show();
-                    $('#timeline-view li[data-post-type!="'+datatype+'"]').hide();
-                }
-            });
-            
-            $(topSubMenu)
-                .off('click.livedesk', 'a[data-target="configure-blog"]')
-            .on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
-            {
-                event.preventDefault();
-                var blogHref = $(this).attr('href')
-                $.superdesk.getAction('modules.livedesk.configure')
-                .done(function(action)
-                {
-                    action.ScriptPath && 
-                        require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
-                });
-            })
-                .off('click.livedesk', 'a[data-target="edit-blog"]')
-            .on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
-            {
-                event.preventDefault();
-                var blogHref = $(this).attr('href');
-                $.superdesk.getAction('modules.livedesk.edit')
-                .done(function(action)
-                {
-                    action.ScriptPath && 
-                        require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
-                });
-            });
-            
-        },
-        postHref = null,
-        updateInterval = 0,
-        updateItemCount = 0,
-        updateIntervalInit = function()
-        {
-            if(!$('#timeline-view:visible', self.el).length) 
-            {
-                clearInterval(updateInterval);
-                return;
-            }
-            update(true); 
-        },
-        // posts update
-        update = function(autoUpdate, callback)
-        {
-            new $.rest(postHref)
-            .request({data:{'startEx.cId':latestPost}})
-            .xfilter('Id, CId, Content, CreatedOn, Type, Meta, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, Creator.Id, ' +
-                'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, DeletedOn')
-            .done(function(posts)
-            {
-                if(!posts) return;
-				$.each(posts, function(){								
-					if(this.Meta !== undefined) {
-						this.Meta = json_parse(this.Meta);
-					}
+    'tmpl!livedesk>timeline-container',
+	'tmpl!livedesk>timeline-item'],
+function(providers, Gizmo, $) {
+	return function(theBlog){
+		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
+		/*var ProviderView =  Gizmo.View.extend({
+			events: {
+				"": {"show": "show"}
+			},
+			init: function(){
+				this.model.el = this.model.link = this.name;
+			},
+			render: function(){
+				var self = this;
+				$.tmpl('livedesk>provider-link', this.model , function(err, out){
+						self.el.link = $(out);
 				});
-                var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
-                for(var i = 0; i<posts.length; i++) {
-                    latestPost = Math.max(latestPost, parseInt(posts[i].CId));
+				$.tmpl('livedesk>provider-content', this.model , function(err, out){
+						self.el.link = $(out);
+				});
+			},
+			show: function(evt){
+				this.model.init(theBlog);
+			}
+		});
+		var ProvidersView = Gizmo.View.extend({
+			init: function(){
+				this.render();
+			}
+			render: function() {							
+				for(name in providers) {
+					var providerView = new ProviderView({ model: providers[name], name: name});
+					
+				}
+			}
+		});*/
+		var AutoCollection = Gizmo.AuthCollection.extend({
+			timeInterval: 1000,			
+			timerInterval: 0,
+			
+			auto: function(){
+				this.since = 
+			},
+			pause: function(){
+				var self=this;
+				clearInterval(self.timerInterval);
+			},
+			start: function(){
+				var self=this;
+				self.timerInterval = setInterval(self.auto, self.timeInterval)
+			}
+		});
+		var 
+		TimelineCollection = Gizmo.AuthCollection.extend({
+			href: new Gizmo.Url('/Post/Published')
+		}),		
+		PostView = Gizmo.View.extend({
+			events: {
+				'': { sortstop: 'reorder' },
+				'a.close': { click: 'removeModel' },
+				'.editable': { focusout: 'save' },
+			}, 
+			init: function(){
+				this.model.on('delete', this.remove, this);
+			},
+			reorder: function(evt, ui){
+				//console.log($(ui.item).attr('data-post-id'));
+				var next = $(ui.item).next('li'), prev = $(ui.item).prev('li');
+				if(next.length) {
+					//TODO implement reordering request http://localhost/resources/LiveDesk/Blog/1/Post/7/Post/2/Reorder?before=false
+					//console.log('after: '+next.attr('data-post-id'));
+				} else if(prev.length){
+					//TODO implement reordering request http://localhost/resources/LiveDesk/Blog/1/Post/7/Post/2/Reorder?before=false
+					//console.log('before: '+prev.attr('data-post-id'));
+				}
+			},
+			render: function(){
+				var self = this;
+				$.tmpl('livedesk>timeline-item', {Post: this.model.feed()}, function(e, o){
+					self.setElement(o);
+					$(self.el).find('.editable').texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'})
+				});
+				return this;
+			},
+			save: function(){
+				//console.log('saved');
+			},
+			remove: function(){
+				var self = this;
+				$(this.el).fadeTo(500, '0.1', function(){
+					$(self.el).remove();
+				});
+			},
+			removeModel: function(){
+				var self = this;
+				$('#delete-post .yes')
+					.off(this.getEvent('click'))
+					.on(this.getEvent('click'), function(){
+						self.model.remove().sync();
+					});
 
-                    if($.isDefined(posts[i].Creator)  && $.isDefined(posts[i].Creator.Id)
-                        && (posts[i].Creator.Id == $.superdesk.login.Id)
-                        && (posts[i].IsModified === "True")) {
-
-                        posts.splice(i,1);
-                        i--;
-                    }
-                    else if($.isDefined(posts[i].DeletedOn)) {
-                        $('#timeline-view .post-list li[data-post-id="'+posts[i].Id+'"]')
-                            .fadeTo(500, '0.1', function(){
-                                $(this).remove();
-                            })
-                        posts.splice(i,1);
-                        i--;
-                    }
-                }
-                updateItemCount += posts.length;
-                // trigger update with callback to be applied on click
-                posts.length &&
-                $('#timeline-view .new-results', content).trigger('update.livedesk', [updateItemCount, function()
-                {
-                    $.tmpl('livedesk>edit-timeline', {Posts: posts}, function(e, o)
-                    {
-                        $($(o).find('li').get().reverse()).each(function(){
-                            var el = $('#timeline-view .post-list li[data-post-id="'+$(this).attr('data-post-id')+'"]');
-                            if($(el).length === 0) {
-                                $('#timeline-view .post-list', content).prepend($(this));
-                            } else {
-                                $(el).replaceWith($(this).addClass('update-success'));
-                                el = this;
-                                setTimeout(function(){
-                                    $(el).removeClass('update-success update-error');
-                                }, 5000);
-                            }
-                        });
-                        // edit posts
-                        $('#timeline-view .post-list li', content)
-                            .find('.editable')
-                            .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'})
-                            .on('focusout.livedesk', function(){
-                                var el = this,
-                                    postId = $(el).attr('data-post-id');
-                                if(!blogHref) return;
-                                new $.rest(blogHref+'/Post/'+postId).update
-                                    ({
-                                        Content: $(el).html()
-                                    })
-                                    .done(function()
-                                    {
-                                        $(el).parents('li').addClass('update-success').removeClass('update-error');
-                                        setTimeout(function(){
-                                            $(el).parents('li').removeClass('update-success update-error');
-                                        }, 5000);
-                                    })
-                                    .fail(function()
-                                    {
-                                        $(el).parents('li').addClass('update-error').removeClass('update-success');
-                                        setTimeout(function(){
-                                            $(el).parents('li').removeClass('update-success update-error');
-                                        }, 5000);
-                                    });
-                            }).end()
-                            .find('a.close').on('click.livedesk', function(){
-                                var self = this,
-                                    el = $(self).parents('li'),
-                                    postId = $(el).attr('data-post-id');
-                                $('#delete-post .yes')
-                                    .off('click.livedesk')
-                                    .on('click.livedesk',function(){
-                                        if(!blogHref) return;
-                                        new $.restAuth('Superdesk/Post/'+postId).delete().done(function(){
-                                            $(el).fadeTo(500, '0.1', function(){
-                                                $(this).remove();
-                                            })
-                                        });
-                                    });
-                            });
-                        updateItemCount -= posts.length;
-                    });
-                }, autoUpdate]);
-                
-                callback && callback.apply(this);
-            });
-        };
-
-        var EditApp = function(theBlog) {
-            this.init(theBlog);
-        };
-        EditApp.prototype = {
-            init: function(theBlog)
-            {
-                this.blogHref = theBlog;
-                blogHref = theBlog;
-            },
-            update: function(){
-                clearInterval(updateInterval);
-                update(true, function(){ updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000); });
-            },
-            render: function(){
-                var self = this;
-                new $.restAuth('Superdesk/PostType').xfilter('Key').done(function(postTypes){
-                    self.prerender(postTypes);
-                });
-            },
-            prerender: function(postTypes)
-            {
-                var self = this;
-                new $.restAuth(this.blogHref).xfilter('Creator.Name, Creator.Id').done(function(blogData)
-                {
-                    var data = $.extend({}, blogData, {BlogHref: self.blogHref, 
-                            ui: {content: 'is-content=1', side: 'is-side=1', submenu: 'is-submenu', submenuActive1: 'active'}, 
-                            providers: providers, PostTypes: postTypes}),
-                        content = $.superdesk.applyLayout('livedesk>edit', data, function(){
-                            initEditBlog.call(this, self.blogHref);
-                            /* refresh twitter share button */
-                            require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
-                        });
-                    
-                    $('.live-blog-content').droppable({
-                        drop: function( event, ui ) {
-
-                            var data = ui.draggable.data('data');
-                            var post = ui.draggable.data('post');
-                            if(data !== undefined) {
-                                new $.restAuth(self.blogHref + '/Post/Published').resetData().insert(data);
-                            } else if(post !== undefined){
-                                // stupid bug in jqueryui you can make draggable desstroy
-                                setTimeout(function(){
-                                    $(ui.draggable).removeClass('draggable').addClass('published').draggable("destroy");
-                                },1);
-                                new $.restAuth(self.blogHref + '/Post/'+post+'/Publish').resetData().insert();
-                            }
-                            // stop update interval -> update -> restart
-                            self.update();
-                        },
-                        activeClass: 'ui-droppable-highlight',
-                        accept: ':not(.edit-toolbar)'
-                    });
-                    $('#put-live').on('show', function(){
-                        console.log('show');
-                    }).on('shown', function(){
-                            console.log('shown');
-                        });
-                    $("#MySplitter").splitter({
-                        type: "v",
-                        outline: true,
-                        sizeLeft: 470,
-                        minLeft: 470,
-                        minRight: 600,
-                        resizeToWidth: true,
-                        //dock: "left",
-                        dockSpeed: 100,
-                        cookie: "docksplitter",
-                        dockKey: 'Z',   // Alt-Shift-Z in FF/IE
-                        accessKey: 'I'  // Alt-Shift-I in FF/IE
-                    });
-
-                    $('.collapse-title-page', content).off('click.livedesk')
-                        .on('click.livedesk', function()
-                        {
-                            var intro = $('article#blog-intro', content);
-                            !intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
-                            intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
-                        });
-
-                    postHref = blogData.PostPublished.href;
-                    this.get('PostPublished')
-                        .xfilter('Id, CId, Content, CreatedOn, Type, Meta, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-                        'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id')
-                        .done(function(posts)
-                        {
-                            var posts = $.avatar.parse(this.extractListData(posts), 'AuthorPerson.EMail');
-							$.each(posts, function(){								
-								if(this.Meta !== undefined) {
-									this.Meta = json_parse(this.Meta);
-								}
-							});
-							$('#timeline-view .results-placeholder', content).tmpl('livedesk>edit-timeline', {Posts: posts}, function()
-                            {
-                                // edit posts
-                                $('#timeline-view .post-list li', content)
-                                .find('.editable')
-                                    .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'})
-                                    .on('focusout.livedesk', function(){
-                                        var el = this,
-                                        postId = $(el).attr('data-post-id');
-                                        if(!blogHref) return;
-                                        new $.rest(blogHref+'/Post/'+postId).update
-                                            ({
-                                                Content: $(el).html()
-                                            })
-                                            .done(function()
-                                            {
-                                                $(el).parents('li').addClass('update-success').removeClass('update-error');
-                                                setTimeout(function(){
-                                                    $(el).parents('li').removeClass('update-success update-error');
-                                                }, 5000);
-                                            })
-                                            .fail(function()
-                                            {
-                                                $(el).parents('li').addClass('update-error').removeClass('update-success');
-                                                setTimeout(function(){
-                                                    $(el).parents('li').removeClass('update-success update-error');
-                                                }, 5000);
-                                            });
-                                    }).end()
-                                .find('a.close').on('click.livedesk', function(){
-                                    var self = this,
-                                        el = $(self).parents('li'),
-                                        postId = $(el).attr('data-post-id');
-                                        $('#delete-post .yes')
-                                            .off('click.livedesk')
-                                            .on('click.livedesk',function(){
-                                                if(!blogHref) return;
-                                                new $.restAuth('Superdesk/Post/'+postId).delete().done(function(){
-                                                    $(el).fadeTo(500, '0.1', function(){
-                                                        $(this).remove();
-                                                    })
-                                                });
-                                            });
-                                });
-                                    // bind update event for new results notification button
-                                $('#timeline-view .new-results', content)
-                                    .off('update.livedesk')
-                                    .on('update.livedesk', function(e, count, callback, autoUpdate)
-                                    {
-                                        var self = $(this);
-                                        !autoUpdate && self.removeClass('hide').one('click.livedesk', function()
-                                        {
-                                            self.addClass('hide');
-                                            callback.apply(self);
-                                        }).find('span').text(count);
-                                        autoUpdate && callback.apply(self);
-
-                                    });
-                            });
-
-                            for(var i=0; i<posts.length; i++)
-                                latestPost = Math.max(latestPost, parseInt(posts[i].CId));
-
-                            clearInterval(updateInterval);
-                            updateInterval = setInterval(updateIntervalInit, config.updateInterval*1000);
-
-                        });
-                });
-                $.superdesk.hideLoader();
-            }
-
-        };
-        return EditApp;
+			}
+		}),
+		
+		TimelineView = Gizmo.View.extend({
+			events: {
+				'ul.post-list': { sortstop: 'sortstop' }
+			},
+			sortstop: function(evnt, ui){
+				$(ui.item).triggerHandler('sortstop', ui);
+			},
+			init: function(){
+				this.posts.on('read', this.render, this);
+				this.posts.sync();
+			},
+			render: function(){
+				var self = this;
+				$.tmpl('livedesk>timeline-container', {}, function(e, o){
+					$(self.el).html(o);
+					$(self.el).find('ul.post-list').sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
+					self.posts.each(function(key, model){
+						self.addOne(model, true);
+					});					
+				});
+			},
+			insert: function(data){
+				// insert new data
+				//new $.restAuth(self.blogHref + '/Post/Published').resetData().insert(
+			},
+			publish: function(id){
+				//new $.restAuth(self.blogHref + '/Post/'+post+'/Publish').resetData().insert()
+			},
+			addOne: function(model, order){
+				var view = new PostView({model: model, _parent: this}, { events: false, ensure: false});				
+				if(order)
+					$(this.el).find('ul.post-list').append(view.render().el);
+				else
+					$(this.el).find('ul.post-list').prepend(view.render().el);
+			}
+		}),
+		
+		EditView = Gizmo.View.extend({
+			timeineView: null,
+			events: {
+				'[is-content] section header h2': { focusout: 'save' },
+				'[is-content] #blog-intro' : { focusout: 'save' },
+				'.live-blog-content': { drop: 'drop'}
+			},
+			init: function(){
+				var self = this;
+				this.model = new Gizmo.Register.Blog(theBlog);
+				this.model.on('read', function(){
+					self.render();
+				}).xfilter('Creator.Name,Creator.Id').sync();
+			},
+			drop: function(event, ui){
+				var data = ui.draggable.data('data');
+				var post = ui.draggable.data('post');
+				if(data !== undefined) {
+					self.timeineView.insert(data);
+				} else if(post !== undefined){
+					// stupid bug in jqueryui you can make draggable desstroy
+					setTimeout(function(){
+						$(ui.draggable).removeClass('draggable').addClass('published').draggable("destroy");
+					},1);
+					self.timeineView.publish(post);
+				}
+			},
+			save: function(evt){
+				var content = $(this.el).find('[is-content]'),
+				titleInput = content.find('section header h2'),
+				descrInput = content.find('article#blog-intro'),
+				data = {
+						Title: $.styledNodeHtml(titleInput), 
+						Description: $.styledNodeHtml(descrInput)
+				};
+				this.model.set(data).sync().done(function() {  
+					content.find('.tool-box-top .update-success').removeClass('hide')
+					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
+				})
+				.fail(function() { 
+					content.find('.tool-box-top .update-error').removeClass('hide')
+					setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
+				});
+			},
+			render: function(){
+				var self = this,
+					data = $.extend({}, this.model.feed(), {
+						BlogHref: theBlog, 
+						ui: {
+							content: 'is-content=1', 
+							side: 'is-side=1', 
+							submenu: 'is-submenu', 
+							submenuActive1: 'active'
+						}, 
+					});
+					
+					$.superdesk.applyLayout('livedesk>edit', data, function(){
+						// refresh twitter share button 
+						//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
+						var timelineCollection = new TimelineCollection( Gizmo.Register.Post );
+						timelineCollection.href.root(theBlog).xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id');
+						self.timeineView = new TimelineView({ 
+							el: $('#timeline-view .results-placeholder', this.el),
+							posts: timelineCollection,
+							_parent: this								   
+						});
+						$('.live-blog-content', this.el).droppable({
+							activeClass: 'ui-droppable-highlight',
+							accept: ':not(.edit-toolbar,.timeline)'
+						});
+						$("#MySplitter", this.el).splitter({
+							type: "v",
+							outline: true,
+							sizeLeft: 470,
+							minLeft: 470,
+							minRight: 600,
+							resizeToWidth: true,
+							//dock: "left",
+							dockSpeed: 100,
+							cookie: "docksplitter",
+							dockKey: 'Z',   // Alt-Shift-Z in FF/IE
+							accessKey: 'I'  // Alt-Shift-I in FF/IE
+						});
+					});
+					/** text editor initialization */
+					var editorImageControl = function()
+					{
+						// call super
+						var command = $.ui.texteditor.prototype.plugins.controls.image.apply(this, arguments);
+						// do something on insert event
+						$(command).on('image-inserted.text-editor', function()
+						{
+							var img = $(this.lib.selectionHas('img'));
+							if( !img.parents('figure.blog-image:eq(0)').length )
+								img.wrap('<figure class="blog-image" />');
+						});
+						return command;
+					},
+					editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
+					content = $(this.el).find('[is-content]'),
+					titleInput = content.find('section header h2'),
+					descrInput = content.find('article#blog-intro');
+					delete h2ctrl.justifyRight;
+					delete h2ctrl.justifyLeft;
+					delete h2ctrl.justifyCenter; 
+					delete h2ctrl.html;
+					delete h2ctrl.image;
+					delete h2ctrl.link;
+					// assign editors
+					titleInput.texteditor({
+						plugins: {controls: h2ctrl},
+						floatingToolbar: 'top'
+					});
+					descrInput.texteditor({
+						plugins: {controls: editorTitleControls},
+						floatingToolbar: 'top'
+					});
+					/** text editor stop */
+			}
+		});
+		new EditView({ el: '#area-main'});
+	}    
 });
