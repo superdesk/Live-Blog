@@ -10,22 +10,22 @@ requirejs.config
 	},
 	paths: 
 	{
-		'jquery': config.js_url + '/jquery',
-		'jqueryui': config.js_url + '/jquery/ui',
-		'bootstrap': config.js_url + '/jquery/bootstrap',
-		'dust': config.js_url + '/dust',
-		'history': config.js_url + '/history',
-		'utils': config.js_url + '/utils',
-		'gettext': config.js_url + '/gettext',
-        'order': config.js_url + '/require/order',
-		'tmpl': config.js_url + '/require/tmpl',
-		'model': config.js_url + '/require/model',
-		'i18n': config.js_url + '/require/i18n',
-		'gizmo': config.js_url + '/gizmo',
-		'newgizmo': config.js_url + '/newgizmo'		
+		'jquery': config.cjs('jquery'),
+		'jqueryui': config.cjs('jquery/ui'),
+		'bootstrap': config.cjs('jquery/bootstrap'),
+		'dust': config.cjs('dust'),
+		'history': config.cjs('history'),
+		'utils': config.cjs('utils'),
+		'gettext': config.cjs('gettext'),
+        'order': config.cjs('require/order'),
+		'tmpl': config.cjs('require/tmpl'),
+		'model': config.cjs('require/model'),
+		'i18n': config.cjs('require/i18n'),
+		'gizmo': config.cjs('gizmo'),
+		'newgizmo': config.cjs('newgizmo')		
 	}
 });
-require(['lib/core/scripts/js/views/menu', 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
+require([config.cjs('views/menu.js'), 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
 function(MenuView, $, superdesk)
 {
     var makeMenu = function(){ var menuView = new MenuView; }, 
