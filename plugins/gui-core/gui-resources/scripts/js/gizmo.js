@@ -476,8 +476,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         sync: function()
         {
             var self = this;
-            return (this.options.href &&
-                this.syncAdapter.request.call(this.syncAdapter, this.options.href).read(arguments[0]).done(function(data)
+            return (this.href &&
+                this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
                 {
                     var data = self.parse(data);
                      // important or it will infiloop
