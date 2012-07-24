@@ -1,6 +1,37 @@
 (function($)
     { 
+if (!Function.prototype.bind) {
+    Function.prototype.bind = function (oThis) {
+        if (typeof this !== "function") {
+            // closest thing possible to the ECMAScript 5 internal IsCallable function
+            throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+        }
 
+        var aArgs = Array.prototype.slice.call(arguments, 1),
+                fToBind = this,
+                fNOP = function () {},
+                fBound = function () {
+                    return fToBind.apply(this instanceof fNOP
+                                                                    ? this
+                                                                    : oThis,
+                                                            aArgs.concat(Array.prototype.slice.call(arguments)));
+                };
+
+        fNOP.prototype = this.prototype;
+        fBound.prototype = new fNOP();
+
+        return fBound;
+    };
+}
+if (!String.prototype.trim) {
+        String.prototype.trim = function() {
+                var that = this.replace(/^\s\s*/, ''),
+                        ws = /\s/,
+                        i = that.length;
+                while (ws.test(that.charAt(--i)));
+                return that.slice(0, i + 1);
+        }
+}
 var initializing = false;
       // The base Class implementation (does nothing)
       this.Class = function(){};
@@ -222,7 +253,7 @@ Model.prototype =
          */
     sync: function()
     {   
-        console.log('sync once', arguments.calee);
+        //console.log('sync once', arguments.calee);
         var self = this, ret, dataAdapter = function(){
             return self.syncAdapter.request.apply(self.syncAdapter, arguments);
         };
@@ -511,7 +542,7 @@ Collection.prototype =
                     })(arguments[i]); 
                 break;
             case '[object Object]': // options, same technique as above
-                console.log(arguments[i], arguments[i] instanceof Url);
+                //console.log(arguments[i], arguments[i] instanceof Url);
                 buildOptions = (function(args){
                     return function(){
                         this.options = args;
@@ -741,7 +772,7 @@ View = Render.extend
         id = this.attributes.id,
         el ='';
         if(!$(this.el).length) {
-            if($.isString(this.el)) {
+            if($.type(this.el) === 'string') {
                 if(this.el[0]=='.') {
                     className = className + this.el.substr(0,1);
                 } 
@@ -758,7 +789,9 @@ View = Render.extend
             }
             el = el + '></'+this.tagName+'>';
             this.el = $(el);
-        }
+        } else {
+            this.el = $(this.el);
+        }        
     },      
     init: function(){
         return this;
