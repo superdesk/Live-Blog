@@ -66,10 +66,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 					if(source instanceof Url) {
 						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data}, source.options());
 						self.reset();
-<<<<<<< HEAD
-=======
 						//console.log('Source: ',source.get());
->>>>>>> 53661705f0bbc7f580a53732373fba4de3a4df4d
 						return $.ajax(self.href(source.get()), options);
 					} else {				
 						var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data});
@@ -162,10 +159,6 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */
         sync: function()
         {   
-<<<<<<< HEAD
-=======
-			//console.log('sync once', arguments.calee);
->>>>>>> 53661705f0bbc7f580a53732373fba4de3a4df4d
             var self = this, ret, dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
             this.hash();
             // trigger an event before sync
@@ -404,14 +397,9 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
     Collection.prototype = 
     {
         _list: [],
-<<<<<<< HEAD
-        getList: function(){ return this._list },
-        _construct: function(data)
-=======
         getList: function(){ return this._list; },
         count: function(){ return this._list.length; },
         _construct: function()
->>>>>>> 53661705f0bbc7f580a53732373fba4de3a4df4d
         {
             if( !this.model ) this.model = Model;
             this._list = [];
@@ -431,12 +419,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                     case 'array': // a list of models, a function we're going to call after setting options
                         buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]); 
                         break;
-<<<<<<< HEAD
                     case 'object': // options, same technique as above
-=======
-                    case '[object Object]': // options, same technique as above
 						//console.log(arguments[i], arguments[i] instanceof Url);
->>>>>>> 53661705f0bbc7f580a53732373fba4de3a4df4d
                         buildOptions = (function(args){ return function(){ this.options = args; }})(arguments[i]);
                         break;
                 }
@@ -494,13 +478,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         sync: function()
         {
             var self = this;
-<<<<<<< HEAD
             return (this.href &&
-                this.syncAdapter.request.call(this.syncAdapter, this.href).read().done(function(data)
-=======
-            return (this.options.href &&
-                this.syncAdapter.request.call(this.syncAdapter, this.options.href).read(arguments[0]).done(function(data)
->>>>>>> 53661705f0bbc7f580a53732373fba4de3a4df4d
+                this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
                 {
                     var data = self.parse(data);
                      // important or it will infiloop
