@@ -1,6 +1,4 @@
-define('utils/class', 
-function()
-{
+define('utils/class', function() {
 	var initializing = false;
 	// The base Class implementation (does nothing)
 	var Class = function(){};
@@ -21,14 +19,15 @@ function()
 
 		// The dummy class constructor
 		function Class() {
-		  // All construction is actually done in the init method
-		  if ( !initializing && ( this._constructor || this._construct ) )
-			  try
-			  { 
-				  var constructor = this._construct || this._constructor; 
-				  return constructor.apply(this, arguments);
-			  }
-			  catch(e){}
+			// All construction is actually done in the init method
+			if ( !initializing && ( this._constructor || this._construct ) )
+				try { 
+					var constructor = this._construct || this._constructor; 
+					return constructor.apply(this, arguments);
+				}
+				catch(e) {
+					console.error(e);
+				}
 		}
 
 		// Populate our constructed prototype object
