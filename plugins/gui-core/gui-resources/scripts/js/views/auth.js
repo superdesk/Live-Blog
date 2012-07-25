@@ -28,22 +28,10 @@ function($, superdesk, dust, jsSHA)
 			HashedLoginToken: shaObj.getHMAC(username+shaPassword.getHash("SHA-512", "HEX"), "ASCII", "SHA-512", "HEX")
 		}).done(function(user){
 			localStorage.setItem('superdesk.login.session', user.Session);
-<<<<<<< HEAD
 			localStorage.setItem('superdesk.login.id', user.Id);
 			localStorage.setItem('superdesk.login.name', user.UserName);
 			localStorage.setItem('superdesk.login.email', user.EMail);			
 			$(authLogin).trigger('success');
-=======
-			//localStorage.setItem('superdesk.login.id', user.Id);
-			localStorage.setItem('superdesk.login.name', user.UserName);
-			localStorage.setItem('superdesk.login.email', user.EMail);			
-			$(authLogin).trigger('success');
-/*			authDetails = AuthDetails(username);
-			$(authDetails).on('failed', function(){
-				$(authLogin).trigger('failed', 'authDetails');
-			});
-*/			
->>>>>>> 718d8c014dc7f1c47606de731769286a6bcebb81
 		});
 		return $(authLogin);
 	},
