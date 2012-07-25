@@ -9,140 +9,145 @@ Created on Apr 25, 2012
 Implementation for the image persistence API.
 '''
 
-from ..api import image_info as api
-from ..api.image_persist import IImagePersistanceService
-from ..meta.image_data import ImageData
-from ..meta.image_info import ImageInfo
-from ..meta.meta_data import MetaDataMapped
-from ..meta.meta_type import MetaTypeMapped
-from .meta_data import IMetaDataReferenceHandler
-from ally.api.model import Content
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.support.api.util_service import namesForModel
+from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
-from ally.support.util_io import pipe
-from cdm.spec import ICDM, PathNotFound
-from collections import OrderedDict
-from datetime import datetime
-from genericpath import isdir
-from os.path import join, getsize
+from ally.support.util_io import timestampURI
+from ally.support.util_sys import pythonPath
+from ..core.spec import IThumbnailManager
+from ..meta.image_data import ImageDataEntry
+from ..meta.meta_data import MetaDataMapped
+from superdesk.media_archive.core.impl.meta_service_base import thumbnailFormatFor, metaTypeFor
+from superdesk.media_archive.core.spec import IMetaDataHandler
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm.exc import NoResultFound
-import os
+from datetime import datetime
+from os.path import join
+import subprocess
 
 # --------------------------------------------------------------------
 
 @injected
-class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandler, SessionSupport):
+@setup(IMetaDataHandler, 'imageDataHandler')
+class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     '''
-    Provides the service that handles the @see: IImagePersistanceService.
+    Provides the service that handles the image persistence @see: IImagePersistanceService.
     '''
 
-    image_dir_path = join('workspace', 'media_archive', 'image_queue'); wire.config('image_dir_path', doc='''
-    The folder path where the images are queued for processing''')
     format_file_name = '%(id)s.%(file)s'; wire.config('format_file_name', doc='''
     The format for the images file names in the media archive''')
-    default_file_name = 'unknown'; wire.config('default_file_name', doc='''
-    The default file name if non is specified''')
+    image_supported_files = 'gif, png, bmp, jpg';wire.config('image_supported_files', doc='''
+    The image formats supported by media archive image plugin''')
 
-    imageTypeName = 'image'
-    # The name for the meta type image
-
-    thumbnailSizes = dict
-    # Contains the thumbnail sizes available for the media archive.
-    # This is basically just a simple dictionary{string, tuple(integer, integer)} that has as a key a path safe name
-    # and as a value a tuple with the width/height of the thumbnail.
-
-    cdmImages = ICDM
-    cdmThumbnails = ICDM
+    imageType = 'image'
+    # The type for the meta type image
+    
+    thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
+    # Provides the thumbnail referencer
 
     def __init__(self):
-        assert isinstance(self.image_dir_path, str), 'Invalid image directory %s' % self.image_dir_path
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
-        assert isinstance(self.default_file_name, str), 'Invalid default file name %s' % self.default_file_name
-        assert isinstance(self.imageTypeName, str), 'Invalid meta type image name %s' % self.imageTypeName
-        assert isinstance(self.thumbnailSizes, dict), 'Invalid thumbnail sizes %s' % self.thumbnailSizes
-        assert isinstance(self.cdmImages, ICDM), 'Invalid image CDM %s' % self.cdmImages
-        assert isinstance(self.cdmThumbnails, ICDM), 'Invalid image thumbnail CDM %s' % self.cdmThumbnails
+        assert isinstance(self.imageType, str), 'Invalid meta type for image %s' % self.imageType
+        
         SessionSupport.__init__(self)
-
-        if not os.path.exists(self.image_dir_path): os.makedirs(self.image_dir_path)
-        if not isdir(self.image_dir_path) or not os.access(self.image_dir_path, os.W_OK):
-            raise IOError('Unable to access the repository directory %s' % self.image_dir_path)
-
-        # We order the thumbnail sizes in descending order
-        thumbnailSizes = [(key, sizes) for key, sizes in self.thumbnailSizes.items()]
-        thumbnailSizes.sort(key=lambda pack: pack[1][0] * pack[1][1])
-        self.thumbnailSizes = OrderedDict(thumbnailSizes)
-
         self._metaTypeId = None
 
-    def insert(self, imageInfo, image):
+    # ----------------------------------------------------------------
+    def deploy(self):
         '''
-        @see: IImagePersistanceService.insert
+           Deploy 
         '''
-        assert isinstance(imageInfo, api.ImageInfo), 'Invalid image info %s' % imageInfo
-        assert isinstance(image, Content), 'Invalid image content %s' % image
-
-        imageData = ImageData()
-        imageData.CreatedOn = datetime.now()
-        imageData.typeId = self._typeId()
-
-        try:
-            self.session().add(imageData)
-            self.session().flush((imageData,))
-
-            reference = self.format_file_name % {'id': imageData.Id, 'file': image.getName() or self.default_file_name}
-            path = join(self.image_dir_path, reference)
-            with open(path, 'wb') as fobj: pipe(image, fobj)
-
-            assert isinstance(imageData, MetaDataMapped)
-            imageData.reference = reference
-            imageData.SizeInBytes = getsize(path)
-            imageData.Width = 100
-            imageData.Height = 100
-
-            self.session().flush((imageData,))
-
-            imageInfoDb = ImageInfo()
-            for prop in namesForModel(imageInfo):
-                if getattr(ImageInfo, prop) in imageInfo: setattr(imageInfoDb, prop, getattr(imageInfo, prop))
-            imageInfoDb.MetaData = imageData.Id
-
-            self.session().add(imageInfoDb)
-            self.session().flush((imageInfoDb,))
-        except SQLAlchemyError as e: handle(e, imageInfoDb)
-
-        return imageInfoDb.Id
+        self._thumbnailFormatGeneric = thumbnailFormatFor(self.session(), '%(size)s/image_generic.jpg')
+        referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormatGeneric.id)
+        imagePath = join(pythonPath(), 'resources', 'other.jpg')
+        if referenceLast is None or referenceLast < timestampURI(imagePath):
+            self.thumbnailManager.processThumbnail(self._thumbnailFormatGeneric.id, imagePath)
+            
+        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/%(id)d.jpg')  
+        self._metaTypeId = metaTypeFor(self.session(), self.imageType).Id      
 
     # ----------------------------------------------------------------
-
-    def process(self, metaData, scheme, thumbSize):
-        '''
-        @see: IMetaDataReferenceHandler.process
-        '''
-        assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        try:
-            metaData.Content = self.cdmImages.getURI(metaData.reference, scheme)
-            metaData.IsAvailable = True
-        except PathNotFound:
-            metaData.IsAvailable = False
-        return metaData
-
+    def extractNumber(self, line):
+        for s in line.split(): 
+            if s.isdigit():
+                return int(s)
+            
     # ----------------------------------------------------------------
-
-    def _typeId(self):
+    def extractString(self, line):
+        str = line.partition('-')[2].strip('\n')
+        return str
+     
+    # ----------------------------------------------------------------
+    def extractDateTime(self, line):
+        #example:' 2010:11:08 18:33:13'
+        dateTimeFormat = ' %Y:%m:%d %H:%M:%S'
+        str = line.partition('-')[2].strip('\n')
+        return datetime.strptime(str, dateTimeFormat)
+      
+    # ----------------------------------------------------------------
+    def generateIdPath (self, id):
+        path = "{0:03d}".format((id // 1000) % 1000)
+        
+        return path;  
+     
+    # ----------------------------------------------------------------
+    def processByInfo(self, metaDataMapped, contentPath, contentType): 
+        if contentType != None and contentType.find(self.imageType) != -1:
+            return self.process(metaDataMapped, contentPath)
+        
+        extension = metaDataMapped.Name.rpartition('.')[2]
+        if self.image_supported_files.find(extension) != -1:
+            return self.process(metaDataMapped, contentPath)
+        
+        return False 
+     
+    # ----------------------------------------------------------------
+    def process(self, metaDataMapped, contentPath):
         '''
-        Provides the meta type image id. 
+        @see: IMetaDataHandler.process
         '''
-        if self._metaTypeId is None:
-            try: metaType = self.session().query(MetaTypeMapped).filter(MetaTypeMapped.Key == self.imageTypeName).one()
-            except NoResultFound:
-                metaType = MetaTypeMapped()
-                metaType.Key = self.imageTypeName
-                self.session().add(metaType)
-                self.session().flush((metaType,))
-            self._metaTypeId = metaType.id
-        return self._metaTypeId
+        
+        assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
+        
+        jarPath = join('tools', 'media-archive-image', 'metadata_extractor.jar');
+        p = subprocess.Popen(['java', '-jar', jarPath, contentPath], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if p.wait() != 0: return False
+        
+        imageDataEntry = ImageDataEntry()   
+        imageDataEntry.Id = metaDataMapped.Id    
+        while True:
+            line = p.stdout.readline()
+            if not line: break   
+            line = str(line, "utf-8")
+            
+            if line.find('] Image Width -') != -1:
+                imageDataEntry.Width = self.extractNumber(line)
+            elif line.find('] Image Height -') != -1:
+                imageDataEntry.Height = self.extractNumber(line)
+            elif line.find('] Date/Time Original -') != -1:
+                imageDataEntry.CreationDate = self.extractDateTime(line)
+            elif line.find('] Make -') != -1:    
+                imageDataEntry.CameraMake = self.extractString(line)
+            elif line.find('] Model -') != -1:
+                imageDataEntry.CameraModel = self.extractString(line)        
+                    
+               
+        fileName = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
+        cdmPath = ''.join((self.imageType, '/', self.generateIdPath(metaDataMapped.Id), '/', fileName)) 
+        
+        metaDataMapped.content = cdmPath                                      
+        metaDataMapped.typeId = self._metaTypeId 
+        metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id   
+        metaDataMapped.IsAvailable = True     
+        
+        self.thumbnailManager.processThumbnail(self._thumbnailFormat.id, contentPath, metaDataMapped)         
+                 
+        try: self.session().add(imageDataEntry)
+        except SQLAlchemyError as e:
+            metaDataMapped.IsAvailable = False 
+            handle(e, ImageDataEntry)  
+        
+        return True
+    
+        

@@ -1,7 +1,7 @@
 '''
 Created on Jan 13, 2012
 
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -11,8 +11,7 @@ Provides the setup implementations for the IoC support module.
 
 from ..proxy import proxyWrapFor
 from .entity_handler import Wiring, WireConfig, WireEntity
-from .ioc_setup import Setup, Assembly, SetupError, CallEntity, SetupSource, \
-    WithType
+from .ioc_setup import Setup, Assembly, SetupError, CallEntity, SetupSource
 from functools import partial
 from inspect import isclass
 import logging
@@ -112,7 +111,8 @@ class SetupEntityWire(Setup):
                     for wentity in wiring.entities:
                         assert isinstance(wentity, WireEntity)
                         if wentity.name not in value.__dict__:
-                            setattr(value, wentity.name, entityFor(wentity.type))
+                            try: setattr(value, wentity.name, entityFor(wentity.type))
+                            except: raise SetupError('Cannot solve wiring \'%s\' for %s' % (wentity.name, value))
                     for wconfig in wiring.configurations:
                         assert isinstance(wconfig, WireConfig)
                         if wconfig.name not in value.__dict__:
@@ -280,17 +280,8 @@ class SetupEntityCreate(SetupSource):
         @see: Setup.index
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        for call in assembly.calls.values():
-            if isinstance(call, WithType):
-                assert isinstance(call, WithType)
-                if call.type == self._type:
-                    assert log.debug('There is already an entity of type %s', self._type) or True
-                    break
-        else:
-            if self.name in assembly.calls:
-                raise SetupError('There is already a setup call for name %r' % self.name)
-            call = CallEntity(assembly, self.name, self._function, self._type)
-        assembly.calls[self.name] = call
+        if self.name in assembly.calls: raise SetupError('There is already a setup call for name %r' % self.name)
+        assembly.calls[self.name] = CallEntity(assembly, self.name, self._function, self.type)
 
 # --------------------------------------------------------------------
 

@@ -13,6 +13,7 @@ from ..api.post import IPostService
 from ..meta.post import PostMapped
 from ..meta.type import PostTypeMapped
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from ally.support.api.util_service import copy
 from sqlalchemy.orm.exc import NoResultFound
@@ -31,6 +32,7 @@ from ally.container import wire
 COPY_EXCLUDE = ('Type', 'IsModified', 'AuthorName')
 
 @injected
+@setup(IPostService)
 class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     '''
     Implementation for @see: IPostService
