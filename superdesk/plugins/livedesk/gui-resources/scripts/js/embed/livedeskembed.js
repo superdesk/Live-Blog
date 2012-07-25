@@ -144,7 +144,7 @@ var livedeskEmbed = {
         Posts = $.gizmo.Collection.extend({
             model: Post
         }),
-        
+       
         Blog = $.gizmo.Model.extend
         ({
             defaults: 
