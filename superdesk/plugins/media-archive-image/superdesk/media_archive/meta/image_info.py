@@ -10,19 +10,35 @@ Contains the SQL alchemy meta for media image info API.
 '''
 
 from ..api.image_info import ImageInfo
-from .meta_info import MetaInfo
-from ally.container.binder_op import validateManaged
-from ally.support.sqlalchemy.mapper import mapperModel
-from sqlalchemy.schema import Table, Column, ForeignKey
+from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String
-from superdesk.meta.metadata_superdesk import meta
+from superdesk.media_archive.meta.meta_info import MetaInfoMapped
+from sqlalchemy.ext.declarative import declared_attr
+from superdesk.meta.metadata_superdesk import Base
 
 # --------------------------------------------------------------------
 
-table = Table('archive_image_info', meta,
-              Column('fk_meta_info_id', ForeignKey(MetaInfo.Id), primary_key=True, key='Id'),
-              Column('caption', String(255), nullable=False, key='Caption'),
-              mysql_engine='InnoDB', mysql_charset='utf8')
+class ImageInfoDefinition:
+    '''
+    Provides the mapping for ImageInfo.
+    '''
+    __tablename__ = 'archive_image_info'
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-ImageInfo = mapperModel(ImageInfo, table, exclude=['MetaData'], inherits=MetaInfo)
-validateManaged(ImageInfo.MetaData)
+    Id = declared_attr(lambda cls: Column('fk_metainfo_id', ForeignKey(MetaInfoMapped.Id), primary_key=True))
+    Caption = declared_attr(lambda cls: Column('caption', String(255), nullable=False, key='Caption'))
+
+# --------------------------------------------------------------------
+
+class ImageInfoEntry(Base, ImageInfoDefinition):
+    '''
+    Provides the mapping for ImageInfo table.
+    '''
+
+# --------------------------------------------------------------------
+
+class ImageInfoMapped(ImageInfoDefinition, MetaInfoMapped, ImageInfo):
+    '''
+    Provides the mapping for ImageInfo when extending MetaInfo.
+    '''
+    __table_args__ = dict(ImageInfoDefinition.__table_args__, extend_existing=True)

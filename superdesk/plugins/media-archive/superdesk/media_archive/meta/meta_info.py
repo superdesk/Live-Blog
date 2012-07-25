@@ -10,23 +10,28 @@ Contains the SQL alchemy meta for media meta info API.
 '''
 
 from ..api.meta_info import MetaInfo
-from .meta_data import MetaDataMapped
-from ally.support.sqlalchemy.mapper import mapperModel
 from sqlalchemy.dialects.mysql.base import INTEGER
-from sqlalchemy.schema import Table, Column, ForeignKey
+from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String
+from superdesk.meta.metadata_superdesk import Base
 from superdesk.language.meta.language import LanguageEntity
-from superdesk.meta.metadata_superdesk import meta
+from .meta_data import MetaDataMapped
 
 # --------------------------------------------------------------------
 
-table = Table('archive_meta_info', meta,
-              Column('id', INTEGER(unsigned=True), primary_key=True, key='Id'),
-              Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id), nullable=False, key='MetaData'),
-              Column('fk_language_id', ForeignKey(LanguageEntity.Id), nullable=False, key='Language'),
-              Column('title', String(255), nullable=False, key='Title'),
-              Column('keywords', String(255), key='Keywords'),
-              Column('description', String(255), key='Description'),
-              mysql_engine='InnoDB', mysql_charset='utf8')
+class MetaInfoMapped(Base, MetaInfo):
+    '''
+    Provides the mapping for MetaData.
+    '''
+    __tablename__ = 'archive_meta_info'
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-MetaInfo = mapperModel(MetaInfo, table)
+    Id = Column('id', INTEGER(unsigned=True), primary_key=True, key='Id')
+    MetaData = Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id), nullable=False, key='MetaData')
+    Language = Column('fk_language_id', ForeignKey(LanguageEntity.Id), nullable=False, key='Language') 
+    Title = Column('title', String(255), nullable=False, key='Title')
+    Keywords = Column('keywords', String(255), key='Keywords')
+    Description = Column('description', String(255), key='Description')      
+    
+             
+

@@ -44,7 +44,7 @@ class Model(Container):
     Contains the data for an API model mapping.
     '''
 
-    __slots__ = Container.__slots__ + ('propertyId', 'name', 'hints')
+    __slots__ = ('propertyId', 'name', 'hints')
 
     def __init__(self, properties, propertyId, name, hints={}):
         '''
@@ -84,7 +84,7 @@ class Criteria(Container):
     @attention: The criteria will allow only for primitive types.
     '''
 
-    __slots__ = Container.__slots__ + ('main',)
+    __slots__ = ('main',)
 
     def __init__(self, properties, main=()):
         '''

@@ -1,6 +1,6 @@
 '''
 Created on Jan 9, 2012
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -190,13 +190,3 @@ del PackageExtender # We remove the class so no other instance can be created.
 # Registers into the python sys._meta_path the package extender.
 if not sys.meta_path or not sys.meta_path[0] == PACKAGE_EXTENDER:
     sys.meta_path.insert(0, PACKAGE_EXTENDER)
-
-def registerPackageExtender(unittest=True):
-    '''
-    Registers into the python sys._meta_path the package extender. If the package extender is registered it will not be
-    registered again.
-    
-    @param unittest: boolean
-        Flag indicating that the package extender is for unit tests.
-    '''
-    PACKAGE_EXTENDER.setForUnitTest(unittest)

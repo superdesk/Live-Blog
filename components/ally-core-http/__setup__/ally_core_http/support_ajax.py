@@ -9,13 +9,14 @@ Created on Nov 24, 2011
 Provides the javascript setup required by browser for ajax.
 '''
 
-from ..ally_core.processor import methodInvoker
-from ..ally_core_http.encoder_decoder import encodersHeader
-from .processor import handlersResources
+from ..ally_core.processor import assemblyResources
+from ..ally_core_http.processor import uri, updateAssemblyResourcesForHTTP
 from ally.container import ioc
-from ally.core.http.impl.encoder_header_set import EncoderHeaderSet
-from ally.core.http.spec import METHOD_OPTIONS
+from ally.core.http.impl.processor.headers.set_fixed import \
+    HeaderSetEncodeHandler
+from ally.core.http.spec.server import METHOD_OPTIONS
 from ally.core.impl.processor.deliver_ok import DeliverOkHandler
+from ally.design.processor import Handler
 
 # --------------------------------------------------------------------
 
@@ -36,23 +37,20 @@ def headers_ajax() -> dict:
 # --------------------------------------------------------------------
 
 @ioc.entity
-def encoderHeaderSet() -> EncoderHeaderSet:
-    b = EncoderHeaderSet()
+def headerSetEncode() -> Handler:
+    b = HeaderSetEncodeHandler()
     b.headers = headers_ajax()
     return b
 
 @ioc.entity
-def deliverOkHandler() -> DeliverOkHandler:
+def deliverOkHandler() -> Handler:
     b = DeliverOkHandler()
     b.forMethod = METHOD_OPTIONS
     return b
 
 # --------------------------------------------------------------------
 
-@ioc.before(handlersResources)
-def updateHandlersResources():
-    if ajax_cross_domain(): handlersResources().insert(handlersResources().index(methodInvoker()), deliverOkHandler())
-
-@ioc.before(encodersHeader)
-def updateEncodersHeader():
-    if ajax_cross_domain(): encodersHeader().append(encoderHeaderSet())
+@ioc.after(updateAssemblyResourcesForHTTP)
+def updateAssemblyResourcesForHTTPAjax():
+    if ajax_cross_domain():
+        assemblyResources().add(headerSetEncode(), deliverOkHandler(), before=uri())

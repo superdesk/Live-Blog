@@ -32,9 +32,9 @@ class BlogPostDefinition:
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     CId = declared_attr(lambda cls: Column('id_change', INTEGER(unsigned=True)))
-    Order = declared_attr(lambda cls: Column('ordering', REAL))
     Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False))
     # Non REST model attribute --------------------------------------
+    ordering = declared_attr(lambda cls: Column('ordering', REAL))
     blogPostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
     # Never map over the inherited id
 
@@ -55,8 +55,5 @@ class BlogPostMapped(BlogPostDefinition, PostMapped, BlogPost):
         if self.author.Person is not None: return self.author.Person
 
     # Expression for hybrid ------------------------------------
-    @classmethod
-    @AuthorPerson.expression
-    def _AuthorPerson(cls):
-        return case([(cls.author == None, cls.Creator)], else_=
-                    case([(CollaboratorMapped.Person != None, CollaboratorMapped.Person)]))
+    AuthorPerson.expression(lambda cls: case([(cls.author == None, cls.Creator)], else_=
+                                             case([(CollaboratorMapped.Person != None, CollaboratorMapped.Person)])))

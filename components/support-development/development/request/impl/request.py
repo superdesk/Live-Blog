@@ -14,8 +14,8 @@ from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.api.operator.type import TypeModelProperty
 from ally.container.ioc import injected
 from ally.core.impl.node import MatchProperty, NodeProperty
-from ally.core.spec.resources import Node, Match, ConverterPath, \
-    IResourcesRegister, Invoker, InvokerInfo
+from ally.core.spec.resources import Node, Match, ConverterPath, Invoker, \
+    InvokerInfo
 from ally.exception import InputError, Ref, DevelError
 from ally.internationalization import _
 from ally.support.api.util_service import trimIter
@@ -24,6 +24,7 @@ from collections import OrderedDict
 from development.api.domain_devel import DOMAIN
 from inspect import getdoc
 import re
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -34,15 +35,18 @@ class RequestService(IRequestService):
     '''
 
     methodNames = {GET: 'GET', INSERT:'INSERT', UPDATE:'UPDATE', DELETE:'DELETE'}
-    resourcesRegister = IResourcesRegister
+    # The method values associated with names.
+    root = Node
+    # The root node to provide the requests for.
     converterPath = ConverterPath
+    # The path converter to use in representing the requests.
 
     def __init__(self):
         '''
         Constructs the request introspect service.
         '''
-        assert isinstance(self.resourcesRegister, IResourcesRegister), \
-        'Invalid resource register %s' % self.resourcesRegister
+        assert isinstance(self.methodNames, dict), 'Invalid method names %s' % self.methodNames
+        assert isinstance(self.root, Node), 'Invalid root node %s' % self.root
         assert isinstance(self.converterPath, ConverterPath), 'Invalid converter path %s' % self.converterPath
 
         self._requestId = 1
@@ -72,7 +76,7 @@ class RequestService(IRequestService):
         if id not in self._methods: raise InputError(Ref(_('Invalid method id'), ref=Method.Id))
         return self._methods[id]
 
-    def getAllInputs(self, id, offset=None, limit=None):
+    def getAllInputs(self, id):
         '''
         @see: IRequestService.getAllInputs
         '''
@@ -86,7 +90,8 @@ class RequestService(IRequestService):
         @see: IRequestService.getAllRequests
         '''
         self._refresh()
-        return trimIter(self._requests.values(), len(self._requests), offset, limit)
+        return IterPart(trimIter(self._requests.values(), len(self._requests), offset, limit), len(self._requests),
+                        offset, limit)
 
     # ----------------------------------------------------------------
 
@@ -94,7 +99,7 @@ class RequestService(IRequestService):
         '''
         Refreshes the requests.
         '''
-        self._process(self.resourcesRegister.getRoot())
+        self._process(self.root)
 
     def _process(self, node):
         '''
@@ -146,7 +151,7 @@ class RequestService(IRequestService):
                     m = self._toMethod(node.update, r); requestMethods.add(m.Id)
                     r.Update = m.Id
 
-        for child in node.childrens(): self._process(child)
+        for child in node.children: self._process(child)
 
     def _toPatternInput(self, match, req):
         '''
@@ -169,7 +174,7 @@ class RequestService(IRequestService):
             assert isinstance(typ, TypeModelProperty)
             inp.Description = _('The %(type)s of %(model)s %(description)s') % \
                         dict(type=_(typ.property), model=_(typ.container.name),
-                        description=re.sub('[\s]+', ' ', getdoc(typ.parent.forClass) or '...'))
+                        description=re.sub('[\s]+', ' ', getdoc(typ.parent.clazz) or '...'))
         else:
             raise DevelError('Unknown match %s' % match)
 
@@ -214,51 +219,5 @@ class RequestService(IRequestService):
             if info.clazzDefiner:
                 m.APIClassDefiner = info.clazzDefiner.__module__ + '.' + info.clazzDefiner.__name__
             else: m.APIClassDefiner = m.APIClass
-
-#        if isinstance(invoker, InvokerRestructuring):
-#            assert isinstance(invoker, InvokerRestructuring)
-#            invoker = invoker.invoker
-#
-#        if isinstance(invoker, InvokerAssemblePart):
-#            assert isinstance(invoker, InvokerAssemblePart)
-#            invoker = invoker.invokerList
-#
-#        if isinstance(invoker, InvokerCall):
-#            assert isinstance(invoker, InvokerCall)
-#            assert isinstance(invoker.service, Service)
-#            assert isinstance(invoker.call, Call)
-#            m.Name = invoker.name
-#
-#            clazzApi = invoker.clazz
-#            methodApi, clazzApiDef = getAttrAndClass(clazzApi, invoker.name)
-#            m.APIDoc = getdoc(methodApi)
-#            m.APIClass = clazzApi.__module__ + '.' + clazzApi.__name__
-#            m.APIClassDefiner = clazzApiDef.__module__ + '.' + clazzApiDef.__name__
-#
-#            if ismodule(invoker.implementation):
-#                m.IMPL = invoker.implementation.__name__
-#                m.IMPLDoc = getdoc(getattr(invoker.implementation, invoker.call.name))
-#            else:
-#                clazzImpl = proxiedClass(invoker.implementation.__class__)
-#                methodImpl, clazzImplDef = getAttrAndClass(clazzImpl, invoker.name)
-#                m.IMPLDoc = getdoc(methodImpl)
-#                m.IMPL = clazzImpl.__module__ + '.' + clazzImpl.__name__
-#                m.IMPLDefiner = clazzImplDef.__module__ + '.' + clazzImplDef.__name__
-#        elif isinstance(invoker, InvokerFunction):
-#            assert isinstance(invoker, InvokerFunction)
-#            m.Name = invoker.name
-#
-#            if ismethod(invoker.function):
-#                clazzImpl = proxiedClass(invoker.function.__self__.__class__)
-#                methodImpl, clazzImplDef = getAttrAndClass(clazzImpl, invoker.name)
-#                m.IMPLDoc = getdoc(methodImpl)
-#                m.IMPL = clazzImpl.__module__ + '.' + clazzImpl.__name__
-#                m.IMPLDefiner = clazzImplDef.__module__ + '.' + clazzImplDef.__name__
-#            else:
-#                m.IMPL = invoker.function.__module__
-#                m.IMPLDoc = getdoc(invoker.function)
-#                m.IMPLDefiner = invoker.function.__module__
-#        else:
-#            raise DevelError('Unknown invoker %s' % invoker)
 
         return m

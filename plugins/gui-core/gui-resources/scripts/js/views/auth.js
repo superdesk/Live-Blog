@@ -5,46 +5,49 @@ define
 ], 
 function($, superdesk, dust, jsSHA)
 {
-    var AuthDetails = function(username){
-		var authDetails = new $.rest('Superdesk/User');
-		authDetails.resetData().xfilter('Name,Id,EMail').select({ name: username }).done(function(users){
-			var user = users.UserList[0];
+    var AuthLogin = function(username, password, logintoken){
+		var shaObj = new jsSHA(logintoken, "ASCII"),shaPassword = new jsSHA(password, "ASCII"),
+			authLogin = new $.rest('Authentication');
+			authLogin.resetData().insert({ 
+			UserName: username, 
+			LoginToken: logintoken, 
+			HashedLoginToken: shaObj.getHMAC(username+shaPassword.getHash("SHA-512", "HEX"), "ASCII", "SHA-512", "HEX")
+		}).done(function(user){
+			localStorage.setItem('superdesk.login.session', user.Session);
 			localStorage.setItem('superdesk.login.id', user.Id);
-			localStorage.setItem('superdesk.login.name', user.Name);
-			localStorage.setItem('superdesk.login.email', user.EMail);
+			localStorage.setItem('superdesk.login.name', user.UserName);
+			localStorage.setItem('superdesk.login.email', user.EMail);			
+			$(authLogin).trigger('success');
 		});
-		return authDetails;
-	},
-	AuthLogin = function(username, password, token){
-		var shaObj = new jsSHA(token, "ASCII"),
-			authLogin = new $.rest('Superdesk/Authentication');
-		authLogin.resetData().select({ 
-			userName: username, 
-			loginToken: token, 
-			hashedLoginToken: shaObj.getHMAC(username+password, "ASCII", "SHA-512", "HEX")
-		}).done(function(data){
-			localStorage.setItem('superdesk.login.token', data);
-			AuthDetails(username);
-		});
-		return authLogin;
+		return $(authLogin);
 	},
 	AuthToken = function(username, password) {
-		var authToken = new $.rest('Superdesk/Authentication');
+		var authToken = new $.rest('Authentication');
 		authToken.resetData().select({ userName: username }).done(
 			function(data){
-				AuthLogin(username, password, data.token);
+				authLogin = AuthLogin(username, password, data.Token);
+				authLogin.on('failed', function(){
+					$(authToken).trigger('failed', 'authToken');
+				}).on('success', function(){
+					$(authToken).trigger('success');
+				});
 			}
-		).always(function(){
-			
+		);
+		return $(authToken);
+	},
+	AuthApp = 
 		});
 		return $(authToken);
 	},
 	AuthApp = 
     {
         success: $.noop,
+		showed: false,
         require: function()
         {
+			if(AuthApp.showed) return;
             var self = this; // rest
+			AuthApp.showed = true;			
             $.tmpl('auth', null, function(e, o)
             { 
                 var dialog = $(o).eq(0).dialog
@@ -60,12 +63,17 @@ function($, superdesk, dust, jsSHA)
                     ]
                 }),
                     form = dialog.find('form');
-                form.off('submit.superdesk')//
+                form.off('submit.superdesk')
                 .on('submit.superdesk', function(event)
                 {
-                    var username = $(this).find('#username').val(), password=$(this).find('#password').val(),
-					AuthToken(username, password).on('fail',function(){
-						console.log('fail');
+                    var username = $(this).find('#username'), password=$(this).find('#password');
+					AuthToken(username.val(), password.val()).on('failed',function(evt, type){						
+						username.val('');
+						password.val('')
+					}).on('success', function(){
+                        AuthApp.success && AuthApp.success.apply();
+						$(dialog).dialog('close');
+						self.showed = false;
 					});
                     event.preventDefault();
 					
