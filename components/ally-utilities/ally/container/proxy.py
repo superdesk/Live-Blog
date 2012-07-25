@@ -1,6 +1,6 @@
 '''
 Created on Jan 3, 2012
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -78,8 +78,8 @@ def proxyWrapFor(obj):
         The proxy instance that is wrapping the provided implementation.
     '''
     assert obj is not None, 'An object is required'
-    if isinstance(obj, Proxy): return obj
-    proxy = createProxy(obj.__class__)
+    if isinstance(obj, Proxy): proxy = obj.__class__
+    else: proxy = createProxy(obj.__class__)
     return proxy(ProxyWrapper(obj))
 
 def proxiedClass(clazz):
