@@ -33,9 +33,8 @@ class User:
     EMail = str
 
 @modelAuthenticate(id='Session')
-class Session:
+class Session(User):
     Session = str
-    User = User
 
 # --------------------------------------------------------------------
 

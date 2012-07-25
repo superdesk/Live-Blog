@@ -28,8 +28,10 @@ from ally.core.impl.invoker import InvokerFunction
 from ally.api.config import GET, INSERT
 from ally.api.type import Input, typeFor, String
 from datetime import datetime, timedelta
-from ally.core.authentication.api.authentication import IAuthenticate, LoginToken, Session as UserSession
+from ally.core.authentication.api.authentication import IAuthenticate, LoginToken, Session as UserSession, \
+    modelAuthenticate
 import threading
+from ally.support.api.util_service import copy
 
 # --------------------------------------------------------------------
 
@@ -48,6 +50,12 @@ class Session:
         self.userName = userName
         self.createTime = createTime
         self.expireTime = expireTime
+
+@modelAuthenticate(id='LoginToken')
+class Login:
+    UserName = str
+    LoginToken = str
+    HashedLoginToken = str
 
 @injected
 class AuthenticationHandler(HeaderHTTPBase, Processor):
@@ -73,9 +81,9 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
 
     def __init__(self):
         assert isinstance(self.sessionName, str), 'Invalid session name %s' % self.sessionName
-        assert isinstance(self.login_token_timeout, int), \
+        assert isinstance(self.login_token_timeout, timedelta), \
         'Invalid login token timeout value %s' % self.login_token_timeout
-        assert isinstance(self.session_token_timeout, int), \
+        assert isinstance(self.session_token_timeout, timedelta), \
         'Invalid session token timeout value %s' % self.session_token_timeout
         assert isinstance(self.resourcesRegister, IResourcesRegister), \
         'Invalid resources manager %s' % self.resourcesManager
@@ -88,9 +96,7 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
                                     ], {})
         node.insert = InvokerFunction(INSERT, self.login, typeFor(UserSession),
                                    [
-                                    Input('userName', typeFor(String), True, None),
-                                    Input('loginToken', typeFor(String), True, None),
-                                    Input('hashedLoginToken', typeFor(String), True, None),
+                                    Input('login', typeFor(Login)),
                                     ], {})
 
         self._sessions = {}
@@ -102,10 +108,11 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
 
         @param userName: string
             The user login name for which to generate the token.
-        @return: string
-            The token for the client to encrypt.
+        @return: LoginToken
+            The token object, containing the token for the client to encrypt.
         '''
-        assert isinstance(self.userKeyGenerator, IAuthenticate), 'Invalid user key generator %s' % self.userKeyGenerator
+        assert isinstance(self.userKeyGenerator, IAuthenticate), \
+        'Invalid user key generator %s' % self.userKeyGenerator
 
         # check if the user exists
         self.userKeyGenerator.getUserKey(userName)
@@ -113,32 +120,34 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         token.Token = self._createSession(userName, self.login_token_timeout)
         return token
 
-    def login(self, userName, loginToken, hashedLoginToken):
+    def login(self, login):
         '''
         Process a login request.
 
         @param userName: string
             The user login name which requests the login process.
-        @param loginToken: string
-            The login token received by the client.
-        @param hashedLoginToken: string
-            The hashed login token
-        @return: string|None
-            The new session identifier if the login was successful.
+        @param login: Login
+            The login model containing login parameters.
+        @return: UserSession
+            The new session object if the login was successful.
         '''
-        assert isinstance(self.userKeyGenerator, IAuthenticate), 'Invalid user key generator %s' % self.userKeyGenerator
+        assert isinstance(login, Login), 'Invalid login object %s' % login
+        assert isinstance(self.userKeyGenerator, IAuthenticate), \
+        'Invalid user key generator %s' % self.userKeyGenerator
 
         self._cleanExpiredSessions()
-        if loginToken not in self._sessions:
-            raise InputError('Invalid login token %s' % loginToken)
-        userKey = self.userKeyGenerator.getUserKey(userName)
-        verifyToken = hmac.new(bytes(userName + userKey, getdefaultencoding()),
-                               bytes(loginToken, getdefaultencoding()), hashlib.sha512).hexdigest()
-        if verifyToken != hashedLoginToken:
+        if login.LoginToken not in self._sessions:
+            raise InputError('Invalid login token %s' % login.LoginToken)
+        userKey = self.userKeyGenerator.getUserKey(login.UserName)
+        verifyToken = hmac.new(bytes(login.UserName + userKey, getdefaultencoding()),
+                               bytes(login.LoginToken, getdefaultencoding()), hashlib.sha512).hexdigest()
+        print(' my token: %s' % verifyToken)
+        print('got token: %s' % login.HashedLoginToken)
+        if verifyToken != login.HashedLoginToken:
             raise InputError('Invalid credentials')
         session = UserSession()
-        session.Session = self._createSession(userName, self.session_token_timeout)
-        session.User = self.userKeyGenerator.getUserData(userName)
+        session.Session = self._createSession(login.UserName, self.session_token_timeout)
+        copy(self.userKeyGenerator.getUserData(login.UserName), session)
         return session
 
     def process(self, req, rsp, chain):
