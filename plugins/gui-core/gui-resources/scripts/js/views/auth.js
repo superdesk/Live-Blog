@@ -15,20 +15,24 @@ function($, superdesk, dust, jsSHA)
 		});
 		return $(authDetails);
 	},
-	AuthLogin = function(username, password, token){
-		var shaObj = new jsSHA(token, "ASCII"),
+	AuthLogin = function(username, password, logintoken){
+		var shaObj = new jsSHA(logintoken, "ASCII"),shaPassword = new jsSHA(password, "ASCII"),
 			authLogin = new $.rest('Authentication');
-		authLogin.resetData().select({ 
-			userName: username, 
-			loginToken: token, 
-			hashedLoginToken: shaObj.getHMAC(username+password, "ASCII", "SHA-512", "HEX")
-		}).done(function(data){
-			localStorage.setItem('superdesk.login.token', data);
-			authDetails = AuthDetails(username);
+			authLogin.resetData().insert({ 
+			UserName: username, 
+			LoginToken: logintoken, 
+			HashedLoginToken: shaObj.getHMAC(username+shaPassword.getHash("SHA-512", "HEX"), "ASCII", "SHA-512", "HEX")
+		}).done(function(user){
+			localStorage.setItem('superdesk.login.session', user.Session);
+			//localStorage.setItem('superdesk.login.id', user.Id);
+			localStorage.setItem('superdesk.login.name', user.UserName);
+			localStorage.setItem('superdesk.login.email', user.EMail);			
+			$(authLogin).trigger('success');
+/*			authDetails = AuthDetails(username);
 			$(authDetails).on('failed', function(){
 				$(authLogin).trigger('failed', 'authDetails');
 			});
-			
+*/			
 		});
 		return $(authLogin);
 	},
@@ -39,6 +43,8 @@ function($, superdesk, dust, jsSHA)
 				authLogin = AuthLogin(username, password, data.Token);
 				authLogin.on('failed', function(){
 					$(authToken).trigger('failed', 'authToken');
+				}).on('success', function(){
+					$(authToken).trigger('success');
 				});
 			}
 		);
@@ -68,9 +74,12 @@ function($, superdesk, dust, jsSHA)
                 form.off('submit.superdesk')//
                 .on('submit.superdesk', function(event)
                 {
-                    var username = $(this).find('#username').val(), password=$(this).find('#password').val();
-					AuthToken(username, password).on('failed',function(evt, type){						
-						console.log(type);
+                    var username = $(this).find('#username'), password=$(this).find('#password');
+					AuthToken(username.val(), password.val()).on('failed',function(evt, type){						
+						username.val('');
+						password.val('')
+					}).on('success', function(){
+						$(dialog).dialog('close');
 					});
                     event.preventDefault();
 					
