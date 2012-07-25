@@ -57,3 +57,4 @@ class UserServiceAlchemy(EntityServiceAlchemy, IUserService):
         try:
             self.session().flush((copy(user, userDb),))
         except SQLAlchemyError as e: handle(e, userDb)
+
