@@ -1,11 +1,45 @@
 define
 ([
-    'jquery', 'jquery/superdesk', 'dust/core', 'jquery/tmpl', 'jquery/rest', 'bootstrap',  
+    'jquery', 'jquery/superdesk', 'dust/core', 'utils/sha512', 'jquery/tmpl', 'jquery/rest', 'bootstrap',  
     'tmpl!auth',
 ], 
-function($, superdesk, dust)
+function($, superdesk, dust, jsSHA)
 {
-    var AuthApp = 
+    var AuthDetails = function(username){
+		var authDetails = new $.rest('Superdesk/User');
+		authDetails.resetData().xfilter('Name,Id,EMail').select({ name: username }).done(function(users){
+			var user = users.UserList[0];
+			localStorage.setItem('superdesk.login.id', user.Id);
+			localStorage.setItem('superdesk.login.name', user.Name);
+			localStorage.setItem('superdesk.login.email', user.EMail);
+		});
+		return authDetails;
+	},
+	AuthLogin = function(username, password, token){
+		var shaObj = new jsSHA(token, "ASCII"),
+			authLogin = new $.rest('Superdesk/Authentication');
+		authLogin.resetData().select({ 
+			userName: username, 
+			loginToken: token, 
+			hashedLoginToken: shaObj.getHMAC(username+password, "ASCII", "SHA-512", "HEX")
+		}).done(function(data){
+			localStorage.setItem('superdesk.login.token', data);
+			AuthDetails(username);
+		});
+		return authLogin;
+	},
+	AuthToken = function(username, password) {
+		var authToken = new $.rest('Superdesk/Authentication');
+		authToken.resetData().select({ userName: username }).done(
+			function(data){
+				AuthLogin(username, password, data.token);
+			}
+		).always(function(){
+			
+		});
+		return $(authToken);
+	},
+	AuthApp = 
     {
         success: $.noop,
         require: function()
@@ -26,35 +60,15 @@ function($, superdesk, dust)
                     ]
                 }),
                     form = dialog.find('form');
-                form.off('submit.superdesk')
+                form.off('submit.superdesk')//
                 .on('submit.superdesk', function(event)
                 {
-                    var username = $(this).find('#username').val(),
-                        form = this;
-                    new $.rest('Superdesk/User').xfilter('Name,Id,EMail').done(function(users)
-                    {
-                        var found = false;
-                        for(var i=0; i<users.length; i++)
-                        {
-                            if(users[i].Name == username) 
-                            { 
-                                found = users[i].Id;
-                                $.restAuth.prototype.requestOptions.headers.Authorization = users[i].Id;
-                                superdesk.login = users[i];
-                                if($(form).find('#remember:checked').length)
-                                {
-                                    localStorage.setItem('superdesk.login.id', users[i].Id);
-                                    localStorage.setItem('superdesk.login.name', users[i].Name);
-                                    localStorage.setItem('superdesk.login.email', users[i].EMail);
-                                }
-                                AuthApp.success && AuthApp.success.apply();
-                                dialog.dialog('close');
-                                break;
-                            }
-                        };
-                        !found && dialog.find('#login-failed').removeClass('hide');
-                    });
+                    var username = $(this).find('#username').val(), password=$(this).find('#password').val(),
+					AuthToken(username, password).on('fail',function(){
+						console.log('fail');
+					});
                     event.preventDefault();
+					
                 });
             });
         }
