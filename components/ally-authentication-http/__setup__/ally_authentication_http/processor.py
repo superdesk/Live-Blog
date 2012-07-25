@@ -9,22 +9,16 @@ Created on Nov 24, 2011
 Provides the configurations for the authentication processors.
 '''
 
-from ..ally_authentication_core.resource_management import \
-    resourcesLocatorAuthentication
-from ..ally_core.converter import converterPath
-from ..ally_core.processor import handlersRedirect, redirect, handlersResources, \
-    parameters
-from ..ally_core_http.processor import handlersFetching, pathProcessors, uri, \
-    read_from_params
+from ..ally_authentication_core.resources import resourcesLocatorAuthentication
+from ..ally_core.processor import assemblyResources, argumentsBuild
+from ..ally_core_http.processor import converterPath, uri, redirect, \
+    assemblyRedirect, pathAssemblies
 from ally.container import ioc
-from ally.core.authentication.impl.processor.authenticator import \
+from ally.core.authentication.impl.processor.authentication import \
     AuthenticationHandler
+from ally.core.http.impl.processor.redirect import RedirectHandler
 from ally.core.http.impl.processor.uri import URIHandler
-from ally.core.impl.processor.redirect import RedirectHandler
-from ally.core.spec.server import Processors, Processor
-import re
-from __setup__.ally_core.resource_management import resourcesRegister
-from datetime import timedelta
+from ally.design.processor import Handler, Assembly
 
 # --------------------------------------------------------------------
 
@@ -34,88 +28,69 @@ def server_pattern_authenticated():
     return '^resources\/my(/|(?=\\.)|$)'
 
 @ioc.config
-def login_token_timeout():
-    ''' The number of seconds after which the login token expires. '''
-    return timedelta(seconds=10)
-
-@ioc.config
-def session_token_timeout():
-    ''' The number of seconds after which the session expires. '''
-    return timedelta(seconds=3600)
+def always_authenticate():
+    '''
+    Flag indicating that the authentication should not be made only when there is a authentication data type required,
+    but the authentication should be made for all requests
+    '''
+    return False
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def uriAuthentication() -> Processor:
+def uriAuthentication() -> Handler:
     b = URIHandler()
-    b.resourcesLocator = resourcesLocatorAuthentication()
+    b.resourcesLocator = resourcesLocator()
     b.converterPath = converterPath()
     return b
 
 @ioc.entity
-def redirectAuthentication() -> Processor:
+def redirectAuthentication() -> Handler:
     b = RedirectHandler()
-    b.redirects = Processors(*handlersRedirectAuthentication())
+    b.redirectAssembly = assemblyRedirectAuthentication()
     return b
-#TODO: see hot to incorporate the auth in fetch
-#@ioc.entity
-#def metaFilterAuthentication() -> Processor:
-#    b = MetaFilterHandler()
-#    b.normalizer = contentNormalizer()
-#    b.fetching = Processors(*handlersFetchingAuthentication())
-#    b.readFromParams = read_from_params()
-#    return b
 
 @ioc.entity
-def authentication() -> Processor:
+def authentication() -> Handler:
     b = AuthenticationHandler()
-    b.readFromParams = read_from_params()
-    b.readFromParams = False
-    b.resourcesRegister = resourcesRegister()
+    b.alwaysAuthenticate = always_authenticate()
+    b.authenticators = authenticators()
     return b
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def handlersRedirectAuthentication():
+def assemblyResourcesAuthentication() -> Assembly:
     '''
-    The handlers that will be used in processing a redirect.
+    The assembly containing the handlers that will be used in processing a REST request.
     '''
-    handlers = list(handlersRedirect())
-    # Adding the authentication handler
-    handlers.insert(handlers.index(parameters()), authentication())
-    return handlers
+    return Assembly()
 
 @ioc.entity
-def handlersResourcesAuthentication():
-    handlers = list(handlersResources())
-
-    # Changing the handlers that have been altered for authentication 
-    handlers.insert(handlers.index(uri()), uriAuthentication())
-    handlers.remove(uri())
-
-    handlers.insert(handlers.index(redirect()), redirectAuthentication())
-    handlers.remove(redirect())
-
-#TODO: see how to incorporate the auth in fetch
-#    handlers.insert(handlers.index(metaFilter()), metaFilterAuthentication())
-#    handlers.remove(metaFilter())
-
-    # Adding the authentication handler
-    handlers.insert(handlers.index(parameters()), authentication())
-    return handlers
+def assemblyRedirectAuthentication() -> Assembly:
+    '''
+    The assembly containing the handlers that will be used in processing a redirect.
+    '''
+    return Assembly()
 
 @ioc.entity
-def handlersFetchingAuthentication():
-    handlers = list(handlersFetching())
-    # Adding the authentication handler
-    handlers.insert(handlers.index(parameters()), authentication())
-    return handlers
+def authenticators(): return []
 
 # --------------------------------------------------------------------
 
-@ioc.before(pathProcessors)
-def updatePathProcessors():
-    processors = Processors(*handlersResourcesAuthentication())
-    pathProcessors().insert(0, (re.compile(server_pattern_authenticated()), processors))
+@ioc.before(assemblyResourcesAuthentication)
+def updateAssemblyResourcesAuthentication():
+    assemblyResourcesAuthentication().add(assemblyResources())
+    assemblyResourcesAuthentication().replace(uri(), uriAuthentication())
+    assemblyResourcesAuthentication().replace(redirect(), redirectAuthentication())
+    assemblyResourcesAuthentication().add(authentication(), before=argumentsBuild())
+
+@ioc.before(assemblyRedirectAuthentication)
+def updateAssemblyRedirectAuthentication():
+    assemblyRedirectAuthentication().add(assemblyRedirect())
+    assemblyRedirectAuthentication().add(authentication(), before=argumentsBuild())
+
+@ioc.before(pathAssemblies)
+def updatePathAssemblies():
+    pathAssemblies().insert(0, (server_pattern_authenticated(), assemblyResourcesAuthentication()))
 

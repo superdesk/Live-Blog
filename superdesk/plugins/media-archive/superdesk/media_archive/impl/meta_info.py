@@ -13,12 +13,14 @@ from ..api.meta_data import QMetaData
 from ..api.meta_info import IMetaInfoService, QMetaInfo
 from ..core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
 from ..meta.meta_data import MetaDataMapped
-from ..meta.meta_info import MetaInfo
+from ..meta.meta_info import MetaInfoMapped
 from ally.container.ioc import injected
+from ally.container.support import setup
 
 # --------------------------------------------------------------------
 
 @injected
+@setup(IMetaInfoService)
 class MetaInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IMetaInfoService):
     '''
     Implementation for @see: IMetaInfoService
@@ -28,4 +30,4 @@ class MetaInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IMetaInfoService):
         '''
         Construct the meta info service.
         '''
-        MetaInfoServiceBaseAlchemy.__init__(self, MetaInfo, QMetaInfo, MetaDataMapped, QMetaData)
+        MetaInfoServiceBaseAlchemy.__init__(self, MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData)
