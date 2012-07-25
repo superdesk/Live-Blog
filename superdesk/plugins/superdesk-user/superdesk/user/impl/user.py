@@ -53,5 +53,5 @@ class UserServiceAlchemy(EntityServiceAlchemy, IUserService, IAuthenticate):
         except (IndexError, StopIteration): raise InputError('Invalid user name %s' % userName)
         user = User()
         user.UserName, user.FirstName, user.LastName, user.EMail, user.Address = \
-        ent.UserName, ent.FirstName, ent.LastName, ent.EMail, ent.Address
+        ent.Name, ent.FirstName, ent.LastName, ent.EMail, ent.Address
         return user
