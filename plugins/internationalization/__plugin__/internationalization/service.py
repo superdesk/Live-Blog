@@ -8,7 +8,7 @@ Created on Jan 9, 2012
 
 Contains the services setup for internationalization.
 '''
-
+from sys import modules
 from ..cdm.local_cdm import contentDeliveryManager
 from ..plugin.registry import addService
 from .db_internationalization import bindInternationalizationSession, \
@@ -26,13 +26,14 @@ from internationalization.impl.json_locale import JSONFileService
 
 # --------------------------------------------------------------------
 
-API, IMPL = 'internationalization.api.**.I*Service', 'internationalization.impl.**.*'
+SERVICES = 'internationalization.api.**.I*Service'
 
-support.createEntitySetup(API, IMPL)
-support.bindToEntities(IMPL, binders=bindInternationalizationSession)
-support.listenToEntities(IMPL, listeners=addService(bindInternationalizationSession, bindInternationalizationValidations))
-support.wireEntities(Scanner, POFileManager, POFileService)
-support.loadAllEntities(API)
+support.createEntitySetup('internationalization.impl.**.*')
+#TODO: check why 'internationalization.impl.**.*' is required
+support.createEntitySetup('internationalization.*.impl.**.*')
+support.bindToEntities('internationalization.impl.**.*Alchemy', binders=bindInternationalizationSession)
+support.listenToEntities(SERVICES, listeners=addService(bindInternationalizationValidations), beforeBinding=False)
+support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------
 
@@ -53,16 +54,13 @@ def cdmLocale() -> ICDM:
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'cache/locale/%s')
 
-@ioc.entity
-def poFileManager() -> IPOFileManager: return POFileManager()
-
-@ioc.entity
+@ioc.replace(ioc.getEntity(IPOFileService, modules[__name__]))
 def poFileService() -> IPOFileService:
     srv = POFileService()
     srv.cdmLocale = cdmLocale()
     return srv
 
-@ioc.entity
+@ioc.replace(ioc.getEntity(IJSONLocaleFileService))
 def jsonFileService() -> IJSONLocaleFileService:
     srv = JSONFileService()
     srv.cdmLocale = cdmLocale()
