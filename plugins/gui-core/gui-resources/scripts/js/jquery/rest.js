@@ -436,6 +436,11 @@ define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
 			this.request({type: 'post', headers: this.lastAdded.request.headers, data: data});
 			return this.doRequest(url ? url : getUrl.apply(this,[{'X-HTTP-Method-Override': 'PUT'}]));
 		},
+		select: function(data, url)
+		{
+			this.request({type: 'get', data: data, headers: this.lastAdded.request ? this.lastAdded.request.headers : {}});
+			return this.doRequest(url ? url : getUrl.apply(this));
+		},
 		/*!
 		 * 
 		 */
@@ -445,7 +450,7 @@ define('jquery/rest',['jquery', 'jquery/utils'], function ($) {
 			return this.doRequest(url ? url : getUrl.apply(this));
 		},
 		/*!
-		 * 
+		 *
 		 */
 		delete: function(data, url)
 		{
