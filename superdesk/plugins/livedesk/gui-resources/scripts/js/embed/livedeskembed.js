@@ -1,37 +1,42 @@
 var livedeskEmbed = {
-    jqueryLoaded : false,
-    gizmoLoaded : false,
-    waited : 0,
-    waitTime : 20, //miliseconds
     init : function() {
-        
-        //make sure jsLib is loaded
+        var self = this;
         if (typeof jQuery == 'undefined') {
-            if(this.jqueryLoaded == false) {
-                this.loadScript(document, "http://code.jquery.com/jquery-1.7.2.min.js", 'livedesk-jquery');
-            }
-            setTimeout('livedeskEmbed.init()', this.waitTime);
-        } else {   
-            if (typeof $.gizmo == 'undefined') {
-                if(this.gizmoLoaded == false) {
-                    this.loadScript(document, "gizmo.js", 'livedesk-gizmo');
+            self.loadScript('http://code.jquery.com/jquery-1.7.2.min.js', function(){
+                if (typeof $.gizmo == 'undefined') {
+                    self.loadScript('gizmo.js', function(){
+                        self.startLoading();
+                    })
                 }
-                setTimeout('livedeskEmbed.init()', this.waitTime);
+            })
+        } else {
+            if (typeof $.gizmo == 'undefined') {
+                self.loadScript('gizmo.js', function(){
+                    self.startLoading();
+                })
             } else {
-                this.startLoading();
+                self.startLoading();
             }
         }
     },
-    loadScript : function(d, src, id) {
-            
-            var js, fjs = d.getElementsByTagName('script')[1];
-            if (d.getElementById(id)) return;
-            js = d.createElement('script');js.id = id;
-            js.src = src;
-            fjs.parentNode.insertBefore(js, fjs);
-            this.jqueryLoaded = true;
-            console.log('loading ' + src);
-            this.init();
+    
+    loadScript : function (src, callback) {
+        var script = document.createElement("script")
+        script.type = "text/javascript";
+        if (script.readyState) { //IE
+            script.onreadystatechange = function () {
+                if (script.readyState == "loaded" || script.readyState == "complete") {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+            };
+        } else { //Others
+            script.onload = function () {
+                callback();
+            };
+        }
+        script.src = src;
+        document.getElementsByTagName("head")[0].appendChild(script);
     },
     startLoading : function() {
         var 
@@ -136,7 +141,9 @@ var livedeskEmbed = {
             }
         }),
         
-        Posts = $.gizmo.Collection.extend({model: Post}),
+        Posts = $.gizmo.Collection.extend({
+            model: Post
+        }),
         
         Blog = $.gizmo.Model.extend
         ({
@@ -160,10 +167,10 @@ var livedeskEmbed = {
             },
             render: function()
             {
-                var content = this.post.get('Content');                
+                var content = this.post.get('Content');
+
                 var style= '';                
                 if (this.post.getClass() == 'wrapup') {
-                    //$(this.el).addClass('open');
                     style += ' open';
                 }
                 if (this.post.isService()) {
@@ -185,7 +192,9 @@ var livedeskEmbed = {
         ({
             events: 
             {
-                '[uberclick="ceva-click-shucar"]': {'click': 'altceva'}
+                '[uberclick="ceva-click-shucar"]': {
+                    'click': 'altceva'
+                }
             },
             init: function()
             {
@@ -193,7 +202,9 @@ var livedeskEmbed = {
                 var self = this;
                 this.blog.on('read', function()
                 { 
-                    self.blog.get('Post').on('read', function(){self.render();})
+                    self.blog.get('Post').on('read', function(){
+                        self.render();
+                    })
                     self.blog.get('Post').xfilter('*').sync();
                 });
                 
@@ -204,15 +215,18 @@ var livedeskEmbed = {
                 var self = this,i=0;
                 this.blog.get('Post').each(function()
                 {
-                    
-                    var post = new Post(this.hash()), view = new PostItemView({ post: post }); 
+                    var post = new Post(this.hash()), view = new PostItemView({
+                        post: post
+                    }); 
                     self.el.append( view.el );
                 })
             }
             
         });
         
-        new TimelineView({ el: '#livedesk-root'});
+        new TimelineView({
+            el: '#livedesk-root'
+        });
     }
 };
 livedeskEmbed.init();
