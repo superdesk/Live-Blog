@@ -15,11 +15,11 @@ from ..meta.image_data import ImageData
 from ..meta.image_info import ImageInfo
 from ..meta.meta_data import MetaDataMapped
 from ..meta.meta_type import MetaTypeMapped
-from .meta_data import IMetaDataReferenceHandler
+from superdesk.media_archive.core.spec import IMetaDataHandler
 from ally.api.model import Content
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.support.api.util_service import namesForModel
+from ally.support.api.util_service import copy
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_io import pipe
@@ -31,11 +31,13 @@ from os.path import join, getsize
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 import os
+import subprocess
+
 
 # --------------------------------------------------------------------
 
 @injected
-class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandler, SessionSupport):
+class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, SessionSupport):
     '''
     Provides the service that handles the @see: IImagePersistanceService.
     '''
@@ -47,8 +49,8 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandle
     default_file_name = 'unknown'; wire.config('default_file_name', doc='''
     The default file name if non is specified''')
 
-    imageTypeName = 'image'
-    # The name for the meta type image
+    imageTypeKey = 'image'
+    # The key for the meta type image
 
     thumbnailSizes = dict
     # Contains the thumbnail sizes available for the media archive.
@@ -62,7 +64,7 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandle
         assert isinstance(self.image_dir_path, str), 'Invalid image directory %s' % self.image_dir_path
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
         assert isinstance(self.default_file_name, str), 'Invalid default file name %s' % self.default_file_name
-        assert isinstance(self.imageTypeName, str), 'Invalid meta type image name %s' % self.imageTypeName
+        assert isinstance(self.imageTypeKey, str), 'Invalid meta type image key %s' % self.imageTypeKey
         assert isinstance(self.thumbnailSizes, dict), 'Invalid thumbnail sizes %s' % self.thumbnailSizes
         assert isinstance(self.cdmImages, ICDM), 'Invalid image CDM %s' % self.cdmImages
         assert isinstance(self.cdmThumbnails, ICDM), 'Invalid image thumbnail CDM %s' % self.cdmThumbnails
@@ -79,7 +81,7 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandle
 
         self._metaTypeId = None
 
-    def insert(self, imageInfo, image):
+    def insertAll(self, imageInfo, image):
         '''
         @see: IImagePersistanceService.insert
         '''
@@ -101,32 +103,41 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandle
             assert isinstance(imageData, MetaDataMapped)
             imageData.reference = reference
             imageData.SizeInBytes = getsize(path)
+            #TODO: implement read the actual meta data
             imageData.Width = 100
             imageData.Height = 100
 
             self.session().flush((imageData,))
 
-            imageInfoDb = ImageInfo()
-            for prop in namesForModel(imageInfo):
-                if getattr(ImageInfo, prop) in imageInfo: setattr(imageInfoDb, prop, getattr(imageInfo, prop))
+            imageInfoDb = copy(imageInfo, ImageInfo())
             imageInfoDb.MetaData = imageData.Id
 
             self.session().add(imageInfoDb)
             self.session().flush((imageInfoDb,))
+
         except SQLAlchemyError as e: handle(e, imageInfoDb)
 
+        imageInfo.Id = imageInfoDb.Id
         return imageInfoDb.Id
 
     # ----------------------------------------------------------------
 
-    def process(self, metaData, scheme, thumbSize):
+    def process(self, metaData, content):
         '''
-        @see: IMetaDataReferenceHandler.process
+        @see: IMetaDataHandler.process
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         try:
-            metaData.Content = self.cdmImages.getURI(metaData.reference, scheme)
+            
             metaData.IsAvailable = True
+
+            p = subprocess.Popen(['python2.7 ../../tools/media-archive-image/hachoir/hachoir.py', content], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in p.stdout.readlines():
+                print(line)
+                
+            result = p.wait()
+            print("Call smd with result=", result)
+            
         except PathNotFound:
             metaData.IsAvailable = False
         return metaData
@@ -141,8 +152,16 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandle
             try: metaType = self.session().query(MetaTypeMapped).filter(MetaTypeMapped.Key == self.imageTypeName).one()
             except NoResultFound:
                 metaType = MetaTypeMapped()
-                metaType.Key = self.imageTypeName
+                metaType.Key = self.imageTypeKey
                 self.session().add(metaType)
                 self.session().flush((metaType,))
             self._metaTypeId = metaType.id
         return self._metaTypeId
+
+    # ----------------------------------------------------------------
+
+    def deploy(self):
+        '''
+           Deploy 
+        '''
+        pass
