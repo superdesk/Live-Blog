@@ -13,7 +13,7 @@ from superdesk.user.api.user import IUserService, QUser
 from ally.container.ioc import injected
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from superdesk.user.meta.user import UserMapped
-from ally.core.authentication.api.authentication import IAuthenticate
+from ally.core.authentication.api.authentication import IAuthenticate, User
 from ally.exception import InputError
 
 # --------------------------------------------------------------------
@@ -30,8 +30,28 @@ class UserServiceAlchemy(EntityServiceAlchemy, IUserService, IAuthenticate):
         '''
         See IAuthenticate.getUserKey
         '''
+        if not userName: raise InputError('Empty user name')
         q = QUser()
         q.name = userName
         u = self.getAll(0, 1, q)
-        try: return next(u).Password
-        except StopIteration: raise InputError('Invalid user name %s' % userName)
+        try:
+            if isinstance(u, list): return u[0].Password
+            else: return next(u).Password
+        except (IndexError, StopIteration): raise InputError('Invalid user name %s' % userName)
+
+    def getUserData(self, userName):
+        '''
+        See IAuthenticate.getUserKey
+        '''
+        if not userName: raise InputError('Empty user name')
+        q = QUser()
+        q.name = userName
+        u = self.getAll(0, 1, q)
+        try:
+            if isinstance(u, list): ent = u[0]
+            else: ent = next(u).Password
+        except (IndexError, StopIteration): raise InputError('Invalid user name %s' % userName)
+        user = User()
+        user.UserName, user.FirstName, user.LastName, user.EMail, user.Address = \
+        ent.UserName, ent.FirstName, ent.LastName, ent.EMail, ent.Address
+        return user
