@@ -8,7 +8,7 @@ Created on Jun 16, 2012
 '''
 
 from glob import glob
-from os.path import join, dirname, sep, split
+from os.path import join, dirname, isabs, abspath
 import imp
 import sys
 from os import chdir, getcwd
@@ -19,9 +19,10 @@ if __name__ == '__main__':
     sys.argv[0] = 'setup.py'
     sys.argv.insert(1, 'bdist_egg')
     currentDir = getcwd()
-    setupScripts = glob(join(dirname(__file__), '*', 'setup.py'))
+    filePath = __file__ if isabs(__file__) else abspath(__file__)
+    setupScripts = glob(join(dirname(filePath), '*', 'setup.py'))
     for script in setupScripts:
         chdir(dirname(script))
-        module = imp.load_source('setup', script)
+        module = imp.load_source('setup', 'setup.py')
         print("\n".rjust(79, '-'))
     chdir(currentDir)
