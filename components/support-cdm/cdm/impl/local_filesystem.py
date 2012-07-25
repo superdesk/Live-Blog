@@ -371,9 +371,9 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
                     for link in links:
                         if link[0] == self._fsHeader and self._isValidFSLink(link, subPath):
                             fullPath = join(link[1], subPath) if subPath else link[1]
-                            return os.stat(fullPath).st_mtime
+                            return datetime.fromtimestamp(os.stat(fullPath).st_mtime)
                         elif link[0] == self._zipHeader and self._isValidZIPLink(link, subPath):
-                            return os.stat(link[1]).st_mtime
+                            return datetime.fromtimestamp(os.stat(link[1]).st_mtime)
                     raise PathNotFound(path)
             nextLinkPath = dirname(linkPath)
             if nextLinkPath == linkPath: break
