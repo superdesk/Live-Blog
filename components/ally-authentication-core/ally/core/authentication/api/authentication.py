@@ -26,6 +26,7 @@ class LoginToken:
 
 @modelAuthenticate(id='UserName')
 class User:
+    Id = int
     UserName = str
     FirstName = str
     LastName = str
