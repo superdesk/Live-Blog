@@ -5,17 +5,7 @@ define
 ], 
 function($, superdesk, dust, jsSHA)
 {
-    var AuthDetails = function(username){
-		var authDetails = new $.rest('Superdesk/User');
-		authDetails.resetData().xfilter('Name,Id,EMail').select({ name: username }).done(function(users){
-			var user = users.UserList[0];
-			localStorage.setItem('superdesk.login.id', user.Id);
-			localStorage.setItem('superdesk.login.name', user.Name);
-			localStorage.setItem('superdesk.login.email', user.EMail);
-		});
-		return $(authDetails);
-	},
-	AuthLogin = function(username, password, logintoken){
+    var AuthLogin = function(username, password, logintoken){
 		var shaObj = new jsSHA(logintoken, "ASCII"),shaPassword = new jsSHA(password, "ASCII"),
 			authLogin = new $.rest('Authentication');
 			authLogin.resetData().insert({ 
@@ -24,15 +14,10 @@ function($, superdesk, dust, jsSHA)
 			HashedLoginToken: shaObj.getHMAC(username+shaPassword.getHash("SHA-512", "HEX"), "ASCII", "SHA-512", "HEX")
 		}).done(function(user){
 			localStorage.setItem('superdesk.login.session', user.Session);
-			//localStorage.setItem('superdesk.login.id', user.Id);
+			localStorage.setItem('superdesk.login.id', user.Id);
 			localStorage.setItem('superdesk.login.name', user.UserName);
 			localStorage.setItem('superdesk.login.email', user.EMail);			
 			$(authLogin).trigger('success');
-/*			authDetails = AuthDetails(username);
-			$(authDetails).on('failed', function(){
-				$(authLogin).trigger('failed', 'authDetails');
-			});
-*/			
 		});
 		return $(authLogin);
 	},
@@ -55,7 +40,9 @@ function($, superdesk, dust, jsSHA)
         success: $.noop,
         require: function()
         {
+			if(this.showed) return;
             var self = this; // rest
+			self.showed = true;			
             $.tmpl('auth', null, function(e, o)
             { 
                 var dialog = $(o).eq(0).dialog
@@ -79,7 +66,9 @@ function($, superdesk, dust, jsSHA)
 						username.val('');
 						password.val('')
 					}).on('success', function(){
+                        AuthApp.success && AuthApp.success.apply();
 						$(dialog).dialog('close');
+						self.showed = false;
 					});
                     event.preventDefault();
 					
