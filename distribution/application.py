@@ -1,7 +1,7 @@
 '''
 Created on Nov 24, 2011
 
-@package: Newscoop
+@package: Superdesk
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -43,7 +43,9 @@ if __name__ == '__main__':
         if path not in sys.path: sys.path.append(path)
 
     try: import ally_deploy_application
-    except ImportError: print('=' * 50, 'Application cannot be started, no application deploy available')
+    except ImportError:
+        print('=' * 50, 'Application cannot be started, no application deploy available')
+        traceback.print_exc()
     else:
         try:
             ally_deploy_application.deploy()

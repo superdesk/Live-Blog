@@ -15,12 +15,13 @@ from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.api import entity as api
 from ally.support.api.util_service import copy
-from ally.support.sqlalchemy.mapper_descriptor import MappedSupport
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
 from inspect import isclass
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 import logging
+from ally.support.sqlalchemy.mapper import MappedSupport
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -90,29 +91,7 @@ class EntitySupportAlchemy(SessionSupport):
         sqlQuery = buildLimits(sqlQuery, offset, limit)
         return sqlQuery.all()
 
-    def _getCount(self, filter=None, query=None, sqlQuery=None):
-        '''
-        Provides the count for the entities of the provided filter. Also if query is known to the service then also a
-        query can be provided.
-        
-        @param filter: SQL alchemy filtering|None
-            The sql alchemy conditions to filter by.
-        @param query: query
-            The REST query object to provide filtering on.
-        @param sqlQuery: SQL alchemy|None
-            The sql alchemy query to use.
-        @return: integer
-            The count of the total elements.
-        '''
-        sqlQuery = sqlQuery or self.session().query(self.Entity)
-        if filter is not None: sqlQuery = sqlQuery.filter(filter)
-        if query:
-            assert self.QEntity, 'No query provided for the entity service'
-            assert self.queryType.isValid(query), 'Invalid query %s, expected %s' % (query, self.QEntity)
-            sqlQuery = buildQuery(sqlQuery, query, self.Entity)
-        return sqlQuery.count()
-
-    def _getAllWithCount(self, filter=None, query=None, offset=None, limit=None, sqlQuery=None):
+    def _getAllWithCount(self, filter=None, query=None, offset=None, limit=None, sql=None):
         '''
         Provides all the entities for the provided filter, with offset and limit and the total count. Also if query is 
         known to the service then also a query can be provided.
@@ -125,20 +104,20 @@ class EntitySupportAlchemy(SessionSupport):
             The offset to fetch elements from.
         @param limit: integer|None
             The limit of elements to get.
-        @param sqlQuery: SQL alchemy|None
+        @param sql: SQL alchemy|None
             The sql alchemy query to use.
         @return: tuple(list, integer)
             The list of all filtered and limited elements and the count of the total elements.
         '''
-        sqlQuery = sqlQuery or self.session().query(self.Entity)
-        if filter is not None: sqlQuery = sqlQuery.filter(filter)
+        sql = sql or self.session().query(self.Entity)
+        if filter is not None: sql = sql.filter(filter)
         if query:
             assert self.QEntity, 'No query provided for the entity service'
             assert self.queryType.isValid(query), 'Invalid query %s, expected %s' % (query, self.QEntity)
-            sqlQuery = buildQuery(sqlQuery, query, self.Entity)
-        sql = buildLimits(sqlQuery, offset, limit)
-        if limit == 0: return [], sqlQuery.count()
-        return sql.all(), sqlQuery.count()
+            sql = buildQuery(sql, query, self.Entity)
+        sqlLimit = buildLimits(sql, offset, limit)
+        if limit == 0: return [], sql.count()
+        return sqlLimit.all(), sql.count()
 
 # --------------------------------------------------------------------
 
@@ -160,10 +139,13 @@ class EntityFindServiceAlchemy(EntitySupportAlchemy):
     Generic implementation for @see: IEntityFindService
     '''
 
-    def getAll(self, offset=None, limit=None):
+    def getAll(self, offset=None, limit=None, detailed=False):
         '''
         @see: IEntityQueryService.getAll
         '''
+        if detailed:
+            total, entities = self._getAllWithCount(None, None, offset, limit)
+            return IterPart(entities, total, offset, limit)
         return self._getAll(None, None, offset, limit)
 
 class EntityQueryServiceAlchemy(EntitySupportAlchemy):
@@ -171,10 +153,13 @@ class EntityQueryServiceAlchemy(EntitySupportAlchemy):
     Generic implementation for @see: IEntityQueryService
     '''
 
-    def getAll(self, offset=None, limit=None, q=None):
+    def getAll(self, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IEntityQueryService.getAll
         '''
+        if detailed:
+            entities, total = self._getAllWithCount(None, q, offset, limit)
+            return IterPart(entities, total, offset, limit)
         return self._getAll(None, q, offset, limit)
 
 class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
@@ -203,8 +188,7 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
         assert isinstance(entity.Id, int), 'Invalid entity %s, with id %s' % (entity, entity.Id)
         entityDb = self.session().query(self.Entity).get(entity.Id)
         if not entityDb: raise InputError(Ref(_('Unknown id'), ref=self.Entity.Id))
-        try:
-            self.session().flush((copy(entity, entityDb),))
+        try: self.session().flush((copy(entity, entityDb),))
         except SQLAlchemyError as e: handle(e, self.Entity)
 
     def delete(self, id):

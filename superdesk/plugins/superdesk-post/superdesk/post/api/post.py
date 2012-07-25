@@ -10,9 +10,9 @@ API specifications for posts.
 '''
 
 from ally.api.authentication import auth
-from ally.api.config import service, call, query
+from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsDateTimeOrdered, AsBoolean
-from ally.api.type import Iter, Count
+from ally.api.type import Iter
 from ally.support.api.entity import Entity, IEntityGetCRUDService
 from ally.support.api.keyed import QEntity
 from datetime import datetime
@@ -43,7 +43,7 @@ class Post(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Post)
 class QPostUnpublished(QEntity):
     '''
     Provides the post message query.
@@ -53,12 +53,19 @@ class QPostUnpublished(QEntity):
     updatedOn = AsDateTimeOrdered
     deletedOn = AsDateTimeOrdered
 
-@query
-class QPost(QPostUnpublished):
+@query(Post)
+class QPostPublished(QPostUnpublished):
     '''
     Provides the post message query.
     '''
     publishedOn = AsDateTimeOrdered
+
+@query(Post)
+class QPost(QPostPublished):
+    '''
+    Provides the post message query.
+    '''
+    deletedOn = AsDateTimeOrdered
 
 # --------------------------------------------------------------------
 
@@ -69,41 +76,22 @@ class IPostService(IEntityGetCRUDService):
     '''
 
     @call(webName='Unpublished')
-    def getUnpublished(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None, limit:int=10,
-                    q:QPostUnpublished=None) -> Iter(Post):
+    def getUnpublished(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None,
+                       limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QPostUnpublished=None) -> Iter(Post):
         '''
         Provides all the unpublished posts.
         '''
 
-    @call(countFor=getUnpublished)
-    def getUnpublishedCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None,
-                            q:QPostUnpublished=None) -> Count:
-        '''
-        Provides the count of unpublished posts.
-        '''
-
     @call(webName='Published')
-    def getPublished(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None, limit:int=10,
-                    q:QPost=None) -> Iter(Post):
+    def getPublished(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None,
+                     limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QPostPublished=None) -> Iter(Post):
         '''
         Provides all the published posts.
         '''
 
-    @call(countFor=getPublished)
-    def getPublishedCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, q:QPost=None) -> Count:
-        '''
-        Provides the count of the published posts.
-        '''
-
     @call
-    def getAll(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None, limit:int=10,
-                    q:QPost=None) -> Iter(Post):
+    def getAll(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, offset:int=None, limit:int=LIMIT_DEFAULT,
+               detailed:bool=True, q:QPost=None) -> Iter(Post):
         '''
         Provides all the posts.
-        '''
-
-    @call(countFor=getAll)
-    def getAllCount(self, creatorId:User.Id=None, authorId:Collaborator.Id=None, q:QPost=None) -> Count:
-        '''
-        Provides the count of all posts.
         '''
