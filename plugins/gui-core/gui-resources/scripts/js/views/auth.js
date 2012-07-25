@@ -5,7 +5,21 @@ define
 ], 
 function($, superdesk, dust, jsSHA)
 {
+<<<<<<< HEAD
     var AuthLogin = function(username, password, logintoken){
+=======
+    var AuthDetails = function(username){
+		var authDetails = new $.rest('Superdesk/User');
+		authDetails.resetData().xfilter('Name,Id,EMail').select({ name: username }).done(function(users){
+			var user = users.UserList[0];
+			localStorage.setItem('superdesk.login.id', user.Id);
+			localStorage.setItem('superdesk.login.name', user.Name);
+			localStorage.setItem('superdesk.login.email', user.EMail);
+		});
+		return $(authDetails);
+	},
+	AuthLogin = function(username, password, logintoken){
+>>>>>>> 718d8c014dc7f1c47606de731769286a6bcebb81
 		var shaObj = new jsSHA(logintoken, "ASCII"),shaPassword = new jsSHA(password, "ASCII"),
 			authLogin = new $.rest('Authentication');
 			authLogin.resetData().insert({ 
@@ -14,10 +28,22 @@ function($, superdesk, dust, jsSHA)
 			HashedLoginToken: shaObj.getHMAC(username+shaPassword.getHash("SHA-512", "HEX"), "ASCII", "SHA-512", "HEX")
 		}).done(function(user){
 			localStorage.setItem('superdesk.login.session', user.Session);
+<<<<<<< HEAD
 			localStorage.setItem('superdesk.login.id', user.Id);
 			localStorage.setItem('superdesk.login.name', user.UserName);
 			localStorage.setItem('superdesk.login.email', user.EMail);			
 			$(authLogin).trigger('success');
+=======
+			//localStorage.setItem('superdesk.login.id', user.Id);
+			localStorage.setItem('superdesk.login.name', user.UserName);
+			localStorage.setItem('superdesk.login.email', user.EMail);			
+			$(authLogin).trigger('success');
+/*			authDetails = AuthDetails(username);
+			$(authDetails).on('failed', function(){
+				$(authLogin).trigger('failed', 'authDetails');
+			});
+*/			
+>>>>>>> 718d8c014dc7f1c47606de731769286a6bcebb81
 		});
 		return $(authLogin);
 	},
