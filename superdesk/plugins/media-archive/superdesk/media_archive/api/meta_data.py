@@ -13,21 +13,23 @@ from .domain_archive import modelArchive
 from .meta_type import MetaType
 from ally.api.config import query, service, call
 from ally.api.criteria import AsDateTimeOrdered
+from ally.api.model import Content
 from ally.api.type import Reference, Iter, Count, Scheme
 from ally.support.api.entity import Entity, QEntity
 from datetime import datetime
 
 # --------------------------------------------------------------------
 
+
 @modelArchive
 class MetaData(Entity):
     '''
     Provides the meta data that is extracted based on the content.
     '''
+    Name = str
     Type = MetaType
     Content = Reference
     Thumbnail = Reference
-    IsAvailable = bool
     SizeInBytes = int
     CreatedOn = datetime
 
@@ -54,14 +56,25 @@ class IMetaDataService:
         Provides the meta data based on the id.
         '''
 
-    def getMetaDatasCount(self, typeKey:MetaType.Key=None, q:QMetaData=None) -> Count:
-        '''
-        Provides the meta data's count.
-        '''
+#    def getMetaDatasCount(self, typeKey:MetaType.Key=None, q:QMetaData=None) -> Count:
+#        '''
+#        Provides the meta data's count.
+#        '''
+#
+#    @call(countMethod=getMetaDatasCount)
+#    def getMetaDatas(self, scheme:Scheme, typeKey:MetaType.Key=None, offset:int=None, limit:int=10, q:QMetaData=None,
+#                     thumbSize:str=None) -> Iter(MetaData):
+#        '''
+#        Provides the meta data's.
+#        '''
 
-    @call(countMethod=getMetaDatasCount)
-    def getMetaDatas(self, scheme:Scheme, typeKey:MetaType.Key=None, offset:int=None, limit:int=10, q:QMetaData=None,
-                     thumbSize:str=None) -> Iter(MetaData):
+    @call(webName='Upload')
+    def insert(self, content:Content) -> MetaData.Id:
         '''
-        Provides the meta data's.
+        Inserts the meta data content into the media archive. The process of a adding a resource to the media archive is as
+        follows:
+            1. The content is uploaded through this method, automatically the content is identified as to what type of media
+            it belongs.
+            2. Next the meta info needs to be added to the newly created meta data, the meta info needs to be added based
+            on the detected media type.
         '''
