@@ -56,7 +56,7 @@ require(['concat'], function(){
 
 		if( localStorage.getItem('superdesk.login.id') )
 		{
-			$.restAuth.prototype.requestOptions.headers.Authorization = localStorage.getItem('superdesk.login.token');
+			$.restAuth.prototype.requestOptions.headers.Authorization = localStorage.getItem('superdesk.login.session');
 			superdesk.login = {Id: localStorage.getItem('superdesk.login.id'), Name: localStorage.getItem('superdesk.login.name'), EMail: localStorage.getItem('superdesk.login.email')}
 		}
 
