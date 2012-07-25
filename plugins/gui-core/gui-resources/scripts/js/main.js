@@ -47,7 +47,6 @@ require(['concat'], function(){
 			var ajax = r.apply(this, arguments),
 				self = this;
 			ajax.fail(function(resp){ resp.status == 404 && authLock.apply(self, arguments); });
-
 			return ajax;
 		};
 
