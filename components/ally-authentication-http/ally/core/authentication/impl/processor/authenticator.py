@@ -28,7 +28,7 @@ from ally.core.impl.invoker import InvokerFunction
 from ally.api.config import GET, INSERT
 from ally.api.type import Input, typeFor, String
 from datetime import datetime, timedelta
-from ally.core.authentication.api.authentication import IAuthenticate
+from ally.core.authentication.api.authentication import IAuthenticate, LoginToken, Session as UserSession
 import threading
 
 # --------------------------------------------------------------------
@@ -62,7 +62,7 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
     '''
     sessionName = 'Authorization'
     # The header name for the session identifier.
-    login_token_timeout = timedelta(seconds=10)
+    login_token_timeout = timedelta(seconds=1000)
     # The number of seconds after which the login token expires.
     session_token_timeout = timedelta(seconds=3600)
     # The number of seconds after which the session expires.
@@ -82,15 +82,15 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         super().__init__()
 
         node = NodePath(self.resourcesRegister.getRoot(), True, 'Authentication')
-        node.get = InvokerFunction(GET, self.loginToken, typeFor(String),
+        node.get = InvokerFunction(GET, self.loginToken, typeFor(LoginToken),
                                    [
-                                    Input('userName', typeFor(String)),
+                                    Input('userName', typeFor(String), True, None),
                                     ], {})
-        node.post = InvokerFunction(INSERT, self.login, typeFor(String),
+        node.insert = InvokerFunction(INSERT, self.login, typeFor(UserSession),
                                    [
-                                    Input('userName', typeFor(String)),
-                                    Input('loginToken', typeFor(String)),
-                                    Input('hashedLoginToken', typeFor(String)),
+                                    Input('userName', typeFor(String), True, None),
+                                    Input('loginToken', typeFor(String), True, None),
+                                    Input('hashedLoginToken', typeFor(String), True, None),
                                     ], {})
 
         self._sessions = {}
@@ -109,7 +109,9 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
 
         # check if the user exists
         self.userKeyGenerator.getUserKey(userName)
-        return self._createSession(userName, self.login_token_timeout)
+        token = LoginToken()
+        token.Token = self._createSession(userName, self.login_token_timeout)
+        return token
 
     def login(self, userName, loginToken, hashedLoginToken):
         '''
@@ -134,7 +136,10 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
                                bytes(loginToken, getdefaultencoding()), hashlib.sha512).hexdigest()
         if verifyToken != hashedLoginToken:
             raise InputError('Invalid credentials')
-        return self._createSession(userName, self.session_token_timeout)
+        session = UserSession()
+        session.Session = self._createSession(userName, self.session_token_timeout)
+        session.User = self.userKeyGenerator.getUserData(userName)
+        return session
 
     def process(self, req, rsp, chain):
         '''
