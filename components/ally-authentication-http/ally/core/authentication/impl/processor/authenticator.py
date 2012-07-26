@@ -171,7 +171,8 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
             if sessionId and sessionId in self._sessions:
                 for inp in typesAuth:
                     assert isinstance(inp, Input)
-                    req.arguments[inp.name] = sessionId
+                    userData = self.userKeyGenerator.getUserData(self._sessions[sessionId].userName)
+                    req.arguments[inp.name] = userData.Id
             else:
                 rsp.setCode(UNAUTHORIZED, 'Unauthorized access')
                 return
