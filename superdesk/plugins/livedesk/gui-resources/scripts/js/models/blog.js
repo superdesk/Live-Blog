@@ -1,15 +1,15 @@
 define([ 'gizmo/superdesk', 
-    config.guiJs('livedesk', 'models/user'),
+/*    config.guiJs('livedesk', 'models/user'),
     config.guiJs('livedesk', 'models/language'),
     config.guiJs('livedesk', 'models/posts'),
-    config.guiJs('livedesk', 'models/collaborators')],
+    config.guiJs('livedesk', 'models/collaborators')*/],
     
 function(Gizmo, User, Language, Posts, Collaborators) {
     // Blog
     return Gizmo.AuthModel.extend
     ({
 		url: new Gizmo.Url('Blog'),
-        defaults:
+/*        defaults:
         { 
             Creator: User,
             Language: Language,
@@ -18,6 +18,7 @@ function(Gizmo, User, Language, Posts, Collaborators) {
             PostPublished: Posts,
             PostUnpublished: Posts
         }
+*/		
     }, 
     { register: 'Blog' } );
 });
