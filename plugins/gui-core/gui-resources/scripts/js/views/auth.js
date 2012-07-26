@@ -16,7 +16,9 @@ function($, superdesk, dust, jsSHA)
 			localStorage.setItem('superdesk.login.session', user.Session);
 			localStorage.setItem('superdesk.login.id', user.Id);
 			localStorage.setItem('superdesk.login.name', user.UserName);
-			localStorage.setItem('superdesk.login.email', user.EMail);			
+			localStorage.setItem('superdesk.login.email', user.EMail);
+			$.restAuth.prototype.requestOptions.headers.Authorization = localStorage.getItem('superdesk.login.session');
+			superdesk.login = {Id: localStorage.getItem('superdesk.login.id'), Name: localStorage.getItem('superdesk.login.name'), EMail: localStorage.getItem('superdesk.login.email')}
 			$(authLogin).trigger('success');
 		});
 		return $(authLogin);
@@ -68,7 +70,7 @@ function($, superdesk, dust, jsSHA)
                 {
                     var username = $(this).find('#username'), password=$(this).find('#password');
 					AuthToken(username.val(), password.val()).on('failed',function(evt, type){						
-						username.val('');
+						//username.val('');
 						password.val('')
 					}).on('success', function(){
                         AuthApp.success && AuthApp.success.apply();
