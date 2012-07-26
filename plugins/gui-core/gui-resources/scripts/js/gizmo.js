@@ -158,7 +158,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */
         sync: function()
         {   
-            var self = this, ret, dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
+            var self = this, ret = $.Deferred(), dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
             this.hash();
             // trigger an event before sync
             self.triggerHandler('sync');
@@ -184,15 +184,18 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 });
             }
             
-            if( this._changed ) // if changed do an update on the server and return
-                ret = (this.href && dataAdapter(this.href)
-                        .update(arguments[1] ? this.feed() : this.feed('json', false, this.changeset))
-                        .done(function()
-                {
-                    self._changed = false;
-                    self.changeset = {};
-                    self.triggerHandler('update');
-                })); 
+            if( this._changed ) {// if changed do an update on the server and return
+				if(!$.isEmptyObject(this.changeset)) {
+					ret = (this.href && dataAdapter(this.href)
+							.update(arguments[1] ? this.feed() : this.feed('json', false, this.changeset))
+							.done(function()
+					{
+						self._changed = false;
+						self.changeset = {};
+						self.triggerHandler('update');
+					}));
+				}
+			}
             else
                 // simply read data from server
                 ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
@@ -614,7 +617,6 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             options = $.extend({}, { init: true, events: true, ensure: true}, options);
             options.ensure && this._ensureElement();
             options.init && this.init.apply(this, arguments);
-            console.log('init delegate');
 			options.events && this.delegateEvents();
         },
         _ensureElement: function()
@@ -686,10 +688,16 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             $(this.el).remove();
             return this;
         },
-        setElement: function(el)
+		setElement: function(el)
+		{
+			var newel = $(el);
+			this.el.replaceWith(newel);
+			this.el = newel;
+			return this;
+		},
+        resetElement: function(el)
         {
-            console.log('Set element');
-			this.el = $(el);
+				this.el = $(el);
             this._ensureElement();
 			this.delegateEvents();
         }

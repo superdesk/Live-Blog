@@ -47,18 +47,21 @@ function(providers, Gizmo, $) {
 		});*/
 		var AutoCollection = Gizmo.AuthCollection.extend({
 			timeInterval: 1000,			
-			timerInterval: 0,
-			
+			idInterval: 0,
+			since: function(val) // change id implementation
+			{
+				$.extend( this.options, { data:{ 'startEx.CId': val }} );
+			},			
 			auto: function(){
-				this.since = 
+				this.sync();
 			},
 			pause: function(){
 				var self=this;
-				clearInterval(self.timerInterval);
+				clearInterval(self.idInterval);
 			},
 			start: function(){
 				var self=this;
-				self.timerInterval = setInterval(self.auto, self.timeInterval)
+				self.idInterval = setInterval(self.auto, self.timeInterval);
 			}
 		});
 		var 
@@ -72,24 +75,26 @@ function(providers, Gizmo, $) {
 				'.editable': { focusout: 'save' },
 			}, 
 			init: function(){
-				this.model.on('delete', this.remove, this);
+				this.model.on('delete', this.remove, this)
+						  .on('read', this.render, this)
+				.xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id').sync();
 			},
 			reorder: function(evt, ui){
-				//console.log($(ui.item).attr('data-post-id'));
 				var next = $(ui.item).next('li'), prev = $(ui.item).prev('li');
 				if(next.length) {
+					
 					//TODO implement reordering request http://localhost/resources/LiveDesk/Blog/1/Post/7/Post/2/Reorder?before=false
-					//console.log('after: '+next.attr('data-post-id'));
+					console.log('after: '+next.attr('data-post-id'));
 				} else if(prev.length){
 					//TODO implement reordering request http://localhost/resources/LiveDesk/Blog/1/Post/7/Post/2/Reorder?before=false
-					//console.log('before: '+prev.attr('data-post-id'));
+					console.log('before: '+prev.attr('data-post-id'));
 				}
 			},
 			render: function(){
 				var self = this;
 				$.tmpl('livedesk>timeline-item', {Post: this.model.feed()}, function(e, o){
-					self.setElement(o);
-					$(self.el).find('.editable').texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'})
+					self.setElement(o).el.find('.editable').texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
 				});
 				return this;
 			},
@@ -142,11 +147,11 @@ function(providers, Gizmo, $) {
 				//new $.restAuth(self.blogHref + '/Post/'+post+'/Publish').resetData().insert()
 			},
 			addOne: function(model, order){
-				var view = new PostView({model: model, _parent: this}, { events: false, ensure: false});				
-				if(order)
-					$(this.el).find('ul.post-list').append(view.render().el);
+				var view = new PostView({model: model, _parent: this});
+					if(order)
+					$(this.el).find('ul.post-list').prepend(view.el);
 				else
-					$(this.el).find('ul.post-list').prepend(view.render().el);
+					$(this.el).find('ul.post-list').append(view.el);
 			}
 		}),
 		
@@ -210,12 +215,11 @@ function(providers, Gizmo, $) {
 						// refresh twitter share button 
 						//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 						var timelineCollection = new TimelineCollection( Gizmo.Register.Post );
-						timelineCollection.href.root(theBlog).xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id');
+						timelineCollection.href.root(theBlog);
 						self.timeineView = new TimelineView({ 
-							el: $('#timeline-view .results-placeholder', this.el),
+							el: $('#timeline-view .results-placeholder', self.el),
 							posts: timelineCollection,
-							_parent: this								   
+							_parent: self								   
 						});
 						$('.live-blog-content', this.el).droppable({
 							activeClass: 'ui-droppable-highlight',
