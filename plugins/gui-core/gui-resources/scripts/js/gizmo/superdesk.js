@@ -15,7 +15,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     }),
     authSync = $.extend({}, newSync, 
     {
-        options: { headers: { 'Authorization': 1 } },
+        options: { headers: { 'Authorization': localStorage.getItem('superdesk.login.session') } },
         href: function(source)
         {
             return source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
