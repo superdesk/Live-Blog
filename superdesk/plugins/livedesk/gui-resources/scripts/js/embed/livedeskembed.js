@@ -198,7 +198,7 @@ var livedeskEmbed = {
             },
             init: function()
             {
-                this.blog = new Blog('http://localhost:8080/resources/LiveDesk/Blog/1');
+                this.blog = new Blog('http://localhost:8082/resources/LiveDesk/Blog/1');
                 var self = this;
                 this.blog.on('read', function()
                 { 
@@ -207,7 +207,6 @@ var livedeskEmbed = {
                     })
                     self.blog.get('Post').xfilter('*').sync();
                 });
-                
                 this.blog.sync();
             },
             render: function()
@@ -227,7 +226,7 @@ var livedeskEmbed = {
         new TimelineView({
             el: '#livedesk-root'
         });
-    }
+    },
 };
 livedeskEmbed.init();
 
