@@ -147,7 +147,6 @@ var initializing = false;
                             data: data
                         }, source.options());
                         self.reset();
-                        console.log('Source: ',source.get());
                         return $.ajax(self.href(source.get()), options);
                     } else {				
                         var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {
@@ -161,7 +160,9 @@ var initializing = false;
                 return { 
                 
                     read: function(userOptions){
-                        return reqFnc({}, self.readOptions, userOptions);
+                        
+                        var returner = reqFnc({}, self.readOptions, userOptions);
+                        return returner;
                     },
                 
                     update: function(data, userOptions){
@@ -255,7 +256,8 @@ Model.prototype =
     {   
         //console.log('sync once', arguments.calee);
         var self = this, ret, dataAdapter = function(){
-            return self.syncAdapter.request.apply(self.syncAdapter, arguments);
+            var returner = self.syncAdapter.request.apply(self.syncAdapter, arguments);
+            return returner;
         };
         this.hash();
         // trigger an event before sync
@@ -278,10 +280,11 @@ Model.prototype =
                 self._uniq && self._uniq.replace(self._clientHash, self.hash(), self);
                 self._clientHash = null;
                 self.triggerHandler('insert')
-                .class.triggerHandler('insert', self);
+                .gclass.triggerHandler('insert', self);
             });
         }
-            
+           
+        jQuery.support.cors = true;
         if( this._changed ) // if changed do an update on the server and return
             ret = (this.href && dataAdapter(this.href).update(this.feed()).done(function()
             {
@@ -289,13 +292,12 @@ Model.prototype =
                 self.triggerHandler('update');
             })); 
         else
-            // simply read data from server
+            jQuery.support.cors = true;
             ret = (this.href && dataAdapter(this.href).read().done(function(data)
             {
                 self.parse(data);
                 self.triggerHandler('read');
-            }));
-            
+            }))
         return ret;
     },
     remove: function()
@@ -485,7 +487,7 @@ Model.extend = extendFnc = function(props, options)
     var newly;
     newly = Class.extend.call(this, props);
     newly.extend = extendFnc;
-    newly.prototype.class = newly;
+    newly.prototype.gclass = newly;
     newly.on = function(event, handler, obj)
     {
         $(newly).on(event, function(){
@@ -500,7 +502,6 @@ Model.extend = extendFnc = function(props, options)
     newly.prototype.options = $.extend({}, options);
 
     newly.triggerHandler = function(event, data){
-        console.log('trigger: ',data);
         $(newly).triggerHandler(event, data);
     };
     return newly;
@@ -711,7 +712,7 @@ Collection.extend = cextendFnc = function(props)
     var newly;
     newly = Class.extend.call(this, props);
     newly.extend = cextendFnc;
-    newly.prototype.class= newly;
+    newly.prototype.gclass= newly;
     newly.triggerHandler = function(event){
         $(newly).triggerHandler(event);
     };
