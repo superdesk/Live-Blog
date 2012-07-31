@@ -219,9 +219,13 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          * @param data the data to parse into the model
          * @param updateChangeset whether to update changeset or not
          */
-        parse: function(data, updateChangeset)
+        parse: function(data, options)
         {
-            for( var i in data ) 
+			if(data instanceof Model) {
+				data = data.data;
+			}
+			options = $.extend({}, { updateChangeset: false, silent: false}, options);
+			for( var i in data ) 
             {
                 if( this.defaults[i] ) switch(true)
                 {
@@ -229,7 +233,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         
                         var newModel = new this.defaults[i](data[i]);
                         
-                        if( updateChangeset && newModel != this.data[i])
+                        if( options.updateChangeset && newModel != this.data[i])
                             this.changeset[i] = newModel;
 
                         this.data[i] = newModel;
@@ -237,8 +241,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         continue;
                         break;
                     case $.isArray(this.defaults[i]): // a collection
-                        delete this.data[i];
                         this.data[i] = new Collection(this.defaults[i][0], data[i].href); 
+                        delete this.data[i];
                         continue;
                         break;
                     case this.defaults[i] instanceof Collection: // an instance of some colelction/model
@@ -247,7 +251,12 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         continue;
                         break;
                 }
-                if( updateChangeset && this.data[i] != data[i] ) this.changeset[i] = data[i];
+				if(this.data[i] != data[i]) {
+					if( options.updateChangeset )
+						this.changeset[i] = data[i];
+					if( !options.silent )
+						this.triggerHandler('update:'+i);
+				}
                 this.data[i] = data[i];
             }
         },
@@ -256,12 +265,18 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             $(this).triggerHandler('get-prop');
             return this.data[key];
         },
-        set: function(key, val)
+        set: function(key, val, options)
         {
             var data = {}; 
-            if( val ) data[key] = val;
-            else data = key;
-            this.parse(data, true);
+            if( $.type(key) === 'string' )
+				data[key] = val;
+            else
+			{
+				data = key;
+				options = val;
+			}
+            options = $.extend({}, { updateChangeset: true, silent: true}, options);
+			this.parse(data, options);
             this._changed = true;
             return this;
         },
@@ -429,7 +444,11 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             // callbacks in order
             buildOptions.call(this);
             buildData.call(this);
+			options = $.extend({}, { init: true}, this.options);
+            options.init && this.init.apply(this, arguments);
+
         },
+		init: function(){},
         get: function(key)
         {
             var dfd = $.Deferred(),
@@ -495,13 +514,16 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                             }
                         
                         if( !model ) self._list.push(data.list[i]);
-                        else if( model.isDeleted() ) self._list[i].remove();
+                        else if( model.isDeleted() ) self._list[j].remove();
+						else {
+							self._list[j].set(model, { updateChangeset: false });
+						}
                     }
                     self.desynced = false;
                     $(self._list).on('delete', function(){ self.remove(this.hash()); });
                     $(self._list).on('garbage', function(){ this.desynced = true; });
                     $(self).triggerHandler('read');
-                    $(self._list).triggerHandler('read');
+                    //$(self._list).triggerHandler('read'); uneeded
                 }));
         },
         /*!
@@ -690,9 +712,11 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         },
 		setElement: function(el)
 		{
-			var newel = $(el);
+			this.undelegateEvents();
+			var newel = $(el);			
 			this.el.replaceWith(newel);
 			this.el = newel;
+			this.delegateEvents();
 			return this;
 		},
         resetElement: function(el)
