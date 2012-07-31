@@ -10,62 +10,94 @@ define([
     'tmpl!livedesk>layouts/blog',
     'tmpl!livedesk>edit',
     'tmpl!livedesk>timeline-container',
-	'tmpl!livedesk>timeline-item'],
+	'tmpl!livedesk>timeline-item',
+	'tmpl!livedesk>provider-content',
+	'tmpl!livedesk>provider-link',
+	'tmpl!livedesk>providers'
+	],
 function(providers, Gizmo, $) {
 	return function(theBlog){
 		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
-		/*var ProviderView =  Gizmo.View.extend({
+		var 
+		ProviderContentView =  Gizmo.View.extend({
+			render: function(){
+				var self = this,
+				data = $.extend({},{link: this.name} , this.model);
+				$.tmpl('livedesk>provider-content', data , function(err, out){
+						self.setElement( out );
+						self.model.el = self.el;
+				});
+				return self;
+			},		
+		}),
+		ProviderLinkView =  Gizmo.View.extend({
 			events: {
 				"": {"show": "show"}
 			},
-			init: function(){
-				this.model.el = this.model.link = this.name;
-			},
 			render: function(){
-				var self = this;
-				$.tmpl('livedesk>provider-link', this.model , function(err, out){
-						self.el.link = $(out);
+				var self = this,
+				data = $.extend({},{link: this.name} , this.model);
+				$.tmpl('livedesk>provider-link', data , function(err, out){
+						self.setElement( out );
 				});
-				$.tmpl('livedesk>provider-content', this.model , function(err, out){
-						self.el.link = $(out);
-				});
+				return self;
 			},
 			show: function(evt){
 				this.model.init(theBlog);
 			}
+		}),
+		ProvidersView = Gizmo.View.extend({
+			render: function() {
+				var self = this;
+				$.tmpl('livedesk>providers', self.providers , function(err, out){			
+					self.el.append( out );					
+					var links = self.el.find('ul:first'), contents = self.el.find('.tab-content:first');
+					for(name in self.providers) {
+						var provider = self.providers[name];
+						var providerLinkView = new ProviderLinkView({ model: provider, name: name });
+						var providerContentView = new ProviderContentView({ model: provider, name: name });
+						links.append(providerLinkView.render().el);
+						contents.append(providerContentView.render().el);
+					}
+				});
+			}
 		});
-		var ProvidersView = Gizmo.View.extend({
-			init: function(){
-				this.render();
-			}
-			render: function() {							
-				for(name in providers) {
-					var providerView = new ProviderView({ model: providers[name], name: name});
-					
-				}
-			}
-		});*/
 		var AutoCollection = Gizmo.AuthCollection.extend({
-			timeInterval: 1000,			
-			idInterval: 0,
-			since: function(val) // change id implementation
-			{
-				$.extend( this.options, { data:{ 'startEx.CId': val }} );
-			},			
-			auto: function(){
-				this.sync();
+			timeInterval: 10000,			
+			idInterval: 0,			
+			_latestCId: 0,
+			setIdInterval: function(fn){
+				this.idInterval = setInterval(fn, this.timeInterval);
+				return this;
 			},
+			getMaximumCid: function(models){
+				for (var i in models) {
+					var items = models[i];
+					break;
+				}
+				for(i=0, count=items.length; i<count; i++) {
+					if( this._latestCId < parseInt(items[i].CId) )
+						this._latestCId = parseInt(items[i].CId);
+				}
+			},
+			auto: function(){
+				var self = this;
+				this.sync({data: {'startEx.cId': this._latestCId}, headers: { 'X-Filter': 'CId'}}).done(function(models){
+					self.getMaximumCid(models);
+				});
+				return this;
+			},                                                                                                                                                                                                                                                                              
 			pause: function(){
 				var self=this;
 				clearInterval(self.idInterval);
 			},
 			start: function(){
-				var self=this;
-				self.idInterval = setInterval(self.auto, self.timeInterval);
+				var self = this;
+				this.auto().setIdInterval(function(){self.auto();});
 			}
 		});
 		var 
-		TimelineCollection = Gizmo.AuthCollection.extend({
+		TimelineCollection = AutoCollection.extend({
 			href: new Gizmo.Url('/Post/Published')
 		}),		
 		PostView = Gizmo.View.extend({
@@ -73,33 +105,42 @@ function(providers, Gizmo, $) {
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeModel' },
 				'.editable': { focusout: 'save' },
-			}, 
+			},
 			init: function(){
+				var self = this,
+				xfilter = 'Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
 				this.model.on('delete', this.remove, this)
 						  .on('read', this.render, this)
-				.xfilter('Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id').sync();
+						  .on('update:CId', function(){ self.el.fadeTo(500, '0.1'); self.model.xfilter(xfilter).sync(); })
+						  .xfilter(xfilter).sync();
 			},
 			reorder: function(evt, ui){
 				var next = $(ui.item).next('li'), prev = $(ui.item).prev('li');
-				if(next.length) {
-					
-					//TODO implement reordering request http://localhost/resources/LiveDesk/Blog/1/Post/7/Post/2/Reorder?before=false
-					console.log('after: '+next.attr('data-post-id'));
+				if(next.length) {				
+					this.model.order(next.attr('data-post-id'), 'true');
 				} else if(prev.length){
-					//TODO implement reordering request http://localhost/resources/LiveDesk/Blog/1/Post/7/Post/2/Reorder?before=false
-					console.log('before: '+prev.attr('data-post-id'));
+					this.model.order(prev.attr('data-post-id'), 'false');
 				}
 			},
 			render: function(){
-				var self = this;
+				var self = this, order = parseInt(this.model.get('Order'));
+				if ( !isNaN(self.order) && (order != self.order)) {
+					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1};
+					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir]; 
+						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] ); 
+						cursor = cursor[dir]
+					);
+					self.el[actions[dir]](cursor.el);
+				}
+				self.order = order;
 				$.tmpl('livedesk>timeline-item', {Post: this.model.feed()}, function(e, o){
-					self.setElement(o).el.find('.editable').texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+					self.setElement(o).el.fadeTo(500, '1').find('.editable').texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
 				});
 				return this;
 			},
 			save: function(){
-				//console.log('saved');
+				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
 			},
 			remove: function(){
 				var self = this;
@@ -127,15 +168,26 @@ function(providers, Gizmo, $) {
 			},
 			init: function(){
 				this.posts.on('read', this.render, this);
-				this.posts.sync();
+				this.posts.start();
 			},
 			render: function(){
 				var self = this;
 				$.tmpl('livedesk>timeline-container', {}, function(e, o){
-					$(self.el).html(o);
-					$(self.el).find('ul.post-list').sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
+					if($(self.el).find('ul.post-list:first').length === 0) {
+						$(self.el).html(o)
+								  .find('ul.post-list')
+									.sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
+					}
+					var current, prev = undefined;
 					self.posts.each(function(key, model){
-						self.addOne(model, true);
+						if(model.view === undefined) {
+							current = self.addOne(model, true);
+							model.view = current;
+							current.prev = prev;
+							if( prev !== undefined )
+								prev.next = current;
+							prev = current;
+						}
 					});					
 				});
 			},
@@ -148,10 +200,11 @@ function(providers, Gizmo, $) {
 			},
 			addOne: function(model, order){
 				var view = new PostView({model: model, _parent: this});
-					if(order)
-					$(this.el).find('ul.post-list').prepend(view.el);
-				else
+				if(order)
 					$(this.el).find('ul.post-list').append(view.el);
+				else
+					$(this.el).find('ul.post-list').prepend(view.el);
+				return view;
 			}
 		}),
 		
@@ -221,6 +274,12 @@ function(providers, Gizmo, $) {
 							posts: timelineCollection,
 							_parent: self								   
 						});
+						self.providers = new ProvidersView({
+							el: $('.side ', self.el),
+							providers: providers,
+							_parent: self
+						});
+						self.providers.render();
 						$('.live-blog-content', this.el).droppable({
 							activeClass: 'ui-droppable-highlight',
 							accept: ':not(.edit-toolbar,.timeline)'
