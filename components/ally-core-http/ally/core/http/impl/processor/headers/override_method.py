@@ -39,6 +39,7 @@ class Response(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
+    errorMessage = defines(str)
 
 # --------------------------------------------------------------------
 
@@ -84,14 +85,14 @@ class MethodOverrideDecodeHandler(HandlerProcessorProceed):
         if value:
             if len(value) > 1:
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameXMethodOverride
-                response.message = 'Invalid value \'%s\' for header \'%s\''\
+                response.errorMessage = 'Invalid value \'%s\' for header \'%s\''\
                 ', expected only one value entry' % (value, self.nameXMethodOverride)
                 return
             value = value[0]
             over = self.methods.get(value.upper())
             if not over:
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid method %s' % value
-                response.message = 'Invalid override method \'%s\' for header \'%s\'' % \
+                response.errorMessage = 'Invalid override method \'%s\' for header \'%s\'' % \
                 (value, self.nameXMethodOverride)
                 return
 

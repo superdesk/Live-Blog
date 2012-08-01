@@ -68,16 +68,10 @@ class ResponseHTTP(Context):
     '''
     # ---------------------------------------------------------------- Required
     code = requires(Code)
+    source = requires(IOutputStream, Iterable)
     # ---------------------------------------------------------------- Optional
     text = optional(str)
     headers = optional(dict)
-
-class ResponseContentHTTP(Context):
-    '''
-    Context for HTTP request response data. 
-    '''
-    # ---------------------------------------------------------------- Required
-    source = requires(IOutputStream, Iterable)
 
 # --------------------------------------------------------------------
 

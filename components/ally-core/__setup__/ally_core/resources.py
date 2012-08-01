@@ -32,12 +32,10 @@ def resourcesManager():
     b.assemblers = assemblers()
 
 @ioc.entity
-def resourcesLocator() -> IResourcesLocator:
-    return resourcesManager()
+def resourcesLocator() -> IResourcesLocator: return resourcesManager()
 
 @ioc.entity
-def resourcesRegister() -> IResourcesRegister:
-    return resourcesManager()
+def resourcesRegister() -> IResourcesRegister: return resourcesManager()
 
 # --------------------------------------------------------------------
 

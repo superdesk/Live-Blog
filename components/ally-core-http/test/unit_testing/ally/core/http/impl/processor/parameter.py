@@ -20,8 +20,9 @@ from ally.api.config import model, query, service, call
 from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered, AsRange, AsEqual
 from ally.api.type import typeFor, Locale, List, Scheme
 from ally.container import ioc
-from ally.core.http.impl.encdec.parameter import ParameterDecoderEncoder, SAMPLE
+from ally.core.http.impl.processor.parameter import ParameterHandler
 from ally.core.impl.invoker import InvokerCall
+from ally.core.spec.encdec.support import SAMPLE
 from ally.core.spec.resources import ConverterPath
 import unittest
 
@@ -75,7 +76,7 @@ class Service(IService):
 class TestParameter(unittest.TestCase):
 
     def testDecode(self):
-        decoder = ParameterDecoderEncoder()
+        decoder = ParameterHandler()
         ioc.initialize(decoder)
 
         service = typeFor(IService).service
@@ -144,7 +145,7 @@ class TestParameter(unittest.TestCase):
         self.assertFalse(resolve(path='limit', value='0', target=args, **context))
 
     def testEncode(self):
-        encoder = ParameterDecoderEncoder()
+        encoder = ParameterHandler()
         ioc.initialize(encoder)
 
         service = typeFor(IService).service
@@ -190,7 +191,7 @@ class TestParameter(unittest.TestCase):
                           ('offset', '20'), ('limit', '0'), ('asc', 'name'), ('desc', 'qa.name'), ('asc', 'when')],
                          list(resolve(value=args, **context)))
 
-        self.assertTrue(len(resolve(value=SAMPLE, **context)) == 15)
+        self.assertTrue(len(resolve(value=SAMPLE, **context)) > 10)
 
         for call in service.calls:
             if call.name == 'insert': break

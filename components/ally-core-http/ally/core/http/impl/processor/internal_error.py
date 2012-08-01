@@ -34,11 +34,6 @@ class Response(Context):
     code = defines(Code)
     text = defines(str)
     headers = defines(dict)
-
-class ResponseContent(Context):
-    '''
-    The response content context.
-    '''
     # ---------------------------------------------------------------- Optional
     source = defines(IOutputStream, Iterable)
 
@@ -60,7 +55,7 @@ class InternalErrorHandler(HandlerProcessor):
         assert isinstance(self.errorHeaders, dict), 'Invalid error headers %s' % self.errorHeaders
         super().__init__()
 
-    def process(self, chain, response:Response, responseCnt:ResponseContent, **keyargs):
+    def process(self, chain, response:Response, **keyargs):
         '''
         @see: HandlerProcessor.process
         
@@ -68,36 +63,35 @@ class InternalErrorHandler(HandlerProcessor):
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         error = None
         try:
-            chain.process(response=response, responseCnt=responseCnt, **keyargs)
+            chain.process(response=response, **keyargs)
             # We process the chain internally so we might cache any exception.
         except:
             log.exception('Exception occurred while processing the chain')
             error = StringIO()
             traceback.print_exc(file=error)
         else:
-            if __debug__ and isinstance(responseCnt.source, Iterable):
+            if __debug__ and isinstance(response.source, Iterable):
                 # If in debug mode and the response content has a source generator then we will try to read that
                 # in order to catch any exception before the actual streaming.
                 content = BytesIO()
                 try:
-                    for bytes in responseCnt.source: content.write(bytes)
+                    for bytes in response.source: content.write(bytes)
                 except:
                     log.exception('Exception occurred while processing the chain')
                     error = StringIO()
                     traceback.print_exc(file=error)
                 else:
                     content.seek(0)
-                    responseCnt.source = readGenerator(content)
+                    response.source = readGenerator(content)
         if error is not None:
 
             response.code = INTERNAL_ERROR
-            response.text = 'Upps, it seems I am in a pickle, please consult the server logs'
+            response.text = 'Upps, please consult the server logs'
             response.headers = self.errorHeaders
-            responseCnt.source = convertToBytes(self.errorResponse(error), 'utf8', 'backslashreplace')
+            response.source = convertToBytes(self.errorResponse(error), 'utf8', 'backslashreplace')
 
     def errorResponse(self, error):
         '''

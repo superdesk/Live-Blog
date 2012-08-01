@@ -45,7 +45,7 @@ class ResponseDecode(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
-    message = defines(str)
+    errorMessage = defines(str)
 
 # --------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ class ContentLengthDecodeHandler(HandlerProcessorProceed):
             except ValueError:
                 if ResponseDecode.code in response and not response.code.isSuccess: return
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameContentLength
-                response.message = 'Invalid value \'%s\' for header \'%s\''\
+                response.errorMessage = 'Invalid value \'%s\' for header \'%s\''\
                 ', expected an integer value' % (value, self.nameContentLength)
                 return
             else: requestCnt.source = StreamLengthLimited(requestCnt.source, requestCnt.length)
@@ -141,12 +141,6 @@ class ResponseEncode(Context):
     '''
     # ---------------------------------------------------------------- Required
     encoderHeader = requires(IEncoderHeader)
-
-class ResponseContent(Context):
-    '''
-    The response content context.
-    '''
-    # ---------------------------------------------------------------- Required
     length = requires(int)
 
 # --------------------------------------------------------------------
@@ -164,16 +158,15 @@ class ContentLengthEncodeHandler(HandlerProcessorProceed):
         assert isinstance(self.nameContentLength, str), 'Invalid content length name %s' % self.nameContentLength
         super().__init__()
 
-    def process(self, response:ResponseEncode, responseCnt:ResponseContent, **keyargs):
+    def process(self, response:ResponseEncode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Encodes the content length.
         '''
         assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
-        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid response header encoder %s' % response.encoderHeader
 
-        if ResponseContent.length in responseCnt:
-            response.encoderHeader.encode(self.nameContentLength, str(responseCnt.length))
+        if ResponseEncode.length in response:
+            response.encoderHeader.encode(self.nameContentLength, str(response.length))

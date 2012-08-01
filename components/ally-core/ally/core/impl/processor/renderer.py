@@ -35,12 +35,6 @@ class Response(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
-
-class ResponseContent(Context):
-    '''
-    The response content context.
-    '''
-    # ---------------------------------------------------------------- Defined
     type = defines(str, doc='''
     @rtype: string
     The response content type.
@@ -74,7 +68,7 @@ class RendererHandler(Handler):
         'Invalid default content type %s' % self.contentTypeDefaults
         assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
 
-        contexts = dict(request=Request, response=Response, responseCnt=ResponseContent)
+        contexts = dict(request=Request, response=Response)
         renderProcessing = self.renderAssembly.create(NO_VALIDATION, **contexts)
         assert isinstance(renderProcessing, Processing), 'Invalid processing %s' % renderProcessing
         contexts = renderProcessing.contexts
@@ -87,55 +81,54 @@ class RendererHandler(Handler):
         cd = self.process.__code__
         super().__init__(Processor(contexts, call, 'process', cd.co_filename, cd.co_firstlineno))
 
-    def process(self, renderProcessing, request, response, responseCnt, **keyargs):
+    def process(self, renderProcessing, request, response, **keyargs):
         '''
         Encodes the response object.
         
-        @param encodingProcessing: Processing
-            The processing that provides the encoding chain.
+        @param renderProcessing: Processing
+            The processing that provides the rendering chain.
             
         The rest of the parameters are contexts.
         '''
         assert isinstance(renderProcessing, Processing), 'Invalid render processing %s' % renderProcessing
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         # Resolving the character set
-        if ResponseContent.charSet in responseCnt:
-            try: codecs.lookup(responseCnt.charSet)
-            except LookupError: responseCnt.charSet = None
-        else: responseCnt.charSet = None
+        if Response.charSet in response:
+            try: codecs.lookup(response.charSet)
+            except LookupError: response.charSet = None
+        else: response.charSet = None
 
-        if responseCnt.charSet is None:
+        if response.charSet is None:
             for charSet in request.accCharSets or ():
                 try: codecs.lookup(charSet)
                 except LookupError: continue
-                responseCnt.charSet = charSet
+                response.charSet = charSet
                 break
-            else: responseCnt.charSet = self.charSetDefault
+            else: response.charSet = self.charSetDefault
 
-        if ResponseContent.type in responseCnt:
+        resolved = False
+        if Response.type in response:
             renderChain = renderProcessing.newChain()
             assert isinstance(renderChain, Chain), 'Invalid chain %s' % renderChain
 
-            responseWasInError = Response.code in response and not response.code.isSuccess
-            renderChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
-            if renderChain.isConsumed() and not responseWasInError:
-                if Response.code in response and not response.code.isSuccess: return
-                response.code = UNKNOWN_ENCODING
-                response.text = 'Content type \'%s\' not supported for encoding' % responseCnt.type
-                return
+            renderChain.process(request=request, response=response, **keyargs)
+            if renderChain.isConsumed():
+                if Response.code not in response or response.code.isSuccess:
+                    response.code = UNKNOWN_ENCODING
+                    response.text = 'Content type \'%s\' not supported for encoding' % response.type
+            else: resolved = True
 
-        else:
+        if not resolved:
             # Adding None in case some encoder is configured as default.
             for contentType in itertools.chain(request.accTypes or (), self.contentTypeDefaults):
-                responseCnt.type = contentType
+                response.type = contentType
 
                 renderChain = renderProcessing.newChain()
                 assert isinstance(renderChain, Chain), 'Invalid chain %s' % renderChain
 
-                renderChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
+                renderChain.process(request=request, response=response, **keyargs)
                 if not renderChain.isConsumed(): break
             else:
                 raise DevelError('There is no renderer available, this is more likely a setup issues since the '

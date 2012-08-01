@@ -46,7 +46,7 @@ class Response(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
-    message = defines(str)
+    errorMessage = defines(str)
 
 # --------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ class ContentDispositionDecodeHandler(HandlerProcessorProceed):
             if len(value) > 1:
                 if Response.code in response and not response.code.isSuccess: return
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameContentDisposition
-                response.message = 'Invalid value \'%s\' for header \'%s\''\
+                response.errorMessage = 'Invalid value \'%s\' for header \'%s\''\
                 ', expected only one value entry' % (value, self.nameContentDisposition)
                 return
             value, attributes = value[0]
