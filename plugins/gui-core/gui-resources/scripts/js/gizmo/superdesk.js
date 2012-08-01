@@ -47,6 +47,12 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         xfilter: xfilter,
         since: since
     }),
+    Auth = function(model)
+    {
+        if( typeof model === 'object' )
+            model.syncAdapter = authSync; 
+        return model;
+    },
     AuthModel = Model.extend // authenticated superdesk Model
     ({ 
         syncAdapter: authSync, xfilter: xfilter, since: since
@@ -78,6 +84,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     };
     
     return { 
+        Auth: Auth,
         Model: Model, AuthModel: AuthModel, 
         Collection: Collection, AuthCollection: AuthCollection, 
         Sync: newSync, AuthSync: authSync,
