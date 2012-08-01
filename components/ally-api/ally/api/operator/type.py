@@ -45,7 +45,7 @@ class TypeContainer(TypeClass):
         @return: list[TypeProperty]
             The properties types.
         '''
-        return [self.childTypeFor(name) for name in self.container.properties]
+        return tuple(self.childTypeFor(name) for name in self.container.properties)
 
     def childTypeFor(self, name):
         '''
@@ -140,7 +140,7 @@ class TypeQuery(TypeClass):
         @return: list[TypeCriteriaEntry]
             The criteria entry types.
         '''
-        return [self.childTypeFor(name) for name in self.query.criterias]
+        return tuple(self.childTypeFor(name) for name in self.query.criterias)
 
     def childTypeFor(self, name):
         '''

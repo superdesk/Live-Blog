@@ -9,7 +9,7 @@ Created on Jun 22, 2012
 Provides the XML encoder processor handler.
 '''
 
-from .base import RenderBaseHandler, ResponseContent
+from .base import RenderBaseHandler, Response
 from ally.container.ioc import injected
 from ally.core.spec.encdec.render import IRender
 from ally.core.spec.server import IOutputStream
@@ -34,15 +34,15 @@ class RenderXMLHandler(RenderBaseHandler):
         assert isinstance(self.encodingError, str), 'Invalid string %s' % self.encodingError
         super().__init__()
 
-    def renderFactory(self, content, output):
+    def renderFactory(self, response, output):
         '''
         @see: RenderBaseHandler.renderFactory
         '''
-        assert isinstance(content, ResponseContent), 'Invalid content %s' % content
+        assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(output, IOutputStream), 'Invalid content output stream %s' % output
 
-        outputb = getwriter(content.charSet)(output, self.encodingError)
-        xml = XMLGenerator(outputb, content.charSet, short_empty_elements=True)
+        outputb = getwriter(response.charSet)(output, self.encodingError)
+        xml = XMLGenerator(outputb, response.charSet, short_empty_elements=True)
         return RenderXML(xml)
 
 # --------------------------------------------------------------------

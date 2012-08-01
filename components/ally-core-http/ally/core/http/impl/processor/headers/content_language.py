@@ -74,12 +74,6 @@ class Response(Context):
     '''
     # ---------------------------------------------------------------- Required
     encoderHeader = requires(IEncoderHeader)
-
-class ResponseContent(Context):
-    '''
-    The response content context.
-    '''
-    # ---------------------------------------------------------------- Required
     language = requires(str)
 
 # --------------------------------------------------------------------
@@ -97,16 +91,15 @@ class ContentLanguageEncodeHandler(HandlerProcessorProceed):
         assert isinstance(self.nameContentLanguage, str), 'Invalid content language name %s' % self.nameContentLanguage
         super().__init__()
 
-    def process(self, response:Response, responseCnt:ResponseContent, **keyargs):
+    def process(self, response:Response, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Encodes the content language.
         '''
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid response header encoder %s' % response.encoderHeader
 
-        if ResponseContent.language in responseCnt:
-            response.encoderHeader.encode(self.nameContentLanguage, responseCnt.language)
+        if Response.language in response:
+            response.encoderHeader.encode(self.nameContentLanguage, response.language)

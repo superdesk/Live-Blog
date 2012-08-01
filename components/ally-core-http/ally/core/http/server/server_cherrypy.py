@@ -12,9 +12,9 @@ Provides the cherry py web server support.
 from ally.api.config import UPDATE, INSERT, GET, DELETE
 from ally.container.ioc import injected
 from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
-    RequestContentHTTP, ResponseContentHTTP
+    RequestContentHTTP
 from ally.core.spec.codes import Code
-from ally.core.spec.server import IStream
+from ally.core.spec.server import IOutputStream
 from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
     CREATE_REPORT
 from ally.support.util_io import readGenerator
@@ -57,9 +57,8 @@ class RequestHandler:
             assert isinstance(pattern, str), 'Invalid pattern %s' % pattern
             assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
 
-            processing, report = assembly.create(ONLY_AVAILABLE, CREATE_REPORT,
-                                                 request=RequestHTTP, requestCnt=RequestContentHTTP,
-                                                 response=ResponseHTTP, responseCnt=ResponseContentHTTP)
+            processing, report = assembly.create(ONLY_AVAILABLE, CREATE_REPORT, request=RequestHTTP,
+                                                 requestCnt=RequestContentHTTP, response=ResponseHTTP)
 
             log.info('Assembly report for pattern \'%s\':\n%s', pattern, report)
             pathProcessing.append((re.compile(pattern), processing))
@@ -78,7 +77,7 @@ class RequestHandler:
 
                 assert isinstance(processing, Processing), 'Invalid processing %s' % processing
                 req, reqCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
-                rsp, rspCnt = processing.contexts['response'](), processing.contexts['responseCnt']()
+                rsp = processing.contexts['response']()
 
                 chain = processing.newChain()
 
@@ -86,7 +85,6 @@ class RequestHandler:
                 assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
                 assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
                 assert isinstance(reqCnt, RequestContentHTTP), 'Invalid request content %s' % reqCnt
-                assert isinstance(rspCnt, ResponseContentHTTP), 'Invalid response content %s' % rspCnt
 
                 req.scheme, req.uriRoot, req.uri = 'http', uriRoot, path[match.end():]
                 break
@@ -103,7 +101,7 @@ class RequestHandler:
             else: parameters.append((name, value))
         req.parameters = parameters
 
-        chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)
+        chain.process(request=req, requestCnt=reqCnt, response=rsp)
 
         assert isinstance(rsp.code, Code), 'Invalid response code %s' % rsp.code
 
@@ -113,8 +111,8 @@ class RequestHandler:
         if ResponseHTTP.text in rsp: response.status = '%s %s' % (rsp.code.code, rsp.text)
         else: response.status = str(rsp.code.code)
 
-        if isinstance(rspCnt.source, IStream): return readGenerator(rspCnt.source)
-        return rspCnt.source
+        if isinstance(rsp.source, IOutputStream): return readGenerator(rsp.source)
+        return rsp.source
     default._cp_config = {
                           'response.stream': True, # We make sure that streaming occurs and is not cached
                           'request.process_request_body': False
