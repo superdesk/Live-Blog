@@ -106,6 +106,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */ 
         _construct: function(data, options)
         {
+			this._clientId = uniqueIdCounter++;
             this._forDelete = false;
             this._changed = false;
             this.data = {};
@@ -251,11 +252,12 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         continue;
                         break;
                 }
-				if(this.data[i] != data[i]) {
+				if(this.data[i] != data[i]) {				
 					if( options.updateChangeset )
 						this.changeset[i] = data[i];
-					if( !options.silent )
-						this.triggerHandler('update:'+i);
+					if( (this.data[i]!==undefined) && !options.silent ) {
+						this.triggerHandler('update:'+i);					
+					}
 				}
                 this.data[i] = data[i];
             }
@@ -286,7 +288,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         _getClientHash: function()
         {
             //console.log('client hash', this._getClientHash());
-            if( !this._clientHash ) this._clientHash = "mcid-"+String(uniqueIdCounter++);
+            if( !this._clientHash ) this._clientHash = "mcid-"+String(this._clientId);
             return this._clientHash;
         },
         /*!
@@ -516,7 +518,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         if( !model ) self._list.push(data.list[i]);
                         else if( model.isDeleted() ) self._list[j].remove();
 						else {
-							self._list[j].set(model, { updateChangeset: false });
+							self._list[j].parse(model, { updateChangeset: false, silent: false });
 						}
                     }
                     self.desynced = false;
@@ -647,7 +649,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 id = this.attributes.id,
                 el ='';
             if(!$(this.el).length) {
-                if($.isString(this.el)) {
+                if($.type(this.el) === 'string') {
                     if(this.el[0]=='.') {
                         className = className + this.el.substr(0,1);
                     } 
