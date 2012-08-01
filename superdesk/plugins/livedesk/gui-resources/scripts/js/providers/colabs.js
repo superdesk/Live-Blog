@@ -22,15 +22,16 @@ function(providers, $, giz, Blog, Collaborator)
         init: function()
         {
             var self = this;
-            this.model.on('update', function(){ self.render(true); });
+            giz.Auth(this.model).on('update', function(){ self.render(true); });
         },
         render: function(update)
         {
             var self = this;
             $.tmpl( 'livedesk>providers/colabs/items', {Posts: this.model.feed('json')}, function(e, o)
             {
-                if(update) $(self.el).replaceWith($(o));
-                else self.el = $(o);
+                var newItem = $(o);
+                if(update) { $(self.el).replaceWith(newItem); self.el = newItem; }
+                else self.el = newItem;
                 
                 // make draggable
                 self.el.hasClass('draggable') && self.el.draggable
