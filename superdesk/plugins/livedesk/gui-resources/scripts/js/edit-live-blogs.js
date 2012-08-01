@@ -1,9 +1,10 @@
-define([
+define
+([
     'providers/enabled',
     'gizmo/superdesk',
 	'jquery', 
-	'livedesk/models/blog',
-	'livedesk/models/post',
+	config.guiJs('livedesk', 'models/blog'),
+	config.guiJs('livedesk', 'models/post'),
 	'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
     'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 'jquery/avatar',
     'tmpl!livedesk>layouts/livedesk',
@@ -14,8 +15,7 @@ define([
 	'tmpl!livedesk>provider-content',
 	'tmpl!livedesk>provider-link',
 	'tmpl!livedesk>providers'
-	],
-function(providers, Gizmo, $) {
+], function(providers, Gizmo, $) {
 	return function(theBlog){
 		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
 		var 
@@ -57,6 +57,7 @@ function(providers, Gizmo, $) {
 						var providerLinkView = new ProviderLinkView({ model: provider, name: name });
 						var providerContentView = new ProviderContentView({ model: provider, name: name });
 						links.append(providerLinkView.render().el);
+						console.log(providerContentView.render().el, contents);
 						contents.append(providerContentView.render().el);
 					}
 				});
