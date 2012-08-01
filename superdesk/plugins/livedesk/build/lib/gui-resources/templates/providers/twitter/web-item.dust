@@ -1,0 +1,13 @@
+{#results}
+<li class="with-avatar twitter draggable" idx="{@idx}{.}{/idx}" page="{page}" ipp="{ipp}">
+	<div class="drag-bar"></div>
+    <figure><img src="{profile_image_url}" width="48" height="48" alt="1"></figure>
+    <div class="result-content">
+        <h3><span class="author">{from_user_name}({from_user})</span></h3>
+        <p class="result-text">{text|s}</p>
+        <p class="attributes"><i class="source-icon"></i>
+        <a href="http://twitter.com/{from_user}/status/{id_str}" target="_blank"><time>{created_at}</time></a>
+        </p>
+    </div>
+</li>
+{/results}
