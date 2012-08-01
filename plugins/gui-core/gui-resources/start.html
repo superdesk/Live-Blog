@@ -18,8 +18,9 @@
 		{
 			return function()
 			{
-				var a = arguments, i = -1;
-				return format.replace(/(%s)/g, function(m){ i++; return typeof a[i] !== 'undefined' ? a[i] : m; });
+				var a = arguments, i = -1,
+				str = format.replace(/(%s)/g, function(m){ i++; return typeof a[i] !== 'undefined' ? a[i] : m; });
+				return str;
 			}
 		}
 		
