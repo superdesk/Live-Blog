@@ -121,6 +121,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             
             var newInstance = this.pushUnique ? this.pushUnique() : this; 
             
+            console.log(newInstance);
+            
             // identify changes from new data
             // TODO optimize
             if( typeof data == 'object' ) 
@@ -559,6 +561,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             list = [];
             for( var i in theData )
                 list.push( new this.model(theData[i]) );
+
             return {list: list, total: data.total};
         },
         insert: function(model)
