@@ -154,10 +154,10 @@ function(providers, $, giz, Blog, Collaborator)
                     colab.get('Post').xfilter('*')
                         .on('read', function()
                         { 
+                            // list of new posts to append
                             var appendPosts = [];
                             this.each(function()
                             {
-                                
                                 if( $.inArray( this.get('Id'), colab._viewModels ) === -1 )
                                 {
                                     appendPosts.push(this);
@@ -166,7 +166,6 @@ function(providers, $, giz, Blog, Collaborator)
                                 //console.log(this, Math.max(colab._latestPost, parseInt(this.get('CId'))));
                                 colab._latestPost = Math.max(colab._latestPost, parseInt(this.get('CId')));
                             });
-                            
                             updateItemCount += appendPosts.length;
                             
                             appendPosts.length && $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
