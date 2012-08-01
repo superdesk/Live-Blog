@@ -567,7 +567,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             if( !(model instanceof Model) ) model = new this.model(model);
             this._list.push(model);
             model.hash();
-            var x = model.sync(this.options.href);
+            var x = model.sync(this.href);
             return x;
         },
 		/*!
