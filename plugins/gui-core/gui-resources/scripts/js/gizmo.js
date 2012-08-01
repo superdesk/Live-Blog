@@ -121,19 +121,20 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             
             var newInstance = this.pushUnique ? this.pushUnique() : this; 
             
-            console.log(newInstance);
-            
             // identify changes from new data
             // TODO optimize
             if( typeof data == 'object' ) 
             {
                 var changes = {}, changed = false;
-                for( var i in data ) 
+                for( var i in data )
+                {
+                    //console.log(i, data[i], newInstance.data[i] );
                     if( !newInstance.data[i] || (data[i] != newInstance.data[i] && typeof data[i] != 'object') )
                     {
                         newInstance.data[i] = changes[i] = data[i];
                         changed = true;
                     }
+                }
                 changed && newInstance.triggerHandler('update', [changes]);
             }
             
