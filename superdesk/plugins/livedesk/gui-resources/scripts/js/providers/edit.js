@@ -7,11 +7,9 @@ define('providers/edit', [
     'providers',
 	'utils/str',
 	'jquery',
-	'gizmo/superdesk',
-	
+	'gizmo/superdesk',	
 	config.guiJs('livedesk', 'models/posttype'),
 	config.guiJs('livedesk', 'models/post'),
-	
     'jquery/utils',
     'jquery/rest',
     'jquery/superdesk',
