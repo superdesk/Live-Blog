@@ -237,14 +237,21 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                             this.changeset[i] = newModel;
 
                         this.data[i] = newModel;
+                        
+                        // fot model w/o href, need to make a collection since it's obviously
+                        // an existing one and we don't need a new one
+                        // instanceof Model?
                         !data[i].href && this.data[i].relationHash && this.data[i].relationHash(data[i]);
+
                         continue;
                         break;
+                        
                     case $.isArray(this.defaults[i]): // a collection
                         this.data[i] = new Collection(this.defaults[i][0], data[i].href); 
                         delete this.data[i];
                         continue;
                         break;
+                        
                     case this.defaults[i] instanceof Collection: // an instance of some colelction/model
                     case this.defaults[i] instanceof Model:
                         this.data[i] = this.defaults[i];
@@ -277,6 +284,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 			}
             options = $.extend({}, { updateChangeset: true, silent: true}, options);
 			this.parse(data, options);
+			this.trigger('update');
             this._changed = true;
             return this;
         },
@@ -437,7 +445,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]); 
                         break;
                     case 'object': // options, same technique as above
-                        buildOptions = (function(args){ return function(){ this.options = args; }})(arguments[i]);
+                        buildOptions = (function(args){ return function(){ this.options = args; if(args.href) this.href = args.href; }})(arguments[i]);
                         break;
                 }
             }
@@ -516,7 +524,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         if( !model ) self._list.push(data.list[i]);
                         else if( model.isDeleted() ) self._list[j].remove();
 						else {
-							self._list[j].set(model, { updateChangeset: false });
+							self._list[j].parse(model, { updateChangeset: false });
 						}
                     }
                     self.desynced = false;
