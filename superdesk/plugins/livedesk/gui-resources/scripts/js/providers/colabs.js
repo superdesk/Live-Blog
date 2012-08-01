@@ -47,10 +47,11 @@ function(providers, $, giz, Blog, Collaborator)
     // main view
     ColabView = giz.View.extend
     ({
+        namespace: 'livedesk',
         events: 
         {
             '.collaborators-header .feed-info .label': {'click': 'toggleHeader'},
-            '.new-results': {'update.livedesk': 'showNewResults'}
+            '.new-results': {'update': 'showNewResults'}
         },
         
         toggleHeader: function()
@@ -73,6 +74,7 @@ function(providers, $, giz, Blog, Collaborator)
          * @param e event
          * @param count
          * @param callback
+         * @param wether to do update auto. or add a click-to-show button
          */
         showNewResults: function(e, count, callback, auto)
         {
@@ -88,11 +90,15 @@ function(providers, $, giz, Blog, Collaborator)
         init: function()
         {
             $('.search-result-list', this.el).html('');
-            var blog = new Blog(this.blogUrl),
+            var blog = giz.Auth(new Blog(this.blogUrl)), // autheticated blog model
                 self = this;
+            
+            self.el.html('<p>'+_('Loading collaborators...')+'</p>');
+            
             self.colabsList = [];
+            
             blog.on('read', function()
-            { 
+            {
                 var collaborators = this.get('Collaborator');
                 collaborators.on('read', function()
                 {
@@ -133,7 +139,8 @@ function(providers, $, giz, Blog, Collaborator)
         setupColabStream: function(colabs)
         {
             var self = this,
-                initial = colabs.count();
+                initial = colabs.count(); // used for breaking init. action
+            // collaboratos list
             colabs.each(function()
             {
                 var colab = this;
@@ -148,9 +155,9 @@ function(providers, $, giz, Blog, Collaborator)
                         .on('read', function()
                         { 
                             var appendPosts = [];
-
                             this.each(function()
                             {
+                                
                                 if( $.inArray( this.get('Id'), colab._viewModels ) === -1 )
                                 {
                                     appendPosts.push(this);
@@ -171,7 +178,7 @@ function(providers, $, giz, Blog, Collaborator)
                                 updateItemCount -= appendPosts.length;
                             }, initial ? true : false]);
                             
-                            initial -= 1;
+                            initial -= 1; // decrement initial until 0 so we know when init is over and do not send
                             
                         }).sync();
                     
@@ -186,48 +193,6 @@ function(providers, $, giz, Blog, Collaborator)
                         self.update(); 
                     }, config.updateInterval*1000);
                     
-//                    var person = colab.get('Person'),
-//                        posts = colab.get('Post');
-//
-//                        console.log(posts instanceof giz.Collection);
-//                        
-//                        posts.xfilter('*').sync();
-//                        .done(function()
-//                    {
-//                        /*for(var i=0; i<postList.length; i++)
-//                        posts.each(function()
-//                        { 
-//                            colab._latestPost = Math.max(colab._latestPost, parseInt(posts[i].CId));
-//                        });*/
-//                        $.tmpl( 'livedesk>providers/colabs/items', 
-//                                {Person: person.feed('json'), Posts: posts.feed('json')}, 
-//                        function(e, o)
-//                        {
-//                            $('.search-result-list', self.el).prepend(o);
-//                            $('.search-result-list li.draggable', self.el).draggable
-//                            ({
-//                                helper: 'clone',
-//                                appendTo: 'body',
-//                                zIndex: 2700,
-//                                start: function() 
-//                                {
-//                                    $(this).data('post', self.adaptor.universal(this));
-//                                }
-//                            });
-//                          
-//                            clearInterval(updateInterval);
-//                            updateInterval = setInterval(function()
-//                            {
-//                                if(!$('.search-result-list:visible', self.el).length) 
-//                                {
-//                                    clearInterval(updateInterval);
-//                                    return;
-//                                }
-//                                update(); 
-//                            }, config.updateInterval*1000);
-//                        });
-//                    });
-                    
                 }).sync();
                 
             });
@@ -238,7 +203,7 @@ function(providers, $, giz, Blog, Collaborator)
         }
     });
 
-    $.extend( providers.colabs, { initTab: function(blogUrl){ new ColabView({ el: this.el, blogUrl: blogUrl }); } });
+    $.extend( providers.colabs, { init: function(blogUrl){ new ColabView({ el: this.el, blogUrl: blogUrl }); } });
     
     return providers;
 });
