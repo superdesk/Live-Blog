@@ -105,6 +105,25 @@ define(['jquery', 'qunit', 'gizmo/superdesk', 'unit/gizmo-data'], function($, q,
             return d;
         };
         
+        
+        asyncTest('', function()
+        {
+           var p1 = giz.Auth(new Post('Post/1')),
+               p2 = new Post('Post/2'),
+               p11 = new Post('Post/1');
+
+           console.log(new Post('Post/3'));
+           
+           p11.on('update', function(){ console.log(this, arguments) })
+           
+           p1.set({Content: 'D'});
+           
+           start();
+           
+        });
+        
+        return;
+        
         test("model should read complex data", function()
         {
             var c = new Collaborator('Collaborator/1');
