@@ -366,6 +366,7 @@ class Invoker(metaclass=abc.ABCMeta):
     '''
     Contains all the data required for accessing a call.
     '''
+    __slots__ = ('name', 'method', 'output', 'inputs', 'mandatory', 'hints', 'infoIMPL', 'infoAPI')
 
     def __init__(self, name, method, output, inputs, hints, infoIMPL, infoAPI=None):
         '''
@@ -385,10 +386,6 @@ class Invoker(metaclass=abc.ABCMeta):
             The invoker information for the implementation.
         @param infoAPI: InvokerInfo|None
             The invoker information for the API, if one is available.
-
-        @ivar target: Type
-            The targeted type of the invoker, this is useful whenever the output is wither a part of maybe not reflecting
-            the actual target of the invoker.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
         assert isinstance(method, int), 'Invalid method %s' % method
@@ -412,8 +409,6 @@ class Invoker(metaclass=abc.ABCMeta):
         self.hints = hints
         self.infoIMPL = infoIMPL
         self.infoAPI = infoAPI
-
-        self.target = None
 
     @abc.abstractmethod
     def invoke(self, *args):
@@ -529,13 +524,15 @@ class Node(metaclass=abc.ABCMeta):
         '''
         Constructs a resource node.
 
-        @param parent: Node | None
+        @param parent: Node|None
             The parent node of this node, can be None if is a root node.
         @param isGroup: boolean
             True if the node represents a group of models, False otherwise.
         @param order: integer
             The order index of the node, this will be used in correctly ordering the children's to have a proper
             order when searching for path matching.
+        @ivar root: Node
+            The root node.
         @ivar get: Invoker
             The invoker that provides the data elements fetch, populated by assemblers.
         @ivar insert: Invoker
@@ -549,6 +546,8 @@ class Node(metaclass=abc.ABCMeta):
         assert isinstance(isGroup, bool), 'Invalid is group flag %s' % isGroup
         assert isinstance(order, int), 'Invalid order %s' % order
         self.parent = parent
+        if parent is None: self.root = self
+        else: self.root = parent.root
         self.isGroup = isGroup
         self.order = order
 

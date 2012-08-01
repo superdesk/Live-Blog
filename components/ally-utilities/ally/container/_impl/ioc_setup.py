@@ -585,7 +585,8 @@ class CallEntity(WithCall, WithType, WithListeners):
         Provides the call for the entity.
         '''
         if not self._hasValue:
-            if self._processing: raise SetupError('Cyclic dependency detected for %r, try using yield' % self.name)
+            if self._processing:
+                raise SetupError('Cyclic dependency detected for %r, try using yield' % self.name)
             self._processing = True
             self._assembly.called.add(self.name)
 

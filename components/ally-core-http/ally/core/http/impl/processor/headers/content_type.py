@@ -50,7 +50,7 @@ class ResponseDecode(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
-    message = defines(str)
+    errorMessage = defines(str)
 
 # --------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ class ContentTypeDecodeHandler(HandlerProcessorProceed):
             if len(value) > 1:
                 if ResponseDecode.code in response and not response.code.isSuccess: return
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameContentType
-                response.message = 'Invalid value \'%s\' for header \'%s\''\
+                response.errorMessage = 'Invalid value \'%s\' for header \'%s\''\
                 ', expected only one type entry' % (value, self.nameContentType)
                 return
             value, attributes = value[0]
@@ -103,12 +103,6 @@ class ResponseEncode(Context):
     '''
     # ---------------------------------------------------------------- Required
     encoderHeader = requires(IEncoderHeader)
-
-class ResponseContent(Context):
-    '''
-    The response content context.
-    '''
-    # ---------------------------------------------------------------- Required
     type = requires(str)
     # ---------------------------------------------------------------- Optional
     charSet = optional(str)
@@ -132,21 +126,20 @@ class ContentTypeEncodeHandler(HandlerProcessorProceed):
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
         super().__init__()
 
-    def process(self, response:ResponseEncode, responseCnt:ResponseContent, **keyargs):
+    def process(self, response:ResponseEncode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Encodes the content type for the response.
         '''
         assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
-        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid header encoder %s' % response.encoderHeader
 
-        if ResponseContent.type in responseCnt:
-            value = responseCnt.type
-            if ResponseContent.charSet in responseCnt:
-                if responseCnt.charSet: value = (value, (self.attrContentTypeCharSet, responseCnt.charSet))
+        if ResponseEncode.type in response:
+            value = response.type
+            if ResponseEncode.charSet in response:
+                if response.charSet: value = (value, (self.attrContentTypeCharSet, response.charSet))
 
             response.encoderHeader.encode(self.nameContentType, value)
 

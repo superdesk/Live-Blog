@@ -25,5 +25,4 @@ def memoryStatusPresenter():
 
 @ioc.after(resourcesRoot)
 def development():
-    if publish_development() == 'devel':
-        memoryStatusPresenter()
+    if publish_development(): memoryStatusPresenter()
