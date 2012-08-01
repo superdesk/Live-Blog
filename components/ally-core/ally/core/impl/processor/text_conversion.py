@@ -53,14 +53,14 @@ class ConversionSetHandler(HandlerProcessorProceed):
         assert isinstance(self.converter, Converter), 'Invalid converter %s' % self.converter
         super().__init__()
 
-    def process(self, requestCnt:Content, responseCnt:Content, **keyargs):
+    def process(self, requestCnt:Content, response:Content, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Provide the character conversion for request and response content.
         '''
         assert isinstance(requestCnt, Content), 'Invalid request content %s' % requestCnt
-        assert isinstance(responseCnt, Content), 'Invalid response content %s' % responseCnt
+        assert isinstance(response, Content), 'Invalid response content %s' % response
 
-        requestCnt.normalizer = responseCnt.normalizer = self.normalizer
-        requestCnt.converter = responseCnt.converter = self.converter
+        requestCnt.normalizer = response.normalizer = self.normalizer
+        requestCnt.converter = response.converter = self.converter

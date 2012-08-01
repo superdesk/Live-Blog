@@ -13,7 +13,6 @@ from ally.container import ioc
 from ally.core.impl.processor.render.text import RenderTextHandler
 from ally.core.impl.processor.render.xml import RenderXMLHandler
 from ally.design.processor import Handler, Assembly
-from ally.core.impl.encdec.model_encoder import ModelEncoder
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
@@ -46,13 +45,6 @@ def content_types_yaml() -> dict:
             'application/yaml':None,
             'yaml':'text/yaml',
             }
-
-# --------------------------------------------------------------------
-# Create the encoders
-
-@ioc.entity
-def modelEncoder():
-    return ModelEncoder()
 
 # --------------------------------------------------------------------
 # Create the renders

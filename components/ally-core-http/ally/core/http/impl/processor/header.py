@@ -161,7 +161,7 @@ class DecoderHeader(IDecoderHeader):
         handler = self.handler
         assert isinstance(handler, HeaderHandler)
 
-        parsed = parsed or []
+        parsed = [] if parsed is None else parsed
         for values in handler.reSeparatorMain.split(value):
             valAttr = handler.reSeparatorAttr.split(values)
             attributes = {}

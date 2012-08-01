@@ -21,6 +21,7 @@ from ally.design.processor import HandlerProcessorProceed
 from ally.exception import DevelError, InputError
 from collections import deque
 import logging
+from ally.core.spec.encdec.render import Object
 
 # --------------------------------------------------------------------
 
@@ -45,7 +46,8 @@ class Response(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
-    message = defines(str, InputError)
+    errorMessage = defines(str)
+    errorDetails = defines(Object)
     obj = defines(object, doc='''
     @rtype: object
     The response object.
@@ -91,7 +93,7 @@ class InvokingHandler(HandlerProcessorProceed):
         callBack = self.invokeCallBack.get(request.method)
         if callBack is None:
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Cannot process method'
-            response.message = 'Method cannot be processed for invoker \'%s\', something is wrong in the setups'
+            response.errorMessage = 'Method cannot be processed for invoker \'%s\', something is wrong in the setups'
             response.message %= request.invoker.name
             return
 
@@ -102,7 +104,7 @@ class InvokingHandler(HandlerProcessorProceed):
             elif inp.hasDefault: arguments.append(inp.default)
             else:
                 response.code, response.text = INCOMPLETE_ARGUMENTS, 'Missing argument value'
-                response.message = 'No value for mandatory input \'%s\' for invoker \'%s\''
+                response.errorMessage = 'No value for mandatory input \'%s\' for invoker \'%s\''
                 response.message %= (inp.name, request.invoker.name)
                 log.info('No value for mandatory input %s for invoker %s', inp, request.invoker)
                 return
@@ -115,11 +117,12 @@ class InvokingHandler(HandlerProcessorProceed):
         except DevelError as e:
             assert isinstance(e, DevelError)
             response.code, response.text = BAD_CONTENT, 'Invoking problem'
-            response.message = e.message
+            response.errorMessage = e.message
             log.info('Problems with the invoked content: %s', e.message, exc_info=True)
         except InputError as e:
             response.code, response.text = INPUT_ERROR, 'Input error'
-            response.message = e
+            #TODO: implement the error details for a input error.
+            response.errorMessage = e
             assert log.debug('User input exception: %s', e, exc_info=True) or True
 
     # ----------------------------------------------------------------

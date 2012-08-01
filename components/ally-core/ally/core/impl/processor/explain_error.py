@@ -12,9 +12,9 @@ Provides support for explaining the errors in the content of the request.
 from ally.container.ioc import injected
 from ally.core.spec.codes import Code
 from ally.core.spec.encdec.render import Object, Value, renderObject
-from ally.design.context import Context, optional, defines
+from ally.design.context import Context, requires, defines, optional
 from ally.design.processor import HandlerProcessorProceed
-from collections import Iterable
+from collections import Iterable, Callable
 from io import BytesIO
 import logging
 
@@ -28,18 +28,15 @@ class Response(Context):
     '''
     The response context.
     '''
+    # ---------------------------------------------------------------- Defined
+    source = defines(Iterable)
     # ---------------------------------------------------------------- Optional
     code = optional(Code)
     text = optional(str)
     errorMessage = optional(str)
     errorDetails = optional(Object)
-
-class ResponseContent(Context):
-    '''
-    The response content context.
-    '''
-    # ---------------------------------------------------------------- Defined
-    source = defines(Iterable)
+    # ---------------------------------------------------------------- Required
+    renderFactory = requires(Callable)
 
 # --------------------------------------------------------------------
 
@@ -51,16 +48,15 @@ class ExplainErrorHandler(HandlerProcessorProceed):
     response.
     '''
 
-    def process(self, response:Response, responseCnt:ResponseContent, **keyargs):
+    def process(self, response:Response, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Process the error into a response content.
         '''
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
-        if Response.code in response and not response.code.isSuccess:
+        if Response.code in response and not response.code.isSuccess and Response.renderFactory in response:
             errors = [Value('code', str(response.code.code))]
             if Response.errorMessage in response:
                 errors.append(Value('message', response.errorMessage))
@@ -71,7 +67,7 @@ class ExplainErrorHandler(HandlerProcessorProceed):
                 errors.append(Object('details', response.errorDetails))
 
             output = BytesIO()
-            render = responseCnt.renderFactory(output)
+            render = response.renderFactory(output)
             renderObject(Object('error', *errors), render)
 
-            responseCnt.source = (output.getvalue(),)
+            response.source = (output.getvalue(),)

@@ -23,9 +23,9 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class ResponseContent(Context):
+class Response(Context):
     '''
-    The response content context.
+    The response context.
     '''
     # ---------------------------------------------------------------- Required
     type = requires(str)
@@ -52,25 +52,25 @@ class RenderBaseHandler(HandlerProcessor):
         assert isinstance(self.contentTypes, dict), 'Invalid content types %s' % self.contentTypes
         super().__init__()
 
-    def process(self, chain, responseCnt:ResponseContent, **keyargs):
+    def process(self, chain, response:Response, **keyargs):
         '''
         @see: HandlerProcessor.process
         
         Encode the ressponse object.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
+        assert isinstance(response, Response), 'Invalid response %s' % response
 
         # Check if the response is for this encoder
-        if responseCnt.type not in self.contentTypes:
-            assert log.debug('The content type \'%s\' is not for this %s encoder', responseCnt.type, self) or True
+        if response.type not in self.contentTypes:
+            assert log.debug('The content type \'%s\' is not for this %s encoder', response.type, self) or True
         else:
-            contentType = self.contentTypes[responseCnt.type]
+            contentType = self.contentTypes[response.type]
             if contentType:
-                assert log.debug('Normalized content type \'%s\' to \'%s\'', responseCnt.type, contentType) or True
-                responseCnt.type = contentType
+                assert log.debug('Normalized content type \'%s\' to \'%s\'', response.type, contentType) or True
+                response.type = contentType
 
-            responseCnt.renderFactory = partial(self.renderFactory, responseCnt)
+            response.renderFactory = partial(self.renderFactory, response)
             return # We need to stop the chain if we have been able to provide the encoding
 
         chain.proceed()
@@ -78,12 +78,12 @@ class RenderBaseHandler(HandlerProcessor):
     # ----------------------------------------------------------------
 
     @abc.abstractclassmethod
-    def renderFactory(self, content, output):
+    def renderFactory(self, response, output):
         '''
         Factory method used for creating a renderer.
         
-        @param content: ResponseContent
-            The response content to process the renderer.
+        @param response: Response
+            The response to process the renderer.
         @param output: IOutputStream
             The output stream to be used by the renderer.
         @return: IRender

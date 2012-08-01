@@ -9,6 +9,7 @@ Created on Jun 9, 2011
 Provides implementations that provide general behavior or functionality.
 '''
 
+from collections import Iterator
 from inspect import isclass
 from threading import currentThread
 import sys
@@ -81,6 +82,39 @@ class immut(dict):
         try: return self.__hash__value
         except AttributeError: self.__hash__value = hash(tuple(p for p in self.items()))
         return self.__hash__value
+
+def firstOf(coll):
+    '''
+    Provides the first element from the provided collection.
+    
+    @param coll: list|tuple|iterable
+        The collection to provide the first item.
+    '''
+    if isinstance(coll, (list, tuple)): return coll[0]
+    coll = iter(coll)
+    return next(coll)
+
+def lastCheck(iterator):
+    '''
+    Checks the last element from the provided iterator. It will return a tuple containing as the first value a boolean
+    with False if the element is not the last element in the provided iterator and True if is the last one. On the last
+    position of the tuple it will return the actual value provided by the iterator.
+    
+    @param iterator: Iterator
+        The iterator to wrap for the last element check.
+    '''
+    if not isinstance(iterator, Iterator): iterator = iter(iterator)
+
+    item, stop = next(iterator), False
+    while True:
+        try:
+            itemNext = next(iterator)
+            yield False, item
+            item = itemNext
+        except StopIteration:
+            if stop: raise
+            stop = True
+            yield True, item
 
 # --------------------------------------------------------------------
 

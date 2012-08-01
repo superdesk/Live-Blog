@@ -10,7 +10,6 @@ Provides the requested method validation handler.
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
-from ally.api.type import Type
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE, Code
 from ally.core.spec.resources import Path, Node, Invoker
 from ally.design.context import Context, requires, defines
@@ -41,10 +40,6 @@ class Response(Context):
     allows = defines(int, doc='''
     @rtype: integer
     Contains the allow flags for the methods.
-    ''')
-    objType = defines(Type, doc='''
-    @rtype: Type
-    The type of the object provided by the invoker.
     ''')
 
 # --------------------------------------------------------------------
@@ -102,8 +97,6 @@ class MethodInvokerHandler(HandlerProcessorProceed):
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Path not available for method'
             response.allows = self.allowedFor(node)
             return
-
-        response.objType = request.invoker.output
 
     # ----------------------------------------------------------------
 

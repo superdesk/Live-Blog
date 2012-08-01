@@ -9,7 +9,7 @@ Created on Jan 25, 2012
 Provides the text encoder processor handler that creates text objects to be encoded.
 '''
 
-from .base import RenderBaseHandler, ResponseContent
+from .base import RenderBaseHandler, Response
 from ally.container.ioc import injected
 from ally.core.spec.encdec.render import RenderToObject
 from ally.core.spec.server import IOutputStream
@@ -36,14 +36,14 @@ class RenderTextHandler(RenderBaseHandler):
         assert isinstance(self.encodingError, str), 'Invalid string %s' % self.encodingError
         super().__init__()
 
-    def renderFactory(self, content, output):
+    def renderFactory(self, response, output):
         '''
         @see: RenderBaseHandler.renderFactory
         '''
-        assert isinstance(content, ResponseContent), 'Invalid content %s' % content
+        assert isinstance(response, Response), 'Invalid response %s' % response
 
-        outputb = getwriter(content.charSet)(output, self.encodingError)
-        return RenderTextObject(self.rendererTextObject, content.charSet, outputb)
+        outputb = getwriter(response.charSet)(output, self.encodingError)
+        return RenderTextObject(self.rendererTextObject, response.charSet, outputb)
 
 # --------------------------------------------------------------------
 

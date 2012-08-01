@@ -19,7 +19,7 @@ if True:
 from ally.api.config import model
 from ally.api.type import typeFor, List
 from ally.container import ioc
-from ally.core.impl.encdec.model_encoder import ModelEncoder
+from ally.core.impl.processor.encoder import EncoderHandler
 from ally.core.spec.encdec.exploit import Resolve
 from ally.core.spec.encdec.render import RenderToObject
 from ally.core.spec.resources import ConverterPath
@@ -50,10 +50,10 @@ class ModelId:
 class TestModel(unittest.TestCase):
 
     def testEncode(self):
-        transformer = ModelEncoder()
+        transformer = EncoderHandler()
         ioc.initialize(transformer)
 
-        resolve = Resolve(transformer.encode(typeFor(ModelId)))
+        resolve = Resolve(transformer.encoderFor(typeFor(ModelId)))
         render = RenderToObject()
         context = dict(render=render, converter=ConverterPath(), converterId=ConverterPath(), normalizer=ConverterPath())
 
@@ -75,10 +75,10 @@ class TestModel(unittest.TestCase):
         self.assertEqual({'ModelKey': 'The key', 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'},
                          render.obj)
 
-        transformer = ModelEncoder()
+        transformer = EncoderHandler()
         ioc.initialize(transformer)
 
-        resolve = Resolve(transformer.encode(typeFor(List(ModelId))))
+        resolve = Resolve(transformer.encoderFor(typeFor(List(ModelId))))
 
         render.obj = None
         resolve.request(value=[model], **context).doAll()

@@ -10,11 +10,11 @@ Provides the configurations for the processors used in handling the request.
 '''
 
 from . import server_pattern_rest
-from ..ally_core.processor import argumentsPrepare, assemblyResources, \
-    methodInvoker, updateAssemblyResourcesForCore, encoder
+from ..ally_core.processor import argumentsBuild, argumentsPrepare, \
+    assemblyResources, updateAssemblyResourcesForCore, createEncoder, renderEncoder
 from ..ally_core.resources import resourcesLocator
-from ..ally_core_http.encoder_decoder import parameterDecoderEncoder
 from ally.container import ioc
+from ally.core.http.impl.processor.encoder import CreateEncoderPathHandler
 from ally.core.http.impl.processor.header import HeaderHandler
 from ally.core.http.impl.processor.headers.accept import AcceptDecodeHandler
 from ally.core.http.impl.processor.headers.allow import AllowEncodeHandler
@@ -33,6 +33,7 @@ from ally.core.http.impl.processor.parameter import ParameterHandler
 from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.spec.resources import ConverterPath
 from ally.design.processor import Handler
+from ally.core.http.impl.processor.fetcher import FetcherHandler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -110,10 +111,13 @@ def uri() -> Handler:
     return b
 
 @ioc.entity
-def parameter() -> Handler:
-    b = ParameterHandler()
-    b.parameterDecoderEncoder = parameterDecoderEncoder()
-    return b
+def parameter() -> Handler: return ParameterHandler()
+
+@ioc.entity
+def fetcher() -> Handler: return FetcherHandler()
+
+@ioc.replace(createEncoder)
+def createEncoderPath() -> Handler: return CreateEncoderPathHandler()
 
 @ioc.entity
 def pathAssemblies():
@@ -127,9 +131,8 @@ def updateAssemblyResourcesForCoreHTTP():
     assemblyResources().add(header(), uri(), contentTypeDecode(), contentLengthDecode(), contentLanguageDecode(),
                             contentDispositionDecode(), acceptDecode(), after=argumentsPrepare())
 
-    assemblyResources().add(parameter(), after=methodInvoker())
+    assemblyResources().add(parameter(), fetcher(), before=argumentsBuild())
 
-    assemblyResources().add(contentTypeEncode(), contentLanguageEncode(), allowEncode(), after=encoder())
+    assemblyResources().add(contentTypeEncode(), contentLanguageEncode(), allowEncode(), after=renderEncoder())
 
-    if allow_method_override():
-        assemblyResources().add(methodOverrideDecode(), before=uri())
+    if allow_method_override(): assemblyResources().add(methodOverrideDecode(), before=uri())
