@@ -1,0 +1,3 @@
+define('providers', function(){
+	return {};
+});
