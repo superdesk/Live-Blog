@@ -224,8 +224,9 @@ define
 				}).xfilter('Creator.Name,Creator.Id').sync();
 			},
 			drop: function(event, ui){
-				var data = ui.draggable.data('data');
-				var post = ui.draggable.data('post');
+				var self = this, 
+					data = ui.draggable.data('data'),
+					post = ui.draggable.data('post');
 				if(data !== undefined) {
 					self.timeineView.insert(data);
 				} else if(post !== undefined){
@@ -254,6 +255,9 @@ define
 				});
 			},
 			render: function(){
+				if(this.model.view !== undefined)
+					return;
+				this.model.view = this;
 				var self = this,
 					data = $.extend({}, this.model.feed(), {
 						BlogHref: theBlog, 
