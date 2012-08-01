@@ -2,8 +2,8 @@ define([
     'providers/enabled',
     'gizmo/superdesk',
 	'jquery', 
-	'livedesk/models/blog',
-	'livedesk/models/post',
+	config.guiJs('livedesk', 'models/blog'),
+	config.guiJs('livedesk', 'models/post'),
 	'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
     'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 'jquery/avatar',
     'tmpl!livedesk>layouts/livedesk',
@@ -124,7 +124,7 @@ function(providers, Gizmo, $) {
 				}
 			},
 			render: function(){
-				var self = this, order = parseInt(this.model.get('Order'));
+				var self = this, order = parseFloat(this.model.get('Order'));
 				if ( !isNaN(self.order) && (order != self.order)) {
 					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1};
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir]; 
