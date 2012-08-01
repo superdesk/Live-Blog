@@ -1,0 +1,5 @@
+{#Posts}
+<li class="advertisement draggable" data-post-id="{Id}">
+	{Content|s}
+</li>
+{/Posts}
