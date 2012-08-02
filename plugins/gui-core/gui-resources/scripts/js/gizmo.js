@@ -220,6 +220,13 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             return this._forDelete;  
         },
         /*!
+         * overwrite this to add other logic upon parse complex type data
+         */
+        modelDataBuild: function(model)
+        {
+            return model
+        },
+        /*!
          * @param data the data to parse into the model
          * @param updateChangeset whether to update changeset or not
          */
@@ -235,7 +242,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 {
                     case typeof this.defaults[i] === 'function': // a model or collection constructor
                         
-                        var newModel = new this.defaults[i](data[i]);
+                        var newModel = this.modelDataBuild(new this.defaults[i](data[i]));
                         
                         if( options.updateChangeset && newModel != this.data[i])
                             this.changeset[i] = newModel;
@@ -244,14 +251,14 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         
                         // fot model w/o href, need to make a collection since it's obviously
                         // an existing one and we don't need a new one
-                        // instanceof Model?
+                        // TODO instanceof Model?
                         !data[i].href && this.data[i].relationHash && this.data[i].relationHash(data[i]);
 
                         continue;
                         break;
-                        
+                    
                     case $.isArray(this.defaults[i]): // a collection
-                        this.data[i] = new Collection(this.defaults[i][0], data[i].href); 
+                        this.data[i] = this.modelDataBuild(new Collection(this.defaults[i][0], data[i].href)); 
                         delete this.data[i];
                         continue;
                         break;
@@ -540,6 +547,13 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 }));
         },
         /*!
+         * overwrite this to add other logic upon parse complex type data
+         */
+        modelDataBuild: function(model)
+        {
+            return model
+        },
+        /*!
          * 
          */
         parse: function(data)
@@ -561,7 +575,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             theData = extractListData(data);
             list = [];
             for( var i in theData )
-                list.push( new this.model(theData[i]) );
+                list.push( this.modelDataBuild(new this.model(theData[i])) );
 
             return {list: list, total: data.total};
         },
