@@ -14,6 +14,7 @@ from admin.introspection.api.plugin import IPluginService, Plugin
 from ally.api.model import Content
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, DevelError
 from ally.internationalization import _, C_
 from cdm.spec import ICDM, PathNotFound
@@ -25,6 +26,7 @@ import codecs
 # --------------------------------------------------------------------
 
 @injected
+@setup(IPOFileService)
 class POFileService(IPOFileService):
     '''
     Implementation for @see: IPOFileService

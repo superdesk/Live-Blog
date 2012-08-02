@@ -14,7 +14,7 @@ from .image_data import ImageData, QImageData
 from .meta_data import MetaData, QMetaData
 from .meta_info import MetaInfo, QMetaInfo, IMetaInfoService
 from ally.api.config import query, service
-from ally.api.criteria import AsEqualOrdered, AsLikeOrdered
+from ally.api.criteria import AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -33,8 +33,6 @@ class QImageInfo(QMetaInfo):
     '''
     The query for image info model.
     '''
-    width = AsEqualOrdered
-    height = AsEqualOrdered
     caption = AsLikeOrdered
 
 # --------------------------------------------------------------------
