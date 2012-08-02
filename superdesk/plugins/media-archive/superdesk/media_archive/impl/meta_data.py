@@ -6,13 +6,12 @@ Created on Apr 19, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-SQL Alchemy based implementation for the meta data API. 
+SQL Alchemy based implementation for the meta data API.
 '''
 
-from ..api.meta_data import IMetaDataService, QMetaData
+from ..api.meta_data import QMetaData
 from ..core.impl.meta_service_base import MetaDataServiceBaseAlchemy
-from ..core.spec import IMetaDataHandler, IMetaDataReferencer, \
-    IThumbnailReferencer
+from ..core.spec import IMetaDataHandler, IMetaDataReferencer, IThumbnailManager
 from ..meta.meta_data import MetaDataMapped
 from ally.api.model import Content
 from ally.container import wire
@@ -20,21 +19,21 @@ from ally.container.ioc import injected
 from ally.exception import InputError
 from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import handle
-from ally.support.util_io import pipe, openURI, timestampURI
-from ally.support.util_sys import pythonPath
+from ally.support.util_io import pipe, timestampURI, openURI
 from cdm.spec import ICDM
 from datetime import datetime
 from os import remove, makedirs, access, W_OK
 from os.path import join, getsize, abspath, exists, isdir
 from sqlalchemy.exc import SQLAlchemyError
-from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, \
-    thumbnailFor
+from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, thumbnailFormatFor
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
+from ally.support.util_sys import pythonPath
+from superdesk.media_archive.core.impl.thumbnail_manager import ORIGINAL_SIZE
 
 # --------------------------------------------------------------------
 
 @injected
-class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IMetaDataService):
+class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
     '''
     Implementation for @see: IMetaDataService, and also provides services as the @see: IMetaDataReferencer
     '''
@@ -44,7 +43,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
     cdmArchive = ICDM
     # The archive CDM.
-    thumbnailReferencer = IThumbnailReferencer; wire.entity('thumbnailReferencer')
+    thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
     metaDataHandlers = list
     # The handlers list used by the meta data in order to get the references.
@@ -55,8 +54,8 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         '''
         assert isinstance(self.processing_dir_path, str), 'Invalid processing directory %s' % self.processing_dir_path
         assert isinstance(self.cdmArchive, ICDM), 'Invalid archive CDM %s' % self.cdmArchive
-        assert isinstance(self.thumbnailReferencer, IThumbnailReferencer), \
-        'Invalid thumbnail referencer %s' % self.thumbnailReferencer
+        assert isinstance(self.thumbnailManager, IThumbnailManager), \
+        'Invalid thumbnail referencer %s' % self.thumbnailManager
         assert isinstance(self.metaDataHandlers, list), 'Invalid reference handlers %s' % self.referenceHandlers
         MetaDataServiceBaseAlchemy.__init__(self, MetaDataMapped, QMetaData, self)
 
@@ -69,11 +68,11 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         Deploy the meta data and all handlers.
         '''
         self._metaType = metaTypeFor(self.session(), META_TYPE_KEY)
-        self._thumbnail = thumbnailFor(self.session(), '%(size)s/other.jpg')
-        referenceLast = self.thumbnailReferencer.timestampThumbnail(self._thumbnail.id)
+        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/other.jpg')
+        referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormat.id)
         imagePath = join(pythonPath(), 'resources', 'other.jpg')
         if referenceLast is None or referenceLast < timestampURI(imagePath):
-            self.thumbnailReferencer.processThumbnail(openURI(imagePath), self._thumbnail.id)
+            self.thumbnailManager.processThumbnail(self._thumbnailFormat.id, imagePath, ORIGINAL_SIZE)
 
     # ----------------------------------------------------------------
 
@@ -83,7 +82,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         metaData.Content = self.cdmArchive.getURI(self._reference(metaData), scheme)
-        return self.thumbnailReferencer.populate(metaData, scheme, thumbSize)
+        return self.thumbnailManager.populate(metaData, scheme, thumbSize)
 
     # ----------------------------------------------------------------
 
@@ -99,30 +98,28 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         metaData.Name = content.getName()
         metaData.Type = self._metaType.Key
         metaData.typeId = self._metaType.id
-        metaData.thumbnailId = self._thumbnail.id
+        metaData.thumbnailFormatId = self._thumbnailFormat.id
         try:
             self.session().add(metaData)
             self.session().flush((metaData,))
 
-            path = abspath(join(self.processing_dir_path, '.'.join((str(metaData.Id), metaData.Name))))
-            with open(path, 'w+b') as fobj: pipe(content, fobj)
-            metaData.SizeInBytes = getsize(path)
+            contentPath = abspath(join(self.processing_dir_path, '.'.join((str(metaData.Id), metaData.Name))))
+            with open(contentPath, 'w+b') as fobj: pipe(content, fobj)
+            metaData.SizeInBytes = getsize(contentPath)
 
             self.session().flush((metaData,))
 
-            with open(path, 'rb') as fobj: self.cdmArchive.publishFromFile(self._reference(metaData), fobj)
-
             for handler in self.metaDataHandlers:
                 assert isinstance(handler, IMetaDataHandler), 'Invalid handler %s' % handler
-                if handler.process(metaData.Id, path): break
+                if handler.process(metaData, contentPath): break
             else:
-                remove(path)
+                remove(contentPath)
 
         except SQLAlchemyError as e: handle(e, metaData)
-
         return metaData.Id
 
     # ----------------------------------------------------------------
+
 
     def _reference(self, metaData):
         '''
@@ -130,3 +127,4 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         return ''.join((metaData.Type, '/', str(metaData.Id), '.', metaData.Name))
+
