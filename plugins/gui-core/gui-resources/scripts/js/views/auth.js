@@ -33,11 +33,6 @@ function($, superdesk, dust, jsSHA)
 				}).on('success', function(){
 					$(authToken).trigger('success');
 				});
-			}
-		);
-		return $(authToken);
-	},
-	AuthApp = 
 		});
 		return $(authToken);
 	},
@@ -75,7 +70,7 @@ function($, superdesk, dust, jsSHA)
 					}).on('success', function(){
                         AuthApp.success && AuthApp.success.apply();
 						$(dialog).dialog('close');
-						self.showed = false;
+						AuthApp.showed = false;
 					});
                     event.preventDefault();
 					
