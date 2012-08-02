@@ -10,11 +10,13 @@ API specifications for media archive image info.
 '''
 
 from .domain_archive import modelArchive
-from .image_data import ImageData, QImageData
-from .meta_data import MetaData, QMetaData
-from .meta_info import MetaInfo, QMetaInfo, IMetaInfoService
+from .image_data import ImageData#, QImageData
+#from .meta_data import MetaData, QMetaData
+from .meta_info import MetaInfo, QMetaInfo#, IMetaInfoService
 from ally.api.config import query, service
 from ally.api.criteria import AsEqualOrdered, AsLikeOrdered
+
+from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 
 # --------------------------------------------------------------------
 
@@ -39,8 +41,10 @@ class QImageInfo(QMetaInfo):
 
 # --------------------------------------------------------------------
 
-@service((MetaInfo, ImageInfo), (QMetaInfo, QImageInfo), (MetaData, ImageData), (QMetaData, QImageData))
-class IImageInfoService(IMetaInfoService):
+#TODO: review
+#@service((MetaInfo, ImageInfo), (QMetaInfo, QImageInfo), (MetaData, ImageData), (QMetaData, QImageData))
+@service((Entity, ImageInfo), (QEntity, QImageInfo))
+class IImageInfoService(IEntityGetCRUDService):   #IMetaInfoService):
     '''
     Provides the service methods for the meta info image.
     '''
