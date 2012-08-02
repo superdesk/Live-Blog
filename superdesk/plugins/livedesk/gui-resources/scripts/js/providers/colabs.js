@@ -19,7 +19,7 @@ function(providers, $, giz, Blog, Collaborator)
     // single post item view
     var PostView = giz.View.extend
     ({
-        init: function()
+        init: function(opts)
         {
             this.model.on('update', this.render, this);
 			this.model.on('read', this.render, this);
@@ -48,15 +48,16 @@ function(providers, $, giz, Blog, Collaborator)
         namespace: 'livedesk',
         events: 
         {
-            '.collaborators-header .feed-info .label': {'click': 'toggleHeader'},
+            //'.collaborators-header .feed-info .label': {'click': 'toggleHeader'},
             '.new-results': {'update': 'showNewResults'}
         },
         
         toggleHeader: function()
         {
             var colabId = $(this).attr('data-colab-id'),
-                posts = $(this).nextAll('.search-result-list').find('li[data-colab-id='+colabId+']');
-            
+                posts = $(this).parents('.collaborators-header')
+                            .nextAll('.search-result-list').find('li[data-colab-id='+colabId+']');
+
             if($(this).data('is-off'))
             {
                 posts.show();
@@ -88,6 +89,9 @@ function(providers, $, giz, Blog, Collaborator)
         init: function()
         {
             $('.search-result-list', this.el).html('');
+
+            $(this.el).on('click', '.collaborators-header .feed-info .label', this.toggleHeader);
+
             var blog = giz.Auth(new Blog(this.blogUrl)), // autheticated blog model
                 self = this;
             
@@ -155,7 +159,6 @@ function(providers, $, giz, Blog, Collaborator)
             
             initial -= 1; // decrement initial until 0 so we know when init is over and do not send
         },
-        
         /*!
          * setup post list
          */
@@ -176,20 +179,37 @@ function(providers, $, giz, Blog, Collaborator)
                         .on('read', function(){ self.readPostsHandle.call(this, initial, colab); })
                         .sync();
                     
-                    clearInterval(updateInterval);
-                    updateInterval = setInterval(function()
-                    {
-                        if(!$('.search-result-list:visible', self.el).length) 
-                        {
-                            clearInterval(updateInterval);
-                            return;
-                        }
-                        self.update(); 
-                    }, config.updateInterval*1000);
+                    self.startAutoUpdate();
+//                    clearInterval(updateInterval);
+//                    updateInterval = setInterval(function()
+//                    {
+//                        if(!$('.search-result-list:visible', self.el).length) 
+//                        {
+//                            clearInterval(updateInterval);
+//                            return;
+//                        }
+//                        self.update(); 
+//                    }, config.updateInterval*1000);
                     
                 }).sync();
                 
             });
+        },
+        startAutoUpdate: function()
+        {
+            var self = this;
+            clearInterval(updateInterval);
+            updateInterval = setInterval(function()
+            {
+                if(!$('.search-result-list:visible', self.el).length) 
+                {
+                    clearInterval(updateInterval);
+                    return;
+                }
+                self.update(); 
+            }, config.updateInterval*1000);
+            
+            return self;
         },
         render: function()
         {
@@ -197,7 +217,12 @@ function(providers, $, giz, Blog, Collaborator)
         }
     });
 
-    $.extend( providers.colabs, { init: function(blogUrl){ new ColabView({ el: this.el, blogUrl: blogUrl }); } });
+    var colabView = null;
+    $.extend( providers.colabs, { init: function(blogUrl)
+    { 
+        colabView = new ColabView({ el: this.el, blogUrl: blogUrl }); 
+        this.init = function(){ return colabView.startAutoUpdate(); } 
+    }});
     
     return providers;
 });
