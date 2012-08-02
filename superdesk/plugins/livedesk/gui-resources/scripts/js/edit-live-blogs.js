@@ -19,6 +19,10 @@ define
 	return function(theBlog){
 		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
 		var 
+		/** 
+		 * Views for providers 
+		 * This one if for rendering of the content tab
+		 */
 		ProviderContentView =  Gizmo.View.extend({
 			render: function(){
 				var self = this,
@@ -30,6 +34,9 @@ define
 				return self;
 			},		
 		}),
+		/** 
+		 * This rendering of the link tab, also has the event when showing the tab
+		 */
 		ProviderLinkView =  Gizmo.View.extend({
 			events: {
 				"": {"show": "show"}
@@ -43,9 +50,14 @@ define
 				return self;
 			},
 			show: function(evt){
+				// initialize the provider init method
 				this.model.init(theBlog);
 			}
 		}),
+		/**
+		 * This is the main view of the provider
+		 * where is added the link tab view, content and the main html of the providers
+		 */
 		ProvidersView = Gizmo.View.extend({
 			render: function() {
 				var self = this;
@@ -57,7 +69,6 @@ define
 						var providerLinkView = new ProviderLinkView({ model: provider, name: name });
 						var providerContentView = new ProviderContentView({ model: provider, name: name });
 						links.append(providerLinkView.render().el);
-						console.log(providerContentView.render().el, contents);
 						contents.append(providerContentView.render().el);
 					}
 				});
