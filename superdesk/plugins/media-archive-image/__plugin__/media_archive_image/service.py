@@ -9,7 +9,7 @@ Created on Apr 25, 2012
 Contains the services setups for media image archive.
 '''
 
-from ..media_archive.service import cdmArchive, cdmArchiveThumbnail
+from ..media_archive.service import cdmArchive, cdmThumbnail
 from ally.container import ioc
 from cdm.spec import ICDM
 from cdm.support import ExtendPathCDM
@@ -17,7 +17,8 @@ from superdesk.media_archive.api.image_data import IImageDataService
 from superdesk.media_archive.api.image_persist import IImagePersistanceService
 from superdesk.media_archive.impl.image_data import ImageDataServiceAlchemy
 from superdesk.media_archive.impl.image_persist import ImagePersistanceService
-from superdesk.media_archive.impl.meta_data import IMetaDataReferenceHandler
+from superdesk.media_archive.core.spec import IMetaDataHandler
+from __plugin__.media_archive.service import thumbnail_sizes
 
 # --------------------------------------------------------------------
 
@@ -27,26 +28,22 @@ def cdmArchiveImage() -> ICDM:
 
 @ioc.entity
 def cdmArchiveThumbnailImage() -> ICDM:
-    return ExtendPathCDM(cdmArchiveThumbnail(), 'image/%s')
-
-@ioc.entity
-def thumbnailSizes() -> dict:
-    return {}
+    return ExtendPathCDM(cdmThumbnail(), 'image/%s')
 
 @ioc.entity
 def imagePersistance() -> IImagePersistanceService:
     b = ImagePersistanceService()
-    b.thumbnailSizes = thumbnailSizes()
+    b.thumbnailSizes = thumbnail_sizes()
     b.cdmImages = cdmArchiveImage()
     b.cdmThumbnails = cdmArchiveThumbnailImage()
     return b
 
 @ioc.entity
-def imageDataReferenceHandler() -> IMetaDataReferenceHandler:
+def imageDataHandler() -> IMetaDataHandler:
     return imagePersistance()
 
 @ioc.entity
 def imageData() -> IImageDataService:
     b = ImageDataServiceAlchemy()
-    b.referenceHandler = imageDataReferenceHandler()
+    b.handler = imageDataHandler()
     return b
