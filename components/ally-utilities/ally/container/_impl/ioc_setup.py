@@ -1,7 +1,7 @@
 '''
 Created on Jan 12, 2012
 
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -91,6 +91,105 @@ def register(setup, register):
 
 # --------------------------------------------------------------------
 
+class WithListeners:
+    '''
+    Provides support for listeners to be notified of the call process.
+    '''
+
+    def __init__(self):
+        '''
+        Constructs the listener support.
+        '''
+        self._listenersBefore = []
+        self._listenersAfter = []
+
+    def addBefore(self, listener):
+        '''
+        Adds a before listener.
+        
+        @param listener: Callable
+            A callable that takes no parameters that will be invoked before the call is processed.
+        '''
+        assert callable(listener), 'Invalid listener %s' % listener
+        self._listenersBefore.append(listener)
+
+    def addAfter(self, listener):
+        '''
+        Adds an after listener.
+        
+        @param listener: Callable
+            A callable that takes no parameters that will be invoked after the call is processed.
+        '''
+        assert callable(listener), 'Invalid listener %s' % listener
+        self._listenersAfter.append(listener)
+
+class WithCall:
+    '''
+    Provides support for calls that are wrapped around another call.
+    '''
+
+    def __init__(self, call):
+        '''
+        Construct the with call support.
+        
+        @param call: Callable
+            The call that is used by this Call in order to resolve.
+        '''
+        self.call = call
+
+    def setCall(self, call):
+        '''
+        Sets the call for this Call.
+        
+        @param call: Callable
+            The call that is used by this Call in order to resolve.
+        '''
+        assert callable(call), 'Invalid callable %s' % call
+        self._call = call
+
+    call = property(lambda self: self._call, setCall, doc=
+'''
+@type call: Callable
+    The call used for resolve.
+''')
+
+class WithType:
+    '''
+    Provides support for calls that have a type.
+    '''
+
+    def __init__(self, type):
+        '''
+        Construct the type support.
+        
+        @param type: class|None
+            The type(class) of the value.
+        '''
+        assert type is None or isclass(type), 'Invalid type %s' % type
+        self._type = type
+
+    type = property(lambda self: self._type, doc=
+'''
+@type type: class
+    The type.
+''')
+
+    def validate(self, value):
+        '''
+        Validates the provided value against the source type.
+        
+        @param value: object   
+            The value to check.
+        @return: object
+            The same value as the provided value.
+        @raise SetupError: In case the value is not valid.
+        '''
+        if self._type and value is not None and not isinstance(value, self._type):
+            raise SetupError('Invalid value provided %s, expected type %s' % (value, self._type))
+        return value
+
+# --------------------------------------------------------------------
+
 class Setup:
     '''
     The setup entity. This class provides the means of indexing setup Callable objects.
@@ -158,7 +257,7 @@ class SetupFunction(Setup):
         '''
         return Assembly.process(self.name)
 
-class SetupSource(SetupFunction):
+class SetupSource(SetupFunction, WithType):
     '''
     Provides the setup for retrieving a value based on a setup function.
     '''
@@ -171,8 +270,7 @@ class SetupSource(SetupFunction):
             The type(class) of the value that is being delivered by this source.
         '''
         SetupFunction.__init__(self, function, **keyargs)
-        assert type is None or isclass(type), 'Invalid type %s' % type
-        self._type = type
+        WithType.__init__(self, type)
 
 class SetupEntity(SetupSource):
     '''
@@ -293,10 +391,10 @@ class SetupReplace(SetupFunction):
         '''
         @see: SetupFunction.__init__
         
-        @param target: string
-            The setup name to be replaced.
+        @param target: SetupSource
+            The setup to be replaced.
         '''
-        assert isinstance(target, SetupEntity), 'Invalid target %s' % target
+        assert isinstance(target, SetupSource), 'Invalid target %s' % target
         SetupFunction.__init__(self, function, name=target.name, group=target.group, ** keyargs)
 
     def assemble(self, assembly):
@@ -393,105 +491,6 @@ class SetupStart(SetupFunction):
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         assembly.callsStart.append(partial(assembly.processForName, self.name))
-
-# --------------------------------------------------------------------
-
-class WithListeners:
-    '''
-    Provides support for listeners to be notified of the call process.
-    '''
-
-    def __init__(self):
-        '''
-        Constructs the listener support.
-        '''
-        self._listenersBefore = []
-        self._listenersAfter = []
-
-    def addBefore(self, listener):
-        '''
-        Adds a before listener.
-        
-        @param listener: Callable
-            A callable that takes no parameters that will be invoked before the call is processed.
-        '''
-        assert callable(listener), 'Invalid listener %s' % listener
-        self._listenersBefore.append(listener)
-
-    def addAfter(self, listener):
-        '''
-        Adds an after listener.
-        
-        @param listener: Callable
-            A callable that takes no parameters that will be invoked after the call is processed.
-        '''
-        assert callable(listener), 'Invalid listener %s' % listener
-        self._listenersAfter.append(listener)
-
-class WithCall:
-    '''
-    Provides support for calls that are wrapped around another call.
-    '''
-
-    def __init__(self, call):
-        '''
-        Construct the with call support.
-        
-        @param call: Callable
-            The call that is used by this Call in order to resolve.
-        '''
-        self.call = call
-
-    def setCall(self, call):
-        '''
-        Sets the call for this Call.
-        
-        @param call: Callable
-            The call that is used by this Call in order to resolve.
-        '''
-        assert callable(call), 'Invalid callable %s' % call
-        self._call = call
-
-    call = property(lambda self: self._call, setCall, doc=
-'''
-@type call: Callable
-    The call used for resolve.
-''')
-
-class WithType:
-    '''
-    Provides support for calls that have a type.
-    '''
-
-    def __init__(self, type):
-        '''
-        Construct the type support.
-        
-        @param type: class|None
-            The type(class) of the value.
-        '''
-        assert type is None or isclass(type), 'Invalid type %s' % type
-        self._type = type
-
-    type = property(lambda self: self._type, doc=
-'''
-@type type: class
-    The type.
-''')
-
-    def validate(self, value):
-        '''
-        Validates the provided value against the source type.
-        
-        @param value: object   
-            The value to check.
-        @return: object
-            The same value as the provided value.
-        @raise SetupError: In case the value is not valid.
-        '''
-        if self._type and value is not None and not isinstance(value, self._type):
-            raise SetupError('Invalid value provided %s, expected type %s' % (value, self._type))
-        return value
 
 # --------------------------------------------------------------------
 
