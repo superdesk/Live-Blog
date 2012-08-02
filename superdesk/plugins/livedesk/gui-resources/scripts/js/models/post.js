@@ -2,11 +2,10 @@ define([ 'gizmo/superdesk'],
 function(Gizmo)
 {
     // Post
-	return Gizmo.AuthModel.extend({
+	return Gizmo.Model.extend({
 		url: new Gizmo.Url('/Post'),
 		order: function(id, before){
 			var reorderHref = this.href+'/Post/'+id+'/Reorder?before='+before;
-			console.log(reorderHref);
 			var
 				self = this,  
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
