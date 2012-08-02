@@ -23,6 +23,7 @@ import os
 from ally.zip.util_zip import normOSPath, normZipPath
 import json
 from urllib.parse import unquote
+from mimetypes import guess_type
 
 # --------------------------------------------------------------------
 
@@ -54,6 +55,8 @@ class ContentDeliveryHandler(Processor):
     _fsHeader = 'FS'
 
     _linkTypes = dict
+
+    _defaultContentType = 'application/octet-stream'
 
     repositoryPath = str
     # The directory where the file repository is
@@ -114,6 +117,8 @@ class ContentDeliveryHandler(Processor):
         else:
             rsp.setCode(RESOURCE_FOUND, 'Resource found')
             rsp.content = readGenerator(rf)
+            rsp.contentType, _encoding = guess_type(entryPath)
+            if not rsp.contentType: rsp.contentType = self._defaultContentType
 
     # ----------------------------------------------------------------
 
