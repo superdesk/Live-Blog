@@ -30,8 +30,7 @@ function(providers, $, giz, Blog, Collaborator)
             $.tmpl( 'livedesk>providers/colabs/items', {Posts: this.model.feed('json')}, function(e, o)
             {
                 self.setElement(o);
-                else self.el = newItem;
-                
+               
                 // make draggable
                 self.el.hasClass('draggable') && self.el.draggable
                 ({
