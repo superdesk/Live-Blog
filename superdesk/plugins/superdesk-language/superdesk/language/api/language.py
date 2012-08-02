@@ -9,9 +9,9 @@ Created on Aug 2, 2011
 API specifications for languages.
 '''
 
-from ally.api.config import service, call, query
+from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsLikeOrdered
-from ally.api.type import Locale, List, Iter, Count
+from ally.api.type import Locale, List, Iter
 from ally.support.api.entity import Entity, IEntityCRUDService
 from superdesk.api.domain_superdesk import modelSuperDesk
 
@@ -40,7 +40,7 @@ class LanguageEntity(Entity, Language):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Language)
 class QLanguage:
     '''
     Provides the language query model.
@@ -56,32 +56,27 @@ class ILanguageService(IEntityCRUDService):
     '''
 
     @call
-    def getByCode(self, code:Language.Code, locales:List(Locale)) -> Language:
+    def getByCode(self, code:Language.Code, locales:List(Locale)=()) -> Language:
         '''
         Provides the language having the specified code.
         '''
 
     @call(webName='Available')
-    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10,
+    def getAllAvailable(self, locales:List(Locale)=(), offset:int=None, limit:int=LIMIT_DEFAULT,
                         q:QLanguage=None) -> Iter(Language):
         '''
         Provides all the available languages.
         '''
 
     @call
-    def getById(self, id:LanguageEntity.Id, locales:List(Locale)) -> LanguageEntity:
+    def getById(self, id:LanguageEntity.Id, locales:List(Locale)=()) -> LanguageEntity:
         '''
         Provides the language based on the id.
         '''
 
     @call
-    def getAll(self, locales:List(Locale), offset:int=None, limit:int=None) -> Iter(LanguageEntity):
+    def getAll(self, locales:List(Locale)=(), offset:int=None, limit:int=LIMIT_DEFAULT,
+               detailed:bool=True) -> Iter(LanguageEntity):
         '''
         Provides all the languages available in the system.
-        '''
-
-    @call(countFor=getAll)
-    def getCount(self) -> Count:
-        '''
-        Provides the count of all the languages available in the system.
         '''
