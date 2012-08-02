@@ -9,7 +9,7 @@ Created on May 2, 2012
 API specifications for collaborators.
 '''
 
-from ally.api.config import service, call
+from ally.api.config import service, call, LIMIT_DEFAULT
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, IEntityGetCRUDService
 from superdesk.api.domain_superdesk import modelSuperDesk
@@ -41,8 +41,8 @@ class ICollaboratorService(IEntityGetCRUDService):
     '''
 
     @call
-    def getAll(self, personId:PersonMapped.Id=None, sourceId:Source.Id=None, offset:int=None, limit:int=None,
-               qp:QPerson=None, qs:QSource=None) -> Iter(Collaborator):
+    def getAll(self, personId:PersonMapped.Id=None, sourceId:Source.Id=None, offset:int=None, limit:int=LIMIT_DEFAULT,
+               detailed:bool=True, qp:QPerson=None, qs:QSource=None) -> Iter(Collaborator):
         '''
         Provides all the collaborators.
         '''

@@ -11,15 +11,17 @@ thread serving requests one at a time).
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
-from ally.core.http.spec import EncoderHeader, RequestHTTP, METHOD_OPTIONS, \
-    ContentRequestHTTP
-from ally.core.spec.server import Response, Processors, ProcessorsChain
-from collections import OrderedDict
+from ally.support.util_io import IOutputStream
+from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
+    RequestContentHTTP, ResponseContentHTTP
+from ally.core.spec.codes import Code
+from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
+    CREATE_REPORT
+from ally.support.util_io import readGenerator
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qsl
 import logging
 import re
-from urllib.parse import urlparse, parse_qsl
-from ally.support.core.util_server import ContentLengthLimited
 
 # --------------------------------------------------------------------
 
@@ -32,13 +34,13 @@ class RequestHandler(BaseHTTPRequestHandler):
     The server class that handles the HTTP requests.
     '''
 
-    requestPaths = list
-    # The list of path-processors chain tuples
-    # The path is a regular expression
-    # The processors is a Processors instance
+    pathProcessing = list
+    # A list that contains tuples having on the first position a regex for matching a path, and the second value 
+    # the processing for handling the path.
 
-    encodersHeader = list
-    # The header encoders
+    def __init__(self, *args):
+        assert isinstance(self.pathProcessing, list), 'Invalid path processing %s' % self.pathProcessing
+        super().__init__(*args)
 
     def do_GET(self):
         self._process(GET)
@@ -57,56 +59,58 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     # ----------------------------------------------------------------
 
-    def __init__(self, *args):
-        super().__init__(*args)
-        assert isinstance(self.encodersHeader, list), 'Invalid header encoders list %s' % self.encodersHeader
-        if __debug__:
-            for reqPath in self.requestPaths:
-                assert isinstance(reqPath, tuple), 'Invalid request paths %s' % self.requestPaths
-                assert type(reqPath[0]) == type(re.compile('')), 'Invalid path regular expression %s' % reqPath[0]
-                assert isinstance(reqPath[1], Processors), 'Invalid processors chain %s' % reqPath[1]
-
     def _process(self, method):
-        req = RequestHTTP()
-        req.method = method
         url = urlparse(self.path)
         path = url.path.lstrip('/')
 
-        for pathRegex, processors in self.requestPaths:
-            match = pathRegex.match(path)
+        for regex, processing in self.pathProcessing:
+            match = regex.match(path)
             if match:
-                chain = processors.newChain()
-                assert isinstance(chain, ProcessorsChain)
-                req.path = path[match.end():]
-                req.rootURI = path[:match.end()]
-                req.params.extend(parse_qsl(url.query, True, False))
-                if not req.rootURI.endswith('/'): req.rootURI += '/'
+                uriRoot = path[:match.end()]
+                if not uriRoot.endswith('/'): uriRoot += '/'
+
+                assert isinstance(processing, Processing), 'Invalid processing %s' % processing
+                req, reqCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
+                rsp, rspCnt = processing.contexts['response'](), processing.contexts['responseCnt']()
+                chain = processing.newChain()
+
+                assert isinstance(chain, Chain), 'Invalid chain %s' % chain
+                assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
+                assert isinstance(reqCnt, RequestContentHTTP), 'Invalid request content %s' % reqCnt
+                assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
+                assert isinstance(rspCnt, ResponseContentHTTP), 'Invalid response content %s' % rspCnt
+
+                req.scheme, req.uriRoot, req.uri = 'http', uriRoot, path[match.end():]
+                req.parameters = parse_qsl(url.query, True, False)
                 break
         else:
             self.send_response(404)
             self.end_headers()
             return
 
-        req.headers.update(self.headers)
-        req.content = ContentRequestData(self.rfile)
+        req.method = method
+        req.headers = dict(self.headers)
+        reqCnt.source = self.rfile
 
-        rsp = Response()
-        chain.process(req, rsp)
-        self._dispatch(rsp)
-        assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
+        chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)
 
-    def _dispatch(self, rsp):
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        headers = OrderedDict()
-        for headerEncoder in self.encodersHeader:
-            assert isinstance(headerEncoder, EncoderHeader)
-            headerEncoder.encode(headers, rsp)
-        for name, value in headers.items():
-            self.send_header(name, value)
-        self.send_response(rsp.code.code, rsp.codeText)
+        assert isinstance(rsp.code, Code), 'Invalid response code %s' % rsp.code
+
+        if ResponseHTTP.headers in rsp:
+            for name, value in rsp.headers.items(): self.send_header(name, value)
+
+        if ResponseHTTP.text in rsp: self.send_response(rsp.code.code, rsp.text)
+        else: self.send_response(rsp.code.code)
+
         self.end_headers()
-        if rsp.content:
-            for bytes in rsp.content: self.wfile.write(bytes)
+
+        if rspCnt.source is not None:
+            if isinstance(rspCnt.source, IOutputStream): source = readGenerator(rspCnt.source)
+            else: source = rspCnt.source
+
+            for bytes in source: self.wfile.write(bytes)
+
+    # ----------------------------------------------------------------
 
     def log_message(self, format, *args):
         #TODO: see for a better solution for this, check for next python release
@@ -114,36 +118,35 @@ class RequestHandler(BaseHTTPRequestHandler):
         # creates a big delay whenever the request is made from a non localhost client.
         assert log.debug(format, *args) or True
 
-
-class ContentRequestData(ContentLengthLimited, ContentRequestHTTP):
-    '''
-    Provides the request content.
-    '''
-
-    def __init__(self, content):
-        '''
-        Constructs the content data instance.
-        
-        @see: ContentLengthLimited.__init__
-        '''
-        ContentLengthLimited.__init__(self, content)
-        ContentRequestHTTP.__init__(self)
-
 # --------------------------------------------------------------------
 
-def run(requestHandlerClass, port=80):
-    count = 10
-    while count:
-        try:
-            server = HTTPServer(('', port), requestHandlerClass)
-            print('=' * 50, 'Started HTTP REST API server...')
-            server.serve_forever()
-        except KeyboardInterrupt:
-            print('=' * 50, '^C received, shutting down server')
-            server.socket.close()
-            return
-        except:
-            log.exception('=' * 50 + ' The server has stooped, trying to restart')
-            try: server.socket.close()
-            except: pass
-            count -= 1
+pathAssemblies = list
+# A list that contains tuples having on the first position a string pattern for matching a path, and as a value 
+# the assembly to be used for creating the context for handling the request for the path.
+
+def run(port=80):
+    assert isinstance(pathAssemblies, list), 'Invalid path assemblies %s' % pathAssemblies
+    RequestHandler.pathProcessing = []
+    for pattern, assembly in pathAssemblies:
+        assert isinstance(pattern, str), 'Invalid pattern %s' % pattern
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+
+        processing, report = assembly.create(ONLY_AVAILABLE, CREATE_REPORT,
+                                             request=RequestHTTP, requestCnt=RequestContentHTTP,
+                                             response=ResponseHTTP, responseCnt=ResponseContentHTTP)
+
+        log.info('Assembly report for pattern \'%s\':\n%s', pattern, report)
+        RequestHandler.pathProcessing.append((re.compile(pattern), processing))
+
+    try:
+        server = HTTPServer(('', port), RequestHandler)
+        print('=' * 50, 'Started HTTP REST API server...')
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print('=' * 50, '^C received, shutting down server')
+        server.socket.close()
+        return
+    except:
+        log.exception('=' * 50 + ' The server has stooped')
+        try: server.socket.close()
+        except: pass

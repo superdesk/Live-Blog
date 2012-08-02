@@ -9,7 +9,7 @@ Created on Aug 2, 2011
 API specifications for languages.
 '''
 
-from ally.api.config import service, call, query
+from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsLikeOrdered
 from ally.api.type import Locale, List, Iter
 from superdesk.api.domain_superdesk import modelSuperDesk
@@ -30,7 +30,7 @@ class Country:
 
 # --------------------------------------------------------------------
 
-@query
+@query(Country)
 class QCountry:
     '''
     Provides the country query model.
@@ -47,13 +47,14 @@ class ICountryService:
     '''
 
     @call
-    def getByCode(self, code:Country.Code, locales:List(Locale)) -> Country:
+    def getByCode(self, code:Country.Code, locales:List(Locale)=()) -> Country:
         '''
         Provides the countries having the specified code.
         '''
 
     @call
-    def getAllAvailable(self, locales:List(Locale), offset:int=None, limit:int=10, q:QCountry=None) -> Iter(Country):
+    def getAllAvailable(self, locales:List(Locale)=(), offset:int=None, limit:int=LIMIT_DEFAULT,
+                        q:QCountry=None) -> Iter(Country):
         '''
         Provides all the available countries.
         '''

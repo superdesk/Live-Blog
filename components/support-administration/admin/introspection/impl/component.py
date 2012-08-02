@@ -10,7 +10,6 @@ Implementation for the components introspection.
 '''
 
 from ..api.component import IComponentService, Component, QComponent
-from ally.api.model import Part
 from ally.container.aop import modulesIn
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
@@ -18,6 +17,7 @@ from ally.internationalization import _
 from ally.support.api.util_service import trimIter, processQuery
 from os import path
 import sys
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -60,7 +60,8 @@ class ComponentService(IComponentService):
             assert isinstance(q, QComponent), 'Invalid query %s' % q
             components = processQuery(components, q, Component)
             length = len(components)
-        return Part(trimIter(components, length, offset, limit), length)
+
+        return IterPart(trimIter(components, length, offset, limit), length, offset, limit)
 
     # ----------------------------------------------------------------
 

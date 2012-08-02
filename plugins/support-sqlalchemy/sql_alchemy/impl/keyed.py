@@ -15,13 +15,13 @@ from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.api import keyed as api
 from ally.support.api.util_service import copy
-from ally.support.sqlalchemy.mapper_descriptor import MappedSupport
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits, handle
 from inspect import isclass
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from sqlalchemy.orm.exc import NoResultFound
 import logging
+from ally.support.sqlalchemy.mapper import MappedSupport
 
 # --------------------------------------------------------------------
 

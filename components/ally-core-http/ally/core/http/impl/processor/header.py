@@ -9,258 +9,231 @@ Created on Jul 9, 2011
 Provides the standard headers handling.
 '''
 
-from ally.api.config import GET, DELETE, INSERT, UPDATE
 from ally.container.ioc import injected
-from ally.core.http.spec import RequestHTTP, EncoderHeader, INVALID_HEADER_VALUE, \
-    ContentRequestHTTP
-from ally.core.spec.server import Processor, Response, ProcessorsChain
-from ally.exception import DevelError
-from ally.support.core.util_param import extractParamValues
-from collections import OrderedDict
+from ally.core.http.spec.server import IDecoderHeader, IEncoderHeader
+from ally.design.context import Context, defines, requires, optional
+from ally.design.processor import HandlerProcessorProceed
+from collections import deque, Iterable
 import re
 
 # --------------------------------------------------------------------
 
-ALL = 1
-VALUE_ATTRIBUTES = 2
-VALUES = 3
-VALUE = 4
-VALUE_NO_PARSE = 5
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    headers = requires(dict)
+    # ---------------------------------------------------------------- Optional
+    parameters = optional(list)
+    # ---------------------------------------------------------------- Defined
+    decoderHeader = defines(IDecoderHeader, doc='''
+    @rtype: IDecoderHeader
+    The decoder used for reading the headers.
+    ''')
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    headers = defines(dict, doc='''
+    @rtype: dictionary{string, string}
+    The raw headers for the response.
+    ''')
+    encoderHeader = defines(IEncoderHeader, doc='''
+    @rtype: IEncoderPath
+    The path encoder used for encoding paths that will be rendered in the response.
+    ''')
 
 # --------------------------------------------------------------------
 
 @injected
-class HeaderHTTPBase:
+class HeaderHandler(HandlerProcessorProceed):
     '''
-    Provides basic methods for handling HTTP headers.
+    Provides encoder/decoder for handling HTTP headers.
     '''
 
-    readFromParams = False
-    # If true than if the data is not present in the header will try to find it in the parameters.
+    useParameters = False
+    # If true then if the data is present in the parameters will override the header.
 
     separatorMain = ','
+    # The separator used in splitting value and attributes from each other. 
     separatorAttr = ';'
+    # The separator used between the attributes and value.
     separatorValue = '='
+    # The separator used between attribute name and attribute value.
 
     def __init__(self):
-        assert isinstance(self.readFromParams, bool), 'Invalid boolean %s' % self.readFromParams
-        assert isinstance(self.separatorMain, str), 'Invalid string %s' % self.separatorMain
-        assert isinstance(self.separatorAttr, str), 'Invalid string %s' % self.separatorAttr
-        assert isinstance(self.separatorValue, str), 'Invalid string %s' % self.separatorValue
-        self._reSeparatorMain = re.compile(self.separatorMain)
-        self._reSeparatorAttr = re.compile(self.separatorAttr)
-        self._reSeparatorValue = re.compile(self.separatorValue)
+        assert isinstance(self.useParameters, bool), 'Invalid use parameters flag %s' % self.useParameters
+        assert isinstance(self.separatorMain, str), 'Invalid main separator %s' % self.separatorMain
+        assert isinstance(self.separatorAttr, str), 'Invalid attribute separator %s' % self.separatorAttr
+        assert isinstance(self.separatorValue, str), 'Invalid value separator %s' % self.separatorValue
+        super().__init__()
 
-    def _parse(self, name, headers, parameters, what=ALL):
+        self.reSeparatorMain = re.compile(self.separatorMain)
+        self.reSeparatorAttr = re.compile(self.separatorAttr)
+        self.reSeparatorValue = re.compile(self.separatorValue)
+
+    def process(self, request:Request, response:Response, **keyargs):
         '''
-        Parses to a dictionary the requested header name.
+        @see: HandlerProcessorProceed.process
         
-        @param name: string
-            The name of the header to be parsed.
-        @param headers: dictionary
-            The headers to get the values from, as a key is the header name and as a value the header encoded value
-            to be parsed. Attention if found the header will be removed from the provided headers dictionary.
-        @param parameters: list[tuple(string, string)]
-            If the read from params flag is set to true than the header value is first checked in the provided
-            parameters. Attention if header found in parameters will be removed from the provided parameters
-            dictionary.
-        @param what: integer
-            What to be parsed, this will dictate the parsing behavior and return value.
-            Can be one of ALL, VALUE_ATTRIBUTES, VALUES, VALUE.
-        @return: 
-            ALL: dictionary{string:dictionary{string:string}}
-                A list of dictionaries containing as a key value found in the header and as the value a dictionary 
-                with the values attribute. The returned dictionary is never empty, if none found this method will
-                return None.
-            VALUE_ATTRIBUTES: tuple(string, dictionary{string:string})
-                Same like for all but will search for just one value entry and return that.
-            VALUES: list[string]
-                Will only parse the values ignoring the attributes.
-            VALUE: string
-                Provides the a single value.
-        @raise DevelError: whenever the header/parameters value is not as required.
+        Provide the headers encoders and decoders.
         '''
-        vals = None
-        if self.readFromParams:
-            params = extractParamValues(parameters, name, True)
-            if params:
-                if what == ALL:
-                    vals = OrderedDict()
-                    for param in params:
-                        vals.update(self.__parseValue(param, what))
-                elif what == VALUES:
-                    return [self.__parseValue(param, VALUE) for param in params]
-                elif what in (VALUE_ATTRIBUTES, VALUE, VALUE_NO_PARSE):
-                    if len(params) > 1:
-                        raise DevelError('Invalid parameter header %r, expected only one value' % name)
-                    if what == VALUE_NO_PARSE:
-                        return params[0]
-                    if what == VALUE:
-                        return self.__parseValue(params[0], what)
-                    return self.__parseValue(params[0], what)
-                else:
-                    raise DevelError('Invalid what value %r' % what)
-        header = headers.pop(name, None)
-        if not vals:
-            if header:
-                if what == ALL:
-                    vals = OrderedDict()
-                    for hv in self._reSeparatorMain.split(header):
-                        vals.update(self.__parseValue(hv, what))
-                    return vals
-                elif what == VALUES:
-                    return [self.__parseValue(hv, VALUE) for hv in self._reSeparatorMain.split(header)]
-                elif what in (VALUE_ATTRIBUTES, VALUE, VALUE_NO_PARSE):
-                    if what == VALUE_NO_PARSE:
-                        return header
-                    else:
-                        values = self._reSeparatorMain.split(header)
-                        if len(values) > 1:
-                            raise DevelError('Invalid header %r, expected only one value' % name)
-                        if what == VALUE:
-                            return self.__parseValue(values[0], what)
-                        return self.__parseValue(values[0], what)
-                else:
-                    raise DevelError('Invalid what value %r' % what)
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
 
-    def _encode(self, *values):
-        '''
-        Encodes the provided values to a header value.
-        ex:
-            _encode('multipart/formdata', 'mixed') == 'multipart/formdata, mixed'
-            
-            _encode(('multipart/formdata', ('charset', 'utf-8'), ('boundry', '12))) ==
-            'multipart/formdata; charset=utf-8; boundry=12'
-        
-        @param values: arguments[tuple(string, tuple(string, string))|string]
-            Tuples containing as first value found in the header and as the second value a tuple with the
-            values attribute.
-        @return: string
-            The encoded header.
-        '''
-        c = []
-        for v in values:
-            if isinstance(v, str):
-                c.append(v)
-            else:
-                value, attrs = v
-                attrs = self.separatorValue.join(attrs)
-                c.append(self.separatorAttr.join((value, attrs)) if attrs else value)
-
-        return self.separatorMain.join(c)
-
-    def __parseValue(self, value, what):
-        '''
-        INTERNAL USE ONLY.
-        '''
-        va = self._reSeparatorAttr.split(value)
-        if what == VALUE:
-            return va[0].strip()
-        attr = {}
-        for k in range(1, len(va)):
-            vv = self._reSeparatorValue.split(va[k])
-            attr[vv[0].strip()] = vv[1].strip().strip('"') if len(vv) > 1 else None
-        return va[0].strip(), attr
+        request.decoderHeader = DecoderHeader(self, request.headers, request.parameters
+                                              if Request.parameters in request and self.useParameters else None)
+        response.encoderHeader = EncoderHeader(self)
+        response.headers = response.encoderHeader.headers
 
 # --------------------------------------------------------------------
 
-@injected
-class HeaderStandardHandler(HeaderHTTPBase, Processor, EncoderHeader):
+class DecoderHeader(IDecoderHeader):
     '''
-    Implementation of a processor that provides the decoding of standard HTTP request headers to actual request data 
-    that can be understood by other processors. Also provides the encoding of those headers.
-    
-    Provides on request: [content.contentType], [content.charSet], [content.contentLanguage], [content.length],
-        accContentTypes, accCharSets, accLanguages
-    Provides on response: NA
-    
-    Requires on request: content, headers, params
-    Requires on response: [contentType], [charSet], [contentLanguage], [allows], [contentLocation]
+    Implementation for @see: IDecoderHeader.
     '''
+    __slots__ = ('handler', 'headers', 'parameters', 'parametersUsed')
 
-    nameContentType = 'Content-Type'
-    # The header name where the content type is specified.
-    attrContentTypeCharSet = 'charset'
-    # The name of the content type attribute where the character set is provided.
-    nameContentLanguage = 'Content-Language'
-    nameContentLength = 'Content-Length'
-    nameAllow = 'Allow'
-    methodsAllow = ((GET, 'GET'), (DELETE, 'DELETE'), (INSERT, 'POST'), (UPDATE, 'PUT'))
-    nameLocation = 'Location'
-    nameAccept = 'Accept'
-    nameAcceptCharset = 'Accept-Charset'
-    nameAcceptLanguage = 'Accept-Language'
-
-    def __init__(self):
-        super().__init__()
-        assert isinstance(self.nameContentType, str), 'Invalid content type header name %s' % self.nameContentType
-        assert isinstance(self.attrContentTypeCharSet, str), \
-        'Invalid char set attribute name %s' % self.attrContentTypeCharSet
-        assert isinstance(self.nameContentLanguage, str), 'Invalid string %s' % self.nameContentLanguage
-        assert isinstance(self.nameContentLength, str), 'Invalid string %s' % self.nameContentLength
-        assert isinstance(self.nameAllow, str), 'Invalid string %s' % self.nameAllow
-        assert isinstance(self.methodsAllow, tuple), 'Invalid methods allow %s' % (self.methodsAllow,)
-        assert isinstance(self.nameLocation, str), 'Invalid string %s' % self.nameLocation
-        assert isinstance(self.nameAccept, str), 'Invalid string %s' % self.nameAccept
-        assert isinstance(self.nameAcceptCharset, str), 'Invalid string %s' % self.nameAcceptCharset
-        assert isinstance(self.nameAcceptLanguage, str), 'Invalid string %s' % self.nameAcceptLanguage
-
-    def process(self, req, rsp, chain):
+    def __init__(self, handler, headers, parameters=None):
         '''
-        @see: Processor.process
+        Construct the decoder.
+        
+        @param handler: HeaderHandler
+            The header handler of the decoder.
+        @param headers: dictionary{string, string}
+            The header values.
+        @param parameters: list[tuple(string, string)]
+            The parameter values, this list will have have the used parameters removed.
         '''
-        assert isinstance(req, RequestHTTP), 'Invalid HTTP request %s' % req
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        content = req.content
-        assert isinstance(content, ContentRequestHTTP), 'Invalid content on request %s' % content
-        try:
-            p = self._parse(self.nameContentType, req.headers, req.params, VALUE_ATTRIBUTES)
-            if p:
-                content.contentType, attributes = p
-                content.charSet = attributes.pop(self.attrContentTypeCharSet, content.charSet)
-                content.contentTypeAttributes.update(attributes)
+        assert isinstance(handler, HeaderHandler), 'Invalid handler %s' % handler
+        assert isinstance(headers, dict), 'Invalid headers %s' % headers
+        assert parameters is None or isinstance(parameters, list), 'Invalid parameters %s' % parameters
 
-            p = self._parse(self.nameContentLanguage, req.headers, req.params, VALUE)
-            if p: content.contentLanguage = p
+        self.handler = handler
+        self.headers = headers
+        self.parameters = parameters
+        if parameters: self.parametersUsed = {}
 
-            p = self._parse(self.nameContentLength, req.headers, req.params, VALUE_NO_PARSE)
-            if p:
-                try:
-                    content.length = int(p)
-                except ValueError:
-                    rsp.setCode(INVALID_HEADER_VALUE, 'Invalid value %r for header %r' % (p, self.nameContentLength))
-                    return
-
-            p = self._parse(self.nameAccept, req.headers, req.params, VALUES)
-            if p: req.accContentTypes.extend(p)
-
-            p = self._parse(self.nameAcceptCharset, req.headers, req.params, VALUES)
-            if p: req.accCharSets.extend(p)
-
-            p = self._parse(self.nameAcceptLanguage, req.headers, req.params, VALUES)
-            if p: req.accLanguages.extend(p)
-        except DevelError as e:
-            assert isinstance(e, DevelError)
-            rsp.setCode(INVALID_HEADER_VALUE, e.message)
-            return
-        chain.proceed()
-
-    def encode(self, headers, rsp):
+    def retrieve(self, name):
         '''
-        @see: EncoderHeader.encode
+        @see: IDecoderHeader.retrieve
         '''
-        assert isinstance(headers, dict), 'Invalid headers dictionary %s' % headers
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        assert isinstance(name, str), 'Invalid name %s' % name
+        handler = self.handler
+        assert isinstance(handler, HeaderHandler)
 
-        if rsp.allows != 0:
-            values = [meth[1] for meth in self.methodsAllow if rsp.allows & meth[0] != 0]
-            headers[self.nameAllow] = self._encode(*values)
+        value = self.readParameters(name)
+        if value: return handler.separatorMain.join(value)
 
-        if rsp.contentType:
-            headers[self.nameContentType] = self._encode((rsp.contentType, (self.attrContentTypeCharSet, rsp.charSet)
-                                                         if rsp.charSet else ()))
+        return self.headers.get(name)
 
-        if rsp.contentLanguage: headers[self.nameContentLanguage] = rsp.contentLanguage
+    def decode(self, name):
+        '''
+        @see: IDecoderHeader.decode
+        '''
+        assert isinstance(name, str), 'Invalid name %s' % name
 
-        if rsp.location: headers[self.nameLocation] = rsp.encoderPath.encode(rsp.location)
+        value = self.readParameters(name)
+        if value:
+            parsed = []
+            for v in value: self.parse(v, parsed)
+            return parsed
+
+        value = self.headers.get(name)
+        if value: return self.parse(value)
+
+    # ----------------------------------------------------------------
+
+    def parse(self, value, parsed=None):
+        '''
+        Parses the provided value.
+        
+        @param value: string
+            The value to parse.
+        @param parsed: list[tuple(string, dictionary{string, string}]
+            The parsed values.
+        @return: list[tuple(string, dictionary{string, string}]
+            The parsed values, if parsed is provided then it will be the same list.
+        '''
+        assert isinstance(value, str), 'Invalid value %s' % value
+        handler = self.handler
+        assert isinstance(handler, HeaderHandler)
+
+        parsed = [] if parsed is None else parsed
+        for values in handler.reSeparatorMain.split(value):
+            valAttr = handler.reSeparatorAttr.split(values)
+            attributes = {}
+            for k in range(1, len(valAttr)):
+                val = handler.reSeparatorValue.split(valAttr[k])
+                attributes[val[0].strip()] = val[1].strip().strip('"') if len(val) > 1 else None
+            parsed.append((valAttr[0].strip(), attributes))
+        return parsed
+
+    def readParameters(self, name):
+        '''
+        Read the parameters for the provided name.
+        
+        @param name: string
+            The name to read the parameters for.
+        @return: deque[string]
+            The list of found values, might be empty.
+        '''
+        if not self.parameters: return
+
+        assert isinstance(name, str), 'Invalid name %s' % name
+        handler = self.handler
+        assert isinstance(handler, HeaderHandler)
+
+        value = self.parametersUsed.get(name)
+        if value is None:
+            value, k = deque(), 0
+            while k < len(self.parameters):
+                if self.parameters[k][0] == name:
+                    value.append(self.parameters[k][1])
+                    del self.parameters[k]
+                    k -= 1
+                k += 1
+            self.parametersUsed[name] = value
+
+        return value
+
+class EncoderHeader(IEncoderHeader):
+    '''
+    Implementation for @see: IEncoderHeader.
+    '''
+    __slots__ = ('handler', 'headers')
+
+    def __init__(self, handler):
+        '''
+        Construct the encoder.
+        
+        @param handler: HeaderHandler
+            The header handler of the encoder.
+        '''
+        assert isinstance(handler, HeaderHandler), 'Invalid handler %s' % handler
+
+        self.handler = handler
+        self.headers = {}
+
+    def encode(self, name, *value):
+        '''
+        @see: IEncoderHeader.encode
+        '''
+        assert isinstance(name, str), 'Invalid name %s' % name
+
+        handler = self.handler
+        assert isinstance(handler, HeaderHandler)
+
+        values = []
+        for val in value:
+            assert isinstance(val, Iterable), 'Invalid value %s' % val
+            if isinstance(val, str): values.append(val)
+            else:
+                value, attributes = val
+                attributes = handler.separatorValue.join(attributes)
+                values.append(handler.separatorAttr.join((value, attributes)) if attributes else value)
+
+        self.headers[name] = handler.separatorMain.join(values)

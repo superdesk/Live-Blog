@@ -1,7 +1,7 @@
 '''
 Created on Jan 12, 2012
 
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -14,7 +14,7 @@ from ._impl.aop_container import AOPClasses, AOPResources
 from ._impl.entity_handler import Wiring, WireConfig
 from ._impl.ioc_setup import ConfigError, register, SetupConfig, setupsOf, \
     setupFirstOf, SetupStart
-from ._impl.support_setup import CreateEntity, SetupError, SetupEntityProxy, \
+from ._impl.support_setup import SetupError, SetupEntityProxy, \
     SetupEntityWire, Assembly, CallEntity, SetupEntityCreate
 from .aop import classesIn
 from ally.container._impl.support_setup import SetupEntityListen, \
@@ -26,57 +26,61 @@ from inspect import isclass, ismodule, getsource
 # --------------------------------------------------------------------
 # Functions available in setup modules.
 
-def createEntitySetup(api, *impl, formatter=lambda group, clazz: group + '.' + clazz.__name__, setupModule=None):
+def setup(type, name=None):
     '''
-    Creates entity setup functions for the provided API classes. The name of the setup functions that will be generated
-    are formed based on the provided formatter.
-    To create a setup function a class from the impl classes has to inherit at least one of the api classes then it will
-    create a setup function based on the api class that will create an instance of the impl class. If a impl class
-    inherits multiple api classes than for each one of the api class a setup function is generated, all setup function
-    will provide the same impl instance. If an api class is already delivered by a different call than no create entity
-    setup will made for that implementation, the idea is if you defined a setup function in the setup module that will
-    deliver an instance for that api class it means it should not be created again.
+    Decorate a IMPL class with the info about required API class and optional a name
     
-    @param api: string|class|AOPClasses|tuple(string|class|AOPClasses)|list(string|class|AOPClasses)
-        The classes to be considered as the APIs for the setup functions.
-    @param impl: arguments(string|class|AOPClasses)
+    @param type: class
+        The type of the corespondent API.
+    @param name: str
+        The name associated to created IOC object
+    '''
+    assert isclass(type), 'Expected a class instead of %s ' % type
+    if name: assert isinstance(name, str), 'Expected a string name instead of %s ' % name
+
+    def decorator(clazz):
+        setattr(clazz, '__ally_setup__', (type, name))
+        return clazz
+    
+    return decorator
+
+def createEntitySetup(*classes, formatter=lambda group, clazz, name: group + '.' + name if name else group + '.' + clazz.__name__,
+                      module=None):
+    '''
+    For impl classes create the setup functions for the associated API classes. The name of the setup functions that will be generated
+    are formed based on the provided formatter. To create a setup function a class from the impl classes has to inherit the api class.
+    
+    @param classes: arguments(string|class|AOPClasses)
         The classes to be considered the implementations for the APIs.
     @param formatter: Callable
-        The formatter to use in creating the entity setup function name, the Callable will take two arguments, first is
-        the group where the setup function is defined and second the class for wich the setup is created. 
-    @param setupModule: module|None
+        The formatter to use in creating the entity setup function name, the Callable will take three arguments, first is
+        the group where the setup function is defined, the second is the class for wich the setup is created and the third 
+        is optional and is the name of the created instance. 
+    @param module: module|None
         If the setup module is not provided than the calling module will be considered.
     '''
     assert callable(formatter), 'Invalid formatter %s' % formatter
-    if setupModule:
-        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
-        registry = setupModule.__dict__
-        group = setupModule.__name__
+    if module:
+        assert ismodule(module), 'Invalid setup module %s' % module
+        registry = module.__dict__
+        group = module.__name__
     else:
         registry = callerLocals()
         if '__name__' not in registry:
             raise SetupError('The create entity call needs to be made directly from the module')
         group = registry['__name__']
-    apis = _classes(api if isinstance(api, (tuple, list)) else [api])
+        
     wireClasses = []
-    for clazz in _classes(impl):
-        apiClasses = [apiClass for apiClass in apis if issubclass(clazz, apiClass)]
-        if apiClasses:
-            # We need to trim the API classes to the top ones.
-            while True:
-                topApis = []
-                for k in range(0, len(apiClasses) - 1):
-                    for j in range(k + 1, len(apiClasses)):
-                        if issubclass(apiClasses[j], apiClasses[k]): break
-                    else: topApis.append(apiClasses[k])
-                if not topApis: break
-                apiClasses = topApis
-
-            wireClasses.append(clazz)
-            create = CreateEntity(clazz)
-            for apiClass in apiClasses:
-                register(SetupEntityCreate(create, apiClass, name=formatter(group, apiClass), group=group), registry)
-    wireEntities(*wireClasses, setupModule=setupModule)
+    for clazz in _classes(classes):
+        if not hasattr(clazz, '__ally_setup__'): continue
+        setupTuple = clazz.__ally_setup__
+        if not setupTuple: continue
+        apiClass, name = setupTuple
+        assert issubclass(clazz, apiClass), 'The impl class % do not extend the declared API class %s' % (clazz, apiClass) 
+        wireClasses.append(clazz)
+        register(SetupEntityCreate(clazz, apiClass, name=formatter(group, apiClass, name), group=group), registry)
+                
+    wireEntities(*wireClasses, setupModule=module)
 
 def wireEntities(*classes, setupModule=None):
     '''
@@ -162,7 +166,7 @@ def listenToEntities(*classes, listeners=None, setupModule=None, beforeBinding=T
     else: setup = SetupEntityListenAfterBinding(group, _classes(classes), listeners)
     register(setup, registry)
 
-def bindToEntities(*classes, binders=None, setupModule=None):
+def bindToEntities(*classes, binders=None, module=None):
     '''
     Creates entity implementation proxies for the provided entities classes found in the provided module. The binding is
     done at the moment of the entity creation so the binding is not dependent of the declared entity return type.
@@ -172,16 +176,16 @@ def bindToEntities(*classes, binders=None, setupModule=None):
     @param binders: None|Callable|list[Callable]|tuple(Callable)
         The binders to be invoked when a proxy is created. The binders Callable's will take one argument that is the newly
         created proxy instance.
-    @param setupModule: module|None
+    @param module: module|None
         If the setup module is not provided than the calling module will be considered.
     '''
     if not binders: binders = []
     elif not isinstance(binders, (list, tuple)): binders = [binders]
     assert isinstance(binders, (list, tuple)), 'Invalid binders %s' % binders
-    if setupModule:
-        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
-        registry = setupModule.__dict__
-        group = setupModule.__name__
+    if module:
+        assert ismodule(module), 'Invalid setup module %s' % module
+        registry = module.__dict__
+        group = module.__name__
     else:
         registry = callerLocals()
         if '__name__' not in registry:
@@ -310,7 +314,7 @@ def entityFor(clazz, assembly=None):
     if not entities:
         raise SetupError('There is no entity setup function having a return type of class or subclass %s' % clazz)
     if len(entities) > 1:
-        raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' %
+        raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' % 
                          (', '.join(entities), clazz))
 
     Assembly.stack.append(assembly)
