@@ -19,6 +19,10 @@ define
 	return function(theBlog){
 		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
 		var 
+		/** 
+		 * Views for providers 
+		 * This one if for rendering of the content tab
+		 */
 		ProviderContentView =  Gizmo.View.extend({
 			render: function(){
 				var self = this,
@@ -30,6 +34,9 @@ define
 				return self;
 			},		
 		}),
+		/** 
+		 * This rendering of the link tab, also has the event when showing the tab
+		 */
 		ProviderLinkView =  Gizmo.View.extend({
 			events: {
 				"": {"show": "show"}
@@ -43,9 +50,14 @@ define
 				return self;
 			},
 			show: function(evt){
+				// initialize the provider init method
 				this.model.init(theBlog);
 			}
 		}),
+		/**
+		 * This is the main view of the provider
+		 * where is added the link tab view, content and the main html of the providers
+		 */
 		ProvidersView = Gizmo.View.extend({
 			render: function() {
 				var self = this;
@@ -57,13 +69,12 @@ define
 						var providerLinkView = new ProviderLinkView({ model: provider, name: name });
 						var providerContentView = new ProviderContentView({ model: provider, name: name });
 						links.append(providerLinkView.render().el);
-						console.log(providerContentView.render().el, contents);
 						contents.append(providerContentView.render().el);
 					}
 				});
 			}
 		});
-		var AutoCollection = Gizmo.AuthCollection.extend({
+		var AutoCollection = Gizmo.Collection.extend({
 			timeInterval: 10000,			
 			idInterval: 0,			
 			_latestCId: 0,
@@ -111,7 +122,6 @@ define
 				var self = this,
 				xfilter = 'Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
-				
 				Gizmo.Auth(this.model)
 				    .on('delete', this.remove, this)
 					.on('read', this.render, this)
@@ -220,7 +230,7 @@ define
 			},
 			init: function(){
 				var self = this;
-				this.model = new Gizmo.Register.Blog(theBlog);
+				this.model = Gizmo.Auth(new Gizmo.Register.Blog(theBlog));
 				this.model.on('read', function(){
 					self.render();
 				}).xfilter('Creator.Name,Creator.Id').sync();
@@ -274,7 +284,7 @@ define
 					$.superdesk.applyLayout('livedesk>edit', data, function(){
 						// refresh twitter share button 
 						//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
-						var timelineCollection = new TimelineCollection( Gizmo.Register.Post );
+						var timelineCollection = Gizmo.Auth(new TimelineCollection( Gizmo.Register.Post ));
 						timelineCollection.href.root(theBlog);
 						self.timeineView = new TimelineView({ 
 							el: $('#timeline-view .results-placeholder', self.el),
