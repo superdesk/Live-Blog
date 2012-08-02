@@ -71,7 +71,7 @@ function($, superdesk, dust, jsSHA)
 					}).on('success', function(){
                         AuthApp.success && AuthApp.success.apply();
 						$(dialog).dialog('close');
-						self.showed = false;
+						AuthApp.showed = false;
 					});
                     event.preventDefault();
 					
