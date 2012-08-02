@@ -15,6 +15,12 @@ from ally.support.sqlalchemy.mapper import mapperSimple
 from sqlalchemy.schema import Table, Column, ForeignKey
 from sqlalchemy.types import Integer
 from superdesk.meta.metadata_superdesk import meta
+from ally.internationalization import N_
+
+# --------------------------------------------------------------------
+
+META_TYPE_KEY = N_('image')
+# The key used for image meta data
 
 # --------------------------------------------------------------------
 
