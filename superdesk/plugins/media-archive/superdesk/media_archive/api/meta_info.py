@@ -11,10 +11,10 @@ API specifications for media archive meta info.
 
 from .domain_archive import modelArchive
 from .meta_data import MetaData, QMetaData
-from ally.api.config import query, service, call
+from ally.api.config import query, call, service
 from ally.api.criteria import AsLikeOrdered, AsLike
 from ally.api.type import Count, Iter
-from ally.support.api.entity import Entity, QEntity, IEntityGetService
+from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from superdesk.language.api.language import LanguageEntity
 
 # --------------------------------------------------------------------
@@ -24,6 +24,7 @@ class MetaInfo(Entity):
     '''
     Provides the meta data information that is provided by the user.
     '''
+    Id = int
     MetaData = MetaData
     Language = LanguageEntity
     Title = str
@@ -43,8 +44,8 @@ class QMetaInfo(QEntity):
 
 # --------------------------------------------------------------------
 
-@service((Entity, MetaInfo))
-class IMetaInfoService(IEntityGetService):
+@service((Entity, MetaInfo), (QEntity, QMetaInfo))
+class IMetaInfoService(IEntityGetCRUDService):
     '''
     Provides the service methods for the meta info.
     '''
