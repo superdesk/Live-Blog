@@ -11,6 +11,7 @@ Implementation for the PO file management.
 
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError
 from ally.internationalization import _
 from cdm.spec import ICDM, PathNotFound
@@ -24,6 +25,7 @@ from json.encoder import JSONEncoder
 # --------------------------------------------------------------------
 
 @injected
+@setup(IJSONLocaleFileService)
 class JSONFileService(IJSONLocaleFileService):
     '''
     Implementation for @see: IJSONLocaleFileService
