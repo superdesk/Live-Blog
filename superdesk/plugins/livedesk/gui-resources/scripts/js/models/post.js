@@ -4,7 +4,8 @@ function(Gizmo)
     // Post
 	return Gizmo.Model.extend({
 		url: new Gizmo.Url('/Post'),
-		order: function(id, before){
+		order: function(id, before)
+		{
 			var reorderHref = this.href+'/Post/'+id+'/Reorder?before='+before;
 			var
 				self = this,  
@@ -13,16 +14,4 @@ function(Gizmo)
 			return ret;
 		}
 	}, { register: 'Post' } );
-	/*
-    return Gizmo.AuthModel.extend
-    ({ 
-		url: new Gizmo.Url('/Post'),
-		defaults:
-        { 
-            Author: Collaborator,
-            Blog: Blog,
-            Creator: User,
-            PostType: PostType
-        }
-    }, { register: 'Post' } );*/
 });
