@@ -21,9 +21,8 @@ function(providers, $, giz, Blog, Collaborator)
     ({
         init: function()
         {
-            var self = this;
-            this.model.on('update', function(){ self.render(true); });
-			this.model.on('read', function(){ console.log('read');self.render(true); });
+            this.model.on('update', this.render, this);
+			this.model.on('read', this.render, this);
         },
         render: function()
         {
