@@ -22,7 +22,6 @@ function(providers, $, giz, Blog, Collaborator)
         init: function()
         {
             var self = this;
-			console.log(this.model._clientId);
             this.model.on('update', function(){ self.render(true); });
 			this.model.on('read', function(){ console.log('read');self.render(true); });
         },
@@ -32,7 +31,7 @@ function(providers, $, giz, Blog, Collaborator)
             $.tmpl( 'livedesk>providers/colabs/items', {Posts: this.model.feed('json')}, function(e, o)
             {
                 self.setElement(o);
-                
+               
                 // make draggable
                 self.el.hasClass('draggable') && self.el.draggable
                 ({
@@ -155,10 +154,10 @@ function(providers, $, giz, Blog, Collaborator)
                     colab.get('Post').xfilter('*')
                         .on('read', function()
                         { 
+                            // list of new posts to append
                             var appendPosts = [];
                             this.each(function()
                             {
-                                
                                 if( $.inArray( this.get('Id'), colab._viewModels ) === -1 )
                                 {
                                     appendPosts.push(this);
@@ -167,7 +166,6 @@ function(providers, $, giz, Blog, Collaborator)
                                 //console.log(this, Math.max(colab._latestPost, parseInt(this.get('CId'))));
                                 colab._latestPost = Math.max(colab._latestPost, parseInt(this.get('CId')));
                             });
-                            
                             updateItemCount += appendPosts.length;
                             
                             appendPosts.length && $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
