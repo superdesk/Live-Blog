@@ -63,7 +63,7 @@ define
 				});
 			}
 		});
-		var AutoCollection = Gizmo.AuthCollection.extend({
+		var AutoCollection = Gizmo.Collection.extend({
 			timeInterval: 10000,			
 			idInterval: 0,			
 			_latestCId: 0,
@@ -113,7 +113,7 @@ define
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
 				this.model.on('delete', this.remove, this)
 						  .on('read', this.render, this)
-						  .on('update:CId', function(){ self.el.fadeTo(500, '0.1'); self.model.xfilter(xfilter).sync(); })
+						  .on('update:CId', function(){ console.log('timeline: ',self.model._clientId);self.el.fadeTo(500, '0.1'); self.model.xfilter(xfilter).sync(); })
 						  .xfilter(xfilter).sync();
 			},
 			reorder: function(evt, ui){
@@ -218,7 +218,7 @@ define
 			},
 			init: function(){
 				var self = this;
-				this.model = new Gizmo.Register.Blog(theBlog);
+				this.model = Gizmo.Auth(new Gizmo.Register.Blog(theBlog));
 				this.model.on('read', function(){
 					self.render();
 				}).xfilter('Creator.Name,Creator.Id').sync();
@@ -272,7 +272,7 @@ define
 					$.superdesk.applyLayout('livedesk>edit', data, function(){
 						// refresh twitter share button 
 						//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
-						var timelineCollection = new TimelineCollection( Gizmo.Register.Post );
+						var timelineCollection = Gizmo.Auth(new TimelineCollection( Gizmo.Register.Post ));
 						timelineCollection.href.root(theBlog);
 						self.timeineView = new TimelineView({ 
 							el: $('#timeline-view .results-placeholder', self.el),
