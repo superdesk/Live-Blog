@@ -21,6 +21,12 @@ from superdesk.media_archive.core.impl.thumbnail_referencer import \
 from superdesk.media_archive.core.spec import IThumbnailReferencer
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
     MetaDataServiceAlchemy
+from __plugin__.plugin.registry import cdmGUI
+import logging
+
+# --------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -79,3 +85,16 @@ def metaDataHandlers(): return []
 @ioc.after(createTables)
 def deploy():
     metaDataService().deploy()
+
+@ioc.start
+def publish():
+    publishResources()
+
+# --------------------------------------------------------------------
+
+def publishResources():
+    ''' 
+    Publishes media archive plugin resources.
+    '''
+    log.info('published library %s = %s')
+    cdmGUI().publishFromDir('media-archive/upload', 'pathResources')
