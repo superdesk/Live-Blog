@@ -9,23 +9,22 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from .converter import defaultErrorContentConverter
-from .encoder_decoder import handlersDecoding, handlersEncoding
-from .parameter import decodersParameters
+from .encoder_decoder import renderingAssembly, parsingAssembly
 from ally.container import ioc
-from ally.core.impl.processor.converter import ConverterHandler
-from ally.core.impl.processor.decoding import DecodingHandler
-from ally.core.impl.processor.encoding import EncodingProcessorsHandler
-from ally.core.impl.processor.explain_detailed_error import \
-    ExplainDetailedErrorHandler
+from ally.core.impl.processor.arguments import ArgumentsPrepareHandler, \
+    ArgumentsBuildHandler
+from ally.core.impl.processor.content import ContentHandler
+from ally.core.impl.processor.decoder import CreateDecoderHandler
+from ally.core.impl.processor.encoder import CreateEncoderHandler
 from ally.core.impl.processor.explain_error import ExplainErrorHandler
 from ally.core.impl.processor.invoking import InvokingHandler
-from ally.core.impl.processor.meta_creator import MetaCreatorHandler
 from ally.core.impl.processor.method_invoker import MethodInvokerHandler
-from ally.core.impl.processor.parameters import ParametersHandler
-from ally.core.impl.processor.redirect import RedirectHandler
-from ally.core.impl.processor.request_types import RequestTypesHandler
-from ally.core.spec.server import Processors, Processor
+from ally.core.impl.processor.parsing import ParsingHandler
+from ally.core.impl.processor.render_encoder import RenderEncoderHandler
+from ally.core.impl.processor.rendering import RenderingHandler
+from ally.core.impl.processor.text_conversion import ConversionSetHandler
+from ally.core.spec.resources import Normalizer, Converter
+from ally.design.processor import Handler, Assembly
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -45,75 +44,77 @@ def explain_detailed_error():
     '''If True will provide as an error response a detailed response containing info about where the problem originated'''
     return True
 
-@ioc.entity
-def explainError() -> Processor:
-    b = ExplainDetailedErrorHandler() if explain_detailed_error() else ExplainErrorHandler()
-    b.encodings = Processors(*handlersExplainError())
-    b.languageDefault = default_language()
-    b.contentConverterDefault = defaultErrorContentConverter()
-    return b
+# --------------------------------------------------------------------
 
 @ioc.entity
-def methodInvoker() -> Processor: return MethodInvokerHandler()
+def normalizer() -> Normalizer: return Normalizer()
 
 @ioc.entity
-def redirect() -> Processor:
-    b = RedirectHandler()
-    b.redirects = Processors(*handlersRedirect())
-    return b
+def converter() -> Converter: return Converter()
+
+# --------------------------------------------------------------------
 
 @ioc.entity
-def metaCreator() -> Processor: return MetaCreatorHandler()
+def argumentsPrepare() -> Handler: return ArgumentsPrepareHandler()
 
 @ioc.entity
-def converter() -> Processor: return ConverterHandler()
+def methodInvoker() -> Handler: return MethodInvokerHandler()
 
 @ioc.entity
-def requestTypes() -> Processor: return RequestTypesHandler()
-
-@ioc.entity
-def parameters() -> Processor:
-    b = ParametersHandler()
-    b.decoders = decodersParameters()
-    return b
-
-@ioc.entity
-def decoding() -> Processor:
-    b = DecodingHandler()
-    b.decodings = Processors(*handlersDecoding())
+def renderer() -> Handler:
+    b = RenderingHandler()
     b.charSetDefault = default_characterset()
+    b.renderingAssembly = renderingAssembly()
     return b
 
 @ioc.entity
-def invokingHandler() -> Processor: return InvokingHandler()
+def conversion() -> Handler:
+    b = ConversionSetHandler()
+    b.normalizer = normalizer()
+    b.converter = converter()
+    return b
 
 @ioc.entity
-def encoding() -> Processor:
-    b = EncodingProcessorsHandler()
-    b.encodings = Processors(*handlersEncoding())
+def createDecoder() -> Handler: return CreateDecoderHandler()
+
+@ioc.entity
+def createEncoder() -> Handler: return CreateEncoderHandler()
+
+@ioc.entity
+def parser() -> Handler:
+    b = ParsingHandler()
     b.charSetDefault = default_characterset()
+    b.parsingAssembly = parsingAssembly()
     return b
 
-# ---------------------------------
+@ioc.entity
+def content() -> Handler: return ContentHandler()
 
 @ioc.entity
-def handlersExplainError():
-    '''
-    The handlers used for rendering an error message.
-    '''
-    return [encoding()]
+def argumentsBuild() -> Handler: return ArgumentsBuildHandler()
 
 @ioc.entity
-def handlersRedirect():
-    '''
-    The handlers that will be used in processing a redirect.
-    '''
-    return [converter(), requestTypes(), parameters(), decoding(), invokingHandler()]
+def invoking() -> Handler: return InvokingHandler()
 
 @ioc.entity
-def handlersResources():
+def renderEncoder() -> Handler: return RenderEncoderHandler()
+
+@ioc.entity
+def explainError(): return ExplainErrorHandler()
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def assemblyResources() -> Assembly:
     '''
-    All the handlers that will be used in processing a REST request.
+    The assembly containing the handlers that will be used in processing a REST request.
     '''
-    return [explainError(), methodInvoker(), redirect(), metaCreator(), converter(), requestTypes(), parameters(),
-            decoding(), invokingHandler(), encoding()]
+    return Assembly()
+
+# --------------------------------------------------------------------
+
+@ioc.before(assemblyResources)
+def updateAssemblyResources():
+    assemblyResources().add(argumentsPrepare(), methodInvoker(), renderer(), conversion(), createDecoder(),
+                            createEncoder(), parser(), content(), argumentsBuild(), invoking(), renderEncoder(),
+                            explainError())

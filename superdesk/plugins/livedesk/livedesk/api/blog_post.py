@@ -16,7 +16,7 @@ from superdesk.post.api.post import Post, QPostUnpublished, \
     QPost, IPostService
 from superdesk.user.api.user import User
 from superdesk.collaborator.api.collaborator import Collaborator
-from ally.api.type import Iter, Count
+from ally.api.type import Iter
 from ally.api.criteria import AsRangeOrdered, AsBoolean
 from ally.api.authentication import auth
 from superdesk.person.api.person import Person
@@ -37,26 +37,26 @@ class BlogPost(Post):
 
 # --------------------------------------------------------------------
 
-@query
+@query(BlogPost)
 class QWithCId:
     '''
     Provides the query for cId.
     '''
     cId = AsRangeOrdered
 
-@query
+@query(BlogPost)
 class QBlogPostUnpublished(QPostUnpublished, QWithCId):
     '''
     Provides the blog post message query.
     '''
 
-@query
+@query(BlogPost)
 class QBlogPostPublished(QPost, QWithCId):
     '''
     Provides the blog post message query.
     '''
 
-@query
+@query(BlogPost)
 class QBlogPost(QPost, QWithCId):
     '''
     Provides the blog post message query.
@@ -79,14 +79,7 @@ class IBlogPostService:
 
     @call(webName='Published')
     def getPublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
-                     offset:int=None, limit:int=None, q:QBlogPostPublished=None) -> Iter(BlogPost):
-        '''
-        Provides all the blogs published posts.
-        '''
-
-    @call(countFor=getPublished)
-    def getPublishedCount(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
-                          q:QBlogPostPublished=None) -> Count:
+                     offset:int=None, limit:int=None, detailed:bool=True, q:QBlogPostPublished=None) -> Iter(BlogPost):
         '''
         Provides all the blogs published posts.
         '''

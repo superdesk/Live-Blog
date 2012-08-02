@@ -12,9 +12,9 @@ Provides the call assemblers used in constructing the resources node.
 from ally.api.config import GET, DELETE, INSERT, UPDATE
 from ally.api.operator.container import Model
 from ally.api.operator.type import TypeService, TypeModel, TypeModelProperty
-from ally.api.type import Iter, typeFor, Count, List, Input
+from ally.api.type import Iter, typeFor, Input
 from ally.container.ioc import injected
-from ally.core.impl.invoker import InvokerRestructuring, InvokerAssemblePart
+from ally.core.impl.invoker import InvokerRestructuring
 from ally.core.impl.node import NodePath, NodeProperty, NodeRoot
 from ally.core.spec.resources import Node, AssembleError, Invoker, IAssembler, \
     InvokerInfo
@@ -210,7 +210,7 @@ class AssembleBase(IAssembler):
         assert isinstance(name, str), 'Invalid name %s' % name
         assert isinstance(isGroup, bool), 'Invalid is group flag %s' % isGroup
 
-        for child in root.childrens():
+        for child in root.children:
             if isinstance(child, NodePath) and child.name == name:
                 if isGroup is not None: child.isGroup |= isGroup
                 return child
@@ -237,7 +237,7 @@ class AssembleBase(IAssembler):
                 domain = domain.split('/')
                 root = self.obtainNode(root, [(name, False) for name in domain if name.strip()])
 
-        for child in root.childrens():
+        for child in root.children:
             if isinstance(child, NodePath) and child.name == model.name:
                 if not child.isGroup: child.isGroup = True
                 return child
@@ -257,7 +257,7 @@ class AssembleBase(IAssembler):
         assert isinstance(root, Node), 'Invalid root node %s' % root
         assert isinstance(inp, Input), 'Invalid input %s' % inp
 
-        for child in root.childrens():
+        for child in root.children:
             if isinstance(child, NodeProperty) and child.isFor(inp):
                 assert isinstance(child, NodeProperty)
                 child.addInput(inp)
@@ -329,7 +329,7 @@ class AssembleOneByOne(AssembleBase):
             except:
                 info = invoker.infoAPI or invoker.infoIMPL
                 assert isinstance(info, InvokerInfo)
-                raise AssembleError('Problems assembling invoker at:\nFile "%s", line %i, in %s' %
+                raise AssembleError('Problems assembling invoker at:\n  File "%s", line %i, in %s' %
                                     (info.file, info.line, info.name))
 
     @abc.abstractmethod
@@ -598,105 +598,3 @@ class AssembleUpdateModel(AssembleUpdate):
 
                 return super().assembleInvoker(root, InvokerRestructuring(invoker, inputs, indexes, indexesSetValue))
         return False
-
-# --------------------------------------------------------------------
-
-@injected
-class AssembleCount(AssembleGet):
-    '''
-    Resolving the GET method invokers that provide the element count for another method.
-    Method signature needs to be flagged with GET , have the "countFor" hint and look like:
-    Count
-    %
-    ([...AnyEntity.Property])
-    It also needs to have the same parameters or less as the method is providing the count for.
-    !!!Attention the order of the mandatory arguments is crucial since based on that the call is placed in the REST
-    Node tree.
-    '''
-
-    hintCallCountFor = 'countFor'
-
-    def __init__(self):
-        '''
-        Construct the count assembler.
-        '''
-        assert isinstance(self.hintCallCountFor, str), 'Invalid hint name for call count %s' % self.hintCallCountFor
-        super().__init__()
-
-        self.callHints[self.hintCallCountFor] = \
-        '(string|function) Specified the method for which this call is a total count, attention the parameter names '\
-        'need to be the same with the call that provides the list'
-
-    def assemble(self, root, invokers):
-        '''
-        @see: IAssemble.assemble
-        '''
-        assert isinstance(root, Node), 'Invalid node %s' % root
-        assert isinstance(invokers, list), 'Invalid invokers %s' % invokers
-
-        countInvokers, k = [], 0
-        while k < len(invokers):
-            invoker = invokers[k]
-            assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
-            if self.hintCallCountFor in invoker.hints:
-                countInvokers.append(invoker)
-                del invokers[k]
-            else: k += 1
-
-        for invoker in countInvokers:
-            if not self.assembleCount(root, invoker, invokers): invokers.append(invoker)
-
-    def assembleCount(self, root, invoker, invokers):
-        '''
-        Provides the assembling for a single count invoker.
-        
-        @param root: Node
-            The root node to assemble the invokers to.
-        @param invoker: Invoker
-            The invoker to be assembled.
-        @param invokers: list[Invoker]
-            The invokers without the count invokers.
-        @return: boolean
-            True if the assembling has been successful, False otherwise.
-        '''
-        assert isinstance(root, Node), 'Invalid node %s' % root
-        assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
-        assert isinstance(invokers, list), 'Invalid invokers %s' % invokers
-
-        if not invoker.output.isOf(int):
-            raise AssembleError('Invalid invoker output type %s, expected %s' % (invoker.output, Count))
-        if invoker.method != GET: raise AssembleError('Invalid invoker %s, expected a GET invoker' % invoker)
-        if len(invoker.hints) > 1:
-            hints = ','.join(name for name in invoker.hints.keys() if name != self.hintCallCountFor)
-            raise AssembleError('Illegal hints "%s" for the count call' % hints)
-
-        countFor = invoker.hints[self.hintCallCountFor]
-        if not isinstance(countFor, str):
-            assert hasattr(countFor, '__name__'), 'Cannot extract the count for method name from %s' % countFor
-            countFor = countFor.__name__
-
-        k = 0
-        while k < len(invokers):
-            listInvoker = invokers[k]
-            assert isinstance(listInvoker, Invoker), 'Invalid invoker %s' % listInvoker
-            if listInvoker.name == countFor:
-                del invokers[k]
-                break
-            k += 1
-        else:
-            raise AssembleError('No count for invoker by name %r' % countFor)
-
-        if not isinstance(listInvoker.output, Iter):
-            raise AssembleError('Invalid count for call output type %s, expected a collection(%s) type'
-                                % (listInvoker.output, ', '.join(Iter, List)))
-
-        different = set(input.name for input in invoker.inputs).difference(input.name for input in listInvoker.inputs)
-        if different:
-            raise AssembleError('Cannot provide values for "%s"' % ', '.join(different))
-
-        if not self.assembleInvoker(root, InvokerAssemblePart(listInvoker, invoker)):
-            invokers.append(listInvoker)
-            return False
-
-        log.info('Resolved list invoker %s and count invoker a part assembly', listInvoker, invoker)
-        return True

@@ -14,9 +14,10 @@ from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual, AsDate, AsT
 from ally.api.type import typeFor
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.api.util_service import namesForModel, namesForQuery
+from ally.support.api.util_service import namesForQuery
 from itertools import chain
 from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.orm.mapper import Mapper
 
 # --------------------------------------------------------------------
 
@@ -60,7 +61,10 @@ def buildQuery(sqlQuery, query, mapped):
     clazz = query.__class__
 
     ordered, unordered = [], []
-    properties = {prop.lower(): getattr(mapped, prop) for prop in namesForModel(mapped)}
+    mapper = mapped.__mapper__
+    assert isinstance(mapper, Mapper)
+    
+    properties = {col.key.lower(): col for col in mapper.columns}
     for criteria in namesForQuery(clazz):
         column = properties.get(criteria.lower())
         if column is not None and getattr(clazz, criteria) in query:
@@ -72,18 +76,17 @@ def buildQuery(sqlQuery, query, mapped):
                     sqlQuery = sqlQuery.filter(column == crt.value)
             elif isinstance(crt, AsLike):
                 assert isinstance(crt, AsLike)
-                if AsLike.like in crt:
-                    if crt.caseSensitive: sqlQuery = sqlQuery.filter(column.like(crt.like))
-                    else: sqlQuery = sqlQuery.filter(column.ilike(crt.like))
+                if AsLike.like in crt: sqlQuery = sqlQuery.filter(column.like(crt.like))
+                elif AsLike.ilike in crt: sqlQuery = sqlQuery.filter(column.ilike(crt.ilike))
             elif isinstance(crt, AsEqual):
                 assert isinstance(crt, AsEqual)
                 if AsEqual.equal in crt:
                     sqlQuery = sqlQuery.filter(column == crt.equal)
             elif isinstance(crt, (AsDate, AsTime, AsDateTime, AsRange)):
                 if crt.__class__.start in crt: sqlQuery = sqlQuery.filter(column >= crt.start)
+                elif crt.__class__.until in crt: sqlQuery = sqlQuery.filter(column < crt.until)
                 if crt.__class__.end in crt: sqlQuery = sqlQuery.filter(column <= crt.end)
-                if crt.__class__.startEx in crt: sqlQuery = sqlQuery.filter(column > crt.startEx)
-                if crt.__class__.endEx in crt: sqlQuery = sqlQuery.filter(column < crt.endEx)
+                elif crt.__class__.since in crt: sqlQuery = sqlQuery.filter(column > crt.since)
 
             if isinstance(crt, AsOrdered):
                 assert isinstance(crt, AsOrdered)

@@ -14,6 +14,7 @@ from xml.sax import make_parser
 from xml.sax.xmlreader import InputSource
 from xml.sax._exceptions import SAXParseException
 from xml.sax.saxutils import XMLGenerator
+from collections import deque
 
 # --------------------------------------------------------------------
 
@@ -100,7 +101,7 @@ class Digester(ContentHandler):
         '''
         Provides the current processing path of the digester.
         '''
-        elements = []
+        elements = deque()
         for i in range(1, len(self._nodes)):
             node = self._nodes[i]
             if isinstance(node, Node): elements.append(node.name)
@@ -150,10 +151,10 @@ class Digester(ContentHandler):
         '''
         node = self._nodes[-1]
         if isinstance(node, Node):
-            node = node.childrens.get(name)
-            if node:
-                self._nodes.append(node)
-                return node
+            child = node.childrens.get(name)
+            if child:
+                self._nodes.append(child)
+                return child
         self._nodes.append(name)
 
     def _currentNode(self):
@@ -334,7 +335,7 @@ class Node:
             The node of the added rule.
         '''
         assert isinstance(rule, Rule), 'Invalid rule %s' % rule
-        paths = []
+        paths = deque()
         for path in xpaths:
             assert isinstance(path, str), 'Invalid path element %s' % path
             paths.extend(path.split('/'))
@@ -346,19 +347,19 @@ class Node:
         '''
         Obtains the node for the specified xpaths list.
         
-        @param xpaths: list
+        @param xpaths: deque(string)
             The xpaths list to be searched.
         '''
-        assert isinstance(xpaths, (list, tuple)), 'Invalid xpaths list %s' % xpaths
-        if not xpaths:
-            return self
-        for path, node in self.childrens.items():
-            if path == xpaths[0]: break
-        else:
-            node = Node(xpaths[0])
-            self.childrens[xpaths[0]] = node
-        if len(xpaths) > 1:
-            return node.obtainNode(xpaths[1:])
+        assert isinstance(xpaths, deque), 'Invalid xpaths %s' % xpaths
+
+        node = self
+        while xpaths:
+            xpath = xpaths.popleft()
+            for path, child in self.childrens.items():
+                if path == xpath:
+                    node = child
+                    break
+            else: node = self.childrens[xpath] = Node(xpath)
         return node
 
 class RuleRoot(Node):

@@ -6,6 +6,6 @@ Home-page: http://www.sourcefabric.org/en/superdesk/
 Author: Gabriel Nistor
 Author-email: gabriel.nistor@sourcefabric.org
 License: GPL v3
-Description: Implementation of the Media archive plugin
+Description: Media files management functionality
 Keywords: Ally REST framework plugin Livedesk
 Platform: all

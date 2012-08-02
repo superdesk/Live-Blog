@@ -33,8 +33,7 @@ function($, superdesk, dust, jsSHA)
 				}).on('success', function(){
 					$(authToken).trigger('success');
 				});
-			}
-		);
+		});
 		return $(authToken);
 	},
 	AuthApp = 
