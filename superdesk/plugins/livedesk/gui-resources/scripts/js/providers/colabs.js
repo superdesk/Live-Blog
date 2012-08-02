@@ -128,10 +128,35 @@ function(providers, $, giz, Blog, Collaborator)
         {
             $(this.el).tmpl('livedesk>providers/colabs', {Colabs: colabs.feed('json', true)});
         },
-        
-        readPostsHandle: function()
+        /*!
+         * initial - initial count of collaborators
+         */
+        readPostsHandle: function(initial, colab)
         {
+            // list of new posts to append
+            var appendPosts = [],
+                self = this;
+            this.each(function()
+            {
+                if( $.inArray( this.get('Id'), colab._viewModels ) === -1 )
+                {
+                    appendPosts.push(this);
+                    colab._viewModels.push(this.get('Id'));
+                }
+                colab._latestPost = Math.max(colab._latestPost, parseInt(this.get('CId')));
+            });
+            updateItemCount += appendPosts.length;
             
+            appendPosts.length && $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
+            {
+                $(appendPosts).each(function()
+                { 
+                    $('.search-result-list', self.el).prepend( (new PostView({ model: this })).render().el );
+                });
+                updateItemCount -= appendPosts.length;
+            }, initial ? true : false]);
+            
+            initial -= 1; // decrement initial until 0 so we know when init is over and do not send
         },
         
         /*!
@@ -140,47 +165,19 @@ function(providers, $, giz, Blog, Collaborator)
         setupColabStream: function(colabs)
         {
             var self = this,
-                initial = colabs.count(); // used for breaking init. action
+                initial = colabs.count(); // used for breaking init. action, decrementing until 0
             // collaboratos list
             colabs.each(function()
             {
                 var colab = this;
-                
                 colab._latestPost = 0;
                 colab._viewModels = [];
                 colab.on('read', function()
                 { 
                     // get posts for each collaborator
-                    // TODO isolate the callback
                     colab.get('Post').xfilter('*')
-                        .on('read', function()
-                        { 
-                            // list of new posts to append
-                            var appendPosts = [];
-                            this.each(function()
-                            {
-                                if( $.inArray( this.get('Id'), colab._viewModels ) === -1 )
-                                {
-                                    appendPosts.push(this);
-                                    colab._viewModels.push(this.get('Id'));
-                                }
-                                //console.log(this, Math.max(colab._latestPost, parseInt(this.get('CId'))));
-                                colab._latestPost = Math.max(colab._latestPost, parseInt(this.get('CId')));
-                            });
-                            updateItemCount += appendPosts.length;
-                            
-                            appendPosts.length && $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
-                            {
-                                $(appendPosts).each(function()
-                                { 
-                                    $('.search-result-list', self.el).prepend( (new PostView({ model: this })).render().el );
-                                });
-                                updateItemCount -= appendPosts.length;
-                            }, initial ? true : false]);
-                            
-                            initial -= 1; // decrement initial until 0 so we know when init is over and do not send
-                            
-                        }).sync();
+                        .on('read', function(){ self.readPostsHandle.call(this, initial, colab); })
+                        .sync();
                     
                     clearInterval(updateInterval);
                     updateInterval = setInterval(function()
