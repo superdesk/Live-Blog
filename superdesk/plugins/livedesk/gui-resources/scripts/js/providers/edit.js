@@ -22,7 +22,7 @@ define('providers/edit', [
 	var OwnCollection = Gizmo.AuthCollection.extend({
 		insertFrom: function(model) {
 			this.desynced = false;
-			if( !(model instanceof Gizmo.AuthModel) ) model = new this.model(model);
+			if( !(model instanceof Gizmo.Model) ) model = new this.model(model);
 			this._list.push(model);
 			model.hash();
 			var x = model.sync(model.url.root(this.options.theBlog).xfilter('Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name'));
