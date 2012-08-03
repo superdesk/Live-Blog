@@ -27,6 +27,7 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post
 from superdesk.source.meta.source import SourceMapped
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -58,7 +59,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         try: return sql.one()
         except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogPostMapped.Id))
 
-    def getPublished(self, blogId, creatorId=None, authorId=None, offset=None, limit=None, q=None):
+    def getPublished(self, blogId, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IBlogPostService.getPublished
         '''
@@ -66,17 +67,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self._buildQuery(blogId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
         sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
-        sql = buildLimits(sql, offset, limit)
-        return (post for post in sql.all())
-
-    def getPublishedCount(self, blogId, creatorId=None, authorId=None, q=None):
-        '''
-        @see: IBlogPostService.getPublishedCount
-        '''
-        assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
-        sql = self._buildQuery(blogId, creatorId, authorId, q)
-        sql = sql.filter(BlogPostMapped.PublishedOn != None)
-        return sql.count()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
     def getUnpublished(self, blogId, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
