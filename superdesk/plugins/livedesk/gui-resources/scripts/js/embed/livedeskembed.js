@@ -1,3 +1,12 @@
+function isOnly(data,key) {
+	var count = 0;
+	for(i in data) {
+		count++;
+		if(count>1) return false;
+	};
+	return (data !== undefined) && (data[key] !== undefined) && (count == 1);
+}
+
 var livedeskEmbed = {
     init : function() {
         var self = this;
@@ -193,7 +202,12 @@ var livedeskEmbed = {
         ({
             init: function()
             {
-                this.post.on('update', this.render, this);
+                this.post.on('update', function(evt, data){
+					if(isOnly(data, 'CId'))
+						this.post.xfilter(self.xfilter).sync();
+					else
+						this.render();
+				}, this);
                 this.post.on('read', this.render, this);
 				this.post.on('remove', this.remove, this);
                 this.post.sync();
@@ -250,20 +264,17 @@ var livedeskEmbed = {
                 var self = this;
                 this.blog.on('read', function()
                 { 
-                    self.blog.get('Post').on('read', function(){
+                    self.blog.get('PostPublished').on('read', function(){
 						self.render();
-                    });
-                    self.blog.get('Post').xfilter('CId').start();
+                    }).xfilter('CId').start();
                 });
                 this.blog.sync();
             },
             render: function()
             {
                 var self = this, i=0, prev = undefined;;
-                this.blog.get('Post').each(function()
+                this.blog.get('PostPublished').each(function(key, post)
                 {
-                    var 
-						post = new Post(this.hash()); 
 						if(post.view === undefined) {
 							var view = new PostItemView({
 								post: post
