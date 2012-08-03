@@ -16,6 +16,14 @@ define
 	'tmpl!livedesk>provider-link',
 	'tmpl!livedesk>providers'
 ], function(providers, Gizmo, $) {
+	function isOnly(data,key) {
+		var count = 0;
+		for(i in data) {
+			count++;
+			if(count>1) return false;
+		};
+		return (data !== undefined) && (data[key] !== undefined) && (count == 1);
+	}
 	return function(theBlog){
 		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
 		var 
@@ -119,15 +127,21 @@ define
 				'.editable': { focusout: 'save' },
 			},
 			init: function(){
-				var self = this,
-				xfilter = 'Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+				var self = this;
+				self.xfilter = 'Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
 				
 				Gizmo.Auth(this.model)
 				    .on('delete', this.remove, this)
 					.on('read', this.render, this)
-					.on('update:CId', function(){ self.el.fadeTo(500, '0.1'); self.model.xfilter(xfilter).sync(); })
-					.xfilter(xfilter).sync();
+					.on('update', function(evt, data){ 
+						if(isOnly(data, 'CId'))
+							self.model.xfilter(self.xfilter).sync();
+						else
+							self.render();
+						//self.el.fadeTo(500, '0.1'); self.model.xfilter(xfilter).sync(); 
+					})
+					.xfilter(self.xfilter).sync();
 			},
 			reorder: function(evt, ui){
 				var next = $(ui.item).next('li'), prev = $(ui.item).prev('li');
