@@ -29,6 +29,8 @@ from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from sqlalchemy.sql.operators import desc_op
+from superdesk.post.api.post import IPostService, Post
+from superdesk.source.meta.source import SourceMapped
 
 # --------------------------------------------------------------------
 
@@ -60,7 +62,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         try: return sql.one()
         except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogPostMapped.Id))
 
-    def getPublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
+    def getPublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, detailed=False,
+                     q=None):
         '''
         @see: IBlogPostService.getPublished
         '''
@@ -68,19 +71,10 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
 
-        sql = sql.order_by(desc_op(BlogPostMapped.Order))
-        sql = buildLimits(sql, offset, limit)
-        return self._trimmDeleted(sql.all())
-
-    def getPublishedCount(self, blogId, typeId=None, creatorId=None, authorId=None, q=None):
-        '''
-        @see: IBlogPostService.getPublishedCount
-        '''
-        assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
-        sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
-        sql = sql.filter(BlogPostMapped.PublishedOn != None)
-
-        return sql.count()
+        sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''

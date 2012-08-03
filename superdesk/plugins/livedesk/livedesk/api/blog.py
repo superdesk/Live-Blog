@@ -16,7 +16,7 @@ from superdesk.user.api.user import User
 from datetime import datetime
 from ally.api.config import query, service, call
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered
-from ally.api.type import Iter, Count
+from ally.api.type import Iter
 from ally.api.authentication import auth
 
 # --------------------------------------------------------------------
@@ -68,13 +68,7 @@ class IBlogService(IEntityCRUDService):
 
     @call
     def getAll(self, languageId:LanguageEntity=None, adminId:auth(User)=None, offset:int=None, limit:int=None,
-               q:QBlog=None) -> Iter(Blog):
-        '''
-        Provides all the blogs.
-        '''
-
-    @call(countFor=getAll)
-    def getAllCount(self, languageId:LanguageEntity=None, adminId:auth(User)=None, q:QBlog=None) -> Count:
+               detailed:bool=True, q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs.
         '''
