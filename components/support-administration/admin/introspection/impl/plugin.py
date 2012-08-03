@@ -11,7 +11,6 @@ Implementation for the components introspection.
 
 from ..api.component import IComponentService, QComponent
 from ..api.plugin import IPluginService, Plugin
-from ally.api.model import Part
 from ally.container.aop import modulesIn
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
@@ -19,6 +18,7 @@ from ally.internationalization import _
 from ally.support.api.util_service import trimIter
 from os import path
 import sys
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ class PluginService(IPluginService):
         components = {cmp.Path:cmp.Id for cmp in self.componentService.getComponents()}
         plugins = (self.pluginFor(module, components) for module in modules)
 
-        return Part(trimIter(plugins, len(modules), offset, limit), len(modules))
+        return IterPart(trimIter(plugins, len(modules), offset, limit), len(modules), offset, limit)
 
     # ----------------------------------------------------------------
 

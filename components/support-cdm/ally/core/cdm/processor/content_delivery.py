@@ -15,14 +15,15 @@ from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
     RESOURCE_NOT_FOUND, Code
 from ally.design.context import Context, requires, defines
 from ally.design.processor import Chain, HandlerProcessor
+from ally.support.util_io import readGenerator
 from ally.zip.util_zip import normOSPath, normZipPath
+from collections import Iterable
 from os.path import isdir, isfile, join, dirname, normpath, sep
 from urllib.parse import unquote
 from zipfile import ZipFile
 import json
 import logging
 import os
-from types import GeneratorType
 
 # --------------------------------------------------------------------
 
@@ -56,13 +57,7 @@ class Response(Context):
     @rtype: integer
     Contains the allow flags for the methods.
     ''')
-
-class ResponseContent(Context):
-    '''
-    The response content context.
-    '''
-    # ---------------------------------------------------------------- Defined
-    source = defines(GeneratorType, doc='''
+    source = defines(Iterable, doc='''
     @rtype: GeneratorType
     The generator that provides the response content in bytes.
     ''')
@@ -94,7 +89,7 @@ class ContentDeliveryHandler(HandlerProcessor):
 
         self._linkTypes = {self._fsHeader:self._processLink, self._zipHeader:self._processZiplink}
 
-    def process(self, chain, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
+    def process(self, chain, request:Request, response:Response, **keyargs):
         '''
         @see: HandlerProcessor.process
         
@@ -103,17 +98,18 @@ class ContentDeliveryHandler(HandlerProcessor):
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         if request.method != GET:
             response.allows |= GET
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Path only available for GET'
+            chain.proceed()
             return
 
         # Make sure the given path points inside the repository
         entryPath = normOSPath(join(self.repositoryPath, normZipPath(unquote(request.uri))))
         if not entryPath.startswith(self.repositoryPath):
             response.code, response.text = RESOURCE_NOT_FOUND, 'Out of repository path'
+            chain.proceed()
             return
 
         # Initialize the read file handler with None value
@@ -141,9 +137,11 @@ class ContentDeliveryHandler(HandlerProcessor):
 
         if rf is None:
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Invalid content resource'
-        else:
-            response.code = RESOURCE_FOUND
-            responseCnt.source = rf
+            chain.proceed()
+            return
+
+        response.code = RESOURCE_FOUND
+        response.source = readGenerator(rf)
 
     # ----------------------------------------------------------------
 

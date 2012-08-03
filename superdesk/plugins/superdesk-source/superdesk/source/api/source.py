@@ -11,7 +11,7 @@ the content is received from the source.
 '''
 
 from .type import SourceType
-from ally.api.config import service, call, query
+from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsBoolean, AsLikeOrdered
 from ally.api.type import Iter, Reference
 from ally.support.api.entity import Entity, IEntityGetCRUDService, QEntity
@@ -48,7 +48,8 @@ class ISourceService(IEntityGetCRUDService):
     '''
 
     @call
-    def getAll(self, typeKey:SourceType.Key=None, offset:int=None, limit:int=None, q:QSource=None) -> Iter(Source):
+    def getAll(self, typeKey:SourceType.Key=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
+               q:QSource=None) -> Iter(Source):
         '''
         Provides all the available sources.
         '''

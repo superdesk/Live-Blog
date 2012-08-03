@@ -9,23 +9,22 @@ Created on Jan 19, 2012
 Provides the decorators used for APIs in a much easier to use form.
 '''
 
-from .operator.container import Call, Service, Criteria, Query, Model
-from .operator.descriptor import Property, Reference, CriteriaEntry
+from .operator.container import Call, Service, Criteria, Query, Model, Container
+from .operator.descriptor import Property, Reference, CriteriaEntry, \
+    ContainerSupport, CriteriaSupport, QuerySupport
 from .operator.extract import extractCriterias, extractProperties, \
-    extractPropertiesInherited, extractContainersFrom, \
-    extractCriteriasInherited, extractOuputInput, processGenericCall
-from .operator.type import TypeModel, TypeProperty, TypeModelProperty, TypeCriteria, TypeQuery, \
-    TypeCriteriaEntry, TypeService
+    extractPropertiesInherited, extractContainersFrom, extractCriteriasInherited, \
+    extractOuputInput, processGenericCall
+from .operator.type import TypeModel, TypeProperty, TypeModelProperty, \
+    TypeCriteria, TypeQuery, TypeCriteriaEntry, TypeService, TypeExtension
 from .type import typeFor
 from abc import ABCMeta, abstractmethod
+from ally.api.type import List
 from ally.exception import DevelError
 from functools import partial
 from inspect import isclass, isfunction
 from re import match
 import logging
-from ally.api.operator.descriptor import ContainerSupport, CriteriaSupport, \
-    QuerySupport
-from ally.api.type import List
 
 # --------------------------------------------------------------------
 
@@ -44,11 +43,17 @@ RULE_CRITERIA_PROPERTY = ('^[a-z]{1,}[\w]*$',
 RULE_QUERY_CRITERIA = ('^[a-z]{1,}[\w]*$',
                        'The query criteria name needs to start with a lower case, got "%s"')
 
+RULE_EXTENSION_PROPERTY = ('^[a-z]{1,}[\w]*$',
+                           'The extension property name needs to start with a lower case, got "%s"')
+
 # The available method actions.
 GET = 1
 INSERT = 2
 UPDATE = 4
 DELETE = 8
+
+# The default limit
+LIMIT_DEFAULT = 30
 
 # The function name to method mapping.
 NAME_TO_METHOD = {
@@ -384,4 +389,50 @@ def service(*args, generic=None):
 
     clazz._ally_type = TypeService(clazz, Service(calls))
     # This specified the detected type for the model class by using 'typeFor'
+    return clazz
+
+def extension(*args):
+    '''
+    Used for decorating classes that are API extensions. The extension is used as a model but only with primitive
+    properties that is rendered in the response in different manners. Also the extension is not specified in the API
+    and can be returned by the implementation in a dynamic manner.
+    
+    ex:
+        @extension
+        class CollectionWithTotal(Iterable):
+    
+            total = int
+            
+            def __init__(self, iter):
+                self.iter = iter
+                
+            def __iter__(self): return self.iter()
+    '''
+    if not args: return extension
+    assert len(args) == 1, 'Expected only one argument that is the decorator class, got %s arguments' % len(args)
+    clazz = args[0]
+    assert isclass(clazz), 'Invalid class %s' % clazz
+
+    properties = extractPropertiesInherited(clazz.__bases__, TypeExtension)
+    log.info('Extracted extension inherited properties %s for class %s', properties, clazz)
+    properties.update(extractProperties(clazz.__dict__))
+    log.info('Extracted extension properties %s for class %s', properties, clazz)
+    for prop, typ in properties.items():
+        if not match(RULE_EXTENSION_PROPERTY[0], prop): raise DevelError(RULE_EXTENSION_PROPERTY[1] % prop)
+        if not typ.isPrimitive:
+            raise DevelError('Invalid type %s for property \'%s\', only primitives allowed' % (typ, prop))
+
+    extensionContainer = Container(properties)
+    extensionType = TypeExtension(clazz, extensionContainer)
+
+    reference = {}
+    for prop in extensionContainer.properties:
+        propType = TypeProperty(extensionType, prop)
+        reference[prop] = Reference(propType)
+        setattr(clazz, prop, Property(propType))
+
+    clazz._ally_type = extensionType # This specified the detected type for the model class by using 'typeFor'
+    clazz._ally_reference = reference # The references to be returned by the properties when used only with class
+    clazz.__new__ = ContainerSupport.__new__
+
     return clazz

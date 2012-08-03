@@ -109,6 +109,7 @@ class URIHandler(HandlerProcessorProceed):
         assert isinstance(request, Request), 'Invalid required request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(request.uri, str), 'Invalid request URI %s' % request.uri
+        if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
 
         paths = request.uri.split('/')
         i = paths[-1].rfind('.') if len(paths) > 0 else -1

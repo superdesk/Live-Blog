@@ -15,13 +15,13 @@ from ally.api.type import Type, Iter, Boolean, Integer, Number, Percentage, \
     String, Time, Date, DateTime, typeFor, TypeNone
 from ally.container.ioc import injected
 from ally.core.spec.codes import Code, BAD_CONTENT
-from ally.core.spec.encdec.encode import EncodeCollection, EncodeObject
-from ally.core.spec.encdec.render import IRender
+from ally.core.spec.encdec.encode import EncodeCollection, EncodeObject, \
+    EncodePrimitive, EncodeId
 from ally.core.spec.encdec.support import getterOnObjIfIn
 from ally.core.spec.resources import Converter, Normalizer, Invoker
 from ally.design.context import defines, Context, requires
 from ally.design.processor import HandlerProcessorProceed
-from collections import Callable, Iterable
+from collections import Callable
 from weakref import WeakKeyDictionary
 import logging
 
@@ -95,6 +95,7 @@ class CreateEncoderHandler(HandlerProcessorProceed):
         assert isinstance(response, Response), 'Invalid response %s' % response
 
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
+        if Response.encoder in response: return # There is already an encoder no need to create another one
         assert isinstance(request.invoker, Invoker), 'Invalid request invoker %s' % request.invoker
 
         response.encoder = self.encoderFor(request.invoker.output)
@@ -104,6 +105,7 @@ class CreateEncoderHandler(HandlerProcessorProceed):
 
         response.encoderData = dict(converterId=response.converterId, converter=response.converter,
                                     normalizer=response.normalizer)
+
 
     # ----------------------------------------------------------------
 
@@ -129,7 +131,7 @@ class CreateEncoderHandler(HandlerProcessorProceed):
                 nameEncoder = self.encoderItem(ofType.itemType)
                 if nameEncoder is not None:
                     name, encoderItem = nameEncoder
-                    encoder = EncodeCollection(self.nameList % name, encoderItem)
+                    encoder = EncodeCollection(name, encoderItem)
 
             elif isinstance(ofType, TypeNone):
                 encoder = lambda **data: None
@@ -162,69 +164,41 @@ class CreateEncoderHandler(HandlerProcessorProceed):
         if isinstance(ofType, (TypeModel, TypeModelProperty)):
             assert isinstance(ofType.container, Model), 'Invalid model %s' % ofType.container
 
-            return ofType.container.name, self.encoderFor(ofType)
+            return self.nameList % ofType.container.name, self.encoderFor(ofType)
         else:
             log.debug('Cannot encode collection item type \'%s\'', ofType.itemType) or True
 
-    def encoderPrimitive(self, typeValue, getterProp=None):
+    def encoderPrimitive(self, typeValue, getter=None):
         '''
         Create a encode exploit for a primitive property also encodes primitive value list.
         
         @param typeValue: Type
             The type of the property value to encode.
-        @param getterProp: callable(object) -> object|None
+        @param getter: callable(object) -> object|None
             The getter used to get the value from the value object, if None provided it will use the received value.
         @return: callable(**data)
             The exploit that provides the primitive encoding.
         '''
         assert isinstance(typeValue, Type), 'Invalid property value type %s' % typeValue
-        assert getterProp is None or callable(getterProp), 'Invalid getter %s' % getterProp
+        assert getter is None or callable(getter), 'Invalid getter %s' % getter
 
-        def exploit(name, value, render, normalizer, converter, **data):
-            assert isinstance(name, str), 'Invalid name %s' % name
-            assert isinstance(render, IRender), 'Invalid render %s' % render
-            assert isinstance(normalizer, Normalizer), 'Invalid normalizer %s' % normalizer
-            assert isinstance(converter, Converter), 'Invalid converter %s' % converter
+        return EncodePrimitive(typeValue, getter)
 
-            if getterProp: value = getterProp(value)
-            if value is None: return
-            if isinstance(typeValue, Iter):
-                assert isinstance(value, Iterable), 'Invalid value %s' % value
-
-                render.collectionStart(name)
-                nameValue = normalizer.normalize(self.nameValue)
-                for item in value:
-                    render.value(nameValue, converter.asString(item, typeValue.itemType))
-                render.collectionEnd()
-            else:
-                render.value(name, converter.asString(value, typeValue))
-
-        return exploit
-
-    def encoderId(self, typeValue, getterProp=None):
+    def encoderId(self, typeValue, getter=None):
         '''
         Create a encode exploit for a property id encode and add it to this model encode.
         
         @param typeValue: Type
             The type of the property to encode.
-        @param getterProp: callable(object) -> object|None
+        @param getter: callable(object) -> object|None
             The getter used to get the value from the model object, if None provided it will use the received value.
         @return: callable(**data)
             The exploit that provides the id encoding.
         '''
         assert isinstance(typeValue, Type), 'Invalid property type %s' % typeValue
-        assert getterProp is None or callable(getterProp), 'Invalid getter %s' % getterProp
+        assert getter is None or callable(getter), 'Invalid getter %s' % getter
 
-        def exploit(name, value, render, converterId, **data):
-            assert isinstance(name, str), 'Invalid name %s' % name
-            assert isinstance(render, IRender), 'Invalid render %s' % render
-            assert isinstance(converterId, Converter), 'Invalid converter id %s' % converterId
-
-            if getterProp: value = getterProp(value)
-            if value is None: return
-            render.value(name, converterId.asString(value, typeValue))
-
-        return exploit
+        return EncodeId(typeValue, getter)
 
     def encoderProperty(self, ofType, getter=None, exploit=None):
         '''

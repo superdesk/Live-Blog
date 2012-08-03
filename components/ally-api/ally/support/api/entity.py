@@ -9,7 +9,7 @@ Created on May 26, 2011
 General specifications for the entities API that poses an integer Id identifier.
 '''
 
-from ally.api.config import model, query, service, call
+from ally.api.config import model, query, service, call, LIMIT_DEFAULT
 from ally.api.type import Iter
 
 # --------------------------------------------------------------------
@@ -55,7 +55,7 @@ class IEntityFindService:
     '''
 
     @call
-    def getAll(self, offset:int=None, limit:int=None) -> Iter(Entity):
+    def getAll(self, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(Entity):
         '''
         Provides the entities.
         
@@ -63,13 +63,15 @@ class IEntityFindService:
             The offset to retrieve the entities from.
         @param limit: integer
             The limit of entities to retrieve.
+        @param detailed: boolean
+            If true will present the total count, limit and offset for the partially returned collection.
         '''
 
 @service
 class IEntityQueryService:
 
     @call
-    def getAll(self, offset:int=None, limit:int=None, q:QEntity=None) -> Iter(Entity):
+    def getAll(self, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QEntity=None) -> Iter(Entity):
         '''
         Provides the entities searched by the provided query.
         
@@ -77,6 +79,8 @@ class IEntityQueryService:
             The offset to retrieve the entities from.
         @param limit: integer
             The limit of entities to retrieve.
+        @param detailed: boolean
+            If true will present the total count, limit and offset for the partially returned collection.
         @param q: QEntity
             The query to search by.
         '''

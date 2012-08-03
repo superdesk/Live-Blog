@@ -445,16 +445,6 @@ class DateTime(Uninstantiable, datetime):
 _classType[DateTime] = _classType[datetime] = TypeClass(datetime, True)
 
 # --------------------------------------------------------------------
-# Special types
-
-class Count(Uninstantiable, int):
-    '''
-    Maps the total count for a collection. 
-    Only used as a class, do not create an instance.
-    '''
-_classType[Count] = TypeClass(int, True, False)
-
-# --------------------------------------------------------------------
 # Specific types tagging creating known value that extend normal types
 
 #TODO: check if needed for automatic translation or not.

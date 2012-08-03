@@ -24,6 +24,7 @@ from collections import OrderedDict
 from development.api.domain_devel import DOMAIN
 from inspect import getdoc
 import re
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -75,7 +76,7 @@ class RequestService(IRequestService):
         if id not in self._methods: raise InputError(Ref(_('Invalid method id'), ref=Method.Id))
         return self._methods[id]
 
-    def getAllInputs(self, id, offset=None, limit=None):
+    def getAllInputs(self, id):
         '''
         @see: IRequestService.getAllInputs
         '''
@@ -89,7 +90,8 @@ class RequestService(IRequestService):
         @see: IRequestService.getAllRequests
         '''
         self._refresh()
-        return trimIter(self._requests.values(), len(self._requests), offset, limit)
+        return IterPart(trimIter(self._requests.values(), len(self._requests), offset, limit), len(self._requests),
+                        offset, limit)
 
     # ----------------------------------------------------------------
 
