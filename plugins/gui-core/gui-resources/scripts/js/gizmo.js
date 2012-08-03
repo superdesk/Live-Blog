@@ -107,38 +107,22 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         _construct: function(data, options)
         {
 			this._clientId = uniqueIdCounter++;
-            this._forDelete = false;
-            this._changed = false;
-            this.data = {};
-            this.changeset = {};
-            this._clientHash = null;
-            if( typeof data == 'string' ) this.href = data;
-            if( typeof data == 'object' ) $.extend(this.data, this.parse(data));
-            if( options && typeof options == 'object' ) $.extend(this, options);
-         
+            this.data = {};			
             //this.exTime = new Date
             //this.exTime.setMinutes(this.exTime.getMinutes() + 5);
-            
-            var newInstance = this.pushUnique ? this.pushUnique() : this; 
-            
-            // identify changes from new data
-            // TODO optimize
-            if( typeof data == 'object' ) 
-            {
-                var changes = {}, changed = false;
-                for( var i in data )
-                {
-                    //console.log(i, data[i], newInstance.data[i] );
-                    if( !newInstance.data[i] || (data[i] != newInstance.data[i] && typeof data[i] != 'object') )
-                    {
-                        newInstance.data[i] = changes[i] = data[i];
-                        changed = true;
-                    }
-                }
-                changed && newInstance.triggerHandler('update', [changes]);
-            }
-            
-            return newInstance;
+			this.parseHash(data);
+            var self = this.pushUnique ? this.pushUnique() : this; 
+            self._forDelete = false;
+            self.clearChangeset();
+            self._clientHash = null;
+            if( typeof data == 'string' ) self.href = data;
+            if( typeof data == 'object' ) $.extend(self.data, self.parse(data));
+            if( options && typeof options == 'object' ) $.extend(self, options);			
+			if(!$.isEmptyObject(self.changeset)) {
+				self.triggerHandler('update', self.changeset).clearChangeset();
+			}
+			
+            return self;
         },
         /*!
          * adapter for data sync
@@ -194,9 +178,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 							.update(arguments[1] ? this.feed() : this.feed('json', false, this.changeset))
 							.done(function()
 					{
-						self._changed = false;
-						self.changeset = {};
-						self.triggerHandler('update');
+						self.triggerHandler('update', self.changeset).clearChangeset();
 					}));
 				}
 			}
@@ -205,7 +187,10 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
                 {
                     self.parse(data);
-                    self.triggerHandler('read');
+					if(!$.isEmptyObject(this.changeset))
+						self.triggerHandler('update', self.changeset).clearChangeset();					
+					else
+						self.clearChangeset().triggerHandler('read');
                 }));
             
             return ret;
@@ -228,14 +213,12 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         },
         /*!
          * @param data the data to parse into the model
-         * @param updateChangeset whether to update changeset or not
          */
-        parse: function(data, options)
+        parse: function(data)
         {
 			if(data instanceof Model) {
 				data = data.data;
 			}
-			options = $.extend({}, { updateChangeset: false, silent: false}, options);
 			for( var i in data ) 
             {
                 if( this.defaults[i] ) switch(true)
@@ -244,7 +227,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         
                         var newModel = this.modelDataBuild(new this.defaults[i](data[i]));
                         
-                        if( options.updateChangeset && newModel != this.data[i])
+                        if( newModel != this.data[i])
                             this.changeset[i] = newModel;
 
                         this.data[i] = newModel;
@@ -269,16 +252,24 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         continue;
                         break;
                 }
-				if(this.data[i] != data[i]) {				
-					if( options.updateChangeset )
+				if( (this.data[i] !== undefined) && (this.data[i] != data[i]) ) {
 						this.changeset[i] = data[i];
-					if( (this.data[i]!==undefined) && !options.silent ) {
-						this.triggerHandler('update:'+i);					
-					}
 				}
                 this.data[i] = data[i];
             }
         },
+		parseHash: function(data)
+		{
+			if( data.href !== undefined)
+				this.href = data.href;
+			return this;
+		},
+		clearChangeset: function()
+		{
+			this._changed = false
+			this.changeset = {};
+			return this;
+		},
         get: function(key)
         {
             $(this).triggerHandler('get-prop');
@@ -305,7 +296,6 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */
         _getClientHash: function()
         {
-            //console.log('client hash', this._getClientHash());
             if( !this._clientHash ) this._clientHash = "mcid-"+String(this._clientId);
             return this._clientHash;
         },
@@ -391,12 +381,10 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */
         garbage: function()
         {
-            //console.log('running garbage on '+Object.keys(this.items).length+' items');
             for( var key in this.items ) 
             {
                 if( this.items[key]._exTime && this.items[key]._exTime < new Date ) 
                 {
-                    //console.log('removing model: '+key);
                     $(this.items[key]).triggerHandler('garbage');
                     delete this.items[key];
                 }    
