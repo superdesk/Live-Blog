@@ -285,10 +285,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 				data = key;
 				options = val;
 			}
-            options = $.extend({}, { updateChangeset: true, silent: true}, options);
-			this.parse(data, options);
-			this.trigger('update');
-            this._changed = true;
+            this.parse(data);
+            this.triggerHandler('update', this.changeset).clearChangeset();
             return this;
         },
         /*!
@@ -321,7 +319,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 				$(this).on(evt, handler);
 			else
 				$(this).on(evt, function(){
-					handler.call(obj, evt);
+					handler.apply(obj, arguments);
 				});
 			return this;
 		},
