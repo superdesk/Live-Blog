@@ -11,7 +11,7 @@ Provides the configurations for the assemblers.
 
 from ally.container import ioc
 from ally.core.impl.assembler import AssembleGet, AssembleInsert, AssembleUpdate, \
-    AssembleDelete, AssembleCount, AssembleUpdateModel
+    AssembleDelete, AssembleUpdateModel
 from ally.core.spec.resources import IAssembler
 
 # --------------------------------------------------------------------
@@ -32,11 +32,8 @@ def assembleUpdate() -> IAssembler: return AssembleUpdate()
 @ioc.entity
 def assembleUpdateModel() -> IAssembler: return AssembleUpdateModel()
 
-@ioc.entity
-def assembleCount() -> IAssembler: return AssembleCount()
-
 # ---------------------------------
 
 @ioc.entity
 def assemblers():
-    return [assembleCount(), assembleGet(), assembleInsert(), assembleUpdateModel(), assembleUpdate(), assembleDelete()]
+    return [assembleGet(), assembleInsert(), assembleUpdateModel(), assembleUpdate(), assembleDelete()]

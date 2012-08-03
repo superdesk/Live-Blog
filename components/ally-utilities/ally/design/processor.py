@@ -556,20 +556,17 @@ class Assembly:
         '''
         assert isinstance(processors, Iterable), 'Invalid processors %s' % processors
 
-        definers, optional, requires = self._indexAttributes(processors)
+        definers, _optional, requires = self._indexAttributes(processors)
         assert isinstance(definers, dict), 'Invalid definers %s' % definers
-        assert isinstance(optional, dict), 'Invalid optional %s' % optional
         assert isinstance(requires, dict), 'Invalid requires %s' % requires
 
         dependencies = []
         for index in range(0, len(processors)):
             beforeProcessor, afterProcessor = set(), set()
             definersProc = definers.get(index, frozenset())
-            optionalProc = optional.get(index, frozenset())
             requiresProc = requires.get(index, frozenset())
             for indexOther in range(0, index):
                 definersOther = definers.get(indexOther, frozenset())
-                optionalOther = optional.get(indexOther, frozenset())
                 requiresOther = requires.get(indexOther, frozenset())
 
                 definesRequired = definersProc.intersection(requiresOther)
@@ -588,14 +585,6 @@ class Assembly:
                         location(processors[index]), location(processors[indexOther])))
 
                 elif definesRequired: isSmaller = True
-
-                else:
-                    # We check if there are some optional to be handled
-                    definesOptional = definersProc.intersection(optionalOther)
-                    if definesOptional: isSmaller = True
-                    else:
-                        otherDefinesOptional = definersOther.intersection(optionalProc)
-                        if otherDefinesOptional and not definesRequired: isOtherSmaller = True
 
                 if isOtherSmaller:
                     beforeProcessor.add(indexOther)

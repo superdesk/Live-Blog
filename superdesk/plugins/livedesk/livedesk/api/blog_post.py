@@ -15,7 +15,7 @@ from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.post.api.post import Post, QPostPublished, QPostUnpublished
 from superdesk.user.api.user import User
 from superdesk.collaborator.api.collaborator import Collaborator
-from ally.api.type import Iter, Count
+from ally.api.type import Iter
 from ally.api.criteria import AsRangeOrdered
 
 # --------------------------------------------------------------------
@@ -61,14 +61,7 @@ class IBlogPostService:
 
     @call(webName='Published')
     def getPublished(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
-                     offset:int=None, limit:int=None, q:QBlogPostPublished=None) -> Iter(BlogPost):
-        '''
-        Provides all the blogs published posts.
-        '''
-
-    @call(countFor=getPublished)
-    def getPublishedCount(self, blogId:Blog, creatorId:User=None, authorId:Collaborator=None,
-                          q:QBlogPostPublished=None) -> Count:
+                     offset:int=None, limit:int=None, detailed:bool=True, q:QBlogPostPublished=None) -> Iter(BlogPost):
         '''
         Provides all the blogs published posts.
         '''

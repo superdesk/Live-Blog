@@ -20,6 +20,7 @@ from datetime import datetime
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -46,20 +47,14 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         try: return sql.one()
         except NoResultFound: raise InputError(Ref(_('Unknown id'), ref=Blog.Id))
 
-    def getAll(self, languageId=None, adminId=None, offset=None, limit=None, q=None):
+    def getAll(self, languageId=None, adminId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IBlogService.getAll
         '''
         sql = self._buildQuery(languageId, adminId, q)
-        sql = buildLimits(sql, offset, limit)
-        return sql.all()
-
-    def getAllCount(self, languageId=None, adminId=None, q=None):
-        '''
-        @see: IBlogService.getAllCount
-        '''
-        assert q is None or isinstance(q, QBlog), 'Invalid query %s' % q
-        return self._buildQuery(languageId, adminId, q).count()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
     def getLiveWhereAdmin(self, adminId, languageId=None, q=None):
         '''
