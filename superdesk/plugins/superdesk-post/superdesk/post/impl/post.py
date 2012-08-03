@@ -21,6 +21,7 @@ from ally.internationalization import _
 from superdesk.post.api.post import Post, QPostUnpublished, \
     QPost
 from ally.support.sqlalchemy.functions import current_timestamp
+
 from sql_alchemy.impl.entity import EntityGetServiceAlchemy
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.source.meta.source import SourceMapped
@@ -35,8 +36,8 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     '''
     Implementation for @see: IPostService
     '''
-    # Default source name --------------------------------------
-    default_source_name = 'internal'; wire.config('default_source_name', doc='''The default source name used when a source was not supplied''')
+    default_source_name = 'internal'; wire.config('default_source_name', doc='''
+    The default source name used when a source was not supplied''')
 
     def __init__(self):
         '''
@@ -44,61 +45,39 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         '''
         EntityGetServiceAlchemy.__init__(self, PostMapped)
 
-    def getUnpublishedCount(self, creatorId=None, authorId=None, q=None):
-        '''
-        @see: IPostService.getUnpublishedCount
-        '''
-        assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
-        sql = self._buildQuery(creatorId, authorId, q)
-        sql = sql.filter(PostMapped.PublishedOn == None)
-
-        return sql.count()
-
-    def getUnpublished(self, creatorId=None, authorId=None, offset=None, limit=None, q=None):
+    def getUnpublished(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
         sql = sql.filter(PostMapped.PublishedOn == None)
-        sql = buildLimits(sql, offset, limit)
-        return sql.all()
 
-    def getPublishedCount(self, creatorId=None, authorId=None, q=None):
-        '''
-        @see: IPostService.getPublishedCount
-        '''
-        assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
-        sql = self._buildQuery(creatorId, authorId, q)
-        sql = sql.filter(PostMapped.PublishedOn != None)
-        return sql.count()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
-    def getPublished(self, creatorId=None, authorId=None, offset=None, limit=None, q=None):
+    def getPublished(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IPostService.getPublished
         '''
         assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
         sql = sql.filter(PostMapped.PublishedOn != None)
-        sql = buildLimits(sql, offset, limit)
-        return sql.all()
 
-    def getAllCount(self, creatorId=None, authorId=None, q=None):
-        '''
-        @see: IPostService.getPublishedCount
-        '''
-        assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
-        sql = self._buildQuery(creatorId, authorId, q)
-        return sql.count()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
-    def getAll(self, creatorId=None, authorId=None, offset=None, limit=10, q=None):
+    def getAll(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IPostService.getPublished
         '''
         assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
-        sql = buildLimits(sql, offset, limit)
-        return sql.all()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
     def insert(self, post):
         '''

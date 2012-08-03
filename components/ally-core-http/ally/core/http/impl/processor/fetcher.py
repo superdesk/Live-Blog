@@ -15,7 +15,7 @@ from ally.container.ioc import injected
 from ally.core.http.spec.encdec.encode import DataModel, IFetcher
 from ally.core.spec.codes import Code
 from ally.core.spec.resources import Path, Node, Invoker, INodeInvokerListener
-from ally.design.context import Context, requires, defines
+from ally.design.context import Context, requires, optional
 from ally.design.processor import HandlerProcessorProceed
 from weakref import WeakKeyDictionary
 import logging
@@ -42,8 +42,8 @@ class Response(Context):
     # ---------------------------------------------------------------- Required
     encoderData = requires(dict)
     encoderDataModel = requires(DataModel)
-    # ---------------------------------------------------------------- Defined
-    code = defines(Code)
+    # ---------------------------------------------------------------- Optional
+    code = optional(Code)
 
 # --------------------------------------------------------------------
 

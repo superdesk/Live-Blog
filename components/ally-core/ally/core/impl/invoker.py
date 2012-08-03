@@ -9,10 +9,9 @@ Created on Jun 25, 2011
 Provides the invokers implementations.
 '''
 
-from ally.api.model import Part
 from ally.api.operator.container import Call
 from ally.api.operator.type import TypeService
-from ally.api.type import Input, typeFor, Iter
+from ally.api.type import Input, typeFor
 from ally.core.spec.resources import Invoker, InvokerInfo
 from ally.exception import DevelError
 from inspect import isclass, getdoc
@@ -104,45 +103,6 @@ class InvokerFunction(Invoker):
         @see: Invoker.invoke
         '''
         return self.function(*args)
-
-class InvokerAssemblePart(Invoker):
-    '''
-    Delegates the invoking call to two other invokers, one will generate a list and the other will generate an integer
-    which will be considered the total count of the limited list items, based on the results a single Part object will
-    be returned.
-    '''
-
-    def __init__(self, invokerList, invokerCount):
-        '''
-        @see: Invoker.__init__
-        
-        @param invokerList: Invoker
-            The Invoker that will generate the list items.
-        @param invokerCount: Invoker
-            The Invoker that will generate the total items count.
-        '''
-        assert isinstance(invokerList, Invoker), 'Invalid invoker list %s' % invokerList
-        assert isinstance(invokerList.output, Iter), 'Invalid invoker list output type %s' % invokerList
-        assert isinstance(invokerCount, Invoker), 'Invalid invoker count %s' % invokerCount
-
-        super().__init__(invokerList.name, invokerList.method, invokerList.output, invokerList.inputs,
-                         invokerList.hints, invokerList.infoIMPL, invokerList.infoAPI)
-
-        self.invokerList = invokerList
-        self.invokerCount = invokerCount
-
-        countArgs = set(input.name for input in invokerCount.inputs)
-        self.positions = [k for k, input in enumerate(invokerList.inputs) if input.name in countArgs]
-
-    def invoke(self, *args):
-        '''
-        @see: Invoker.invoke
-        '''
-        countArgs = []
-        for k in self.positions:
-            if k < len(args): countArgs.append(args[k])
-            else: break
-        return Part(self.invokerList.invoke(*args), self.invokerCount.invoke(*countArgs))
 
 # --------------------------------------------------------------------
 

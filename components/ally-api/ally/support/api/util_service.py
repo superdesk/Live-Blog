@@ -161,10 +161,13 @@ def processQuery(objects, query, clazz):
                     filtered = [obj for obj in filtered if crt.value == getattr(obj, prop)]
             elif isinstance(crt, AsLike):
                 assert isinstance(crt, AsLike)
-                if AsLike.like in crt or AsLike.ilike in crt:
-                    if AsLike.like in crt: regex = likeAsRegex(crt.like, False)
-                    else: regex = likeAsRegex(crt.like, True)
+                regex = None
+                if AsLike.like in crt:
+                    if crt.like is not None: regex = likeAsRegex(crt.like, False)
+                elif  AsLike.ilike in crt:
+                    if crt.ilike is not None: regex = likeAsRegex(crt.ilike, True)
 
+                if regex is not None:
                     filtered = ((obj, getattr(obj, prop)) for obj in filtered)
                     filtered = [obj for obj, value in filtered if value is not None and regex.match(value)]
             elif isinstance(crt, AsEqual):

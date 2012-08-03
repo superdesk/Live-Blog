@@ -13,6 +13,7 @@ from ally.container import ioc
 from ally.core.impl.processor.render.text import RenderTextHandler
 from ally.core.impl.processor.render.xml import RenderXMLHandler
 from ally.design.processor import Handler, Assembly
+from ally.core.impl.processor.render.json import RenderJSONHandler
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
@@ -56,17 +57,18 @@ def renderAssembly() -> Assembly:
     '''
     return Assembly()
 
-@ioc.entity
-def renderTextJSON():
-    import json
-    def renderJSON(obj, charSet, out): json.dump(obj, out)
-    return renderJSON
-
-@ioc.entity
-def renderJSON() -> Handler:
-    b = RenderTextHandler(); yield b
-    b.contentTypes = content_types_json()
-    b.rendererTextObject = renderTextJSON()
+# JSON encode by using the text renderer.
+#@ioc.entity
+#def renderTextJSON():
+#    import json
+#    def renderJSON(obj, charSet, out): json.dump(obj, out)
+#    return renderJSON
+#
+#@ioc.entity
+#def renderJSON() -> Handler:
+#    b = RenderTextHandler(); yield b
+#    b.contentTypes = content_types_json()
+#    b.rendererTextObject = renderTextJSON()
 
 @ioc.entity
 def renderTextYAML():
@@ -79,6 +81,11 @@ def renderYAML() -> Handler:
     b = RenderTextHandler(); yield b
     b.contentTypes = content_types_yaml()
     b.rendererTextObject = renderTextYAML()
+
+@ioc.entity
+def renderJSON() -> Handler:
+    b = RenderJSONHandler(); yield b
+    b.contentTypes = content_types_json()
 
 @ioc.entity
 def renderXML() -> Handler:

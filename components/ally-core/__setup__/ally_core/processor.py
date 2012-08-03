@@ -97,5 +97,5 @@ def renderer() -> Handler:
 
 @ioc.before(assemblyResources)
 def updateAssemblyResourcesForCore():
-    assemblyResources().add(argumentsPrepare(), renderer(), methodInvoker(), conversion(), createEncoder(),
+    assemblyResources().add(argumentsPrepare(), methodInvoker(), renderer(), conversion(), createEncoder(),
                             argumentsBuild(), invoking(), renderEncoder(), explainError())

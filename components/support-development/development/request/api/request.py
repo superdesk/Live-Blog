@@ -81,7 +81,7 @@ class IRequestService:
         '''
 
     @call
-    def getAllInputs(self, id:Request.Id=None, offset:int=None, limit:int=None) -> Iter(Input):
+    def getAllInputs(self, id:Request.Id=None) -> Iter(Input):
         '''
         Provides all the pattern inputs.
         '''

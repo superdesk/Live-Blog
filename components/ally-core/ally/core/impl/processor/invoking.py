@@ -94,7 +94,7 @@ class InvokingHandler(HandlerProcessorProceed):
         if callBack is None:
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Cannot process method'
             response.errorMessage = 'Method cannot be processed for invoker \'%s\', something is wrong in the setups'
-            response.message %= request.invoker.name
+            response.errorMessage %= request.invoker.name
             return
 
         arguments = deque()
@@ -105,7 +105,7 @@ class InvokingHandler(HandlerProcessorProceed):
             else:
                 response.code, response.text = INCOMPLETE_ARGUMENTS, 'Missing argument value'
                 response.errorMessage = 'No value for mandatory input \'%s\' for invoker \'%s\''
-                response.message %= (inp.name, request.invoker.name)
+                response.errorMessage %= (inp.name, request.invoker.name)
                 log.info('No value for mandatory input %s for invoker %s', inp, request.invoker)
                 return
         try:

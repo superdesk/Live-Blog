@@ -17,6 +17,7 @@ from ally.design.processor import Assembly, Handler, Processing, NO_VALIDATION, 
 from ally.exception import DevelError
 import codecs
 import itertools
+from functools import partial
 
 # --------------------------------------------------------------------
 
@@ -59,7 +60,7 @@ class RendererHandler(Handler):
     charSetDefault = str
     # The default character set to be used if none provided for the content.
     renderAssembly = Assembly
-    # The render processors, if a processor is successful in the encoding process it has to stop the 
+    # The render processors, if a processor is successful in the rendering factory creation process it has to stop the 
     # chain execution.
 
     def __init__(self):
@@ -68,20 +69,13 @@ class RendererHandler(Handler):
         'Invalid default content type %s' % self.contentTypeDefaults
         assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
 
-        contexts = dict(request=Request, response=Response)
-        renderProcessing = self.renderAssembly.create(NO_VALIDATION, **contexts)
+        renderProcessing = self.renderAssembly.create(NO_VALIDATION, request=Request, response=Response)
         assert isinstance(renderProcessing, Processing), 'Invalid processing %s' % renderProcessing
-        contexts = renderProcessing.contexts
 
-        def call(chain, **keyargs):
-            assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
-            self.process(renderProcessing, **keyargs)
-            chain.proceed()
+        super().__init__(Processor(renderProcessing.contexts, partial(self.process, renderProcessing), 'process',
+                                   self.process.__code__.co_filename, self.process.__code__.co_firstlineno))
 
-        cd = self.process.__code__
-        super().__init__(Processor(contexts, call, 'process', cd.co_filename, cd.co_firstlineno))
-
-    def process(self, renderProcessing, request, response, **keyargs):
+    def process(self, renderProcessing, chain, request, response, **keyargs):
         '''
         Encodes the response object.
         
@@ -91,6 +85,7 @@ class RendererHandler(Handler):
         The rest of the parameters are contexts.
         '''
         assert isinstance(renderProcessing, Processing), 'Invalid render processing %s' % renderProcessing
+        assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
 
@@ -133,3 +128,4 @@ class RendererHandler(Handler):
             else:
                 raise DevelError('There is no renderer available, this is more likely a setup issues since the '
                                  'default content types should have resolved the renderer')
+        chain.proceed()
