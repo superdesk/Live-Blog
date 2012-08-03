@@ -57,11 +57,10 @@ class RenderEncoderHandler(HandlerProcessorProceed):
         assert isinstance(response, Response), 'Invalid response %s' % response
 
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
-        assert isinstance(response.encoder, Callable), 'Invalid response content encoder %s' % response.encoder
-        assert isinstance(response.encoderData, dict), 'Invalid response content encoder data %s' % response.encoderData
+        if Response.encoder not in response: return # SKip in case there is no encoder to render
 
         response.source = self.renderAsGenerator(response.obj, response.encoder, response.renderFactory,
-                                                 response.encoderData)
+                                                 response.encoderData or {})
 
     def renderAsGenerator(self, value, encoder, renderFactory, data, bufferSize=1024):
         '''

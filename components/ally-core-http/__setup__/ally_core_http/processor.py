@@ -11,10 +11,12 @@ Provides the configurations for the processors used in handling the request.
 
 from . import server_pattern_rest
 from ..ally_core.processor import argumentsBuild, argumentsPrepare, \
-    assemblyResources, updateAssemblyResourcesForCore, createEncoder, renderEncoder
+    assemblyResources, updateAssemblyResourcesForCore, createEncoder, renderEncoder, \
+    methodInvoker, invoking
 from ..ally_core.resources import resourcesLocator
 from ally.container import ioc
 from ally.core.http.impl.processor.encoder import CreateEncoderPathHandler
+from ally.core.http.impl.processor.fetcher import FetcherHandler
 from ally.core.http.impl.processor.header import HeaderHandler
 from ally.core.http.impl.processor.headers.accept import AcceptDecodeHandler
 from ally.core.http.impl.processor.headers.allow import AllowEncodeHandler
@@ -30,10 +32,10 @@ from ally.core.http.impl.processor.headers.override_method import \
     MethodOverrideDecodeHandler
 from ally.core.http.impl.processor.internal_error import InternalErrorHandler
 from ally.core.http.impl.processor.parameter import ParameterHandler
+from ally.core.http.impl.processor.redirect import RedirectHandler
 from ally.core.http.impl.processor.uri import URIHandler
 from ally.core.spec.resources import ConverterPath
-from ally.design.processor import Handler
-from ally.core.http.impl.processor.fetcher import FetcherHandler
+from ally.design.processor import Handler, Assembly
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
@@ -71,6 +73,7 @@ def header() -> Handler:
 @ioc.entity
 def contentTypeDecode() -> Handler: return ContentTypeDecodeHandler()
 
+#TODO: use for the multipart
 @ioc.entity
 def contentDispositionDecode() -> Handler: return ContentDispositionDecodeHandler()
 
@@ -125,14 +128,35 @@ def pathAssemblies():
 
 # --------------------------------------------------------------------
 
+@ioc.entity
+def assemblyRedirect() -> Assembly:
+    '''
+    The assembly containing the handlers that will be used in processing a redirect.
+    '''
+    return Assembly()
+
+@ioc.entity
+def redirect() -> Handler:
+    b = RedirectHandler()
+    b.redirectAssembly = assemblyRedirect()
+    return b
+
+# --------------------------------------------------------------------
+
 @ioc.after(updateAssemblyResourcesForCore)
 def updateAssemblyResourcesForCoreHTTP():
     assemblyResources().add(internalError(), before=argumentsPrepare())
-    assemblyResources().add(header(), uri(), contentTypeDecode(), contentLengthDecode(), contentLanguageDecode(),
-                            contentDispositionDecode(), acceptDecode(), after=argumentsPrepare())
+    assemblyResources().add(header(), uri(), before=methodInvoker())
+
+    assemblyResources().add(redirect(), contentTypeDecode(), contentLengthDecode(), contentLanguageDecode(),
+                            acceptDecode(), after=methodInvoker())
 
     assemblyResources().add(parameter(), fetcher(), before=argumentsBuild())
 
     assemblyResources().add(contentTypeEncode(), contentLanguageEncode(), allowEncode(), after=renderEncoder())
 
     if allow_method_override(): assemblyResources().add(methodOverrideDecode(), before=uri())
+
+@ioc.before(assemblyRedirect)
+def updateAssemblyRedirectForCoreHTTP():
+    assemblyRedirect().add(argumentsBuild(), invoking())

@@ -20,7 +20,6 @@ class TypeContainer(TypeClass):
     '''
     Provides the type for the properties container.
     '''
-
     __slots__ = ('container',)
 
     def __init__(self, clazz, container):
@@ -34,7 +33,7 @@ class TypeContainer(TypeClass):
             The container that this type is constructed on.
         '''
         assert isinstance(container, Container), 'Invalid container provided %s' % container
-        TypeClass.__init__(self, clazz, False, True)
+        super().__init__(clazz, False, True)
 
         self.container = container
 
@@ -62,7 +61,6 @@ class TypeModel(TypeContainer):
     '''
     Provides the type for the model.
     '''
-
     __slots__ = ()
 
     def __init__(self, clazz, container):
@@ -79,7 +77,7 @@ class TypeModel(TypeContainer):
             This is used whenever a model is mapped to also validate classes that are API standard.
         '''
         assert isinstance(container, Model), 'Invalid model provided %s' % container
-        TypeContainer.__init__(self, clazz, container)
+        super().__init__(clazz, container)
 
     def childTypeId(self):
         '''
@@ -91,7 +89,6 @@ class TypeCriteria(TypeContainer):
     '''
     Provides the type for the criteria.
     '''
-
     __slots__ = ()
 
     def __init__(self, clazz, container):
@@ -105,13 +102,12 @@ class TypeCriteria(TypeContainer):
             The criteria that this type is constructed on.
         '''
         assert isinstance(container, Criteria), 'Invalid criteria provided %s' % container
-        TypeContainer.__init__(self, clazz, container)
+        super().__init__(clazz, container)
 
 class TypeQuery(TypeClass):
     '''
     Provides the type for the query.
     '''
-
     __slots__ = ('query', 'owner')
 
     def __init__(self, clazz, query, owner):
@@ -128,7 +124,7 @@ class TypeQuery(TypeClass):
         '''
         assert isinstance(query, Query), 'Invalid query %s' % query
         assert isinstance(owner, TypeModel), 'Invalid owner %s' % owner
-        TypeClass.__init__(self, clazz, False, False)
+        super().__init__(clazz, False, False)
 
         self.query = query
         self.owner = owner
@@ -159,7 +155,6 @@ class TypeProperty(Type):
     '''
     This type is used to wrap a container property as types.
     '''
-
     __slots__ = ('parent', 'property', 'container', 'type')
 
     def __init__(self, parent, property, type=None):
@@ -185,7 +180,7 @@ class TypeProperty(Type):
         self.property = property
         self.container = parent.container
         self.type = type or self.container.properties[property]
-        Type.__init__(self, False, True)
+        super().__init__(False, True)
 
     def isOf(self, type):
         '''
@@ -223,7 +218,6 @@ class TypeModelProperty(TypeProperty):
     '''
     This type is used to wrap a model property as types.
     '''
-
     __slots__ = ()
 
     def __init__(self, parent, property, type=None):
@@ -235,13 +229,12 @@ class TypeModelProperty(TypeProperty):
             The model of the property type.
         '''
         assert isinstance(parent, TypeModel), 'Invalid model type %s' % parent
-        TypeProperty.__init__(self, parent, property, type)
+        super().__init__(parent, property, type)
 
 class TypeCriteriaEntry(TypeClass):
     '''
     This type is used to wrap a query criteria as types.
     '''
-
     __slots__ = ('parent', 'name', 'criteriaType', 'criteria')
 
     def __init__(self, parent, name):
@@ -264,7 +257,7 @@ class TypeCriteriaEntry(TypeClass):
         self.criteriaType = typeFor(parent.query.criterias[name])
         assert isinstance(self.criteriaType, TypeCriteria), 'Invalid criteria class %s' % self.criteriaClass
         self.criteria = self.criteriaType.container
-        TypeClass.__init__(self, self.criteriaType.clazz, False, False)
+        super().__init__(self.criteriaType.clazz, False, False)
 
     def childTypes(self):
         '''
@@ -312,7 +305,6 @@ class TypeService(TypeClass):
     '''
     Provides the type for the service.
     '''
-
     __slots__ = ('service',)
 
     def __init__(self, clazz, service):
@@ -324,6 +316,26 @@ class TypeService(TypeClass):
             The service that this type is constructed on.
         '''
         assert isinstance(service, Service), 'Invalid service provided %s' % service
-        TypeClass.__init__(self, clazz, False, False)
+        super().__init__(clazz, False, False)
 
         self.service = service
+
+# --------------------------------------------------------------------
+
+class TypeExtension(TypeContainer):
+    '''
+    Provides the type for the extensions.
+    '''
+    __slots__ = ()
+
+    def __init__(self, clazz, container):
+        '''
+        Constructs the extension type for the provided container.
+        @see: Type.__init__
+        
+        @param clazz: class
+            The model class associated with the model.
+        @param container: Container
+            The container that this extension is constructed on.
+        '''
+        super().__init__(clazz, container)

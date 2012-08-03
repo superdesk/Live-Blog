@@ -23,7 +23,7 @@ from xml.sax.saxutils import XMLGenerator
 @injected
 class RenderXMLHandler(RenderBaseHandler):
     '''
-    Provides the text object encoding.
+    Provides the XML encoding.
     @see: RenderBaseHandler
     '''
 
@@ -55,18 +55,15 @@ class RenderXML(IRender):
 
     def __init__(self, xml):
         '''
-        Construct the text object renderer.
+        Construct the XML object renderer.
         
         @param xml: XMLGenerator
             The xml generator used to render the xml.
         '''
         assert isinstance(xml, XMLGenerator), 'Invalid xml generator %s' % xml
-        super().__init__()
 
         self.xml = xml
         self.processing = deque()
-
-        xml.startDocument()
 
     def value(self, name, value):
         '''
@@ -80,6 +77,7 @@ class RenderXML(IRender):
         '''
         @see: IRender.objectStart
         '''
+        if not self.processing: self.xml.startDocument() # Start the document
         self.processing.append(name)
         self.xml.startElement(name, attributes or immut())
 
@@ -96,6 +94,7 @@ class RenderXML(IRender):
         '''
         @see: IRender.collectionStart
         '''
+        if not self.processing: self.xml.startDocument() # Start the document
         self.processing.append(name)
         self.xml.startElement(name, attributes or immut())
 

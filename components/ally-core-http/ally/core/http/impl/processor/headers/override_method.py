@@ -81,14 +81,8 @@ class MethodOverrideDecodeHandler(HandlerProcessorProceed):
 
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
 
-        value = request.decoderHeader.decode(self.nameXMethodOverride)
+        value = request.decoderHeader.retrieve(self.nameXMethodOverride)
         if value:
-            if len(value) > 1:
-                response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameXMethodOverride
-                response.errorMessage = 'Invalid value \'%s\' for header \'%s\''\
-                ', expected only one value entry' % (value, self.nameXMethodOverride)
-                return
-            value = value[0]
             over = self.methods.get(value.upper())
             if not over:
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid method %s' % value

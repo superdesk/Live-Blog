@@ -11,10 +11,11 @@ Provides the meta creation for encoding the response.
 
 from ally.api.operator.container import Model
 from ally.api.operator.type import TypeModel, TypeModelProperty
+from ally.api.type import Type, TypeReference
 from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.encdec.encode import DataModel, EncodeModel, \
-    NO_MODEL_PATH
+    NO_MODEL_PATH, EncodePath
 from ally.core.http.spec.server import IEncoderPath, IDecoderHeader
 from ally.core.impl.processor import encoder
 from ally.core.impl.processor.encoder import CreateEncoderHandler
@@ -55,6 +56,8 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
     Extends the model encoder with paths also.
     '''
 
+    namePaths = 'Resources'
+    # The name used for a collection of paths.
     nameRef = 'href'
     # The reference attribute name.
     nameXFilter = 'X-Filter'
@@ -63,15 +66,19 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
     # The name used for marking all the properties in filtering.
     separatorNames = '.'
     # Separator used for filter names.
+    valueDenied = 'denied'
+    # Values used to set on the x filter attribute when the fetching is denied
 
     def __init__(self):
         '''
         Construct the encoder.
         '''
+        assert isinstance(self.namePaths, str), 'Invalid paths name %s' % self.namePaths
         assert isinstance(self.nameRef, str), 'Invalid reference name %s' % self.nameRef
         assert isinstance(self.nameXFilter, str), 'Invalid filter header name %s' % self.nameXFilter
         assert isinstance(self.nameAll, str), 'Invalid filter name all %s' % self.nameAll
         assert isinstance(self.separatorNames, str), 'Invalid names separator %s' % self.separatorNames
+        assert isinstance(self.valueDenied, str), 'Invalid value denied %s' % self.valueDenied
         super().__init__()
 
     def process(self, request:Request, response:Response, **keyargs):
@@ -82,24 +89,26 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
         assert isinstance(response, Response), 'Invalid response %s' % response
 
         super().process(request, response)
-        exploit = response.encoder
-        if response.encoder is None: return
+        encoder = response.encoder
+        if encoder is None: return
 
         encodeModel, isFirst = None, True
-        if isinstance(exploit, EncodeModel): encodeModel = exploit
-        elif isinstance(exploit, EncodeCollection):
-            assert isinstance(exploit, EncodeCollection)
+        if isinstance(encoder, EncodeModel): encodeModel = encoder
+        elif isinstance(encoder, EncodeCollection):
+            assert isinstance(encoder, EncodeCollection)
 
-            exploit = exploit.exploitItem
+            exploit = encoder.exploitItem
             if isinstance(exploit, EncodeModel): encodeModel, isFirst = exploit, False
 
-        if encodeModel is None: return
-
-        response.encoderDataModel = data = self.createDataModel(encodeModel, request.path)
-        response.encoderData.update(dataModel=data, encoderPath=response.encoderPath)
-        assert isinstance(data, DataModel)
+        if encodeModel is not None:
+            response.encoderDataModel = data = self.createDataModel(encodeModel, request.path, isFirst)
+            response.encoderData.update(dataModel=data, encoderPath=response.encoderPath)
+            assert isinstance(data, DataModel)
+            if isFirst: data.flag |= NO_MODEL_PATH
+        else:
+            response.encoderData.update(encoderPath=response.encoderPath)
+            data = None
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid decoder header %s' % request.decoderHeader
-        if isFirst: data.flag |= NO_MODEL_PATH
 
         value = request.decoderHeader.decode(self.nameXFilter)
         if value is not None: value = deque(val for val, _attr in value)
@@ -109,44 +118,33 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
             response.text, response.errorMessage = error
             response.code = INVALID_HEADER_VALUE
             return
-        self.processFilterDefault(data, isFirst)
+        self.processFilterDefault(encodeModel, data, isFirst)
 
-    def createDataModel(self, encode, path):
+    def createDataModel(self, encode, path, isFirst):
         '''
         Create the data model for the provided encode model.
         '''
         assert isinstance(encode, EncodeModel), 'Invalid encode model %s' % encode
 
         data = DataModel()
-        if path: path = self.processPaths(encode, data, path)
+        if path:
+            assert isinstance(path, Path), 'Invalid request path %s' % path
+            if isFirst: data.path = path
+            else: path = data.path = path.findGetModel(encode.modelType)
+
+            if isFirst and path:
+                accessible = path.findGetAllAccessible()
+                if accessible:
+                    accessible = [(pathLongName(acc), acc) for acc in accessible]
+                    accessible.sort(key=firstOf)
+                    data.accessible = OrderedDict(accessible)
 
         for nameProp, encodeProp in encode.properties.items():
             if isinstance(encodeProp, EncodeModel):
                 if data.datas is None: data.datas = {}
-                data.datas[nameProp] = self.createDataModel(encodeProp, path)
+                data.datas[nameProp] = self.createDataModel(encodeProp, path, False)
 
         return data
-
-    def processPaths(self, encode, data, path):
-        '''
-        Process the paths for the provided encoded model and data model.
-        '''
-        assert isinstance(encode, EncodeModel), 'Invalid encode model %s' % encode
-        assert isinstance(data, DataModel), 'Invalid data model %s' % data
-        assert isinstance(path, Path), 'Invalid request path %s' % path
-
-        data.path = path.findGetModel(encode.modelType)
-
-        if data.path:
-            assert isinstance(data.path, Path)
-
-            accessible = data.path.findGetAllAccessible()
-            if accessible:
-                accessible = [(pathLongName(acc), acc) for acc in accessible]
-                accessible.sort(key=firstOf)
-                data.accessible = OrderedDict(accessible)
-
-        return data.path
 
     def processFilter(self, encode, data, value, normalizer):
         '''
@@ -218,13 +216,16 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
                         reference = getattr(reference, name)
                     else: fdata = None
 
-    def processFilterDefault(self, data, isFirst):
+    def processFilterDefault(self, encode, data, isFirst):
         '''
         Process the default properties to be presented if none specified by filtering. 
         '''
+        if encode is None: return
+        assert isinstance(encode, EncodeModel), 'Invalid encode model %s' % encode
         assert isinstance(data, DataModel), 'Invalid data model %s' % data
 
-        if not isFirst and data.filter is None: data.filter = ()
+        if isFirst: data.filter = None
+        elif data.filter is None and data.path is not None: data.filter = ()
 
     def processFetch(self, encode, data, reference, normalizer, cache):
         '''
@@ -240,9 +241,8 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
         if exploits is None:
             data.fetchReference = reference
             data.fetchEncode = mencode = self.encoderFor(encode.modelType)
-            data.fetchData = mdata = self.createDataModel(mencode, data.path)
+            data.fetchData = mdata = self.createDataModel(mencode, data.path, True)
             assert isinstance(mdata, DataModel)
-            mdata.flag |= NO_MODEL_PATH
             exploits = cache[reference] = self.exploitsFor(mencode, mdata, normalizer)
             data = mdata
         else: data = data.fetchData
@@ -268,24 +268,38 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
         '''
         @see: EncoderHandler.encoderItem
         '''
+        assert isinstance(ofType, Type), 'Invalid type %s' % ofType
+
         if isinstance(ofType, TypeModel):
             assert isinstance(ofType, TypeModel)
             assert isinstance(ofType.container, Model)
 
-            return ofType.container.name, self.encoderModel(ofType, exploit=EncodeModel(ofType, self.nameRef))
+            return self.nameList % ofType.container.name, \
+                self.encoderModel(ofType, exploit=EncodeModel(ofType, self.nameRef, self.nameXFilter, self.valueDenied))
+        elif ofType.isOf(Path):
+            return self.namePaths, EncodePath(self.nameRef)
         return super().encoderItem(ofType)
 
-    def encoderProperty(self, ofType, getter, exploit=None):
+    def encoderPrimitive(self, typeValue, getter=None):
+        '''
+        @see: CreateEncoderHandler.encoderPrimitive
+        '''
+        assert isinstance(typeValue, Type), 'Invalid property value type %s' % typeValue
+        if isinstance(typeValue, TypeReference): return EncodePath(self.nameRef, getter)
+        return super().encoderPrimitive(typeValue, getter=getter)
+
+    def encoderProperty(self, ofType, getter=None, exploit=None):
         '''
         @see: EncoderHandler.encoderProperty
         '''
         assert isinstance(ofType, TypeModelProperty), 'Invalid type model property %s' % ofType
 
-        exploit = exploit or EncodeModel(ofType.parent, self.nameRef, getter, ofType)
+        exploit = exploit or EncodeModel(ofType.parent, self.nameRef, self.nameXFilter, self.valueDenied, getter, ofType)
         return super().encoderProperty(ofType, getter, exploit)
 
     def encoderModel(self, ofType, getter=None, exploit=None, **keyargs):
         '''
         @see: EncoderHandler.encoderModel
         '''
-        return super().encoderModel(ofType, getter, exploit or EncodeModel(ofType, self.nameRef, getter))
+        return super().encoderModel(ofType, getter, exploit or
+                                    EncodeModel(ofType, self.nameRef, self.nameXFilter, self.valueDenied, getter))

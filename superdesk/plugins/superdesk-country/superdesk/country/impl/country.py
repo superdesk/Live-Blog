@@ -10,7 +10,6 @@ SQL alchemy implementation for language API.
 '''
 
 from ..api.country import Country, ICountryService
-from ally.api.model import Part
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
@@ -18,6 +17,7 @@ from ally.internationalization import _
 from ally.support.api.util_service import trimIter, processQuery
 from babel.core import Locale
 from babel.localedata import locale_identifiers
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ class CountryServiceBabelAlchemy(ICountryService):
             length = len(self.countries)
             countries = trimIter(self.countries, length, offset, limit)
             countries = (Country(code, self._translate(code, locales)) for code in countries)
-        return Part(countries, length)
+        return IterPart(countries, length, offset, limit)
 
     # ----------------------------------------------------------------
 

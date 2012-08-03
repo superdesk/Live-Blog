@@ -14,6 +14,7 @@ from ally.core.http.spec.server import IEncoderPath
 from ally.core.spec.encdec.encode import EncodeObject
 from ally.core.spec.encdec.render import IRender
 from ally.core.spec.resources import Normalizer, Path
+from ally.support.core.util_resources import pathLongName
 import abc
 
 # --------------------------------------------------------------------
@@ -62,9 +63,9 @@ class EncodeModel(EncodeObject):
     '''
     Exploit for model encoding.
     '''
-    __slots__ = ('modelType', 'nameRef', 'updateType')
+    __slots__ = ('modelType', 'nameRef', 'nameXFilter', 'valueDenied', 'updateType')
 
-    def __init__(self, modelType, nameRef, getterModel=None, updateType=None):
+    def __init__(self, modelType, nameRef, nameXFilter, valueDenied, getter=None, updateType=None):
         '''
         Create a encode exploit for a model with a path.
         @see: EncodeObject.__init__
@@ -78,9 +79,13 @@ class EncodeModel(EncodeObject):
         '''
         assert isinstance(modelType, TypeModel), 'Invalid model type %s' % modelType
         assert isinstance(nameRef, str), 'Invalid reference attribute name %s' % nameRef
-        super().__init__(modelType.container.name, getterModel)
+        assert isinstance(nameXFilter, str), 'Invalid X filter attribute name %s' % nameXFilter
+        assert isinstance(valueDenied, str), 'Invalid denied value %s' % valueDenied
+        super().__init__(modelType.container.name, getter)
 
         self.nameRef = nameRef
+        self.nameXFilter = nameXFilter
+        self.valueDenied = valueDenied
         self.modelType = modelType
         self.updateType = updateType or modelType
 
@@ -98,6 +103,7 @@ class EncodeModel(EncodeObject):
 
         data.update(render=render, normalizer=normalizer, encoderPath=encoderPath)
 
+        attrs = None
         if fetcher:
             assert isinstance(fetcher, IFetcher), 'Invalid fetcher %s' % fetcher
             data.update(fetcher=fetcher)
@@ -105,22 +111,26 @@ class EncodeModel(EncodeObject):
                 valueModel = fetcher.fetch(dataModel.fetchReference, value)
                 if valueModel is not None:
                     return dataModel.fetchEncode(value=valueModel, name=name, dataModel=dataModel.fetchData, **data)
+                attrs = {normalizer.normalize(self.nameXFilter):self.valueDenied}
 
         data.update(value=value)
-
-        attrs = None
         if dataModel.path and not dataModel.flag & NO_MODEL_PATH:
             assert isinstance(dataModel.path, Path), 'Invalid path model %s' % dataModel.path
 
             dataModel.path.update(value, self.updateType)
-            if dataModel.path.isValid(): attrs = {normalizer.normalize(self.nameRef): encoderPath.encode(dataModel.path)}
+            if dataModel.path.isValid():
+                if attrs is None: attrs = {}
+                attrs[normalizer.normalize(self.nameRef)] = encoderPath.encode(dataModel.path)
 
         render.objectStart(name or normalizer.normalize(self.name), attrs)
 
         for nameProp, encodeProp in self.properties.items():
             if dataModel.filter is not None and nameProp not in dataModel.filter: continue
             if dataModel.datas: data.update(dataModel=dataModel.datas.get(nameProp))
-            encodeProp(name=normalizer.normalize(nameProp), **data)
+            try:
+                encodeProp(name=normalizer.normalize(nameProp), **data)
+            except:
+                self.handleError(encodeProp)
 
         # The accessible paths are already updated when the model path is updated.
         if dataModel.accessible:
@@ -131,6 +141,47 @@ class EncodeModel(EncodeObject):
                 render.objectStart(normalizer.normalize(namePath), attrs)
                 render.objectEnd()
 
+        render.objectEnd()
+
+class EncodePath:
+    '''
+    Exploit for path encoding.
+    '''
+    __slots__ = ('nameRef', 'getter')
+
+    def __init__(self, nameRef, getter=None):
+        '''
+        Create a encode exploit for a path.
+        
+        @param nameRef: string
+            The name for the reference attribute.
+        @param getter: callable(object) -> object|None
+            The getter used to get the path from the value object.
+        '''
+        assert isinstance(nameRef, str), 'Invalid reference attribute name %s' % nameRef
+        assert getter is None or callable(getter), 'Invalid getter %s' % getter
+
+        self.nameRef = nameRef
+        self.getter = getter
+
+    def __call__(self, value, render, normalizer, encoderPath, name=None, **data):
+        assert isinstance(render, IRender), 'Invalid render %s' % render
+        assert isinstance(normalizer, Normalizer), 'Invalid normalizer %s' % normalizer
+        assert isinstance(encoderPath, IEncoderPath), 'Invalid encoder path %s' % encoderPath
+
+        if self.getter: value = self.getter(value)
+        if value is None: return
+
+        if isinstance(value, Path):
+            assert isinstance(value, Path)
+            if not value.isValid(): return
+            name = name or normalizer.normalize(pathLongName(value))
+        else:
+            assert isinstance(value, str), 'Invalid path %s' % value
+        assert isinstance(name, str), 'Invalid name %s' % name
+
+        attrs = {normalizer.normalize(self.nameRef):encoderPath.encode(value)}
+        render.objectStart(name, attrs)
         render.objectEnd()
 
 # --------------------------------------------------------------------
