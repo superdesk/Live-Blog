@@ -18,6 +18,7 @@ from superdesk.media_archive.api.image_persist import IImagePersistanceService
 from superdesk.media_archive.impl.image_data import ImageDataServiceAlchemy
 from superdesk.media_archive.impl.image_persist import ImagePersistanceService
 from superdesk.media_archive.impl.meta_data import IMetaDataReferenceHandler
+from __plugin__.media_archive.service import thumbnail_sizes
 
 # --------------------------------------------------------------------
 
@@ -30,13 +31,9 @@ def cdmArchiveThumbnailImage() -> ICDM:
     return ExtendPathCDM(cdmArchiveThumbnail(), 'image/%s')
 
 @ioc.entity
-def thumbnailSizes() -> dict:
-    return {}
-
-@ioc.entity
 def imagePersistance() -> IImagePersistanceService:
     b = ImagePersistanceService()
-    b.thumbnailSizes = thumbnailSizes()
+    b.thumbnailSizes = thumbnail_sizes()
     b.cdmImages = cdmArchiveImage()
     b.cdmThumbnails = cdmArchiveThumbnailImage()
     return b
