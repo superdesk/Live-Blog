@@ -21,9 +21,9 @@ class IMetaDataReferencer(metaclass=abc.ABCMeta):
     @abc.abstractclassmethod
     def populate(self, metaData, scheme, thumbSize=None):
         '''
-        Processes the meta data references in respect with the specified thumbnail size. The method will take no action if 
+        Processes the meta data references in respect with the specified thumbnail size. The method will take no action if
         the meta data is not relevant for the handler.
-        
+
         @param metaData: MetaDataMapped (from the meta package)
             The meta data to have the references processed.
         @param scheme: string
@@ -43,7 +43,7 @@ class IThumbnailReferencer(IMetaDataReferencer):
     def processThumbnail(self, image, thumbnailId, metaDataId=None, metaDataName=None):
         '''
         Processes the provided thumbnail image for the reference.
-        
+
         @param image: file like object|string
             The image to be processed as a thumbnail, can be a read binary file object or a local system path where the image
             is located.
@@ -59,7 +59,7 @@ class IThumbnailReferencer(IMetaDataReferencer):
     def timestampThumbnail(self, thumbnailId, metaDataId=None, metaDataName=None):
         '''
         Provides the thumbnail last modification time stamp.
-        
+
         @param thumbnailId: integer
             The thumbnail id to process the timestamp for.
         @param metaDataId: integer|None
@@ -87,7 +87,7 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
         Processes the meta data persistence and type association. The meta data will already be in the database this method
         has to update associate the meta data in respect with the handler. The method will take no action if the content is
         not relevant for the handler.
-        
+
         @param cdm: ICDM
             The CDM where to process the content into.
         @param metaDataId: integer
@@ -98,18 +98,36 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
             True if the content has been processed, False otherwise.
         '''
 
+class IThumbnailManager(metaclass=abc.ABCMeta):
+    '''
+    Interface that defines the API for handling thumbnails.
+    '''
+
+    def processThumbnail(self, metadata, size):
+        '''
+        Process a file identified by metadata.
+        Return the thumbnail content for the given metadata.
+
+        @param metadata: Metadata
+            The metadata object for which to return the thumbnail.
+        @param size: str
+            The size identifier
+        @return: file like object
+            The content of the thumbnail
+        '''
+
 class IThumbnailCreator(metaclass=abc.ABCMeta):
     '''
     Specification class that provides the thumbnail creation.
     '''
 
     @abc.abstractclassmethod
-    def createThumbnail(self, content, width, height):
+    def createThumbnail(self, contentPath, width, height):
         '''
         Create a thumbnail for the provided content.
-        
-        @param content: string
-            The content local file system path where the content can be found.
+
+        @param contentPath: string
+            The content local file system path where the original content can be found.
         @param width: integer
             The thumbnail width.
         @param height: integer
