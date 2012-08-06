@@ -15,7 +15,7 @@ from ally.exception import DevelError
 from ally.support.sqlalchemy.session import SessionSupport
 from cdm.spec import ICDM, PathNotFound
 from collections import OrderedDict
-from superdesk.media_archive.meta.meta_data import MetaDataMapped, Thumbnail
+from superdesk.media_archive.meta.meta_data import MetaDataMapped, ThumbnailFormat
 from genericpath import isfile
 from ally.container import wire
 from os import makedirs, access, W_OK
@@ -115,8 +115,8 @@ class ThumbnailReferencer(SessionSupport, IThumbnailReferencer):
         '''
         format = self._cache_thumbnail.get(thumbnailId)
         if format is None:
-            thumbnail = self.session().query(Thumbnail).get(thumbnailId)
-            assert isinstance(thumbnail, Thumbnail), 'Invalid thumbnail %s' % thumbnail
+            thumbnail = self.session().query(ThumbnailFormat).get(thumbnailId)
+            assert isinstance(thumbnail, ThumbnailFormat), 'Invalid thumbnail %s' % thumbnail
             format = self._cache_thumbnail[thumbnail.id] = thumbnail.format
         return format
 
