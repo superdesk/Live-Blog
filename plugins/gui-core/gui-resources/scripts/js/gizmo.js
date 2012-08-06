@@ -154,8 +154,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             if( this._forDelete ) // handle delete
                 return dataAdapter(arguments[0] || this.href).remove().done(function()
                 { 
-                    self.triggerHandler('delete');
-                    self._uniq && self._uniq.remove(self.hash());
+                    self._remove();
                 });
 
             if( this._clientHash ) // handle insert
@@ -189,12 +188,21 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                     self.parse(data);
 					if(!$.isEmptyObject(this.changeset))
 						self.triggerHandler('update', self.changeset).clearChangeset();					
+					else if(self.isDeleted()){
+						self._remove();
+					}
 					else
 						self.clearChangeset().triggerHandler('read');
                 }));
             
             return ret;
         },
+		_remove: function()
+		{
+			this.triggerHandler('delete');
+			this._uniq && this._uniq.remove(this.hash());
+			delete this;
+		},
         remove: function()
         {
             this._forDelete = true;
@@ -219,6 +227,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 			if(data instanceof Model) {
 				data = data.data;
 			}
+			if(data.isParsed)
+				return;
 			for( var i in data ) 
             {
                 if( this.defaults[i] ) switch(true)
@@ -257,6 +267,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 				}
                 this.data[i] = data[i];
             }
+			data.isParsed = true;
         },
 		parseHash: function(data)
 		{
@@ -272,7 +283,6 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 		},
         get: function(key)
         {
-            $(this).triggerHandler('get-prop');
             return this.data[key];
         },
         set: function(key, val, options)
@@ -520,16 +530,18 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                             }
                         
                         if( !model ) self._list.push(data.list[i]);
-                        else if( model.isDeleted() ) self._list[j].remove();
+                        else if( model.isDeleted() ) {						
+							self._list[j]._remove();
+						}
 						else {
 							self._list[j].parse(model, { updateChangeset: false, silent: false });
+							self._list[j]
+								.on('delete', function(){ self.remove(this.hash()); })
+								.on('garbage', function(){ this.desynced = true; });
 						}
                     }
                     self.desynced = false;
-                    $(self._list).on('delete', function(){ self.remove(this.hash()); });
-                    $(self._list).on('garbage', function(){ this.desynced = true; });
                     $(self).triggerHandler('read');
-                    //$(self._list).triggerHandler('read'); uneeded
                 }));
         },
         /*!
@@ -544,7 +556,10 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */
         parse: function(data)
         {
-            // get the important list data from request
+			if(data.parsed) {
+				return data.parsed;
+			}
+			// get the important list data from request
             var extractListData = function(data)
             {
                 var ret = data;
@@ -562,8 +577,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             list = [];
             for( var i in theData )
                 list.push( this.modelDataBuild(new this.model(theData[i])) );
-
-            return {list: list, total: data.total};
+			data.parsed = {list: list, total: data.total};
+            return data.parsed;
         },
         insert: function(model)
         {
@@ -615,23 +630,6 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 			Collection[options.register] = newly;		
         return newly;
     };
-    /*{
-        var proto = new this;
-        $.extend(proto, props);
-        for( var name in props ) proto[name] = props[name];
-        
-        function Collection()
-        {
-            if( this._construct ) return this._construct.apply(this, arguments);
-        };
-        Collection.prototype = proto;
-        // create a new property from original options one
-        Collection.prototype.options = $.extend({}, options);
-        Collection.prototype.constructor = Collection;
-        Collection.extend = cextendFnc;
-        return Collection;
-    };*/
-    
     // view
     
     var Render = Class.extend
