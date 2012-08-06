@@ -26,7 +26,7 @@ META_TYPE_KEY = N_('other')
 
 # --------------------------------------------------------------------
 
-class Thumbnail(Base):
+class ThumbnailFormat(Base):
     '''
     Provides the mapping for thumbnails.
     This is not a REST model.
@@ -53,7 +53,7 @@ class MetaDataMapped(Base, MetaData):
     CreatedOn = Column('created_on', DateTime, nullable=False)
     # None REST model attribute --------------------------------------
     typeId = Column('type', ForeignKey(MetaTypeMapped.id, ondelete='RESTRICT'), nullable=False)
-    thumbnailId = Column('fk_thumbnail_id', ForeignKey(Thumbnail.id, ondelete='RESTRICT'), nullable=False)
+    thumbnailFormatId = Column('fk_thumbnail_format_id', ForeignKey(ThumbnailFormat.id, ondelete='RESTRICT'), nullable=False)
 
     _cache_types = {}
     # A dictionary having as a key the type id and as a value the type key. This is because not to many meta data types are

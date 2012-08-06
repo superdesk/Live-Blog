@@ -18,11 +18,15 @@ from cdm.support import ExtendPathCDM
 from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.media_archive.core.impl.thumbnail_referencer import \
     ThumbnailReferencer
-from superdesk.media_archive.core.spec import IThumbnailReferencer
+from superdesk.media_archive.core.spec import IThumbnailReferencer, \
+    IThumbnailManager, IThumbnailCreator
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
     MetaDataServiceAlchemy
 from __plugin__.plugin.registry import cdmGUI
 import logging
+from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
+    ThumbnailCreatorFFMpeg
+from os import path
 
 # --------------------------------------------------------------------
 
@@ -34,6 +38,25 @@ def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
 
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
+
+# --------------------------------------------------------------------
+
+@ioc.config
+def thumbnail_repository_path():
+    ''' The repository absolute or relative (to the distribution folder) path '''
+    return path.join('workspace', 'thumbnails')
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def thumbnail_sizes():
+    '''
+    Contains the thumbnail sizes available for the media archive.
+    This is basically just a simple dictionary{string, tuple(integer, integer)} that has as a key a path safe name
+    and as a value a tuple with the width/height of the thumbnail.
+    example: {'small': [100, 100]}
+    '''
+    return { 'tiny' : [16, 16], 'small' : [32, 32], 'medium' : [64, 64], 'large' : [128, 128], 'huge' : [256, 256] }
 
 # --------------------------------------------------------------------
 
@@ -55,8 +78,21 @@ def cdmThumbnail() -> ICDM:
 def thumbnailReferencer() -> IThumbnailReferencer:
     b = ThumbnailReferencer()
     b.cdmThumbnail = cdmThumbnail()
-    b.thumbnailSizes = thumbnailSizes()
+    b.thumbnailSizes = thumbnail_sizes()
     return b
+
+@ioc.entity
+def thumbnailManager() -> IThumbnailManager:
+    b = ThumbnailManager()
+    b.thumbnailSizes = thumbnail_sizes()
+    b.thumbnailCreator = thumbnailCreator()
+    b.repositoryPath = thumbnail_repository_path()
+    b.cdmThumbnail = cdmThumbnail()
+    return b
+
+@ioc.entity
+def thumbnailCreator() -> IThumbnailCreator:
+    return ThumbnailCreatorFFMpeg()
 
 @ioc.entity
 def metaDataService() -> IMetaDataService:
@@ -66,16 +102,6 @@ def metaDataService() -> IMetaDataService:
     return b
 
 # --------------------------------------------------------------------
-
-@ioc.entity
-def thumbnailSizes():
-    '''
-    Contains the thumbnail sizes available for the media archive.
-    This is basically just a simple dictionary{string, tuple(integer, integer)} that has as a key a path safe name
-    and as a value a tuple with the width/height of the thumbnail.
-    example: {'small': (100, 100)}
-    '''
-    return {}
 
 @ioc.entity
 def metaDataHandlers(): return []
@@ -93,8 +119,8 @@ def publish():
 # --------------------------------------------------------------------
 
 def publishResources():
-    ''' 
+    '''
     Publishes media archive plugin resources.
     '''
     log.info('published library %s = %s')
-    cdmGUI().publishFromDir('media-archive/upload', 'pathResources')
+    cdmGUI().publishFromDir('media-archive/upload', 'resourcesPath')
