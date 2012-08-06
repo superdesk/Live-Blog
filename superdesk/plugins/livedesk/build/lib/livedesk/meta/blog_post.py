@@ -32,9 +32,9 @@ class BlogPostDefinition:
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     CId = declared_attr(lambda cls: Column('id_change', INTEGER(unsigned=True)))
-    Order = declared_attr(lambda cls: Column('ordering', REAL))
     Blog = declared_attr(lambda cls: Column('fk_blog_id', ForeignKey(BlogMapped.Id), nullable=False))
     # Non REST model attribute --------------------------------------
+    Order = declared_attr(lambda cls: Column('ordering', REAL))
     blogPostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
     # Never map over the inherited id
 
