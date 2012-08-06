@@ -19,10 +19,10 @@ define('providers/edit', [
     'tmpl!livedesk>providers/edit',
     'tmpl!livedesk>providers/edit/item',
 ], function( providers, $, Gizmo ) {
-	var OwnCollection = Gizmo.AuthCollection.extend({
+	var OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
 			this.desynced = false;
-			if( !(model instanceof Gizmo.AuthModel) ) model = new this.model(model);
+			if( !(model instanceof Gizmo.Model) ) model = Gizmo.Auth(new this.model(model));
 			this._list.push(model);
 			model.hash();
 			var x = model.sync(model.url.root(this.options.theBlog).xfilter('Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name'));
@@ -33,13 +33,20 @@ define('providers/edit', [
 		events: { 
 			"": { "dragstart": "adaptor"}
 		},
-		render: function(){
+		init: function(){
+			this.model.on('read', function(){
+				
+				this.render();
+			}, this);
+			this.model.on('update', this.render, this);
+		},
+		render: function(){			
 			var avatar = $.avatar.get($.superdesk.login.EMail);
 			var self = this;
 			if(!(this.model instanceof Gizmo.Register.Post))
-				this.model = new Gizmo.Register.Post(this.model);
+				this.model = Gizmo.Auth(new Gizmo.Register.Post(this.model));
 			$.tmpl('livedesk>providers/edit/item', { Post: this.model.feed(),Avatar: avatar} , function(err, out){
-				self.el = $(out);
+				self.setElement( out );
 				if(!self.model.get('PublishedOn')) {
 							self.el.draggable({
 								revert: 'invalid',
@@ -81,7 +88,7 @@ define('providers/edit', [
 		},
 		addOne: function(model, order)
 		{
-			var view = new PostView({model: model, _parent: this}, { events: false, ensure: false});				
+			var view = new PostView({model: model, _parent: this});
 			if(order)
 				this.el.append(view.render().el);
 			else
@@ -130,11 +137,11 @@ define('providers/edit', [
 					draggableToolbar: null, 
 					fixedToolbar: fixedToolbar
 				}});
-				var posts = new OwnCollection(
-					self.theBlog+ '/Post/Owned?X-Filter=Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name', 
-					Gizmo.Register.Post,
-					{ theBlog: self.theBlog}
-					);
+				var posts = Gizmo.Auth(new OwnCollection(
+						self.theBlog+ '/Post/Owned?X-Filter=Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name', 
+						Gizmo.Register.Post,
+						{ theBlog: self.theBlog}
+					));
 				//posts.xfilter('Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name');
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
 			} );
