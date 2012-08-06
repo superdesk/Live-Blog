@@ -90,20 +90,18 @@ define
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
 			},
-			getMaximumCid: function(models){
-				for (var i in models) {
-					var items = models[i];
-					break;
+			getMaximumCid: function(data){
+				for(i=0, count=data.list.length; i<count; i++) {
+					var CId = parseInt(data.list[i].get('CId'))
+					if( !isNaN(CId) && (this._latestCId < CId) )
+						this._latestCId = CId;
 				}
-				for(i=0, count=items.length; i<count; i++) {
-					if( this._latestCId < parseInt(items[i].CId) )
-						this._latestCId = parseInt(items[i].CId);
-				}
-			},
+			},			
 			auto: function(){
-				var self = this;
-				this.sync({data: {'startEx.cId': this._latestCId}, headers: { 'X-Filter': 'CId'}}).done(function(models){
-					self.getMaximumCid(models);
+				var self = this, requestOptions = {data: {'startEx.cId': this._latestCId}, headers: { 'X-Filter': 'CId'}};
+				if(this._latestCId === 0) delete requestOptions.data;
+				this.sync(requestOptions).done(function(data){
+					self.getMaximumCid(self.parse(data));
 				});
 				return this;
 			},                                                                                                                                                                                                                                                                              
@@ -128,7 +126,7 @@ define
 			},
 			init: function(){
 				var self = this;
-				self.xfilter = 'Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
 				Gizmo.Auth(this.model)
 				    .on('delete', this.remove, this)
@@ -145,9 +143,9 @@ define
 			reorder: function(evt, ui){
 				var next = $(ui.item).next('li'), prev = $(ui.item).prev('li');
 				if(next.length) {				
-					this.model.order(next.attr('data-post-id'), 'true');
+					this.model.orderSync(next.attr('data-post-id'), 'true');
 				} else if(prev.length){
-					this.model.order(prev.attr('data-post-id'), 'false');
+					this.model.orderSync(prev.attr('data-post-id'), 'false');
 				}
 			},
 			render: function(){
@@ -180,7 +178,7 @@ define
 				$('#delete-post .yes')
 					.off(this.getEvent('click'))
 					.on(this.getEvent('click'), function(){
-						self.model.remove().sync();
+						self.model.removeSync();
 					});
 
 			}
