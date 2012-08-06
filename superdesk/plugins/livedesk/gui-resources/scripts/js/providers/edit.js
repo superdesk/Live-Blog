@@ -29,7 +29,7 @@ define('providers/edit', [
 			return x;			
 		}
 	}),
-	PostView = Gizmo.View.extend({		
+	PostView = Gizmo.View.extend({
 		events: { 
 			"": { "dragstart": "adaptor"}
 		},
