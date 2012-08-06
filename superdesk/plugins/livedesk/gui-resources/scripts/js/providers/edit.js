@@ -19,17 +19,17 @@ define('providers/edit', [
     'tmpl!livedesk>providers/edit',
     'tmpl!livedesk>providers/edit/item',
 ], function( providers, $, Gizmo ) {
-	var OwnCollection = Gizmo.AuthCollection.extend({
+	var OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
 			this.desynced = false;
-			if( !(model instanceof Gizmo.Model) ) model = new this.model(model);
+			if( !(model instanceof Gizmo.Model) ) model = Gizmo.Auth(new this.model(model));
 			this._list.push(model);
 			model.hash();
 			var x = model.sync(model.url.root(this.options.theBlog).xfilter('Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name'));
 			return x;			
 		}
 	}),
-	PostView = Gizmo.View.extend({		
+	PostView = Gizmo.View.extend({
 		events: { 
 			"": { "dragstart": "adaptor"}
 		},
