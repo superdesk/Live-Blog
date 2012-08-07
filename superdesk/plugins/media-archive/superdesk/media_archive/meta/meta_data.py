@@ -52,7 +52,7 @@ class MetaDataMapped(Base, MetaData):
     SizeInBytes = Column('size_in_bytes', Integer)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     # None REST model attribute --------------------------------------
-    typeId = Column('type', ForeignKey(MetaTypeMapped.id, ondelete='RESTRICT'), nullable=False)
+    typeId = Column('fk_type_id', ForeignKey(MetaTypeMapped.id, ondelete='RESTRICT'), nullable=False)
     thumbnailFormatId = Column('fk_thumbnail_format_id', ForeignKey(ThumbnailFormat.id, ondelete='RESTRICT'), nullable=False)
 
     _cache_types = {}
