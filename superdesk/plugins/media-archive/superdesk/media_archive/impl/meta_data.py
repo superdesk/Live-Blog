@@ -103,20 +103,17 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
             self.session().add(metaData)
             self.session().flush((metaData,))
 
-            path = abspath(join(self.processing_dir_path, '.'.join((str(metaData.Id), metaData.Name))))
-            with open(path, 'w+b') as fobj: pipe(content, fobj)
-            metaData.SizeInBytes = getsize(path)
+            contentPath = abspath(join(self.processing_dir_path, '.'.join((str(metaData.Id), metaData.Name))))
+            with open(contentPath, 'w+b') as fobj: pipe(content, fobj)
+            metaData.SizeInBytes = getsize(contentPath)
 
             self.session().flush((metaData,))
 
-            #CDM not used
-            #with open(path, 'rb') as fobj: self.cdmArchive.publishFromFile(self._reference(metaData), fobj)
-
             for handler in self.metaDataHandlers:
                 assert isinstance(handler, IMetaDataHandler), 'Invalid handler %s' % handler
-                if handler.process(metaData.Id, path): break
+                if handler.process(metaData, contentPath): break
             else:
-                remove(path)
+                remove(contentPath)
 
         except SQLAlchemyError as e: handle(e, metaData)
 
