@@ -18,7 +18,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from superdesk.media_archive.api.meta_data import QMetaData
 from superdesk.media_archive.api.meta_info import QMetaInfo
 from superdesk.media_archive.core.spec import IMetaDataReferencer
-from superdesk.media_archive.meta.meta_data import MetaDataMapped, Thumbnail
+from superdesk.media_archive.meta.meta_data import MetaDataMapped, ThumbnailFormat
 from superdesk.media_archive.meta.meta_info import MetaInfo
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
 from sqlalchemy.orm.session import Session
@@ -187,9 +187,9 @@ def thumbnailFor(session, format):
 
     assert isinstance(session, Session), 'Invalid session %s' % session
     assert isinstance(format, str), 'Invalid format %s' % format
-    try: thumbnail = session.query(Thumbnail).filter(Thumbnail.format == format).one()
+    try: thumbnail = session.query(ThumbnailFormat).filter(ThumbnailFormat.format == format).one()
     except NoResultFound:
-        thumbnail = Thumbnail()
+        thumbnail = ThumbnailFormat()
         thumbnail.format = format
         session.add(thumbnail)
         session.flush((thumbnail,))
