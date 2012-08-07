@@ -10,7 +10,7 @@ API specifications for media archive image persistence.
 '''
 
 from .image_info import ImageInfo
-from ally.api.config import service, call
+from ally.api.config import service, call, INSERT
 from ally.api.model import Content
 
 # --------------------------------------------------------------------
@@ -21,8 +21,8 @@ class IImagePersistanceService:
     Provides the service that handles the image persistence.
     '''
 
-    @call
-    def insert(self, imageInfo:ImageInfo, image:Content) -> ImageInfo.Id:
+    @call(method=INSERT, webName='Add')
+    def insertAll(self, imageInfo:ImageInfo, image:Content) -> ImageInfo.Id:
         '''
         Inserts the image into the media archive
         '''
