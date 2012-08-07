@@ -120,13 +120,13 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, Sessio
 
     # ----------------------------------------------------------------
 
-    def process(self, metaData, scheme, thumbSize):
+    def process(self, metaData, content):
         '''
         @see: IMetaDataHandler.process
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         try:
-            metaData.Content = self.cdmImages.getURI(metaData.reference, scheme)
+            #metaData.Content = self.cdmImages.getURI(metaData.reference, scheme)
             metaData.IsAvailable = True
         except PathNotFound:
             metaData.IsAvailable = False
