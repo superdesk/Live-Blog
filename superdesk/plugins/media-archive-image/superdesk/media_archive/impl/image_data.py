@@ -32,11 +32,11 @@ class ImageDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
 
     # ----------------------------------------------------------------
 
-    def _process(self, metaData, scheme, thumbSize):
+    def _process(self, metaData, contentPath):
         '''
         @see: MetaDataServiceBaseAlchemy._process
         '''
-        return self.handler.process(metaData, scheme, thumbSize)
+        return self.handler.process(metaData, contentPath)
     
     # ----------------------------------------------------------------
 
