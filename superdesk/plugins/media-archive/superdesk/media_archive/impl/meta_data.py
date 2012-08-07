@@ -27,8 +27,7 @@ from datetime import datetime
 from os import remove, makedirs, access, W_OK
 from os.path import join, getsize, abspath, exists, isdir
 from sqlalchemy.exc import SQLAlchemyError
-from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, \
-    thumbnailFor
+from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, thumbnailFor
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 
 # --------------------------------------------------------------------
@@ -99,7 +98,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         metaData.Name = content.getName()
         metaData.Type = self._metaType.Key
         metaData.typeId = self._metaType.id
-        metaData.thumbnailId = self._thumbnail.id
+        metaData.thumbnailFormatId = self._thumbnail.id
         try:
             self.session().add(metaData)
             self.session().flush((metaData,))
@@ -110,7 +109,8 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
             self.session().flush((metaData,))
 
-            with open(path, 'rb') as fobj: self.cdmArchive.publishFromFile(self._reference(metaData), fobj)
+            #CDM not used
+            #with open(path, 'rb') as fobj: self.cdmArchive.publishFromFile(self._reference(metaData), fobj)
 
             for handler in self.metaDataHandlers:
                 assert isinstance(handler, IMetaDataHandler), 'Invalid handler %s' % handler

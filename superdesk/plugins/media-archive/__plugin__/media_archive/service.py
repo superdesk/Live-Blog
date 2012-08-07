@@ -114,7 +114,8 @@ def deploy():
 
 @ioc.start
 def publish():
-    publishResources()
+    #publishResources()
+    pass
 
 # --------------------------------------------------------------------
 
