@@ -50,15 +50,15 @@ class IMetaInfoService(IEntityGetCRUDService):
     Provides the service methods for the meta info.
     '''
 
-    def getMetaInfosCount(self, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, qi:QMetaInfo=None,
-                          qd:QMetaData=None) -> Count:
-        '''
-        Provides the meta info's count.
-        '''
-
-    @call(countMethod=getMetaInfosCount)
-    def getMetaInfos(self, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, offset:int=None, limit:int=10,
-                     qi:QMetaInfo=None, qd:QMetaData=None) -> Iter(MetaInfo):
-        '''
-        Provides the meta info's.
-        '''
+#    def getMetaInfosCount(self, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, qi:QMetaInfo=None,
+#                          qd:QMetaData=None) -> Count:
+#        '''
+#        Provides the meta info's count.
+#        '''
+#
+#    @call(countMethod=getMetaInfosCount)
+#    def getMetaInfos(self, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, offset:int=None, limit:int=10,
+#                     qi:QMetaInfo=None, qd:QMetaData=None) -> Iter(MetaInfo):
+#        '''
+#        Provides the meta info's.
+#        '''
