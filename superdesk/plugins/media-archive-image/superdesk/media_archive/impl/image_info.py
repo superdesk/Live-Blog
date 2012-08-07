@@ -19,7 +19,7 @@ from ally.container.ioc import injected
 # --------------------------------------------------------------------
 
 @injected
-class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
+class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy):
     '''
     @see: IImageInfoService
     '''
