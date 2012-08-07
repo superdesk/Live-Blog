@@ -82,17 +82,15 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractclassmethod
-    def process(self, cdm, metaDataId, content):
+    def process(self, metaData, contentPath):
         '''
         Processes the meta data persistence and type association. The meta data will already be in the database this method
         has to update associate the meta data in respect with the handler. The method will take no action if the content is
         not relevant for the handler.
 
-        @param cdm: ICDM
-            The CDM where to process the content into.
-        @param metaDataId: integer
-            The meta data id to be processed.
-        @param content: string
+        @param metaData: MetaDataMapped
+            The mapped meta data for the current uploaded content.
+        @param contentPath: string
             The content local file system path where the content can be found.
         @return: boolean
             True if the content has been processed, False otherwise.

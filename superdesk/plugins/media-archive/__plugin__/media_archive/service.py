@@ -114,8 +114,7 @@ def deploy():
 
 @ioc.start
 def publish():
-    #publishResources()
-    pass
+    publishResources()
 
 # --------------------------------------------------------------------
 
@@ -124,4 +123,5 @@ def publishResources():
     Publishes media archive plugin resources.
     '''
     log.info('published library %s = %s')
-    cdmGUI().publishFromDir('media-archive/upload', 'resourcesPath')
+    #TODO: 
+    #cdmGUI().publishFromDir('media-archive/upload', 'resourcesPath')
