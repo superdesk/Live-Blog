@@ -33,7 +33,7 @@ from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 # --------------------------------------------------------------------
 
 @injected
-class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IMetaDataService):
+class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
     '''
     Implementation for @see: IMetaDataService, and also provides services as the @see: IMetaDataReferencer
     '''
@@ -130,3 +130,4 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         return ''.join((metaData.Type, '/', str(metaData.Id), '.', metaData.Name))
+    
