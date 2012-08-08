@@ -9,7 +9,7 @@ function(Gizmo)
 		{
 			var reorderHref = this.href+'/Post/'+id+'/Reorder?before='+before;
 			var
-				self = this,  
+				self = this,
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(reorderHref).update();
 			return ret;
@@ -25,21 +25,19 @@ function(Gizmo)
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(removeHref).remove().done(function() {
                     self.triggerHandler('delete');
-                    self._uniq && self._uniq.remove(self.hash());				
+                    self._uniq && self._uniq.remove(self.hash());
 				});
-			return ret;				
-		}/*,
-		sync: function(data)
-		{
-			var self = this,
-				ret = Gizmo.Model.prototype.sync.call(this, data);
-			ret.done(function(){
-				if(self.data.DeletedOn) {
-                    self.triggerHandler('delete');
-                    self._uniq && self._uniq.remove(self.hash());					
-				}
-			});
 			return ret;
-		}*/	
+		},
+		publishSync: function(id)
+		{
+			var publishHref = this.href+'/Publish';
+			var
+				self = this,
+				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
+                ret = dataAdapter(publishHref).insert();
+			this.Class.triggerHandler('publish', this);
+			return ret;
+		}
 	}, { register: 'Post' } );
 });
