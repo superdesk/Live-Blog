@@ -34,12 +34,36 @@ define('providers/edit', [
 			"": { "dragstart": "adaptor"}
 		},
 		init: function(){
-			this.model.on('read', function(){
-				
-				this.render();
-			}, this);
-			this.model.on('update', this.render, this);
+			var self = this;
+			self.model
+				.on('read', function(){			
+					self.render();
+				})
+				.on('set', function(evt, data){
+					if(self.model.updater !== self) {
+						self.rerender();
+					}
+				})
+				.on('update', function(evt, data){ 						
+					/**
+					 * if the updater on the model is the current view don't update the view;
+					 */
+					if(self.model.updater === self) {
+						delete self.model.updater; return;
+					}
+					/**
+					 * if the Change Id is received, then sync the hole model
+					 */			
+					self.rerender();
+				})
+				.on('delete', this.remove, this);
 		},
+		rerender: function(){
+			var self = this;
+			self.el.fadeTo(500, '0.1', function(){
+				self.render().el.fadeTo(500, '1');
+			});
+		},		
 		render: function(){			
 			var avatar = $.avatar.get($.superdesk.login.EMail);
 			var self = this;
@@ -60,40 +84,42 @@ define('providers/edit', [
 			});
 			return this;
 		},
+		remove: function(){
+			var self = this;
+			self.el.fadeTo(500, '0.1', function(){
+				self.el.remove();
+			});
+		},		
 		adaptor: function(evt){
-			$(evt.target).parents('li').data("post", this.model.get('Id'));
+			$(evt.target).parents('li').data("post", this.model);
 		}
 	}),
 	PostsView = Gizmo.View.extend({
 		init: function(){
 			var self = this;
-			this.posts.on('read', function(){
-				self.render();
-			});
+			this.posts.on('read', this.render, this);
 			this.posts.model.on('insert', function(evt, model){
 				self.addOne(model);
 			});
 			this.posts.sync();
 		},
-		render: function(){
-			var self = this;
-			this.posts.each(function(key, model){
-				self.addOne(model, true);
-			});
+		render: function(evt, data){
+			if ( data === undefined)
+				data = this.posts._list;			
+			var i = (data.length-1);
+			while(i--)
+				this.addOne(data[i]);
+		},		
+		addOne: function(model)
+		{
+			var view = new PostView({model: model, _parent: this});
+			this.el.prepend(view.render().el);
 		},
 		insert: function(model)
 		{
 			var self = this;
 			this.posts.insertFrom(model);
-		},
-		addOne: function(model, order)
-		{
-			var view = new PostView({model: model, _parent: this});
-			if(order)
-				this.el.append(view.render().el);
-			else
-				this.el.prepend(view.render().el);
-		}
+		}		
 	}),
 	EditView = Gizmo.View.extend({
 		postView: null,
@@ -103,7 +129,7 @@ define('providers/edit', [
 		},
 		init: function(){			
 			this.postTypes = new Gizmo.AuthCollection(this.theBlog+'/../../../../Superdesk/PostType', Gizmo.Register.PostType);
-			this.postTypes.xfilter('Key');;
+			this.postTypes.xfilter('Key');
 			this.postTypes.on('read', this.render, this);
 			this.postTypes.sync();
 		},
@@ -156,7 +182,11 @@ define('providers/edit', [
 		},
 		save: function(evt){
 			evt.preventDefault();
-			
+			var data = {
+				Content: $.styledNodeHtml(this.el.find('.edit-block article.editable')),
+				Type: this.el.find('[name="type"]').val()
+			};
+			this.postsView.insert(data);			
 		}
 	});	
 	$.extend( providers.edit, { 
