@@ -167,7 +167,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                     self._uniq && self._uniq.replace(self._clientHash, self.hash(), self);
                     self._clientHash = null;
                     self.triggerHandler('insert')
-						.class.triggerHandler('insert', self);
+						.Class.triggerHandler('insert', self);
                 });
             }
             
@@ -186,7 +186,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
                 {
                     self.parse(data);
-					if(!$.isEmptyObject(this.changeset))
+					if(!$.isEmptyObject(self.changeset))
 						self.triggerHandler('update', self.changeset).clearChangeset();					
 					else if(self.isDeleted()){
 						self._remove();
@@ -237,7 +237,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         
                         var newModel = this.modelDataBuild(new this.defaults[i](data[i]));
                         
-                        if( newModel != this.data[i])
+                        if( (this.data[i] !== undefined) && (newModel != this.data[i]) )
                             this.changeset[i] = newModel;
 
                         this.data[i] = newModel;
@@ -273,6 +273,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 		{
 			if( data.href !== undefined)
 				this.href = data.href;
+			else if(( data.id !== undefined) && (this.url !== undefined)) 
+				this.href = this.url + data.id;			
 			return this;
 		},
 		clearChangeset: function()
@@ -295,8 +297,12 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 				data = key;
 				options = val;
 			}
-            this.parse(data);
-            this.triggerHandler('update', this.changeset).clearChangeset();
+			this.clearChangeset().parse(data);
+			this._changed = true;
+			if(!$.isEmptyObject(this.changeset)) {
+				this.triggerHandler('set', this.changeset);
+			}
+			
             return this;
         },
         /*!
@@ -410,7 +416,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         var newly;
         newly = Class.extend.call(this, props);
         newly.extend = extendFnc;
-        newly.prototype.class = newly;
+        newly.prototype.Class = newly;
         newly.on = function(event, handler, obj)
         {
             $(newly).on(event, function(){ handler.apply(obj, arguments); }); 
@@ -500,7 +506,16 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         },
 		each: function(fn){
 			$.each(this._list, fn);
-		},		
+		},
+		forwardEach: function(fn, scope){
+			this._list.forEach(fn, scope);
+		},
+		reverseEach: function(fn, scope)
+		{
+			for(var i = this._list.length; i > 0; ++i) {
+				fn.call(scope || this, this[i], i, this);
+			}		
+		},
         feed: function(format, deep)
         {
             var ret = [];
@@ -517,31 +532,42 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             return (this.href &&
                 this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
                 {
-                    var data = self.parse(data);
+                    var data = self.parse(data), changeset = [], count = self._list.length;
                      // important or it will infiloop
                     for( var i=0; i < data.list.length; i++ )
                     {
                         var model = false;
-                        for( var j=0; j<self._list.length; j++ )
+                        for( var j=0; j<count; j++ )
                             if( data.list[i].hash() == self._list[j].hash() )
                             {
                                 model = data.list[i];
                                 break;
                             }
                         
-                        if( !model ) self._list.push(data.list[i]);
+                        if( !model ) {
+							self._list.push(data.list[i]);
+							changeset.push(data.list[i]);						
+						}
                         else if( model.isDeleted() ) {						
 							self._list[j]._remove();
 						}
 						else {
-							self._list[j].parse(model, { updateChangeset: false, silent: false });
+							self._list[j].parse(model);
 							self._list[j]
 								.on('delete', function(){ self.remove(this.hash()); })
 								.on('garbage', function(){ this.desynced = true; });
 						}
                     }
                     self.desynced = false;
-                    $(self).triggerHandler('read');
+					if(count === 0)
+						self.triggerHandler('read');
+					else if( changeset.length > 0) {
+						/**
+						 * Trigger handler with changeset extraparameter as a vector of vectors,
+						 * caz jquery will send extraparameters as arguments when calling handler
+						 */
+						$(self).triggerHandler('read', [changeset]);
+					}
                 }));
         },
         /*!
@@ -595,28 +621,30 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 		 */
 		on: function(evt, handler, obj)
 		{
-			if( obj === undefined )
+			if(obj === undefined)
 				$(this).on(evt, handler);
 			else
-				$(this).on(evt, function(){ handler.call(obj, evt); });
+				$(this).on(evt, function(){
+					handler.apply(obj, arguments);
+				});
 			return this;
-		},	
+		},
         /*!
          * used to trigger model events
 		 * this also calls the model method with the event name
          */
-		trigger: function(evt)
+		trigger: function(evt, data)
 		{
-			$(this).trigger(evt);
+			$(this).trigger(evt, data);
 			return this;
 		},
         /*!
          * used to trigger handle of model events
 		 * this doens't call any method see: trigger
          */
-		triggerHandler: function(evt)
+		triggerHandler: function(evt, data)
 		{
-			$(this).triggerHandler(evt);
+			$(this).triggerHandler(evt, data);
 			return this;
 		}        
     };
@@ -725,9 +753,10 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 		setElement: function(el)
 		{
 			this.undelegateEvents();
-			var newel = $(el);			
+			var newel = $(el), prevData = this.el.data();			
 			this.el.replaceWith(newel);
 			this.el = newel;
+			this.el.data(prevData);
 			this.delegateEvents();
 			return this;
 		},
