@@ -21,6 +21,7 @@
     	<div class="tool-box-top">
 			<a href="https://twitter.com/share" class="twitter-share-button"
 				data-count="horizontal" data-url="{OutputLink}" data-text="{Title|t}">Tweet</a>
+			<a href="#" id="show-order">Show order</a>
             <div class="pull-right update-success hide">
     			_("Blog information updated!")
     		</div>
