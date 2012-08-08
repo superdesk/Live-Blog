@@ -23,6 +23,7 @@ function(providers, $, giz, Blog, Collaborator)
         {
             this.model.on('update', this.render, this);
 			this.model.on('read', this.render, this);
+			this.model.on('delete', this.remove, this); // TODO should remove from ColabView?
         },
         render: function()
         {
@@ -41,6 +42,10 @@ function(providers, $, giz, Blog, Collaborator)
                 });
             });
             return self;
+        },
+        remove: function()
+        {
+            this.el.remove();
         }
     }),
     // main view
@@ -145,7 +150,8 @@ function(providers, $, giz, Blog, Collaborator)
                     appendPosts.push(this);
                     colab._viewModels.push(this.get('Id'));
                 }
-                colab._latestPost = Math.max(colab._latestPost, parseInt(this.get('CId')));
+                var pCId = parseInt(this.get('CId'));
+                if(!isNaN(pCId)) colab._latestPost = Math.max(colab._latestPost, pCId);
             });
             updateItemCount += appendPosts.length;
             
@@ -179,19 +185,8 @@ function(providers, $, giz, Blog, Collaborator)
                     colab.get('Post').xfilter('*')
                         .on('read', function(){ self.readPostsHandle.call(this, initial, colab); })
                         .sync();
-                    
+                    // start the auto update timers
                     self.startAutoUpdate();
-//                    clearInterval(updateInterval);
-//                    updateInterval = setInterval(function()
-//                    {
-//                        if(!$('.search-result-list:visible', self.el).length) 
-//                        {
-//                            clearInterval(updateInterval);
-//                            return;
-//                        }
-//                        self.update(); 
-//                    }, config.updateInterval*1000);
-                    
                 }).sync();
                 
             });
@@ -214,15 +209,18 @@ function(providers, $, giz, Blog, Collaborator)
         },
         render: function()
         {
-            
+            console.log('render colabs')
         }
     });
 
     var colabView = null;
     $.extend( providers.colabs, { init: function(blogUrl)
     { 
-        colabView = new ColabView({ el: this.el, blogUrl: blogUrl }); 
-        this.init = function(){ return colabView.startAutoUpdate(); } 
+        colabView = new ColabView({ el: this.el, blogUrl: blogUrl });
+        this.init = function()
+        {
+            return colabView.startAutoUpdate(); 
+        }; 
     }});
     
     return providers;
