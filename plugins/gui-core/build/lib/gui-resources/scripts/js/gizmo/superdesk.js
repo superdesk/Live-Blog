@@ -42,7 +42,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     },
     Model = giz.Model.extend // superdesk Model 
     ({
-        isDeleted: function(){ return this._forDelete && this.data.DeletedOn; },
+        isDeleted: function(){ return this._forDelete || this.data.DeletedOn; },
         syncAdapter: newSync,
         xfilter: xfilter,
         since: since
