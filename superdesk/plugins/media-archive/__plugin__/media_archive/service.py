@@ -102,6 +102,8 @@ def publishResources():
     '''
     Publishes media archive plugin resources.
     '''
+
     log.info('published library %s = %s')
     #TODO: 
     #cdmGUI().publishFromDir('media-archive/upload', 'resourcesPath')
+
