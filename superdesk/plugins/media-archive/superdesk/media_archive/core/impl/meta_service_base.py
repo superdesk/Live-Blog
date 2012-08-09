@@ -175,7 +175,7 @@ def metaTypeFor(session, key):
         session.flush((metaType,))
     return metaType
 
-def thumbnailFor(session, format):
+def thumbnailFormatFor(session, format):
     '''
     Provides the thumbnail id for the format, if there is no such thumbnail format than one will be created.
     
