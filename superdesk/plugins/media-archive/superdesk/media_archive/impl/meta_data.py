@@ -11,8 +11,7 @@ SQL Alchemy based implementation for the meta data API.
 
 from ..api.meta_data import IMetaDataService, QMetaData
 from ..core.impl.meta_service_base import MetaDataServiceBaseAlchemy
-from ..core.spec import IMetaDataHandler, IMetaDataReferencer, \
-    IThumbnailReferencer
+from ..core.spec import IMetaDataHandler, IMetaDataReferencer, IThumbnailManager
 from ..meta.meta_data import MetaDataMapped
 from ally.api.model import Content
 from ally.container import wire
@@ -43,7 +42,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
 
     cdmArchive = ICDM
     # The archive CDM.
-    thumbnailReferencer = IThumbnailReferencer; wire.entity('thumbnailReferencer')
+    thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
     metaDataHandlers = list
     # The handlers list used by the meta data in order to get the references.
@@ -54,8 +53,8 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         '''
         assert isinstance(self.processing_dir_path, str), 'Invalid processing directory %s' % self.processing_dir_path
         assert isinstance(self.cdmArchive, ICDM), 'Invalid archive CDM %s' % self.cdmArchive
-        assert isinstance(self.thumbnailReferencer, IThumbnailReferencer), \
-        'Invalid thumbnail referencer %s' % self.thumbnailReferencer
+        assert isinstance(self.thumbnailManager, IThumbnailManager), \
+        'Invalid thumbnail referencer %s' % self.thumbnailManager
         assert isinstance(self.metaDataHandlers, list), 'Invalid reference handlers %s' % self.referenceHandlers
         MetaDataServiceBaseAlchemy.__init__(self, MetaDataMapped, QMetaData, self)
 
@@ -69,10 +68,10 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         '''
         self._metaType = metaTypeFor(self.session(), META_TYPE_KEY)
         self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/other.jpg')
-        referenceLast = self.thumbnailReferencer.timestampThumbnail(self._thumbnailFormat.id)
+        referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormat.id)
         imagePath = join(pythonPath(), 'resources', 'other.jpg')
         if referenceLast is None or referenceLast < timestampURI(imagePath):
-            self.thumbnailReferencer.processThumbnail(openURI(imagePath), self._thumbnailFormat.id)
+            self.thumbnailManager.processThumbnail(openURI(imagePath), self._thumbnailFormat.id)
 
     # ----------------------------------------------------------------
 
@@ -82,7 +81,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         metaData.Content = self.cdmArchive.getURI(self._reference(metaData), scheme)
-        return self.thumbnailReferencer.populate(metaData, scheme, thumbSize)
+        return self.thumbnailManager.populate(metaData, scheme, thumbSize)
 
     # ----------------------------------------------------------------
 
