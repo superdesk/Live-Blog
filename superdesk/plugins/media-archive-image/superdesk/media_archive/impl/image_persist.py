@@ -31,6 +31,8 @@ from os.path import join, getsize
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 import os
+import subprocess
+
 
 # --------------------------------------------------------------------
 
@@ -126,8 +128,16 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, Sessio
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         try:
-            #metaData.Content = self.cdmImages.getURI(metaData.reference, scheme)
+            
             metaData.IsAvailable = True
+
+            p = subprocess.Popen(['python2.7 ../../tools/media-archive-image/hachoir/hachoir.py', content], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in p.stdout.readlines():
+                print(line)
+                
+            result = p.wait()
+            print("Call smd with result=", result)
+            
         except PathNotFound:
             metaData.IsAvailable = False
         return metaData
