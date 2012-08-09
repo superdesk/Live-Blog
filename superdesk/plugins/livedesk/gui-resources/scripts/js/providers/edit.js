@@ -25,8 +25,12 @@ define('providers/edit', [
 			if( !(model instanceof Gizmo.Model) ) model = Gizmo.Auth(new this.model(model));
 			this._list.push(model);
 			model.hash();
-			var x = model.sync(model.url.root(this.options.theBlog).xfilter('Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name'));
-			return x;			
+			var x = model.sync(model.url.root(this.options.theBlog).xfilter(this._xfilter));
+			x.done(function(data) {
+				model.set(data,{ silent: true}).clearChangeset();
+			});
+			x.model = model;
+			return x;
 		}
 	}),
 	PostView = Gizmo.View.extend({
@@ -106,8 +110,7 @@ define('providers/edit', [
 		render: function(evt, data){
 			if ( data === undefined)
 				data = this.posts._list;			
-			var i = (data.length-1);
-			while(i--)
+			for(var len = data.length, i = 0; i < len; i++ )
 				this.addOne(data[i]);
 		},		
 		addOne: function(model)
@@ -115,11 +118,19 @@ define('providers/edit', [
 			var view = new PostView({model: model, _parent: this});
 			this.el.prepend(view.render().el);
 		},
-		insert: function(model)
+		save: function(model)
 		{
 			var self = this;
 			this.posts.insertFrom(model);
-		}		
+		},
+		savepost: function(model)
+		{
+			var self = this,
+			drd = this.posts.insertFrom(model);
+			drd.done(function(){
+				drd.model.publishSync();
+			});
+		}
 	}),
 	EditView = Gizmo.View.extend({
 		postView: null,
@@ -168,9 +179,14 @@ define('providers/edit', [
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));
-				//posts.xfilter('Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name');
+				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name';
+				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
 			} );
+		},
+		clear: function()
+		{
+			this.el.find('[name="type"]').val('normal');
 		},
 		savepost: function(evt){
 			evt.preventDefault();
@@ -178,7 +194,7 @@ define('providers/edit', [
 				Content: $.styledNodeHtml(this.el.find('.edit-block article.editable')),
 				Type: this.el.find('[name="type"]').val()
 			};
-			this.postsView.insert(data);
+			this.postsView.savepost(data);
 		},
 		save: function(evt){
 			evt.preventDefault();
@@ -186,7 +202,7 @@ define('providers/edit', [
 				Content: $.styledNodeHtml(this.el.find('.edit-block article.editable')),
 				Type: this.el.find('[name="type"]').val()
 			};
-			this.postsView.insert(data);			
+			this.postsView.save(data);			
 		}
 	});	
 	$.extend( providers.edit, { 
