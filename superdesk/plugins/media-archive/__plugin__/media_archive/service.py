@@ -16,13 +16,9 @@ from ally.container import ioc, support
 from cdm.spec import ICDM
 from cdm.support import ExtendPathCDM
 from superdesk.media_archive.api.meta_data import IMetaDataService
-from superdesk.media_archive.core.impl.thumbnail_referencer import \
-    ThumbnailReferencer
-from superdesk.media_archive.core.spec import IThumbnailReferencer, \
-    IThumbnailManager, IThumbnailCreator
+from superdesk.media_archive.core.spec import IThumbnailManager, IThumbnailCreator
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
     MetaDataServiceAlchemy
-from __plugin__.plugin.registry import cdmGUI
 import logging
 from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
     ThumbnailCreatorFFMpeg
@@ -65,13 +61,6 @@ def cdmThumbnail() -> ICDM:
     The content delivery manager (CDM) for the thumbnails media archive.
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'media_archive/thumbnail/%s')
-
-@ioc.entity
-def thumbnailReferencer() -> IThumbnailReferencer:
-    b = ThumbnailReferencer()
-    b.cdmThumbnail = cdmThumbnail()
-    b.thumbnailSizes = thumbnail_sizes()
-    return b
 
 @ioc.entity
 def thumbnailManager() -> IThumbnailManager:
