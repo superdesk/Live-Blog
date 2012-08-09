@@ -67,18 +67,33 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         self.thumbnailSizes = OrderedDict(thumbnailSizes)
         self._cache_thumbnail = {}
 
-    def processThumbnail(self, metadata, imagePath, size, scheme):
+    def populate(self, metaData, scheme, thumbSize=None):
+        if not metaData.thumbnailFormatId:
+            return metaData
+        keys = {'id': metaData.Id, 'name': metaData.Name}
+        if thumbSize:
+            assert isinstance(thumbSize, str), 'Invalid thumb size %s' % thumbSize
+            if thumbSize not in self.thumbnailSizes: raise DevelError('Unknown thumbnail size %s' % thumbSize)
+            keys['size'] = thumbSize
+        elif self.thumbnailSizes:
+            keys['size'] = next(iter(self.thumbnailSizes))
+        else:
+            keys['size'] = ORIGINAL_SIZE
+        thumbPath = self._getFormat(metaData.thumbnailFormatId) % keys
+        metaData.Thumbnail = self.cdm.getURI(thumbPath, scheme)
+        return metaData
+
+    def processThumbnail(self, metaData, imagePath, size, scheme):
         '''
         @see IThumbnailManager.processThumbnail
         '''
-        assert isinstance(metadata, MetaData), 'Invalid metadata %s' % metadata
+        assert isinstance(metaData, MetaData), 'Invalid metaData %s' % metaData
         assert isinstance(imagePath, str) and isfile(imagePath), 'Invalid file path %s' % imagePath
         assert isinstance(size, str) and size in self.thumbnailSizes, 'Invalid size value %s' % size
 
-        if not metadata.thumbnailFormatId:
-            return metadata
-
-        keys = {'id': metadata.Id, 'name': metadata.Name}
+        if not metaData.thumbnailFormatId:
+            return metaData
+        keys = {'id': metaData.Id, 'name': metaData.Name}
         if size:
             assert isinstance(size, str), 'Invalid thumb size %s' % size
             if size not in self.thumbnailSizes: raise DevelError('Unknown thumbnail size %s' % size)
@@ -87,8 +102,8 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
             keys['size'] = next(iter(self.thumbnailSizes))
         else:
             keys['size'] = ORIGINAL_SIZE
-        thumbPath = self._getFormat(metadata.thumbnailFormatId) % keys
-        thumbTimestamp = self.timestampThumbnail(metadata.thumbnailFormatId, metadata.Id, metadata.Name)
+        thumbPath = self._getFormat(metaData.thumbnailFormatId) % keys
+        thumbTimestamp = self.timestampThumbnail(metaData.thumbnailFormatId, metaData.Id, metaData.Name)
         if not thumbTimestamp or thumbTimestamp < timestampURI(imagePath):
             thContent = self.thumbnailCreator.createThumbnail(open(imagePath, 'rb'),
                                                               self.thumbnailSizes[size][0],
@@ -97,12 +112,12 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
             with open(thumbRepoPath, 'wb') as thFile:
                 copyfileobj(thContent, thFile)
             self.cdm.publishFromFile(thumbPath, thumbRepoPath)
-        metadata.Thumbnail = self.cdm.getURI(thumbPath, scheme)
-        return metadata
+        metaData.Thumbnail = self.cdm.getURI(thumbPath, scheme)
+        return metaData
 
     def timestampThumbnail(self, thumbnailId, metaDataId=None, metaDataName=None):
         '''
-        @see: IThumbnailReferencer.timestampThumbnail
+        @see: IThumbnailManager.timestampThumbnail
         '''
         try:
             return self.cdm.getTimestamp(self._reference(thumbnailId, metaDataId, metaDataName))
