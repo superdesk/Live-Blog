@@ -28,7 +28,7 @@ function(Gizmo)
 				});
 			return ret;
 		},
-		publishSync: function(id)
+		publishSync: function()
 		{
 			var publishHref = this.href+'/Publish';
 			var
