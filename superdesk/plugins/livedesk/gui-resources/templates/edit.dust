@@ -9,19 +9,18 @@
         	</a>
             <h2>{Title|s}</h2>
             <p class="article-info">
-            	Reported by <a href="{Creator.href}" class="live-blog-author">{Creator.Name}</a>, 
+            	Reported by <a href="{Creator.href}" class="live-blog-author">{Creator.Name}</a>,
             	<time>{CreatedOn}</time> <span class="update-time">last updated <time>N/A</time></span>
            	</p>
         </header>
         <article id="blog-intro">
         	{Description|s}
-	    </article> 
+	    </article>
     </section>
     <section class="blog-section">
     	<div class="tool-box-top">
 			<a href="https://twitter.com/share" class="twitter-share-button"
 				data-count="horizontal" data-url="{OutputLink}" data-text="{Title|t}">Tweet</a>
-			<a href="#" id="show-order">Show order</a>
             <div class="pull-right update-success hide">
     			_("Blog information updated!")
     		</div>
