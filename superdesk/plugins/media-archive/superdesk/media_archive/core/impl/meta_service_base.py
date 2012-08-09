@@ -15,7 +15,7 @@ from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from inspect import isclass
 from sqlalchemy.orm.exc import NoResultFound
-from superdesk.media_archive.api.meta_data import QMetaData
+from superdesk.media_archive.api.meta_data import QMetaData, IMetaDataService
 from superdesk.media_archive.api.meta_info import QMetaInfo
 from superdesk.media_archive.core.spec import IMetaDataReferencer
 from superdesk.media_archive.meta.meta_data import MetaDataMapped, ThumbnailFormat
@@ -26,7 +26,7 @@ from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 
 # --------------------------------------------------------------------
 
-class MetaDataServiceBaseAlchemy(SessionSupport):
+class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
     '''
     Base SQL alchemy implementation for meta data type services.
     '''
@@ -175,7 +175,7 @@ def metaTypeFor(session, key):
         session.flush((metaType,))
     return metaType
 
-def thumbnailFor(session, format):
+def thumbnailFormatFor(session, format):
     '''
     Provides the thumbnail id for the format, if there is no such thumbnail format than one will be created.
     
