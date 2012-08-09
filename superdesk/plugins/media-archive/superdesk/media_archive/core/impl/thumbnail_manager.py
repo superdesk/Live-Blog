@@ -156,6 +156,8 @@ class ThumbnailCreatorFFMpeg(IThumbnailCreator):
     '''
     Implementation for @see: IThumbnailCreator
     '''
+    ffmpeg_command = 'ffmpeg'; wire.config('ffmpeg_command', doc='''
+    The format of the ffmpeg comand''')
 
     def createThumbnail(self, contentPath, width, height):
         #TODO: implement thumbnail creation
