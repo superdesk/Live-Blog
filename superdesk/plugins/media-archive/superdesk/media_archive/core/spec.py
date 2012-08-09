@@ -101,17 +101,36 @@ class IThumbnailManager(metaclass=abc.ABCMeta):
     Interface that defines the API for handling thumbnails.
     '''
 
-    def processThumbnail(self, metadata, size):
+    def processThumbnail(self, metadata, imagePath, size, scheme):
         '''
         Process a file identified by metadata.
         Return the thumbnail content for the given metadata.
 
         @param metadata: Metadata
             The metadata object for which to return the thumbnail.
+        @param imagePath: str
+            The path to the original image from which to generate the thumbnail.
         @param size: str
             The size identifier
-        @return: file like object
-            The content of the thumbnail
+        @param scheme: string
+            The scheme protocol to provide the references for.
+        @return: MetaData
+            The populated meta data, usually the same meta data.
+        '''
+
+    @abc.abstractclassmethod
+    def timestampThumbnail(self, thumbnailFormatId, metaDataId=None, metaDataName=None):
+        '''
+        Provides the thumbnail last modification time stamp.
+
+        @param thumbnailFormatId: integer
+            The thumbnail format id to process the timestamp for.
+        @param metaDataId: integer|None
+            The meta data id if is the case.
+        @param metaDataName: string|None
+            The meta data name if is the case.
+        @return: datetime|None
+            The datetime of the last modification or None if there is no resource for the thumbnail path.
         '''
 
 class IThumbnailCreator(metaclass=abc.ABCMeta):

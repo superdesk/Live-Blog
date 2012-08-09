@@ -6,7 +6,7 @@ Created on Apr 19, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-SQL Alchemy based implementation for the meta data API. 
+SQL Alchemy based implementation for the meta data API.
 '''
 
 from ..api.meta_data import IMetaDataService, QMetaData
@@ -27,7 +27,7 @@ from datetime import datetime
 from os import remove, makedirs, access, W_OK
 from os.path import join, getsize, abspath, exists, isdir
 from sqlalchemy.exc import SQLAlchemyError
-from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, thumbnailFor
+from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, thumbnailFormatFor
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 
 # --------------------------------------------------------------------
@@ -68,11 +68,11 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         Deploy the meta data and all handlers.
         '''
         self._metaType = metaTypeFor(self.session(), META_TYPE_KEY)
-        self._thumbnail = thumbnailFor(self.session(), '%(size)s/other.jpg')
-        referenceLast = self.thumbnailReferencer.timestampThumbnail(self._thumbnail.id)
+        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/other.jpg')
+        referenceLast = self.thumbnailReferencer.timestampThumbnail(self._thumbnailFormat.id)
         imagePath = join(pythonPath(), 'resources', 'other.jpg')
         if referenceLast is None or referenceLast < timestampURI(imagePath):
-            self.thumbnailReferencer.processThumbnail(openURI(imagePath), self._thumbnail.id)
+            self.thumbnailReferencer.processThumbnail(openURI(imagePath), self._thumbnailFormat.id)
 
     # ----------------------------------------------------------------
 
@@ -98,7 +98,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         metaData.Name = content.getName()
         metaData.Type = self._metaType.Key
         metaData.typeId = self._metaType.id
-        metaData.thumbnailFormatId = self._thumbnail.id
+        metaData.thumbnailFormatId = self._thumbnailFormat.id
         try:
             self.session().add(metaData)
             self.session().flush((metaData,))
@@ -116,10 +116,10 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
                 remove(contentPath)
 
         except SQLAlchemyError as e: handle(e, metaData)
-
         return metaData.Id
 
     # ----------------------------------------------------------------
+
 
     def _reference(self, metaData):
         '''
