@@ -194,7 +194,6 @@ define
 			render: function(){
 				var self = this, order = parseFloat(this.model.get('Order'));
 				if ( !isNaN(self.order) && (order != self.order) && this.model.ordering !== self) {
-					console.log('Reorder');
 					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1}, anti = { prev: 'next', next: 'prev'}
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
 						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
@@ -271,14 +270,14 @@ define
 			{
 				if ( data === undefined)
 					data = this.posts._list;
-				var next = this._latest, current, model, i = (data.length-1);
-				while(i--)
+				var next = this._latest, current, model, i = data.length;
+				while(i--) {
 					this.addOne(data[i]);
+				}
 				
 			},
 			render: function(evt, data){
 				var self = this;
-				console.log(data);
 				if ( data === undefined) {
 					$.tmpl('livedesk>timeline-container', {}, function(e, o){
 						$(self.el).html(o)
@@ -369,17 +368,6 @@ define
 					$.superdesk.applyLayout('livedesk>edit', data, function(){
 						// refresh twitter share button
 						//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
-						$('#show-order').on('click', function(evt){
-							evt.preventDefault();
-							var str = '';
-							$('.post-list').find('li').each(function(){
-								var view = $(this).data('view'),
-								prev = (view.prev === undefined) ? 'undefined' : view.prev.order,
-								next = (view.next === undefined) ? 'undefined' : view.next.order;
-								str = str+'\t\t\t<-- '+prev+'\n'+view.order+'\n\t\t\t--> '+next+'\n\n';
-							});
-							console.log(str);
-						});
 						var timelineCollection = Gizmo.Auth(new TimelineCollection( Gizmo.Register.Post ));
 						timelineCollection.href.root(theBlog);
 						self.timeineView = new TimelineView({
