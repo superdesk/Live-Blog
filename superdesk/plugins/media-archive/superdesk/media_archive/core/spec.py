@@ -34,42 +34,6 @@ class IMetaDataReferencer(metaclass=abc.ABCMeta):
             The populated meta data, usually the same meta data.
         '''
 
-class IThumbnailReferencer(IMetaDataReferencer):
-    '''
-    Provides the meta data references handler.
-    '''
-
-    @abc.abstractclassmethod
-    def processThumbnail(self, image, thumbnailId, metaDataId=None, metaDataName=None):
-        '''
-        Processes the provided thumbnail image for the reference.
-
-        @param image: file like object|string
-            The image to be processed as a thumbnail, can be a read binary file object or a local system path where the image
-            is located.
-        @param thumbnailId: integer
-            The thumbnail id to process the image for.
-        @param metaDataId: integer|None
-            The meta data id if is the case.
-        @param metaDataName: string|None
-            The meta data name if is the case.
-        '''
-
-    @abc.abstractclassmethod
-    def timestampThumbnail(self, thumbnailId, metaDataId=None, metaDataName=None):
-        '''
-        Provides the thumbnail last modification time stamp.
-
-        @param thumbnailId: integer
-            The thumbnail id to process the timestamp for.
-        @param metaDataId: integer|None
-            The meta data id if is the case.
-        @param metaDataName: string|None
-            The meta data name if is the case.
-        @return: datetime|None
-            The datetime of the last modification or None if there is no resource for the thumbnail path.
-        '''
-
 class IMetaDataHandler(metaclass=abc.ABCMeta):
     '''
     Interface that provides the handling for the meta data's.
@@ -96,18 +60,18 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
             True if the content has been processed, False otherwise.
         '''
 
-class IThumbnailManager(metaclass=abc.ABCMeta):
+class IThumbnailManager(IMetaDataReferencer):
     '''
     Interface that defines the API for handling thumbnails.
     '''
 
-    def processThumbnail(self, metadata, imagePath, size, scheme):
+    def processThumbnail(self, metaData, imagePath, size, scheme):
         '''
-        Process a file identified by metadata.
-        Return the thumbnail content for the given metadata.
+        Process a file identified by metaData.
+        Return the thumbnail content for the given metaData.
 
-        @param metadata: Metadata
-            The metadata object for which to return the thumbnail.
+        @param metaData: Metadata
+            The metaData object for which to return the thumbnail.
         @param imagePath: str
             The path to the original image from which to generate the thumbnail.
         @param size: str
