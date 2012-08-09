@@ -146,19 +146,22 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */
         sync: function()
         {   
+			//console.log('sync');
             var self = this, ret = $.Deferred(), dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
             this.hash();
             // trigger an event before sync
             self.triggerHandler('sync');
             
-            if( this._forDelete ) // handle delete
-                return dataAdapter(arguments[0] || this.href).remove().done(function()
+            if( this._forDelete ) {// handle delete
+                //console.log('delete');
+				return dataAdapter(arguments[0] || this.href).remove().done(function()
                 { 
                     self._remove();
                 });
-
+			}
             if( this._clientHash ) // handle insert
             {
+				//console.log('insert');
                 var href = arguments[0] || this.href;
                 return dataAdapter(href).insert(this.feed()).done(function(data)
                 {
@@ -172,6 +175,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             }
             
             if( this._changed ) {// if changed do an update on the server and return
+				//console.log('update');
 				if(!$.isEmptyObject(this.changeset)) {
 					ret = (this.href && dataAdapter(this.href)
 							.update(arguments[1] ? this.feed() : this.feed('json', false, this.changeset))
@@ -185,14 +189,20 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 // simply read data from server
                 ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
                 {
+					//console.log('pull');
                     self.parse(data);
-					if(!$.isEmptyObject(self.changeset))
-						self.triggerHandler('update', self.changeset).clearChangeset();					
+					if(!$.isEmptyObject(self.changeset)) {
+						//console.log('pull update');
+						self.triggerHandler('update', self.changeset).clearChangeset();
+					}
 					else if(self.isDeleted()){
+						//console.log('pull remove');
 						self._remove();
 					}
-					else
+					else {
+						//console.log('pull read');
 						self.clearChangeset().triggerHandler('read');
+					}
                 }));
             
             return ret;
@@ -297,10 +307,12 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 				data = key;
 				options = val;
 			}
+			options = $.extend({},{ silent: false}, options);
 			this.clearChangeset().parse(data);
 			this._changed = true;
 			if(!$.isEmptyObject(this.changeset)) {
-				this.triggerHandler('set', this.changeset);
+				if(!options.silent)
+					this.triggerHandler('set', this.changeset);
 			}
 			
             return this;
