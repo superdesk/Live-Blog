@@ -26,7 +26,6 @@ from __plugin__.plugin.registry import cdmGUI
 import logging
 from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
     ThumbnailCreatorFFMpeg
-from os import path
 
 # --------------------------------------------------------------------
 
@@ -38,13 +37,6 @@ def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
 
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
-
-# --------------------------------------------------------------------
-
-@ioc.config
-def thumbnail_repository_path():
-    ''' The repository absolute or relative (to the distribution folder) path '''
-    return path.join('workspace', 'thumbnails')
 
 # --------------------------------------------------------------------
 
@@ -86,7 +78,6 @@ def thumbnailManager() -> IThumbnailManager:
     b = ThumbnailManager()
     b.thumbnailSizes = thumbnail_sizes()
     b.thumbnailCreator = thumbnailCreator()
-    b.repositoryPath = thumbnail_repository_path()
     b.cdmThumbnail = cdmThumbnail()
     return b
 
@@ -122,6 +113,8 @@ def publishResources():
     '''
     Publishes media archive plugin resources.
     '''
+
     log.info('published library %s = %s')
     #TODO: 
     #cdmGUI().publishFromDir('media-archive/upload', 'resourcesPath')
+
