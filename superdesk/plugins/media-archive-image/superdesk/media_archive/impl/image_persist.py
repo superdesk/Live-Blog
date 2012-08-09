@@ -15,7 +15,7 @@ from ..meta.image_data import ImageData
 from ..meta.image_info import ImageInfo
 from ..meta.meta_data import MetaDataMapped
 from ..meta.meta_type import MetaTypeMapped
-from .meta_data import IMetaDataReferenceHandler
+from superdesk.media_archive.core.spec import IMetaDataHandler
 from ally.api.model import Content
 from ally.container import wire
 from ally.container.ioc import injected
@@ -35,7 +35,7 @@ import os
 # --------------------------------------------------------------------
 
 @injected
-class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandler, SessionSupport):
+class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, SessionSupport):
     '''
     Provides the service that handles the @see: IImagePersistanceService.
     '''
@@ -79,7 +79,7 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandle
 
         self._metaTypeId = None
 
-    def insert(self, imageInfo, image):
+    def insertAll(self, imageInfo, image):
         '''
         @see: IImagePersistanceService.insert
         '''
@@ -120,13 +120,13 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandle
 
     # ----------------------------------------------------------------
 
-    def process(self, metaData, scheme, thumbSize):
+    def process(self, metaData, content):
         '''
-        @see: IMetaDataReferenceHandler.process
+        @see: IMetaDataHandler.process
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         try:
-            metaData.Content = self.cdmImages.getURI(metaData.reference, scheme)
+            #metaData.Content = self.cdmImages.getURI(metaData.reference, scheme)
             metaData.IsAvailable = True
         except PathNotFound:
             metaData.IsAvailable = False
@@ -147,3 +147,11 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataReferenceHandle
                 self.session().flush((metaType,))
             self._metaTypeId = metaType.id
         return self._metaTypeId
+
+    # ----------------------------------------------------------------
+
+    def deploy(self):
+        '''
+           Deploy 
+        '''
+        pass
