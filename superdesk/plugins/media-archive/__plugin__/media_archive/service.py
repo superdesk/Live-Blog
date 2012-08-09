@@ -113,6 +113,12 @@ def publishResources():
     '''
     Publishes media archive plugin resources.
     '''
+<<<<<<< HEAD
     log.info('published library     #TODO: 
     #cdmGUI().publishFromDir('media-archive/upload', 'resourcesPath')
 cesPath')
+=======
+    log.info('published library %s = %s')
+    #TODO: 
+    #cdmGUI().publishFromDir('media-archive/upload', 'resourcesPath')
+>>>>>>> branch 'devel' of git@dev.sourcefabric.org:rest_api

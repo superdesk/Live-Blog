@@ -127,3 +127,4 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         return ''.join((metaData.Type, '/', str(metaData.Id), '.', metaData.Name))
+    
