@@ -177,13 +177,19 @@ define
 					id = prevView.id;
 					order = 'false';
 				}
-				self.next.prev = self.prev;
-				self.prev.next = self.next;
+				self.tightkNots();
 				self.prev = newPrev;
 				self.next = newNext;
 				self.model.orderSync(id, order);
 				self.model.ordering = self;
 				self.model.xfilter(self.xfilter).sync();
+			},
+			tightkNots: function()
+			{
+				if(this.next !== undefined)
+					this.next.prev = this.prev;
+				if(this.prev !== undefined)
+					this.prev.next = this.next;				
 			},
 			rerender: function(){
 				var self = this;
@@ -203,8 +209,7 @@ define
 					if(other !== undefined)
 						other[anti[dir]] = self;
 					cursor[dir] = self;
-					self.next.prev = self.prev;
-					self.prev.next = self.next;
+					self.tightkNots();
 					self[dir] = other;
 					self[anti[dir]] = cursor;
 					self.el[actions[dir]](cursor.el);
@@ -224,6 +229,7 @@ define
 			},
 			remove: function(){
 				var self = this;
+				self.tightkNots();
 				$(this.el).fadeTo(500, '0.1', function(){
 					self.el.remove();
 				});
