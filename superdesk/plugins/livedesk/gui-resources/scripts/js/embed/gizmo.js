@@ -74,6 +74,38 @@ var initializing = false;
         return Class;
         
       }
+function compareObj(x, y)
+{
+  var p;
+  for(p in y) {
+	  if(typeof(x[p])=='undefined') {return true;}
+  }
+
+  for(p in x) {
+	  if(typeof(y[p])=='undefined') {return true;}
+  }
+  
+  for(p in y) {
+	  if (y[p]) {
+		  switch(typeof(y[p])) {
+			  case 'object':
+				  if (compare(y[p],x[p])) { return true; } break;
+			  case 'function':
+				  if (typeof(x[p])=='undefined' ||
+					  (y[p].toString() != x[p].toString()))
+					  return true;
+				  break;
+			  default:
+				  if (y[p] != x[p]) { return true; }
+		  }
+	  } else {
+		  if (x[p])
+			  return true;
+	  }
+  }
+
+  return false;
+}
 
 var Register = function(){},
 Model = function(data){},
@@ -190,9 +222,10 @@ Model.prototype =
 		self._forDelete = false;
 		self.clearChangeset();
 		self._clientHash = null;
-		if( typeof data == 'string' ) self.href = data;
-		if( typeof data == 'object' ) $.extend(self.data, self.parse(data));
-		if( options && typeof options == 'object' ) $.extend(self, options);			
+		if( options && typeof options == 'object' ) $.extend(self, options);
+		if( typeof data == 'object' ) {
+			self.parse(data);
+		}
 		if(!$.isEmptyObject(self.changeset)) {
 			self.triggerHandler('update', self.changeset).clearChangeset();
 		}
@@ -221,20 +254,22 @@ Model.prototype =
 	 */
 	sync: function()
 	{   
+		//console.log('sync');
 		var self = this, ret = $.Deferred(), dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
 		this.hash();
 		// trigger an event before sync
 		self.triggerHandler('sync');
 		
-		if( this._forDelete ) // handle delete
+		if( this._forDelete ) {// handle delete
+			//console.log('delete');
 			return dataAdapter(arguments[0] || this.href).remove().done(function()
 			{ 
-				self.triggerHandler('delete');
-				self._uniq && self._uniq.remove(self.hash());
+				self._remove();
 			});
-
+		}
 		if( this._clientHash ) // handle insert
 		{
+			//console.log('insert');
 			var href = arguments[0] || this.href;
 			return dataAdapter(href).insert(this.feed()).done(function(data)
 			{
@@ -243,11 +278,12 @@ Model.prototype =
 				self._uniq && self._uniq.replace(self._clientHash, self.hash(), self);
 				self._clientHash = null;
 				self.triggerHandler('insert')
-					.class.triggerHandler('insert', self);
+					.Class.triggerHandler('insert', self);
 			});
 		}
 		
 		if( this._changed ) {// if changed do an update on the server and return
+			//console.log('update');
 			if(!$.isEmptyObject(this.changeset)) {
 				ret = (this.href && dataAdapter(this.href)
 						.update(arguments[1] ? this.feed() : this.feed('json', false, this.changeset))
@@ -261,15 +297,33 @@ Model.prototype =
 			// simply read data from server
 			ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
 			{
+				//console.log('Pull: ',$.extend({},data));
 				self.parse(data);
-				if(!$.isEmptyObject(this.changeset)) {
-					self.triggerHandler('update', self.changeset).clearChangeset();
+				/**
+				 * delete should come first of everything 
+				 * caz it can be some update data or read data that is telling is a deleted model.
+				 */
+				if(self.isDeleted()){
+					//console.log('pull remove');
+					self._remove();
 				}
-				else
+				else if(!$.isEmptyObject(self.changeset)) {
+					//console.log('pull update');
+					self.triggerHandler('update', self.changeset).clearChangeset();
+				}				
+				else {
+					//console.log('pull read');
 					self.clearChangeset().triggerHandler('read');
+				}
 			}));
 		
 		return ret;
+	},
+	_remove: function()
+	{
+		this.triggerHandler('delete');
+		this._uniq && this._uniq.remove(this.hash());
+		delete this;
 	},
 	remove: function()
 	{
@@ -295,17 +349,16 @@ Model.prototype =
 		if(data instanceof Model) {
 			data = data.data;
 		}
+		if(data.isParsed)
+			return;
 		for( var i in data ) 
 		{
 			if( this.defaults[i] ) switch(true)
 			{
 				case typeof this.defaults[i] === 'function': // a model or collection constructor
-					
-					var newModel = this.modelDataBuild(new this.defaults[i](data[i]));
-					
-					if( newModel != this.data[i])
+					var newModel = this.modelDataBuild(new this.defaults[i](data[i]));				
+					if( (this.data[i] !== undefined) && (newModel != this.data[i]) )
 						this.changeset[i] = newModel;
-
 					this.data[i] = newModel;
 					
 					// fot model w/o href, need to make a collection since it's obviously
@@ -328,16 +381,29 @@ Model.prototype =
 					continue;
 					break;
 			}
-			if( (this.data[i] !== undefined) && (this.data[i] != data[i]) ) {
-					this.changeset[i] = data[i];
+			if(this.data[i] !== undefined) {
+				if($.type(data[i]) === 'object')
+				{
+					if(compareObj(this.data[i], data[i]))
+						this.changeset[i] = data[i];
+				}
+				else if( this.data[i] != data[i] )
+				{
+						this.changeset[i] = data[i];
+				}
 			}
 			this.data[i] = data[i];
 		}
+		data.isParsed = true;
 	},
 	parseHash: function(data)
 	{
-		if( data.href !== undefined)
+		if( typeof data == 'string' ) 
+			this.href = data;
+		else if( data && data.href !== undefined)
 			this.href = data.href;
+		else if(data && ( data.id !== undefined) && (this.url !== undefined)) 
+			this.href = this.url + data.id;			
 		return this;
 	},
 	clearChangeset: function()
@@ -348,7 +414,6 @@ Model.prototype =
 	},
 	get: function(key)
 	{
-		$(this).triggerHandler('get-prop');
 		return this.data[key];
 	},
 	set: function(key, val, options)
@@ -361,8 +426,14 @@ Model.prototype =
 			data = key;
 			options = val;
 		}
-		this.parse(data);
-		this.triggerHandler('update', this.changeset).clearChangeset();
+		options = $.extend({},{ silent: false}, options);
+		this.clearChangeset().parse(data);
+		this._changed = true;
+		if(!$.isEmptyObject(this.changeset)) {
+			if(!options.silent)
+				this.triggerHandler('set', this.changeset);
+		}
+		
 		return this;
 	},
 	/*!
@@ -476,7 +547,7 @@ Model.extend = extendFnc = function(props, options)
 	var newly;
 	newly = Class.extend.call(this, props);
 	newly.extend = extendFnc;
-	newly.prototype.class = newly;
+	newly.prototype.Class = newly;
 	newly.on = function(event, handler, obj)
 	{
 		$(newly).on(event, function(){ handler.apply(obj, arguments); }); 
@@ -566,7 +637,16 @@ Collection.prototype =
 	},
 	each: function(fn){
 		$.each(this._list, fn);
-	},		
+	},
+	forwardEach: function(fn, scope){
+		this._list.forEach(fn, scope);
+	},
+	reverseEach: function(fn, scope)
+	{
+		for(var i = this._list.length; i > 0; ++i) {
+			fn.call(scope || this, this[i], i, this);
+		}		
+	},
 	feed: function(format, deep)
 	{
 		var ret = [];
@@ -583,29 +663,43 @@ Collection.prototype =
 		return (this.href &&
 			this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
 			{
-				var data = self.parse(data);
+				var data = self.parse(data), changeset = [], count = self._list.length;
 				 // important or it will infiloop
 				for( var i=0; i < data.list.length; i++ )
 				{
 					var model = false;
-					for( var j=0; j<self._list.length; j++ )
+					for( var j=0; j<count; j++ )
 						if( data.list[i].hash() == self._list[j].hash() )
 						{
 							model = data.list[i];
 							break;
 						}
 					
-					if( !model ) self._list.push(data.list[i]);
-					else if( model.isDeleted() ) self._list[j].remove();
+					if( !model ) {
+						self._list.push(data.list[i]);
+						changeset.push(data.list[i]);						
+					}
 					else {
-						self._list[j].parse(model, { updateChangeset: false, silent: false });
+						//self._list[j].parse(model.data);
+						if( model.isDeleted() ) {
+							model._remove();
+						}
+						else {
+							model.on('delete', function(){ self.remove(this.hash()); })
+									.on('garbage', function(){ this.desynced = true; });
+						}
 					}
 				}
 				self.desynced = false;
-				$(self._list).on('delete', function(){ self.remove(this.hash()); });
-				$(self._list).on('garbage', function(){ this.desynced = true; });
-				$(self).triggerHandler('read');
-				//$(self._list).triggerHandler('read'); uneeded
+				if(count === 0)
+					self.triggerHandler('read');
+				else if( changeset.length > 0) {
+					/**
+					 * Trigger handler with changeset extraparameter as a vector of vectors,
+					 * caz jquery will send extraparameters as arguments when calling handler
+					 */
+					$(self).triggerHandler('read', [changeset]);
+				}
 			}));
 	},
 	/*!
@@ -620,6 +714,9 @@ Collection.prototype =
 	 */
 	parse: function(data)
 	{
+		if(data.parsed) {
+			return data.parsed;
+		}
 		// get the important list data from request
 		var extractListData = function(data)
 		{
@@ -636,10 +733,11 @@ Collection.prototype =
 		},
 		theData = extractListData(data);
 		list = [];
-		for( var i in theData )
+		for( var i in theData ) {
 			list.push( this.modelDataBuild(new this.model(theData[i])) );
-
-		return {list: list, total: data.total};
+		}
+		data.parsed = {list: list, total: data.total};
+		return data.parsed;
 	},
 	insert: function(model)
 	{
@@ -656,28 +754,30 @@ Collection.prototype =
 	 */
 	on: function(evt, handler, obj)
 	{
-		if( obj === undefined )
+		if(obj === undefined)
 			$(this).on(evt, handler);
 		else
-			$(this).on(evt, function(){ handler.call(obj, evt); });
+			$(this).on(evt, function(){
+				handler.apply(obj, arguments);
+			});
 		return this;
-	},	
+	},
 	/*!
 	 * used to trigger model events
 	 * this also calls the model method with the event name
 	 */
-	trigger: function(evt)
+	trigger: function(evt, data)
 	{
-		$(this).trigger(evt);
+		$(this).trigger(evt, data);
 		return this;
 	},
 	/*!
 	 * used to trigger handle of model events
 	 * this doens't call any method see: trigger
 	 */
-	triggerHandler: function(evt)
+	triggerHandler: function(evt, data)
 	{
-		$(this).triggerHandler(evt);
+		$(this).triggerHandler(evt, data);
 		return this;
 	}        
 };
@@ -691,23 +791,6 @@ Collection.extend = cextendFnc = function(props)
 		Collection[options.register] = newly;		
 	return newly;
 };
-/*{
-	var proto = new this;
-	$.extend(proto, props);
-	for( var name in props ) proto[name] = props[name];
-	
-	function Collection()
-	{
-		if( this._construct ) return this._construct.apply(this, arguments);
-	};
-	Collection.prototype = proto;
-	// create a new property from original options one
-	Collection.prototype.options = $.extend({}, options);
-	Collection.prototype.constructor = Collection;
-	Collection.extend = cextendFnc;
-	return Collection;
-};*/
-
 // view
 
 var Render = Class.extend
@@ -803,9 +886,10 @@ View = Render.extend
 	setElement: function(el)
 	{
 		this.undelegateEvents();
-		var newel = $(el);			
+		var newel = $(el), prevData = this.el.data();			
 		this.el.replaceWith(newel);
 		this.el = newel;
+		this.el.data(prevData);
 		this.delegateEvents();
 		return this;
 	},
@@ -816,6 +900,7 @@ View = Render.extend
 		this.delegateEvents();
 	}
 });
+
 
 
 var giz = { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq, View: View, Url: Url, Register: Register};
@@ -862,7 +947,9 @@ var giz = { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: U
     },
     Model = giz.Model.extend // superdesk Model 
     ({
-        isDeleted: function(){ return this._forDelete && this.data.DeletedOn; },
+        isDeleted: function(){ 
+			return this._forDelete || this.data.DeletedOn; 
+		},
         syncAdapter: newSync,
         xfilter: xfilter,
         since: since
