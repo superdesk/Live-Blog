@@ -50,6 +50,11 @@ var livedeskEmbed = {
     startLoading : function() {
         var 
         User = $.gizmo.Model.extend({}),
+/*		PostType = $.gizmo.Model.extend({}),
+		AuthorPerson = $.gizmo.Model.extend({}),
+		PostBlog = $.gizmo.Model.extend({}),
+		Author = $.gizmo.Model.extend({}),
+*/		
         Post = $.gizmo.Model.extend
         ({
             defaults:
@@ -150,39 +155,38 @@ var livedeskEmbed = {
             }
         }),
 		AutoCollection = $.gizmo.Collection.extend({
-			timeInterval: 10000,			
-			idInterval: 0,			
+			timeInterval: 10000,
+			idInterval: 0,
 			_latestCId: 0,
 			setIdInterval: function(fn){
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
 			},
-			getMaximumCid: function(models){
-				for (var i in models) {
-					var items = models[i];
-					break;
-				}
-				for(i=0, count=items.length; i<count; i++) {
-					if( this._latestCId < parseInt(items[i].CId) )
-						this._latestCId = parseInt(items[i].CId);
+			getMaximumCid: function(data){
+				for(i=0, count=data.list.length; i<count; i++) {
+					var CId = parseInt(data.list[i].get('CId'))
+					if( !isNaN(CId) && (this._latestCId < CId) )
+						this._latestCId = CId;
 				}
 			},
 			auto: function(){
-				var self = this;
-				this.sync({data: {'startEx.cId': this._latestCId}, headers: { 'X-Filter': 'CId'}}).done(function(models){
-					self.getMaximumCid(models);
+				var self = this, requestOptions = {data: {'startEx.cId': this._latestCId}, headers: { 'X-Filter': 'CId'}};
+				if(this._latestCId === 0) delete requestOptions.data;
+				$.gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){
+					self.getMaximumCid(self.parse(data));
 				});
 				return this;
-			},                                                                                                                                                                                                                                                                              
-			pause: function(){
-				var self=this;
-				clearInterval(self.idInterval);
 			},
-			start: function(){
+			pause: function(){
 				var self = this;
-				this.auto().setIdInterval(function(){self.auto();});
+				clearInterval(self.idInterval);
+				return this;
+			},
+			sync: function(){
+				var self = this;
+				this.auto().pause().setIdInterval(function(){self.auto();});
 			}
-		});        
+		});
         Posts = AutoCollection.extend({
             model: Post
         }),
@@ -202,57 +206,76 @@ var livedeskEmbed = {
         ({
             init: function()
             {
-                this.post.on('update', function(evt, data){
-					if(isOnly(data, 'CId'))
-						this.post.xfilter(self.xfilter).sync();
-					else
-						this.render();
-				}, this);
-                this.post.on('read', this.render, this);
-				this.post.on('remove', this.remove, this);
-                this.post.sync();
+				var self = this;
+                self.post
+					.on('read', self.render, self)
+					.on('update', function(evt, data){
+						if(isOnly(data, 'CId')) {
+							self.post.sync(); //.xfilter(self.xfilter)
+						}
+						else
+							self.render(evt, data);
+					})
+					.on('delete', self.remove, self)
+					.sync();
             },
 			remove: function()
 			{
-				this.el.remove();
-				return this;			
+				var self = this;
+				self.tightkNots();
+				self.el.remove();
+				return self;			
 			},
+			tightkNots: function()
+			{
+				if(this.next !== undefined)
+					this.next.prev = this.prev;
+				if(this.prev !== undefined)
+					this.prev.next = this.next;				
+			},			
             render: function()
             {
-				var self = this, order = parseInt(this.post.get('Order'));
+				var self = this, order = parseFloat(self.post.get('Order'));
 				if ( !isNaN(self.order) && (order != self.order)) {
-					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1};
-					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir]; 
-						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] ); 
+					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1}, anti = { prev: 'next', next: 'prev'}
+					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
+						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
 						cursor = cursor[dir]
 					);
+					var other = cursor[dir];
+					if(other !== undefined)
+						other[anti[dir]] = self;
+					cursor[dir] = self;
+					self.tightkNots();
+					self[dir] = other;
+					self[anti[dir]] = cursor;
 					self.el[actions[dir]](cursor.el);
 				}
 				self.order = order;
-                var content = this.post.get('Content');
+                var content = self.post.get('Content');
 
                 var style= '';                
-                if (this.post.getClass() == 'wrapup') {
+                if (self.post.getClass() == 'wrapup') {
                     style += ' open';
                 }
-                if (this.post.isService()) {
-                    style += ' ' + this.post.get('AuthorName');
-                    if (this.post.get('AuthorName') == 'flickr') {
+                if (self.post.isService()) {
+                    style += ' ' + self.post.get('AuthorName');
+                    if (self.post.get('AuthorName') == 'flickr') {
                         var paddedContent = '<span>' + content + '</span>';
                         var jqo = $(paddedContent);
                         jqo.find('img').attr('src', jqo.find('a').attr('href'));
                         content = jqo.html();
-                    } else if (this.post.get('AuthorName') == 'twitter') {
-                        content = this.post.twitter.link.all(content);
+                    } else if (self.post.get('AuthorName') == 'twitter') {
+                        content = self.post.twitter.link.all(content);
                     }
                 }
                 var template = '<li class="'+ style +'">' + content + '</li>';
-                this.setElement( template );
+                self.setElement( template );
             }
         }),
         TimelineView = $.gizmo.View.extend
         ({
-            events: 
+            events:
             {
                 '[uberclick="ceva-click-shucar"]': {
                     'click': 'altceva'
@@ -264,29 +287,36 @@ var livedeskEmbed = {
                 var self = this;
                 this.blog.on('read', function()
                 { 
-                    self.blog.get('PostPublished').on('read', function(){
-						self.render();
-                    }).xfilter('CId').start();
+                    self.blog.get('PostPublished').on('read', self.render, self).xfilter('CId').sync();
                 });
                 this.blog.sync();
             },
-            render: function()
+			addOne: function(model)
+			{
+				current = new PostItemView({post: model, _parent: this});
+				this.el.prepend(current.el);
+				current.next = this._latest;
+				if( this._latest !== undefined )
+					this._latest.prev = current;
+				this._latest = current;
+			},			
+			addAll: function(data)
+			{
+				if ( data === undefined)
+					data = this.blog.get('PostPublished')._list;
+				var next = this._latest, current, model, i = data.length;
+				while(i--) {
+					this.addOne(data[i]);
+				}				
+			},			
+            render: function(evt, data)
             {
-                var self = this, i=0, prev = undefined;;
-                this.blog.get('PostPublished').each(function(key, post)
-                {
-						if(post.view === undefined) {
-							var view = new PostItemView({
-								post: post
-							});
-							post.view = view;
-							view.prev = prev;
-							if( prev !== undefined )
-								prev.next = view;
-							prev = view;
-							self.el.append( view.el );
-						}
-                })
+				if ( data === undefined)
+					data = this.blog.get('PostPublished')._list;
+				var next = this._latest, current, model, i = data.length;
+				while(i--) {
+					this.addOne(data[i]);
+				}
             }
             
         });
