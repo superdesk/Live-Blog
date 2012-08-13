@@ -11,10 +11,11 @@
     </head>
     <body>
         <ul id="livedesk-root"></ul>
-        <div id="loader-smack"><div>
         <script>
-		window.livedeskEmbedInit = function(){
-			
+		window.livedeskCallback = function(livedeskEmbed){
+			new livedeskEmbed.TimelineView({ 
+				url: 'http://localhost:8082/resources/my/LiveDesk/Blog/1'
+			});
 		};
 		(function(d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0];
