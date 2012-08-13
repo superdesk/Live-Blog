@@ -1,5 +1,5 @@
 '''
-Created on Aug 23, 2012
+Created on May 3rd, 2012
 
 @package: superdesk media archive
 @copyright: 2012 Sourcefabric o.p.s.
@@ -15,7 +15,7 @@ from ..gui_core.gui_core import publishGui
 # --------------------------------------------------------------------
 
 @ioc.start
-def publish():
-    publishGui('superdesk/Upload')
+def publishJS():
+    publishGui('media-archive')
     
     
