@@ -12,13 +12,17 @@
     <body>
         <ul id="livedesk-root"></ul>
         <div id="loader-smack"><div>
-        <script>(function(d, s, id) {
+        <script>
+		window.livedeskEmbedInit = function(){
+			
+		};
+		(function(d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0];
             if (d.getElementById(id)) return;
             js = d.createElement(s); js.id = id;
             js.src = "livedeskembed.js";
             fjs.parentNode.insertBefore(js, fjs);
-            }(document, 'script', 'livedesk-jssdk'));
+        }(document, 'script', 'livedesk-jssdk'));
         </script>
     </body>
 </html>
