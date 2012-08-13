@@ -1,5 +1,13 @@
 (function($)
     { 
+function isOnly(data,key) {
+	var count = 0;
+	for(i in data) {
+		count++;
+		if(count>1) return false;
+	};
+	return (data !== undefined) && (data[key] !== undefined) && (count == 1);
+}
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
         if (typeof this !== "function") {
@@ -837,7 +845,8 @@ View = Render.extend
 			}
 			el = el + '></'+this.tagName+'>';
 			this.el = $(el);
-		}
+		} else 
+			this.el = $(this.el);
 	},      
 	init: function(){ return this; },
 	resetEvents: function()
