@@ -25,8 +25,12 @@ define('providers/edit', [
 			if( !(model instanceof Gizmo.Model) ) model = Gizmo.Auth(new this.model(model));
 			this._list.push(model);
 			model.hash();
-			var x = model.sync(model.url.root(this.options.theBlog).xfilter('Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name'));
-			return x;			
+			var x = model.sync(model.url.root(this.options.theBlog).xfilter(this._xfilter));
+			x.done(function(data) {
+				model.set(data,{ silent: true}).clearChangeset();
+			});
+			x.model = model;
+			return x;
 		}
 	}),
 	PostView = Gizmo.View.extend({
@@ -34,12 +38,36 @@ define('providers/edit', [
 			"": { "dragstart": "adaptor"}
 		},
 		init: function(){
-			this.model.on('read', function(){
-				
-				this.render();
-			}, this);
-			this.model.on('update', this.render, this);
+			var self = this;
+			self.model
+				.on('read', function(){			
+					self.render();
+				})
+				.on('set', function(evt, data){
+					if(self.model.updater !== self) {
+						self.rerender();
+					}
+				})
+				.on('update', function(evt, data){ 						
+					/**
+					 * if the updater on the model is the current view don't update the view;
+					 */
+					if(self.model.updater === self) {
+						delete self.model.updater; return;
+					}
+					/**
+					 * if the Change Id is received, then sync the hole model
+					 */			
+					self.rerender();
+				})
+				.on('delete', this.remove, this);
 		},
+		rerender: function(){
+			var self = this;
+			self.el.fadeTo(500, '0.1', function(){
+				self.render().el.fadeTo(500, '1');
+			});
+		},		
 		render: function(){			
 			var avatar = $.avatar.get($.superdesk.login.EMail);
 			var self = this;
@@ -60,39 +88,48 @@ define('providers/edit', [
 			});
 			return this;
 		},
+		remove: function(){
+			var self = this;
+			self.el.fadeTo(500, '0.1', function(){
+				self.el.remove();
+			});
+		},		
 		adaptor: function(evt){
-			$(evt.target).parents('li').data("post", this.model.get('Id'));
+			$(evt.target).parents('li').data("post", this.model);
 		}
 	}),
 	PostsView = Gizmo.View.extend({
 		init: function(){
 			var self = this;
-			this.posts.on('read', function(){
-				self.render();
-			});
+			this.posts.on('read', this.render, this);
 			this.posts.model.on('insert', function(evt, model){
 				self.addOne(model);
 			});
 			this.posts.sync();
 		},
-		render: function(){
-			var self = this;
-			this.posts.each(function(key, model){
-				self.addOne(model, true);
-			});
+		render: function(evt, data){
+			if ( data === undefined)
+				data = this.posts._list;			
+			for(var len = data.length, i = 0; i < len; i++ )
+				this.addOne(data[i]);
+		},		
+		addOne: function(model)
+		{
+			var view = new PostView({model: model, _parent: this});
+			this.el.prepend(view.render().el);
 		},
-		insert: function(model)
+		save: function(model)
 		{
 			var self = this;
 			this.posts.insertFrom(model);
 		},
-		addOne: function(model, order)
+		savepost: function(model)
 		{
-			var view = new PostView({model: model, _parent: this});
-			if(order)
-				this.el.append(view.render().el);
-			else
-				this.el.prepend(view.render().el);
+			var self = this,
+			drd = this.posts.insertFrom(model);
+			drd.done(function(){
+				drd.model.publishSync();
+			});
 		}
 	}),
 	EditView = Gizmo.View.extend({
@@ -103,7 +140,7 @@ define('providers/edit', [
 		},
 		init: function(){			
 			this.postTypes = new Gizmo.AuthCollection(this.theBlog+'/../../../../Superdesk/PostType', Gizmo.Register.PostType);
-			this.postTypes.xfilter('Key');;
+			this.postTypes.xfilter('Key');
 			this.postTypes.on('read', this.render, this);
 			this.postTypes.sync();
 		},
@@ -142,9 +179,14 @@ define('providers/edit', [
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));
-				//posts.xfilter('Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name');
+				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name';
+				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
 			} );
+		},
+		clear: function()
+		{
+			this.el.find('[name="type"]').val('normal');
 		},
 		savepost: function(evt){
 			evt.preventDefault();
@@ -152,11 +194,15 @@ define('providers/edit', [
 				Content: $.styledNodeHtml(this.el.find('.edit-block article.editable')),
 				Type: this.el.find('[name="type"]').val()
 			};
-			this.postsView.insert(data);
+			this.postsView.savepost(data);
 		},
 		save: function(evt){
 			evt.preventDefault();
-			
+			var data = {
+				Content: $.styledNodeHtml(this.el.find('.edit-block article.editable')),
+				Type: this.el.find('[name="type"]').val()
+			};
+			this.postsView.save(data);			
 		}
 	});	
 	$.extend( providers.edit, { 
