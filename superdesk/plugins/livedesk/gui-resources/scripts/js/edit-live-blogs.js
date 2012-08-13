@@ -387,14 +387,15 @@ define
 							_parent: self
 						});
 						self.providers.render();
-						$('.live-blog-content', this.el).droppable({
+						$('.tabbable', self.el).find('.actived a').tab('show');						
+						$('.live-blog-content', self.el).droppable({
 							activeClass: 'ui-droppable-highlight',
 							accept: ':not(.edit-toolbar,.timeline)',
 							drop: function(evt, ui){
 								self.drop(evt, ui);
 							}
 						});
-						$("#MySplitter", this.el).splitter({
+						$("#MySplitter", self.el).splitter({
 							type: "v",
 							outline: true,
 							sizeLeft: 470,
@@ -442,6 +443,32 @@ define
 						floatingToolbar: 'top'
 					});
 					/** text editor stop */
+					topSubMenu = $(this.el).find('[is-submenu]');
+					$(topSubMenu)
+						.off('click.livedesk', 'a[data-target="configure-blog"]')
+					.on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
+					{
+						event.preventDefault();
+						var blogHref = $(this).attr('href')
+						$.superdesk.getAction('modules.livedesk.configure')
+						.done(function(action)
+						{
+							action.ScriptPath && 
+								require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+						});
+					})
+						.off('click.livedesk', 'a[data-target="edit-blog"]')
+					.on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
+					{
+						event.preventDefault();
+						var blogHref = $(this).attr('href');
+						$.superdesk.getAction('modules.livedesk.edit')
+						.done(function(action)
+						{
+							action.ScriptPath && 
+								require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
+						});
+					});					
 			}
 		});
 		new EditView({ el: '#area-main'});
