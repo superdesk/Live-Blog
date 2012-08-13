@@ -97,7 +97,7 @@ function($)
         
         var topSubMenu = $(this).find('[is-submenu]');
         $(topSubMenu)
-        .off('click.livedesk', 'a[data-target="configure-blog"]')
+        //.off('click.livedesk', 'a[data-target="configure-blog"]')
         .on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
         {
             event.preventDefault();
