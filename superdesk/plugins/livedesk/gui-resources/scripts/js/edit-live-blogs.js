@@ -445,7 +445,7 @@ define
 					/** text editor stop */
 					topSubMenu = $(this.el).find('[is-submenu]');
 					$(topSubMenu)
-						.off('click.livedesk', 'a[data-target="configure-blog"]')
+					.off('click.livedesk', 'a[data-target="configure-blog"]')
 					.on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
 					{
 						event.preventDefault();
@@ -457,17 +457,20 @@ define
 								require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
 						});
 					})
-						.off('click.livedesk', 'a[data-target="edit-blog"]')
+					.off('click.livedesk', 'a[data-target="edit-blog"]')
 					.on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
 					{
 						event.preventDefault();
-						var blogHref = $(this).attr('href');
+						console.log('this is it');
+						
+						new EditView({ el: '#area-main'});
+						/*var blogHref = $(this).attr('href');
 						$.superdesk.getAction('modules.livedesk.edit')
 						.done(function(action)
 						{
 							action.ScriptPath && 
 								require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
-						});
+						});*/
 					});					
 			}
 		});
