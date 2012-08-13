@@ -763,7 +763,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 }
                 el = el + '></'+this.tagName+'>';
                 this.el = $(el);
-            }
+            } else
+				this.el = $(this.el);
         },
         init: function(){ return this; },
         resetEvents: function()
