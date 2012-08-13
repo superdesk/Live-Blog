@@ -1,5 +1,5 @@
 '''
-Created on Mar 23, 2012
+Created on May 3rd, 2012
 
 @package ally core request
 @copyright 2011 Sourcefabric o.p.s.
@@ -13,7 +13,7 @@ from ..gui_core.gui_core import publishGui
 # --------------------------------------------------------------------
 
 @ioc.start
-def publish():
-    publishGui('superdesk/Upload')
+def publishJS():
+    publishGui('media-archive')
     
     
