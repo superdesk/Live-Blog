@@ -8,7 +8,7 @@ function isOnly(data,key) {
 }
 
 var livedeskEmbed = {
-    init : function() {
+    init : function(theBlog) {
         var self = this;
         if (typeof jQuery == 'undefined') {
             self.loadScript('http://code.jquery.com/jquery-1.7.2.min.js', function(){
@@ -283,7 +283,7 @@ var livedeskEmbed = {
             },
             init: function()
             {
-                this.blog = new Blog('http://localhost:8082/resources/LiveDesk/Blog/1');
+                this.blog = new Blog(theBlog);
                 var self = this;
                 this.blog.on('read', function()
                 { 
