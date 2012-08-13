@@ -9,7 +9,7 @@ Created on Apr 19, 2012
 SQL Alchemy based implementation for the meta data API.
 '''
 
-from ..api.meta_data import IMetaDataService, QMetaData
+from ..api.meta_data import QMetaData
 from ..core.impl.meta_service_base import MetaDataServiceBaseAlchemy
 from ..core.spec import IMetaDataHandler, IMetaDataReferencer, IThumbnailManager
 from ..meta.meta_data import MetaDataMapped
@@ -19,8 +19,7 @@ from ally.container.ioc import injected
 from ally.exception import InputError
 from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import handle
-from ally.support.util_io import pipe, openURI, timestampURI
-from ally.support.util_sys import pythonPath
+from ally.support.util_io import pipe, timestampURI, openURI
 from cdm.spec import ICDM
 from datetime import datetime
 from os import remove, makedirs, access, W_OK
@@ -28,6 +27,8 @@ from os.path import join, getsize, abspath, exists, isdir
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, thumbnailFormatFor
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
+from ally.support.util_sys import pythonPath
+from superdesk.media_archive.core.impl.thumbnail_manager import ORIGINAL_SIZE
 
 # --------------------------------------------------------------------
 
@@ -71,7 +72,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormat.id)
         imagePath = join(pythonPath(), 'resources', 'other.jpg')
         if referenceLast is None or referenceLast < timestampURI(imagePath):
-            self.thumbnailManager.processThumbnail(openURI(imagePath), self._thumbnailFormat.id)
+            self.thumbnailManager.processThumbnail(self._thumbnailFormat.id, imagePath, ORIGINAL_SIZE)
 
     # ----------------------------------------------------------------
 
@@ -126,4 +127,4 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         return ''.join((metaData.Type, '/', str(metaData.Id), '.', metaData.Name))
-    
+

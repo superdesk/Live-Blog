@@ -32,11 +32,12 @@ log = logging.getLogger(__name__)
 def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
 
+support.wireEntities(ThumbnailManager, ThumbnailCreatorFFMpeg)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
 
 # --------------------------------------------------------------------
 
-@ioc.entity
+@ioc.config
 def thumbnail_sizes():
     '''
     Contains the thumbnail sizes available for the media archive.
@@ -67,12 +68,13 @@ def thumbnailManager() -> IThumbnailManager:
     b = ThumbnailManager()
     b.thumbnailSizes = thumbnail_sizes()
     b.thumbnailCreator = thumbnailCreator()
-    b.cdmThumbnail = cdmThumbnail()
+    b.cdm = cdmThumbnail()
     return b
 
 @ioc.entity
 def thumbnailCreator() -> IThumbnailCreator:
-    return ThumbnailCreatorFFMpeg()
+    c = ThumbnailCreatorFFMpeg()
+    return c
 
 @ioc.entity
 def metaDataService() -> IMetaDataService:
