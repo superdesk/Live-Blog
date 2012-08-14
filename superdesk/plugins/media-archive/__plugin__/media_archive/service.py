@@ -21,7 +21,7 @@ from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
     MetaDataServiceAlchemy
 import logging
 from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
-    ThumbnailCreatorFFMpeg
+    ThumbnailCreatorGraphicsMagick
 
 # --------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
 
-support.wireEntities(ThumbnailManager, ThumbnailCreatorFFMpeg)
+support.wireEntities(ThumbnailManager, ThumbnailCreatorGraphicsMagick)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
 
 # --------------------------------------------------------------------
@@ -73,7 +73,7 @@ def thumbnailManager() -> IThumbnailManager:
 
 @ioc.entity
 def thumbnailCreator() -> IThumbnailCreator:
-    c = ThumbnailCreatorFFMpeg()
+    c = ThumbnailCreatorGraphicsMagick()
     return c
 
 @ioc.entity
