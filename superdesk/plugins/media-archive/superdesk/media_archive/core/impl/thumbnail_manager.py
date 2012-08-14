@@ -16,13 +16,14 @@ from superdesk.media_archive.core.spec import IThumbnailManager, IThumbnailCreat
 from cdm.spec import ICDM, PathNotFound
 from os.path import join, isfile, exists, isdir, normpath, dirname
 from ally.support.util_io import timestampURI
-from shutil import copyfileobj
+from shutil import copyfile
 from ally.exception import DevelError
 from superdesk.media_archive.meta.meta_data import ThumbnailFormat
 from ally.container import wire
 from ally.support.sqlalchemy.session import SessionSupport
-from os import makedirs, access, W_OK, makedirs
+from os import access, W_OK, makedirs
 from collections import OrderedDict
+from subprocess import Popen
 
 # --------------------------------------------------------------------
 
@@ -39,6 +40,10 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
     thumbnail_dir_path = join('workspace', 'media_archive', 'process_thumbnail'); wire.config('thumbnail_dir_path', doc='''
     The folder path where the thumbnail images are placed for resizing''')
     # path to the thumbnail repository
+    original_width = 512; wire.config('original_width', doc='''
+    The width of the original thumbnail from which other sizes are generated''')
+    original_height = 512; wire.config('original_height', doc='''
+    The width of the original thumbnail from which other sizes are generated''')
 
     thumbnailSizes = {}
     # dictionary containing thumbnail sizes
@@ -62,12 +67,17 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
 
         SessionSupport.__init__(self)
         # We order the thumbnail sizes in descending order
+        self.thumbnailSizes[ORIGINAL_SIZE] = [self.original_width, self.original_height]
         thumbnailSizes = [(key, sizes) for key, sizes in self.thumbnailSizes.items()]
         thumbnailSizes.sort(key=lambda pack: pack[1][0] * pack[1][1])
         self.thumbnailSizes = OrderedDict(thumbnailSizes)
         self._cache_thumbnail = {}
 
     def populate(self, metaData, scheme, thumbSize=None):
+        assert not metaData or isinstance(metaData, MetaData), 'Invalid metaData %s' % metaData
+        thumbSize = thumbSize if thumbSize else ORIGINAL_SIZE
+        assert isinstance(thumbSize, str) and thumbSize in self.thumbnailSizes, \
+        'Invalid size value %s' % thumbSize
         if not metaData.thumbnailFormatId:
             return metaData
         keys = {'id': metaData.Id, 'name': metaData.Name}
@@ -84,20 +94,21 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         except PathNotFound:
             if keys['size'] == ORIGINAL_SIZE: raise DevelError('Unable to find a thumbnail for %s' % scheme)
             originalImagePath = self._reference(metaData.thumbnailFormatId, metaData.Id, metaData.Name)
-            return self.processThumbnail(originalImagePath, ORIGINAL_SIZE, scheme, metaData)
+            return self.processThumbnail(metaData.thumbnailFormatId, originalImagePath, metaData)
         metaData.Thumbnail = self.cdm.getURI(thumbPath, scheme)
         return metaData
 
-    def processThumbnail(self, thumbnailFormatId, imagePath, size, metaData=None):
+    def processThumbnail(self, thumbnailFormatId, imagePath, metaData=None, size=None):
         '''
         @see IThumbnailManager.processThumbnail
         '''
         assert isinstance(thumbnailFormatId, int), \
         'Invalid thumbnail format identifier %s' % thumbnailFormatId
         assert isinstance(imagePath, str) and isfile(imagePath), 'Invalid file path %s' % imagePath
-        assert isinstance(size, str) and (size == ORIGINAL_SIZE or size in self.thumbnailSizes), \
-        'Invalid size value %s' % size
         assert not metaData or isinstance(metaData, MetaData), 'Invalid metaData %s' % metaData
+        size = size if size else ORIGINAL_SIZE
+        assert isinstance(size, str) and size in self.thumbnailSizes, \
+        'Invalid size value %s' % size
 
         keys = {} if not metaData else {'id': metaData.Id, 'name': metaData.Name}
         if size:
@@ -108,31 +119,31 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         else:
             keys['size'] = ORIGINAL_SIZE
         thumbPath = self._getFormat(thumbnailFormatId) % keys
-        thumbTimestamp = self.timestampThumbnail(thumbnailFormatId, metaData)
+        thumbTimestamp = self.timestampThumbnail(thumbnailFormatId, metaData, keys['size'])
         if not thumbTimestamp or thumbTimestamp < timestampURI(imagePath):
-            try:
-                if keys['size'] != ORIGINAL_SIZE:
-                    thContent = self.thumbnailCreator.createThumbnail(open(imagePath, 'rb'),
-                                                                      self.thumbnailSizes[size][0],
-                                                                      self.thumbnailSizes[size][0])
-                else:
-                    thContent = open(imagePath, 'rb')
-                thumbRepoPath = normpath(join(self.thumbnail_dir_path, thumbPath))
-                if not isdir(dirname(thumbRepoPath)): makedirs(dirname(thumbRepoPath))
-                with open(thumbRepoPath, 'wb') as thFile:
-                    copyfileobj(thContent, thFile)
-                self.cdm.publishFromFile(thumbPath, thumbRepoPath)
-            finally:
-                thContent.close()
+            thumbRepoPath = normpath(join(self.thumbnail_dir_path, thumbPath))
+            if not isdir(dirname(thumbRepoPath)): makedirs(dirname(thumbRepoPath))
+            copyfile(imagePath, thumbRepoPath)
+            self.thumbnailCreator.createThumbnail(thumbRepoPath,
+                                                  self.thumbnailSizes[size][0],
+                                                  self.thumbnailSizes[size][0])
+            self.cdm.publishFromFile(thumbPath, thumbRepoPath)
 
-    def timestampThumbnail(self, thumbnailFormatId, metaData=None):
+    def timestampThumbnail(self, thumbnailFormatId, metaData=None, size=None):
         '''
         @see: IThumbnailManager.timestampThumbnail
         '''
+        assert isinstance(thumbnailFormatId, int), \
+        'Invalid thumbnail format identifier %s' % thumbnailFormatId
+        assert not metaData or isinstance(metaData, MetaData), 'Invalid metaData %s' % metaData
+        size = size if size else ORIGINAL_SIZE
+        assert isinstance(size, str) and size in self.thumbnailSizes, \
+        'Invalid size value %s' % size
+
         if not metaData: metaDataId, metaDataName = None, None
         else: metaDataId, metaDataName = metaData.Id, metaData.Name
         try:
-            return self.cdm.getTimestamp(self._reference(thumbnailFormatId, metaDataId, metaDataName))
+            return self.cdm.getTimestamp(self._reference(thumbnailFormatId, metaDataId, metaDataName, size))
         except PathNotFound:
             return None
 
@@ -149,12 +160,11 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
             format = self._cache_thumbnail[thumbnailFormat.id] = thumbnailFormat.format
         return format
 
-    def _reference(self, thumbnailFormatId, metaDataId=None, metaDataName=None):
+    def _reference(self, thumbnailFormatId, metaDataId=None, metaDataName=None, size=ORIGINAL_SIZE):
         '''
         Construct the reference based on the provided parameters.
         '''
-        assert isinstance(thumbnailFormatId, int), 'Invalid thumbnail id %s' % thumbnailFormatId
-        keys = {'size': ORIGINAL_SIZE}
+        keys = {'size': size}
         if metaDataId:
             assert isinstance(metaDataId, int), 'Invalid meta data id %s' % metaDataId
             keys['id'] = metaDataId
@@ -165,15 +175,16 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         return self._getFormat(thumbnailFormatId) % keys
 
 
-class ThumbnailCreatorFFMpeg(IThumbnailCreator):
+class ThumbnailCreatorGraphicsMagick(IThumbnailCreator):
     '''
     Implementation for @see: IThumbnailCreator
     '''
-    ffmpeg_command = 'ffmpeg'; wire.config('ffmpeg_command', doc='''The format of the ffmpeg comand''')
+    graphics_magick_command = 'gm'; wire.config('graphics_magick_command', doc='''The format of the graphics magic comand''')
 
     def __init__(self):
-        assert isinstance(self.ffmpeg_command, str), 'Invalid ffmpeg command %s' % self.ffmpeg_command
+        assert isinstance(self.graphics_magick_command, str), 'Invalid graphics magic command %s' % self.graphics_magick_command
 
     def createThumbnail(self, contentPath, width, height):
-        #TODO: implement thumbnail creation
+        thSize = str(width) + 'x' + str(height)
+        Popen([self.graphics_magick_command, 'mogrify', '-resize', thSize, contentPath])
         return open(contentPath, 'rb')
