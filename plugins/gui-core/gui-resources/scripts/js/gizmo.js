@@ -42,9 +42,10 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         //this.instances.push(this);
     },
     Collection = function(){},
-    Url = Class.extend({
+    Url = Class.extend
+    ({
         _constructor: function(arg) {
-            this.data = { root: ''};
+            this.data = !this.data ? { root: ''} : this.data;
             switch( $.type(arg) )
             {
                 case 'string':
@@ -80,7 +81,10 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             this.data.filter = key+'='+value;
             return this;
         },
-
+        decorate: function(format)
+        {
+            this.data.url = format.replace(/(%s)/g, this.data.url);
+        },
         options: function() {
 
             var options = {};
@@ -96,15 +100,22 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             var self = this,
                 reqFnc = function(data, predefinedOptions, userOptions)
                 {
-                    if(source instanceof Url) {
+                    var a;
+                    if( source instanceof Url ) 
+                    {
                         var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data}, source.options());
-                        self.reset();
-                        return $.ajax(self.href(source.get()), options);
-                    } else {
+                        a = $.ajax(self.href(source.get()), options);
+                    } 
+                    else 
+                    {
                         var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data});
-                        self.reset();
-                        return $.ajax(self.href(source), options);
+                        a = $.ajax(self.href(source), options);
                     }
+                    self.reset();
+                    options.fail && a.fail(options.fail);
+                    options.done && a.done(options.done);
+                    options.always && a.always(options.always);
+                    return a;
                 };
 
             return {
@@ -617,15 +628,16 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         }
                     }
                     self.desynced = false;
-                    if(count === 0)
-                        self.triggerHandler('read');
-                    else if( changeset.length > 0) {
+                    if( changeset.length > 0) 
+                    {
                         /**
                          * Trigger handler with changeset extraparameter as a vector of vectors,
                          * caz jquery will send extraparameters as arguments when calling handler
                          */
                         $(self).triggerHandler('read', [changeset]);
                     }
+                    else
+                        self.triggerHandler('read'); 
                 }));
         },
         /*!

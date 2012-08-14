@@ -8,7 +8,7 @@ function(Gizmo, User, Language, Posts, Collaborators)
     // Blog
     return Gizmo.Model.extend
     ({
-		url: new Gizmo.Url('Blog'),
+		url: new Gizmo.Url('LiveDesk/Blog'),
         defaults:
         { 
             Creator: User,
