@@ -33,11 +33,12 @@ log = logging.getLogger(__name__)
 def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
 
+support.wireEntities(ThumbnailManager, ThumbnailCreatorFFMpeg)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
 
 # --------------------------------------------------------------------
 
-@ioc.entity
+@ioc.config
 def thumbnail_sizes():
     '''
     Contains the thumbnail sizes available for the media archive.
@@ -68,12 +69,13 @@ def thumbnailManager() -> IThumbnailManager:
     b = ThumbnailManager()
     b.thumbnailSizes = thumbnail_sizes()
     b.thumbnailCreator = thumbnailCreator()
-    b.cdmThumbnail = cdmThumbnail()
+    b.cdm = cdmThumbnail()
     return b
 
 @ioc.entity
 def thumbnailCreator() -> IThumbnailCreator:
-    return ThumbnailCreatorFFMpeg()
+    c = ThumbnailCreatorFFMpeg()
+    return c
 
 @ioc.entity
 def metaDataService() -> IMetaDataService:
@@ -131,7 +133,7 @@ from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
     MetaDataServiceAlchemy
 import logging
 from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
-    ThumbnailCreatorFFMpeg
+    ThumbnailCreatorGraphicsMagick
 
 # --------------------------------------------------------------------
 
@@ -142,7 +144,7 @@ log = logging.getLogger(__name__)
 def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
 
-support.wireEntities(ThumbnailManager, ThumbnailCreatorFFMpeg)
+support.wireEntities(ThumbnailManager, ThumbnailCreatorGraphicsMagick)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
 
 # --------------------------------------------------------------------
@@ -183,7 +185,7 @@ def thumbnailManager() -> IThumbnailManager:
 
 @ioc.entity
 def thumbnailCreator() -> IThumbnailCreator:
-    c = ThumbnailCreatorFFMpeg()
+    c = ThumbnailCreatorGraphicsMagick()
     return c
 
 @ioc.entity
