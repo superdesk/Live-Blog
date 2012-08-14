@@ -1,10 +1,12 @@
 define
 ([
-    'jquery','jquery/superdesk','dust/core','jquery/tmpl','jquery/rest', 'bootstrap',  
+    'jquery','jquery/superdesk', 
+    config.lib_js_urn + 'views/auth',
+    'dust/core','jquery/tmpl','jquery/rest', 'bootstrap',  
     'tmpl!layouts/dashboard',
     'tmpl!navbar'
 ], 
-function($, superdesk, dust)
+function($, superdesk, AuthApp)
 {
     var MenuView = function() 
     {
@@ -72,15 +74,21 @@ function($, superdesk, dust)
         		    localStorage.removeItem('superdesk.login.name');
         		    localStorage.removeItem('superdesk.login.id');
         		    delete $.restAuth.prototype.requestOptions.headers.Authorization;
+        		    
+        		    $(AuthApp).trigger('logout');
+        		    
         		    new MenuView;
         		});
-    		};
+    		}; // refreshMenu
+    		
+    		
     		$('#navbar-top').on('refresh-menu', refreshMenu);
+    		$(AuthApp).off('authenticated').on('authenticated', refreshMenu );
     		refreshMenu();
     		
         });
         $.superdesk.applyLayout('layouts/dashboard');
     };
-
+    
     return MenuView;
 });
