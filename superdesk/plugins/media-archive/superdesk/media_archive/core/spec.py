@@ -65,7 +65,7 @@ class IThumbnailManager(IMetaDataReferencer):
     Interface that defines the API for handling thumbnails.
     '''
 
-    def processThumbnail(self, thumbnailFormatId, imagePath, size, metaData=None):
+    def processThumbnail(self, thumbnailFormatId, imagePath, metaData=None, size=None):
         '''
         Process a file identified by metaData.
         Return the thumbnail content for the given metaData.
@@ -74,14 +74,14 @@ class IThumbnailManager(IMetaDataReferencer):
             The thumbnail path format identifier
         @param imagePath: str
             The path to the original image from which to generate the thumbnail.
-        @param size: str
-            The size identifier
         @param metaData: Metadata
             The object containing the content metadata for which the thumbnail is generated.
+        @param size: str
+            The size identifier (None for default)
         '''
 
     @abc.abstractclassmethod
-    def timestampThumbnail(self, thumbnailFormatId, metaData=None):
+    def timestampThumbnail(self, thumbnailFormatId, metaData=None, size=None):
         '''
         Provides the thumbnail last modification time stamp.
 
@@ -89,6 +89,8 @@ class IThumbnailManager(IMetaDataReferencer):
             The thumbnail format id to process the timestamp for.
         @param metaData: Metadata
             The object containing the content metadata for which the thumbnail was generated.
+        @param size: str
+            The thumbnail size (None for default)
         @return: datetime|None
             The datetime of the last modification or None if there is no resource for the thumbnail path.
         '''
