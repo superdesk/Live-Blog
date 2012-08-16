@@ -21,11 +21,14 @@ define
     ({
         init: function()
         {
-            this.model.on('read', this.render, this).xfilter('Title, Id').sync();
+            this.model.on('read', this.render, this);
+        },
+        refresh: function()
+        {
+            this.model.xfilter('Title, Id').sync();
         },
         render: function()
         {
-            console.log('render');
             $(this.el).on('click', '#submenu-liveblogs-create', function()
             {
                 superdesk.showLoader();
@@ -47,11 +50,17 @@ define
                         require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); });
                 });
             });
+            console.log('submenu render', {Blogs: this.model.feed()}, this.el);
             this.el.tmpl('livedesk>submenu', {Blogs: this.model.feed()}); 
         }
     });
     
     var subMenu = new SubmenuView({model: b});
-    return {init: function(submenu){ subMenu.setElement($(submenu)); return subMenu; }}
-    
+    return {
+        init: function(submenu)
+        { 
+            subMenu.setElement($(submenu)).refresh();
+            return subMenu; 
+        }
+    };
 });
