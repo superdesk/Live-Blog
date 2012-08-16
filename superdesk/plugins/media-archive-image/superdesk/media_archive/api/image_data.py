@@ -13,6 +13,7 @@ from .domain_archive import modelArchive
 from .meta_data import MetaData, QMetaData, IMetaDataService
 from ally.api.config import query, service
 from ally.api.criteria import AsEqualOrdered, AsLikeOrdered
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -23,6 +24,10 @@ class ImageData(MetaData):
     '''
     Width = int
     Height = int
+    CreationDate = str #datetime
+    CameraMake = str
+    CameraModel = str
+
 
 # --------------------------------------------------------------------
 
