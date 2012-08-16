@@ -78,12 +78,11 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         thumbSize = thumbSize if thumbSize else ORIGINAL_SIZE
         assert isinstance(thumbSize, str) and thumbSize in self.thumbnailSizes, \
         'Invalid size value %s' % thumbSize
+
         if not metaData.thumbnailFormatId:
             return metaData
         keys = {'id': metaData.Id, 'name': metaData.Name}
         if thumbSize:
-            assert isinstance(thumbSize, str), 'Invalid thumb size %s' % thumbSize
-            if thumbSize not in self.thumbnailSizes: raise DevelError('Unknown thumbnail size %s' % thumbSize)
             keys['size'] = thumbSize
         elif self.thumbnailSizes:
             keys['size'] = next(iter(self.thumbnailSizes))
@@ -94,7 +93,7 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         except PathNotFound:
             if keys['size'] == ORIGINAL_SIZE: raise DevelError('Unable to find a thumbnail for %s' % scheme)
             originalImagePath = self._reference(metaData.thumbnailFormatId, metaData.Id, metaData.Name)
-            return self.processThumbnail(metaData.thumbnailFormatId, originalImagePath, metaData)
+            self.processThumbnail(metaData.thumbnailFormatId, originalImagePath, metaData, keys['size'])
         metaData.Thumbnail = self.cdm.getURI(thumbPath, scheme)
         return metaData
 
@@ -112,7 +111,6 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
 
         keys = {} if not metaData else {'id': metaData.Id, 'name': metaData.Name}
         if size:
-            assert isinstance(size, str), 'Invalid thumb size %s' % size
             keys['size'] = size
         elif self.thumbnailSizes:
             keys['size'] = next(iter(self.thumbnailSizes))
