@@ -139,10 +139,13 @@ define('providers/edit', [
 			'[ci="save"]': { 'click': 'save'}
 		},
 		init: function(){			
-			this.postTypes = new Gizmo.AuthCollection(this.theBlog+'/../../../../Superdesk/PostType', Gizmo.Register.PostType);
-			this.postTypes.xfilter('Key');
-			this.postTypes.on('read', this.render, this);
-			this.postTypes.sync();
+			var self = this;
+			self.postTypes = new Gizmo.AuthCollection(self.theBlog+'/../../../../Superdesk/PostType', Gizmo.Register.PostType);
+			self.postTypes.xfilter('Key');
+			self.postTypes.on('read', function(){
+				self.render();
+			});
+			self.postTypes.sync();
 		},
 		render: function(){
 			var self = this;
@@ -206,7 +209,7 @@ define('providers/edit', [
 		}
 	});	
 	$.extend( providers.edit, { 
-		init: function(theBlog){ 
+		init: function(theBlog){
 			new EditView({ el: this.el, theBlog: theBlog }); 
 		}
 	});
