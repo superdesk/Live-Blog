@@ -12,10 +12,12 @@
     <body>
         <ul id="livedesk-root"></ul>
         <script>
-		window.livedeskCallback = function(livedeskEmbed){
-			new livedeskEmbed.TimelineView({ 
-				url: 'http://localhost:8082/resources/my/LiveDesk/Blog/1'
-			});
+		window.livedesk = {
+			callback: function(livedeskEmbed){
+				new this.TimelineView({ 
+					url: 'http://localhost:8082/resources/my/LiveDesk/Blog/1'
+				});
+			}
 		};
 		(function(d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0];

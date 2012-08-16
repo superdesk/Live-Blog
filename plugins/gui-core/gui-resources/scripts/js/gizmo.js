@@ -782,7 +782,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             var className = this.attributes.className,
                 id = this.attributes.id,
                 el ='';
-            if(!this.checkElement()) {
+            if(!$(this.el).length) {
                 if($.type(this.el) === 'string') {
                     if(this.el[0]=='.') {
                         className = className + this.el.substr(0,1);
