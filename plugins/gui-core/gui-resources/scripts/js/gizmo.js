@@ -15,7 +15,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
           if (y[p]) {
               switch(typeof(y[p])) {
                   case 'object':
-                      if (compare(y[p],x[p])) { return true; } break;
+                      if (compareObj(y[p],x[p])) { return true; } break;
                   case 'function':
                       if (typeof(x[p])=='undefined' ||
                           (y[p].toString() != x[p].toString()))
@@ -234,7 +234,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         self._remove();
                     }
                     else if(!$.isEmptyObject(self.changeset)) {
-                        //console.log('pull update');
+                        //console.log('pull update: ',$.extend({},self.changeset));
                         self.triggerHandler('update', self.changeset).clearChangeset();
                     }
                     else {
@@ -283,7 +283,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 {
                     case typeof this.defaults[i] === 'function': // a model or collection constructor
                         var newModel = this.modelDataBuild(new this.defaults[i](data[i]));
-                        if( (this.data[i] !== undefined) && (newModel != this.data[i]) )
+                        if( (this.data[i] !== undefined) && (newModel != this.data[i]) && !(newModel instanceof Collection) )
                             this.changeset[i] = newModel;
                         this.data[i] = newModel;
 
@@ -382,6 +382,14 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          * used to relate models. a general standard key would suffice
          */
         relationHash: function(val){ if(val) this.data.Id = val; return this.data.Id; },
+		/*!
+         * used to remove events from this model
+         */
+        off: function(evt, handler)		
+		{
+			$(this).off(evt, handler);
+			return this;
+		},
         /*!
          * used to place events on this model,
          * scope of the call method is sent as obj argument
@@ -477,7 +485,13 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         newly.on = function(event, handler, obj)
         {
             $(newly).on(event, function(){ handler.apply(obj, arguments); });
+			return newly;
         };
+        newly.off = function(event, handler)
+        {
+            $(newly).off(event, handler);
+			return newly;
+        };		
         newly.triggerHandler = function(event, data){ $(newly).triggerHandler(event, data); };
 
         if(options && options.register) {
@@ -617,15 +631,19 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         }
                     }
                     self.desynced = false;
-                    if(count === 0)
-                        self.triggerHandler('read');
-                    else if( changeset.length > 0) {
+					/**
+					 * If the initial data is empty then trigger READ event
+					 * else UPDATE with the changeset if there are some
+					 */
+					if( ( count === 0) ){
+						self.triggerHandler('read');
+                    } else {                    
                         /**
                          * Trigger handler with changeset extraparameter as a vector of vectors,
                          * caz jquery will send extraparameters as arguments when calling handler
                          */
-                        $(self).triggerHandler('read', [changeset]);
-                    }
+                        $(self).triggerHandler('update', [changeset]);
+					}
                 }));
         },
         /*!
@@ -674,7 +692,15 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             var x = model.sync(this.href);
             return x;
         },
-        /*!
+		/*!
+         * used to remove events from this model
+         */
+        off: function(evt, handler)		
+		{
+			$(this).off(evt, handler);
+			return this;
+		},
+		/*!
          * used to place events on this model,
          * scope of the call method is sent as obj argument
          */
@@ -736,8 +762,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         {
             $.extend(this, data);
             options = $.extend({}, { init: true, events: true, ensure: true}, options);
-            options.ensure && this._ensureElement();
-            options.init && this.init.apply(this, arguments);
+			options.ensure && this._ensureElement();
+			options.init && this.init.apply(this, arguments);
             options.events && this.delegateEvents();
         },
         _ensureElement: function()
@@ -745,7 +771,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             var className = this.attributes.className,
                 id = this.attributes.id,
                 el ='';
-            if(!$(this.el).length) {
+            if(!this.checkElement()) {
                 if($.type(this.el) === 'string') {
                     if(this.el[0]=='.') {
                         className = className + this.el.substr(0,1);
@@ -807,9 +833,35 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         },
         remove: function()
         {
-            $(this.el).remove();
+			$(this.el).remove();
+			this.destroy();
             return this;
         },
+		destroy: function()
+		{
+            if(this.model)
+				this.model.trigger('destroy');
+			if(this.collection)
+				this.collection.trigger('destroy');
+			return this;
+		},
+		checkElement: function()
+		{
+			//console.log('Undefined: ',(this.el === undefined));
+			
+			if(this.el === undefined)
+				return false;
+			
+			//console.log('Selector: ',this.el.selector, ' length: ',($(this.el.selector).length === 1));
+			
+			if((this.el.selector !== undefined) && (this.el.selector != ''))
+				return ($(this.el.selector).length === 1);			
+			
+			//console.log('Last: ',this.el, ' length: ',($(this.el).length === 1));
+			
+			return ($(this.el).length === 1);
+			
+		},
         setElement: function(el)
         {
             this.undelegateEvents();
