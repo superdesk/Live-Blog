@@ -25,4 +25,5 @@ class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
     '''
 
     def __init__(self):
-        MetaInfoServiceBaseAlchemy.__init__(self, ImageInfo, QImageInfo, ImageData, QImageData)
+       pass
+   # MetaInfoServiceBaseAlchemy.__init__(self, ImageInfo, QImageInfo, ImageData, QImageData)
