@@ -1,5 +1,18 @@
 define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
 {
+    var AuthApp;
+    // delete login on trigger logout from other apps
+    require([config.lib_js_urn + 'views/auth'], function(a)
+    {
+        AuthApp = a;
+        $(AuthApp).on('logout', function()
+        {
+            localStorage.removeItem('superdesk.login.session')
+            delete authSync.options.headers.Authorization;
+            console.log('gizmo superdesk auth logout');
+        });
+    });
+    
     var syncReset = function() // reset specific data and headers for superdesk
     {
         try
@@ -13,9 +26,33 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     {
         reset: syncReset
     }),
+    
+    // display auth view
+    authLock = function()
+    {
+        var args = arguments,
+            self = this;
+
+            // reset headers on success
+            AuthApp.success = function()
+            { 
+                self.options.headers.Authorization = localStorage.getItem('superdesk.login.session');
+            };
+            AuthApp.require.apply(self, arguments); 
+    },
+    
     authSync = $.extend({}, newSync, 
     {
-        options: { headers: { 'Authorization': localStorage.getItem('superdesk.login.session') } },
+        options: 
+        { 
+            // get login token from local storage
+            headers: { 'Authorization': localStorage.getItem('superdesk.login.session') },
+            // failuire function for non authenticated requests
+            fail: function(resp)
+            { 
+                (resp.status == 404 || resp.status == 401) && authLock.apply(authSync, arguments); 
+            } 
+        },
         href: function(source)
         {
             return source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
@@ -68,7 +105,15 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     AuthCollection = Collection.extend
     ({
         xfilter: xfilter, since: since, syncAdapter: authSync
-    });
+    }),
+    
+ // set url helper property with superdesk path
+    Url = giz.Url.extend
+    ({        
+        data: { root: superdesk.apiUrl+'/resources/' }
+    })
+    ;
+    
     
     // finally add unique container model
     Model.extend = function()
@@ -93,7 +138,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         Collection: Collection, AuthCollection: AuthCollection, 
         Sync: newSync, AuthSync: authSync,
 		View: giz.View,
-		Url: giz.Url,
+		Url: Url,
 		Register: giz.Register		
     };
 });
