@@ -14,7 +14,7 @@ from ally.container.ioc import injected
 from superdesk.media_archive.api.meta_data import MetaData
 from superdesk.media_archive.core.spec import IThumbnailManager, IThumbnailCreator
 from cdm.spec import ICDM, PathNotFound
-from os.path import join, isfile, exists, isdir, normpath, dirname
+from os.path import join, isfile, exists, isdir, dirname
 from ally.support.util_io import timestampURI
 from shutil import copyfile
 from ally.exception import DevelError
@@ -24,6 +24,7 @@ from ally.support.sqlalchemy.session import SessionSupport
 from os import access, W_OK, makedirs
 from collections import OrderedDict
 from subprocess import Popen
+from ally.zip.util_zip import normOSPath
 
 # --------------------------------------------------------------------
 
@@ -74,26 +75,19 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         self._cache_thumbnail = {}
 
     def populate(self, metaData, scheme, thumbSize=None):
-        assert not metaData or isinstance(metaData, MetaData), 'Invalid metaData %s' % metaData
+        assert isinstance(metaData, MetaData), 'Invalid metaData %s' % metaData
         thumbSize = thumbSize if thumbSize else ORIGINAL_SIZE
         assert isinstance(thumbSize, str) and thumbSize in self.thumbnailSizes, \
         'Invalid size value %s' % thumbSize
 
         if not metaData.thumbnailFormatId:
             return metaData
-        keys = {'id': metaData.Id, 'name': metaData.Name}
-        if thumbSize:
-            keys['size'] = thumbSize
-        elif self.thumbnailSizes:
-            keys['size'] = next(iter(self.thumbnailSizes))
-        else:
-            keys['size'] = ORIGINAL_SIZE
-        thumbPath = self._getFormat(metaData.thumbnailFormatId) % keys
+        thumbPath = self._reference(metaData.thumbnailFormatId, metaData.Id, metaData.Name, thumbSize)
         try: self.cdm.getTimestamp(thumbPath)
         except PathNotFound:
-            if keys['size'] == ORIGINAL_SIZE: raise DevelError('Unable to find a thumbnail for %s' % scheme)
+            if thumbSize == ORIGINAL_SIZE: raise DevelError('Unable to find a thumbnail for %s' % scheme)
             originalImagePath = self._reference(metaData.thumbnailFormatId, metaData.Id, metaData.Name)
-            self.processThumbnail(metaData.thumbnailFormatId, originalImagePath, metaData, keys['size'])
+            self.processThumbnail(metaData.thumbnailFormatId, originalImagePath, metaData, thumbSize)
         metaData.Thumbnail = self.cdm.getURI(thumbPath, scheme)
         return metaData
 
@@ -109,17 +103,11 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         assert isinstance(size, str) and size in self.thumbnailSizes, \
         'Invalid size value %s' % size
 
-        keys = {} if not metaData else {'id': metaData.Id, 'name': metaData.Name}
-        if size:
-            keys['size'] = size
-        elif self.thumbnailSizes:
-            keys['size'] = next(iter(self.thumbnailSizes))
-        else:
-            keys['size'] = ORIGINAL_SIZE
-        thumbPath = self._getFormat(thumbnailFormatId) % keys
-        thumbTimestamp = self.timestampThumbnail(thumbnailFormatId, metaData, keys['size'])
+        (metaDataId, metaDataName) = (None, None) if not metaData else (metaData.Id, metaData.Name)
+        thumbPath = self._reference(thumbnailFormatId, metaDataId, metaDataName, size)
+        thumbTimestamp = self.timestampThumbnail(thumbnailFormatId, metaData, size)
         if not thumbTimestamp or thumbTimestamp < timestampURI(imagePath):
-            thumbRepoPath = normpath(join(self.thumbnail_dir_path, thumbPath))
+            thumbRepoPath = normOSPath(join(self.thumbnail_dir_path, thumbPath))
             if not isdir(dirname(thumbRepoPath)): makedirs(dirname(thumbRepoPath))
             copyfile(imagePath, thumbRepoPath)
             self.thumbnailCreator.createThumbnail(thumbRepoPath,
