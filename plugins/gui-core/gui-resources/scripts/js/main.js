@@ -30,7 +30,10 @@ require(['concat'], function(){
 	require([config.cjs('views/menu.js'), 'jquery', 'jquery/superdesk', 'jquery/i18n', 'jqueryui/ext'], 
 	function(MenuView, $, superdesk)
 	{
-		var makeMenu = function(){ var menuView = new MenuView; }, 
+		var makeMenu = function()
+		{ 
+		    var menuView = new MenuView;
+		}, 
 		authLock = function()
 		{
 			var args = arguments,
