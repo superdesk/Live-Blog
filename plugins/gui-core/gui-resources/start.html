@@ -4,7 +4,8 @@
 	<title>GEN Live Desk</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<script>
-	config = new function(){
+	config = new function()
+	{
 		this.domain = '{server_url}';
 		this.api_url = '//' + this.domain;
 		this.rest_url = '//' + this.domain + '/resources';
@@ -12,6 +13,9 @@
 		this.lib_url = this.content_url + '/{lib_core}';
 		this.lib_js_url = this.lib_url + 'scripts/js/%s';
 		this.lib_css_url = this.lib_url + 'styles/css/%s';
+
+		// other
+		this.lib_js_urn = '{lib_core}/scripts/js/';
 		
 		this.gui_url = '{gui}';
 		
