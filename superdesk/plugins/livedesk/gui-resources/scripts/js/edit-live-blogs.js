@@ -86,6 +86,13 @@ define
 			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
+			keep: false,
+			init: function(){
+				//console.log('init');
+			},
+			destroy: function(){
+				this.stop();
+			},
 			setIdInterval: function(fn){
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
@@ -97,22 +104,26 @@ define
 						this._latestCId = CId;
 				}
 			},
-			auto: function(){
+			start: function(){
 				var self = this, requestOptions = {data: {'startEx.cId': this._latestCId}, headers: { 'X-Filter': 'CId'}};
-				if(this._latestCId === 0) delete requestOptions.data;
-				Gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){
+				if(self._latestCId === 0) delete requestOptions.data;
+				if(!this.keep && self.view && !self.view.checkElement()) {
+					self.stop();
+					return;
+				}
+				Gizmo.Collection.prototype.sync.call(self,requestOptions).done(function(data){
 					self.getMaximumCid(self.parse(data));
 				});
 				return this;
 			},
-			pause: function(){
+			stop: function(){
 				var self = this;
 				clearInterval(self.idInterval);
 				return this;
 			},
 			sync: function(){
 				var self = this;
-				this.auto().pause().setIdInterval(function(){self.auto();});
+				this.stop().start().setIdInterval(function(){self.start();});
 			}
 		});
 		var
@@ -130,7 +141,7 @@ define
 				self.el.data('view', self);
 				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
-				this.model.on('delete', this.remove, this)
+				this.model.off('delete read set').on('delete', this.remove, this)
 					.on('read', function(){
 						self.render();
 					})
@@ -254,17 +265,23 @@ define
 			},
 			init: function(){
 				var self = this;
-				this._latest = undefined;
-				this.posts.model.on('publish', function(evt, model){
+				self._latest = undefined;
+				self.collection.model.off('publish').on('publish', function(evt, model){
 					self.addOne(model);
 				});
-				this.posts.on('read', this.render, this).sync();
+				self.collection
+					.off('read update')
+					.on('read', function(){
+						self.render();
+					})
+					.on('update', function(evt, data){
+						self.addAll(data);
+					})
+					.sync();
+				self.collection.view = self;
 			},
 			addOne: function(model)
-			{
-				if(model.timeline !== undefined)
-					return;
-				model.timeline = this;
+			{			
 				current = new PostView({model: model, _parent: this});				
 				this.el.find('ul.post-list').prepend(current.el);
 				current.next = this._latest;
@@ -274,25 +291,20 @@ define
 			},
 			addAll: function(data)
 			{
-				if ( data === undefined)
-					data = this.posts._list;
 				var next = this._latest, current, model, i = data.length;
 				while(i--) {
 					this.addOne(data[i]);
 				}
 				
 			},
-			render: function(evt, data){
+			render: function(){
 				var self = this;
-				if ( data === undefined) {
-					$.tmpl('livedesk>timeline-container', {}, function(e, o){
-						$(self.el).html(o)
-								  .find('ul.post-list')
-									.sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
-						self.addAll();
-					});
-				} else
-					self.addAll(data);
+				$.tmpl('livedesk>timeline-container', {}, function(e, o){
+					$(self.el).html(o)
+							  .find('ul.post-list')
+								.sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
+					self.addAll(self.collection.getList());
+				});
 			},
 			insert: function(data){
 				//publishSync
@@ -300,11 +312,11 @@ define
 				//new $.restAuth(self.blogHref + '/Post/Published').resetData().insert(
 			},
 			publish: function(post){
-				if(post instanceof this.posts.model) {
+				if(post instanceof this.collection.model) {
 					post.publishSync();
 				} else {
-					var model = new this.posts.model({ Id: data});
-					this.posts.insert({})
+					var model = new this.collection.model({ Id: data});
+					this.collection.insert({})
 					model.publish();
 				}
 				//new $.restAuth(self.blogHref + '/Post/'+post+'/Publish').resetData().insert()
@@ -312,7 +324,7 @@ define
 		}),
 
 		EditView = Gizmo.View.extend({
-			timeineView: null,
+			timelineView: null,
 			events: {
 				'[is-content] section header h2': { focusout: 'save' },
 				'[is-content] #blog-intro' : { focusout: 'save' },
@@ -321,7 +333,9 @@ define
 			init: function(){
 				var self = this;
 				this.model = Gizmo.Auth(new Gizmo.Register.Blog(theBlog));
-				this.model.on('read', function(){
+				this.model
+				.off('destroy read')
+				.on('read', function(){
 					self.render();
 				}).xfilter('Creator.Name,Creator.Id').sync();
 			},
@@ -330,9 +344,9 @@ define
 					data = ui.draggable.data('data'),
 					post = ui.draggable.data('post');
 				if(data !== undefined) {
-					self.timeineView.insert(data);
+					self.timelineView.insert(data);
 				} else if(post !== undefined){
-					self.timeineView.publish(post);
+					self.timelineView.publish(post);
 					// stupid bug in jqueryui you can make draggable desstroy
 					setTimeout(function(){
 						$(ui.draggable).removeClass('draggable').addClass('published').draggable("destroy");
@@ -357,9 +371,6 @@ define
 				});
 			},
 			render: function(){
-				if(this.model.view !== undefined)
-					return;
-				this.model.view = this;
 				var self = this,
 					data = $.extend({}, this.model.feed(), {
 						BlogHref: theBlog,
@@ -376,9 +387,9 @@ define
 						//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 						var timelineCollection = Gizmo.Auth(new TimelineCollection( Gizmo.Register.Post ));
 						timelineCollection.href.root(theBlog);
-						self.timeineView = new TimelineView({
+						self.timelineView = new TimelineView({
 							el: $('#timeline-view .results-placeholder', self.el),
-							posts: timelineCollection,
+							collection: timelineCollection,
 							_parent: self
 						});
 						self.providers = new ProvidersView({
@@ -461,16 +472,13 @@ define
 					.on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
 					{
 						event.preventDefault();
-						console.log('this is it');
-						
-						new EditView({ el: '#area-main'});
-						/*var blogHref = $(this).attr('href');
+						var blogHref = $(this).attr('href');
 						$.superdesk.getAction('modules.livedesk.edit')
 						.done(function(action)
 						{
 							action.ScriptPath && 
-								require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
-						});*/
+								require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
+						});
 					});					
 			}
 		});
