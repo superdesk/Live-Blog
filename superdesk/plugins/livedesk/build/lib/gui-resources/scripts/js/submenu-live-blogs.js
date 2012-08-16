@@ -6,48 +6,61 @@ requirejs.config({
 } });
 define
 ([
-  'jquery', 'jquery/superdesk', 'jquery/tmpl', 'jquery/rest',
+  'jquery', 'jquery/superdesk',
+  'gizmo/superdesk',
+  config.guiJs('livedesk', 'models/blog'),
+  'jquery/tmpl', 'jquery/rest',
   'tmpl!livedesk>submenu'
-], function($, superdesk)
+], function($, superdesk, Gizmo, Blog)
 {
-    app = 
-    {
-        init: function(submenu) 
+    var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url(Blog.prototype.url.data.url) }), 
+        b = Gizmo.Auth(new Blogs());
+    b.href.decorate('%s/Administered');
+    
+    var SubmenuView = Gizmo.View.extend
+    ({
+        init: function()
         {
-            new $.restAuth('LiveDesk/Blog/Administered').xfilter('Title,Id').done(function(blogs)
-            { 
-                $(submenu).tmpl('livedesk>submenu', {Blogs: blogs}, function()
-                { 
-                    var createBtn = $(this).find('#submenu-liveblogs-create');
-                    createBtn.off('click.livedesk')
-                        .on('click.livedesk', function()
-                        { 
-                            superdesk.showLoader();
-                            
-                            // get modules.* actions
-                            superdesk.getAction('modules.livedesk.add')
-                            .done(function(action)
-                            {
-                                action.ScriptPath &&
-                                    require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ addApp = new AddApp(); });
-                            });
-                        });
-                    $(this).find('.submenu-blog').off('click.livedesk')
-                        .on('click.livedesk', function()
-                        {
-                            superdesk.showLoader();
-                            
-                            var theBlog = $(this).attr('data-blog-link');
-                            superdesk.getAction('modules.livedesk.edit')
-                            .done(function(action)
-                            {
-                                action.ScriptPath && 
-                                    require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); });
-                            });
-                        });
+            this.model.on('read', this.render, this);
+        },
+        refresh: function()
+        {
+            this.model.xfilter('Title, Id').sync();
+        },
+        render: function()
+        {
+            $(this.el).on('click', '#submenu-liveblogs-create', function()
+            {
+                superdesk.showLoader();
+                superdesk.getAction('modules.livedesk.add')
+                .done(function(action)
+                {
+                    action.ScriptPath &&
+                        require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ addApp = new AddApp(); });
+                });  
+            });
+            $(this.el).on('click', '.submenu-blog', function()
+            {
+                superdesk.showLoader();
+                var theBlog = $(this).attr('data-blog-link');
+                superdesk.getAction('modules.livedesk.edit')
+                .done(function(action)
+                {
+                    action.ScriptPath && 
+                        require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); });
                 });
             });
+            console.log('submenu render', {Blogs: this.model.feed()}, this.el);
+            this.el.tmpl('livedesk>submenu', {Blogs: this.model.feed()}); 
+        }
+    });
+    
+    var subMenu = new SubmenuView({model: b});
+    return {
+        init: function(submenu)
+        { 
+            subMenu.setElement($(submenu)).refresh();
+            return subMenu; 
         }
     };
-    return app;
 });

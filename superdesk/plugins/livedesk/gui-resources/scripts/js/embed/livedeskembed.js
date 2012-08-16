@@ -1,26 +1,26 @@
-var livedeskEmbed = {
-	init : function() {
-		var self = this;
+window.livedesk.init = function() {
+		var self = this,
+			contentPath = self.contentPath === undefined? '': self.contentPath;		
 		if (typeof jQuery == 'undefined') {
 			self.loadScript('http://code.jquery.com/jquery-1.7.2.min.js', function(){
 				if (typeof $.gizmo == 'undefined') {
-					self.loadScript('gizmo.js', function(){
+					self.loadScript(contentPath+'gizmo.js', function(){
 						self.startLoading();
 					})
 				}
 			})
 		} else {
-			if (typeof $.gizmo == 'undefined') {
-				self.loadScript('gizmo.js', function(){
+			if (typeof $.gizmo == 'undefined') {			
+				self.loadScript(contentPath+'gizmo.js', function(){
 					self.startLoading();
 				})
 			} else {
 				self.startLoading();
 			}
 		}
-	},
+	};
 	
-	loadScript : function (src, callback) {
+window.livedesk.loadScript = function (src, callback) {
 		var script = document.createElement("script")
 		script.type = "text/javascript";
 		if (script.readyState) { //IE
@@ -37,8 +37,8 @@ var livedeskEmbed = {
 		}
 		script.src = src;
 		document.getElementsByTagName("head")[0].appendChild(script);
-	},
-	startLoading : function() {
+	};
+window.livedesk.startLoading = function() {
 		var 
 		User = $.gizmo.Model.extend({}),
 /*		PostType = $.gizmo.Model.extend({}),
@@ -277,7 +277,7 @@ var livedeskEmbed = {
 			{
 				var self = this;
 				if($.type(self.url) === 'string')
-					self.blog = new Blog(self.url);				
+					self.blog = new Blog(self.url.replace('my/',''));				
 				self.blog.on('read', function()
 				{ 
 					self.blog.get('PostPublished').on('read', self.render, self).xfilter('CId').sync();
@@ -313,8 +313,7 @@ var livedeskEmbed = {
 			}
 			
 		});
-		livedeskEmbed.TimelineView = TimelineView;
-		window.livedeskCallback(livedeskEmbed);
-	},
-};
-livedeskEmbed.init();
+		window.livedesk.TimelineView = TimelineView;
+		window.livedesk.callback();
+	};
+window.livedesk.init();
