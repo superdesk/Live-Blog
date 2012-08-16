@@ -97,7 +97,7 @@ function($)
         
         var topSubMenu = $(this).find('[is-submenu]');
         $(topSubMenu)
-        //.off('click.livedesk', 'a[data-target="configure-blog"]')
+        .off('click.livedesk', 'a[data-target="configure-blog"]')
         .on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
         {
             event.preventDefault();
@@ -108,8 +108,8 @@ function($)
                 action.ScriptPath &&
                     require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
             });
-        });
-        /*.off('click.livedesk', 'a[data-target="edit-blog"]')
+        })
+        .off('click.livedesk', 'a[data-target="edit-blog"]')
         .on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
         {
             event.preventDefault();
@@ -118,9 +118,9 @@ function($)
             .done(function(action)
             {
                 action.ScriptPath && 
-                    require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
+					require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
             });
-        });*/
+        });
         $('[data-action="save"]', content)
             .off('click.livedesk')
             .on('click.livedesk', function(){ saveBlog(); saveColabs(); });
