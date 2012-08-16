@@ -23,8 +23,7 @@ from ally.support.api.util_service import copy
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_io import pipe
-from cdm.spec import ICDM, PathNotFound
-from collections import OrderedDict
+from cdm.spec import PathNotFound
 from datetime import datetime
 from genericpath import isdir
 from os.path import join, getsize
@@ -32,6 +31,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 import os
 import subprocess
+from ..core.spec import IThumbnailManager
+from ally.support.util_io import openURI, timestampURI
+from superdesk.media_archive.core.impl.meta_service_base import thumbnailFormatFor
+from ally.support.util_sys import pythonPath
 
 
 # --------------------------------------------------------------------
@@ -51,33 +54,21 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, Sessio
 
     imageTypeKey = 'image'
     # The key for the meta type image
-
-    thumbnailSizes = dict
-    # Contains the thumbnail sizes available for the media archive.
-    # This is basically just a simple dictionary{string, tuple(integer, integer)} that has as a key a path safe name
-    # and as a value a tuple with the width/height of the thumbnail.
-
-    cdmImages = ICDM
-    cdmThumbnails = ICDM
+    
+    thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
+    # Provides the thumbnail referencer
 
     def __init__(self):
         assert isinstance(self.image_dir_path, str), 'Invalid image directory %s' % self.image_dir_path
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
         assert isinstance(self.default_file_name, str), 'Invalid default file name %s' % self.default_file_name
         assert isinstance(self.imageTypeKey, str), 'Invalid meta type image key %s' % self.imageTypeKey
-        assert isinstance(self.thumbnailSizes, dict), 'Invalid thumbnail sizes %s' % self.thumbnailSizes
-        assert isinstance(self.cdmImages, ICDM), 'Invalid image CDM %s' % self.cdmImages
-        assert isinstance(self.cdmThumbnails, ICDM), 'Invalid image thumbnail CDM %s' % self.cdmThumbnails
+        
         SessionSupport.__init__(self)
 
         if not os.path.exists(self.image_dir_path): os.makedirs(self.image_dir_path)
         if not isdir(self.image_dir_path) or not os.access(self.image_dir_path, os.W_OK):
             raise IOError('Unable to access the repository directory %s' % self.image_dir_path)
-
-        # We order the thumbnail sizes in descending order
-        thumbnailSizes = [(key, sizes) for key, sizes in self.thumbnailSizes.items()]
-        thumbnailSizes.sort(key=lambda pack: pack[1][0] * pack[1][1])
-        self.thumbnailSizes = OrderedDict(thumbnailSizes)
 
         self._metaTypeId = None
 
@@ -121,26 +112,68 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, Sessio
         return imageInfoDb.Id
 
     # ----------------------------------------------------------------
+    def extractNumber(self, line):
+        for s in line.split(): 
+            if s.isdigit():
+                return int(s)
+            
+    # ----------------------------------------------------------------
+    def extractString(self, line):
+        str = line.partition('-')[2].strip('\n')
+        return str
+     
+    # ----------------------------------------------------------------
+    def extractDate(self, line):
+        str = line.partition('-')[2].strip('\n')
+        return str
+      
+     
+    # ----------------------------------------------------------------
 
-    def process(self, metaData, content):
+    def process(self, metaData, contentPath):
         '''
         @see: IMetaDataHandler.process
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         try:
-            
             metaData.IsAvailable = True
-
-            p = subprocess.Popen(['python2.7 ../../tools/media-archive-image/hachoir/hachoir.py', content], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for line in p.stdout.readlines():
-                print(line)
-                
-            result = p.wait()
-            print("Call smd with result=", result)
+            metaData.thumbnailFormatId = self._thumbnailFormat.id
             
+            jarPath = join('tools', 'media-archive-image', 'metadata_extractor.jar');
+            p = subprocess.Popen(['java', '-jar', jarPath, contentPath], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            result = p.wait()
+            assert result == 0
+            
+            imageData = ImageData()      
+            imageData.Id = metaData.Id    
+            
+            while 1:
+                line = p.stdout.readline()
+                if not line: break   
+                line = str(line, "utf-8")
+                
+                if line.find('Width') != -1:
+                    imageData.Width = self.extractNumber(line)
+                elif line.find('Height') != -1:
+                    imageData.Height = self.extractNumber(line)
+                elif line.find('Time Original') != -1:
+                    imageData.CreationDate = self.extractString(line)
+                elif line.find('Make') != -1:    
+                    imageData.CameraMake = self.extractString(line)
+                elif line.find('] Model ') != -1:
+                    imageData.CameraModel = self.extractString(line)        
         except PathNotFound:
-            metaData.IsAvailable = False
-        return metaData
+            metaData.IsAvailable = False          
+                
+        try:
+            self.session().add(imageData)
+            self.session().add(metaData)
+            self.session().flush((imageData, metaData,))    
+        except SQLAlchemyError as e: handle(e, imageData)  
+        
+        self.thumbnailManager.processThumbnail(self._thumbnailFormat.id, contentPath, metaData)
+        
+        return imageData.Id
 
     # ----------------------------------------------------------------
 
@@ -164,4 +197,10 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, Sessio
         '''
            Deploy 
         '''
-        pass
+        self._thumbnailFormatGeneric = thumbnailFormatFor(self.session(), '%(size)s/image_generic.jpg')
+        referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormatGeneric.id)
+        imagePath = join(pythonPath(), 'resources', 'other.jpg')
+        if referenceLast is None or referenceLast < timestampURI(imagePath):
+            self.thumbnailManager.processThumbnail(self._thumbnailFormatGeneric.id, imagePath)
+            
+        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/%(id)d.jpg')    
