@@ -97,7 +97,7 @@ function($)
         
         var topSubMenu = $(this).find('[is-submenu]');
         $(topSubMenu)
-        //.off('click.livedesk', 'a[data-target="configure-blog"]')
+        .off('click.livedesk', 'a[data-target="configure-blog"]')
         .on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
         {
             event.preventDefault();
@@ -108,8 +108,8 @@ function($)
                 action.ScriptPath &&
                     require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
             });
-        });
-        /*.off('click.livedesk', 'a[data-target="edit-blog"]')
+        })
+        .off('click.livedesk', 'a[data-target="edit-blog"]')
         .on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
         {
             event.preventDefault();
@@ -118,9 +118,9 @@ function($)
             .done(function(action)
             {
                 action.ScriptPath && 
-                    require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
+					require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
             });
-        });*/
+        });
         $('[data-action="save"]', content)
             .off('click.livedesk')
             .on('click.livedesk', function(){ saveBlog(); saveColabs(); });
@@ -133,13 +133,26 @@ function($)
     },
     app = function(theBlog)
     {
-        blogHref = theBlog;
+        var blogHref = theBlog,
+			EmbedPath = config.content_url+'/'+config.guiJs('livedesk','embed/')
+			EmbedSource = '<ul id="livedesk-root"></ul><'+'script>window.livedesk = { callback: function(){ new this.TimelineView({ url: "'+blogHref+'" });}, contentPath: "'+EmbedPath+'"};';
+			EmbedSource += '(function(d, s, id){var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;js = d.createElement(s); js.id = id;js.src = "'+EmbedPath+'/livedeskembed.js";fjs.parentNode.insertBefore(js, fjs);}(document, "script", "livedesk-jssdk"));<'+'/script>';
+		console.log(EmbedSource);
         gotColabs = new $.Deferred;
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(data)
         {
             blogData = data;
-            var data = $.extend({}, data, {BlogHref: theBlog, 
-                    ui: {content: 'is-content=1', side: 'is-side=1', submenu: 'is-submenu', submenuActive2: 'active'}}),
+            var data = $.extend({}, data, {
+					BlogHref: theBlog, 
+                    ui: {
+						content: 'is-content=1', 
+						side: 'is-side=1', 
+						submenu: 'is-submenu', 
+						submenuActive2: 'active'
+						
+					},
+					EmbedSource: EmbedSource
+					}),
                 content = $.superdesk.applyLayout('livedesk>configure', data, init);
         });
     };
