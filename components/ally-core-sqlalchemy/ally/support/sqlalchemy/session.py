@@ -9,10 +9,10 @@ Created on Jan 5, 2012
 Provides support for SQL alchemy automatic session handling.
 '''
 
-from ally.exception import DevelError
 from ally.container.binder import registerProxyBinder, bindBeforeListener, \
     bindAfterListener, bindExceptionListener, indexAfter, INDEX_LOCK_BEGIN, \
     indexBefore, INDEX_LOCK_END
+from ally.exception import DevelError
 from ally.support.util import AttributeOnThread
 from collections import deque
 from sqlalchemy.exc import InvalidRequestError
@@ -192,3 +192,26 @@ def bindSession(proxy, sessionCreator):
     bindBeforeListener(proxy, begin, index=INDEX_SESSION_BEGIN)
     bindAfterListener(proxy, end, index=INDEX_SESSION_END)
     bindExceptionListener(proxy, exception, index=INDEX_SESSION_END)
+
+# --------------------------------------------------------------------
+
+def commitNow():
+    '''
+    Commits the current session right now.
+    
+    @return: boolean
+        True if a session was commited, False otherwise.
+    '''
+    creators = ATTR_SESSION_CREATE.get(None)
+    if creators:
+        creator = creators[-1]
+        creatorId = id(creator)
+        sessions = ATTR_SESSION.get(None)
+        if sessions:
+            session = sessions.get(creatorId)
+            if session is not None:
+                commit(session)
+                return True
+    return False
+
+

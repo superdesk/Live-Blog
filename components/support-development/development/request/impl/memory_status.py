@@ -1,7 +1,7 @@
 '''
 Created on Oct 11, 2011
 
-@package: Newscoop
+@package: introspection request
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -13,7 +13,7 @@ from ally.api.type import Input, Integer, typeFor, String, Non
 from ally.container.ioc import injected
 from ally.core.impl.invoker import InvokerFunction
 from ally.core.impl.node import NodePath
-from ally.core.spec.resources import IResourcesRegister
+from ally.core.spec.resources import Node
 from collections import OrderedDict
 from inspect import isclass
 from ally.support.util_sys import fullyQName
@@ -29,13 +29,12 @@ class MemoryStatusPresenter:
     Class providing the memory status presentation.
     '''
 
-    resourcesRegister = IResourcesRegister
-    # The resources register used in getting the node structure.
+    root = Node
+    # The resources root node structure.
 
     def __init__(self):
-        assert isinstance(self.resourcesRegister, IResourcesRegister), \
-        'Invalid resources manager %s' % self.resourcesManager
-        node = NodePath(self.resourcesRegister.getRoot(), True, 'MemoryStatus')
+        assert isinstance(self.root, Node), 'Invalid root node %s' % self.root
+        node = NodePath(self.root, True, 'MemoryStatus')
         node.get = InvokerFunction(GET, self.present, typeFor(Non),
                                    [
                                     Input('limit', typeFor(Integer), True, None),

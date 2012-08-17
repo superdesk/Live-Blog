@@ -23,7 +23,7 @@ class Entity:
 
 # --------------------------------------------------------------------
 
-@query
+@query(Entity)
 class QEntity:
     '''
     Provides the basic query for an entity.
