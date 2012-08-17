@@ -10,9 +10,9 @@ API specifications for media archive image info.
 '''
 
 from .domain_archive import modelArchive
-from .image_data import ImageData, QImageData
-from .meta_data import MetaData, QMetaData
-from .meta_info import MetaInfo, QMetaInfo, IMetaInfoService
+from .image_data import ImageData#, QImageData
+#from .meta_data import MetaData, QMetaData
+from .meta_info import MetaInfo, QMetaInfo#, IMetaInfoService
 from ally.api.config import query, service
 from ally.api.criteria import AsEqualOrdered, AsLikeOrdered
 
