@@ -314,9 +314,9 @@ class Converter:
         if objType.isOf(bool):
             return strValue.strip().lower() == 'true'
         if objType.isOf(datetime):
-            return datetime.strptime(strValue, '%a, %d %b %Y %H:%M:%S')
+            return datetime.strptime(strValue, '%Y-%m-%d %H:%M:%S')
         if objType.isOf(date):
-            return datetime.strptime(strValue, 'a, %d %b %Y').date()
+            return datetime.strptime(strValue, '%Y-%m-%d').date()
         if objType.isOf(time):
             return time.strptime(strValue, '%H:%M:%S').time()
         raise AssertionError('Invalid object type %s for converter' % objType)
