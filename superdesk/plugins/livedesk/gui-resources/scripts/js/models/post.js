@@ -2,7 +2,8 @@ define([ 'gizmo/superdesk'],
 function(Gizmo)
 {
     // Post
-	return Gizmo.Model.extend({
+	return Gizmo.Model.extend
+	({
 		url: new Gizmo.Url('/Post'),
 		orderSync: function(id, before)
 		{
