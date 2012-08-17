@@ -12,7 +12,8 @@ API specifications for media meta data image archive.
 from .domain_archive import modelArchive
 from .meta_data import MetaData, QMetaData, IMetaDataService
 from ally.api.config import query, service
-from ally.api.criteria import AsEqualOrdered, AsLikeOrdered
+from ally.api.criteria import AsEqualOrdered, AsDateTimeOrdered, AsLikeOrdered
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -23,6 +24,10 @@ class ImageData(MetaData):
     '''
     Width = int
     Height = int
+    CreationDate = datetime
+    CameraMake = str
+    CameraModel = str
+
 
 # --------------------------------------------------------------------
 
@@ -33,7 +38,9 @@ class QImageData(QMetaData):
     '''
     width = AsEqualOrdered
     height = AsEqualOrdered
-    caption = AsLikeOrdered
+    creationDate = AsDateTimeOrdered
+    cameraMake = AsLikeOrdered
+    cameraModel = AsLikeOrdered
 
 # --------------------------------------------------------------------
 
