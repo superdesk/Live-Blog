@@ -24,6 +24,6 @@ class MetaTypeMapped(Base, MetaType):
     __tablename__ = 'archive_meta_type'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Key = Column('key', String(50), nullable=False, unique=True)
-    # None REST model attribute --------------------------------------
-    id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Type = Column('type', String(50), nullable=False, unique=True)
+    
