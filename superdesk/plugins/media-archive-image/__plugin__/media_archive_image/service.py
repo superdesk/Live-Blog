@@ -38,21 +38,11 @@ def imageData() -> IImageDataService:
     b.handler = imageDataHandler()
     return b
 
-#@ioc.entity
-#def imageInfo() -> IImageInfoService:
-#    b = ImageInfoServiceAlchemy()
-#    return b
-
 # --------------------------------------------------------------------
 
 @ioc.after(createTables)
 def deploy():
     imagePersistanceService().deploy()
-    
-#@ioc.start
-#def register():
-#    registerService(imageData())
-#    registerService(imageInfo())
-    
+
 
 # --------------------------------------------------------------------
