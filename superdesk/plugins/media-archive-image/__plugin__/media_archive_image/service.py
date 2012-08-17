@@ -34,6 +34,10 @@ def imageData() -> IImageDataService:
     b.handler = imageDataHandler()
     return b
 
+# --------------------------------------------------------------------
+
 @ioc.after(createTables)
 def deploy():
     imagePersistanceService().deploy()
+
+# --------------------------------------------------------------------
