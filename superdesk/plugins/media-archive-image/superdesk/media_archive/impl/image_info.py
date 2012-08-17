@@ -9,10 +9,10 @@ Created on Apr 20, 2012
 SQL Alchemy based implementation for the image data API. 
 '''
 
-from ..api.image_data import QImageData
-from ..api.image_info import IImageInfoService, QImageInfo
-from ..meta.image_data import ImageData
-from ..meta.image_info import ImageInfo
+#from ..api.image_data import QImageData
+from ..api.image_info import IImageInfoService#, QImageInfo
+#from ..meta.image_data import ImageData
+#from ..meta.image_info import ImageInfo
 from .meta_info import MetaInfoServiceBaseAlchemy
 from ally.container.ioc import injected
 
@@ -25,4 +25,5 @@ class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
     '''
 
     def __init__(self):
-        MetaInfoServiceBaseAlchemy.__init__(self, ImageInfo, QImageInfo, ImageData, QImageData)
+        #MetaInfoServiceBaseAlchemy.__init__(self, ImageInfo, QImageInfo, ImageData, QImageData)
+        pass

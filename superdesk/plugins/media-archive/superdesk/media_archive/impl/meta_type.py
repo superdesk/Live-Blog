@@ -28,14 +28,14 @@ class MetaTypeServiceAlchemy(SessionSupport, IMetaTypeService):
     def __init__(self):
         SessionSupport.__init__(self)
 
-    def getByKey(self, key):
+    def getById(self, id):
         '''
-        @see: IMetaTypeService.getByKey
+        @see: IMetaTypeService.getById
         '''
         try:
-            return self.session().query(MetaTypeMapped).filter(MetaTypeMapped.Key == key).one()
+            return self.session().query(MetaTypeMapped).filter(MetaTypeMapped.Id == id).one()
         except NoResultFound:
-            raise InputError(Ref(_('Unknown meta type key'), ref=MetaTypeMapped.Key))
+            raise InputError(Ref(_('Unknown meta type id'), ref=MetaTypeMapped.Id))
 
     def getMetaTypes(self, offset=None, limit=None):
         '''
