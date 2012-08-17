@@ -38,11 +38,12 @@ function($, superdesk, dust, jsSHA)
 	AuthApp = 
     {
         success: $.noop,
+		showed: false,
         require: function()
         {
-			if(this.showed) return;
+			if(AuthApp.showed) return;
             var self = this; // rest
-			self.showed = true;			
+			AuthApp.showed = true;			
             $.tmpl('auth', null, function(e, o)
             { 
                 var dialog = $(o).eq(0).dialog
@@ -58,14 +59,9 @@ function($, superdesk, dust, jsSHA)
                     ]
                 }),
                     form = dialog.find('form');
-                form.off('submit.superdesk')//
+                form.off('submit.superdesk')
                 .on('submit.superdesk', function(event)
                 {
-<<<<<<< HEAD
-                    var username = $(this).find('#username').val(), password=$(this).find('#password').val(),
-					AuthToken(username, password).on('fail',function(){
-						console.log('fail');
-=======
                     var username = $(this).find('#username'), password=$(this).find('#password');
 					AuthToken(username.val(), password.val()).on('failed',function(evt, type){						
 						username.val('');
@@ -74,7 +70,6 @@ function($, superdesk, dust, jsSHA)
                         AuthApp.success && AuthApp.success.apply();
 						$(dialog).dialog('close');
 						self.showed = false;
->>>>>>> dbd585114d8bb1a4c1b44722264510dc22120818
 					});
                     event.preventDefault();
 					
