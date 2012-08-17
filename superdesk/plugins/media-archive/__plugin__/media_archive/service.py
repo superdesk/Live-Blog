@@ -19,6 +19,8 @@ from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.media_archive.core.spec import IThumbnailManager, IThumbnailCreator
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
     MetaDataServiceAlchemy
+from superdesk.media_archive.impl.meta_info import IMetaInfoService, \
+    MetaInfoServiceAlchemy    
 import logging
 from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
     ThumbnailCreatorGraphicsMagick
@@ -56,12 +58,16 @@ def cdmArchive() -> ICDM:
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'media_archive/%s')
 
+# --------------------------------------------------------------------
+
 @ioc.entity
 def cdmThumbnail() -> ICDM:
     '''
     The content delivery manager (CDM) for the thumbnails media archive.
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'media_archive/thumbnail/%s')
+
+# --------------------------------------------------------------------
 
 @ioc.entity
 def thumbnailManager() -> IThumbnailManager:
@@ -71,16 +77,27 @@ def thumbnailManager() -> IThumbnailManager:
     b.cdm = cdmThumbnail()
     return b
 
+# --------------------------------------------------------------------
+
 @ioc.entity
 def thumbnailCreator() -> IThumbnailCreator:
     c = ThumbnailCreatorGraphicsMagick()
     return c
+
+# --------------------------------------------------------------------
 
 @ioc.entity
 def metaDataService() -> IMetaDataService:
     b = MetaDataServiceAlchemy()
     b.cdmArchive = cdmArchive()
     b.metaDataHandlers = metaDataHandlers()
+    return b
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def metaInfoService() -> IMetaInfoService:
+    b = MetaInfoServiceAlchemy()
     return b
 
 # --------------------------------------------------------------------
@@ -94,18 +111,4 @@ def metaDataHandlers(): return []
 def deploy():
     metaDataService().deploy()
 
-@ioc.start
-def publish():
-    publishResources()
-
-# --------------------------------------------------------------------
-
-def publishResources():
-    '''
-    Publishes media archive plugin resources.
-    '''
-
-    log.info('published library %s = %s')
-    #TODO: 
-    #cdmGUI().publishFromDir('media-archive/upload', 'resourcesPath')
 
