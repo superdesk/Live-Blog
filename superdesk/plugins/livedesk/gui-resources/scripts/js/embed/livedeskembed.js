@@ -316,4 +316,8 @@ window.livedesk.startLoading = function() {
 		window.livedesk.TimelineView = TimelineView;
 		window.livedesk.callback();
 	};
+<<<<<<< HEAD
 window.livedesk.init();
+=======
+window.livedesk.init();
+>>>>>>> 40e96a71e6d50e3ed6f8048c0681970d620a8dcc
