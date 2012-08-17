@@ -9,12 +9,14 @@ Created on Mar 6, 2012
 '''
 from superdesk.person.api.person import IPersonService, QPerson
 from ally.container.ioc import injected
+from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from ..meta.person import PersonMapped
 
 # --------------------------------------------------------------------
 
 @injected
+@setup(IPersonService)
 class PersonServiceAlchemy(EntityServiceAlchemy, IPersonService):
     '''
     @see: IUserService
