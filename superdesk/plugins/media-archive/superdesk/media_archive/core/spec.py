@@ -46,7 +46,7 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractclassmethod
-    def process(self, metaData, contentPath):
+    def process(self, metaData, processingContentPath, contentPath):
         '''
         Processes the meta data persistence and type association. The meta data will already be in the database this method
         has to update associate the meta data in respect with the handler. The method will take no action if the content is
@@ -54,8 +54,10 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
 
         @param metaData: MetaDataMapped
             The mapped meta data for the current uploaded content.
+        @param processingContentPath: string
+            The location on local file system where the content can be found.
         @param contentPath: string
-            The content local file system path where the content can be found.
+            The base storage path where the file should be stored.    
         @return: boolean
             True if the content has been processed, False otherwise.
         '''
