@@ -24,6 +24,7 @@ from zipfile import ZipFile
 import json
 import logging
 import os
+from mimetypes import guess_type
 
 # --------------------------------------------------------------------
 
@@ -84,6 +85,8 @@ class ContentDeliveryHandler(HandlerProcessor):
     # Marker used in the link file to indicate that a link is inside a zip file.
     _fsHeader = 'FS'
     # Marker used in the link file to indicate that a link is file system
+    _defaultContentType = 'application/octet-stream'
+
 
     def __init__(self):
         assert isinstance(self.repositoryPath, str), 'Invalid repository path value %s' % self.repositoryPath
@@ -143,12 +146,12 @@ class ContentDeliveryHandler(HandlerProcessor):
                 linkPath = subLinkPath
 
         if rf is None:
-            response.code, response.text = METHOD_NOT_AVAILABLE, 'Invalid content resource'
-            chain.proceed()
-            return
-
-        response.code = RESOURCE_FOUND
-        responseCnt.source = readGenerator(rf)
+            rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid content resource')
+        else:
+            rsp.setCode(RESOURCE_FOUND, 'Resource found')
+            rsp.content = readGenerator(rf)
+            rsp.contentType, _encoding = guess_type(entryPath)
+            if not rsp.contentType: rsp.contentType = self._defaultContentType
 
     # ----------------------------------------------------------------
 
