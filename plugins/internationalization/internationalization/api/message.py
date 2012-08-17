@@ -13,9 +13,9 @@ from .source import Source
 from admin.api.domain_admin import modelAdmin
 from admin.introspection.api.component import Component
 from admin.introspection.api.plugin import Plugin
-from ally.api.config import service, call, query
+from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsLike
-from ally.api.type import Iter, Count, List
+from ally.api.type import Iter, List
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from internationalization.api.source import QSource
 
@@ -35,7 +35,7 @@ class Message(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(Message)
 class QMessage(QEntity):
     '''
     Provides the query for the message.
@@ -52,30 +52,19 @@ class IMessageService(IEntityGetCRUDService):
     '''
 
     @call
-    def getMessages(self, sourceId:Source.Id=None, offset:int=None, limit:int=10,
+    def getMessages(self, sourceId:Source.Id=None, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
                     qm:QMessage=None, qs:QSource=None) -> Iter(Message):
         '''
         Provides the messages searched based on the given parameters.
 
         @param sourceId: Source.Id
             The source file identifier.
-        @param offset: int
+        @param offset: integer
             Return elements starting from the 'offset' element in the list.
-        @param limit: int
+        @param limit: integer
             Return at most 'limit' elements.
-        @param qm: QMessage
-            Query for filtering the messages based on message attributes. @see QMessage
-        @param qs: QSource
-            Query for filtering the messages based on the message source. @see QSource
-        '''
-
-    @call(countFor=getMessages)
-    def getMessagesCount(self, sourceId:Source.Id=None, qm:QMessage=None, qs:QSource=None) -> Count:
-        '''
-        Provides the total count of messages searched based on the given parameters.
-        
-        @param sourceId: Source.Id
-            The source file identifier.
+        @param detailed: boolean
+            If true the returned object will be an extended iterator that will contain details about the iterator part.
         @param qm: QMessage
             Query for filtering the messages based on message attributes. @see QMessage
         @param qs: QSource
@@ -83,30 +72,19 @@ class IMessageService(IEntityGetCRUDService):
         '''
 
     @call
-    def getComponentMessages(self, component:Component.Id, offset:int=None, limit:int=10,
+    def getComponentMessages(self, component:Component.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
                              qm:QMessage=None, qs:QSource=None) -> Iter(Message):
         '''
         Provides the messages for the given component.
 
         @param component: Component.Id
             The component identifier.
-        @param offset: int
+        @param offset: integer
             Return elements starting from the 'offset' element in the list.
-        @param limit: int
+        @param limit: integer
             Return at most 'limit' elements.
-        @param qm: QMessage
-            Query for filtering the messages based on message attributes. @see QMessage
-        @param qs: QSource
-            Query for filtering the messages based on the message source. @see QSource
-        '''
-
-    @call(countFor=getComponentMessages)
-    def getComponentMessagesCount(self, component:Component.Id, qm:QMessage=None, qs:QSource=None) -> Count:
-        '''
-        Provides the total count of messages for the given component.
-
-        @param component: Component.Id
-            The component identifier.
+        @param detailed: boolean
+            If true the returned object will be an extended iterator that will contain details about the iterator part.
         @param qm: QMessage
             Query for filtering the messages based on message attributes. @see QMessage
         @param qs: QSource
@@ -114,30 +92,19 @@ class IMessageService(IEntityGetCRUDService):
         '''
 
     @call
-    def getPluginMessages(self, plugin:Plugin.Id, offset:int=None, limit:int=10,
+    def getPluginMessages(self, plugin:Plugin.Id, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True,
                           qm:QMessage=None, qs:QSource=None) -> Iter(Message):
         '''
         Provides the messages for the given plugin.
 
         @param plugin: Plugin.Id
             The plugin identifier.
-        @param offset: int
+        @param offset: integer
             Return elements starting from the 'offset' element in the list.
-        @param limit: int
+        @param limit: integer
             Return at most 'limit' elements.
-        @param qm: QMessage
-            Query for filtering the messages based on message attributes. @see QMessage
-        @param qs: QSource
-            Query for filtering the messages based on the message source. @see QSource
-        '''
-
-    @call(countFor=getPluginMessages)
-    def getPluginMessagesCount(self, plugin:Plugin.Id, qm:QMessage=None, qs:QSource=None) -> Count:
-        '''
-        Provides the total count of messages for the given plugin.
-
-        @param plugin: Plugin.Id
-            The plugin identifier.
+        @param detailed: boolean
+            If true the returned object will be an extended iterator that will contain details about the iterator part.
         @param qm: QMessage
             Query for filtering the messages based on message attributes. @see QMessage
         @param qs: QSource

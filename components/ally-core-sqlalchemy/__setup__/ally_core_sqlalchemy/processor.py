@@ -9,23 +9,21 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from ..ally_core.processor import handlersResources, invokingHandler, handlersRedirect
+from ..ally_core.processor import updateAssemblyResources, \
+    assemblyResources, invoking
 from ally.container import ioc
-from ally.core.spec.server import Processor
-from ally.core.sqlalchemy.processor.alchemy_session import AlchemySessionHandler
+from ally.core.sqlalchemy.processor.transactional_wrapping import \
+    TransactionWrappingHandler
+from ally.design.processor import Handler
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the sql alchemy session
 
 @ioc.entity
-def alchemySessionHandler() -> Processor: return AlchemySessionHandler()
+def transactionWrapping() -> Handler: return TransactionWrappingHandler()
 
 # --------------------------------------------------------------------
 
-@ioc.before(handlersResources)
-def updateHandlersResources():
-    handlersResources().insert(handlersResources().index(invokingHandler()), alchemySessionHandler())
-
-@ioc.before(handlersRedirect)
-def updateHandlersRedirect():
-    handlersRedirect().insert(handlersRedirect().index(invokingHandler()), alchemySessionHandler())
+@ioc.after(updateAssemblyResources)
+def updateAssemblyResourcesForAlchemy():
+    assemblyResources().add(transactionWrapping(), before=invoking())

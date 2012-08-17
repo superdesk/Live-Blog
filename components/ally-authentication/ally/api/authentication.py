@@ -38,9 +38,7 @@ def auth(obj):
 
     if isinstance(typ, TypeModel):
         assert isinstance(typ, TypeModel)
-        assert typ.baseClass is None, \
-        'Required only plain API model types for authentication, illegal mapped API model type %s' % typ
-        typ = TypeModelAuth(typ.forClass, typ.container)
+        typ = TypeModelAuth(typ.clazz, typ.container)
         if isIdProperty: return typ.childTypeId()
         return typ
 

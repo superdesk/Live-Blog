@@ -31,7 +31,7 @@ class File(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(File)
 class QFile(QEntity):
     '''
     Provides the query for the files.

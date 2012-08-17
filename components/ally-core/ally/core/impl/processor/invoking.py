@@ -1,7 +1,7 @@
 '''
 Created on Jun 30, 2011
 
-@package: Newscoop
+@package: ally core
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -11,14 +11,17 @@ Provides the invoking handler.
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.api.operator.type import TypeModelProperty
-from ally.container.ioc import injected
-from ally.core.spec.codes import DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS, \
-    CANNOT_UPDATE, INSERT_SUCCESS, CANNOT_INSERT, BAD_CONTENT, RESOURCE_NOT_FOUND
-from ally.core.spec.resources import Path, Invoker
-from ally.core.spec.server import Processor, ProcessorsChain, Response, Request
-from ally.exception import DevelError, InputError
-import logging
 from ally.api.type import Input
+from ally.core.spec.codes import DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS, \
+    CANNOT_UPDATE, INSERT_SUCCESS, CANNOT_INSERT, BAD_CONTENT, Code, \
+    METHOD_NOT_AVAILABLE, INCOMPLETE_ARGUMENTS, INPUT_ERROR
+from ally.core.spec.resources import Path, Invoker
+from ally.core.spec.transform.render import Object, List, Value
+from ally.design.context import Context, defines, requires
+from ally.design.processor import HandlerProcessorProceed
+from ally.exception import DevelError, InputError, Ref
+from collections import deque
+import logging
 
 # --------------------------------------------------------------------
 
@@ -26,183 +29,242 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-@injected
-class InvokingHandler(Processor):
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    method = requires(int)
+    path = requires(Path)
+    invoker = requires(Invoker)
+    arguments = requires(dict)
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code)
+    text = defines(str)
+    errorMessage = defines(str)
+    errorDetails = defines(Object)
+    obj = defines(object, doc='''
+    @rtype: object
+    The response object.
+    ''')
+
+# --------------------------------------------------------------------
+
+class InvokingHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that makes the actual call to the request method corresponding invoke on the
     resource path node. The invoking will use all the obtained arguments from the previous processors and perform
     specific actions based on the requested method. In GET case it will provide to the request the invoke returned
     object as to be rendered to the response, in DELETE case it will stop the execution chain and send as a response
     a success code.
-    
-    Provides on request: NA
-    Provides on response: obj
-    
-    Requires on request: invoker, resourcePath
-    Requires on response: NA
     '''
 
     def __init__(self):
-        self._callback = {GET: self._afterGet, INSERT: self._afterInsert,
-                          UPDATE: self._afterUpdate, DELETE: self._afterDelete}
-
-    def process(self, req, rsp, chain):
         '''
-        @see: Processor.process
+        Construct the handler.
         '''
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        assert isinstance(req, Request), 'Invalid request %s' % req
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        path = req.resourcePath
-        assert isinstance(path, Path)
-        callback = self._callback.get(req.method)
-        if not callback: raise AssertionError('Cannot process request method %s' % req.method)
+        super().__init__()
 
-        arguments = {}
-        invoke = [req.invoker, arguments, rsp, callback]
+        self.invokeCallBack = {
+                               GET: self.afterGet,
+                               INSERT: self.afterInsert,
+                               UPDATE: self.afterUpdate,
+                               DELETE: self.afterDelete
+                               }
 
-        if req.method == DELETE:
-            arguments.update(path.toArguments(req.invoker))
-        else:
-            arguments.update(path.toArguments(req.invoker))
-            arguments.update(req.arguments)
-            if req.method == INSERT: invoke.append(path)
+    def process(self, request:Request, response:Response, **keyargs):
+        '''
+        @see: HandlerProcessorProceed.process
+        
+        Invoke the request invoker.
+        '''
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
 
-        if self._invoke(*invoke): chain.proceed()
+        assert isinstance(request.path, Path), 'Invalid request path %s' % request.path
+        assert isinstance(request.invoker, Invoker), 'Invalid invoker %s' % request.invoker
+
+        callBack = self.invokeCallBack.get(request.method)
+        if callBack is None:
+            response.code, response.text = METHOD_NOT_AVAILABLE, 'Cannot process method'
+            response.errorMessage = 'Method cannot be processed for invoker \'%s\', something is wrong in the setups'
+            response.errorMessage %= request.invoker.name
+            return
+
+        arguments = deque()
+        for inp in request.invoker.inputs:
+            assert isinstance(inp, Input), 'Invalid input %s' % inp
+            if inp.name in request.arguments: arguments.append(request.arguments[inp.name])
+            elif inp.hasDefault: arguments.append(inp.default)
+            else:
+                response.code, response.text = INCOMPLETE_ARGUMENTS, 'Missing argument value'
+                response.errorMessage = 'No value for mandatory input \'%s\' for invoker \'%s\''
+                response.errorMessage %= (inp.name, request.invoker.name)
+                log.info('No value for mandatory input %s for invoker %s', inp, request.invoker)
+                return
+        try:
+            value = request.invoker.invoke(*arguments)
+            assert log.debug('Successful on calling invoker \'%s\' with values %s', request.invoker,
+                             tuple(arguments)) or True
+
+            callBack(request.invoker, value, response)
+        except DevelError as e:
+            assert isinstance(e, DevelError)
+            response.code, response.text = BAD_CONTENT, 'Invoking problem'
+            response.errorMessage = e.message
+            log.info('Problems with the invoked content: %s', e.message, exc_info=True)
+        except InputError as e:
+            assert isinstance(e, InputError)
+            response.code, response.text = INPUT_ERROR, 'Input error'
+            response.errorDetails = self.processInputError(e)
+            assert log.debug('User input exception: %s', e, exc_info=True) or True
+
+    def processInputError(self, e):
+        '''
+        Process the input error into an error object.
+        
+        @return: Object
+            The object containing the details of the input error.
+        '''
+        assert isinstance(e, InputError), 'Invalid input error %s' % e
+
+        messages, names, models, properties = deque(), deque(), {}, {}
+        for msg in e.message:
+            assert isinstance(msg, Ref)
+            if not msg.model:
+                messages.append(Value('message', msg.message))
+            elif not msg.property:
+                messagesModel = models.get(msg.model)
+                if not messagesModel: messagesModel = models[msg.model] = deque()
+                messagesModel.append(Value('message', msg.message))
+                if msg.model not in names: names.append(msg.model)
+            else:
+                propertiesModel = properties.get(msg.model)
+                if not propertiesModel: propertiesModel = properties[msg.model] = deque()
+                propertiesModel.append(Value(msg.property, msg.message))
+                if msg.model not in names: names.append(msg.model)
+
+        errors = deque()
+        if messages: errors.append(List('error', *messages))
+        for name in names:
+            messagesModel, propertiesModel = models.get(name), properties.get(name)
+
+            props = deque()
+            if messagesModel: props.append(List('error', *messagesModel))
+            if propertiesModel: props.extend(propertiesModel)
+
+            errors.append(Object(name, *props))
+
+        return Object('model', *errors)
 
     # ----------------------------------------------------------------
 
-    def _afterGet(self, value, invoker, rsp):
+    def afterGet(self, invoker, value, response):
         '''
         Process the after get action on the value.
         
-        @param value: object
         @param invoker: Invoker
-        @param rsp: Response
-        
+            The invoker used.
+        @param value: object
+            The value returned.
+        @param response: Response
+            The response to set the error if is the case.
         @return: boolean
             False if the invoking has failed, True for success.
         '''
-        assert isinstance(rsp, Response)
-        assert isinstance(invoker, Invoker)
-        rsp.obj = value
-        return True
+        assert isinstance(response, Response), 'Invalid response %s' % response
 
-    def _afterInsert(self, value, invoker, rsp, path):
+        response.obj = value
+
+    def afterInsert(self, invoker, value, response):
         '''
         Process the after insert action on the value.
         
+        @param invoker: Invoker
+            The invoker used.
         @param value: object
-        @param invoker: Invoker
-        @param rsp: Response
-        @param path: Path
-        
-        @return: boolean
-            False if the invoking has failed, True for success.
-        '''
-        assert isinstance(rsp, Response)
-        assert isinstance(invoker, Invoker)
-        if isinstance(invoker.output, TypeModelProperty) and \
-        invoker.output.container.propertyId == invoker.output.property:
-            if value is not None:
-                rsp.obj = value
-            else:
-                rsp.setCode(CANNOT_INSERT, 'Cannot insert')
-                assert log.debug('Cannot update resource') or True
-                return False
-        else:
-            rsp.obj = value
-        rsp.setCode(INSERT_SUCCESS, 'Successfully created')
-        return True
-
-    def _afterUpdate(self, value, invoker, rsp):
-        '''
-        Process the after update action on the value.
-        
-        @param value: object
-        @param invoker: Invoker
-        @param rsp: Response
-        
-        @return: boolean
-            False if the invoking has failed, True for success.
-        '''
-        assert isinstance(rsp, Response)
-        assert isinstance(invoker, Invoker)
-        if invoker.output.isOf(None):
-            rsp.setCode(UPDATE_SUCCESS, 'Successfully updated')
-            assert log.debug('Successful updated resource') or True
-        elif invoker.output.isOf(bool):
-            if value == True:
-                rsp.setCode(UPDATE_SUCCESS, 'Successfully updated')
-                assert log.debug('Successful updated resource') or True
-            else:
-                rsp.setCode(CANNOT_UPDATE, 'Cannot update')
-                assert log.debug('Cannot update resource') or True
-            return False
-        else:
-            #If an entity is returned than we will render that.
-            rsp.obj = value
-        return True
-
-    def _afterDelete(self, value, invoker, rsp):
-        '''
-        Process the after delete action on the value.
-        
-        @param value: object
-        @param invoker: Invoker
-        @param rsp: Response
-        
-        @return: boolean
-            False if the invoking has failed, True for success.
-        '''
-        assert isinstance(rsp, Response)
-        assert isinstance(invoker, Invoker)
-        if invoker.output.isOf(bool):
-            if value == True:
-                rsp.setCode(DELETED_SUCCESS, 'Successfully deleted')
-                assert log.debug('Successful deleted resource') or True
-            else:
-                rsp.setCode(CANNOT_DELETE, 'Cannot delete')
-                assert log.debug('Cannot deleted resource') or True
-            return False
-        else:
-            #If an entity is returned than we will render that.
-            rsp.obj = value
-        return True
-
-    def _invoke(self, invoker, arguments, rsp, callback, *args):
-        '''
-        Process the invoking.
-        
-        @param invoker: Invoker
-        @param arguments: dictionary{string, object}
-        @param rsp: Response
-        @param callback: Callable(object, Invoker, Response)
-        
+            The value returned.
+        @param response: Response
+            The response to set the error if is the case.
         @return: boolean
             False if the invoking has failed, True for success.
         '''
         assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
+        assert isinstance(response, Response), 'Invalid response %s' % response
 
-        invoke = []
-        for inp in invoker.inputs:
-            assert isinstance(inp, Input)
-            if inp.name in arguments: invoke.append(arguments[inp.name])
-            elif inp.hasDefault: invoke.append(inp.default)
+        if isinstance(invoker.output, TypeModelProperty) and \
+        invoker.output.container.propertyId == invoker.output.property:
+            if value is not None:
+                response.obj = value
             else:
-                rsp.setCode(RESOURCE_NOT_FOUND, 'No value for %s' % inp.name)
-                log.info('No value for mandatory input %s for invoker %s', inp, invoker)
-                return False
+                response.code, response.text = CANNOT_INSERT, 'Cannot insert'
+                assert log.debug('Cannot insert resource') or True
+                return
+        else:
+            response.obj = value
+        response.code, response.text = INSERT_SUCCESS, 'Successfully created'
 
-        try:
-            value = invoker.invoke(*invoke)
-            assert log.debug('Successful on calling invoker %s with values %s', invoker, invoke) or True
-            return callback(value, invoker, rsp, *args)
-        except DevelError as e:
-            rsp.setCode(BAD_CONTENT, e.message)
-            log.info('Problems with the invoked content: %s', e.message, exc_info=True)
-        except InputError as e:
-            rsp.setCode(RESOURCE_NOT_FOUND, e, 'Invalid resource')
-            assert log.debug('User input exception: %s', e, exc_info=True) or True
-        return False
+    def afterUpdate(self, invoker, value, response):
+        '''
+        Process the after update action on the value.
+        
+        @param invoker: Invoker
+            The invoker used.
+        @param value: object
+            The value returned.
+        @param response: Response
+            The response to set the error if is the case.
+        @return: boolean
+            False if the invoking has failed, True for success.
+        '''
+        assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
+        assert isinstance(response, Response), 'Invalid response %s' % response
+
+        if invoker.output.isOf(None):
+            response.code, response.text = UPDATE_SUCCESS, 'Successfully updated'
+            assert log.debug('Successful updated resource') or True
+        elif invoker.output.isOf(bool):
+            if value == True:
+                response.code, response.text = UPDATE_SUCCESS, 'Successfully updated'
+                assert log.debug('Successful updated resource') or True
+            else:
+                response.code, response.text = CANNOT_UPDATE, 'Cannot update'
+                assert log.debug('Cannot update resource') or True
+        else:
+            #If an entity is returned than we will render that.
+            response.code, response.text = UPDATE_SUCCESS, 'Successfully updated'
+            response.obj = value
+
+    def afterDelete(self, invoker, value, response):
+        '''
+        Process the after delete action on the value.
+        
+        @param invoker: Invoker
+            The invoker used.
+        @param value: object
+            The value returned.
+        @param response: Response
+            The response to set the error if is the case.
+        @return: boolean
+            False if the invoking has failed, True for success.
+        '''
+        assert isinstance(invoker, Invoker), 'Invalid invoker %s' % invoker
+        assert isinstance(response, Response), 'Invalid response %s' % response
+
+        if invoker.output.isOf(bool):
+            if value == True:
+                response.code, response.text = DELETED_SUCCESS, 'Successfully deleted'
+                assert log.debug('Successfully deleted resource') or True
+            else:
+                response.code, response.text = CANNOT_DELETE, 'Cannot delete'
+                assert log.debug('Cannot deleted resource') or True
+        else:
+            #If an entity is returned than we will render that.
+            response.code, response.text = DELETED_SUCCESS, 'Successfully deleted'
+            response.obj = value
