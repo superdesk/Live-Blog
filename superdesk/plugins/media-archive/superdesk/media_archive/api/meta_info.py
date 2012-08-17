@@ -13,7 +13,7 @@ from .domain_archive import modelArchive
 from .meta_data import MetaData, QMetaData
 from ally.api.config import query, call, service
 from ally.api.criteria import AsLikeOrdered, AsLike
-from ally.api.type import Count, Iter
+from ally.api.type import Iter#, Count 
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from superdesk.language.api.language import LanguageEntity
 
@@ -55,10 +55,11 @@ class IMetaInfoService(IEntityGetCRUDService):
 #        '''
 #        Provides the meta info's count.
 #        '''
-#
-#    @call(countMethod=getMetaInfosCount)
-#    def getMetaInfos(self, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, offset:int=None, limit:int=10,
-#                     qi:QMetaInfo=None, qd:QMetaData=None) -> Iter(MetaInfo):
-#        '''
-#        Provides the meta info's.
-#        '''
+
+    #@call(countMethod=getMetaInfosCount)
+    @call
+    def getMetaInfos(self, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, offset:int=None, limit:int=10,
+                     qi:QMetaInfo=None, qd:QMetaData=None) -> Iter(MetaInfo):
+        '''
+        Provides the meta info's.
+        '''
