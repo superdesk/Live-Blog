@@ -14,7 +14,7 @@ from .meta_type import MetaType
 from ally.api.config import query, service, call
 from ally.api.criteria import AsDateTimeOrdered
 from ally.api.model import Content
-from ally.api.type import Reference, Iter, Count, Scheme
+from ally.api.type import Reference, Iter, Scheme#, Count
 from ally.support.api.entity import Entity, QEntity
 from datetime import datetime
 
@@ -27,7 +27,7 @@ class MetaData(Entity):
     Provides the meta data that is extracted based on the content.
     '''
     Name = str
-    Type = MetaType
+    Type = str
     Content = Reference
     Thumbnail = Reference
     SizeInBytes = int
@@ -56,17 +56,18 @@ class IMetaDataService:
         Provides the meta data based on the id.
         '''
 
-#    def getMetaDatasCount(self, typeKey:MetaType.Key=None, q:QMetaData=None) -> Count:
+#    def getMetaDatasCount(self, typeId:MetaType.Id=None, q:QMetaData=None) -> Count:
 #        '''
 #        Provides the meta data's count.
 #        '''
-#
-#    @call(countMethod=getMetaDatasCount)
-#    def getMetaDatas(self, scheme:Scheme, typeKey:MetaType.Key=None, offset:int=None, limit:int=10, q:QMetaData=None,
-#                     thumbSize:str=None) -> Iter(MetaData):
-#        '''
-#        Provides the meta data's.
-#        '''
+
+    #@call(countMethod=getMetaDatasCount)
+    @call
+    def getMetaDatas(self, scheme:Scheme, typeId:MetaType.Id=None, offset:int=None, limit:int=10, q:QMetaData=None,
+                     thumbSize:str=None) -> Iter(MetaData):
+        '''
+        Provides the meta data's.
+        '''
 
     @call(webName='Upload')
     def insert(self, content:Content) -> MetaData.Id:
