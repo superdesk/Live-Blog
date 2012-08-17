@@ -140,8 +140,41 @@ var livedeskEmbed = {
                 }
             }
         }),
-        
-        Posts = $.gizmo.Collection.extend({
+		AutoCollection = $.gizmo.Collection.extend({
+			timeInterval: 10000,			
+			idInterval: 0,			
+			_latestCId: 0,
+			setIdInterval: function(fn){
+				this.idInterval = setInterval(fn, this.timeInterval);
+				return this;
+			},
+			getMaximumCid: function(models){
+				for (var i in models) {
+					var items = models[i];
+					break;
+				}
+				for(i=0, count=items.length; i<count; i++) {
+					if( this._latestCId < parseInt(items[i].CId) )
+						this._latestCId = parseInt(items[i].CId);
+				}
+			},
+			auto: function(){
+				var self = this;
+				this.sync({data: {'startEx.cId': this._latestCId}, headers: { 'X-Filter': 'CId'}}).done(function(models){
+					self.getMaximumCid(models);
+				});
+				return this;
+			},                                                                                                                                                                                                                                                                              
+			pause: function(){
+				var self=this;
+				clearInterval(self.idInterval);
+			},
+			start: function(){
+				var self = this;
+				this.auto().setIdInterval(function(){self.auto();});
+			}
+		});        
+        Posts = AutoCollection.extend({
             model: Post
         }),
        
@@ -160,13 +193,28 @@ var livedeskEmbed = {
         ({
             init: function()
             {
-                var self = this;
                 this.post.on('update', this.render, this);
                 this.post.on('read', this.render, this);
+				this.post.on('remove', this.remove, this);
                 this.post.sync();
             },
+			remove: function()
+			{
+				this.el.remove();
+				return this;			
+			},
             render: function()
             {
+				var self = this, order = parseInt(this.post.get('Order'));
+				if ( !isNaN(self.order) && (order != self.order)) {
+					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1};
+					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir]; 
+						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] ); 
+						cursor = cursor[dir]
+					);
+					self.el[actions[dir]](cursor.el);
+				}
+				self.order = order;
                 var content = this.post.get('Content');
 
                 var style= '';                
@@ -185,7 +233,7 @@ var livedeskEmbed = {
                     }
                 }
                 var template = '<li class="'+ style +'">' + content + '</li>';
-                this.el.replaceWith( template );
+                this.setElement( template );
             }
         }),
         TimelineView = $.gizmo.View.extend
@@ -203,28 +251,37 @@ var livedeskEmbed = {
                 this.blog.on('read', function()
                 { 
                     self.blog.get('Post').on('read', function(){
-                        self.render();
-                    })
-                    self.blog.get('Post').xfilter('*').sync();
+						self.render();
+                    });
+                    self.blog.get('Post').xfilter('CId').start();
                 });
                 this.blog.sync();
             },
             render: function()
             {
-                var self = this,i=0;
+                var self = this, i=0, prev = undefined;;
                 this.blog.get('Post').each(function()
                 {
-                    var post = new Post(this.hash()), view = new PostItemView({
-                        post: post
-                    }); 
-                    self.el.append( view.el );
+                    var 
+						post = new Post(this.hash()); 
+						if(post.view === undefined) {
+							var view = new PostItemView({
+								post: post
+							});
+							post.view = view;
+							view.prev = prev;
+							if( prev !== undefined )
+								prev.next = view;
+							prev = view;
+							self.el.append( view.el );
+						}
                 })
             }
             
         });
         
         new TimelineView({
-            el: '#livedesk-root'
+            el: $('#livedesk-root')
         });
     },
 };
