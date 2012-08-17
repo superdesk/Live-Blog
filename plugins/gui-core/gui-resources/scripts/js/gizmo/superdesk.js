@@ -51,6 +51,10 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     {
         if( typeof model === 'object' )
             model.syncAdapter = authSync; 
+        model.modelDataBuild = function(model)
+        {
+            return Auth(model);
+        };
         return model;
     },
     AuthModel = Model.extend // authenticated superdesk Model

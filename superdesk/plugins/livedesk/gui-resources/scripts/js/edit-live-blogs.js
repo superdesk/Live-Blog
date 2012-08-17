@@ -111,10 +111,12 @@ define
 				var self = this,
 				xfilter = 'Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
-				this.model.on('delete', this.remove, this)
-						  .on('read', this.render, this)
-						  .on('update:CId', function(){ console.log('timeline: ',self.model._clientId);self.el.fadeTo(500, '0.1'); self.model.xfilter(xfilter).sync(); })
-						  .xfilter(xfilter).sync();
+				
+				Gizmo.Auth(this.model)
+				    .on('delete', this.remove, this)
+					.on('read', this.render, this)
+					.on('update:CId', function(){ self.el.fadeTo(500, '0.1'); self.model.xfilter(xfilter).sync(); })
+					.xfilter(xfilter).sync();
 			},
 			reorder: function(evt, ui){
 				var next = $(ui.item).next('li'), prev = $(ui.item).prev('li');
