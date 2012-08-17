@@ -9,7 +9,7 @@ Created on Apr 19, 2012
 SQL Alchemy based implementation for the image data API. 
 '''
 
-from ..api.image_data import IImageDataService, QImageData
+from ..api.image_data import QImageData #, IImageDataService
 from ..meta.image_data import ImageData
 from .meta_data import MetaDataServiceBaseAlchemy
 from ally.container.ioc import injected
