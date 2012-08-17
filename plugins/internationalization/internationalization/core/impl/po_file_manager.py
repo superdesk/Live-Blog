@@ -11,6 +11,7 @@ Implementation for the PO file management.
 
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from babel import localedata, core
 from babel.core import Locale, UnknownLocaleError
 from babel.messages.catalog import Catalog
@@ -44,6 +45,7 @@ FORMAT_MO = '%s_%s.mo'
 
 # TODO: add lock in order to avoid problems when a file is being updated an then read.
 @injected
+@setup(IPOFileManager)
 class POFileManager(IPOFileManager):
     '''
     Implementation for @see: IPOFileManager

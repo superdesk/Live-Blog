@@ -9,31 +9,32 @@ Created on Apr 19, 2012
 SQL Alchemy based implementation for the image data API. 
 '''
 
-from ..api.image_data import IImageDataService, QImageData
-from ..meta.image_data import ImageData
+from ..api.image_data import QImageData
+from ..meta.image_data import ImageDataMapped
 from .meta_data import MetaDataServiceBaseAlchemy
 from ally.container.ioc import injected
-from superdesk.media_archive.impl.meta_data import IMetaDataReferenceHandler
+from ally.container.support import setup
+from superdesk.media_archive.core.spec import IMetaDataHandler, IMetaDataReferencer
+from superdesk.media_archive.api.image_data import IImageDataService
 
 # --------------------------------------------------------------------
 
 @injected
-class ImageDataServiceAlchemy(MetaDataServiceBaseAlchemy, IImageDataService):
+@setup(IImageDataService)
+class ImageDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IImageDataService):
     '''
     @see: IImageDataService
     '''
 
-    referenceHandler = IMetaDataReferenceHandler
+    handler = IMetaDataHandler
 
     def __init__(self):
-        assert isinstance(self.referenceHandler, IMetaDataReferenceHandler), \
-        'Invalid reference handler %s' % self.referenceHandler
-        MetaDataServiceBaseAlchemy.__init__(self, ImageData, QImageData)
+        assert isinstance(self.handler, IMetaDataHandler), 'Invalid handler %s' % self.handler
+        MetaDataServiceBaseAlchemy.__init__(self, ImageDataMapped, QImageData, self)
 
+    
     # ----------------------------------------------------------------
 
-    def _process(self, metaData, scheme, thumbSize):
-        '''
-        @see: MetaDataServiceBaseAlchemy._process
-        '''
-        return self.referenceHandler.process(metaData, scheme, thumbSize)
+    def populate(self, metaData, scheme, thumbSize=None):
+        
+        return metaData

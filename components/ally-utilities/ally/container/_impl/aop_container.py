@@ -1,7 +1,7 @@
 '''
 Created on Jan 12, 2012
 
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -28,8 +28,8 @@ class Matcher:
     ** - place holder for a modules/packages names
     Path patterns examples:
         api.* - will match all paths from the 'api' path.
-        *.api - will match the path that is found in the paths like 'ally.api', 'newscoop.api' but not
-                'ally.newscoop.api'.
+        *.api - will match the path that is found in the paths like 'ally.api', 'superdesk.api' but not
+                'ally.superdesk.api'.
         *.api.* - will match all the paths that are found in the 'api' path.
         **.api.* - match all the paths for all paths that are found with the name 'api' regardless of the
                 root path location.
