@@ -12,10 +12,14 @@ Contains the services setups for media image archive.
 from ally.container import ioc
 from ..superdesk.db_superdesk import createTables
 from superdesk.media_archive.api.image_data import IImageDataService
+#from superdesk.media_archive.api.image_info import IImageInfoService
 from superdesk.media_archive.api.image_persist import IImagePersistanceService
 from superdesk.media_archive.impl.image_data import ImageDataServiceAlchemy
+#from superdesk.media_archive.impl.image_info import ImageInfoServiceAlchemy
 from superdesk.media_archive.impl.image_persist import ImagePersistanceService
 from superdesk.media_archive.core.spec import IMetaDataHandler
+#from __plugin__.plugin.registry import registerService
+
 
 # --------------------------------------------------------------------
 
@@ -34,10 +38,21 @@ def imageData() -> IImageDataService:
     b.handler = imageDataHandler()
     return b
 
+#@ioc.entity
+#def imageInfo() -> IImageInfoService:
+#    b = ImageInfoServiceAlchemy()
+#    return b
+
 # --------------------------------------------------------------------
 
 @ioc.after(createTables)
 def deploy():
     imagePersistanceService().deploy()
+    
+#@ioc.start
+#def register():
+#    registerService(imageData())
+#    registerService(imageInfo())
+    
 
 # --------------------------------------------------------------------
