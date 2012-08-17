@@ -156,24 +156,26 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
 
 # --------------------------------------------------------------------
 
-def metaTypeFor(session, key):
+def metaTypeFor(session, type):
     '''
-    Provides the meta type id for the meta type key, if there is no such meta type key than one will be created.
+    Provides the meta type id for the type, if there is no such meta type then one will be created.
     
     @param session: Session
         The session used for getting the meta type.
-    @param key: string
-        The meta type key.
+    @param type: string
+        The meta type type.
     '''
     assert isinstance(session, Session), 'Invalid session %s' % session
-    assert isinstance(key, str), 'Invalid key %s' % key
-    try: metaType = session.query(MetaTypeMapped).filter(MetaTypeMapped.Key == key).one()
+    assert isinstance(type, str), 'Invalid type %s' % type
+    try: metaType = session.query(MetaTypeMapped).filter(MetaTypeMapped.Type == type).one()
     except NoResultFound:
         metaType = MetaTypeMapped()
-        metaType.Key = key
+        metaType.Type = type
         session.add(metaType)
         session.flush((metaType,))
     return metaType
+
+# --------------------------------------------------------------------
 
 def thumbnailFormatFor(session, format):
     '''
