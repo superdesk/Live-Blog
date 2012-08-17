@@ -42,11 +42,14 @@ define(function()
                 ], 
                 "total": "2"
             },
-            "Collaborator/1/Post/Published":{ 'PostList': [] },
+            'Post/1': { href: 'Post/1', Content: 'A' },
+            'Post/2': { href: 'Post/2', Content: 'B' },
+            'Post/3': { href: 'Post/3', Content: 'C' },
+            "Collaborator/1/Post/Published":{ 'PostList': [{ href: 'Post/1', Content: 'A' },{ href: 'Post/2', Content: 'B' }] },
             "my/Collaborator/1/Post/Published":{ 'PostList': [] },
             "Collaborator/1/Post/Unpublished":
             {
-                'PostList': []
+                'PostList': [{ href: 'Post/1', Content: 'A' },{ href: 'Post/3', Content: 'C' }]
             },
             
             
