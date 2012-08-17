@@ -14,6 +14,7 @@ from admin.introspection.api.plugin import IPluginService, Plugin
 from ally.api.model import Content
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, DevelError
 from ally.internationalization import _, C_
 from cdm.spec import ICDM, PathNotFound
@@ -25,6 +26,7 @@ import codecs
 # --------------------------------------------------------------------
 
 @injected
+@setup(IPOFileService)
 class POFileService(IPOFileService):
     '''
     Implementation for @see: IPOFileService
@@ -112,7 +114,7 @@ class POFileService(IPOFileService):
         '''
         assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
         # Convert the byte file to text file
-        poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
+        poFile = codecs.getreader(poFile.charSet or self.default_charset)(poFile)
         try: self.poFileManager.updateGlobalPOFile(locale, poFile)
         except UnicodeDecodeError: raise InvalidPOFile(poFile)
         if poFile.next(): raise ToManyFiles()
@@ -124,7 +126,7 @@ class POFileService(IPOFileService):
         self.componentService.getById(component)
         assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
         # Convert the byte file to text file
-        poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
+        poFile = codecs.getreader(poFile.charSet or self.default_charset)(poFile)
         try: self.poFileManager.updateComponentPOFile(component, locale, poFile)
         except UnicodeDecodeError: raise InvalidPOFile(poFile)
         if poFile.next(): raise ToManyFiles()
@@ -138,7 +140,7 @@ class POFileService(IPOFileService):
         assert isinstance(pluginObj, Plugin)
         if pluginObj.Component: return self.updateComponentPOFile(pluginObj.Component, locale, poFile)
         # Convert the byte file to text file
-        poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
+        poFile = codecs.getreader(poFile.charSet or self.default_charset)(poFile)
         try: self.poFileManager.updatePluginPOFile(plugin, locale, poFile)
         except UnicodeDecodeError: raise InvalidPOFile(poFile)
         if poFile.next(): raise ToManyFiles()

@@ -15,13 +15,13 @@ from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
-@modelArchive(id='Key')
+@modelArchive(id='Id')
 class MetaType:
     '''
     Provides the meta types.
     '''
-    Key = str # Provides the key that represents the meta type
-    Name = str
+    Id = int # Provides the key that represents the meta type
+    Type = str
 
 # --------------------------------------------------------------------
 
@@ -32,9 +32,9 @@ class IMetaTypeService:
     '''
 
     @call
-    def getByKey(self, key:MetaType.Key) -> MetaType:
+    def getById(self, id:MetaType.Id) -> MetaType:
         '''
-        Provides the meta type based on the key.
+        Provides the meta type based on the id.
         '''
 
     @call

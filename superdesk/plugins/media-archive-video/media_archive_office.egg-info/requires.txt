@@ -1,0 +1,6 @@
+ally_api >= 1.0
+ally_core_sqlalchemy >= 1.0
+support_cdm >= 1.0
+internationalization >= 1.0
+superdesk >= 1.0
+media_archive >= 1.0
