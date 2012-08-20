@@ -8,7 +8,8 @@ function(Gizmo, User, Language, Posts, Collaborators)
     // Blog
     return Gizmo.Model.extend
     ({
-		url: new Gizmo.Url('LiveDesk/Blog'),
+        // TODO this is not the real model path. should be LiveDesk/Blog
+		url: new Gizmo.Url('Blog'),
         defaults:
         { 
             Creator: User,

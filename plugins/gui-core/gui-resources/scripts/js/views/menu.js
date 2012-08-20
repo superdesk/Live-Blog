@@ -10,12 +10,15 @@ function($, superdesk, Gizmo, AuthApp)
 {
     var MenuView = Gizmo.View.extend
     ({
-        getMenu: function()
+        getMenu: function(cb)
         {
             this.displayMenu = [];
+            this.submenus = {};
             
             var dfd = new $.Deferred,
                 self = this;
+            dfd.done(cb); // attach callback to deferred
+            
             superdesk.getActions('menu.*')
             .done(function(menu)
             {
@@ -26,16 +29,8 @@ function($, superdesk, Gizmo, AuthApp)
                     {
                         var Subs = 'data-submenu='+this.Path,
                             Subz = '[data-submenu="'+this.Path+'"]';
-                        superdesk.getActions(this.Path + '.*')
-                        .done(function(subs)
-                        {
-                            $(subs).each(function()
-                            { 
-                                require([config.api_url + this.ScriptPath], function(x){ 
-                                    console.log(Subz, $(Subz, self.el), self.el);
-                                    x && x.init && x.init(Subz); }); 
-                            });
-                        });
+                        
+                        self.submenus[this.Path] = this.Path + '.*';
                     }
                     self.displayMenu.push($.extend({}, this, 
                     { 
@@ -46,18 +41,20 @@ function($, superdesk, Gizmo, AuthApp)
                 });
                 dfd.resolve(self);
             });
-            return dfd;
+            return this;
         },
         init: function()
         {
             var self = this;
             this.setElement($('#navbar-top'));
             this.displayMenu = [];
-            this.getMenu().done(this.render);
+            this.getMenu(this.render);
             
-            this.el.on('refresh-menu', function(){ self.getMenu().done(self.render); });
+            this.el.on('refresh-menu', function(){ self.getMenu(self.render); });
             
-            $(AuthApp).on('authenticated', function(){ self.getMenu().done(self.render); });
+            $(AuthApp).on('authenticated', function(){ self.getMenu(self.render); });
+            
+            $.superdesk.applyLayout('layouts/dashboard');
         },
         /*!
          * Deferred callback
@@ -66,13 +63,29 @@ function($, superdesk, Gizmo, AuthApp)
         {
             // make data for menu template
             var self = view,
-                navData = {superdesk: {menu: self.displayMenu}}
-                ;
+                navData = {superdesk: {menu: self.displayMenu}};
             superdesk.login && $.extend(navData, {user: superdesk.login});
             
             self.el
             .html('')
-            .tmpl( 'navbar', navData )
+            .tmpl('navbar', navData, function()
+            {
+                self.el.find('[data-submenu]').each(function()
+                {
+                    var submenuElement = this;
+                    superdesk.getActions( self.submenus[$(this).attr('data-submenu')] )
+                    .done(function(subs)
+                    {
+                        $(subs).each(function()
+                        { 
+                            require([config.api_url + this.ScriptPath], function(submenuApp)
+                            { 
+                                submenuApp && submenuApp.init && submenuApp.init(submenuElement, self.el); 
+                            }); 
+                        });
+                    });
+                });
+            })
             .off('click.superdesk')
             .on('click.superdesk', '.nav a', function(event)
             {
@@ -104,93 +117,11 @@ function($, superdesk, Gizmo, AuthApp)
                 localStorage.removeItem('superdesk.login.id');
                 delete $.restAuth.prototype.requestOptions.headers.Authorization;
                 $(AuthApp).trigger('logout');
-                self.getMenu().done(this.render);
+                var gm = self.getMenu(self.render);
             });
         }
         
-    }),
-    
-    _MenuView = function() 
-    {
-        superdesk.getActions('menu.*')
-        .done(function(menu)
-        {  
-    		var displayMenu = [],
-    		    refreshMenu = function() 
-    		{
-    		    displayMenu = [];
-        		$(menu).each(function()
-        		{
-        		    var Subs = null;
-        			if(this.ChildrenCount > 0)
-        			{
-        			    var Subs = 'data-submenu='+this.Path,
-        			        Subz = '[data-submenu="'+this.Path+'"]';
-        			    superdesk.getActions(this.Path + '.*')
-        			    .done(function(subs)
-        			    {
-        			        $(subs).each(function()
-        			        { 
-        			            require([config.api_url + this.ScriptPath], function(x){ x && x.init && x.init(Subz); }); 
-        			        });
-        			    });
-        			}
-        			displayMenu.push($.extend({}, this, 
-        			{ 
-        			    Path: this.Path.split('.'), 
-        			    Name: this.Path.replace('.', '-'),
-        			    Subs: Subs
-        			}));
-        		});
-        		
-        		var navData = {superdesk: {menu: displayMenu}};
-        		superdesk.login && $.extend(navData, {user: superdesk.login});
-        		$('#navbar-top')
-        		.tmpl( 'navbar', navData )
-        		.off('click.superdesk')
-        		.on('click.superdesk', '.nav a', function(event)
-        		{
-        		    var self = this;
-        		    if(!$(self).attr('href')) return;
-        		    if(!$(self).attr('script-path')) { event.preventDefault(); return; }
-
-        		    $(self).attr('data-loader') != 'false' && superdesk.showLoader();
-        		    
-        		    superdesk.navigation.bind
-        		    ( 
-        		        $(self).attr('href'), 
-        		        function(){ require([config.api_url + $(self).attr('script-path')], 
-        		            function(x)
-        		            { 
-        		                x && x.init && x.init(); 
-        		            });
-        		        }
-        		    );
-        			event.preventDefault(); 
-        		});
-        		$('#navbar-logout', $('#navbar-top'))
-        		.off('click.superdesk')
-        		.on('click.superdesk', function()
-        		{
-        		    delete superdesk.login;
-        		    localStorage.removeItem('superdesk.login.name');
-        		    localStorage.removeItem('superdesk.login.id');
-        		    delete $.restAuth.prototype.requestOptions.headers.Authorization;
-        		    
-        		    $(AuthApp).trigger('logout');
-        		    
-        		    new _MenuView;
-        		});
-    		}; // refreshMenu
-    		
-    		
-    		$('#navbar-top').on('refresh-menu', refreshMenu);
-    		$(AuthApp).off('authenticated').on('authenticated', refreshMenu );
-    		refreshMenu();
-    		
-        });
-        $.superdesk.applyLayout('layouts/dashboard');
-    };
+    });
     
     return MenuView;
 });

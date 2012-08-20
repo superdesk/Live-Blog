@@ -13,7 +13,7 @@ define
   'tmpl!livedesk>submenu'
 ], function($, superdesk, Gizmo, Blog)
 {
-    var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url(Blog.prototype.url.data.url) }), 
+    var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url('LiveDesk/Blog') }), 
         b = Gizmo.Auth(new Blogs());
     b.href.decorate('%s/Administered');
     
@@ -21,7 +21,7 @@ define
     ({
         init: function()
         {
-            this.model.on('read', this.render, this);
+            this.model.on('read update', this.render, this);
         },
         refresh: function()
         {
@@ -29,7 +29,7 @@ define
         },
         render: function()
         {
-            $(this.el).on('click', '#submenu-liveblogs-create', function()
+            $(this.menu).on('click', '#submenu-liveblogs-create', function()
             {
                 superdesk.showLoader();
                 superdesk.getAction('modules.livedesk.add')
@@ -39,7 +39,7 @@ define
                         require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ addApp = new AddApp(); });
                 });  
             });
-            $(this.el).on('click', '.submenu-blog', function()
+            $(this.menu).on('click', '.submenu-blog', function()
             {
                 superdesk.showLoader();
                 var theBlog = $(this).attr('data-blog-link');
@@ -50,16 +50,17 @@ define
                         require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); });
                 });
             });
-            console.log('submenu render', {Blogs: this.model.feed()}, this.el);
-            this.el.tmpl('livedesk>submenu', {Blogs: this.model.feed()}); 
+            this.menu.tmpl('livedesk>submenu', {Blogs: this.model.feed()}); 
         }
     });
     
     var subMenu = new SubmenuView({model: b});
     return {
-        init: function(submenu)
+        init: function(submenu, menu)
         { 
-            subMenu.setElement($(submenu)).refresh();
+            subMenu.menu = $(submenu);
+            //subMenu.setElement($(submenu, menu)).refresh();
+            subMenu.refresh();
             return subMenu; 
         }
     };
