@@ -9,7 +9,6 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         {
             localStorage.removeItem('superdesk.login.session')
             delete authSync.options.headers.Authorization;
-            console.log('gizmo superdesk auth logout');
         });
     });
     
@@ -50,6 +49,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
             // failuire function for non authenticated requests
             fail: function(resp)
             { 
+                // TODO 404? shouldn't be covered by auth
                 (resp.status == 404 || resp.status == 401) && authLock.apply(authSync, arguments); 
             } 
         },
@@ -109,11 +109,14 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     
  // set url helper property with superdesk path
     Url = giz.Url.extend
-    ({        
-        data: { root: superdesk.apiUrl+'/resources/' }
+    ({      
+        _construct: function()
+        {
+            this.data = !this.data ? { root: superdesk.apiUrl+'/resources/'} : this.data;
+            giz.Url.prototype._construct.apply(this, arguments);
+        }
     })
     ;
-    
     
     // finally add unique container model
     Model.extend = function()
@@ -139,6 +142,6 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         Sync: newSync, AuthSync: authSync,
 		View: giz.View,
 		Url: Url,
-		Register: giz.Register		
+		Register: giz.Register
     };
 });
