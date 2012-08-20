@@ -42,9 +42,11 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         //this.instances.push(this);
     },
     Collection = function(){},
+
     Url = Class.extend
     ({
-        _constructor: function(arg) {
+        _construct: function(arg) 
+        {
             this.data = !this.data ? { root: ''} : this.data;
             switch( $.type(arg) )
             {
@@ -62,22 +64,27 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             }
             return this;
         },
-        xfilter: function() {
+        xfilter: function() 
+        {
             this.data.xfilter = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];
             return this;
         },
-        root: function(root) {
+        root: function(root) 
+        {
             this.data.root = root;
             return this;
         },
-        get: function(){
+        get: function()
+        {
             return this.data.root + this.data.url;
         },
-        order: function(key, direction) {
+        order: function(key, direction) 
+        {
             this.data.order = direction+'='+key;
             return this;
         },
-        filter: function(key, value) {
+        filter: function(key, value) 
+        {
             this.data.filter = key+'='+value;
             return this;
         },
@@ -85,8 +92,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         {
             this.data.url = format.replace(/(%s)/g, this.data.url);
         },
-        options: function() {
-
+        options: function() 
+        {
             var options = {};
             if(this.data.xfilter)
                 options.headers = { 'X-Filter': this.data.xfilter};
@@ -662,7 +669,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */
         modelDataBuild: function(model)
         {
-            return model
+            return model;
         },
         /*!
          *
