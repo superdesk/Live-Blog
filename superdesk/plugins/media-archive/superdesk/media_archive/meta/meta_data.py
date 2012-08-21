@@ -51,9 +51,11 @@ class MetaDataMapped(Base, MetaData):
     Name = Column('name', String(255), nullable=False)
     SizeInBytes = Column('size_in_bytes', Integer)
     CreatedOn = Column('created_on', DateTime, nullable=False)
+    
     # None REST model attribute --------------------------------------
     typeId = Column('fk_type_id', ForeignKey(MetaTypeMapped.Id, ondelete='RESTRICT'), nullable=False)
     thumbnailFormatId = Column('fk_thumbnail_format_id', ForeignKey(ThumbnailFormat.id, ondelete='RESTRICT'), nullable=False)
+    content = Column('content', String(255))
 
     _cache_types = {}
     # A dictionary having as a key the type id and as a value the type. This is because not too many meta data types are
