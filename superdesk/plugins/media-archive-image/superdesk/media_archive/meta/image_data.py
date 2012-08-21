@@ -13,6 +13,7 @@ from ..api.image_data import ImageData
 from .meta_data import MetaDataMapped
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String, DateTime
+from sqlalchemy.ext.declarative import declared_attr
 from superdesk.meta.metadata_superdesk import Base
 from ally.internationalization import N_
 
@@ -23,16 +24,32 @@ META_TYPE_KEY = N_('image')
 
 # --------------------------------------------------------------------
 
-class ImageData(Base, ImageData):
+class ImageDataDefinition:
     '''
-    Provides the mapping for MetaData.
+    Provides the mapping for ImageData definition.
     '''
     __tablename__ = 'archive_image_data'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Id = Column('fk_meta_data_id', ForeignKey(MetaDataMapped.Id), primary_key=True)
-    Width = Column('width', Integer)
-    Height = Column('height', Integer)
-    CreationDate = Column('creation_date', DateTime)
-    CameraMake = Column('camera_make', String(255))
-    CameraModel = Column('camera_model', String(255))
+    Id = declared_attr(lambda cls: Column('fk_meta_data_id', ForeignKey(MetaDataMapped.Id), primary_key=True))
+    Width = declared_attr(lambda cls: Column('width', Integer))
+    Height = declared_attr(lambda cls: Column('height', Integer))
+    CreationDate = declared_attr(lambda cls: Column('creation_date', DateTime))
+    CameraMake = declared_attr(lambda cls: Column('camera_make', String(255)))
+    CameraModel = declared_attr(lambda cls: Column('camera_model', String(255)))
+
+# --------------------------------------------------------------------
+
+class ImageDataEntry(Base, ImageDataDefinition):
+    '''
+    Provides the mapping for ImageData table.
+    '''
+    
+
+# --------------------------------------------------------------------
+
+class ImageDataMapped(ImageDataDefinition, MetaDataMapped, ImageData):
+    '''
+    Provides the mapping for ImageData when extending MetaData.
+    '''
+    __table_args__ = dict(ImageDataDefinition.__table_args__, extend_existing=True)
