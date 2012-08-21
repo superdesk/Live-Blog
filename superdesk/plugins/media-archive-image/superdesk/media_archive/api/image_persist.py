@@ -21,8 +21,3 @@ class IImagePersistanceService:
     Provides the service that handles the image persistence.
     '''
 
-#    @call(method=INSERT, webName='Add')
-#    def insertAll(self, imageInfo:ImageInfo, image:Content) -> ImageInfo.Id:
-#        '''
-#        Inserts the image into the media archive.
-#        '''
