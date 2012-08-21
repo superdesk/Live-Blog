@@ -56,12 +56,6 @@ class IMetaDataService:
         Provides the meta data based on the id.
         '''
 
-#    def getMetaDatasCount(self, typeId:MetaType.Id=None, q:QMetaData=None) -> Count:
-#        '''
-#        Provides the meta data's count.
-#        '''
-
-    #@call(countMethod=getMetaDatasCount)
     @call
     def getMetaDatas(self, scheme:Scheme, typeId:MetaType.Id=None, offset:int=None, limit:int=10, q:QMetaData=None,
                      thumbSize:str=None) -> Iter(MetaData):
@@ -69,6 +63,13 @@ class IMetaDataService:
         Provides the meta data's.
         '''
 
+
+@service
+class IMetaDataUploadService(IMetaDataService):
+    '''
+    Provides the service methods for the meta data.
+    '''
+    
     @call(webName='Upload')
     def insert(self, content:Content) -> MetaData.Id:
         '''

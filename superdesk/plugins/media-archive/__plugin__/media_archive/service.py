@@ -11,19 +11,21 @@ Contains the services setups for media archive superdesk.
 
 from ..cdm.local_cdm import contentDeliveryManager
 from ..superdesk import service
-from ..superdesk.db_superdesk import createTables
+from ..superdesk.db_superdesk import bindSuperdeskSession, createTables
 from ally.container import ioc, support
 from cdm.spec import ICDM
 from cdm.support import ExtendPathCDM
-from superdesk.media_archive.api.meta_data import IMetaDataService
-from superdesk.media_archive.core.spec import IThumbnailManager, IThumbnailCreator
+from superdesk.media_archive.api.meta_data import IMetaDataService,\
+    IMetaDataUploadService
+from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
+    ThumbnailCreatorGraphicsMagick
+from superdesk.media_archive.core.spec import IThumbnailManager, \
+    IThumbnailCreator
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
     MetaDataServiceAlchemy
 from superdesk.media_archive.impl.meta_info import IMetaInfoService, \
-    MetaInfoServiceAlchemy    
+    MetaInfoServiceAlchemy
 import logging
-from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
-    ThumbnailCreatorGraphicsMagick
 
 # --------------------------------------------------------------------
 
@@ -35,6 +37,7 @@ def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
 
 support.wireEntities(ThumbnailManager, ThumbnailCreatorGraphicsMagick)
+support.bindToEntities(ThumbnailManager, binders=bindSuperdeskSession)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
 
 # --------------------------------------------------------------------
@@ -87,7 +90,7 @@ def thumbnailCreator() -> IThumbnailCreator:
 # --------------------------------------------------------------------
 
 @ioc.entity
-def metaDataService() -> IMetaDataService:
+def metaDataService() -> IMetaDataUploadService:
     b = MetaDataServiceAlchemy()
     b.cdmArchive = cdmArchive()
     b.metaDataHandlers = metaDataHandlers()

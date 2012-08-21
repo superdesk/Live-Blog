@@ -17,7 +17,7 @@ from ally.container import support
 
 # --------------------------------------------------------------------
 
-API, IMPL = 'superdesk.**.api.**.I*Service', 'superdesk.**.impl.**.*'
+API, IMPL = 'superdesk.*.api.**.I*Service', 'superdesk.*.impl.**.*'
 
 support.createEntitySetup(API, IMPL)
 support.bindToEntities(IMPL, binders=bindSuperdeskSession)
