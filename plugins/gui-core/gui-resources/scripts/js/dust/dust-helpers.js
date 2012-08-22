@@ -79,5 +79,39 @@ dust.helpers = helpers;
 
 dust.filters.t = function(string){ return $('<div>'+string+'</div>').text(); }
 dust.filters.twitter_all = function(string) { return twitter.link.all(string); }
+
+dust.filters.twitter_tweet = function(content) 
+{ 
+    try
+    {
+        var content = JSON.parse(content);
+        return content.tweet;
+    }
+    catch(e){}
+    return content;
+};
+
+dust.filters.twitter_annotation_after = function(string) 
+{ 
+    try
+    {
+        var content = JSON.parse(content);
+        return content.annotationAfter;
+    }
+    catch(e){}
+    return '';
+};
+
+dust.filters.twitter_annotation_before = function(string) 
+{ 
+    try
+    {
+        var content = JSON.parse(content);
+        return content.annotationBefore;
+    }
+    catch(e){}
+    return '';
+}
+
 return dust;
 });
