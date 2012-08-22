@@ -306,11 +306,16 @@ define
 					self.addAll(self.collection.getList());
 				});
 			},
-			insert: function(data){
-				//publishSync
-				// insert new data
-				//new $.restAuth(self.blogHref + '/Post/Published').resetData().insert(
+			
+			/*!
+			 * insert new post
+			 */
+			insert: function(data)
+			{
+			    var post = Gizmo.Auth(new this.collection.model(data));
+			    this.collection.insert(post);
 			},
+			
 			publish: function(post){
 				if(post instanceof this.collection.model) {
 					post.publishSync();
@@ -339,13 +344,29 @@ define
 					self.render();
 				}).xfilter('Creator.Name,Creator.Id').sync();
 			},
-			drop: function(event, ui){
+			/*!
+			 * TODO description
+			 */
+			drop: function(event, ui)
+			{
 				var self = this,
 					data = ui.draggable.data('data'),
-					post = ui.draggable.data('post');
-				if(data !== undefined) {
+					post = ui.draggable.data('post'),
+					
+					either = data || post;
+				
+				if( either instanceof Gizmo.View)
+				{
+				    either.parent = self.timelineView;
+				    either.render();
+				    $('ul.post-list', self.timelineView.el).prepend(either.el);
+				    $('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+				}
+				else if(data !== undefined) 
 					self.timelineView.insert(data);
-				} else if(post !== undefined){
+				
+				else if(post !== undefined)
+				{
 					self.timelineView.publish(post);
 					// stupid bug in jqueryui you can make draggable desstroy
 					setTimeout(function(){
@@ -353,7 +374,11 @@ define
 					},1);
 				}
 			},
-			save: function(evt){
+			/*!
+             * TODO description
+             */
+			save: function(evt)
+			{
 				var content = $(this.el).find('[is-content]'),
 				titleInput = content.find('section header h2'),
 				descrInput = content.find('article#blog-intro'),
@@ -370,6 +395,7 @@ define
 					setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
 				});
 			},
+			
 			render: function(){
 				var self = this,
 					data = $.extend({}, this.model.feed(), {
