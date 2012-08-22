@@ -1201,8 +1201,8 @@ li.image, li.image:hover {
 }
 		
 .drag-bar {
-	position: absolute;
-	left: -10px;
+	position: absolute; /* this is totally wrong */
+	left: -10px; 
 	top: -1px;
 	bottom: -1px;
 	width:9px;
@@ -1211,10 +1211,10 @@ li.image, li.image:hover {
 	background:#969696 url(../../images/drag_bg.png) repeat-y 3px 0;
 	}
 .post-list > li .drag-bar {
-	display:none;
+	visibility: hidden;
 	}
 	.post-list > li.draggable:hover .drag-bar {
-		display:block;
+		visibility: visible;
 		}
 .wrapup, .post-list > li.wrapup {		
 	background: #f6f6f6;
