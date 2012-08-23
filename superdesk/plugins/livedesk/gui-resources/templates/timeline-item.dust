@@ -35,7 +35,9 @@
 	    {/if}
 	    {@if cond="'{Author.Source.Name}'=='twitter'"}
 	    
-		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable timeline clearfix" data-post-id="{Id}" data-post-type="{Type.Key}">
+		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable timeline clearfix" data-post-id="{Id}" data-post-type="{Type.Key}"
+			data-provider="twitter">
+			
 			<div class="drag-bar"></div>
 	        <div class="tool-box-right">
 	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
@@ -44,44 +46,36 @@
 	        
 	        <div class="twitter-full-content">
 	
-				<div class="{?AuthorPerson}editable{/AuthorPerson} annotation">
-					{Content|twitter_annotation_before|s}
+				<div class="editable annotation">
+					{Meta.annotation.before|s}
 				</div>
 				
 				<article class="twitter-quote">
 				
 					<figure>
-						{?AuthorPerson.Avatar}
-	                		<img src="{AuthorPerson.Avatar}" />
-	            		{:else}
-	        	    		<img src="images/avatar_default_collaborator.png" />
-	            		{/AuthorPerson}
+						<figure><img src="{Meta.profile_image_url}"/></figure>
 					</figure>
 					
 					<div class="result-content">
 						
-						<h3>
-							{?AuthorPerson}
-								<span class="author">{AuthorPerson.FirstName} {AuthorPerson.LastName}</span>
-							{/AuthorPerson}
-						</h3>
+						<h3><span class="author">{Meta.from_user_name} ({Meta.from_user})</span></h3>
 						
 						<p class="result-text {?AuthorPerson}editable{/AuthorPerson}" data-post-id="{Id}"">
-							{Content|twitter_tweet|twitter_all|s}
+							{Content|twitter_all|s}
 						</p>
 						
 						<p class="attributes">
 							<i class="source-icon"></i>
 							<a href="http://twitter.com/{Meta.from_user}/status/{Meta.id_str}" target="_blank">
-								<time>{CreatedOn}</time>
+								<time>{Meta.created_at}</time>
 							</a>
 						</p>
 					</div>			
 					
 				</article>
 				
-				<div class="{?AuthorPerson}editable{/AuthorPerson} annotation">
-					{Content|twitter_annotation_after|s}
+				<div class="editable annotation">
+					{Meta.annotation.after|s}
 				</div>
 				
 		    </div> 
