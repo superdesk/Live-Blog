@@ -16,7 +16,7 @@
 				
 				<h3><span class="author">{Meta.from_user_name} ({Meta.from_user})</span></h3>
 				
-				<p class="result-text editable">{Content|twitter_all|s}</p>
+				<p class="result-text">{Content|twitter_all|s}</p>
 				
 				<p class="attributes">
 					<i class="source-icon"></i>

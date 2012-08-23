@@ -17,14 +17,10 @@ define('providers/twitter/adaptor', [
             var self = this;
             $(self.el).on('click', '.btn.publish', function()
             {
-                self.data.Content = JSON.stringify
-                ({
-                    annotationBefore: $('.twitter-full-content .annotation:eq(0)', self.el).html(),
-                    tweet: $('.twitter-full-content .result-text', self.el).html(),
-                    annotationAfter: $('.twitter-full-content .annotation:eq(1)', self.el).html()
-                });
-                console.log(self.data.Content);
-                // TODO remove other data like picture and timestamp?
+                self.data.Content = $('.twitter-full-content .result-text', self.el).html();
+                self.data.Meta.annotation = [$('.twitter-full-content .annotation:eq(0)', self.el).html(), 
+                    $('.twitter-full-content .annotation:eq(1)', self.el).html()];
+                self.data.Meta = JSON.stringify(self.data.Meta);
                 self.parent.insert(self.data);
                 //$('.actions', self.el).remove();
             });
