@@ -130,19 +130,38 @@ define
 		TimelineCollection = AutoCollection.extend({
 			href: new Gizmo.Url('/Post/Published')
 		}),
-		PostView = Gizmo.View.extend({
-			events: {
+		/*!
+		 * used for each item of the timeline
+		 */
+		PostView = Gizmo.View.extend
+		({
+			events: 
+			{
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeModel' },
 				'.editable': { focusout: 'save' },
+				'.editable': { focusin: 'edit' },
 			},
-			init: function(){
+			init: function()
+			{
 				var self = this;
 				self.el.data('view', self);
 				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
 				this.model.off('delete read set').on('delete', this.remove, this)
-					.on('read', function(){
+					.on('read', function()
+					{
+					    /*!
+			             * conditionally handing over save functionallity to provider if
+			             * model has source name in providers 
+			             */
+					    var src = this.get("Author").Source.Name;
+					    if( providers[src] && providers[src].timeline )
+					    {
+					        self.edit = providers[src].timeline.edit;
+					        self.save = providers[src].timeline.save;
+					    };
+					    
 						self.render();
 					})
 					.on('set', function(evt, data){
@@ -229,15 +248,35 @@ define
 					delete this.model.ordering;
 				self.order = order;
 				self.id = this.model.get('Id');
-				$.tmpl('livedesk>timeline-item', {Post: this.model.feed()}, function(e, o){
-					self.setElement(o).el.find('.editable').texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+				
+				// pre parse data
+				var src = self.model.get("Author").Source.Name;
+				if( providers[src] && providers[src].timeline )
+				    providers[src].timeline.preData.call(self);
+				
+				$.tmpl('livedesk>timeline-item', {Post: this.model.feed()}, function(e, o)
+				{
+					self.setElement(o).el.find('.editable')
+					    .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+					
+					/*!
+                     * conditionally handing over save functionallity to provider if
+                     * model has source name in providers 
+                     */
+                    if( providers[src] && providers[src].timeline )
+    					providers[src].timeline.init.call(self);
+					
 				});
 				return this;
 			},
-			save: function(){
+			
+			edit: $.noop,
+			save: function()
+			{
 				this.model.updater = this;
 				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
 			},
+			
 			remove: function(){
 				var self = this;
 				self.tightkNots();
@@ -480,6 +519,8 @@ define
 						floatingToolbar: 'top'
 					});
 					/** text editor stop */
+					
+					
 					topSubMenu = $(this.el).find('[is-submenu]');
 					$(topSubMenu)
 					.off('click.livedesk', 'a[data-target="configure-blog"]')
