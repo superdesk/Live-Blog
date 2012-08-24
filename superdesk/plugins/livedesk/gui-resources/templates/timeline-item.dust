@@ -33,6 +33,7 @@
 				</p>
 			</div>			
 	    {/if}
+	    
 	    {@if cond="'{Author.Source.Name}'=='twitter'"}
 	    
 		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable timeline clearfix" data-post-id="{Id}" data-post-type="{Type.Key}"
@@ -108,6 +109,7 @@
 				</p>
 			</div>			
 	    {/if}
+	    
 		{@if cond="'{Author.Source.Name}'!='twitter' && '{Author.Source.Name}'!='google' && '{Author.Source.Name}'!='flickr' && '{Author.Source.Name}'!='advertisement'"}
 		<li class="with-avatar {Author.Source.Name} {Type.Key} draggable timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
 			<div class="drag-bar"></div>
