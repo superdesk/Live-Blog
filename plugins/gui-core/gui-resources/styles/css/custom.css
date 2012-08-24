@@ -1201,7 +1201,7 @@ li.image, li.image:hover {
 }
 		
 .drag-bar {
-	position: absolute; /* this is totally wrong */
+	position: absolute;
 	left: -10px; 
 	top: -1px;
 	bottom: -1px;
