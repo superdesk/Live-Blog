@@ -45,7 +45,7 @@ support.bindToEntities(ThumbnailManager, binders=bindSuperdeskSession)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
 
 # --------------------------------------------------------------------
-
+    
 @ioc.config
 def thumbnail_sizes():
     '''
