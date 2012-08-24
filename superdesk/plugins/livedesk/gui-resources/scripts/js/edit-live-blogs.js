@@ -1,22 +1,28 @@
 define
-([
-    'providers/enabled',
+([ 
+    'providers/enabled', 
     'gizmo/superdesk',
-	'jquery',
-	config.guiJs('livedesk', 'models/blog'),
-	config.guiJs('livedesk', 'models/post'),
-	'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
+    'jquery',
+    config.guiJs('livedesk', 'models/blog'),
+    config.guiJs('livedesk', 'models/post'),
+    'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
     'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 'jquery/avatar',
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>layouts/blog',
     'tmpl!livedesk>edit',
     'tmpl!livedesk>timeline-container',
-	'tmpl!livedesk>timeline-item',
-	'tmpl!livedesk>provider-content',
-	'tmpl!livedesk>provider-link',
-	'tmpl!livedesk>providers'
-], function(providers, Gizmo, $) {
-	function isOnly(data,key) {
+    'tmpl!livedesk>timeline-item',
+    'tmpl!livedesk>provider-content',
+    'tmpl!livedesk>provider-link',
+    'tmpl!livedesk>providers'
+ ], 
+function(providers, Gizmo, $) 
+{
+    /*!
+     * TODO ADD DESCRIPTION!
+     */
+	function isOnly(data,key) 
+	{
 		var count = 0;
 		for(i in data) {
 			count++;
@@ -24,55 +30,71 @@ define
 		};
 		return (data !== undefined) && (data[key] !== undefined) && (count == 1);
 	}
-	return function(theBlog){
-		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls);
-		var
-		/**
+	
+	return function(theBlog)
+	{
+		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
+		
+		/*!
 		 * Views for providers
 		 * This one if for rendering of the content tab
 		 */
-		ProviderContentView =  Gizmo.View.extend({
-			render: function(){
+		ProviderContentView =  Gizmo.View.extend
+		({
+			render: function()
+			{
 				var self = this,
 				data = $.extend({},{link: this.name} , this.model);
-				$.tmpl('livedesk>provider-content', data , function(err, out){
+				$.tmpl('livedesk>provider-content', data , function(err, out)
+				{
 						self.setElement( out );
 						self.model.el = self.el;
 				});
 				return self;
-			},
+			}
 		}),
-		/**
+		
+		/*!
 		 * This rendering of the link tab, also has the event when showing the tab
 		 */
-		ProviderLinkView =  Gizmo.View.extend({
-			events: {
+		ProviderLinkView =  Gizmo.View.extend
+		({
+			events: 
+			{
 				"": {"show": "show"}
 			},
-			render: function(){
+			render: function()
+			{
 				var self = this,
 				data = $.extend({},{link: this.name} , this.model);
-				$.tmpl('livedesk>provider-link', data , function(err, out){
+				$.tmpl('livedesk>provider-link', data , function(err, out)
+				{
 						self.setElement( out );
 				});
 				return self;
 			},
-			show: function(evt){
+			show: function(evt)
+			{
 				// initialize the provider init method
 				this.model.init(theBlog);
 			}
 		}),
-		/**
+		
+		/*!
 		 * This is the main view of the provider
 		 * where is added the link tab view, content and the main html of the providers
 		 */
-		ProvidersView = Gizmo.View.extend({
-			render: function() {
+		ProvidersView = Gizmo.View.extend
+		({
+			render: function() 
+			{
 				var self = this;
-				$.tmpl('livedesk>providers', self.providers , function(err, out){
+				$.tmpl('livedesk>providers', self.providers , function(err, out)
+				{
 					self.el.append( out );
 					var links = self.el.find('ul:first'), contents = self.el.find('.tab-content:first');
-					for(name in self.providers) {
+					for( name in self.providers ) 
+					{
 						var provider = self.providers[name];
 						var providerLinkView = new ProviderLinkView({ model: provider, name: name });
 						var providerContentView = new ProviderContentView({ model: provider, name: name });
@@ -81,53 +103,65 @@ define
 					}
 				});
 			}
-		});
-		var AutoCollection = Gizmo.Collection.extend({
+		}),
+		
+		/*!
+		 * 
+		 */
+		AutoCollection = Gizmo.Collection.extend
+		({
 			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
 			keep: false,
-			init: function(){
-				//console.log('init');
-			},
-			destroy: function(){
-				this.stop();
-			},
-			setIdInterval: function(fn){
+			init: function(){  },
+			destroy: function(){ this.stop(); },
+			setIdInterval: function(fn)
+			{
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
 			},
-			getMaximumCid: function(data){
+			getMaximumCid: function(data)
+			{
 				for(i=0, count=data.list.length; i<count; i++) {
 					var CId = parseInt(data.list[i].get('CId'))
 					if( !isNaN(CId) && (this._latestCId < CId) )
 						this._latestCId = CId;
 				}
 			},
-			start: function(){
+			start: function()
+			{
 				var self = this, requestOptions = {data: {'startEx.cId': this._latestCId}, headers: { 'X-Filter': 'CId'}};
 				if(self._latestCId === 0) delete requestOptions.data;
-				if(!this.keep && self.view && !self.view.checkElement()) {
+				if(!this.keep && self.view && !self.view.checkElement()) 
+				{
 					self.stop();
 					return;
 				}
-				Gizmo.Collection.prototype.sync.call(self,requestOptions).done(function(data){
+				Gizmo.Collection.prototype.sync.call(self,requestOptions).done(function(data)
+				{
 					self.getMaximumCid(self.parse(data));
 				});
 				return this;
 			},
-			stop: function(){
+			stop: function()
+			{
 				var self = this;
 				clearInterval(self.idInterval);
 				return this;
 			},
-			sync: function(){
+			sync: function()
+			{
 				var self = this;
 				this.stop().start().setIdInterval(function(){self.start();});
 			}
-		});
-		var
-		TimelineCollection = AutoCollection.extend({
+		}),
+		
+		/*!
+		 * 
+		 */
+		TimelineCollection = AutoCollection.extend
+		({
 			href: new Gizmo.Url('/Post/Published')
 		}),
 		/*!
@@ -140,15 +174,17 @@ define
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeModel' },
 				'.editable': { focusout: 'save' },
-				'.editable': { focusin: 'edit' },
+				'.editable': { focusin: 'edit' }
 			},
+			
 			init: function()
 			{
 				var self = this;
 				self.el.data('view', self);
 				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
-				this.model.off('delete read set').on('delete', this.remove, this)
+				this.model.off('delete read set update')
+				    .on('delete', this.remove, this)
 					.on('read', function()
 					{
 					    /*!
@@ -164,22 +200,24 @@ define
 					    
 						self.render();
 					})
-					.on('set', function(evt, data){
-						/**
+					.on('set', function(evt, data)
+					{
+						/*!
 						 * If the set trrigering is the edit provider then don't update the view;
 						 */
 						if(self.model.updater !== self) {
 							self.rerender();
 						}
 					})
-					.on('update', function(evt, data){
-						/**
+					.on('update', function(evt, data)
+					{
+						/*!
 						 * If the updater on the model is the current view don't update the view;
 						 */
 						if(self.model.updater === self) {
 							delete self.model.updater; return;
 						}
-						/**
+						/*!
 						 * If the Change Id is received, then sync the hole model;
 						 */
 						if(isOnly(data, 'CId'))
@@ -191,7 +229,9 @@ define
 					})
 					.xfilter(self.xfilter).sync();
 			},
-			reorder: function(evt, ui){
+			
+			reorder: function(evt, ui)
+			{
 				var self = this, next = $(ui.item).next('li'), prev = $(ui.item).prev('li'), id, order, newPrev = undefined, newNext = undefined;
 				if(next.length) {
 					var nextView = next.data('view');
@@ -214,6 +254,7 @@ define
 				self.model.ordering = self;
 				self.model.xfilter(self.xfilter).sync();
 			},
+			
 			tightkNots: function()
 			{
 				if(this.next !== undefined)
@@ -221,13 +262,17 @@ define
 				if(this.prev !== undefined)
 					this.prev.next = this.next;				
 			},
-			rerender: function(){
+			
+			rerender: function()
+			{
 				var self = this;
 				self.el.fadeTo(500, '0.1', function(){
 					self.render().el.fadeTo(500, '1');
 				});
 			},
-			render: function(){
+			
+			render: function()
+			{
 				var self = this, order = parseFloat(this.model.get('Order'));
 				if ( !isNaN(self.order) && (order != self.order) && this.model.ordering !== self) {
 					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1}, anti = { prev: 'next', next: 'prev'}
@@ -252,7 +297,10 @@ define
 				// pre parse data
 				var src = self.model.get("Author").Source.Name;
 				if( providers[src] && providers[src].timeline )
-				    providers[src].timeline.preData.call(self);
+				{
+				    providers[src].timeline.preData && providers[src].timeline.preData.call(self);
+				    providers[src].timeline.render && providers[src].timeline.render.call(self);
+				}
 				
 				$.tmpl('livedesk>timeline-item', {Post: this.model.feed()}, function(e, o)
 				{
@@ -270,6 +318,10 @@ define
 				return this;
 			},
 			
+			/*!
+			 * subject to aop
+			 */
+			preData: $.noop,
 			edit: $.noop,
 			save: function()
 			{
@@ -277,14 +329,17 @@ define
 				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
 			},
 			
-			remove: function(){
+			remove: function()
+			{
 				var self = this;
 				self.tightkNots();
 				$(this.el).fadeTo(500, '0.1', function(){
 					self.el.remove();
 				});
 			},
-			removeModel: function(){
+			
+			removeModel: function()
+			{
 				var self = this;
 				$('#delete-post .yes')
 					.off(this.getEvent('click'))
@@ -295,14 +350,18 @@ define
 			}
 		}),
 
-		TimelineView = Gizmo.View.extend({
-			events: {
+		TimelineView = Gizmo.View.extend
+		({
+			events: 
+			{
 				'ul.post-list': { sortstop: 'sortstop' }
 			},
-			sortstop: function(evnt, ui){
+			sortstop: function(evnt, ui)
+			{
 				$(ui.item).triggerHandler('sortstop', ui);
 			},
-			init: function(){
+			init: function()
+			{
 				var self = this;
 				self._latest = undefined;
 				self.collection.model.off('publish').on('publish', function(evt, model){
@@ -336,7 +395,8 @@ define
 				}
 				
 			},
-			render: function(){
+			render: function()
+			{
 				var self = this;
 				$.tmpl('livedesk>timeline-container', {}, function(e, o){
 					$(self.el).html(o)
@@ -355,26 +415,29 @@ define
 			    this.collection.insert(post);
 			},
 			
-			publish: function(post){
-				if(post instanceof this.collection.model) {
+			publish: function(post)
+			{
+				if(post instanceof this.collection.model) 
 					post.publishSync();
-				} else {
+				else {
 					var model = new this.collection.model({ Id: data});
 					this.collection.insert({})
 					model.publish();
 				}
-				//new $.restAuth(self.blogHref + '/Post/'+post+'/Publish').resetData().insert()
 			}
 		}),
 
-		EditView = Gizmo.View.extend({
+		EditView = Gizmo.View.extend
+		({
 			timelineView: null,
-			events: {
+			events: 
+			{
 				'[is-content] section header h2': { focusout: 'save' },
 				'[is-content] #blog-intro' : { focusout: 'save' },
 				//'.live-blog-content': { drop: 'drop'}
 			},
-			init: function(){
+			init: function()
+			{
 				var self = this;
 				this.model = Gizmo.Auth(new Gizmo.Register.Blog(theBlog));
 				this.model
@@ -435,7 +498,8 @@ define
 				});
 			},
 			
-			render: function(){
+			render: function()
+			{
 				var self = this,
 					data = $.extend({}, this.model.feed(), {
 						BlogHref: theBlog,
@@ -444,10 +508,11 @@ define
 							side: 'is-side=1',
 							submenu: 'is-submenu',
 							submenuActive1: 'active'
-						},
+						}
 					});
 
-					$.superdesk.applyLayout('livedesk>edit', data, function(){
+					$.superdesk.applyLayout('livedesk>edit', data, function()
+					{
 						// refresh twitter share button
 						//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 						var timelineCollection = Gizmo.Auth(new TimelineCollection( Gizmo.Register.Post ));
