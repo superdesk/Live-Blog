@@ -38,7 +38,7 @@ support.wireEntities(ThumbnailManager, ThumbnailCreatorGraphicsMagick)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
 
 # --------------------------------------------------------------------
-
+    
 @ioc.config
 def thumbnail_sizes():
     '''
