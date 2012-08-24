@@ -22,7 +22,7 @@ define('providers/twitter/adaptor', [
                     $('.twitter-full-content .annotation:eq(1)', self.el).html()];
                 self.data.Meta = JSON.stringify(self.data.Meta);
                 self.parent.insert(self.data);
-                //$('.actions', self.el).remove();
+                $('.actions', self.el).remove();
             });
             $(self.el).on('click', '.btn.cancel', function()
             {
