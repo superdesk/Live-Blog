@@ -20,6 +20,7 @@ from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
+from ally.container.support import setup
 from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
@@ -36,6 +37,7 @@ from superdesk.post.meta.type import PostTypeMapped
 UserPerson = aliased(PersonMapped)
 
 @injected
+@setup(IBlogPostService)
 class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
     '''
     Implementation for @see: IBlogPostService

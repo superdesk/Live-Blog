@@ -11,6 +11,8 @@ Implementation for the message API.
 
 from ..api.message import IMessageService, QMessage
 from ..meta.message import Message
+from ally.container.ioc import injected
+from ally.container.support import setup
 from internationalization.meta.source import Source
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
@@ -18,6 +20,8 @@ from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
+@injected
+@setup(IMessageService)
 class MessageServiceAlchemy(EntityGetCRUDServiceAlchemy, IMessageService):
     '''
     Alchemy implementation for @see: IMessageService

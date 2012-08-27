@@ -15,6 +15,7 @@ from ally.container.ioc import injected
 from ally.exception import InputError
 from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import handle
+from ally.container.support import setup
 from ally.support.util_io import pipe, timestampURI
 from ally.support.util_sys import pythonPath
 from cdm.spec import ICDM
@@ -33,11 +34,14 @@ from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 # --------------------------------------------------------------------
 
 @injected
+@setup(IMetaDataUploadService)
 class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IMetaDataUploadService):
     '''
     Implementation for @see: IMetaDataService, and also provides services as the @see: IMetaDataReferencer
     '''
 
+    base_dir_path = join('workspace', 'media_archive', 'content'); wire.config('base_dir_path', doc='''
+    The base path used as starting path to store unknown(other) media''')
     content_dir_path = join('workspace', 'media_archive', 'process_queue'); wire.config('content_dir_path', doc='''
     The folder path where the content is queued for processing''')
     format_file_name = '%(id)s.%(file)s'; wire.config('format_file_name', doc='''
@@ -54,13 +58,16 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         '''
         Construct the meta data service.
         '''
+        assert isinstance(self.base_dir_path, str), 'Invalid base directory %s' % self.base_dir_path
         assert isinstance(self.content_dir_path, str), 'Invalid processing directory %s' % self.content_dir_path
         assert isinstance(self.cdmArchive, ICDM), 'Invalid archive CDM %s' % self.cdmArchive
         assert isinstance(self.thumbnailManager, IThumbnailManager), \
         'Invalid thumbnail referencer %s' % self.thumbnailManager
         assert isinstance(self.metaDataHandlers, list), 'Invalid reference handlers %s' % self.referenceHandlers
+        
         MetaDataServiceBaseAlchemy.__init__(self, MetaDataMapped, QMetaData, self)
 
+        if not exists(self.base_dir_path): makedirs(self.base_dir_path)
         if not exists(self.content_dir_path): makedirs(self.content_dir_path)
         if not isdir(self.content_dir_path) or not access(self.content_dir_path, W_OK):
             raise IOError('Unable to access the processing directory %s' % self.content_dir_path)
@@ -102,36 +109,37 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         assert isinstance(content, Content), 'Invalid content %s' % content
         if not content.getName(): raise InputError(_('No name specified for content'))
 
-        metaData = MetaDataMapped()
-        metaData.CreatedOn = datetime.now()
-        metaData.Name = content.getName()
-        if content.contentType: metaData.Type = content.contentType 
-        else: metaData.Type = self._metaType.Type
+        metaDataMapped = MetaDataMapped()
+        metaDataMapped.CreatedOn = datetime.now()
+        metaDataMapped.Name = content.getName()
+        if content.contentType: metaDataMapped.Type = content.contentType 
+        else: metaDataMapped.Type = self._metaType.Type
             
-        metaData.typeId = self._metaType.Id
-        metaData.thumbnailFormatId = self._thumbnailFormat.id
+        metaDataMapped.typeId = self._metaType.Id
+        metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id
+        
         try:
-            self.session().add(metaData)
-            self.session().flush((metaData,))
+            self.session().add(metaDataMapped)
+            self.session().flush((metaDataMapped,))
 
-            fileName = self.format_file_name % {'id': metaData.Id, 'file': metaData.Name}
+            fileName = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
             contentPath = abspath(join(self.content_dir_path, fileName))
             with open(contentPath, 'w+b') as fobj: pipe(content, fobj)
-            metaData.SizeInBytes = getsize(contentPath)
+            metaDataMapped.SizeInBytes = getsize(contentPath)
 
             for handler in self.metaDataHandlers:
                 assert isinstance(handler, IMetaDataHandler), 'Invalid handler %s' % handler
-                if handler.process(metaData.Id, contentPath): break
+                if handler.process(metaDataMapped.Id, contentPath): break
             else:
-                path = abspath(join(contentPath, META_TYPE_KEY, self.generateIdPath(metaData.Id)))
-                if not exists(path): makedirs(path)
-                fileName = self.format_file_name % {'id': metaData.Id, 'file': metaData.Name}
-                path = join(path, fileName)
-                metaData.Content = path
+                path = join(self.base_dir_path, META_TYPE_KEY, fileName)
+                fileName = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
+                metaDataMapped.Content = path
             
-        except SQLAlchemyError as e: handle(e, metaData)
+        except SQLAlchemyError as e: handle(e, metaDataMapped)
         
-        return metaData.Id
+        #TODO: move the file to the path specified by metaDataMapped.content
+        
+        return metaDataMapped.Id
 
     # ----------------------------------------------------------------
 

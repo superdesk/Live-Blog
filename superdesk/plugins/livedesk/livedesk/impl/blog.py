@@ -16,6 +16,7 @@ from ally.container.ioc import injected
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
+from ally.container.support import setup
 from datetime import datetime
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
@@ -25,6 +26,7 @@ from ally.api.extension import IterPart
 # --------------------------------------------------------------------
 
 @injected
+@setup(IBlogService)
 class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
     '''
     Implementation for @see: IBlogService

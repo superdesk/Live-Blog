@@ -17,11 +17,11 @@ from ally.container import support
 
 # --------------------------------------------------------------------
 
-API, IMPL = 'superdesk.*.api.**.I*Service', 'superdesk.*.impl.**.*'
+SERVICES = 'superdesk.*.api.**.I*Service'
 
-support.createEntitySetup(API, IMPL)
-support.bindToEntities(IMPL, binders=bindSuperdeskSession)
-support.listenToEntities(IMPL, listeners=addService(bindSuperdeskSession, bindSuperdeskValidations))
+support.createEntitySetup('superdesk.*.impl.**.*')
+support.bindToEntities('superdesk.*.impl.**.*Alchemy', binders=bindSuperdeskSession)
+support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskValidations), beforeBinding=False)
 support.listenToEntities(IAuthenticationSupport, listeners=registerAuthentication, beforeBinding=False)
 support.loadAllEntities(API)
 
