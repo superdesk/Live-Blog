@@ -12,9 +12,13 @@ Implementation for the source API.
 from ..api.source import ISourceService, QSource
 from ..meta.source import Source
 from sql_alchemy.impl.entity import EntityServiceAlchemy
+from ally.container.ioc import injected
+from ally.container.support import setup
 
 # --------------------------------------------------------------------
 
+@injected
+@setup(ISourceService)
 class SourceServiceAlchemy(EntityServiceAlchemy, ISourceService):
     '''
     Alchemy implementation for @see: ISourceService
