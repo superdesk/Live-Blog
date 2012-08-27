@@ -21,7 +21,8 @@ from superdesk.user.meta.user import UserMapped
 # --------------------------------------------------------------------
 
 @injected
-class UserServiceAlchemy(EntityServiceAlchemy, IUserService):
+@setup(IUserService)
+class UserServiceAlchemy(EntityServiceAlchemy, IUserService, IAuthenticate):
     '''
     @see: IUserService
     '''
