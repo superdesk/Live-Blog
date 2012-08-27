@@ -15,15 +15,25 @@ from ..meta.image_data import ImageDataMapped
 from ..meta.image_info import ImageInfoMapped
 from .meta_info import MetaInfoServiceBaseAlchemy
 from ally.container.ioc import injected
+from ally.container.support import setup
+from superdesk.media_archive.core.spec import QueryIndexer
+from ally.container import wire
+from superdesk.media_archive.meta.image_info import ImageInfoEntry
+from superdesk.media_archive.meta.image_data import ImageDataEntry
+
 
 # --------------------------------------------------------------------
 
 @injected
+@setup(IImageInfoService)
 class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
     '''
     @see: IImageInfoService
     '''
+    
+    queryIndexer = QueryIndexer;wire.entity('queryIndexer')
 
     def __init__(self):
         MetaInfoServiceBaseAlchemy.__init__(self, ImageInfoMapped, QImageInfo, ImageDataMapped, QImageData)
+        self.queryIndexer.register(ImageInfoEntry, QImageInfo, ImageDataEntry, QImageData)
         

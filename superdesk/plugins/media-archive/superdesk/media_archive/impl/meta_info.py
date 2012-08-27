@@ -15,10 +15,12 @@ from ..core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
 from ..meta.meta_data import MetaDataMapped
 from ..meta.meta_info import MetaInfoMapped
 from ally.container.ioc import injected
+from ally.container.support import setup
 
 # --------------------------------------------------------------------
 
 @injected
+@setup(IMetaInfoService)
 class MetaInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IMetaInfoService):
     '''
     Implementation for @see: IMetaInfoService

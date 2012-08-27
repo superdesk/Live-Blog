@@ -13,6 +13,7 @@ from ..api.source import ISourceService
 from ..meta.source import SourceMapped
 from ..meta.type import SourceTypeMapped
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.api.util_service import copy
@@ -26,6 +27,7 @@ from ally.api.extension import IterPart
 # --------------------------------------------------------------------
 
 @injected
+@setup(ISourceService)
 class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
     '''
     Implementation for @see: ISourceService

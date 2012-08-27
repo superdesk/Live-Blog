@@ -11,6 +11,7 @@ SQL Alchemy based implementation for the meta type API.
 
 from ..api.meta_type import IMetaTypeService
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
 from sqlalchemy.orm.exc import NoResultFound
@@ -20,6 +21,7 @@ from ally.support.sqlalchemy.util_service import buildLimits
 # --------------------------------------------------------------------
 
 @injected
+@setup(IMetaTypeService)
 class MetaTypeServiceAlchemy(SessionSupport, IMetaTypeService):
     '''
     Implementation based on SQL alchemy for @see: IMetaTypeService

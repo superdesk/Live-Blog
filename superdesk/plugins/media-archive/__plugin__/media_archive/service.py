@@ -20,12 +20,12 @@ from superdesk.media_archive.api.meta_data import IMetaDataService,\
 from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
     ThumbnailCreatorGraphicsMagick
 from superdesk.media_archive.core.spec import IThumbnailManager, \
-    IThumbnailCreator
+    IThumbnailCreator, QueryIndexer
 from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
     MetaDataServiceAlchemy
-from superdesk.media_archive.impl.meta_info import IMetaInfoService, \
-    MetaInfoServiceAlchemy
 import logging
+from superdesk.media_archive.core.impl.query_service_creator import createService
+from ..plugin.registry import registerService
 
 # --------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ def thumbnailCreator() -> IThumbnailCreator:
 
 # --------------------------------------------------------------------
 
-@ioc.entity
+@ioc.replace(ioc.getEntity(IMetaDataUploadService, service))
 def metaDataService() -> IMetaDataUploadService:
     b = MetaDataServiceAlchemy()
     b.cdmArchive = cdmArchive()
@@ -99,15 +99,22 @@ def metaDataService() -> IMetaDataUploadService:
 # --------------------------------------------------------------------
 
 @ioc.entity
-def metaInfoService() -> IMetaInfoService:
-    b = MetaInfoServiceAlchemy()
-    return b
+def metaDataHandlers(): return []
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def metaDataHandlers(): return []
+def queryIndexer() -> QueryIndexer:
+    b = QueryIndexer()
+    return b
 
+# --------------------------------------------------------------------
+
+@ioc.after(createTables)
+def publishQueryService():
+    b = createService(queryIndexer())
+    registerService(b, (bindSuperdeskSession, ))
+    
 # --------------------------------------------------------------------
 
 @ioc.after(createTables)
