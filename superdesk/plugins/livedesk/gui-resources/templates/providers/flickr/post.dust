@@ -1,11 +1,11 @@
-<li class="flickr draggable timeline">
+<li class="flickr draggable timeline clearfix">
 	<div class="drag-bar"></div>
     <div class="tool-box-right">
     	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
     </div>
     <div class="flickr-full-content">
+    	{#Meta}
 	    <div class="result-content">
-	    	{#Meta}
 			<p class="result-text">
 				<a href="http://farm{farm}.staticflickr.com/{server}/{id}_{secret}.jpg" target="_blank">
 					<img alt="{title}" src='http://farm{farm}.staticflickr.com/{server}/{id}_{secret}_s.jpg'>
@@ -15,11 +15,11 @@
 			<p class="attributes">
 				<i class="source-icon"></i>
 			</p>
-			{/Meta}
 	    </div>
     	<div class="editable annotation">
-			<br />
+			{annotation|s}
 		</div>
+		{/Meta}
 	</div> 
     <div class="btn-group pull-right clearfix actions">
     	<button class="btn btn-mini cancel">Cancel</button>
