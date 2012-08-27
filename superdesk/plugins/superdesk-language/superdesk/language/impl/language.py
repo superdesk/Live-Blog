@@ -11,6 +11,7 @@ SQL alchemy implementation for language API.
 
 from ally.container.binder_op import validateProperty
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, DevelError, Ref
 from ally.internationalization import _
 from ally.support.api.util_service import trimIter, processQuery
@@ -25,6 +26,7 @@ from ally.api.extension import IterPart
 # --------------------------------------------------------------------
 
 @injected
+@setup(ILanguageService)
 class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
     '''
     Implementation for @see: ILanguageService using Babel library.
