@@ -16,6 +16,7 @@ from superdesk.media_archive.core.spec import IThumbnailManager, IThumbnailCreat
 from cdm.spec import ICDM, PathNotFound
 from os.path import join, isfile, exists, isdir, dirname
 from ally.support.util_io import timestampURI
+from ally.container.support import setup
 from shutil import copyfile
 from ally.exception import DevelError
 from superdesk.media_archive.meta.meta_data import ThumbnailFormat
@@ -34,6 +35,7 @@ ORIGINAL_SIZE = 'original'
 # --------------------------------------------------------------------
 
 @injected
+@setup(IThumbnailManager)
 class ThumbnailManager(SessionSupport, IThumbnailManager):
     '''
     Implementation for @see: IThumbnailManager
