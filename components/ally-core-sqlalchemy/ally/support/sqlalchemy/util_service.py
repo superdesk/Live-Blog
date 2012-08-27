@@ -14,9 +14,10 @@ from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual, AsDate, AsT
 from ally.api.type import typeFor
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.api.util_service import namesForModel, namesForQuery
+from ally.support.api.util_service import namesForQuery
 from itertools import chain
 from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.orm.mapper import Mapper
 
 # --------------------------------------------------------------------
 
@@ -60,7 +61,10 @@ def buildQuery(sqlQuery, query, mapped):
     clazz = query.__class__
 
     ordered, unordered = [], []
-    properties = {prop.lower(): getattr(mapped, prop) for prop in namesForModel(mapped)}
+    mapper = mapped.__mapper__
+    assert isinstance(mapper, Mapper)
+    
+    properties = {col.key.lower(): col for col in mapper.columns}
     for criteria in namesForQuery(clazz):
         column = properties.get(criteria.lower())
         if column is not None and getattr(clazz, criteria) in query:

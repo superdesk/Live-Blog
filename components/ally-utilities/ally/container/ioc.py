@@ -13,9 +13,9 @@ single thread at one time.
 from ..support.util_sys import callerLocals
 from ._impl.aop_container import AOPModules
 from ._impl.entity_handler import Initializer
-from ._impl.ioc_setup import SetupEntity, SetupConfig, SetupFunction, SetupEvent, \
+from ._impl.ioc_setup import SetupEntity, SetupSource, SetupConfig, SetupFunction, SetupEvent, \
     Context, SetupReplace, SetupStart, SetupError, register, ConfigError, Assembly
-from ally.container._impl.ioc_setup import SetupReplaceConfig
+from ._impl.ioc_setup import SetupReplaceConfig, setupsOf
 from functools import partial, update_wrapper
 from inspect import isclass, ismodule, getfullargspec, isfunction
 import importlib
@@ -40,6 +40,8 @@ def injected(*args):
     assert isclass(clazz), 'Invalid class %s' % clazz
     Initializer(clazz)
     return clazz
+    
+# --------------------------------------------------------------------
 
 def entity(*args):
     '''
@@ -186,6 +188,49 @@ def initialize(entity):
         The entity to initialize.
     '''
     if entity is not None: Initializer.initialize(entity)
+
+def getEntity(identifier, module=None):
+    '''
+    Provides the setup function from the provided module (if not specified it will consider the calling module) based on the
+    identifier. The identifier can be either a name (string form) or a returned type (class form).
+    
+    @param identifier: string|class
+        The setup function identifier, wither the setup name or the setup returned type.
+    @param module: module
+        The module where to search the setup function.
+    @return: function
+        The found setup function.
+    '''
+    assert isinstance(identifier, (str, type)), 'Invalid identifier %s' % identifier
+    
+    if module is None: register = callerLocals()
+    else:
+        assert ismodule(module), 'Invalid module %s' % module
+        register = module.__dict__
+    assert isinstance(register, dict), 'Invalid register %s' % register
+    
+    setups = setupsOf(register, SetupSource)
+    assert setups is not None, 'No setups available in register %s' % register
+    
+    found = []
+    if isinstance(identifier, str):
+        identifier = module.__name__ + '.' + identifier
+        
+        for setup in setups:
+            assert isinstance(setup, SetupSource)
+            if isinstance(identifier, str):
+                if setup.name == identifier: found.append(setup)
+    else:
+        assert isclass(identifier), 'Invalid identifier class %s' % identifier
+        
+        for setup in setups:
+            assert isinstance(setup, SetupSource)
+            if setup.type == identifier or (setup.type and issubclass(setup.type, identifier)): found.append(setup)
+            
+    if not found: raise SetupError('No setup entity as found for "%s"' % identifier)
+    if len(found) > 1: raise SetupError('To many setup entities found (%s) for "%s"' % 
+                                        (', '.join(str(setup) for setup in found), identifier))
+    return found[0]
 
 # --------------------------------------------------------------------
 
