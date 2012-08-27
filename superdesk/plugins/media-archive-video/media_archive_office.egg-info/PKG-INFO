@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: media-archive-video
+Version: 1.0.dev
+Summary: Office media archive plugin
+Home-page: http://www.sourcefabric.org/en/superdesk/
+Author: Ioan v. Pocol
+Author-email: ioan.pocol@sourcefabric.org
+License: GPL v3
+Description: Implementation of the video media archive plugin
+Keywords: Ally REST framework plugin Livedesk
+Platform: all
