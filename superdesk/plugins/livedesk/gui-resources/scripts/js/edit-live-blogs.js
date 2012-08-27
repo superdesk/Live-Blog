@@ -31,8 +31,7 @@ function(providers, Gizmo, $)
 		return (data !== undefined) && (data[key] !== undefined) && (count == 1);
 	}
 	
-	return function(theBlog)
-	{
+	
 		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
 		
 		/*!
@@ -76,7 +75,7 @@ function(providers, Gizmo, $)
 			show: function(evt)
 			{
 				// initialize the provider init method
-				this.model.init(theBlog);
+				this.model.init(this.theBlog);
 			}
 		}),
 		
@@ -97,6 +96,9 @@ function(providers, Gizmo, $)
 					{
 						var provider = self.providers[name];
 						var providerLinkView = new ProviderLinkView({ model: provider, name: name });
+						
+						providerLinkView.theBlog = self.theBlog;
+						
 						var providerContentView = new ProviderContentView({ model: provider, name: name });
 						links.append(providerLinkView.render().el);
 						contents.append(providerContentView.render().el);
@@ -295,13 +297,23 @@ function(providers, Gizmo, $)
 				self.id = this.model.get('Id');
 				
 				// pre parse data
-				var src = self.model.get("Author").Source.Name;
+				var src = self.model.get("Author").Source.Name,
+				    rendered = false;
+				// pass functionallity to provider if exists
 				if( providers[src] && providers[src].timeline )
 				{
 				    providers[src].timeline.preData && providers[src].timeline.preData.call(self);
-				    providers[src].timeline.render && providers[src].timeline.render.call(self);
+				    if( providers[src].timeline.render ) 
+				    {
+				        providers[src].timeline.render.call(self, function()
+				        {
+				            $('.editable', this.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+				        });
+				        rendered = true;
+				    }
 				}
 				
+				!rendered &&
 				$.tmpl('livedesk>timeline-item', {Post: this.model.feed()}, function(e, o)
 				{
 					self.setElement(o).el.find('.editable')
@@ -433,18 +445,26 @@ function(providers, Gizmo, $)
 			events: 
 			{
 				'[is-content] section header h2': { focusout: 'save' },
-				'[is-content] #blog-intro' : { focusout: 'save' },
-				//'.live-blog-content': { drop: 'drop'}
+				'[is-content] #blog-intro' : { focusout: 'save' }
+				//, '.live-blog-content': { drop: 'drop'}
 			},
-			init: function()
+			postInit: function()
 			{
 				var self = this;
-				this.model = Gizmo.Auth(new Gizmo.Register.Blog(theBlog));
-				this.model
-				.off('destroy read')
-				.on('read', function(){
-					self.render();
-				}).xfilter('Creator.Name,Creator.Id').sync();
+				this.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
+				
+				this.model.xfilter('Creator.Name, Creator.Id').sync()
+				    // once
+				    .done(function()
+				    { 
+				        self.render.call(self);
+				    });
+				
+				//this.model
+				//.off('destroy read')
+				//.on('read', function(){
+				//	self.render();
+				//}).xfilter('Creator.Name,Creator.Id').sync();
 			},
 			/*!
 			 * TODO description
@@ -501,42 +521,54 @@ function(providers, Gizmo, $)
 			render: function()
 			{
 				var self = this,
-					data = $.extend({}, this.model.feed(), {
-						BlogHref: theBlog,
-						ui: {
+				
+				    // template data
+					data = $.extend({}, this.model.feed(), 
+					{
+						BlogHref: self.theBlog,
+						ui: 
+						{
 							content: 'is-content=1',
 							side: 'is-side=1',
 							submenu: 'is-submenu',
 							submenuActive1: 'active'
 						}
 					});
-
+				    
 					$.superdesk.applyLayout('livedesk>edit', data, function()
 					{
 						// refresh twitter share button
 						//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
+					    
 						var timelineCollection = Gizmo.Auth(new TimelineCollection( Gizmo.Register.Post ));
-						timelineCollection.href.root(theBlog);
-						self.timelineView = new TimelineView({
+						timelineCollection.href.root(self.theBlog);
+						
+						self.timelineView = new TimelineView
+						({
 							el: $('#timeline-view .results-placeholder', self.el),
 							collection: timelineCollection,
 							_parent: self
 						});
-						self.providers = new ProvidersView({
+						
+						self.providers = new ProvidersView
+						({
 							el: $('.side ', self.el),
 							providers: providers,
-							_parent: self
+							_parent: self,
+							theBlog: self.theBlog
 						});
 						self.providers.render();
+						
 						$('.tabbable', self.el).find('.actived a').tab('show');						
-						$('.live-blog-content', self.el).droppable({
+						$('.live-blog-content', self.el).droppable
+						({
 							activeClass: 'ui-droppable-highlight',
 							accept: ':not(.edit-toolbar,.timeline)',
-							drop: function(evt, ui){
-								self.drop(evt, ui);
+							drop: function(evt, ui){ self.drop(evt, ui);
 							}
 						});
-						$("#MySplitter", self.el).splitter({
+						$("#MySplitter", self.el).splitter
+						({
 							type: "v",
 							outline: true,
 							sizeLeft: 470,
@@ -549,6 +581,9 @@ function(providers, Gizmo, $)
 							dockKey: 'Z',   // Alt-Shift-Z in FF/IE
 							accessKey: 'I'  // Alt-Shift-I in FF/IE
 						});
+						
+						$.superdesk.hideLoader();
+						
 					});
 					/** text editor initialization */
 					var editorImageControl = function()
@@ -615,5 +650,16 @@ function(providers, Gizmo, $)
 			}
 		});
 		new EditView({ el: '#area-main'});
+	
+	
+	var editView = new EditView({el: '#area-main'});
+	
+	return function(theBlog)
+	{
+	    // stop autoupdate if any
+	    editView.timelineView && editView.timelineView.collection.stop();
+	    
+	    editView.theBlog = theBlog;
+	    editView.postInit();
 	}
 });
