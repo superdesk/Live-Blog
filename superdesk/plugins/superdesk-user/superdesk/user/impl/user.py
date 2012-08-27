@@ -11,6 +11,7 @@ Created on Mar 6, 2012
 
 from superdesk.user.api.user import IUserService, QUser
 from ally.container.ioc import injected
+from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from superdesk.user.meta.user import UserMapped
 from ally.core.authentication.api.authentication import IAuthenticate, User
@@ -19,6 +20,7 @@ from ally.exception import InputError
 # --------------------------------------------------------------------
 
 @injected
+@setup(IUserService)
 class UserServiceAlchemy(EntityServiceAlchemy, IUserService, IAuthenticate):
     '''
     @see: IUserService

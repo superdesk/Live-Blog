@@ -12,9 +12,13 @@ Implementation for the file API.
 from ..api.file import IFileService, QFile
 from ..meta.file import File
 from sql_alchemy.impl.entity import EntityServiceAlchemy
+from ally.container.ioc import injected
+from ally.container.support import setup
 
 # --------------------------------------------------------------------
 
+@injected
+@setup(IFileService)
 class FileServiceAlchemy(EntityServiceAlchemy, IFileService):
     '''
     Alchemy implementation for @see: IFileService

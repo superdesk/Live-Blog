@@ -14,10 +14,10 @@ from ally.container import support
 
 # --------------------------------------------------------------------
 
-API, IMPL = 'gui.*.api.**.I*Service', 'gui.*.impl.**.*'
+SERVICES = 'gui.*.api.**.I*Service'
 
-support.createEntitySetup(API, IMPL)
-support.listenToEntities(IMPL, listeners=addService())
-support.loadAllEntities(API)
+support.createEntitySetup('gui.*.impl.**.*')
+support.listenToEntities(SERVICES, listeners=addService())
+support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------

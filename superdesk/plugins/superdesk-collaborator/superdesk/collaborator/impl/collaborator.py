@@ -12,6 +12,7 @@ Contains the SQL alchemy implementation for collaborator API.
 from ..api.collaborator import ICollaboratorService
 from ..meta.collaborator import CollaboratorMapped
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 from superdesk.person.meta.person import PersonMapped
@@ -20,6 +21,7 @@ from superdesk.source.meta.source import SourceMapped
 # --------------------------------------------------------------------
 
 @injected
+@setup(ICollaboratorService)
 class CollaboratorServiceAlchemy(EntityGetCRUDServiceAlchemy, ICollaboratorService):
     '''
     Implementation for @see: ICollaboratorService

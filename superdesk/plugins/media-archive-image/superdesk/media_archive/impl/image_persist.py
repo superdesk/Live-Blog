@@ -11,11 +11,11 @@ Implementation for the image persistence API.
 
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_io import timestampURI
 from ally.support.util_sys import pythonPath
-from ..api.image_persist import IImagePersistanceService
 from ..core.spec import IThumbnailManager
 from ..meta.image_data import ImageDataEntry
 from ..meta.meta_data import MetaDataMapped
@@ -24,20 +24,21 @@ from superdesk.media_archive.core.spec import IMetaDataHandler
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 from genericpath import isdir
-from os.path import join, abspath, exists
+from os.path import join, exists
 from os import makedirs, access, W_OK
 import subprocess
 
 # --------------------------------------------------------------------
 
 @injected
-class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, SessionSupport):
+@setup(IMetaDataHandler, 'imageDataHandler')
+class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     '''
     Provides the service that handles the image persistence @see: IImagePersistanceService.
     '''
 
-    base_path = join('workspace', 'media_archive', 'content'); wire.config('base_path', doc='''
-    The folder path where the images are queued for processing''')
+    base_dir_path = join('workspace', 'media_archive', 'content'); wire.config('base_dir_path', doc='''
+    The base path used as starting path to store images''')
     format_file_name = '%(id)s.%(file)s'; wire.config('format_file_name', doc='''
     The format for the images file names in the media archive''')
 
@@ -48,15 +49,15 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, Sessio
     # Provides the thumbnail referencer
 
     def __init__(self):
-        assert isinstance(self.base_path, str), 'Invalid base directory for images %s' % self.base_path
+        assert isinstance(self.base_dir_path, str), 'Invalid base directory for images %s' % self.base_dir_path
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
         assert isinstance(self.imageType, str), 'Invalid meta type for image %s' % self.imageType
         
         SessionSupport.__init__(self)
 
-        if not exists(self.base_path): makedirs(self.base_path)
-        if not isdir(self.base_path) or not access(self.base_path, W_OK):
-            raise IOError('Unable to access the repository directory %s' % self.base_path)
+        if not exists(self.base_dir_path): makedirs(self.base_dir_path)
+        if not isdir(self.base_dir_path) or not access(self.base_dir_path, W_OK):
+            raise IOError('Unable to access the repository directory %s' % self.base_dir_path)
 
         self._metaTypeId = None
 
@@ -116,12 +117,11 @@ class ImagePersistanceService(IImagePersistanceService, IMetaDataHandler, Sessio
             elif line.find('] Model -') != -1:
                 imageDataEntry.CameraModel = self.extractString(line)        
                     
-        path = join(self.base_path, self.imageType, self.generateIdPath(metaDataId))
-        absPath = abspath(path)
-        if not exists(absPath): makedirs(absPath)
-        
+        path = join(self.base_dir_path, self.imageType, self.generateIdPath(metaDataId))        
         fileName = self.format_file_name % {'id': metaDataId, 'file': metaDataMapped.Name}
-        metaDataMapped.content = join(path, fileName)                                      
+        path = join(path, fileName)
+        
+        metaDataMapped.content = path                                      
         metaDataMapped.typeId = self._metaTypeId 
         metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id   
         metaDataMapped.IsAvailable = True     
