@@ -1,21 +1,21 @@
-<li class="flickr draggable timeline clearfix" data-post-id="{Id}" data-post-type="{Type.Key}">
+<li class="google draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
 	<div class="drag-bar"></div>
     <div class="tool-box-right">
     	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
     </div>
-    <div class="flickr-full-content">
-    	{#Meta}
+    <div class="google-full-content">
 	    <div class="result-content">
-			<div class="result-text">
-				<a href="http://farm{farm}.staticflickr.com/{server}/{id}_{secret}.jpg" target="_blank">
-					<img alt="{title}" src='http://farm{farm}.staticflickr.com/{server}/{id}_{secret}_s.jpg'>
-				</a>
-			</div>
-			<p>{title}</p>
+			{#Meta}<h3><a href="{url}">{title|s}</a></h3>{/Meta}
+			<p class="result-text">{Content|s}</p>
+		{#Meta}
 			<p class="attributes">
-				<i class="source-icon"></i>
+				<i class="source-icon">
+					<img src="http://g.etfv.co/{url}" style="max-width: 16px" border="0">
+				</i>
+				<a class="author-name" href="{url}">{visibleUrl}</a>
+				<time>{date}</time>
 			</p>
-	    </div>
+    	</div>
     	<div class="editable annotation">
 			{annotation|s}
 		</div>
@@ -26,3 +26,4 @@
     	<button class="btn btn-mini btn-primary publish">Publish</button>
    	</div>		
 </li>
+
