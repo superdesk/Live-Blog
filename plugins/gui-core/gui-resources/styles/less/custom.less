@@ -317,9 +317,19 @@
 	background-position:-40px 0;
 }
 
-#timeline-view .post-list li .editable
+#timeline-view .post-list .editable
 {
 	cursor: text;
+}
+#timeline-view .post-list .editable.annotation
+{
+	border: 1px dotted #EBEBEB;
+	min-height: 18px;
+	.clearfix()
+}
+#timeline-view .post-list .actions
+{
+	margin-top: 5px;
 }
 #timeline-view .drag-bar 
 {
@@ -389,6 +399,15 @@
 {
 	float: left;
 	margin: 3px 0 0; 
+}
+#timeline-view .flickr .result-text
+{
+	float: left;
+	margin: 0 10px 10px 0;
+}
+#timeline-view .flickr .result-content
+{
+	.clearfix()
 }
 
 [contenteditable] .placeholder

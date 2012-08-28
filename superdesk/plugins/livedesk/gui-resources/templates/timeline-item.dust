@@ -120,7 +120,7 @@
 	            {?AuthorPerson.Avatar}
 	                <img src="{AuthorPerson.Avatar}" />
 	            {:else}
-	        	    <img src="images/avatar_default_collaborator.png" />
+	        	    <img />
 	            {/AuthorPerson}
 	        </figure>
 	        <div class="result-content">
