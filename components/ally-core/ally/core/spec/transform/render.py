@@ -97,6 +97,7 @@ class Object:
         Construct the text object.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
+        assert attributes is None or isinstance(attributes, dict), 'Invalid attributes %s' % attributes
 
         self.name = name
         self.properties = properties
@@ -113,6 +114,7 @@ class List:
         Construct the text list.
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
+        assert attributes is None or isinstance(attributes, dict), 'Invalid attributes %s' % attributes
 
         self.name = name
         self.items = items

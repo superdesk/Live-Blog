@@ -17,7 +17,7 @@ from ally.design.processor import HandlerProcessorProceed
 
 # --------------------------------------------------------------------
 
-class Request(Context):
+class RequestDecode(Context):
     '''
     The request context.
     '''
@@ -25,11 +25,6 @@ class Request(Context):
     decoderHeader = requires(IDecoderHeader)
     # ---------------------------------------------------------------- Optional
     argumentsOfType = optional(dict)
-
-class RequestContent(Context):
-    '''
-    The request content context.
-    '''
     # ---------------------------------------------------------------- Defined
     language = defines(str, doc='''
     @rtype: string
@@ -51,24 +46,23 @@ class ContentLanguageDecodeHandler(HandlerProcessorProceed):
         assert isinstance(self.nameContentLanguage, str), 'Invalid content language name %s' % self.nameContentLanguage
         super().__init__()
 
-    def process(self, request:Request, requestCnt:RequestContent, **keyargs):
+    def process(self, request:RequestDecode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Provides the content language decode for the request.
         '''
-        assert isinstance(request, Request), 'Invalid request %s' % request
-        assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
+        assert isinstance(request, RequestDecode), 'Invalid request %s' % request
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
 
         value = request.decoderHeader.retrieve(self.nameContentLanguage)
         if value:
-            requestCnt.language = value
-            if Request.argumentsOfType in request: request.argumentsOfType[Locale] = requestCnt.language
+            request.language = value
+            if RequestDecode.argumentsOfType in request: request.argumentsOfType[Locale] = request.language
 
 # --------------------------------------------------------------------
 
-class Response(Context):
+class ResponseEncode(Context):
     '''
     The response context.
     '''
@@ -91,15 +85,15 @@ class ContentLanguageEncodeHandler(HandlerProcessorProceed):
         assert isinstance(self.nameContentLanguage, str), 'Invalid content language name %s' % self.nameContentLanguage
         super().__init__()
 
-    def process(self, response:Response, **keyargs):
+    def process(self, response:ResponseEncode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Encodes the content language.
         '''
-        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid response header encoder %s' % response.encoderHeader
 
-        if Response.language in response:
+        if ResponseEncode.language in response:
             response.encoderHeader.encode(self.nameContentLanguage, response.language)

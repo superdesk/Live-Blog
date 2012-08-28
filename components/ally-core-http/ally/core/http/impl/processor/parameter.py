@@ -15,8 +15,8 @@ from ally.api.operator.type import TypeQuery, TypeCriteriaEntry, TypeCriteria
 from ally.api.type import Input, Type, Iter, typeFor
 from ally.container.ioc import injected
 from ally.core.spec.codes import ILLEGAL_PARAM, Code
-from ally.core.spec.encdec.render import Object, List, Value
-from ally.core.spec.encdec.support import obtainOnDict, setterOnDict, \
+from ally.core.spec.transform.render import Object, List
+from ally.core.spec.transform.support import obtainOnDict, setterOnDict, \
     getterChain, getterOnObj, setterOnObj, setterWithGetter, obtainOnObj, \
     getterOnDict, getterOnObjIfIn, SAMPLE
 from ally.core.spec.resources import Invoker, Path, Node, INodeInvokerListener, \
@@ -44,8 +44,8 @@ class Request(Context):
     path = requires(Path)
     invoker = requires(Invoker)
     arguments = requires(dict)
-    converter = requires(Converter)
-    normalizer = requires(Normalizer)
+    converterParameters = requires(Converter)
+    normalizerParameters = requires(Normalizer)
 
 class Response(Context):
     '''
@@ -54,14 +54,8 @@ class Response(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
-    errorMessage = defines(str, doc='''
-    @rtype: object
-    The error message for the code.
-    ''')
-    errorDetails = defines(Object, doc='''
-    @rtype: Object
-    The error text object describing a detailed situation for the error.
-    ''')
+    errorMessage = defines(str)
+    errorDetails = defines(Object)
 
 # --------------------------------------------------------------------
 
@@ -126,7 +120,8 @@ class ParameterHandler(HandlerProcessorProceed, INodeInvokerListener):
                 self._cacheDecode[invoker] = decode
 
             illegal = []
-            context = dict(target=request.arguments, normalizer=request.normalizer, converter=request.converter)
+            context = dict(target=request.arguments,
+                           normalizer=request.normalizerParameters, converter=request.converterParameters)
             for name, value in request.parameters:
                 if not decode(path=name, value=value, **context): illegal.append((name, value))
 
@@ -138,20 +133,19 @@ class ParameterHandler(HandlerProcessorProceed, INodeInvokerListener):
                     self._cacheEncode[invoker] = encode
 
                 response.code, response.text = ILLEGAL_PARAM, 'Illegal parameter'
-                context = dict(normalizer=request.normalizer, converter=request.converter)
+                context = dict(normalizer=request.normalizerParameters, converter=request.converterParameters)
                 sample = encode(value=SAMPLE, **context)
 
-                #TODO: make the errors prettier
-                errors = [List('illegal', *(Value('name', name) for name, _value in illegal))]
+                errors = [List('illegal', *(Object('parameter', attributes={'name':name}) for name, _value in illegal))]
                 if sample:
                     assert isinstance(sample, deque), 'Invalid sample %s' % sample
 
                     response.errorMessage = 'Illegal parameter or value'
-                    errors.append(List('sample', *(Object('sample', Value('name', name), Value('expected', value))
-                                                   for name, value in sample)))
+                    samples = (Object('parameter', attributes=OrderedDict((('name', name), ('expected', value))))
+                               for name, value in sample)
+                    errors.append(List('sample', *samples))
                 else:
                     response.errorMessage = 'No parameters are allowed on this URL'
-
                 response.errorDetails = Object('parameter', *errors)
 
     # ----------------------------------------------------------------
@@ -252,7 +246,7 @@ class ParameterHandler(HandlerProcessorProceed, INodeInvokerListener):
 
             key = path.popleft()
             if not isinstance(key, str): return False
-            assert isinstance(key, str), 'Invalid path key %s' % key
+            assert isinstance(key, str), 'Invalid path element %s' % key
 
             for keyChild, exploitChild in children.items():
                 assert isinstance(keyChild, str), 'Invalid child key %s' % keyChild

@@ -9,16 +9,18 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from .encoder_decoder import renderAssembly
+from .encoder_decoder import renderingAssembly, parsingAssembly
 from ally.container import ioc
 from ally.core.impl.processor.arguments import ArgumentsPrepareHandler, \
     ArgumentsBuildHandler
+from ally.core.impl.processor.decoder import CreateDecoderHandler
 from ally.core.impl.processor.encoder import CreateEncoderHandler
 from ally.core.impl.processor.explain_error import ExplainErrorHandler
 from ally.core.impl.processor.invoking import InvokingHandler
 from ally.core.impl.processor.method_invoker import MethodInvokerHandler
+from ally.core.impl.processor.parsing import ParsingHandler
 from ally.core.impl.processor.render_encoder import RenderEncoderHandler
-from ally.core.impl.processor.renderer import RendererHandler
+from ally.core.impl.processor.rendering import RenderingHandler
 from ally.core.impl.processor.text_conversion import ConversionSetHandler
 from ally.core.spec.resources import Normalizer, Converter
 from ally.design.processor import Handler, Assembly
@@ -65,10 +67,30 @@ def argumentsPrepare() -> Handler: return ArgumentsPrepareHandler()
 def methodInvoker() -> Handler: return MethodInvokerHandler()
 
 @ioc.entity
+def renderer() -> Handler:
+    b = RenderingHandler()
+    b.charSetDefault = default_characterset()
+    b.renderingAssembly = renderingAssembly()
+    return b
+
+@ioc.entity
 def conversion() -> Handler:
     b = ConversionSetHandler()
     b.normalizer = normalizer()
     b.converter = converter()
+    return b
+
+@ioc.entity
+def createDecoder() -> Handler: return CreateDecoderHandler()
+
+@ioc.entity
+def createEncoder() -> Handler: return CreateEncoderHandler()
+
+@ioc.entity
+def parser() -> Handler:
+    b = ParsingHandler()
+    b.charSetDefault = default_characterset()
+    b.parsingAssembly = parsingAssembly()
     return b
 
 @ioc.entity
@@ -78,24 +100,14 @@ def argumentsBuild() -> Handler: return ArgumentsBuildHandler()
 def invoking() -> Handler: return InvokingHandler()
 
 @ioc.entity
-def createEncoder() -> Handler: return CreateEncoderHandler()
-
-@ioc.entity
 def renderEncoder() -> Handler: return RenderEncoderHandler()
 
 @ioc.entity
 def explainError(): return ExplainErrorHandler()
 
-@ioc.entity
-def renderer() -> Handler:
-    b = RendererHandler()
-    b.charSetDefault = default_characterset()
-    b.renderAssembly = renderAssembly()
-    return b
-
 # --------------------------------------------------------------------
 
 @ioc.before(assemblyResources)
 def updateAssemblyResourcesForCore():
-    assemblyResources().add(argumentsPrepare(), methodInvoker(), renderer(), conversion(), createEncoder(),
-                            argumentsBuild(), invoking(), renderEncoder(), explainError())
+    assemblyResources().add(argumentsPrepare(), methodInvoker(), renderer(), conversion(), createDecoder(),
+                            createEncoder(), parser(), argumentsBuild(), invoking(), renderEncoder(), explainError())

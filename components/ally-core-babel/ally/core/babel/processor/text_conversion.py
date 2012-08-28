@@ -48,22 +48,16 @@ class FormatError(Exception):
 
 # --------------------------------------------------------------------
 
-class Request(Context):
+class RequestDecode(Context):
     '''
     The request context.
     '''
     # ---------------------------------------------------------------- Required
     decoderHeader = requires(IDecoderHeader)
     # ---------------------------------------------------------------- Optional
+    language = optional(str)
     accLanguages = optional(list)
     argumentsOfType = optional(dict)
-
-class RequestContentDecode(Context):
-    '''
-    The decoding content context.
-    '''
-    # ---------------------------------------------------------------- Optional
-    language = optional(str)
     # ---------------------------------------------------------------- Defined
     normalizer = defines(Normalizer, doc='''
     @rtype: Normalizer
@@ -135,14 +129,13 @@ class BabelConversionDecodeHandler(HandlerProcessorProceed):
         assert isinstance(self.defaults, dict), 'Invalid defaults %s' % self.defaults
         super().__init__()
 
-    def process(self, request:Request, requestCnt:RequestContentDecode, response:ResponseDecode, **keyargs):
+    def process(self, request:RequestDecode, response:ResponseDecode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Provide the character conversion for response content.
         '''
-        assert isinstance(request, Request), 'Invalid request %s' % request
-        assert isinstance(requestCnt, RequestContentDecode), 'Invalid request content %s' % requestCnt
+        assert isinstance(request, RequestDecode), 'Invalid request %s' % request
         assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
         assert isinstance(request.decoderHeader, IDecoderHeader), \
         'Invalid header decoder %s' % request.decoderHeader
@@ -153,12 +146,12 @@ class BabelConversionDecodeHandler(HandlerProcessorProceed):
             if value: formats[clsTyp] = value
 
         locale = None
-        if RequestContentDecode.language in requestCnt:
-            try: locale = Locale.parse(requestCnt.language, sep='-')
-            except: assert log.debug('Invalid request content language %s', requestCnt.language) or True
+        if RequestDecode.language in request:
+            try: locale = Locale.parse(request.language, sep='-')
+            except: assert log.debug('Invalid request content language %s', request.language) or True
 
         if locale is None:
-            requestCnt.language = self.languageDefault
+            request.language = self.languageDefault
             locale = Locale.parse(self.languageDefault)
 
         try: formats = self.processFormats(locale, formats)
@@ -169,8 +162,8 @@ class BabelConversionDecodeHandler(HandlerProcessorProceed):
             response.errorMessage = 'Bad request content formatting, %s' % e.message
             return
 
-        requestCnt.converter = ConverterBabel(locale, formats)
-        requestCnt.normalizer = self.normalizer
+        request.converter = ConverterBabel(locale, formats)
+        request.normalizer = self.normalizer
 
         formats = {}
         for clsTyp in FORMATTED_TYPE:
@@ -183,7 +176,7 @@ class BabelConversionDecodeHandler(HandlerProcessorProceed):
             except: assert log.debug('Invalid response content language %s', response.language) or True
 
         if locale is None:
-            if Request.accLanguages in request:
+            if RequestDecode.accLanguages in request:
                 for lang in request.accLanguages:
                     try: locale = Locale.parse(lang, sep='-')
                     except:
@@ -194,13 +187,13 @@ class BabelConversionDecodeHandler(HandlerProcessorProceed):
 
             if locale is None:
                 locale = Locale.parse(self.languageDefault)
-                if Request.accLanguages in request: request.accLanguages.insert(0, self.languageDefault)
-                if Request.argumentsOfType in request: request.argumentsOfType[LIST_LOCALE] = request.accLanguages
+                if RequestDecode.accLanguages in request: request.accLanguages.insert(0, self.languageDefault)
+                if RequestDecode.argumentsOfType in request: request.argumentsOfType[LIST_LOCALE] = request.accLanguages
                 assert log.debug('No language specified for the response, set default %s', locale) or True
 
             response.language = str(locale)
 
-            if Request.argumentsOfType in request:
+            if RequestDecode.argumentsOfType in request:
                 request.argumentsOfType[TypeLocale] = response.language
 
         try: formats = self.processFormats(locale, formats)
