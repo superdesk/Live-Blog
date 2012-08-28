@@ -21,7 +21,7 @@
 		</div>
 		{/Meta}
 	</div> 
-    <div class="btn-group pull-right clearfix actions">
+    <div class="btn-group pull-right clearfix actions hide">
     	<button class="btn btn-mini cancel">Cancel</button>
     	<button class="btn btn-mini btn-primary publish">Publish</button>
    	</div>		
