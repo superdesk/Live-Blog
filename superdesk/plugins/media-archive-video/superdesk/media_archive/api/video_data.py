@@ -12,7 +12,7 @@ API specifications for media meta data video archive.
 from .domain_archive import modelArchive
 from .meta_data import MetaData, QMetaData, IMetaDataService
 from ally.api.config import query, service
-from ally.api.criteria import AsEqualOrdered
+from ally.api.criteria import AsEqualOrdered, AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -21,7 +21,17 @@ class VideoData(MetaData):
     '''
     Provides the meta data that is extracted based on the content.
     '''
+    
+    Length = int
+    VideoEncoding = str
     Width = int
+    Height = int
+    VideoBitrate = int
+    Fps = int
+    AudioEncoding = str
+    SampleRate = int
+    Channels = str
+    AudioBitrate = int
 
 # --------------------------------------------------------------------
 
@@ -30,7 +40,16 @@ class QVideoData(QMetaData):
     '''
     The query for video model.
     '''
+    length = AsEqualOrdered
+    videoEncoding = AsLikeOrdered
     width = AsEqualOrdered
+    height = AsEqualOrdered
+    videoBitrate = AsEqualOrdered
+    fps = AsEqualOrdered
+    audioEncoding = AsLikeOrdered
+    sampleRate = AsEqualOrdered
+    channels = AsLikeOrdered
+    audioBitrate = AsEqualOrdered
 
 # --------------------------------------------------------------------
 
