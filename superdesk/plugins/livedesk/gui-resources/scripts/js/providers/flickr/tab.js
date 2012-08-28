@@ -17,7 +17,10 @@ function(providers)
 	        preData: $.noop,
 	        init: $.noop,
 	        save: $.noop,
-	        edit: $.noop,
+	        edit: function()
+	        {
+	            this.el.find('.actions').removeClass('hide');
+	        },
 	        render: function(callback)
 	        {
 	            var self = this,
@@ -36,7 +39,7 @@ function(providers)
 	            $.tmpl('livedesk>providers/flickr/post', feed, function(e, o)
                 {
                     self.setElement(o);
-                    $(self.el).on('click', '.btn.publish', function()
+                    $(self.el).off('click', '.btn.publish').on('click', '.btn.publish', function()
                     {
                         var data = 
                         {
@@ -51,8 +54,9 @@ function(providers)
                         $('.actions', self.el).addClass('hide');
                     });
                     
-                    $(self.el).on('click', '.btn.cancel', function()
+                    $(self.el).off('click', '.btn.cancel').on('click', '.btn.cancel', function()
                     {
+                        $('.actions', self.el).addClass('hide');
                     });
                     
                     callback.call(self);
