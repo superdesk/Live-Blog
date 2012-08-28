@@ -36,6 +36,7 @@ function(providers,str, $, Gizmo)
         {
             this.el.tmpl('livedesk>providers/flickr/post', this.data);
             this.el.addClass('with-avatar twitter clearfix');
+            $('.actions', this.el).removeClass('hide');
         }
     });
     

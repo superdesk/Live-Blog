@@ -283,9 +283,54 @@
 	color: @errorText;
 	#gradient > .horizontal-three-colors(@white, mix(@white, @errorBackground, 40%), 20%, @errorBackground);
 }
+
+/* timeline view */
+#timeline-view .post-list li
+{
+	margin-left: 26px;
+	padding: 5px 8px 8px 17px;		
+}
+#timeline-view .post-list li.first
+{
+	margin-left: 0;
+}
+#timeline-view .post-list li.wrapup
+{
+	margin-left: 0;
+	padding-left: 8px;
+}
+#timeline-view li.wrapup .arrow 
+{
+	width:20px;
+	height:20px;
+	background:url(../../images/wrapup-arrow.png) no-repeat 0 0;
+	overflow:hidden;
+	float:left;
+	margin: 2px 0 5px 5px;
+}
+#timeline-view li.wrapup.closed .arrow 
+{
+	background-position:0 0;
+}
+#timeline-view li.wrapup.open .arrow 
+{
+	background-position:-40px 0;
+}
+
 #timeline-view .post-list li .editable
 {
 	cursor: text;
+}
+#timeline-view .drag-bar 
+{
+	position: absolute;
+	left: 0;  
+	top: -1px;
+	bottom: -1px;
+	width:9px;
+	border: 3px solid #969696;
+	border-width: 2px 0;
+	background:#969696 url(../../images/drag_bg.png) repeat-y 3px 0;
 }
 #timeline-view li.update-success, #timeline-view.update-error
 {
