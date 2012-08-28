@@ -156,6 +156,7 @@ class QueryIndexer:
         Contains all meta info related criteria names and associated criteria class
         @ivar dataCriterias: dict{CriteriaName, Criteria class)
         Contains all meta data related criteria names and associated criteria class 
+        
         '''
         self.metaInfos = set()
         self.metaDatas = set()

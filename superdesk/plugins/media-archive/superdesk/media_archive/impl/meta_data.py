@@ -28,8 +28,9 @@ from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 from os import makedirs, access, W_OK
-from os.path import join, getsize, abspath, exists, isdir
+from os.path import join, getsize, abspath, exists, isdir, split
 from superdesk.media_archive.api.meta_data import IMetaDataUploadService
+from shutil import move
 
 # --------------------------------------------------------------------
 
@@ -110,7 +111,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         if not content.getName(): raise InputError(_('No name specified for content'))
 
         metaDataMapped = MetaDataMapped()
-        metaDataMapped.CreatedOn = datetime.now()
+        metaDataMapped.CreatedOn = datetime.utcnow()
         metaDataMapped.Name = content.getName()
         if content.contentType: metaDataMapped.Type = content.contentType 
         else: metaDataMapped.Type = self._metaType.Type
@@ -126,6 +127,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
             contentPath = abspath(join(self.content_dir_path, fileName))
             with open(contentPath, 'w+b') as fobj: pipe(content, fobj)
             metaDataMapped.SizeInBytes = getsize(contentPath)
+            metaDataMapped.Content = contentPath
 
             for handler in self.metaDataHandlers:
                 assert isinstance(handler, IMetaDataHandler), 'Invalid handler %s' % handler
@@ -137,7 +139,10 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
             
         except SQLAlchemyError as e: handle(e, metaDataMapped)
         
-        #TODO: move the file to the path specified by metaDataMapped.content
+        if (metaDataMapped.Content != contentPath):
+            dirPath = split(metaDataMapped.Content)[0]
+            if not exists(dirPath): makedirs(dirPath)
+            move(contentPath, metaDataMapped.Content)
         
         return metaDataMapped.Id
 

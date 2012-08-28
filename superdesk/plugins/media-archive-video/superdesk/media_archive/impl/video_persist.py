@@ -65,6 +65,73 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         path = join("{0:03d}".format(id // 1000000000), "{0:03d}".format((id // 1000000) % 1000), "{0:03d}".format((id // 1000) % 1000)) 
         
         return path;  
+    
+    # ----------------------------------------------------------------
+    def extractLength(self, line):
+        #Duration: 00:00:30.06, start: 0.000000, bitrate: 585 kb/s
+        property = line.partition(':')[2]
+        property = property.partition(',')[0].strip()
+        property = property.split(':')
+        
+        value = int(property[0])*60 + int(property[1])*60 + int(float(property[2]))
+        
+        return value 
+    
+    # ----------------------------------------------------------------
+    def extractVideo(self, line):
+        #Stream #0.0(eng): Video: h264 (Constrained Baseline), yuv420p, 416x240, 518 kb/s, 29.97 fps, 29.97 tbr, 2997 tbn, 59.94 tbc
+        properties = (line.rpartition(':')[2]).split(',')
+        
+        index = 0
+        encoding = properties[index].strip()
+        
+        index += 2
+        size = (properties[index].strip()).partition('x')
+        width = int(size[0])
+        height = int(size[2])
+        
+        index += 1
+        bitrate = properties[index].strip().partition(' ')
+        if bitrate[2] == 'kb/s':
+            bitrate = int(float(bitrate[0]))
+            index += 1
+        else:    
+            bitrate = None
+                    
+        fps = properties[index].strip().partition(' ')    
+        if fps[2] == 'fps':     
+            fps = int(float(fps[0]))
+        else:
+            fps = None
+        
+        return (encoding, width, height, bitrate, fps)
+            
+    # ----------------------------------------------------------------
+    def extractAudio(self, line):
+        #Stream #0.1(eng): Audio: aac, 44100 Hz, stereo, s16, 61 kb/s
+        properties = (line.rpartition(':')[2]).split(',')
+    
+        index = 0
+        encoding = properties[index].strip()
+        
+        index += 1
+        sampleRate = properties[index].strip().partition(' ')
+        if sampleRate[2] == 'Hz':
+            sampleRate = int(float(sampleRate[0]))
+        else:
+            sampleRate = None
+            
+        index += 1        
+        channels = properties[index].strip()
+        
+        index += 2
+        bitrate = properties[4].strip().partition(' ')
+        if bitrate[2] == 'kb/s':
+            bitrate = int(float(bitrate[0]))
+        else:
+            bitrate = None    
+        
+        return (encoding, sampleRate, channels, bitrate)
      
     # ----------------------------------------------------------------
     def process(self, metaDataId, contentPath):
@@ -88,11 +155,20 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             line = str(line, "utf-8")
             
             if line.find(': Video:') != -1:
-                print(line)
+                values = self.extractVideo(line)
+                videoDataEntry.VideoEncoding = values[0]
+                videoDataEntry.Width = values[1]
+                videoDataEntry.Height = values[2]
+                videoDataEntry.VideoBitrate = values[3] 
+                videoDataEntry.Fps = values[4]
             elif line.find(': Audio: ') != -1:
-                print(line)  
+                values = self.extractAudio(line)
+                videoDataEntry.AudioEncoding = values[0]
+                videoDataEntry.SampleRate = values[1]
+                videoDataEntry.Channels = values[2]
+                videoDataEntry.AudioBitrate = values[3]
             elif line.find('Duration: ') != -1:
-                print(line)  
+                videoDataEntry.Length = self.extractLength(line) 
             elif line.find('Output #0') != -1:
                 break                 
                     
@@ -100,7 +176,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         fileName = self.format_file_name % {'id': metaDataId, 'file': metaDataMapped.Name}
         path = join(path, fileName) 
         
-        metaDataMapped.content = path                                     
+        metaDataMapped.Content = path                                     
         metaDataMapped.typeId = self._metaTypeId 
         metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id   
         metaDataMapped.IsAvailable = True     
