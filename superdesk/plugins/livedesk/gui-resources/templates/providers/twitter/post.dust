@@ -1,4 +1,4 @@
-<li class="with-avatar twitter clearfix">
+<li class="with-avatar twitter clearfix" data-post-id="{Id}" data-post-type="{Type.Key}">
 	<div class="drag-bar"></div>
 	<div class="tool-box-right">
 		<a href="#delete-post" class="close image" data-toggle="modal">x</a>
