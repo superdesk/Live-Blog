@@ -4,12 +4,6 @@ __plugin__/__init__.py
 __plugin__/media_archive/__init__.py
 __plugin__/media_archive/gui.py
 __plugin__/media_archive/service.py
-media_archive.egg-info/PKG-INFO
-media_archive.egg-info/SOURCES.txt
-media_archive.egg-info/dependency_links.txt
-media_archive.egg-info/requires.txt
-media_archive.egg-info/top_level.txt
-media_archive.egg-info/zip-safe
 superdesk/__init__.py
 superdesk/media_archive/__init__.py
 superdesk/media_archive/api/__init__.py
@@ -33,3 +27,9 @@ superdesk/media_archive/meta/__init__.py
 superdesk/media_archive/meta/meta_data.py
 superdesk/media_archive/meta/meta_info.py
 superdesk/media_archive/meta/meta_type.py
+superdesk_user.egg-info/PKG-INFO
+superdesk_user.egg-info/SOURCES.txt
+superdesk_user.egg-info/dependency_links.txt
+superdesk_user.egg-info/requires.txt
+superdesk_user.egg-info/top_level.txt
+superdesk_user.egg-info/zip-safe
