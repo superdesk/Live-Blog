@@ -251,14 +251,28 @@ window.livedesk.startLoading = function() {
 				}
 				if (self.post.isService()) {
 					style += ' ' + self.post.get('AuthorName');
+                                        
+                                        var meta = JSON.parse(self.post.get('Meta'));
+                                        var annotation = '';
+                                        if( meta.annotation) {
+                                            for (var i=0; i < meta.annotation.length; i++ ) {
+                                                if(meta.annotation[i]) {
+                                                    annotation += meta.annotation[i];
+                                                }
+                                            }
+                                        }
+                                        
 					if (self.post.get('AuthorName') == 'flickr') {
 						var paddedContent = '<span>' + content + '</span>';
 						var jqo = $(paddedContent);
 						jqo.find('img').attr('src', jqo.find('a').attr('href'));
 						content = jqo.html();
-					} else if (self.post.get('AuthorName') == 'twitter') {
+					} else if (self.post.get('AuthorName') == 'twitter') {        
 						content = self.post.twitter.link.all(content);
 					}
+                                        
+                                        content = annotation + content;
+                                        
 				}
 				var template = '<li class="'+ style +'">' + content + '</li>';
 				self.setElement( template );
