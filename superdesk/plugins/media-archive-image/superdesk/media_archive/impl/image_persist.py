@@ -121,7 +121,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         fileName = self.format_file_name % {'id': metaDataId, 'file': metaDataMapped.Name}
         path = join(path, fileName)
         
-        metaDataMapped.content = path                                      
+        metaDataMapped.Content = path                                      
         metaDataMapped.typeId = self._metaTypeId 
         metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id   
         metaDataMapped.IsAvailable = True     
