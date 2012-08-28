@@ -907,7 +907,6 @@ section.main-section {
 					.search-result-list > li > figure > img, .post-list > li > figure > img, .ui-draggable-dragging > figure > img   {
 						width: 36px;
 						height: 36px;
-						border:1px solid #fff;
 						}
                 .collaborators-feed .search-result-list {
                     top:62px;
