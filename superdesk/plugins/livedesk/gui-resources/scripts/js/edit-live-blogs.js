@@ -328,7 +328,8 @@ function(providers, Gizmo, $)
 					
 				});
 				
-				this.el.siblings('[data-post-type=wrapup]:eq(0)').prevAll().addClass('first');
+				console.log(this.el.siblings().removeClass('first').eq('0').nextUntil('[data-post-type=wrapup]').andSelf());
+				this.el.siblings().removeClass('first').eq('0').nextUntil('[data-post-type=wrapup]').andSelf().addClass('first');
 				
 				return this;
 			},
@@ -484,7 +485,7 @@ function(providers, Gizmo, $)
 				{
 				    either.parent = self.timelineView;
 				    either.render();
-				    $('ul.post-list', self.timelineView.el).prepend(either.el);
+				    $('ul.post-list', self.timelineView.el).prepend(either.el.addClass('first'));
 				    $('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
 				}
 				else if(data !== undefined) 
