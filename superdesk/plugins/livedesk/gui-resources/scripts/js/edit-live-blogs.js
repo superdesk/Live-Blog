@@ -327,6 +327,9 @@ function(providers, Gizmo, $)
     					providers[src].timeline.init.call(self);
 					
 				});
+				
+				this.el.siblings('[data-post-type=wrapup]:eq(0)').prevAll().addClass('first');
+				
 				return this;
 			},
 			
