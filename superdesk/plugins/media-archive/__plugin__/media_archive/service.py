@@ -26,6 +26,8 @@ from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
 import logging
 from superdesk.media_archive.core.impl.query_service_creator import createService
 from ..plugin.registry import registerService
+from superdesk.media_archive.impl.query_criteria import QueryCriteriaService
+from superdesk.media_archive.api.query_criteria import IQueryCriteriaService
 
 # --------------------------------------------------------------------
 
@@ -114,6 +116,13 @@ def queryIndexer() -> QueryIndexer:
 def publishQueryService():
     b = createService(queryIndexer())
     registerService(b, (bindSuperdeskSession, ))
+    
+# --------------------------------------------------------------------
+
+@ioc.replace(ioc.getEntity(IQueryCriteriaService, service))
+def publishQueryCriteriaService() -> IQueryCriteriaService:
+    b = QueryCriteriaService(queryIndexer() )
+    return b    
     
 # --------------------------------------------------------------------
 
