@@ -119,6 +119,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         a = $.ajax(self.href(source), options);
                     }
                     self.reset();
+                    
                     options.fail && a.fail(options.fail);
                     options.done && a.done(options.done);
                     options.always && a.always(options.always);
