@@ -11,7 +11,7 @@ Provides the JSON encoder processor handler.
 
 from .base import RenderBaseHandler, Response
 from ally.container.ioc import injected
-from ally.core.spec.encdec.render import IRender
+from ally.core.spec.transform.render import IRender
 from ally.core.spec.server import IOutputStream
 from codecs import getwriter
 from collections import deque
@@ -73,10 +73,10 @@ class RenderJSON(IRender):
         out = self.out
 
         if self.isFirst: self.isFirst = False
-        else: out.write(', ')
+        else: out.write(',')
         if self.isObject[0]:
             out.write(encode_basestring(name))
-            out.write(': ')
+            out.write(':')
             out.write(encode_basestring(value))
         else: out.write(encode_basestring(value))
 
@@ -104,9 +104,9 @@ class RenderJSON(IRender):
         assert isinstance(name, str), 'Invalid name %s' % name
         out = self.out
 
-        self.isObject(name, attributes)
+        self.openObject(name, attributes)
         out.write(encode_basestring(name))
-        out.write(': [')
+        out.write(':[')
         self.isFirst = True
         self.isObject.appendleft(False)
 
@@ -130,10 +130,11 @@ class RenderJSON(IRender):
         assert attributes is None or isinstance(attributes, dict), 'Invalid attributes %s' % attributes
         out = self.out
 
+        if not self.isFirst: out.write(',')
+
         if self.isObject and self.isObject[0]:
-            if not self.isFirst: out.write(', ')
             out.write(encode_basestring(name))
-            out.write(': ')
+            out.write(':')
 
         out.write('{')
         self.isFirst = True
@@ -143,7 +144,7 @@ class RenderJSON(IRender):
                 assert isinstance(attrValue, str), 'Invalid attribute value %s' % attrValue
 
                 if self.isFirst: self.isFirst = False
-                else: out.write(', ')
+                else: out.write(',')
                 out.write(encode_basestring(attrName))
-                out.write(': ')
+                out.write(':')
                 out.write(encode_basestring(attrValue))

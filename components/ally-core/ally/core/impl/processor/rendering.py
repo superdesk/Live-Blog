@@ -6,18 +6,17 @@ Created on Jul 12, 2011
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the encoding processing node.
+Provides the rendering processing.
 '''
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import UNKNOWN_ENCODING, Code
 from ally.design.context import Context, defines, optional
 from ally.design.processor import Assembly, Handler, Processing, NO_VALIDATION, \
-    Processor, Chain
+    Chain, Function
 from ally.exception import DevelError
 import codecs
 import itertools
-from functools import partial
 
 # --------------------------------------------------------------------
 
@@ -48,43 +47,36 @@ class Response(Context):
 # --------------------------------------------------------------------
 
 @injected
-class RendererHandler(Handler):
+class RenderingHandler(Handler):
     '''
-    Implementation for a processor that provides the support for creating the renderer. The renderer just like decoding
-    uses an internal processor chain execution. If a processor is successful in the render creation process it has to
-    stop the chain execution.
+    Implementation for a processor that provides the support for creating the renderer. If a processor is successful
+    in the render creation process it has to stop the chain execution.
     '''
 
     contentTypeDefaults = [None]
     # The default content types to use
     charSetDefault = str
     # The default character set to be used if none provided for the content.
-    renderAssembly = Assembly
+    renderingAssembly = Assembly
     # The render processors, if a processor is successful in the rendering factory creation process it has to stop the 
     # chain execution.
 
     def __init__(self):
-        assert isinstance(self.renderAssembly, Assembly), 'Invalid renders assembly %s' % self.renderAssembly
+        assert isinstance(self.renderingAssembly, Assembly), 'Invalid renders assembly %s' % self.renderingAssembly
         assert isinstance(self.contentTypeDefaults, (list, tuple)), \
         'Invalid default content type %s' % self.contentTypeDefaults
         assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
 
-        renderProcessing = self.renderAssembly.create(NO_VALIDATION, request=Request, response=Response)
-        assert isinstance(renderProcessing, Processing), 'Invalid processing %s' % renderProcessing
+        renderingProcessing = self.renderingAssembly.create(NO_VALIDATION, request=Request, response=Response)
+        assert isinstance(renderingProcessing, Processing), 'Invalid processing %s' % renderingProcessing
+        super().__init__(Function(renderingProcessing.contexts, self.process))
 
-        super().__init__(Processor(renderProcessing.contexts, partial(self.process, renderProcessing), 'process',
-                                   self.process.__code__.co_filename, self.process.__code__.co_firstlineno))
+        self.renderingProcessing = renderingProcessing
 
-    def process(self, renderProcessing, chain, request, response, **keyargs):
+    def process(self, chain, request, response, **keyargs):
         '''
-        Encodes the response object.
-        
-        @param renderProcessing: Processing
-            The processing that provides the rendering chain.
-            
-        The rest of the parameters are contexts.
+        Create the render for the response object.
         '''
-        assert isinstance(renderProcessing, Processing), 'Invalid render processing %s' % renderProcessing
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
@@ -105,14 +97,14 @@ class RendererHandler(Handler):
 
         resolved = False
         if Response.type in response:
-            renderChain = renderProcessing.newChain()
+            renderChain = self.renderingProcessing.newChain()
             assert isinstance(renderChain, Chain), 'Invalid chain %s' % renderChain
 
             renderChain.process(request=request, response=response, **keyargs)
             if renderChain.isConsumed():
                 if Response.code not in response or response.code.isSuccess:
                     response.code = UNKNOWN_ENCODING
-                    response.text = 'Content type \'%s\' not supported for encoding' % response.type
+                    response.text = 'Content type \'%s\' not supported for rendering' % response.type
             else: resolved = True
 
         if not resolved:
@@ -120,7 +112,7 @@ class RendererHandler(Handler):
             for contentType in itertools.chain(request.accTypes or (), self.contentTypeDefaults):
                 response.type = contentType
 
-                renderChain = renderProcessing.newChain()
+                renderChain = self.renderingProcessing.newChain()
                 assert isinstance(renderChain, Chain), 'Invalid chain %s' % renderChain
 
                 renderChain.process(request=request, response=response, **keyargs)

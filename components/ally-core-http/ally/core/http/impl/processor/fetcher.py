@@ -12,7 +12,7 @@ Provides the standard headers handling.
 from ally.api.operator.type import TypeModelProperty, TypeModel
 from ally.api.type import Input, typeFor, TypeClass, Type
 from ally.container.ioc import injected
-from ally.core.http.spec.encdec.encode import DataModel, IFetcher
+from ally.core.http.spec.transform.support_model import DataModel, IFetcher
 from ally.core.spec.codes import Code
 from ally.core.spec.resources import Path, Node, Invoker, INodeInvokerListener
 from ally.design.context import Context, requires, optional
@@ -99,8 +99,9 @@ class FetcherHandler(HandlerProcessorProceed, INodeInvokerListener):
                     assert isinstance(invoker, Invoker)
 
                     modelType, indexes = typeFor(reference), []
-                    assert isinstance(modelType, TypeModelProperty), 'Invalid reference type %s' % modelType
-                    modelType = modelType.type
+                    if isinstance(modelType, TypeModelProperty):
+                        assert isinstance(modelType, TypeModelProperty)
+                        modelType = modelType.type
                     assert isinstance(modelType, TypeModel), 'Invalid mode type %s' % modelType
 
                     for inp in invoker.inputs:
@@ -149,7 +150,7 @@ class FetcherHandler(HandlerProcessorProceed, INodeInvokerListener):
             if invoker: fetch[data.fetchReference] = invoker
 
             if data.fetchData: self.extractFetch(data.fetchData, fetch)
-        elif data.datas:
+        elif DataModel.datas in data:
             for cdata in data.datas.values(): self.extractFetch(cdata, fetch)
 
         return fetch

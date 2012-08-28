@@ -11,7 +11,7 @@ Provides support for explaining the errors in the content of the request.
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import Code
-from ally.core.spec.encdec.render import Object, Value, renderObject
+from ally.core.spec.transform.render import Object, Value, renderObject
 from ally.design.context import Context, requires, defines, optional
 from ally.design.processor import HandlerProcessorProceed
 from collections import Iterable, Callable
@@ -33,8 +33,14 @@ class Response(Context):
     # ---------------------------------------------------------------- Optional
     code = optional(Code)
     text = optional(str)
-    errorMessage = optional(str)
-    errorDetails = optional(Object)
+    errorMessage = optional(str, doc='''
+    @rtype: object
+    The error message for the code.
+    ''')
+    errorDetails = optional(Object, doc='''
+    @rtype: Object
+    The error text object describing a detailed situation for the error.
+    ''')
     # ---------------------------------------------------------------- Required
     renderFactory = requires(Callable)
 

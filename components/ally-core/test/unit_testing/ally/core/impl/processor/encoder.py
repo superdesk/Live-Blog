@@ -6,7 +6,7 @@ Created on Jun 22, 2012
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Model encodder testing.
+Model encoder testing.
 '''
 
 # Required in order to register the package extender whenever the unit test is run.
@@ -19,17 +19,11 @@ if True:
 from ally.api.config import model
 from ally.api.type import typeFor, List
 from ally.container import ioc
-from ally.core.impl.processor.encoder import EncoderHandler
-from ally.core.spec.encdec.exploit import Resolve
-from ally.core.spec.encdec.render import RenderToObject
+from ally.core.impl.processor.encoder import CreateEncoderHandler
+from ally.core.spec.transform.exploit import Resolve
+from ally.core.spec.transform.render import RenderToObject
 from ally.core.spec.resources import ConverterPath
-import logging
 import unittest
-
-# --------------------------------------------------------------------
-
-logging.basicConfig(format='%(module)s.%(funcName)s %(lineno)d: %(message)s')
-logging.getLogger('ally.core.impl.transforming.model_encoding').setLevel(logging.DEBUG)
 
 # --------------------------------------------------------------------
 
@@ -50,7 +44,7 @@ class ModelId:
 class TestModel(unittest.TestCase):
 
     def testEncode(self):
-        transformer = EncoderHandler()
+        transformer = CreateEncoderHandler()
         ioc.initialize(transformer)
 
         resolve = Resolve(transformer.encoderFor(typeFor(ModelId)))
@@ -66,16 +60,16 @@ class TestModel(unittest.TestCase):
         model.ModelKey = 'The key'
         render.obj = None
         resolve.request(value=model, **context).doAll()
-        self.assertEqual({'Id':'12', 'ModelKey': 'The key'}, render.obj)
+        self.assertEqual({'Id':'12', 'ModelKey': {'Key': 'The key'}}, render.obj)
 
         model.Name = 'Uau Name'
         model.Flags = ['1', '2', '3']
         render.obj = None
         resolve.request(value=model, **context).doAll()
-        self.assertEqual({'ModelKey': 'The key', 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'},
-                         render.obj)
+        self.assertEqual({'ModelKey': {'Key': 'The key'}, 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12',
+                          'Name': 'Uau Name'}, render.obj)
 
-        transformer = EncoderHandler()
+        transformer = CreateEncoderHandler()
         ioc.initialize(transformer)
 
         resolve = Resolve(transformer.encoderFor(typeFor(List(ModelId))))
@@ -84,8 +78,8 @@ class TestModel(unittest.TestCase):
         resolve.request(value=[model], **context).doAll()
 
         self.assertEqual({'ModelIdList':
-                          [{'ModelKey': 'The key', 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'}]},
-                         render.obj)
+                [{'ModelKey': {'Key': 'The key'}, 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'}]},
+                render.obj)
 
         render.obj = None
         resolve.request(value=[model, model, model], **context)
@@ -93,22 +87,22 @@ class TestModel(unittest.TestCase):
         self.assertEqual({'ModelIdList': []}, render.obj)
         resolve.do()
         self.assertEqual({'ModelIdList':
-                          [
-                           {'ModelKey': 'The key', 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'}
-                           ]}, render.obj)
+                  [
+                   {'ModelKey': {'Key': 'The key'}, 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'}
+                   ]}, render.obj)
         resolve.do()
         self.assertEqual({'ModelIdList':
-                          [
-                           {'ModelKey': 'The key', 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'},
-                           {'ModelKey': 'The key', 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'}
-                           ]}, render.obj)
+                  [
+                   {'ModelKey': {'Key': 'The key'}, 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'},
+                   {'ModelKey': {'Key': 'The key'}, 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'}
+                   ]}, render.obj)
         resolve.do()
         self.assertEqual({'ModelIdList':
-                          [
-                           {'ModelKey': 'The key', 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'},
-                           {'ModelKey': 'The key', 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'},
-                           {'ModelKey': 'The key', 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'}
-                           ]}, render.obj)
+                  [
+                   {'ModelKey': {'Key': 'The key'}, 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'},
+                   {'ModelKey': {'Key': 'The key'}, 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'},
+                   {'ModelKey': {'Key': 'The key'}, 'Flags': {'Flags': ['1', '2', '3']}, 'Id': '12', 'Name': 'Uau Name'}
+                   ]}, render.obj)
         resolve.do()
         self.assertFalse(resolve.has())
 

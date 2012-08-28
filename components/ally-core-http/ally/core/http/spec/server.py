@@ -51,12 +51,6 @@ class RequestHTTP(Context):
     @rtype: dictionary{string, string}
     The raw headers.
     ''')
-
-class RequestContentHTTP(Context):
-    '''
-    Context for HTTP request content data. 
-    '''
-    # ---------------------------------------------------------------- Defined
     source = defines(IInputStream, doc='''
     @rtype: IInputStream
     The source for the content.

@@ -11,8 +11,7 @@ thread serving requests one at a time).
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
-from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
-    RequestContentHTTP
+from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP
 from ally.core.spec.codes import Code
 from ally.core.spec.server import IOutputStream
 from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
@@ -70,14 +69,11 @@ class RequestHandler(BaseHTTPRequestHandler):
                 if not uriRoot.endswith('/'): uriRoot += '/'
 
                 assert isinstance(processing, Processing), 'Invalid processing %s' % processing
-                req, reqCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
-                rsp = processing.contexts['response']()
-
+                req, rsp = processing.contexts['request'](), processing.contexts['response']()
                 chain = processing.newChain()
 
                 assert isinstance(chain, Chain), 'Invalid chain %s' % chain
                 assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
-                assert isinstance(reqCnt, RequestContentHTTP), 'Invalid request content %s' % reqCnt
                 assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
 
                 req.scheme, req.uriRoot, req.uri = 'http', uriRoot, path[match.end():]
@@ -90,9 +86,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         req.method = method
         req.headers = dict(self.headers)
-        reqCnt.source = self.rfile
+        req.source = self.rfile
 
-        chain.process(request=req, requestCnt=reqCnt, response=rsp)
+        chain.process(request=req, response=rsp)
 
         assert isinstance(rsp.code, Code), 'Invalid response code %s' % rsp.code
 
@@ -131,8 +127,7 @@ def run(port=80):
         assert isinstance(pattern, str), 'Invalid pattern %s' % pattern
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
 
-        processing, report = assembly.create(ONLY_AVAILABLE, CREATE_REPORT,
-                                             request=RequestHTTP, requestCnt=RequestContentHTTP, response=ResponseHTTP)
+        processing, report = assembly.create(ONLY_AVAILABLE, CREATE_REPORT, request=RequestHTTP, response=ResponseHTTP)
 
         log.info('Assembly report for pattern \'%s\':\n%s', pattern, report)
         RequestHandler.pathProcessing.append((re.compile(pattern), processing))
