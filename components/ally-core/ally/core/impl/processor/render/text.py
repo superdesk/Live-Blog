@@ -11,7 +11,7 @@ Provides the text encoder processor handler that creates text objects to be enco
 
 from .base import RenderBaseHandler, Response
 from ally.container.ioc import injected
-from ally.core.spec.encdec.render import RenderToObject
+from ally.core.spec.transform.render import RenderToObject
 from ally.core.spec.server import IOutputStream
 from codecs import getwriter
 

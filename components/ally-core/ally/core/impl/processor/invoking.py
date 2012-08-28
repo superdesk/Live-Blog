@@ -16,12 +16,12 @@ from ally.core.spec.codes import DELETED_SUCCESS, CANNOT_DELETE, UPDATE_SUCCESS,
     CANNOT_UPDATE, INSERT_SUCCESS, CANNOT_INSERT, BAD_CONTENT, Code, \
     METHOD_NOT_AVAILABLE, INCOMPLETE_ARGUMENTS, INPUT_ERROR
 from ally.core.spec.resources import Path, Invoker
+from ally.core.spec.transform.render import Object, List, Value
 from ally.design.context import Context, defines, requires
 from ally.design.processor import HandlerProcessorProceed
-from ally.exception import DevelError, InputError
+from ally.exception import DevelError, InputError, Ref
 from collections import deque
 import logging
-from ally.core.spec.encdec.render import Object
 
 # --------------------------------------------------------------------
 
@@ -120,10 +120,48 @@ class InvokingHandler(HandlerProcessorProceed):
             response.errorMessage = e.message
             log.info('Problems with the invoked content: %s', e.message, exc_info=True)
         except InputError as e:
+            assert isinstance(e, InputError)
             response.code, response.text = INPUT_ERROR, 'Input error'
-            #TODO: implement the error details for a input error.
-            response.errorMessage = e
+            response.errorDetails = self.processInputError(e)
             assert log.debug('User input exception: %s', e, exc_info=True) or True
+
+    def processInputError(self, e):
+        '''
+        Process the input error into an error object.
+        
+        @return: Object
+            The object containing the details of the input error.
+        '''
+        assert isinstance(e, InputError), 'Invalid input error %s' % e
+
+        messages, names, models, properties = deque(), deque(), {}, {}
+        for msg in e.message:
+            assert isinstance(msg, Ref)
+            if not msg.model:
+                messages.append(Value('message', msg.message))
+            elif not msg.property:
+                messagesModel = models.get(msg.model)
+                if not messagesModel: messagesModel = models[msg.model] = deque()
+                messagesModel.append(Value('message', msg.message))
+                if msg.model not in names: names.append(msg.model)
+            else:
+                propertiesModel = properties.get(msg.model)
+                if not propertiesModel: propertiesModel = properties[msg.model] = deque()
+                propertiesModel.append(Value(msg.property, msg.message))
+                if msg.model not in names: names.append(msg.model)
+
+        errors = deque()
+        if messages: errors.append(List('error', *messages))
+        for name in names:
+            messagesModel, propertiesModel = models.get(name), properties.get(name)
+
+            props = deque()
+            if messagesModel: props.append(List('error', *messagesModel))
+            if propertiesModel: props.extend(propertiesModel)
+
+            errors.append(Object(name, *props))
+
+        return Object('model', *errors)
 
     # ----------------------------------------------------------------
 

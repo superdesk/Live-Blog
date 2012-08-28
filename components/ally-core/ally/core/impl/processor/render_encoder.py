@@ -11,8 +11,8 @@ Renders the response encoder.
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import Code
-from ally.core.spec.encdec.exploit import Resolve
-from ally.core.spec.encdec.render import IRender
+from ally.core.spec.transform.exploit import Resolve
+from ally.core.spec.transform.render import IRender
 from ally.design.context import defines, Context, requires, optional
 from ally.design.processor import HandlerProcessorProceed
 from collections import Callable, Iterable

@@ -11,7 +11,7 @@ Provides the XML encoder processor handler.
 
 from .base import RenderBaseHandler, Response
 from ally.container.ioc import injected
-from ally.core.spec.encdec.render import IRender
+from ally.core.spec.transform.render import IRender
 from ally.core.spec.server import IOutputStream
 from ally.support.util import immut
 from codecs import getwriter

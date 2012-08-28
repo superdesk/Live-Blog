@@ -22,7 +22,7 @@ from ally.api.type import typeFor, Locale, List, Scheme
 from ally.container import ioc
 from ally.core.http.impl.processor.parameter import ParameterHandler
 from ally.core.impl.invoker import InvokerCall
-from ally.core.spec.encdec.support import SAMPLE
+from ally.core.spec.transform.support import SAMPLE
 from ally.core.spec.resources import ConverterPath
 import unittest
 

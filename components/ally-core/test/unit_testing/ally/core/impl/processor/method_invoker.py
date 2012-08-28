@@ -50,10 +50,10 @@ class TestMethodInvoker(unittest.TestCase):
         node = NodeRoot()
         request.method, request.path = GET, Path(resourcesLocator, [], node)
 
-        chain = Chain([handler.process])
+        def callProcess(chain, **keyargs): handler.process(**keyargs)
+        chain = Chain([callProcess])
         chain.process(request=request, response=response)
 
-        self.assertTrue(not chain.isConsumed())
         self.assertEqual(response.allows, 0)
         self.assertTrue(not response.code.isSuccess)
 

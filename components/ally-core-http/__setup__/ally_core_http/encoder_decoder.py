@@ -9,7 +9,11 @@ Created on Nov 24, 2011
 Provides the configurations for encoders and decoders.
 '''
 
+from ..ally_core.encoder_decoder import parsingAssembly, updateParsingAssembly
 from ally.container import ioc
+from ally.core.http.impl.url_encoded import parseStr
+from ally.core.impl.processor.parser.text import ParseTextHandler
+from ally.design.processor import Handler
 
 # --------------------------------------------------------------------
 
@@ -21,4 +25,20 @@ def content_types_urlencoded() -> dict:
             }
 
 # --------------------------------------------------------------------
-# Creating the decoding processors
+# Creating the parsers
+
+@ioc.entity
+def parseUrlencoded() -> Handler:
+    import codecs
+    def parserUrlencoded(content, charSet): return parseStr(codecs.getreader(charSet)(content).read())
+
+    b = ParseTextHandler(); yield b
+    b.contentTypes = set(content_types_urlencoded())
+    b.parser = parserUrlencoded
+    b.parserName = 'urlencoded'
+
+# --------------------------------------------------------------------
+
+@ioc.before(updateParsingAssembly)
+def updateParsingHTTPAssembly():
+    parsingAssembly().add(parseUrlencoded())

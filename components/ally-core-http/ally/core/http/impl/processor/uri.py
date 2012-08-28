@@ -19,6 +19,7 @@ from ally.design.context import Context, requires, defines, optional
 from ally.design.processor import HandlerProcessorProceed
 from urllib.parse import urlencode, urlunsplit, urlsplit
 import logging
+from collections import deque
 
 # --------------------------------------------------------------------
 
@@ -42,11 +43,15 @@ class Request(Context):
     @rtype: Path
     The path to the resource node.
     ''')
-    normalizer = defines(Normalizer, doc='''
+    converterId = defines(Converter, doc='''
+    @rtype: Converter
+    The converter to use for model id's.
+    ''')
+    normalizerParameters = defines(Normalizer, doc='''
     @rtype: Normalizer
     The normalizer to use for decoding parameters names.
     ''')
-    converter = defines(Converter, doc='''
+    converterParameters = defines(Converter, doc='''
     @rtype: Converter
     The converter to use for the parameters values.
     ''')
@@ -129,8 +134,9 @@ class URIHandler(HandlerProcessorProceed):
             return
         assert log.debug('Found resource for URI %s', request.uri) or True
 
-        request.converter = self.converterPath
-        request.normalizer = self.converterPath
+        request.converterId = self.converterPath
+        request.converterParameters = self.converterPath
+        request.normalizerParameters = self.converterPath
 
         if Request.argumentsOfType in request: request.argumentsOfType[Scheme] = request.scheme
 
@@ -200,12 +206,18 @@ class EncoderPathURI(IEncoderPath):
         assert isinstance(path, (Path, str)), 'Invalid path %s' % path
         if isinstance(path, Path):
             assert isinstance(path, Path)
-            paths = path.toPaths(self.converterPath)
-            if self.extension: paths.append('.' + self.extension)
-            elif path.node.isGroup: paths.append('')
+
+            url = deque()
+            url.append(self.root)
+            url.append('/'.join(path.toPaths(self.converterPath)))
+            if self.extension:
+                url.append('.')
+                url.append(self.extension)
+            elif path.node.isGroup:
+                url.append('/')
 
             query = urlencode(parameters) if parameters else ''
-            return urlunsplit((self.scheme, self.host, self.root + '/'.join(paths), query, ''))
+            return urlunsplit((self.scheme, self.host, ''.join(url), query, ''))
         else:
             assert isinstance(path, str), 'Invalid path %s' % path
             if not path.strip().startswith('/'):
