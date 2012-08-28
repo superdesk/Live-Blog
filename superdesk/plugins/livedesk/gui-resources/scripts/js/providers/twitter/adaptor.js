@@ -32,9 +32,13 @@ define('providers/twitter/adaptor', [
         },
         render: function()
         {
-            this.el.tmpl('livedesk>providers/twitter/post', this.data);
-            this.el.addClass('with-avatar twitter clearfix');
-            $('.actions', this.el).removeClass('hide');
+            var self = this;
+            $.tmpl('livedesk>providers/twitter/post', this.data, function(e, o)
+            { 
+                self.el.addClass( $(o).attr('class') );
+                self.el.html( $(o).html() );
+                $('.actions', self.el).removeClass('hide');
+            });
         }
     });
     
