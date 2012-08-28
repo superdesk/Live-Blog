@@ -18,17 +18,12 @@ from ally.design.processor import HandlerProcessorProceed
 
 # --------------------------------------------------------------------
 
-class Request(Context):
+class RequestDecode(Context):
     '''
     The request context.
     '''
     # ---------------------------------------------------------------- Required
     decoderHeader = requires(IDecoderHeader)
-
-class RequestContent(Context):
-    '''
-    The response content context.
-    '''
     # ---------------------------------------------------------------- Defined
     type = defines(str, doc='''
     @rtype: string
@@ -71,15 +66,14 @@ class ContentTypeDecodeHandler(HandlerProcessorProceed):
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
         super().__init__()
 
-    def process(self, request:Request, requestCnt:RequestContent, response:ResponseDecode, **keyargs):
+    def process(self, request:RequestDecode, response:ResponseDecode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Decode the content type for the request.
         '''
-        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(request, RequestDecode), 'Invalid request %s' % request
         assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
-        assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
 
         value = request.decoderHeader.decode(self.nameContentType)
@@ -91,9 +85,9 @@ class ContentTypeDecodeHandler(HandlerProcessorProceed):
                 ', expected only one type entry' % (value, self.nameContentType)
                 return
             value, attributes = value[0]
-            requestCnt.type = value
-            requestCnt.charSet = attributes.get(self.attrContentTypeCharSet, None)
-            requestCnt.typeAttr = attributes
+            request.type = value
+            request.charSet = attributes.get(self.attrContentTypeCharSet, None)
+            request.typeAttr = attributes
 
 # --------------------------------------------------------------------
 

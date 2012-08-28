@@ -33,16 +33,16 @@ class TestTextConversion(unittest.TestCase):
         handler.converter = Converter()
         ioc.initialize(handler)
 
-        requestCnt, responseCnt = Content(), Content()
-        chain = Chain([handler.process])
-        chain.process(requestCnt=requestCnt, responseCnt=responseCnt)
+        requestCnt, response = Content(), Content()
+        def callProcess(chain, **keyargs): handler.process(**keyargs)
+        chain = Chain([callProcess])
+        chain.process(requestCnt=requestCnt, response=response)
 
-        self.assertTrue(chain.isConsumed())
         self.assertEqual(handler.normalizer, requestCnt.normalizer)
-        self.assertEqual(handler.normalizer, responseCnt.normalizer)
+        self.assertEqual(handler.normalizer, response.normalizer)
 
-        self.assertEqual(handler.converter, responseCnt.converter)
-        self.assertEqual(handler.converter, responseCnt.converter)
+        self.assertEqual(handler.converter, response.converter)
+        self.assertEqual(handler.converter, response.converter)
 
 
 # --------------------------------------------------------------------

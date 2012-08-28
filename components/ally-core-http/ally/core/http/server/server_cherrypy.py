@@ -11,8 +11,7 @@ Provides the cherry py web server support.
 
 from ally.api.config import UPDATE, INSERT, GET, DELETE
 from ally.container.ioc import injected
-from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
-    RequestContentHTTP
+from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP
 from ally.core.spec.codes import Code
 from ally.core.spec.server import IOutputStream
 from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
@@ -58,7 +57,7 @@ class RequestHandler:
             assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
 
             processing, report = assembly.create(ONLY_AVAILABLE, CREATE_REPORT, request=RequestHTTP,
-                                                 requestCnt=RequestContentHTTP, response=ResponseHTTP)
+                                                 response=ResponseHTTP)
 
             log.info('Assembly report for pattern \'%s\':\n%s', pattern, report)
             pathProcessing.append((re.compile(pattern), processing))
@@ -76,15 +75,12 @@ class RequestHandler:
                 if not uriRoot.endswith('/'): uriRoot += '/'
 
                 assert isinstance(processing, Processing), 'Invalid processing %s' % processing
-                req, reqCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
-                rsp = processing.contexts['response']()
-
+                req, rsp = processing.contexts['request'](), processing.contexts['response']()
                 chain = processing.newChain()
 
                 assert isinstance(chain, Chain), 'Invalid chain %s' % chain
                 assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
                 assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
-                assert isinstance(reqCnt, RequestContentHTTP), 'Invalid request content %s' % reqCnt
 
                 req.scheme, req.uriRoot, req.uri = 'http', uriRoot, path[match.end():]
                 break
@@ -93,7 +89,7 @@ class RequestHandler:
 
         req.method = self.methods.get(request.method, self.methodUnknown)
         req.headers = request.headers
-        reqCnt.source = request.rfile
+        req.source = request.rfile
 
         parameters = []
         for name, value in params.items():
@@ -101,7 +97,7 @@ class RequestHandler:
             else: parameters.append((name, value))
         req.parameters = parameters
 
-        chain.process(request=req, requestCnt=reqCnt, response=rsp)
+        chain.process(request=req, response=rsp)
 
         assert isinstance(rsp.code, Code), 'Invalid response code %s' % rsp.code
 

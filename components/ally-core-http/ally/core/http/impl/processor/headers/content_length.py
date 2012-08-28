@@ -19,24 +19,18 @@ from ally.design.processor import HandlerProcessorProceed
 
 # --------------------------------------------------------------------
 
-class Request(Context):
+class RequestDecode(Context):
     '''
     The request context.
     '''
     # ---------------------------------------------------------------- Required
     decoderHeader = requires(IDecoderHeader)
-
-class RequestContent(Context):
-    '''
-    The response content context.
-    '''
+    source = requires(IInputStream)
     # ---------------------------------------------------------------- Defined
     length = defines(int, doc='''
     @rtype: integer
     The content source length in bytes. 
     ''')
-    # ---------------------------------------------------------------- Required
-    source = requires(IInputStream)
 
 class ResponseDecode(Context):
     '''
@@ -62,28 +56,27 @@ class ContentLengthDecodeHandler(HandlerProcessorProceed):
         assert isinstance(self.nameContentLength, str), 'Invalid content length name %s' % self.nameContentLength
         super().__init__()
 
-    def process(self, request:Request, requestCnt:RequestContent, response:ResponseDecode, **keyargs):
+    def process(self, request:RequestDecode, response:ResponseDecode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Decodes the request content length also wraps the content source if is the case.
         '''
-        assert isinstance(request, Request), 'Invalid request %s' % request
-        assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
+        assert isinstance(request, RequestDecode), 'Invalid request %s' % request
         assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
         assert isinstance(request.decoderHeader, IDecoderHeader), \
         'Invalid header decoder %s' % request.decoderHeader
 
         value = request.decoderHeader.retrieve(self.nameContentLength)
         if value:
-            try: requestCnt.length = int(value)
+            try: request.length = int(value)
             except ValueError:
                 if ResponseDecode.code in response and not response.code.isSuccess: return
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameContentLength
                 response.errorMessage = 'Invalid value \'%s\' for header \'%s\''\
                 ', expected an integer value' % (value, self.nameContentLength)
                 return
-            else: requestCnt.source = StreamLengthLimited(requestCnt.source, requestCnt.length)
+            else: request.source = StreamLengthLimited(request.source, request.length)
 
 #TODO: maybe place this in an input content handler that uses length for handling the input.
 class StreamLengthLimited(IInputStream):

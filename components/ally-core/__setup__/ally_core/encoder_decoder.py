@@ -14,19 +14,11 @@ from ally.core.impl.processor.render.text import RenderTextHandler
 from ally.core.impl.processor.render.xml import RenderXMLHandler
 from ally.design.processor import Handler, Assembly
 from ally.core.impl.processor.render.json import RenderJSONHandler
+from ally.core.impl.processor.parser.xml import ParseXMLHandler
+from ally.core.impl.processor.parser.text import ParseTextHandler
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
-
-@ioc.config
-def content_types_xml() -> dict:
-    '''The XML content types'''
-    return {
-            'text/xml':None,
-            'text/plain':'text/xml',
-            'application/xml':None,
-            'xml':'text/xml'
-            }
 
 @ioc.config
 def content_types_json() -> dict:
@@ -36,6 +28,16 @@ def content_types_json() -> dict:
             'application/json':None,
             'json':'text/json',
             None:'text/json'
+            }
+
+@ioc.config
+def content_types_xml() -> dict:
+    '''The XML content types'''
+    return {
+            'text/xml':None,
+            'text/plain':'text/xml',
+            'application/xml':None,
+            'xml':'text/xml'
             }
 
 @ioc.config
@@ -51,55 +53,89 @@ def content_types_yaml() -> dict:
 # Create the renders
 
 @ioc.entity
-def renderAssembly() -> Assembly:
+def renderingAssembly() -> Assembly:
     '''
     The assembly containing the response renders.
     '''
     return Assembly()
 
-# JSON encode by using the text renderer.
-#@ioc.entity
-#def renderTextJSON():
-#    import json
-#    def renderJSON(obj, charSet, out): json.dump(obj, out)
-#    return renderJSON
-#
-#@ioc.entity
-#def renderJSON() -> Handler:
-#    b = RenderTextHandler(); yield b
-#    b.contentTypes = content_types_json()
-#    b.rendererTextObject = renderTextJSON()
-
 @ioc.entity
-def renderTextYAML():
-    import yaml
-    def renderYAML(obj, charSet, out): yaml.dump(obj, out, default_flow_style=False)
-    return renderYAML
-
-@ioc.entity
-def renderYAML() -> Handler:
-    b = RenderTextHandler(); yield b
-    b.contentTypes = content_types_yaml()
-    b.rendererTextObject = renderTextYAML()
+def parsingAssembly() -> Assembly:
+    '''
+    The assembly containing the request parsers.
+    '''
+    return Assembly()
 
 @ioc.entity
 def renderJSON() -> Handler:
     b = RenderJSONHandler(); yield b
     b.contentTypes = content_types_json()
 
+# JSON encode by using the text renderer.
+#@ioc.entity
+#def renderJSON() -> Handler:
+#    import json
+#    def rendererJSON(obj, charSet, out): json.dump(obj, out)
+#
+#    b = RenderTextHandler(); yield b
+#    b.contentTypes = content_types_json()
+#    b.rendererTextObject = rendererJSON
+
 @ioc.entity
 def renderXML() -> Handler:
     b = RenderXMLHandler(); yield b
     b.contentTypes = content_types_xml()
 
+@ioc.entity
+def renderYAML() -> Handler:
+    import yaml
+    def rendererYAML(obj, charSet, out): yaml.dump(obj, out, default_flow_style=False)
+
+    b = RenderTextHandler(); yield b
+    b.contentTypes = content_types_yaml()
+    b.rendererTextObject = rendererYAML
+
 # --------------------------------------------------------------------
-# Creating the decoding processors
+# Creating the parsers
+
+@ioc.entity
+def parseJSON() -> Handler:
+    import json
+    import codecs
+    def parserJSON(content, charSet): return json.load(codecs.getreader(charSet)(content))
+
+    b = ParseTextHandler(); yield b
+    b.contentTypes = set(content_types_json())
+    b.parser = parserJSON
+    b.parserName = 'json'
+
+@ioc.entity
+def parseXML() -> Handler:
+    b = ParseXMLHandler(); yield b
+    b.contentTypes = set(content_types_xml())
+
+@ioc.entity
+def parseYAML() -> Handler:
+    import yaml
+    import codecs
+    def parserYAML(content, charSet): return yaml.load(codecs.getreader(charSet)(content))
+
+    b = ParseTextHandler(); yield b
+    b.contentTypes = set(content_types_yaml())
+    b.parser = parserYAML
+    b.parserName = 'yaml'
 
 # --------------------------------------------------------------------
 
-@ioc.before(renderAssembly)
-def updateRenderAssembly():
-    renderAssembly().add(renderJSON())
-    renderAssembly().add(renderXML())
-    try: renderAssembly().add(renderYAML())
+@ioc.before(renderingAssembly)
+def updateRenderingAssembly():
+    renderingAssembly().add(renderJSON())
+    renderingAssembly().add(renderXML())
+    try: renderingAssembly().add(renderYAML())
     except ImportError: pass
+
+@ioc.before(parsingAssembly)
+def updateParsingAssembly():
+    parsingAssembly().add(parseJSON())
+    parsingAssembly().add(parseXML())
+    parsingAssembly().add(parseYAML())
