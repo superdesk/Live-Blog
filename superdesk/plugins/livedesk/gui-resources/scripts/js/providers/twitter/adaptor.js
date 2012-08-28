@@ -34,6 +34,7 @@ define('providers/twitter/adaptor', [
         {
             this.el.tmpl('livedesk>providers/twitter/post', this.data);
             this.el.addClass('with-avatar twitter clearfix');
+            $('.actions', this.el).removeClass('hide');
         }
     });
     
