@@ -8,25 +8,43 @@
     </head>
     <body>
         <div id="queryresult"></div>
-        <form id="criteriaform">
-            
-        </form>
+        <form id="criteriaform"></form>
         <script type="text/javascript">
             var params = new Array('criteriaform');
             querycriteria.init(params);
             
             $('#criteriaform').submit(function(){
-                var formdata = $(this).serialize();
-                console.log(formdata);
+                var formdata = ''
+                formdata = $('#criteriaform :input[value!=""]');
+                try
+                {    
+                    var sentdata = $(formdata).serialize();
+                }
+                catch(err)
+                {
+                    var sentdata = '';
+                }
+                
+               
+                
+                
                 $.ajax({
                     url: 'http://localhost:8080/resources/Superdesk/Archive/MetaInfo/Query/',
                     type : 'GET',
-                    data : formdata,
+                    data : sentdata,
                     dataType : 'xml',
                     success: function(data){
                         $('#queryresult').html(data);
+                    },
+                    error: function(data) {
+                        
                     }
+                }).done(function(data){
+                    $('#queryresult').html(data);
+                }).fail(function(data){
+                    $('#queryresult').html(data.statusText);
                 });
+                
                 return false;
             })
         </script>
