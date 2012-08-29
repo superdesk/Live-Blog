@@ -124,7 +124,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
                 if handler.processByInfo(metaDataMapped, contentPath, contentType): break
             else:
                 for handler in self.metaDataHandlers:    
-                    if handler.process(metaDataMapped): break
+                    if handler.process(metaDataMapped, contentPath): break
             
             self.session().merge(metaDataMapped)
             self.session().flush((metaDataMapped,))
