@@ -51,8 +51,8 @@ class ICDM(metaclass=abc.ABCMeta):
         @param path: string
                 The path of the content item. This is a unique
                      identifier of the item.
-        @param content: string
-                The string containing the content
+        @param content: input stream
+                The content as input stream
         '''
 
     @abc.abstractmethod

@@ -13,7 +13,6 @@ from ally.container.ioc import injected
 from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath, getZipFilePath, validateInZipPath
 from cdm.spec import ICDM, UnsupportedProtocol, PathNotFound
 from datetime import datetime
-from io import StringIO
 from os.path import isdir, isfile, join, dirname, normpath, relpath
 from shutil import copyfile, copyfileobj, move, rmtree
 from tempfile import TemporaryDirectory
@@ -162,20 +161,21 @@ class LocalFileSystemCDM(ICDM):
                 filePath = join(root, file)
                 self.publishFromFile(publishPath, filePath)
             assert log.debug('Success publishing directory %s to path %s', dirPath, path) or True
-
+            
     def publishContent(self, path, content):
         '''
         @see ICDM.publishContent
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
-        assert isinstance(content, str), 'Invalid content string %s' % content
+        #assert isinstance(content, ) or , 'Invalid binary content for path %s' % path
         path, dstFilePath = self._validatePath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
             os.makedirs(dstDir)
-        with open(dstFilePath, 'w') as dstFile:
-            copyfileobj(StringIO(content), dstFile)
-            assert log.debug('Success publishing content to path %s', path) or True
+        with open(dstFilePath, 'w+b') as dstFile:
+            copyfileobj(content, dstFile)
+            assert log.debug('Success publishing content to path %s', path) or True        
+            
 
     def republish(self, oldPath, newPath):
         '''
@@ -187,6 +187,9 @@ class LocalFileSystemCDM(ICDM):
         newPath, newFullPath = self._validatePath(newPath)
         if isdir(newFullPath) or isfile(newFullPath):
             raise ValueError('New path %s is already in use' % newPath)
+        dstDir = dirname(newFullPath)
+        if not isdir(dstDir):
+            os.makedirs(dstDir)      
         move(oldFullPath, newFullPath)
 
     def remove(self, path):
@@ -379,6 +382,9 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         assert isinstance(protocol, str), 'Invalid protocol %s' % protocol
         if protocol == 'http':
             return super().getURI(path)
+        elif protocol == 'file':
+            path, dstFilePath = self._validatePath(path)
+            return dstFilePath
         raise UnsupportedProtocol(protocol)
 
     def getTimestamp(self, path):
