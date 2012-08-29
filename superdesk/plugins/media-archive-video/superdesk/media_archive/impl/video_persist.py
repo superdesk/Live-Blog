@@ -61,6 +61,20 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return path;  
     
     # ----------------------------------------------------------------
+    def deploy(self):
+        '''
+           Deploy 
+        '''
+        self._thumbnailFormatGeneric = thumbnailFormatFor(self.session(), '%(size)s/video_generic.jpg')
+        referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormatGeneric.id)
+        videoPath = join(pythonPath(), 'resources', 'other.jpg')
+        if referenceLast is None or referenceLast < timestampURI(videoPath):
+            self.thumbnailManager.processThumbnail(self._thumbnailFormatGeneric.id, videoPath)
+            
+        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/%(id)d.jpg')  
+        self._metaTypeId = metaTypeFor(self.session(), self.videoType).Id  
+    
+    # ----------------------------------------------------------------
     def extractLength(self, line):
         #Duration: 00:00:30.06, start: 0.000000, bitrate: 585 kb/s
         property = line.partition(':')[2]
@@ -149,6 +163,8 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         thumbnailPath = contentPath + '.jpg'
         p = Popen(['avconv', '-i', contentPath, '-vframes', '1', '-an', '-ss', '2', thumbnailPath], stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         if p.wait() != 0: return False
+        
+        if not exists(thumbnailPath): return False
 
         
         videoDataEntry = VideoDataEntry()   
@@ -179,13 +195,11 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         fileName = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
         cdmPath = ''.join((self.videoType, '/', self.generateIdPath(metaDataMapped.Id), '/', fileName)) 
         
-        
         metaDataMapped.content = cdmPath                                     
         metaDataMapped.typeId = self._metaTypeId 
         metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id   
         metaDataMapped.IsAvailable = True     
         
-        assert exists(thumbnailPath)
         self.thumbnailManager.processThumbnail(self._thumbnailFormat.id, thumbnailPath, metaDataMapped)       
         remove(thumbnailPath)  
                  
@@ -197,18 +211,4 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             handle(e, VideoDataEntry)  
         
         return True
-    
-    # ----------------------------------------------------------------
-    def deploy(self):
-        '''
-           Deploy 
-        '''
-        self._thumbnailFormatGeneric = thumbnailFormatFor(self.session(), '%(size)s/video_generic.jpg')
-        referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormatGeneric.id)
-        videoPath = join(pythonPath(), 'resources', 'other.jpg')
-        if referenceLast is None or referenceLast < timestampURI(videoPath):
-            self.thumbnailManager.processThumbnail(self._thumbnailFormatGeneric.id, videoPath)
-            
-        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/%(id)d.jpg')  
-        self._metaTypeId = metaTypeFor(self.session(), self.videoType).Id  
         
