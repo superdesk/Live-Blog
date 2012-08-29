@@ -51,12 +51,24 @@ class ICDM(metaclass=abc.ABCMeta):
         @param path: string
                 The path of the content item. This is a unique
                      identifier of the item.
-        @param content: string
-                The string containing the content
+        @param content: input stream
+                The content as input stream
         '''
 
     @abc.abstractmethod
-    def removePath(self, path):
+    def republish(self, oldPath, newPath):
+        '''
+        Re-publish an existing path under a new path.
+
+        @param oldPath: string
+                The path of the existing item. This is a unique
+                     identifier of the item.
+        @param newPath: string
+                The new path under which the item will be published.
+        '''
+
+    @abc.abstractmethod
+    def remove(self, path):
         '''
         Remove the given path from the repository.
 

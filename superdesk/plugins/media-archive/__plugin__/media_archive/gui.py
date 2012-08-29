@@ -1,10 +1,12 @@
 '''
-Created on Mar 23, 2012
+Created on Aug 23, 2012
 
-@package ally core request
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
-@author: Mihai Balaceanu
+@package: superdesk media archive
+@copyright: 2012 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
+@author: Ioan v. Pocol
+
+Publish the GUI resources.
 '''
 
 from ally.container import ioc
