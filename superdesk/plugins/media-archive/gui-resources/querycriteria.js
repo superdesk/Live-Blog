@@ -13,7 +13,7 @@ var querycriteria = {
     },
     
     returnInputs : function(){
-        this.formContent += '<br /><input type="submit" value="submit" /> <input type="reset" value="reset" />';
+        this.formContent += '<br /><input type="submit" value="submit" name="submit" /> <input type="reset" value="reset" name="reset"/>';
         $('#'+this.container).append(this.formContent);
     },
     
