@@ -18,12 +18,14 @@ function(providers,str, $, Gizmo)
             var self = this;
             $(self.el).on('click', '.btn.publish', function()
             {
-                self.data.Content = $('.google-full-content .result-text', self.el).html();
+                //self.data.Content = $('.google-full-content .result-text', self.el).html();
                 self.data.Meta.annotation = [$('.google-full-content .annotation:eq(0)', self.el).html(), 
                     $('.google-full-content .annotation:eq(1)', self.el).html()];
                 self.data.Meta = JSON.stringify(self.data.Meta);
-                self.parent.insert(self.data);
-                $('.actions', self.el).remove();
+                
+                self.parent.insert(self.data, self);
+                
+                $('.actions', self.el).addClass('hide');
             });
             $(self.el).on('click', '.btn.cancel', function()
             {

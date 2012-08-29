@@ -17,11 +17,11 @@ define('providers/twitter/adaptor', [
             var self = this;
             $(self.el).on('click', '.btn.publish', function()
             {
-                self.data.Content = $('.twitter-full-content .result-text', self.el).html();
+                //self.data.Content = $('.twitter-full-content .result-text', self.el).html();
                 self.data.Meta.annotation = [$('.twitter-full-content .annotation:eq(0)', self.el).html(), 
                     $('.twitter-full-content .annotation:eq(1)', self.el).html()];
                 self.data.Meta = JSON.stringify(self.data.Meta);
-                self.parent.insert(self.data);
+                self.parent.insert(self.data, self);
                 $('.actions', self.el).remove();
             });
             $(self.el).on('click', '.btn.cancel', function()
