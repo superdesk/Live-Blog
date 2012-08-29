@@ -56,7 +56,19 @@ class ICDM(metaclass=abc.ABCMeta):
         '''
 
     @abc.abstractmethod
-    def removePath(self, path):
+    def republish(self, oldPath, newPath):
+        '''
+        Re-publish an existing path under a new path.
+
+        @param oldPath: string
+                The path of the existing item. This is a unique
+                     identifier of the item.
+        @param newPath: string
+                The new path under which the item will be published.
+        '''
+
+    @abc.abstractmethod
+    def remove(self, path):
         '''
         Remove the given path from the repository.
 
