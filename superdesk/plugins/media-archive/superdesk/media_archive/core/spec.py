@@ -55,18 +55,37 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
         '''
         Deploy the handler, at this moment the handler should create the required meta types and thumbnail specifications.
         '''
-
+        
+        
     @abc.abstractclassmethod
-    def process(self, metaDataId, contentPath):
+    def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
         Processes the meta data persistence and type association. The meta data will already be in the database this method
-        has to update and associate the meta data in respect with the handler. The method will take no action if the content is
-        not relevant for the handler.
+        has to update and associate the meta data in respect with the handler. By using the contentType and file extension
+        info, the plugin will decide if process or not the request. The method will take no action if fails to process the 
+        content (content has wrong format, or wrong declared format).
 
-        @param metaDataId: int
-            The id of meta data for the current uploaded content.
-        @param contentPath: string
-            The location on local file system where the content can be found.
+        @param metaDataMapped: MetaDataMapped
+            The meta data mapped for the current uploaded content.
+        @contentPath: string
+            The path were the media file is stored
+        @param contentType: string
+            The content type of uploaded file.
+        @return: boolean
+            True if the content has been processed, False otherwise.
+        '''    
+
+    @abc.abstractclassmethod
+    def process(self, metaDataMapped, contentPath):
+        '''
+        Processes the meta data persistence and type association. The meta data will already be in the database this method
+        has to update and associate the meta data and meta info in respect with the handler. The method will take no action if fails to process the 
+        content (content has wrong format)
+
+        @param metaDataMapped: MetaDataMapped
+            The meta data mapped for the current uploaded content.
+        @contentPath: string
+            The path were the media file is stored    
         @return: boolean
             True if the content has been processed, False otherwise.
         '''
