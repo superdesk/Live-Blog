@@ -50,11 +50,17 @@ class ExtendPathCDM(ICDM):
         '''
         self.wrapped.publishContent(self.format % path, content)
 
-    def removePath(self, path):
+    def republish(self, oldPath, newPath):
         '''
-        @see: ICDM.removePath
+         @see: ICDM.republish
+        '''    
+        self.wrapped.republish(self.format % oldPath, self.format % newPath)
+
+    def remove(self, path):
         '''
-        self.wrapped.removePath(self.format % path)
+        @see: ICDM.remove
+        '''
+        self.wrapped.remove(self.format % path)
 
     def getSupportedProtocols(self):
         '''
