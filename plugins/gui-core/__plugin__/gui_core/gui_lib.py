@@ -61,7 +61,7 @@ def updateStartup():
         try: fileList.append(openURI(getGuiPath(js_core_libs_format() % x)))
         except: pass
 
-    try: cdmGUI().removePath(bootPath + js_bootstrap_file())
+    try: cdmGUI().remove(bootPath + js_bootstrap_file())
     except: pass
     cdmGUI().publishFromFile(bootPath + js_bootstrap_file(), BytesIO(b'\n'.join([fi.read() for fi in fileList])))
 
