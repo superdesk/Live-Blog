@@ -54,6 +54,20 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         self._metaTypeId = None
 
     # ----------------------------------------------------------------
+    def deploy(self):
+        '''
+           Deploy 
+        '''
+        self._thumbnailFormatGeneric = thumbnailFormatFor(self.session(), '%(size)s/image_generic.jpg')
+        referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormatGeneric.id)
+        imagePath = join(pythonPath(), 'resources', 'other.jpg')
+        if referenceLast is None or referenceLast < timestampURI(imagePath):
+            self.thumbnailManager.processThumbnail(self._thumbnailFormatGeneric.id, imagePath)
+            
+        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/%(id)d.jpg')  
+        self._metaTypeId = metaTypeFor(self.session(), self.imageType).Id      
+
+    # ----------------------------------------------------------------
     def extractNumber(self, line):
         for s in line.split(): 
             if s.isdigit():
@@ -136,17 +150,4 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         
         return True
     
-    # ----------------------------------------------------------------
-    def deploy(self):
-        '''
-           Deploy 
-        '''
-        self._thumbnailFormatGeneric = thumbnailFormatFor(self.session(), '%(size)s/image_generic.jpg')
-        referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormatGeneric.id)
-        imagePath = join(pythonPath(), 'resources', 'other.jpg')
-        if referenceLast is None or referenceLast < timestampURI(imagePath):
-            self.thumbnailManager.processThumbnail(self._thumbnailFormatGeneric.id, imagePath)
-            
-        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/%(id)d.jpg')  
-        self._metaTypeId = metaTypeFor(self.session(), self.imageType).Id  
         
