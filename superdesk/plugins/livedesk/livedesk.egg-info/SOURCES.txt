@@ -9,6 +9,7 @@ __plugin__/livedesk/temp_populate.py
 gui-resources/__init__.py
 gui-resources/scripts/__init__.py
 gui-resources/scripts/js/__init__.py
+gui-resources/scripts/js/models/__init__.py
 gui-resources/scripts/js/providers/__init__.py
 gui-resources/scripts/js/providers/ads/__init__.py
 gui-resources/scripts/js/providers/colabs/__init__.py
