@@ -21,7 +21,7 @@ function(providers, Gizmo, $)
     /*!
      * TODO ADD DESCRIPTION!
      */
-	function isOnly(data,key) 
+	function isOnly(data, key) 
 	{
 		var count = 0;
 		for(i in data) {
@@ -108,7 +108,7 @@ function(providers, Gizmo, $)
 		}),
 		
 		/*!
-		 * 
+		 * TODO description
 		 */
 		AutoCollection = Gizmo.Collection.extend
 		({
@@ -166,6 +166,7 @@ function(providers, Gizmo, $)
 		({
 			href: new Gizmo.Url('/Post/Published')
 		}),
+		
 		/*!
 		 * used for each item of the timeline
 		 */
@@ -185,6 +186,7 @@ function(providers, Gizmo, $)
 				self.el.data('view', self);
 				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
+				
 				this.model.off('delete read set update')
 				    .on('delete', this.remove, this)
 					.on('read', function()
@@ -213,6 +215,17 @@ function(providers, Gizmo, $)
 					})
 					.on('update', function(evt, data)
 					{
+					    /*!
+                         * conditionally handing over save functionallity to provider if
+                         * model has source name in providers 
+                         */
+                        var src = this.get("Author").Source.Name;
+                        if( providers[src] && providers[src].timeline )
+                        {
+                            self.edit = providers[src].timeline.edit;
+                            self.save = providers[src].timeline.save;
+                        };
+                        
 						/*!
 						 * If the updater on the model is the current view don't update the view;
 						 */
@@ -228,6 +241,7 @@ function(providers, Gizmo, $)
 							self.rerender();
 						}
 						//; self.model.xfilter(xfilter).sync();
+						
 					})
 					.xfilter(self.xfilter).sync();
 			},
@@ -328,8 +342,7 @@ function(providers, Gizmo, $)
 					
 				});
 				
-				console.log(this.el.siblings().removeClass('first').eq('0').nextUntil('[data-post-type=wrapup]').andSelf());
-				this.el.siblings().removeClass('first').eq('0').nextUntil('[data-post-type=wrapup]').andSelf().addClass('first');
+				//this.el.siblings().removeClass('first').eq('0').nextUntil('[data-post-type=wrapup]').andSelf().addClass('first');
 				
 				return this;
 			},
@@ -414,10 +427,11 @@ function(providers, Gizmo, $)
 			render: function()
 			{
 				var self = this;
-				$.tmpl('livedesk>timeline-container', {}, function(e, o){
+				$.tmpl('livedesk>timeline-container', {}, function(e, o)
+				{
 					$(self.el).html(o)
-							  .find('ul.post-list')
-								.sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
+					    .find('ul.post-list')
+					    .sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
 					self.addAll(self.collection.getList());
 				});
 			},
@@ -425,19 +439,28 @@ function(providers, Gizmo, $)
 			/*!
 			 * insert new post
 			 */
-			insert: function(data)
+			insert: function(data, view)
 			{
-			    var post = Gizmo.Auth(new this.collection.model(data));
-			    this.collection.insert(post);
+			    var self = this,
+			        post = Gizmo.Auth(new this.collection.model(data)),
+			        syncAction = this.collection.insert(post);
+			    
+			    view && syncAction.done(function()
+			    { 
+			        var newView = new PostView({model: post, _parent: self});
+			        newView.el.insertAfter(view.el);
+			        view.el.remove();
+			    });
 			},
 			
 			publish: function(post)
 			{
 				if(post instanceof this.collection.model) 
 					post.publishSync();
-				else {
+				else 
+				{
 					var model = new this.collection.model({ Id: data});
-					this.collection.insert({})
+					this.collection.insert({});
 					model.publish();
 				}
 			}
@@ -463,12 +486,6 @@ function(providers, Gizmo, $)
 				    { 
 				        self.render.call(self);
 				    });
-				
-				//this.model
-				//.off('destroy read')
-				//.on('read', function(){
-				//	self.render();
-				//}).xfilter('Creator.Name,Creator.Id').sync();
 			},
 			/*!
 			 * TODO description
