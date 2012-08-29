@@ -48,10 +48,10 @@ class QueryCriteriaService(IQueryCriteriaService):
         queryCriterias = list()
         
         for key, criteria in self.queryIndexer.infoCriterias.items():
-            queryCriterias.append(QueryCriteria('qi.' + key, criteria.__name__, key))#self._translate(key, locales)))
+            queryCriterias.append(QueryCriteria(key, criteria.__name__, key))#self._translate(key, locales)))
         
         for key, criteria in self.queryIndexer.dataCriterias.items():
-            queryCriterias.append(QueryCriteria('qd.' + key, criteria.__name__, key))#self._translate(key, locales)))
+            queryCriterias.append(QueryCriteria(key, criteria.__name__, key))#self._translate(key, locales)))
         
         if q:
             queryCriterias = processQuery(queryCriterias, q, QueryCriteria)
