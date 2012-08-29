@@ -122,7 +122,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         fileName = self.format_file_name % {'id': metaDataId, 'file': metaDataMapped.Name}
         path = join(path, fileName)
         
-        metaDataMapped.content = path                                      
+        metaDataMapped.Content = path                                      
         metaDataMapped.typeId = self._metaTypeId 
         metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id   
         metaDataMapped.IsAvailable = True     
@@ -177,9 +177,7 @@ from superdesk.media_archive.core.impl.meta_service_base import thumbnailFormatF
 from superdesk.media_archive.core.spec import IMetaDataHandler
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
-from genericpath import isdir
-from os.path import join, exists
-from os import makedirs, access, W_OK
+from os.path import join
 import subprocess
 
 # --------------------------------------------------------------------
@@ -191,10 +189,10 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     Provides the service that handles the image persistence @see: IImagePersistanceService.
     '''
 
-    base_dir_path = join('workspace', 'media_archive', 'content'); wire.config('base_dir_path', doc='''
-    The base path used as starting path to store images''')
     format_file_name = '%(id)s.%(file)s'; wire.config('format_file_name', doc='''
     The format for the images file names in the media archive''')
+    image_supported_files = 'gif, png, bmp, jpg';wire.config('image_supported_files', doc='''
+    The image formats supported by media archive image plugin''')
 
     imageType = 'image'
     # The type for the meta type image
@@ -203,16 +201,10 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     # Provides the thumbnail referencer
 
     def __init__(self):
-        assert isinstance(self.base_dir_path, str), 'Invalid base directory for images %s' % self.base_dir_path
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
         assert isinstance(self.imageType, str), 'Invalid meta type for image %s' % self.imageType
         
         SessionSupport.__init__(self)
-
-        if not exists(self.base_dir_path): makedirs(self.base_dir_path)
-        if not isdir(self.base_dir_path) or not access(self.base_dir_path, W_OK):
-            raise IOError('Unable to access the repository directory %s' % self.base_dir_path)
-
         self._metaTypeId = None
 
     # ----------------------------------------------------------------
@@ -235,27 +227,36 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
       
     # ----------------------------------------------------------------
     def generateIdPath (self, id):
-        path = join("{0:03d}".format(id // 1000000000), "{0:03d}".format((id // 1000000) % 1000), "{0:03d}".format((id // 1000) % 1000)) 
+        path = "{0:03d}".format((id // 1000) % 1000)
         
         return path;  
      
     # ----------------------------------------------------------------
-    def process(self, metaDataId, contentPath):
+    def processByInfo(self, metaDataMapped, contentPath, contentType): 
+        if contentType != None and contentType.find(self.imageType) != -1:
+            return self.process(metaDataMapped, contentPath)
+        
+        extension = metaDataMapped.Name.rpartition('.')[2]
+        if self.image_supported_files.find(extension) != -1:
+            return self.process(metaDataMapped, contentPath)
+        
+        return False 
+     
+    # ----------------------------------------------------------------
+    def process(self, metaDataMapped, contentPath):
         '''
         @see: IMetaDataHandler.process
         '''
         
-        metaDataMapped = self.session().query(MetaDataMapped).filter(MetaDataMapped.Id == metaDataId).one()
-        if metaDataMapped.Type.find(self.imageType) == -1:
-            return False
+        assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
         
         jarPath = join('tools', 'media-archive-image', 'metadata_extractor.jar');
         p = subprocess.Popen(['java', '-jar', jarPath, contentPath], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        assert p.wait() == 0
+        if p.wait() != 0: return False
         
         imageDataEntry = ImageDataEntry()   
-        imageDataEntry.Id = metaDataId    
-        while 1:
+        imageDataEntry.Id = metaDataMapped.Id    
+        while True:
             line = p.stdout.readline()
             if not line: break   
             line = str(line, "utf-8")
@@ -271,19 +272,18 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
             elif line.find('] Model -') != -1:
                 imageDataEntry.CameraModel = self.extractString(line)        
                     
-        path = join(self.base_dir_path, self.imageType, self.generateIdPath(metaDataId))        
-        fileName = self.format_file_name % {'id': metaDataId, 'file': metaDataMapped.Name}
-        path = join(path, fileName)
+               
+        fileName = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
+        cdmPath = ''.join((self.imageType, '/', self.generateIdPath(metaDataMapped.Id), '/', fileName)) 
         
-        metaDataMapped.Content = path                                      
+        metaDataMapped.content = cdmPath                                      
         metaDataMapped.typeId = self._metaTypeId 
         metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id   
         metaDataMapped.IsAvailable = True     
         
         self.thumbnailManager.processThumbnail(self._thumbnailFormat.id, contentPath, metaDataMapped)         
                  
-        try:            
-            self.session().add(imageDataEntry)
+        try: self.session().add(imageDataEntry)
         except SQLAlchemyError as e:
             metaDataMapped.IsAvailable = False 
             handle(e, ImageDataEntry)  
@@ -304,4 +304,4 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/%(id)d.jpg')  
         self._metaTypeId = metaTypeFor(self.session(), self.imageType).Id  
         
->>>>>>> NR-243 : Media Archive - query functionality
+>>>>>>> NR-240 : Media Archive - Video plugin

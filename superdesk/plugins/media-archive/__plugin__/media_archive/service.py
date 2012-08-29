@@ -9,7 +9,6 @@ Created on Apr 25, 2012
 Contains the services setups for media archive superdesk.
 '''
 
-from ..cdm.local_cdm import contentDeliveryManager
 from ..superdesk import service
 from ..superdesk.db_superdesk import bindSuperdeskSession, createTables
 from ally.container import ioc, support
@@ -28,6 +27,9 @@ from superdesk.media_archive.core.impl.query_service_creator import createServic
 from ..plugin.registry import registerService
 from superdesk.media_archive.impl.query_criteria import QueryCriteriaService
 from superdesk.media_archive.api.query_criteria import IQueryCriteriaService
+from cdm.impl.local_filesystem import LocalFileSystemCDM, IDelivery,\
+    HTTPDelivery
+from __plugin__.cdm.local_cdm import server_uri, repository_path
 
 # --------------------------------------------------------------------
 
@@ -57,13 +59,24 @@ def thumbnail_sizes():
 # --------------------------------------------------------------------
 
 @ioc.entity
+def delivery() -> IDelivery:
+    d = HTTPDelivery()
+    d.serverURI = server_uri()
+    d.repositoryPath = repository_path()
+    return d
+
+@ioc.entity
+def contentDeliveryManager() -> ICDM:
+    cdm = LocalFileSystemCDM();
+    cdm.delivery = delivery()
+    return cdm
+
+@ioc.entity
 def cdmArchive() -> ICDM:
     '''
     The content delivery manager (CDM) for the media archive.
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'media_archive/%s')
-
-# --------------------------------------------------------------------
 
 @ioc.entity
 def cdmThumbnail() -> ICDM:
