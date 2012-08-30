@@ -27,14 +27,19 @@ class Response(Context):
     '''
     The response context.
     '''
-    # ---------------------------------------------------------------- Required
-    type = requires(str)
-    charSet = requires(str)
     # ---------------------------------------------------------------- Defined
     renderFactory = defines(Callable, doc='''
     @rtype: callable(IOutputStream) -> IRender
     The renderer factory to be used for the response.
     ''')
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    type = requires(str)
+    charSet = requires(str)
 
 # --------------------------------------------------------------------
 
@@ -52,7 +57,7 @@ class RenderBaseHandler(HandlerProcessor):
         assert isinstance(self.contentTypes, dict), 'Invalid content types %s' % self.contentTypes
         super().__init__()
 
-    def process(self, chain, response:Response, **keyargs):
+    def process(self, chain, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
         @see: HandlerProcessor.process
         
@@ -60,17 +65,18 @@ class RenderBaseHandler(HandlerProcessor):
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         # Check if the response is for this encoder
-        if response.type not in self.contentTypes:
-            assert log.debug('The content type \'%s\' is not for this %s encoder', response.type, self) or True
+        if responseCnt.type not in self.contentTypes:
+            assert log.debug('The content type \'%s\' is not for this %s encoder', responseCnt.type, self) or True
         else:
-            contentType = self.contentTypes[response.type]
+            contentType = self.contentTypes[responseCnt.type]
             if contentType:
-                assert log.debug('Normalized content type \'%s\' to \'%s\'', response.type, contentType) or True
-                response.type = contentType
+                assert log.debug('Normalized content type \'%s\' to \'%s\'', responseCnt.type, contentType) or True
+                responseCnt.type = contentType
 
-            response.renderFactory = partial(self.renderFactory, response)
+            response.renderFactory = partial(self.renderFactory, responseCnt.charSet)
             return # We need to stop the chain if we have been able to provide the encoding
 
         chain.proceed()
@@ -78,12 +84,12 @@ class RenderBaseHandler(HandlerProcessor):
     # ----------------------------------------------------------------
 
     @abc.abstractclassmethod
-    def renderFactory(self, response, output):
+    def renderFactory(self, charSet, output):
         '''
         Factory method used for creating a renderer.
         
-        @param response: Response
-            The response to process the renderer.
+        @param charSet: string
+            The character set to be used by the created factory.
         @param output: IOutputStream
             The output stream to be used by the renderer.
         @return: IRender

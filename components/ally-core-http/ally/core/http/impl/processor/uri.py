@@ -69,10 +69,6 @@ class Response(Context):
     @rtype: string
     A small text message for the code, usually placed in the response.
     ''')
-    type = defines(str, doc='''
-    @rtype: string
-    The response content type.
-    ''')
     converterId = defines(Converter, doc='''
     @rtype: Converter
     The converter to use for model id's.
@@ -80,6 +76,16 @@ class Response(Context):
     encoderPath = defines(IEncoderPath, doc='''
     @rtype: IEncoderPath
     The path encoder used for encoding paths that will be rendered in the response.
+    ''')
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    type = defines(str, doc='''
+    @rtype: string
+    The response content type.
     ''')
 
 # --------------------------------------------------------------------
@@ -105,7 +111,7 @@ class URIHandler(HandlerProcessorProceed):
         assert isinstance(self.headerHost, str), 'Invalid string %s' % self.headerHost
         super().__init__()
 
-    def process(self, request:Request, response:Response, **keyargs):
+    def process(self, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
@@ -113,6 +119,7 @@ class URIHandler(HandlerProcessorProceed):
         '''
         assert isinstance(request, Request), 'Invalid required request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         assert isinstance(request.uri, str), 'Invalid request URI %s' % request.uri
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
 
@@ -143,7 +150,7 @@ class URIHandler(HandlerProcessorProceed):
         response.code = RESOURCE_FOUND
         response.encoderPath = self.createEncoderPath(request, extension)
         response.converterId = self.converterPath
-        if extension: response.type = extension
+        if extension: responseCnt.type = extension
 
     # ----------------------------------------------------------------
 

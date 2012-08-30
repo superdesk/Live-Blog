@@ -24,19 +24,30 @@ class Request(Context):
     The request context.
     '''
     # ---------------------------------------------------------------- Required
+    decoder = requires(Callable)
+
+class RequestContent(Context):
+    '''
+    The request content context.
+    '''
+    # ---------------------------------------------------------------- Required
     type = requires(str)
     charSet = requires(str)
-    decoder = requires(Callable)
 
 class Response(Context):
     '''
     The response context.
     '''
-    # ---------------------------------------------------------------- Required
-    type = requires(str)
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
+
+class ResponseContent(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Required
+    type = requires(str)
 
 # --------------------------------------------------------------------
 
@@ -52,17 +63,18 @@ class ParsingHandler(Handler):
     parsingAssembly = Assembly
     # The parsers processors, if a processor is successful in the parsing process it has to stop the chain execution.
 
-    def __init__(self):
+    def __init__(self, request=Request, requestCnt=RequestContent, response=Response, responseCnt=ResponseContent):
         assert isinstance(self.parsingAssembly, Assembly), 'Invalid parsers assembly %s' % self.parsingAssembly
         assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
 
-        parsingProcessing = self.parsingAssembly.create(NO_VALIDATION, request=Request, response=Response)
+        parsingProcessing = self.parsingAssembly.create(NO_VALIDATION, request=request, requestCnt=requestCnt,
+                                                        response=response, responseCnt=responseCnt)
         assert isinstance(parsingProcessing, Processing), 'Invalid processing %s' % parsingProcessing
         super().__init__(Function(parsingProcessing.contexts, self.process))
 
         self.parsingProcessing = parsingProcessing
 
-    def process(self, chain, request, response, **keyargs):
+    def process(self, chain, request, requestCnt, response, **keyargs):
         '''
         Parse the request content.
         '''
@@ -75,19 +87,36 @@ class ParsingHandler(Handler):
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
         if Request.decoder not in request: return # Skip if there is no decoder.
 
+        if self.processParsing(request=request, response=response, **keyargs):
+            # We process the chain without the request content anymore
+            chain.process(request=request, response=response, **keyargs)
+
+    def processParsing(self, request, requestCnt, response, responseCnt, **keyargs):
+        '''
+        Process the parsing for the provided contexts.
+        
+        @return: boolean
+            True if the parsing has been successfully done on the request content.
+        '''
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
+
         # Resolving the character set
-        if Request.charSet in request:
-            try: codecs.lookup(request.charSet)
-            except LookupError: request.charSet = self.charSetDefault
-        else: request.charSet = self.charSetDefault
+        if RequestContent.charSet in requestCnt:
+            try: codecs.lookup(requestCnt.charSet)
+            except LookupError: requestCnt.charSet = self.charSetDefault
+        else: requestCnt.charSet = self.charSetDefault
 
         parsingChain = self.parsingProcessing.newChain()
         assert isinstance(parsingChain, Chain), 'Invalid chain %s' % parsingChain
 
-        if Request.type not in request: request.type = response.type
+        if RequestContent.type not in requestCnt: requestCnt.type = responseCnt.type
 
-        parsingChain.process(request=request, response=response, **keyargs)
-        if parsingChain.isConsumed():
-            if Response.code not in response or response.code.isSuccess:
-                response.code = UNKNOWN_ENCODING
-                response.text = 'Content type \'%s\' not supported for parsing' % request.type
+        parsingChain.process(request=request, requestCnt=requestCnt,
+                             response=response, responseCnt=responseCnt, **keyargs)
+        if not parsingChain.isConsumed(): return True
+        if Response.code not in response or response.code.isSuccess:
+            response.code = UNKNOWN_ENCODING
+            response.text = 'Content type \'%s\' not supported for parsing' % requestCnt.type

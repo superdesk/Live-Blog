@@ -11,14 +11,13 @@ Provide the internal error representation. This is usually when the server fails
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import Code, INTERNAL_ERROR
-from ally.core.spec.server import IOutputStream
 from ally.design.context import defines, Context
 from ally.design.processor import HandlerProcessor, Chain
-from io import BytesIO, StringIO
+from ally.support.util_io import IOutputStream, readGenerator, convertToBytes
 from collections import Iterable
-import traceback
-from ally.support.util_io import readGenerator, convertToBytes
+from io import BytesIO, StringIO
 import logging
+import traceback
 
 # --------------------------------------------------------------------
 
@@ -34,6 +33,11 @@ class Response(Context):
     code = defines(Code)
     text = defines(str)
     headers = defines(dict)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
     # ---------------------------------------------------------------- Optional
     source = defines(IOutputStream, Iterable)
 
@@ -55,7 +59,7 @@ class InternalErrorHandler(HandlerProcessor):
         assert isinstance(self.errorHeaders, dict), 'Invalid error headers %s' % self.errorHeaders
         super().__init__()
 
-    def process(self, chain, response:Response, **keyargs):
+    def process(self, chain, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
         @see: HandlerProcessor.process
         
@@ -63,35 +67,36 @@ class InternalErrorHandler(HandlerProcessor):
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         error = None
         try:
-            chain.process(response=response, **keyargs)
+            chain.process(response=response, responseCnt=responseCnt, **keyargs)
             # We process the chain internally so we might cache any exception.
         except:
             log.exception('Exception occurred while processing the chain')
             error = StringIO()
             traceback.print_exc(file=error)
         else:
-            if __debug__ and isinstance(response.source, Iterable):
+            if __debug__ and isinstance(responseCnt.source, Iterable):
                 # If in debug mode and the response content has a source generator then we will try to read that
                 # in order to catch any exception before the actual streaming.
                 content = BytesIO()
                 try:
-                    for bytes in response.source: content.write(bytes)
+                    for bytes in responseCnt.source: content.write(bytes)
                 except:
                     log.exception('Exception occurred while processing the chain')
                     error = StringIO()
                     traceback.print_exc(file=error)
                 else:
                     content.seek(0)
-                    response.source = readGenerator(content)
+                    responseCnt.source = readGenerator(content)
         if error is not None:
 
             response.code = INTERNAL_ERROR
             response.text = 'Upps, please consult the server logs'
             response.headers = self.errorHeaders
-            response.source = convertToBytes(self.errorResponse(error), 'utf8', 'backslashreplace')
+            responseCnt.source = convertToBytes(self.errorResponse(error), 'utf8', 'backslashreplace')
 
     def errorResponse(self, error):
         '''

@@ -13,9 +13,9 @@ from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.server import IEncoderHeader, IDecoderHeader
 from ally.core.spec.codes import Code
-from ally.core.spec.server import IInputStream
 from ally.design.context import Context, requires, defines
 from ally.design.processor import HandlerProcessorProceed
+from ally.support.util_io import IInputStream, IClosable
 
 # --------------------------------------------------------------------
 
@@ -25,6 +25,12 @@ class RequestDecode(Context):
     '''
     # ---------------------------------------------------------------- Required
     decoderHeader = requires(IDecoderHeader)
+
+class RequestContentDecode(Context):
+    '''
+    The request content context.
+    '''
+    # ---------------------------------------------------------------- Required
     source = requires(IInputStream)
     # ---------------------------------------------------------------- Defined
     length = defines(int, doc='''
@@ -56,34 +62,35 @@ class ContentLengthDecodeHandler(HandlerProcessorProceed):
         assert isinstance(self.nameContentLength, str), 'Invalid content length name %s' % self.nameContentLength
         super().__init__()
 
-    def process(self, request:RequestDecode, response:ResponseDecode, **keyargs):
+    def process(self, request:RequestDecode, requestCnt:RequestContentDecode, response:ResponseDecode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Decodes the request content length also wraps the content source if is the case.
         '''
         assert isinstance(request, RequestDecode), 'Invalid request %s' % request
+        assert isinstance(requestCnt, RequestContentDecode), 'Invalid request content %s' % requestCnt
         assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
         assert isinstance(request.decoderHeader, IDecoderHeader), \
         'Invalid header decoder %s' % request.decoderHeader
 
         value = request.decoderHeader.retrieve(self.nameContentLength)
         if value:
-            try: request.length = int(value)
+            try: requestCnt.length = int(value)
             except ValueError:
                 if ResponseDecode.code in response and not response.code.isSuccess: return
                 response.code, response.text = INVALID_HEADER_VALUE, 'Invalid %s' % self.nameContentLength
                 response.errorMessage = 'Invalid value \'%s\' for header \'%s\''\
                 ', expected an integer value' % (value, self.nameContentLength)
                 return
-            else: request.source = StreamLengthLimited(request.source, request.length)
+            else: requestCnt.source = StreamLimitedLength(requestCnt.source, requestCnt.length)
 
-#TODO: maybe place this in an input content handler that uses length for handling the input.
-class StreamLengthLimited(IInputStream):
+class StreamLimitedLength(IInputStream, IClosable):
     '''
     Provides a class that implements the @see: IInputStream that limits the reading from another stream based on the
     provided length.
     '''
+    __slots__ = ('_stream', '_length', '_closed', '_offset')
 
     def __init__(self, stream, length):
         '''
@@ -122,7 +129,7 @@ class StreamLengthLimited(IInputStream):
 
     def close(self):
         '''
-        @see: IInputStream.close
+        @see: IClosable.close
         '''
         self._closed = True
 
@@ -134,6 +141,12 @@ class ResponseEncode(Context):
     '''
     # ---------------------------------------------------------------- Required
     encoderHeader = requires(IEncoderHeader)
+
+class ResponseContentEncode(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Required
     length = requires(int)
 
 # --------------------------------------------------------------------
@@ -151,15 +164,17 @@ class ContentLengthEncodeHandler(HandlerProcessorProceed):
         assert isinstance(self.nameContentLength, str), 'Invalid content length name %s' % self.nameContentLength
         super().__init__()
 
-    def process(self, response:ResponseEncode, **keyargs):
+    def process(self, response:ResponseEncode, responseCnt:ResponseContentEncode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Encodes the content length.
         '''
         assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
+        assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContentEncode), 'Invalid response content %s' % responseCnt
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid response header encoder %s' % response.encoderHeader
 
-        if ResponseEncode.length in response:
-            response.encoderHeader.encode(self.nameContentLength, str(response.length))
+        if ResponseContentEncode.length in responseCnt:
+            response.encoderHeader.encode(self.nameContentLength, str(responseCnt.length))

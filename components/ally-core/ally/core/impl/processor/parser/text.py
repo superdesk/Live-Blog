@@ -9,9 +9,9 @@ Created on Aug 28, 2012
 Provides the text parser processor handler.
 '''
 
+from .base import ParseBaseHandler
 from ally.container.ioc import injected
-from ally.core.impl.processor.parser.base import ParseBaseHandler
-from ally.core.spec.server import IInputStream
+from ally.support.util_io import IInputStream
 from collections import Callable, deque
 import logging
 
