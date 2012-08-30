@@ -1,12 +1,12 @@
 '''
 Created on Jan 17, 2012
 
-@package: Newscoop
+@package: internationalization
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the database settings for the newscoop database.
+Provides the database settings for the application database.
 '''
 
 from ally.container import ioc, support
