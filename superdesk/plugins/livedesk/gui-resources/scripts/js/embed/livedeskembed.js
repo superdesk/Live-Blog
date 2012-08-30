@@ -161,7 +161,7 @@ window.livedesk.startLoading = function() {
 				}
 			},
 			auto: function(){
-				var self = this, requestOptions = {data: {'startEx.cId': this._latestCId}, headers: { 'X-Filter': 'CId'}};
+				var self = this, requestOptions = {data: {'startEx.cId': this._latestCId}, headers: {'X-Filter': 'CId'}};
 				if(this._latestCId === 0) delete requestOptions.data;
 				$.gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){
 					self.getMaximumCid(self.parse(data));
@@ -228,7 +228,7 @@ window.livedesk.startLoading = function() {
 			{
 				var self = this, order = parseFloat(self.post.get('Order'));
 				if ( !isNaN(self.order) && (order != self.order)) {
-					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1}, anti = { prev: 'next', next: 'prev'}
+					var actions = {prev: 'insertBefore', next: 'insertAfter'}, ways = {prev: 1, next: -1}, anti = {prev: 'next', next: 'prev'}
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
 						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
 						cursor = cursor[dir]
@@ -274,7 +274,10 @@ window.livedesk.startLoading = function() {
                                         content = annotation + content;
                                         
 				}
-				var template = '<li class="'+ style +'">' + content + '</li>';
+                                var postId = self.post.get('Id');
+                                var blogTitle = self._parent.blog.get('Title');
+                                blogTitle = blogTitle.replace(/ /g, '-');
+				var template ='<a name="' + postId + '-' +  encodeURI (blogTitle) + '">' + '<li class="'+ style +'">' + content + '</li></a>';
 				self.setElement( template );
 			}
 		}),
