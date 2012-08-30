@@ -15,6 +15,74 @@ from os import stat
 from zipfile import ZipFile
 from datetime import datetime
 from collections import Iterable
+import abc
+
+# --------------------------------------------------------------------
+
+class IInputStream(metaclass=abc.ABCMeta):
+    '''
+    The specification for an input stream.
+    '''
+    __slots__ = ()
+
+    @abc.abstractclassmethod
+    def read(self, nbytes=None):
+        '''
+        To read a file's contents, call f.read(size), which reads some quantity of data and returns it as a string.
+        @param nbytes: integer
+            Is an optional numeric argument. When size is omitted or negative, the entire contents of the file will be
+            read and returned; it's your problem if the file is twice as large as your machine's memory.
+            Otherwise, at most size bytes are read and returned. If the end of the file has been reached, f.read()
+            will return an empty string ('').
+        @return: bytes
+            The content.
+        '''
+
+    @classmethod
+    def __subclasshook__(cls, C):
+        if cls is IInputStream:
+            if any('read' in B.__dict__ for B in C.__mro__): return True
+        return NotImplemented
+
+class IOutputStream(metaclass=abc.ABCMeta):
+    '''
+    The specification for an output stream.
+    '''
+    __slots__ = ()
+
+    @abc.abstractclassmethod
+    def write(self, bytes):
+        '''
+        Write the bytes or bytearray object, b and return the number of bytes written. When in non-blocking mode,
+        a BlockingIOError is raised if the buffer needs to be written out but the raw stream blocks.
+        
+        @param bytes: bytearray
+            The bytes to write.
+        '''
+
+    @classmethod
+    def __subclasshook__(cls, C):
+        if cls is IOutputStream:
+            if any('write' in B.__dict__ for B in C.__mro__): return True
+        return NotImplemented
+
+class IClosable(metaclass=abc.ABCMeta):
+    '''
+    Used for the streams that provide a close method.
+    '''
+    __slots__ = ()
+
+    @abc.abstractclassmethod
+    def close(self):
+        '''
+        Close the stream and block any other operations to the stream.
+        '''
+
+    @classmethod
+    def __subclasshook__(cls, C):
+        if cls is IClosable:
+            if any('close' in B.__dict__ for B in C.__mro__): return True
+        return NotImplemented
 
 # --------------------------------------------------------------------
 
@@ -38,7 +106,7 @@ class replaceInFile:
             The proxy created for the file that will handle the data replacing.
         '''
         assert fileObj, 'A file object is required %s' % fileObj
-        assert hasattr(fileObj, 'read'), 'Invalid file object %s does not have a read method' % fileObj
+        assert isinstance(fileObj, IInputStream), 'Invalid file object %s does not have a read method' % fileObj
         assert isinstance(replacements, dict), 'Invalid replacements %s' % replacements
         if __debug__:
             for key, value in replacements.items():
@@ -93,8 +161,8 @@ def pipe(srcFileObj, dstFileObj, bufferSize=1024):
     @param bufferSize: integer
         The buffer size used for copying data chunks.
     '''
-    assert hasattr(srcFileObj, 'read'), 'Invalid source file object %s does not have a read method' % srcFileObj
-    assert hasattr(dstFileObj, 'write'), 'Invalid destination file object %s does not have a write method' % dstFileObj
+    assert isinstance(srcFileObj, IInputStream), 'Invalid source file object %s' % srcFileObj
+    assert isinstance(dstFileObj, IOutputStream), 'Invalid destination file object %s' % dstFileObj
     assert isinstance(bufferSize, int), 'Invalid buffer size %s' % bufferSize
     while True:
         buffer = srcFileObj.read(bufferSize)
@@ -110,8 +178,8 @@ def readGenerator(fileObj, bufferSize=1024):
     @param bufferSize: integer
         The buffer size used for returning data chunks.
     '''
-    assert hasattr(fileObj, 'read'), 'Invalid file object %s does not have a read method' % fileObj
-    assert hasattr(fileObj, 'close'), 'Invalid file object %s does not have a close method' % fileObj
+    assert isinstance(fileObj, IInputStream), 'Invalid file object %s' % fileObj
+    assert isinstance(fileObj, IClosable), 'Invalid file object %s' % fileObj
     assert isinstance(bufferSize, int), 'Invalid buffer size %s' % bufferSize
 
     with fileObj:
@@ -132,8 +200,8 @@ def writeGenerator(generator, fileObj):
         The file object to have the generator write data from.
     '''
     assert isinstance(generator, Iterable), 'Invalid generator %s' % generator
-    assert hasattr(fileObj, 'write'), 'Invalid file object %s does not have a write method' % fileObj
-    assert hasattr(fileObj, 'close'), 'Invalid file object %s does not have a close method' % fileObj
+    assert isinstance(fileObj, IOutputStream), 'Invalid file object %s' % fileObj
+    assert isinstance(fileObj, IClosable), 'Invalid file object %s' % fileObj
 
     for bytes in generator: fileObj.write(bytes)
     fileObj.close()

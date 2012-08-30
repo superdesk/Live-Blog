@@ -9,8 +9,8 @@ Created on Jun 1, 2012
 Provides HTTP server specification.
 '''
 
+from ally.support.util_io import IInputStream, IOutputStream
 from ally.core.spec.codes import Code
-from ally.core.spec.server import IInputStream, IOutputStream
 from ally.design.context import Context, defines, requires, optional
 from collections import Iterable
 import abc
@@ -51,9 +51,15 @@ class RequestHTTP(Context):
     @rtype: dictionary{string, string}
     The raw headers.
     ''')
+
+class RequestContentHTTP(Context):
+    '''
+    Context for HTTP request content data. 
+    '''
+    # ---------------------------------------------------------------- Defined
     source = defines(IInputStream, doc='''
     @rtype: IInputStream
-    The source for the content.
+    The source for the request content.
     ''')
 
 class ResponseHTTP(Context):
@@ -61,11 +67,29 @@ class ResponseHTTP(Context):
     Context for HTTP response data. 
     '''
     # ---------------------------------------------------------------- Required
-    code = requires(Code)
-    source = requires(IOutputStream, Iterable)
+    code = requires(Code, doc='''
+    @rtype: Code
+    The response code.
+    ''')
     # ---------------------------------------------------------------- Optional
-    text = optional(str)
-    headers = optional(dict)
+    text = optional(str, doc='''
+    @rtype: str
+    The response text message (a short message).
+    ''')
+    headers = optional(dict, doc='''
+    @rtype: dictionary{String, string}
+    The response headers.
+    ''')
+
+class ResponseContentHTTP(Context):
+    '''
+    Context for HTTP response content data. 
+    '''
+    # ---------------------------------------------------------------- Required
+    source = requires(IOutputStream, Iterable, doc='''
+    @rtype: IOutputStream|Iterable
+    The source for the response content.
+    ''')
 
 # --------------------------------------------------------------------
 

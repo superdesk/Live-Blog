@@ -19,42 +19,6 @@ import abc
 
 NO_MODEL_PATH = 1 << 1
 # Flag indicating that no model path should be rendered.
-#
-#class DataModel:
-#    '''
-#    Contains data used for additional support in encoding the model. The data model is used by the encode model to alter
-#    the encoding depending on path elements and filters.
-#    '''
-#    __slots__ = ('flag', 'path', 'accessible', 'filter', 'datas', 'fetchReference', 'fetchEncode', 'fetchData')
-#
-#    def __init__(self):
-#        '''
-#        Construct the data model.
-#        
-#        @ivar flag: integer
-#            Flag indicating several situations for the data encode.
-#        @ivar path: Path|None
-#            The path of the model.
-#        @ivar accessible: dictionary{string, Path}|None
-#            The accessible path for the encoded model.
-#        @ivar filter: set(string)|None
-#            The properties to be rendered for the model encode, this set needs to include also the accesible paths.
-#        @ivar datas: dictionary{string, DataModel}|None
-#            The data models to be used for the properties of the encoded model.
-#        @ivar fetchReference: Reference
-#            The fetch reference for the fetch encode.
-#        @ivar fetchEncode: Callable
-#            The fetch encode to be used.
-#        @ivar fetchData: DataModel
-#            The fetch data model to be used.
-#        '''
-#        self.path = None
-#        self.accessible = None
-#        self.filter = None
-#        self.datas = None
-#        self.fetchReference = None
-#        self.fetchEncode = None
-#        self.fetchData = None
 
 class DataModel(Bean):
     '''

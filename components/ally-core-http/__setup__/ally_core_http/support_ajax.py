@@ -10,7 +10,7 @@ Provides the javascript setup required by browser for ajax.
 '''
 
 from ..ally_core.processor import assemblyResources
-from ..ally_core_http.processor import uri, updateAssemblyResourcesForCoreHTTP
+from ..ally_core_http.processor import uri, updateAssemblyResourcesForHTTP
 from ally.container import ioc
 from ally.core.http.impl.processor.headers.set_fixed import \
     HeaderSetEncodeHandler
@@ -50,7 +50,7 @@ def deliverOkHandler() -> Handler:
 
 # --------------------------------------------------------------------
 
-@ioc.after(updateAssemblyResourcesForCoreHTTP)
-def updateAssemblyResourcesForCoreHTTPAjax():
+@ioc.after(updateAssemblyResourcesForHTTP)
+def updateAssemblyResourcesForHTTPAjax():
     if ajax_cross_domain():
         assemblyResources().add(headerSetEncode(), deliverOkHandler(), before=uri())

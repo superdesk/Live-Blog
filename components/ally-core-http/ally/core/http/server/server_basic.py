@@ -11,9 +11,10 @@ thread serving requests one at a time).
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
-from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP
+from ally.support.util_io import IOutputStream
+from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
+    RequestContentHTTP, ResponseContentHTTP
 from ally.core.spec.codes import Code
-from ally.core.spec.server import IOutputStream
 from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
     CREATE_REPORT
 from ally.support.util_io import readGenerator
@@ -69,12 +70,15 @@ class RequestHandler(BaseHTTPRequestHandler):
                 if not uriRoot.endswith('/'): uriRoot += '/'
 
                 assert isinstance(processing, Processing), 'Invalid processing %s' % processing
-                req, rsp = processing.contexts['request'](), processing.contexts['response']()
+                req, reqCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
+                rsp, rspCnt = processing.contexts['response'](), processing.contexts['responseCnt']()
                 chain = processing.newChain()
 
                 assert isinstance(chain, Chain), 'Invalid chain %s' % chain
                 assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
+                assert isinstance(reqCnt, RequestContentHTTP), 'Invalid request content %s' % reqCnt
                 assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
+                assert isinstance(rspCnt, ResponseContentHTTP), 'Invalid response content %s' % rspCnt
 
                 req.scheme, req.uriRoot, req.uri = 'http', uriRoot, path[match.end():]
                 req.parameters = parse_qsl(url.query, True, False)
@@ -86,9 +90,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         req.method = method
         req.headers = dict(self.headers)
-        req.source = self.rfile
+        reqCnt.source = self.rfile
 
-        chain.process(request=req, response=rsp)
+        chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)
 
         assert isinstance(rsp.code, Code), 'Invalid response code %s' % rsp.code
 
@@ -100,9 +104,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         self.end_headers()
 
-        if rsp.source is not None:
-            if isinstance(rsp.source, IOutputStream): source = readGenerator(rsp.source)
-            else: source = rsp.source
+        if rspCnt.source is not None:
+            if isinstance(rspCnt.source, IOutputStream): source = readGenerator(rspCnt.source)
+            else: source = rspCnt.source
 
             for bytes in source: self.wfile.write(bytes)
 
@@ -127,7 +131,9 @@ def run(port=80):
         assert isinstance(pattern, str), 'Invalid pattern %s' % pattern
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
 
-        processing, report = assembly.create(ONLY_AVAILABLE, CREATE_REPORT, request=RequestHTTP, response=ResponseHTTP)
+        processing, report = assembly.create(ONLY_AVAILABLE, CREATE_REPORT,
+                                             request=RequestHTTP, requestCnt=RequestContentHTTP,
+                                             response=ResponseHTTP, responseCnt=ResponseContentHTTP)
 
         log.info('Assembly report for pattern \'%s\':\n%s', pattern, report)
         RequestHandler.pathProcessing.append((re.compile(pattern), processing))

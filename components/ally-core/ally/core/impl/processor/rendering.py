@@ -35,6 +35,12 @@ class Response(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Defined
     type = defines(str, doc='''
     @rtype: string
     The response content type.
@@ -67,55 +73,57 @@ class RenderingHandler(Handler):
         'Invalid default content type %s' % self.contentTypeDefaults
         assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
 
-        renderingProcessing = self.renderingAssembly.create(NO_VALIDATION, request=Request, response=Response)
+        renderingProcessing = self.renderingAssembly.create(NO_VALIDATION, request=Request,
+                                                            response=Response, responseCnt=ResponseContent)
         assert isinstance(renderingProcessing, Processing), 'Invalid processing %s' % renderingProcessing
         super().__init__(Function(renderingProcessing.contexts, self.process))
 
         self.renderingProcessing = renderingProcessing
 
-    def process(self, chain, request, response, **keyargs):
+    def process(self, chain, request, response, responseCnt, **keyargs):
         '''
         Create the render for the response object.
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         # Resolving the character set
-        if Response.charSet in response:
-            try: codecs.lookup(response.charSet)
-            except LookupError: response.charSet = None
-        else: response.charSet = None
+        if ResponseContent.charSet in responseCnt:
+            try: codecs.lookup(responseCnt.charSet)
+            except LookupError: responseCnt.charSet = None
+        else: responseCnt.charSet = None
 
-        if response.charSet is None:
+        if responseCnt.charSet is None:
             for charSet in request.accCharSets or ():
                 try: codecs.lookup(charSet)
                 except LookupError: continue
-                response.charSet = charSet
+                responseCnt.charSet = charSet
                 break
-            else: response.charSet = self.charSetDefault
+            else: responseCnt.charSet = self.charSetDefault
 
         resolved = False
-        if Response.type in response:
+        if ResponseContent.type in responseCnt:
             renderChain = self.renderingProcessing.newChain()
             assert isinstance(renderChain, Chain), 'Invalid chain %s' % renderChain
 
-            renderChain.process(request=request, response=response, **keyargs)
+            renderChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
             if renderChain.isConsumed():
                 if Response.code not in response or response.code.isSuccess:
                     response.code = UNKNOWN_ENCODING
-                    response.text = 'Content type \'%s\' not supported for rendering' % response.type
+                    response.text = 'Content type \'%s\' not supported for rendering' % responseCnt.type
             else: resolved = True
 
         if not resolved:
             # Adding None in case some encoder is configured as default.
             for contentType in itertools.chain(request.accTypes or (), self.contentTypeDefaults):
-                response.type = contentType
+                responseCnt.type = contentType
 
                 renderChain = self.renderingProcessing.newChain()
                 assert isinstance(renderChain, Chain), 'Invalid chain %s' % renderChain
 
-                renderChain.process(request=request, response=response, **keyargs)
+                renderChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
                 if not renderChain.isConsumed(): break
             else:
                 raise DevelError('There is no renderer available, this is more likely a setup issues since the '

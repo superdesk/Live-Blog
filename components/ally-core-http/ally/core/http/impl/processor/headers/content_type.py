@@ -24,6 +24,11 @@ class RequestDecode(Context):
     '''
     # ---------------------------------------------------------------- Required
     decoderHeader = requires(IDecoderHeader)
+
+class RequestContentDecode(Context):
+    '''
+    The request content context.
+    '''
     # ---------------------------------------------------------------- Defined
     type = defines(str, doc='''
     @rtype: string
@@ -37,6 +42,7 @@ class RequestDecode(Context):
     @rtype: dictionary{string, string}
     The content request type attributes.
     ''')
+
 
 class ResponseDecode(Context):
     '''
@@ -66,13 +72,14 @@ class ContentTypeDecodeHandler(HandlerProcessorProceed):
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
         super().__init__()
 
-    def process(self, request:RequestDecode, response:ResponseDecode, **keyargs):
+    def process(self, request:RequestDecode, requestCnt:RequestContentDecode, response:ResponseDecode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Decode the content type for the request.
         '''
         assert isinstance(request, RequestDecode), 'Invalid request %s' % request
+        assert isinstance(requestCnt, RequestContentDecode), 'Invalid request content %s' % requestCnt
         assert isinstance(response, ResponseDecode), 'Invalid response %s' % response
         assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid header decoder %s' % request.decoderHeader
 
@@ -85,9 +92,9 @@ class ContentTypeDecodeHandler(HandlerProcessorProceed):
                 ', expected only one type entry' % (value, self.nameContentType)
                 return
             value, attributes = value[0]
-            request.type = value
-            request.charSet = attributes.get(self.attrContentTypeCharSet, None)
-            request.typeAttr = attributes
+            requestCnt.type = value
+            requestCnt.charSet = attributes.get(self.attrContentTypeCharSet, None)
+            requestCnt.typeAttr = attributes
 
 # --------------------------------------------------------------------
 
@@ -97,6 +104,12 @@ class ResponseEncode(Context):
     '''
     # ---------------------------------------------------------------- Required
     encoderHeader = requires(IEncoderHeader)
+
+class ResponseContentEncode(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Required
     type = requires(str)
     # ---------------------------------------------------------------- Optional
     charSet = optional(str)
@@ -120,20 +133,21 @@ class ContentTypeEncodeHandler(HandlerProcessorProceed):
         'Invalid char set attribute name %s' % self.attrContentTypeCharSet
         super().__init__()
 
-    def process(self, response:ResponseEncode, **keyargs):
+    def process(self, response:ResponseEncode, responseCnt:ResponseContentEncode, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Encodes the content type for the response.
         '''
         assert isinstance(response, ResponseEncode), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContentEncode), 'Invalid response content %s' % responseCnt
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid header encoder %s' % response.encoderHeader
 
-        if ResponseEncode.type in response:
-            value = response.type
-            if ResponseEncode.charSet in response:
-                if response.charSet: value = (value, (self.attrContentTypeCharSet, response.charSet))
+        if ResponseContentEncode.type in responseCnt:
+            value = responseCnt.type
+            if ResponseContentEncode.charSet in responseCnt:
+                if responseCnt.charSet: value = (value, (self.attrContentTypeCharSet, responseCnt.charSet))
 
             response.encoderHeader.encode(self.nameContentType, value)
 

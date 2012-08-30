@@ -87,22 +87,18 @@ class CreateDecoderHandler(HandlerProcessorProceed):
 
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
         if Request.decoder in request: return # There is already a decoder no need to create another one
-        invoker = request.invoker
-        assert isinstance(invoker, Invoker), 'Invalid request invoker %s' % invoker
+        assert isinstance(request.invoker, Invoker), 'Invalid request invoker %s' % request.invoker
 
-        if invoker.inputs:
-            # We search the right most type model from the input, the rest of type models are ignored.
-            for k in range(invoker.mandatory - 1, -1, -1):
-                inp = invoker.inputs[k]
-                assert isinstance(inp, Input)
+        for inp in request.invoker.inputs:
+            assert isinstance(inp, Input)
 
-                if isinstance(inp.type, TypeModel):
-                    request.decoder = self.decoderFor(inp.name, inp.type)
-                    if request.decoder is not None:
-                        request.decoderData = dict(target=request.arguments, converterId=request.converterId,
-                                                   converter=request.converter, normalizer=request.normalizer)
-                    else: assert log.debug('Cannot decode request object \'%s\'', inp.type) or True
-                    return
+            if isinstance(inp.type, TypeModel):
+                request.decoder = self.decoderFor(inp.name, inp.type)
+                if request.decoder is not None:
+                    request.decoderData = dict(target=request.arguments, converterId=request.converterId,
+                                               converter=request.converter, normalizer=request.normalizer)
+                else: assert log.debug('Cannot decode request object \'%s\'', inp.type) or True
+                break
 
     # ----------------------------------------------------------------
 
