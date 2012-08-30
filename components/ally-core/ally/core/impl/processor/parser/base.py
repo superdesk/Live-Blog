@@ -11,7 +11,7 @@ Provides the text base parser processor handler.
 
 from ally.container.ioc import injected
 from ally.core.spec.codes import Code, BAD_CONTENT
-from ally.core.spec.server import IInputStream
+from ally.support.util_io import IInputStream
 from ally.design.context import Context, requires, defines
 from ally.design.processor import HandlerProcessor, Chain
 from collections import Callable, deque
@@ -31,10 +31,16 @@ class Request(Context):
     The request context.
     '''
     # ---------------------------------------------------------------- Required
-    type = requires(str)
-    charSet = requires(str)
     decoder = requires(Callable)
     decoderData = requires(dict)
+
+class RequestContent(Context):
+    '''
+    The request content context.
+    '''
+    # ---------------------------------------------------------------- Required
+    type = requires(str)
+    charSet = requires(str)
     source = requires(IInputStream)
 
 class Response(Context):
@@ -62,7 +68,7 @@ class ParseBaseHandler(HandlerProcessor):
         assert isinstance(self.contentTypes, set), 'Invalid content types %s' % self.contentTypes
         super().__init__()
 
-    def process(self, chain, request:Request, response:Response, **keyargs):
+    def process(self, chain, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
         '''
         @see: HandlerProcessor.process
         
@@ -70,23 +76,24 @@ class ParseBaseHandler(HandlerProcessor):
         '''
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert callable(request.decoder), 'Invalid request decoder %s' % request.decoder
         assert isinstance(request.decoderData, dict), 'Invalid request decoder data %s' % request.decoderData
-        assert isinstance(request.source, IInputStream), 'Invalid request stream %s' % request.source
-        assert isinstance(request.charSet, str), 'Invalid request character set %s' % request.charSet
+        assert isinstance(requestCnt.source, IInputStream), 'Invalid request content stream %s' % requestCnt.source
+        assert isinstance(requestCnt.charSet, str), 'Invalid request content character set %s' % requestCnt.charSet
 
         # Check if the response is for this encoder
-        if request.type in self.contentTypes:
+        if requestCnt.type in self.contentTypes:
             try:
-                error = self.parse(request.decoder, request.decoderData, request.source, request.charSet)
+                error = self.parse(request.decoder, request.decoderData, requestCnt.source, requestCnt.charSet)
                 if error: response.code, response.text, response.errorMessage = BAD_CONTENT, 'Illegal content', error
             except InputError as e:
                 response.code, response.text = BAD_CONTENT, 'Bad content'
                 response.errorDetails = self.processInputError(e)
             return # We need to stop the chain if we have been able to provide the parsing
         else:
-            assert log.debug('The content type \'%s\' is not for this %s parser', request.type, self) or True
+            assert log.debug('The content type \'%s\' is not for this %s parser', requestCnt.type, self) or True
 
         chain.proceed()
 

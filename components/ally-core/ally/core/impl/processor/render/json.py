@@ -9,10 +9,10 @@ Created on Aug 3, 2012
 Provides the JSON encoder processor handler.
 '''
 
-from .base import RenderBaseHandler, Response
+from .base import RenderBaseHandler
 from ally.container.ioc import injected
 from ally.core.spec.transform.render import IRender
-from ally.core.spec.server import IOutputStream
+from ally.support.util_io import IOutputStream
 from codecs import getwriter
 from collections import deque
 from json.encoder import encode_basestring
@@ -33,14 +33,14 @@ class RenderJSONHandler(RenderBaseHandler):
         assert isinstance(self.encodingError, str), 'Invalid string %s' % self.encodingError
         super().__init__()
 
-    def renderFactory(self, response, output):
+    def renderFactory(self, charSet, output):
         '''
         @see: RenderBaseHandler.renderFactory
         '''
-        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(charSet, str), 'Invalid char set %s' % charSet
         assert isinstance(output, IOutputStream), 'Invalid content output stream %s' % output
 
-        return RenderJSON(getwriter(response.charSet)(output, self.encodingError))
+        return RenderJSON(getwriter(charSet)(output, self.encodingError))
 
 # --------------------------------------------------------------------
 

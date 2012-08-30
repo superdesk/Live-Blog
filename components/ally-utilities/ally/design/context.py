@@ -10,8 +10,8 @@ Provides the context support.
 '''
 
 from abc import ABCMeta
-from inspect import isclass
 from ally.support.util import immut
+from inspect import isclass
 
 # --------------------------------------------------------------------
 
@@ -183,7 +183,7 @@ class Context(metaclass=ContextMetaClass):
         if not isinstance(attribute, Attribute): return False
         assert isinstance(attribute, Attribute)
         owned = self.__attributes__.get(attribute.name)
-        if owned is None: return
+        if owned is None: return False
 
         try: return isinstance(owned.descriptor.__get__(self), attribute.types)
         except AttributeError: return False
@@ -224,15 +224,14 @@ def asData(context, *classes):
     @param classes: arguments[ContextMetaClass]
         The context classes to construct the data based on.
     '''
-    assert context is not None, 'A context is required'
+    assert isinstance(context, Context), 'Invalid context %s' % context
 
     data = {}
     for clazz in classes:
         assert isinstance(clazz, ContextMetaClass), 'Invalid context class %s' % clazz
 
-        for name, attribute in clazz.__attributes__.items():
-            assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
-
+        for name in clazz.__attributes__:
+            attribute = context.__attributes__.get(name)
             if attribute in context: data[name] = attribute.__get__(context)
 
     return data

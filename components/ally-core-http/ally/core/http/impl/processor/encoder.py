@@ -89,11 +89,11 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
         '''
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(request.invoker, Invoker), 'Invalid request invoker %s' % request.invoker
 
         super().process(request, response)
         encoder = response.encoder
         if encoder is None: return
+        assert isinstance(request.invoker, Invoker), 'Invalid request invoker %s' % request.invoker
 
         encodeModel = None
         showPath = showAccessible = showAll = True

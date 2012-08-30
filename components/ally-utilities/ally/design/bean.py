@@ -8,9 +8,10 @@ Created on Aug 22, 2012
 
 Provides the bean support.
 '''
-from inspect import isclass
+
 from abc import ABCMeta
 from ally.support.util import immut
+from inspect import isclass
 
 # --------------------------------------------------------------------
 

@@ -28,8 +28,6 @@ class Response(Context):
     '''
     The response context.
     '''
-    # ---------------------------------------------------------------- Defined
-    source = defines(Iterable)
     # ---------------------------------------------------------------- Optional
     code = optional(Code)
     text = optional(str)
@@ -44,6 +42,13 @@ class Response(Context):
     # ---------------------------------------------------------------- Required
     renderFactory = requires(Callable)
 
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    source = defines(Iterable)
+
 # --------------------------------------------------------------------
 
 @injected
@@ -54,13 +59,14 @@ class ExplainErrorHandler(HandlerProcessorProceed):
     response.
     '''
 
-    def process(self, response:Response, **keyargs):
+    def process(self, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         
         Process the error into a response content.
         '''
         assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         if Response.code in response and not response.code.isSuccess and Response.renderFactory in response:
             errors = [Value('code', str(response.code.code))]
@@ -76,4 +82,4 @@ class ExplainErrorHandler(HandlerProcessorProceed):
             render = response.renderFactory(output)
             renderObject(Object('error', *errors), render)
 
-            response.source = (output.getvalue(),)
+            responseCnt.source = (output.getvalue(),)

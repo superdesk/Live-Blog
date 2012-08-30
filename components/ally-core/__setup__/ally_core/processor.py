@@ -13,6 +13,7 @@ from .encoder_decoder import renderingAssembly, parsingAssembly
 from ally.container import ioc
 from ally.core.impl.processor.arguments import ArgumentsPrepareHandler, \
     ArgumentsBuildHandler
+from ally.core.impl.processor.content import ContentHandler
 from ally.core.impl.processor.decoder import CreateDecoderHandler
 from ally.core.impl.processor.encoder import CreateEncoderHandler
 from ally.core.impl.processor.explain_error import ExplainErrorHandler
@@ -94,6 +95,9 @@ def parser() -> Handler:
     return b
 
 @ioc.entity
+def content() -> Handler: return ContentHandler()
+
+@ioc.entity
 def argumentsBuild() -> Handler: return ArgumentsBuildHandler()
 
 @ioc.entity
@@ -108,6 +112,7 @@ def explainError(): return ExplainErrorHandler()
 # --------------------------------------------------------------------
 
 @ioc.before(assemblyResources)
-def updateAssemblyResourcesForCore():
+def updateAssemblyResources():
     assemblyResources().add(argumentsPrepare(), methodInvoker(), renderer(), conversion(), createDecoder(),
-                            createEncoder(), parser(), argumentsBuild(), invoking(), renderEncoder(), explainError())
+                            createEncoder(), parser(), content(), argumentsBuild(), invoking(), renderEncoder(),
+                            explainError())
