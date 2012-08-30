@@ -1,7 +1,7 @@
 '''
 Created on Jan 16, 2012
 
-@package: Newscoop
+@package: Superdesk
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -13,7 +13,7 @@ import logging
 logging.basicConfig(format='%(asctime)s %(levelname)s (%(threadName)s %(module)s.%(funcName)s %(lineno)d): %(message)s')
 logging.basicConfig(format='%(module)s.%(funcName)s %(lineno)d: %(message)s')
 
-logging.getLogger('ally.core.http.server').setLevel(logging.INFO)
+#logging.getLogger('superdesk').setLevel(logging.WARN)
 
 #logging.getLogger('internationalization.scanner').setLevel(logging.DEBUG)
 #logging.getLogger('ally.support.sqlalchemy.mapper').setLevel(logging.DEBUG)
