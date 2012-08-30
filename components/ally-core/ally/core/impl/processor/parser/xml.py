@@ -11,7 +11,7 @@ Provides the XML parser processor handler.
 
 from .base import ParseBaseHandler
 from ally.container.ioc import injected
-from ally.core.spec.server import IInputStream
+from ally.support.util_io import IInputStream
 from collections import deque
 from xml.sax import make_parser
 from xml.sax._exceptions import SAXParseException

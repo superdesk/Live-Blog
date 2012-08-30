@@ -36,6 +36,11 @@ class Response(Context):
     obj = requires(object)
     # ---------------------------------------------------------------- Optional
     code = optional(Code)
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
     # ---------------------------------------------------------------- Defined
     source = defines(Iterable, doc='''
     @rtype: Iterable
@@ -50,17 +55,18 @@ class RenderEncoderHandler(HandlerProcessorProceed):
     Implementation for a handler that renders the response content encoder.
     '''
 
-    def process(self, response:Response, **keyargs):
+    def process(self, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
         '''
         assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
         if Response.encoder not in response: return # SKip in case there is no encoder to render
 
-        response.source = self.renderAsGenerator(response.obj, response.encoder, response.renderFactory,
-                                                 response.encoderData or {})
+        responseCnt.source = self.renderAsGenerator(response.obj, response.encoder, response.renderFactory,
+                                                    response.encoderData or {})
 
     def renderAsGenerator(self, value, encoder, renderFactory, data, bufferSize=1024):
         '''

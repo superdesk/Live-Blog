@@ -57,6 +57,12 @@ class Response(Context):
     @rtype: integer
     Contains the allow flags for the methods.
     ''')
+
+class ResponseContent(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
     source = defines(Iterable, doc='''
     @rtype: GeneratorType
     The generator that provides the response content in bytes.
@@ -89,7 +95,7 @@ class ContentDeliveryHandler(HandlerProcessor):
 
         self._linkTypes = {self._fsHeader:self._processLink, self._zipHeader:self._processZiplink}
 
-    def process(self, chain, request:Request, response:Response, **keyargs):
+    def process(self, chain, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
         @see: HandlerProcessor.process
         
@@ -98,6 +104,7 @@ class ContentDeliveryHandler(HandlerProcessor):
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         if request.method != GET:
             response.allows |= GET
@@ -141,7 +148,7 @@ class ContentDeliveryHandler(HandlerProcessor):
             return
 
         response.code = RESOURCE_FOUND
-        response.source = readGenerator(rf)
+        responseCnt.source = readGenerator(rf)
 
     # ----------------------------------------------------------------
 
