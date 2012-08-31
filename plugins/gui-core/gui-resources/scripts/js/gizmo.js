@@ -172,6 +172,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 self.parse(data);
             }
             if(!$.isEmptyObject(self.changeset)) {
+                //console.log('_constructor update', self.changeset);
                 self.triggerHandler('update', self.changeset).clearChangeset();
             }
 
@@ -326,18 +327,22 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         continue;
                         break;
                 }
-                if(this.data[i] !== undefined) {
-                    if($.type(data[i]) === 'object')
+                if( this.data[i] !== undefined ) 
+                {
+                    if( $.type(data[i]) === 'object' )
                     {
                         if(compareObj(this.data[i], data[i]))
                             this.changeset[i] = data[i];
                     }
                     else if( this.data[i] != data[i] )
                     {
-                            this.changeset[i] = data[i];
+                        this.changeset[i] = data[i];
                     }
                 }
-                this.data[i] = data[i];
+                if( $.type(data[i]) === 'object' && $.type(this.data[i]) === 'object' )
+                    $.extend(true, this.data[i], data[i]);
+                else
+                    this.data[i] = data[i];
             }
             data.isParsed = true;
         },
