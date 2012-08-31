@@ -195,12 +195,16 @@ function(providers, Gizmo, $)
 			             * conditionally handing over save functionallity to provider if
 			             * model has source name in providers 
 			             */
-					    var src = this.get("Author").Source.Name;
-					    if( providers[src] && providers[src].timeline )
+					    try
 					    {
-					        self.edit = providers[src].timeline.edit;
-					        self.save = providers[src].timeline.save;
-					    };
+					        var src = this.get("Author").Source.Name;
+	                        if( providers[src] && providers[src].timeline )
+	                        {
+	                            self.edit = providers[src].timeline.edit;
+	                            self.save = providers[src].timeline.save;
+	                        };
+					    }
+					    catch(e){ /*...*/ }
 					    
 						self.render();
 					})
@@ -215,16 +219,21 @@ function(providers, Gizmo, $)
 					})
 					.on('update', function(evt, data)
 					{
+					    //console.log(data);
 					    /*!
                          * conditionally handing over save functionallity to provider if
                          * model has source name in providers 
                          */
-                        var src = this.get("Author").Source.Name;
-                        if( providers[src] && providers[src].timeline )
-                        {
-                            self.edit = providers[src].timeline.edit;
-                            self.save = providers[src].timeline.save;
-                        };
+					    try
+					    {
+                            var src = this.get("Author").Source.Name;
+                            if( providers[src] && providers[src].timeline )
+                            {
+                                self.edit = providers[src].timeline.edit;
+                                self.save = providers[src].timeline.save;
+                            };
+					    }
+					    catch(e){ /*...*/ }
                         
 						/*!
 						 * If the updater on the model is the current view don't update the view;
@@ -580,7 +589,7 @@ function(providers, Gizmo, $)
 						});
 						self.providers.render();
 						
-						$('.tabbable', self.el).find('.actived a').tab('show');						
+						$('.tabbable', self.el).find('a:eq(0)').tab('show');						
 						$('.live-blog-content', self.el).droppable
 						({
 							activeClass: 'ui-droppable-highlight',
