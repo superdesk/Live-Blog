@@ -14,6 +14,7 @@ from ally.container import ioc
 from ally.core.http.impl.url_encoded import parseStr
 from ally.core.impl.processor.parser.text import ParseTextHandler
 from ally.design.processor import Handler
+from ally.core.http.impl.processor.parser.formdata import ParseFormDataHandler
 
 # --------------------------------------------------------------------
 
@@ -37,8 +38,14 @@ def parseUrlencoded() -> Handler:
     b.parser = parserUrlencoded
     b.parserName = 'urlencoded'
 
+@ioc.entity
+def parseFormData() -> Handler:
+    b = ParseFormDataHandler(); yield b
+    b.contentTypeUrlEncoded = next(iter(content_types_urlencoded()))
+
 # --------------------------------------------------------------------
 
 @ioc.before(updateParsingAssembly)
 def updateParsingHTTPAssembly():
+    parsingAssembly().add(parseFormData())
     parsingAssembly().add(parseUrlencoded())
