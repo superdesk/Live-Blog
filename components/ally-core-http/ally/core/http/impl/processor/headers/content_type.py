@@ -43,7 +43,6 @@ class RequestContentDecode(Context):
     The content request type attributes.
     ''')
 
-
 class ResponseDecode(Context):
     '''
     The response context.

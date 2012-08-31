@@ -12,8 +12,8 @@ Provides the parsing chain processors.
 from ally.container.ioc import injected
 from ally.core.spec.codes import UNKNOWN_ENCODING, Code
 from ally.design.context import Context, defines, requires
-from ally.design.processor import Assembly, Handler, Processing, NO_VALIDATION, \
-    Chain, Function
+from ally.design.processor import Assembly, Handler, Processing, \
+    NO_MISSING_VALIDATION, Chain, Function
 from collections import Callable
 import codecs
 
@@ -67,7 +67,7 @@ class ParsingHandler(Handler):
         assert isinstance(self.parsingAssembly, Assembly), 'Invalid parsers assembly %s' % self.parsingAssembly
         assert isinstance(self.charSetDefault, str), 'Invalid default character set %s' % self.charSetDefault
 
-        parsingProcessing = self.parsingAssembly.create(NO_VALIDATION, request=request, requestCnt=requestCnt,
+        parsingProcessing = self.parsingAssembly.create(NO_MISSING_VALIDATION, request=request, requestCnt=requestCnt,
                                                         response=response, responseCnt=responseCnt)
         assert isinstance(parsingProcessing, Processing), 'Invalid processing %s' % parsingProcessing
         super().__init__(Function(parsingProcessing.contexts, self.process))
