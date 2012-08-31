@@ -10,7 +10,7 @@ Provide the internal error representation. This is usually when the server fails
 '''
 
 from ally.container.ioc import injected
-from ally.core.spec.codes import Code, INTERNAL_ERROR
+from ally.core.spec.codes import Code, INTERNAL_ERROR, BAD_CONTENT
 from ally.design.context import defines, Context
 from ally.design.processor import HandlerProcessor, Chain
 from ally.support.util_io import IOutputStream, readGenerator, convertToBytes
@@ -18,6 +18,7 @@ from collections import Iterable
 from io import BytesIO, StringIO
 import logging
 import traceback
+from ally.exception import DevelError
 
 # --------------------------------------------------------------------
 
@@ -32,6 +33,7 @@ class Response(Context):
     # ---------------------------------------------------------------- Defined
     code = defines(Code)
     text = defines(str)
+    errorMessage = defines(str)
     headers = defines(dict)
 
 class ResponseContent(Context):
@@ -71,8 +73,13 @@ class InternalErrorHandler(HandlerProcessor):
 
         error = None
         try:
-            chain.process(response=response, responseCnt=responseCnt, **keyargs)
-            # We process the chain internally so we might cache any exception.
+            try:
+                chain.process(response=response, responseCnt=responseCnt, **keyargs)
+                # We process the chain internally so we might cache any exception.
+            except DevelError as e:
+                response.code, response.text, response.errorMessage = BAD_CONTENT, 'Development error', str(e)
+                chain.process(response=response, responseCnt=responseCnt, **keyargs)
+                # We try to process now the chain (where it left of) with the exception set.
         except:
             log.exception('Exception occurred while processing the chain')
             error = StringIO()
@@ -91,8 +98,8 @@ class InternalErrorHandler(HandlerProcessor):
                 else:
                     content.seek(0)
                     responseCnt.source = readGenerator(content)
-        if error is not None:
 
+        if error is not None:
             response.code = INTERNAL_ERROR
             response.text = 'Upps, please consult the server logs'
             response.headers = self.errorHeaders

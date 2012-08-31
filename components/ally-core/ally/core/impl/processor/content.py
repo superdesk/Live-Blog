@@ -51,7 +51,7 @@ class RequestContent(RequestContentData):
     # ---------------------------------------------------------------- Required
     source = requires(IInputStream)
     # ---------------------------------------------------------------- Optional
-    nextContent = optional(Callable)
+    fetchNextContent = optional(Callable)
 
 class Response(Context):
     '''
@@ -83,15 +83,18 @@ class ContentHandler(HandlerProcessorProceed):
         assert isinstance(response, Response), 'Invalid response %s' % response
 
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
-        if requestCnt is None: response.code, response.text = BAD_CONTENT, 'Required a request content follow up'
-        assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
         assert isinstance(request.invoker, Invoker), 'Invalid request invoker %s' % request.invoker
-        assert isinstance(requestCnt.source, IInputStream), 'Invalid request content source %s' % requestCnt.source
 
         for inp in request.invoker.inputs:
             assert isinstance(inp, Input)
 
             if inp.type.isOf(Content):
+                if requestCnt is None:
+                    response.code, response.text = BAD_CONTENT, 'Required a request content follow up'
+                    return
+                assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
+                assert isinstance(requestCnt.source, IInputStream), 'Invalid request content source %s' % requestCnt.source
+
                 request.arguments[inp.name] = ContentData(requestCnt)
                 assert log.debug('Successfully provided the next content for input (%s)', inp.name) or True
 
@@ -101,7 +104,7 @@ class ContentData(Content):
     '''
     A content model based on the request.
     '''
-    __slots__ = ('_content',)
+    __slots__ = ('_content', '_closed')
 
     def __init__(self, content):
         '''
@@ -115,18 +118,23 @@ class ContentData(Content):
         super().__init__(**asData(content, RequestContentData))
 
         self._content = content
+        self._cloased = False
 
     def read(self, nbytes=None):
         '''
         @see: Content.read
         '''
+        if self._cloased: raise ValueError('I/O operation on a closed content file')
         return self._content.source.read(nbytes)
 
     def next(self):
         '''
         @see: Content.next
         '''
-        if RequestContent.nextContent in self._content: content = self._content.nextContent()
+        if self._cloased: raise ValueError('I/O operation on a closed content file')
+
+        self._cloased = True
+        if RequestContent.fetchNextContent in self._content: content = self._content.fetchNextContent()
         else: content = None
 
         if content is not None: return ContentData(content)
