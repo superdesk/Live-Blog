@@ -29,6 +29,7 @@ from superdesk.person.api.person import QPerson
 from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
 from superdesk.post.meta.type import PostTypeMapped
 import hashlib
+from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
 
 # --------------------------------------------------------------------
 
@@ -91,10 +92,28 @@ def getSourcesIds():
     return _cache_sources
 
 
+BLOG_TYPES = ('default',)
+
+_cache_blog_types = {}
+def getBlogTypesIds():
+    blogTypeService = entityFor(IBlogTypeService)
+    assert isinstance(blogTypeService, IBlogTypeService)
+    if not _cache_blog_types:
+        blogTypes = _cache_blog_types
+        for name in BLOG_TYPES:
+            blgTypes = blogTypeService.getAll(q=QBlogType(name=name))
+            if blgTypes: blogTypes[name] = next(iter(blgTypes)).Id
+            else:
+                blgType = BlogType()
+                blgType.Name = name
+                blogTypes[name] = blogTypeService.insert(blgType)
+    return _cache_blog_types
+
+
 BLOGS = {
-         'GEN Live Desk Master Class': ('User1', 'en', 'An in-depth demonstration of the '
-                                        'current state of development of the GEN Live Desk '
-                                        'tool for live online news coverage.',
+         'GEN Live Desk Master Class': ('default', 'User1', 'en', 'An in-depth demonstration'
+                                        ' of the current state of development of the GEN'
+                                        ' Live Desk tool for live online news coverage.',
                                         datetime.now(), datetime.now()),
          }
 
@@ -110,7 +129,8 @@ def getBlogsIds():
             else:
                 blg = Blog()
                 blg.Title = name
-                usrName, langCode, blg.Description, blg.CreatedOn, blg.LiveOn = BLOGS[name]
+                blogType, usrName, langCode, blg.Description, blg.CreatedOn, blg.LiveOn = BLOGS[name]
+                blg.Type = getBlogTypesIds()[blogType]
                 blg.Creator = getUsersIds()[usrName]
                 blg.Language = getLanguagesIds()[langCode]
                 blogs[name] = blogService.insert(blg)
