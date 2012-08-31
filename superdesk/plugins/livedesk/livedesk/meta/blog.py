@@ -20,6 +20,7 @@ from sqlalchemy.orm import column_property
 from sqlalchemy.sql.expression import select, func
 from ally.support.sqlalchemy.mapper import validate
 from ally.container.binder_op import validateManaged
+from livedesk.meta.blog_type import BlogTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -32,6 +33,7 @@ class BlogMapped(Base, Blog):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
+    Type = Column('fk_blog_type', ForeignKey(BlogTypeMapped.Id), nullable=False)
     Language = Column('fk_language_id', ForeignKey(LanguageEntity.Id), nullable=False)
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id), nullable=False)
     Title = Column('title', String(255), nullable=False)
