@@ -18,6 +18,7 @@ from ally.api.config import query, service, call
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered
 from ally.api.type import Iter, Count
 from ally.api.authentication import auth
+from livedesk.api.blog_type import BlogType
 
 # --------------------------------------------------------------------
 
@@ -26,6 +27,7 @@ class Blog(Entity):
     '''
     Provides the blog model.
     '''
+    Type = BlogType
     Language = LanguageEntity
     Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
     Title = str
