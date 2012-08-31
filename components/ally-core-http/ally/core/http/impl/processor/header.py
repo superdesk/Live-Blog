@@ -84,7 +84,8 @@ class HeaderHandler(HandlerProcessorProceed):
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
 
-        request.decoderHeader = DecoderHeader(self, request.headers, request.parameters if self.useParameters else None)
+        request.decoderHeader = DecoderHeader(self, request.headers, request.parameters
+                                              if Request.parameters in request and self.useParameters else None)
         response.encoderHeader = EncoderHeader(self)
         response.headers = response.encoderHeader.headers
 
@@ -109,7 +110,7 @@ class DecoderHeader(IDecoderHeader):
         '''
         assert isinstance(handler, HeaderHandler), 'Invalid handler %s' % handler
         assert isinstance(headers, dict), 'Invalid headers %s' % headers
-        assert isinstance(parameters, list), 'Invalid parameters %s' % parameters
+        assert parameters is None or isinstance(parameters, list), 'Invalid parameters %s' % parameters
 
         self.handler = handler
         self.headers = headers
