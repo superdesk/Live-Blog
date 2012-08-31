@@ -474,3 +474,15 @@ section.configure-blog [data-value="OutputLink"].focus
 	outline: 0;
 	outline: thin dotted \9; /* IE6-9 */
 }
+.tabs-left .nav-tabs > li, .tabs-right .nav-tabs > li
+{
+	position: relative;
+}
+.tabs-left .nav-tabs > li .badge, .tabs-right .nav-tabs > li .badge
+{
+	position:absolute; top: 30px; right: 5px; 
+}
+.tabs-left .nav-tabs > li.active .badge.config-notif, .tabs-right .nav-tabs > li.active .badge.config-notif
+{
+	display: block;
+}
