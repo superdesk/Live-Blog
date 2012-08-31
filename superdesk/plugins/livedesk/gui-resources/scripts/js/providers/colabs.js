@@ -82,6 +82,9 @@ function(providers, $, giz, Blog, Collaborator)
          */
         showNewResults: function(e, count, callback, auto)
         {
+            if( !$('.'+providers.colabs.className).parents('li:eq(0)').hasClass('active') )
+                $('.'+providers.colabs.className).find('.notifications').text(count);
+            
             var self = $('.new-results', this.el),
                 cb = function()
                 { 
@@ -116,6 +119,9 @@ function(providers, $, giz, Blog, Collaborator)
                 collaborators.xfilter('Person.Id', 'Person.FullName', 'Person.EMail', 'Post').sync();
             });
             blog.sync();
+            
+            $('.'+providers.colabs.className)
+                .parents('li:eq(0)').find('.config-notif').off('click').on('click', self.configNotif);
         },
         
         update: function()
@@ -206,10 +212,17 @@ function(providers, $, giz, Blog, Collaborator)
             
             return self;
         },
-        render: function()
+        render: function(){},
+       
+        configNotif: function()
         {
-            console.log('render colabs')
+            console.log(localStorage.getItem('superdesk.config.providers.colabs.notifx'));
+            localStorage.setItem('superdesk.config.providers.colabs.notify', true)
+            console.log(localStorage.getItem('superdesk.config.providers.colabs.notify'));
         }
+       
+        
+        
     });
 
     var colabView = null;
