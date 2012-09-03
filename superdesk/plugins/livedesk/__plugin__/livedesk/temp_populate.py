@@ -30,6 +30,7 @@ from superdesk.collaborator.api.collaborator import ICollaboratorService, Collab
 from superdesk.post.meta.type import PostTypeMapped
 import hashlib
 from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
+from livedesk.api.blog_type_post import IBlogTypePostService
 
 # --------------------------------------------------------------------
 
@@ -92,6 +93,23 @@ def getSourcesIds():
     return _cache_sources
 
 
+BLOG_TYPE_POSTS = [ ('default', 'normal', 'User1', 'User1', 'Hello world!') ]
+
+def createBlogTypePosts():
+    blogTypePostService = entityFor(IBlogTypePostService)
+    assert isinstance(blogTypePostService, IBlogTypePostService)
+
+    for data in BLOG_TYPE_POSTS:
+        pst = Post()
+        blogType, pst.Type, creator, author, pst.Content = data
+        blogTypeId = getBlogTypesIds()[blogType]
+        if blogTypePostService.getAll(blogTypeId):
+            continue
+        pst.Creator = getUsersIds()[creator]
+        if author: pst.Author = getCollaboratorsIds()[author]
+        blogTypePostService.insert(blogTypeId, pst)
+
+
 BLOG_TYPES = ('default',)
 
 _cache_blog_types = {}
@@ -99,14 +117,14 @@ def getBlogTypesIds():
     blogTypeService = entityFor(IBlogTypeService)
     assert isinstance(blogTypeService, IBlogTypeService)
     if not _cache_blog_types:
-        blogTypes = _cache_blog_types
+        blogTypePosts = _cache_blog_types
         for name in BLOG_TYPES:
             blgTypes = blogTypeService.getAll(q=QBlogType(name=name))
-            if blgTypes: blogTypes[name] = next(iter(blgTypes)).Id
+            if blgTypes: blogTypePosts[name] = next(iter(blgTypes)).Id
             else:
                 blgType = BlogType()
                 blgType.Name = name
-                blogTypes[name] = blogTypeService.insert(blgType)
+                blogTypePosts[name] = blogTypeService.insert(blgType)
     return _cache_blog_types
 
 
@@ -359,3 +377,4 @@ def populate():
     createBlogCollaborators()
     createBlogAdmins()
     createBlogPosts()
+    createBlogTypePosts()
