@@ -9,7 +9,6 @@ Created on Aug 30, 2012
 Contains the implementation of the blog type post API.
 '''
 
-from ..meta.blog_post import BlogPostEntry
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
@@ -17,16 +16,16 @@ from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from ally.container.support import setup
-from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
 from superdesk.person.meta.person import PersonMapped
-from superdesk.post.api.post import IPostService, Post, QPostUnpublished
+from superdesk.post.api.post import IPostService, Post
 from superdesk.post.meta.type import PostTypeMapped
 from sqlalchemy.sql.operators import desc_op
-from livedesk.api.blog_type_post import IBlogTypePostService
-from livedesk.meta.blog_type_post import BlogTypePostMapped
+from livedesk.api.blog_type_post import IBlogTypePostService, BlogTypePost, \
+    QBlogTypePost
+from livedesk.meta.blog_type_post import BlogTypePostMapped, BlogTypePostEntry
 
 # --------------------------------------------------------------------
 
@@ -53,7 +52,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         @see: IBlogPostService.getById
         '''
         sql = self.session().query(BlogTypePostMapped)
-        sql = sql.filter(BlogTypePostMapped.Blog == blogTypeId)
+        sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
         sql = sql.filter(BlogTypePostMapped.Id == postId)
 
         try: return sql.one()
@@ -63,7 +62,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         '''
         @see: IBlogPostService.getAll
         '''
-        assert q is None or isinstance(q, QBlogPost), 'Invalid query %s' % q
+        assert q is None or isinstance(q, QBlogTypePost), 'Invalid query %s' % q
         sql = self._buildQuery(blogTypeId, typeId, q)
 
         sql = sql.order_by(desc_op(BlogTypePostMapped.ordering))
@@ -76,9 +75,10 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
 
-        postEntry = BlogPostEntry(Blog=blogTypeId, blogPostId=self.postService.insert(post))
-        postEntry.CId = self._nextCId()
+        postEntry = BlogTypePostEntry(BlogType=blogTypeId, blogPostId=self.postService.insert(post))
+        postEntry.ordering = self._nextOrdering(blogTypeId)
         self.session().add(postEntry)
+        self.session().flush((postEntry,))
 
         return postEntry.blogPostId
 
@@ -90,23 +90,23 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
 
         self.postService.update(post)
 
-        postEntry = BlogPostEntry(Blog=blogTypeId, blogPostId=post.Id)
-        postEntry.CId = self._nextCId()
+        postEntry = BlogTypePostEntry(BlogType=blogTypeId, blogPostId=post.Id)
         self.session().merge(postEntry)
+        self.session().flush((postEntry,))
 
     def reorder(self, blogTypeId, postId, refPostId, before=True):
         '''
         @see: IBlogPostService.reorder
         '''
         sql = self.session().query(BlogTypePostMapped.ordering)
-        sql = sql.filter(BlogTypePostMapped.Blog == blogTypeId)
+        sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
         sql = sql.filter(BlogTypePostMapped.Id == refPostId)
         order = sql.scalar()
 
-        if not order: raise InputError(Ref(_('Invalid before post')))
+        if order is None: raise InputError(Ref(_('Invalid before post')))
 
         sql = self.session().query(BlogTypePostMapped.ordering)
-        sql = sql.filter(BlogTypePostMapped.Blog == blogTypeId)
+        sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
         sql = sql.filter(BlogTypePostMapped.Id != postId)
         if before:
             sql = sql.filter(BlogTypePostMapped.ordering > order)
@@ -123,7 +123,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         else: order -= 1
 
         sql = self.session().query(BlogTypePostMapped)
-        sql = sql.filter(BlogTypePostMapped.Blog == blogTypeId)
+        sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
         sql = sql.filter(BlogTypePostMapped.Id == postId)
 
         post = self.getById(blogTypeId, postId)
@@ -131,16 +131,16 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
 
         post.ordering = order
         self.session().merge(post)
+        self.session().flush((post,))
 
     def delete(self, id):
         '''
         @see: IBlogPostService.delete
         '''
         if self.postService.delete(id):
-            postEntry = self.session().query(BlogPostEntry).get(id)
+            postEntry = self.session().query(BlogTypePostEntry).get(id)
             if postEntry:
-                assert isinstance(postEntry, BlogPostEntry)
-                postEntry.CId = self._nextCId()
+                assert isinstance(postEntry, BlogTypePostEntry)
                 self.session().flush((postEntry,))
             return True
         return False
@@ -152,14 +152,11 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         Builds the general query for posts.
         '''
         sql = self.session().query(BlogTypePostMapped)
-        sql = sql.filter(BlogTypePostMapped.Blog == blogTypeId)
+        sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
 
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
-        addDeleted = False
         if q:
             sql = buildQuery(sql, q, BlogTypePostMapped)
-            addDeleted = QPostUnpublished.deletedOn in q or QWithCId.cId in q
-        if not addDeleted: sql = sql.filter(BlogTypePostMapped.DeletedOn == None)
         return sql
 
     def _trimmDeleted(self, posts):
@@ -167,11 +164,10 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         Trim the information from the deleted posts.
         '''
         for post in posts:
-            assert isinstance(post, BlogPost)
-            if BlogPost.DeletedOn in post and post.DeletedOn is not None:
-                trimmed = BlogPost()
+            assert isinstance(post, BlogTypePost)
+            if BlogTypePost.DeletedOn in post and post.DeletedOn is not None:
+                trimmed = BlogTypePost()
                 trimmed.Id = post.Id
-                trimmed.CId = post.CId
                 trimmed.DeletedOn = post.DeletedOn
                 yield trimmed
             else:
@@ -181,6 +177,6 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         '''
         Provides the next ordering.
         '''
-        max = self.session().query(fn.max(BlogTypePostMapped.ordering)).filter(BlogTypePostMapped.Blog == blogTypeId).scalar()
+        max = self.session().query(fn.max(BlogTypePostMapped.ordering)).filter(BlogTypePostMapped.BlogType == blogTypeId).scalar()
         if max: return max + 1
         return 1
