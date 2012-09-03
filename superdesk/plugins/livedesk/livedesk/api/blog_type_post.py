@@ -11,7 +11,7 @@ API specifications for livedesk blog type posts.
 
 from ally.api.config import service, call, query, UPDATE
 from livedesk.api.domain_livedesk import modelLiveDesk
-from superdesk.post.api.post import Post, QPostUnpublished, IPostService
+from superdesk.post.api.post import Post, QPostUnpublished
 from ally.api.type import Iter
 from superdesk.post.api.type import PostType
 from livedesk.api.blog_type import BlogType
