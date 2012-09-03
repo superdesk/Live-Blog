@@ -24,7 +24,7 @@ class BlogTypePostDefinition:
     '''
     Provides the mapping for BlogCollaborator definition.
     '''
-    __tablename__ = 'livedesk_type_post'
+    __tablename__ = 'livedesk_blog_type_post'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     BlogType = declared_attr(lambda cls: Column('fk_blog_type_id', ForeignKey(BlogMapped.Id), nullable=False))
