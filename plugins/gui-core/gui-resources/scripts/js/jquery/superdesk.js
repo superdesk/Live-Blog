@@ -142,7 +142,7 @@ var superdesk =
         {
             var History = window.History;
             this._repository[href] = callback;
-            History.pushState({href: href, bing: 'bong'}, title ? this._titlePrefix + title : null, this._base + href);
+            History.pushState({href: href}, title ? this._titlePrefix + title : null, this._base + href);
             return callback;
         },
         init: function(callback)
