@@ -22,8 +22,8 @@ class TestDecoderUrlencoded(unittest.TestCase):
         self.assertDictEqual(parseStr(urlQuery), {'simple': 'demo'}, 'Simple: {0}'.format(urlQuery))
 
     def testSimpleMore(self):
-        urlQuery = 'simple=demo&another=' + quote('de mo') + '&last=is&null='
-        self.assertDictEqual(parseStr(urlQuery), {'simple': 'demo', 'another': 'de mo', 'last': 'is', 'null': None}, 'Simple more params: {0}'.format(urlQuery))
+        urlQuery = 'simple=demo&another=' + quote('de mo') + '&last=is'
+        self.assertDictEqual(parseStr(urlQuery), {'simple': 'demo', 'another': 'de mo', 'last': 'is'}, 'Simple more params: {0}'.format(urlQuery))
 
     def testSimpleList(self):
         urlQuery = 'list[]=demo&list[]=demo&list[]=abc' + quote('de mo+de mo')
