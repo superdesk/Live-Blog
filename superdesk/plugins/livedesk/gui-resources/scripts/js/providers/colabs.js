@@ -83,11 +83,13 @@ function(providers, $, giz, Blog, Collaborator)
         showNewResults: function(e, count, callback, auto)
         {
             if( !$('.'+providers.colabs.className).parents('li:eq(0)').hasClass('active') )
-                $('.'+providers.colabs.className).find('.notifications').text(count);
+                this.notifications.removeClass('hide').text(count);
             
             var self = $('.new-results', this.el),
+                notifications = this.notifications,
                 cb = function()
                 { 
+                    notifications.addClass('hide');
                     self.addClass('hide'); 
                     callback.apply(this);
                 };
@@ -96,6 +98,10 @@ function(providers, $, giz, Blog, Collaborator)
         
         init: function()
         {
+            this.notifications = $('.'+providers.colabs.className).parents('li:eq(0)').find('.notifications');
+            this.notifications.addClass('hide');
+            localStorage.setItem('superdesk.config.providers.colabs.notify', 0);
+            
             $('.search-result-list', this.el).html('');
 
             $(this.el).on('click', '.collaborators-header .feed-info .label', this.toggleHeader);
@@ -122,8 +128,17 @@ function(providers, $, giz, Blog, Collaborator)
             
             $('.'+providers.colabs.className)
                 .parents('li:eq(0)').find('.config-notif').off('click').on('click', self.configNotif);
+            
+            $('.'+providers.colabs.className)
+                .parents('li:eq(0)').find('.config-notif')
+                .attr('title',_('Click to turn notifications on or off <br />while this tab is hidden'))
+                .tooltip({placement: 'right'});
         },
         
+        /*!
+         * update posts from collaborators,
+         * call sync with startEx.cId parameter 
+         */
         update: function()
         {
             this.colabsList.each(function()
@@ -143,7 +158,7 @@ function(providers, $, giz, Blog, Collaborator)
         /*!
          * initial - initial count of collaborators
          */
-        readPostsHandle: function(initial, colab)
+        readPostsHandle: function(colab, initColabHandle )
         {
             // list of new posts to append
             var appendPosts = [],
@@ -160,16 +175,15 @@ function(providers, $, giz, Blog, Collaborator)
             });
             updateItemCount += appendPosts.length;
             
-            appendPosts.length && $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
+            appendPosts.length && 
+            $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
             {
                 $(appendPosts).each(function()
                 { 
                     $('.search-result-list', self.el).prepend( (new PostView({ model: this })).render().el );
                 });
                 updateItemCount -= appendPosts.length;
-            }, initial ? true : false]);
-            
-            initial -= 1; // decrement initial until 0 so we know when init is over and do not send
+            }, initColabHandle()]);
         },
         /*!
          * setup post list
@@ -177,7 +191,18 @@ function(providers, $, giz, Blog, Collaborator)
         setupColabStream: function(colabs)
         {
             var self = this,
-                initial = colabs.count(); // used for breaking init. action, decrementing until 0
+                initColabCnt = colabs.count(),
+                /*!
+                 * used for breaking init. action, decrementing until 0
+                 */
+                initColabHandle = function()
+                {
+                    var ret = initColabCnt ? true : false;
+                    initColabCnt -= 1; // decrement initial until 0 so we know when init is over and do not send
+                    if(initColabCnt <= 0) initColabHandle = function(){ return false; }
+                    return ret;
+                }; 
+            
             // collaboratos list
             colabs.each(function()
             {
@@ -188,7 +213,7 @@ function(providers, $, giz, Blog, Collaborator)
                 { 
                     // get posts for each collaborator
                     colab.get('Post').xfilter('*')
-                        .on('read', function(){ self.readPostsHandle.call(this, initial, colab); })
+                        .on('read', function(){ self.readPostsHandle.call(this, colab, initColabHandle); })
                         .sync();
                     // start the auto update timers
                     self.startAutoUpdate();
@@ -202,7 +227,8 @@ function(providers, $, giz, Blog, Collaborator)
             clearInterval(updateInterval);
             updateInterval = setInterval(function()
             {
-                if(!$('.search-result-list:visible', self.el).length) 
+                var cnfNotif = localStorage.getItem('superdesk.config.providers.colabs.notify');
+                if(!$('.search-result-list:visible', self.el).length && !parseFloat(cnfNotif)) 
                 {
                     clearInterval(updateInterval);
                     return;
@@ -213,12 +239,22 @@ function(providers, $, giz, Blog, Collaborator)
             return self;
         },
         render: function(){},
-       
+        /*!
+         * configure notifications on/off
+         */
         configNotif: function()
         {
-            console.log(localStorage.getItem('superdesk.config.providers.colabs.notifx'));
-            localStorage.setItem('superdesk.config.providers.colabs.notify', true)
-            console.log(localStorage.getItem('superdesk.config.providers.colabs.notify'));
+            var cnfNotif = localStorage.getItem('superdesk.config.providers.colabs.notify');
+            if( !parseFloat(cnfNotif) )
+            {
+                localStorage.setItem('superdesk.config.providers.colabs.notify', 1);
+                $(this).removeClass('badge-info').addClass('badge-warning');
+            }
+            else
+            {
+                localStorage.setItem('superdesk.config.providers.colabs.notify', 0);
+                $(this).removeClass('badge-warning').addClass('badge-info');
+            }
         }
        
         
