@@ -43,172 +43,177 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     videoType = 'video'
     # The type for the meta type video
-    
+
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
 
     def __init__(self):
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
         assert isinstance(self.videoType, str), 'Invalid meta type for video %s' % self.videoType
-        
+
         SessionSupport.__init__(self)
         self._metaTypeId = None
-      
+
     # ----------------------------------------------------------------
     def generateIdPath (self, id):
         path = "{0:03d}".format((id // 1000) % 1000)
-        
-        return path;  
-    
+
+        return path;
+
     # ----------------------------------------------------------------
     def deploy(self):
         '''
-           Deploy 
+           Deploy
         '''
         self._thumbnailFormatGeneric = thumbnailFormatFor(self.session(), '%(size)s/video_generic.jpg')
         referenceLast = self.thumbnailManager.timestampThumbnail(self._thumbnailFormatGeneric.id)
         videoPath = join(pythonPath(), 'resources', 'other.jpg')
         if referenceLast is None or referenceLast < timestampURI(videoPath):
             self.thumbnailManager.processThumbnail(self._thumbnailFormatGeneric.id, videoPath)
-            
-        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/%(id)d.jpg')  
-        self._metaTypeId = metaTypeFor(self.session(), self.videoType).Id  
-    
+
+        self._thumbnailFormat = thumbnailFormatFor(self.session(), '%(size)s/%(id)d.jpg')
+        self._metaTypeId = metaTypeFor(self.session(), self.videoType).Id
+
     # ----------------------------------------------------------------
     def extractLength(self, line):
         #Duration: 00:00:30.06, start: 0.000000, bitrate: 585 kb/s
         property = line.partition(':')[2]
         property = property.partition(',')[0].strip()
         property = property.split(':')
-        
-        value = int(property[0])*60 + int(property[1])*60 + int(float(property[2]))
-        
-        return value 
-    
+
+        value = int(property[0]) * 60 + int(property[1]) * 60 + int(float(property[2]))
+
+        return value
+
     # ----------------------------------------------------------------
     def extractVideo(self, line):
         #Stream #0.0(eng): Video: h264 (Constrained Baseline), yuv420p, 416x240, 518 kb/s, 29.97 fps, 29.97 tbr, 2997 tbn, 59.94 tbc
-        properties = (line.rpartition(':')[2]).split(',')
-        
+        properties = (line.rpartition('Video:')[2]).split(',')
+
         index = 0
         encoding = properties[index].strip()
-        
+
         index += 2
         size = (properties[index].strip()).partition('x')
         width = int(size[0])
         height = int(size[2])
-        
+
         index += 1
         bitrate = properties[index].strip().partition(' ')
         if bitrate[2] == 'kb/s':
             bitrate = int(float(bitrate[0]))
             index += 1
-        else:    
+        else:
             bitrate = None
-                    
-        fps = properties[index].strip().partition(' ')    
-        if fps[2] == 'fps':     
+
+        fps = properties[index].strip().partition(' ')
+        if fps[2] == 'fps':
             fps = int(float(fps[0]))
         else:
             fps = None
-        
+
         return (encoding, width, height, bitrate, fps)
-            
+
     # ----------------------------------------------------------------
     def extractAudio(self, line):
         #Stream #0.1(eng): Audio: aac, 44100 Hz, stereo, s16, 61 kb/s
         properties = (line.rpartition(':')[2]).split(',')
-    
+
         index = 0
         encoding = properties[index].strip()
-        
+
         index += 1
         sampleRate = properties[index].strip().partition(' ')
         if sampleRate[2] == 'Hz':
             sampleRate = int(float(sampleRate[0]))
         else:
             sampleRate = None
-            
-        index += 1        
+
+        index += 1
         channels = properties[index].strip()
-        
+
         index += 2
         bitrate = properties[4].strip().partition(' ')
         if bitrate[2] == 'kb/s':
             bitrate = int(float(bitrate[0]))
         else:
-            bitrate = None    
-        
+            bitrate = None
+
         return (encoding, sampleRate, channels, bitrate)
-    
+
     # ----------------------------------------------------------------
-    def processByInfo(self, metaDataMapped, contentPath, contentType): 
+    def processByInfo(self, metaDataMapped, contentPath, contentType):
         if contentType != None and contentType.find(self.videoType) != -1:
             return self.process(metaDataMapped, contentPath)
-        
+
         extension = metaDataMapped.Name.rpartition('.')[2]
         if self.video_supported_files.find(extension) != -1:
             return self.process(metaDataMapped, contentPath)
-        
-        return False  
-     
+
+        return False
+
     # ----------------------------------------------------------------
     def process(self, metaDataMapped, contentPath):
         '''
         @see: IMetaDataHandler.process
         '''
-        
+
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
-        
+
         thumbnailPath = contentPath + '.jpg'
         p = Popen(['avconv', '-i', contentPath, '-vframes', '1', '-an', '-ss', '2', thumbnailPath], stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         if p.wait() != 0: return False
-        
+
         if not exists(thumbnailPath): return False
 
-        
-        videoDataEntry = VideoDataEntry()   
-        videoDataEntry.Id = metaDataMapped.Id    
+
+        videoDataEntry = VideoDataEntry()
+        videoDataEntry.Id = metaDataMapped.Id
         while 1:
             line = p.stdout.readline()
-            if not line: break   
+            if not line: break
             line = str(line, "utf-8")
-            
+
             if line.find(': Video:') != -1:
-                values = self.extractVideo(line)
-                videoDataEntry.VideoEncoding = values[0]
-                videoDataEntry.Width = values[1]
-                videoDataEntry.Height = values[2]
-                videoDataEntry.VideoBitrate = values[3] 
-                videoDataEntry.Fps = values[4]
+                try:
+                    values = self.extractVideo(line)
+                    videoDataEntry.VideoEncoding = values[0]
+                    videoDataEntry.Width = values[1]
+                    videoDataEntry.Height = values[2]
+                    videoDataEntry.VideoBitrate = values[3]
+                    videoDataEntry.Fps = values[4]
+                except: pass
             elif line.find(': Audio: ') != -1:
-                values = self.extractAudio(line)
-                videoDataEntry.AudioEncoding = values[0]
-                videoDataEntry.SampleRate = values[1]
-                videoDataEntry.Channels = values[2]
-                videoDataEntry.AudioBitrate = values[3]
+                try:
+                    values = self.extractAudio(line)
+                    videoDataEntry.AudioEncoding = values[0]
+                    videoDataEntry.SampleRate = values[1]
+                    videoDataEntry.Channels = values[2]
+                    videoDataEntry.AudioBitrate = values[3]
+                except: pass
             elif line.find('Duration: ') != -1:
-                videoDataEntry.Length = self.extractLength(line) 
+                try: videoDataEntry.Length = self.extractLength(line)
+                except: pass
             elif line.find('Output #0') != -1:
-                break                 
-                    
+                break
+
         fileName = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
-        cdmPath = ''.join((self.videoType, '/', self.generateIdPath(metaDataMapped.Id), '/', fileName)) 
-        
-        metaDataMapped.content = cdmPath                                     
-        metaDataMapped.typeId = self._metaTypeId 
-        metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id   
-        metaDataMapped.IsAvailable = True     
-        
-        self.thumbnailManager.processThumbnail(self._thumbnailFormat.id, thumbnailPath, metaDataMapped)       
-        remove(thumbnailPath)  
-                 
-        try:            
+        cdmPath = ''.join((self.videoType, '/', self.generateIdPath(metaDataMapped.Id), '/', fileName))
+
+        metaDataMapped.content = cdmPath
+        metaDataMapped.typeId = self._metaTypeId
+        metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id
+        metaDataMapped.IsAvailable = True
+
+        self.thumbnailManager.processThumbnail(self._thumbnailFormat.id, thumbnailPath, metaDataMapped)
+        remove(thumbnailPath)
+
+        try:
             self.session().add(videoDataEntry)
             self.session().flush((videoDataEntry,))
         except SQLAlchemyError as e:
-            metaDataMapped.IsAvailable = False 
-            handle(e, VideoDataEntry)  
-        
+            metaDataMapped.IsAvailable = False
+            handle(e, VideoDataEntry)
+
         return True
-        
+
