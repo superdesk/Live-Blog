@@ -1,6 +1,7 @@
 <header {ui.submenu}>
 <div class="subnav subnav-fixed">
-	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" href="#put-live">Put live</a>
+	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" href="#put-live">_('Put live')</a>
+	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" id="toggle-status">_('Close blog')</a>
 	<ul class="nav nav-pills pull-left">	
     {!#blog!}
 		<li class="{ui.submenuActive1}"><a data-target="edit-blog" href="{BlogHref}">{Title|t}</a></li>
@@ -29,7 +30,8 @@
 </div>  
 </header>
 <div class="modal hide fade" id="put-live">
-  <div class="modal-header"> <a class="close image" data-dismiss="modal">×</a>
+  <div class="modal-header">
+	<a class="close image" data-dismiss="modal">×</a>
     <h3>_('Put live')</h3>
   </div>
   <div class="modal-body">
