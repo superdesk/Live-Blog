@@ -3,7 +3,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
     function compareObj(x, y)
     {
       var p;
-      for(p in y) {
+	  if( (typeof(x)=='undefined') || (typeof(y)=='undefined') ) {return true;}
+	  for(p in y) {
           if(typeof(x[p])=='undefined') {return true;}
       }
 
@@ -151,6 +152,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
     Model.prototype =
     {
         _changed: false,
+		_new: false,
         defaults: {},
         data: {},
         /*!
@@ -165,6 +167,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             this.parseHash(data);
             var self = this.pushUnique ? this.pushUnique() : this;
             self._forDelete = false;
+			self._new = true;
             self.clearChangeset();
             self._clientHash = null;
             if( options && typeof options == 'object' ) $.extend(self, options);
@@ -295,7 +298,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             if(data instanceof Model) {
                 data = data.data;
             }
-            if(data.isParsed)
+            if(data._parsed)
                 return;
             for( var i in data )
             {
@@ -303,7 +306,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 {
                     case typeof this.defaults[i] === 'function': // a model or collection constructor
                         var newModel = this.modelDataBuild(new this.defaults[i](data[i]));
-                        if( (this.data[i] !== undefined) && (newModel != this.data[i]) && !(newModel instanceof Collection) )
+                        if( !this._new && (newModel != this.data[i]) && !(newModel instanceof Collection) )
                             this.changeset[i] = newModel;
                         this.data[i] = newModel;
 
@@ -327,7 +330,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         continue;
                         break;
                 }
-                if( this.data[i] !== undefined ) 
+                if( !this._new ) 
                 {
                     if( $.type(data[i]) === 'object' )
                     {
@@ -344,7 +347,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 else
                     this.data[i] = data[i];
             }
-            data.isParsed = true;
+			this._new = false;
+            data._parsed = true;
         },
         parseHash: function(data)
         {

@@ -3,6 +3,7 @@ define
     'providers/enabled', 
     'gizmo/superdesk',
     'jquery',
+	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
     config.guiJs('livedesk', 'models/post'),
     'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
@@ -19,7 +20,7 @@ define
 function(providers, Gizmo, $) 
 {
     /*!
-     * TODO ADD DESCRIPTION!
+     * Returns true if the data object is compose of only given key
      */
 	function isOnly(data, key) 
 	{
@@ -108,7 +109,7 @@ function(providers, Gizmo, $)
 		}),
 		
 		/*!
-		 * TODO description
+		 * Extended collection which is autoupdateing itself
 		 */
 		AutoCollection = Gizmo.Collection.extend
 		({
@@ -481,7 +482,8 @@ function(providers, Gizmo, $)
 			events: 
 			{
 				'[is-content] section header h2': { focusout: 'save' },
-				'[is-content] #blog-intro' : { focusout: 'save' }
+				'[is-content] #blog-intro' : { focusout: 'save' },
+				'#toggle-status': { click: 'toggleStatus' }
 				//, '.live-blog-content': { drop: 'drop'}
 			},
 			postInit: function()
@@ -527,7 +529,7 @@ function(providers, Gizmo, $)
 				}
 			},
 			/*!
-             * TODO description
+             * Save description and title changes for the current model blog
              */
 			save: function(evt)
 			{
@@ -547,7 +549,22 @@ function(providers, Gizmo, $)
 					setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
 				});
 			},
-			
+			/*!
+             * Toggle ClosedOn field for the blog
+             */			
+			toggleStatus: function()
+			{
+				var now = new Date(),data = 'ClosedOn' + (this.model.get('ClosedOn')? '': '='+now.format('yyyy-mm-dd HH:MM:ss')),
+				content = $(this.el).find('[is-content]');
+				this.model.set(data).sync().done(function() {
+					content.find('.tool-box-top .update-success').removeClass('hide')
+					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
+				})
+				.fail(function() {
+					content.find('.tool-box-top .update-error').removeClass('hide')
+					setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
+				});
+			},
 			render: function()
 			{
 				var self = this,
@@ -678,10 +695,7 @@ function(providers, Gizmo, $)
 						});
 					});					
 			}
-		});
-		new EditView({ el: '#area-main'});
-	
-	
+		});	
 	var editView = new EditView({el: '#area-main'});
 	
 	return function(theBlog)
