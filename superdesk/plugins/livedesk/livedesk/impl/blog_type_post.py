@@ -109,22 +109,16 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
         sql = sql.filter(BlogTypePostMapped.Id != postId)
         if before:
-            sql = sql.filter(BlogTypePostMapped.ordering > order)
-            sql = sql.order_by(BlogTypePostMapped.ordering)
-        else:
             sql = sql.filter(BlogTypePostMapped.ordering < order)
             sql = sql.order_by(desc_op(BlogTypePostMapped.ordering))
-
+        else:
+            sql = sql.filter(BlogTypePostMapped.ordering > order)
+            sql = sql.order_by(BlogTypePostMapped.ordering)
         sql = sql.limit(1)
-
         orderPrev = sql.scalar()
 
-        if orderPrev: order = (order + orderPrev) / 2
-        else: order -= 1
-
-        sql = self.session().query(BlogTypePostMapped)
-        sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
-        sql = sql.filter(BlogTypePostMapped.Id == postId)
+        if orderPrev is not None: order = (order + orderPrev) / 2
+        else: order = order - 1 if before else order + 1
 
         post = self.getById(blogTypeId, postId)
         assert isinstance(post, BlogTypePostMapped)
@@ -164,7 +158,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         Trim the information from the deleted posts.
         '''
         for post in posts:
-            assert isinstance(post, BlogTypePost)
+            assert isinstance(post, BlogTypePostMapped)
             if BlogTypePost.DeletedOn in post and post.DeletedOn is not None:
                 trimmed = BlogTypePost()
                 trimmed.Id = post.Id
