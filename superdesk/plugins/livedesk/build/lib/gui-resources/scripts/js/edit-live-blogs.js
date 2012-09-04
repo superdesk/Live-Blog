@@ -460,7 +460,6 @@ define
 					.on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
 					{
 						event.preventDefault();
-						console.log('Clicked');
 						var blogHref = $(this).attr('href')
 						$.superdesk.getAction('modules.livedesk.configure')
 						.done(function(action)
