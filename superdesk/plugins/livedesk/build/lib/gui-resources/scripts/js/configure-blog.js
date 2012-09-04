@@ -53,7 +53,6 @@ function($)
         })
         .fail(function(data)
         { 
-            console.log(arguments);
             $('[is-submenu] .alert')
                 .removeClass('alert-success hide')
                 .addClass('alert-error').find('span').text(_('Error'));
@@ -137,7 +136,6 @@ function($)
 			EmbedPath = config.content_url+'/'+config.guiJs('livedesk','embed/')
 			EmbedSource = '<ul id="livedesk-root"></ul><'+'script>window.livedesk = { callback: function(){ new this.TimelineView({ url: "'+blogHref+'" });}, contentPath: "'+EmbedPath+'"};';
 			EmbedSource += '(function(d, s, id){var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;js = d.createElement(s); js.id = id;js.src = "'+EmbedPath+'/livedeskembed.js";fjs.parentNode.insertBefore(js, fjs);}(document, "script", "livedesk-jssdk"));<'+'/script>';
-		console.log(EmbedSource);
         gotColabs = new $.Deferred;
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(data)
         {
