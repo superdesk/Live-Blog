@@ -93,21 +93,25 @@ def getSourcesIds():
     return _cache_sources
 
 
-BLOG_TYPE_POSTS = [ ('default', 'normal', 'User1', 'User1', 'Hello world!') ]
+BLOG_TYPE_POSTS = [
+                   ('default', 'normal', 'User1', 'User1', 'Hello world!'),
+                   ('default', 'normal', 'User1', 'User1', 'Greetings!')
+                   ]
 
 def createBlogTypePosts():
     blogTypePostService = entityFor(IBlogTypePostService)
     assert isinstance(blogTypePostService, IBlogTypePostService)
-
     for data in BLOG_TYPE_POSTS:
         pst = Post()
         blogType, pst.Type, creator, author, pst.Content = data
         blogTypeId = getBlogTypesIds()[blogType]
-        if blogTypePostService.getAll(blogTypeId):
-            continue
-        pst.Creator = getUsersIds()[creator]
-        if author: pst.Author = getCollaboratorsIds()[author]
-        blogTypePostService.insert(blogTypeId, pst)
+        exists = False
+        for post in blogTypePostService.getAll(blogTypeId):
+            if post.Content == pst.Content: exists = True; break
+        if not exists:
+            pst.Creator = getUsersIds()[creator]
+            if author: pst.Author = getCollaboratorsIds()[author]
+            blogTypePostService.insert(blogTypeId, pst)
 
 
 BLOG_TYPES = ('default',)
