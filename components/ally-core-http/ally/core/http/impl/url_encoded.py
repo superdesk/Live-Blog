@@ -39,7 +39,6 @@ def parseStr(theString):
             [key, value] = [paramPair, None]
 
         value = unquote(replace.sub(' ', value)) if value is not None else value # also replace the + with space
-        if value == '': value = None # replace null string with None, don't know if that's good 
         key = unquote(key).strip()
 
         # look for string end mark
