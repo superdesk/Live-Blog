@@ -1,3 +1,11 @@
+function isOnly(data,key) {
+	var count = 0;
+	for(i in data) {
+		count++;
+		if(count>1) return false;
+	};
+	return (data !== undefined) && (data[key] !== undefined) && (count == 1);
+}
 window.livedesk.init = function() {
 		var self = this,
 			contentPath = self.contentPath === undefined? '': self.contentPath;		
@@ -186,9 +194,9 @@ window.livedesk.startLoading = function() {
         ({
             defaults: 
             {
-                Post: Posts,
+                //Post: Posts,
                 PostPublished: Posts,
-                PostUnpublished: Posts
+                //PostUnpublished: Posts
             }
         });
         
@@ -198,11 +206,11 @@ window.livedesk.startLoading = function() {
             init: function()
             {
 				var self = this;
-				self.post
+				self.model
 					.on('read', self.render, self)
 					.on('update', function(evt, data){
 						if(isOnly(data, 'CId')) {
-							self.post.sync(); //.xfilter(self.xfilter)
+							self.model.sync(); //.xfilter(self.xfilter)
 						}
 						else
 							self.render(evt, data);
@@ -217,6 +225,10 @@ window.livedesk.startLoading = function() {
 				self.el.remove();
 				return self;			
 			},
+			/**
+			 * Method used to remake connection in the post list ( dubled linked list )
+			 *   when the post is removed from that position
+			 */
 			tightkNots: function()
 			{
 				if(this.next !== undefined)
@@ -226,7 +238,7 @@ window.livedesk.startLoading = function() {
 			},			
 			render: function()
 			{
-				var self = this, order = parseFloat(self.post.get('Order'));
+				var self = this, order = parseFloat(self.model.get('Order'));
 				if ( !isNaN(self.order) && (order != self.order)) {
 					var actions = {prev: 'insertBefore', next: 'insertAfter'}, ways = {prev: 1, next: -1}, anti = {prev: 'next', next: 'prev'}
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
@@ -243,16 +255,16 @@ window.livedesk.startLoading = function() {
 					self.el[actions[dir]](cursor.el);
 				}
 				self.order = order;
-				var content = self.post.get('Content');
+				var content = self.model.get('Content');
 
 				var style= '';                
-				if (self.post.getClass() == 'wrapup') {
+				if (self.model.getClass() == 'wrapup') {
 					style += ' open';
 				}
-				if (self.post.isService()) {
-					style += ' ' + self.post.get('AuthorName');
+				if (self.model.isService()) {
+					style += ' ' + self.model.get('AuthorName');
                                         
-                                        var meta = JSON.parse(self.post.get('Meta'));
+                                        var meta = JSON.parse(self.model.get('Meta'));
                                         var annotation = '';
                                         if( meta.annotation) {
                                             for (var i=0; i < meta.annotation.length; i++ ) {
@@ -262,67 +274,87 @@ window.livedesk.startLoading = function() {
                                             }
                                         }
                                         
-					if (self.post.get('AuthorName') == 'flickr') {
+					if (self.model.get('AuthorName') == 'flickr') {
 						var paddedContent = '<span>' + content + '</span>';
 						var jqo = $(paddedContent);
 						jqo.find('img').attr('src', jqo.find('a').attr('href'));
 						content = jqo.html();
-					} else if (self.post.get('AuthorName') == 'twitter') {        
-						content = self.post.twitter.link.all(content);
+					} else if (self.model.get('AuthorName') == 'twitter') {        
+						content = self.model.twitter.link.all(content);
 					}
                                         
                                         content = annotation + content;
                                         
 				}
-                                var postId = self.post.get('Id');
-                                var blogTitle = self._parent.blog.get('Title');
-                                blogTitle = blogTitle.replace(/ /g, '-');
-				var template ='<a name="' + postId + '-' +  encodeURI (blogTitle) + '">' + '<li class="'+ style +'">' + content + '</li></a>';
+				var postId = self.model.get('Id');
+				var blogTitle = self._parent.model.get('Title');
+				blogTitle = blogTitle.replace(/ /g, '-');
+				var template ='<li class="'+ style +'"><a name="' + postId + '-' +  encodeURI (blogTitle) + '">' + content + '</a></li>';
 				self.setElement( template );
 			}
 		}),
 		TimelineView = $.gizmo.View.extend
 		({
 			el: '#livedesk-root',
-			events:
-			{
-				'[uberclick="ceva-click-shucar"]': {
-					'click': 'altceva'
+			timeInterval: 10000,
+			idInterval: 0,
+			_latestCId: 0,
+			setIdInterval: function(fn){
+				this.idInterval = setInterval(fn, this.timeInterval);
+				return this;
+			},
+			pause: function(){
+				var self = this;
+				clearInterval(self.idInterval);
+				return this;
+			},
+			sync: function(){
+				var self = this;
+				this.auto().pause().setIdInterval(function(){self.auto();});
+			},			
+			auto: function(){
+				this.model.sync();
+				return this;
+			},
+			ensureStatus: function(){
+				if(this.model.get('ClosedOn')) {
+					var closedOn = new Date(this.model.get('ClosedOn'));
+					//this.pause();
+					this.model.get('PostPublished').pause();					
+					this.el.find('#liveblog-status').html('The liveblog coverage was stopped '+closedOn.format('mm/dd/yyyy HH:MM:ss'));
 				}
 			},
 			init: function()
 			{
 				var self = this;
+				self.rendered = false;
 				if($.type(self.url) === 'string')
-					self.blog = new Blog(self.url.replace('my/',''));				
-				self.blog.on('read', function()
+					self.model = new Blog(self.url.replace('my/',''));				
+				self.model.on('read', function()
 				{ 
-					self.blog.get('PostPublished').on('read', self.render, self).xfilter('CId').sync();
-				})
-				.sync();
+					if(!self.rendered) {
+						self.model.get('PostPublished').on('read', self.render, self).xfilter('CId').sync();
+					}
+					self.rendered = true;
+				}).on('update', function(e, data){
+					self.ensureStatus();
+				});
+				self.sync();				
 			},
 			addOne: function(model)
 			{
-				current = new PostItemView({post: model, _parent: this});
-				this.el.prepend(current.el);
+				current = new PostItemView({model: model, _parent: this});
+				this.el.find('#liveblog-post-list').prepend(current.el);
 				current.next = this._latest;
 				if( this._latest !== undefined )
 					this._latest.prev = current;
 				this._latest = current;
 			},			
-			addAll: function(data)
+			render: function(evt)
 			{
-				if ( data === undefined)
-					data = this.blog.get('PostPublished')._list;
-				var next = this._latest, current, model, i = data.length;
-				while(i--) {
-					this.addOne(data[i]);
-				}				
-			},			
-			render: function(evt, data)
-			{
-				if ( data === undefined)
-					data = this.blog.get('PostPublished')._list;
+				this.el.html('<article></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div>');
+				this.ensureStatus();
+				data = this.model.get('PostPublished')._list;
 				var next = this._latest, current, model, i = data.length;
 				while(i--) {
 					this.addOne(data[i]);
