@@ -1,13 +1,130 @@
 (function($)
-    { 
-function isOnly(data,key) {
-	var count = 0;
-	for(i in data) {
-		count++;
-		if(count>1) return false;
+    {
+/*
+ * Date Format 1.2.3
+ * (c) 2007-2009 Steven Levithan <stevenlevithan.com>
+ * MIT license
+ *
+ * Includes enhancements by Scott Trenda <scott.trenda.net>
+ * and Kris Kowal <cixar.com/~kris.kowal/>
+ *
+ * Accepts a date, a mask, or a date and a mask.
+ * Returns a formatted version of the given date.
+ * The date defaults to the current date/time.
+ * The mask defaults to dateFormat.masks.default.
+ */
+
+var dateFormat = function () {
+	var	token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
+		timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,
+		timezoneClip = /[^-+\dA-Z]/g,
+		pad = function (val, len) {
+			val = String(val);
+			len = len || 2;
+			while (val.length < len) val = "0" + val;
+			return val;
+		};
+
+	// Regexes and supporting functions are cached through closure
+	return function (date, mask, utc) {
+		var dF = dateFormat;
+
+		// You can't provide utc if you skip other args (use the "UTC:" mask prefix)
+		if (arguments.length == 1 && Object.prototype.toString.call(date) == "[object String]" && !/\d/.test(date)) {
+			mask = date;
+			date = undefined;
+		}
+
+		// Passing date through Date applies Date.parse, if necessary
+		date = date ? new Date(date) : new Date;
+		if (isNaN(date)) throw SyntaxError("invalid date");
+
+		mask = String(dF.masks[mask] || mask || dF.masks["default"]);
+
+		// Allow setting the utc argument via the mask
+		if (mask.slice(0, 4) == "UTC:") {
+			mask = mask.slice(4);
+			utc = true;
+		}
+
+		var	_ = utc ? "getUTC" : "get",
+			d = date[_ + "Date"](),
+			D = date[_ + "Day"](),
+			m = date[_ + "Month"](),
+			y = date[_ + "FullYear"](),
+			H = date[_ + "Hours"](),
+			M = date[_ + "Minutes"](),
+			s = date[_ + "Seconds"](),
+			L = date[_ + "Milliseconds"](),
+			o = utc ? 0 : date.getTimezoneOffset(),
+			flags = {
+				d:    d,
+				dd:   pad(d),
+				ddd:  dF.i18n.dayNames[D],
+				dddd: dF.i18n.dayNames[D + 7],
+				m:    m + 1,
+				mm:   pad(m + 1),
+				mmm:  dF.i18n.monthNames[m],
+				mmmm: dF.i18n.monthNames[m + 12],
+				yy:   String(y).slice(2),
+				yyyy: y,
+				h:    H % 12 || 12,
+				hh:   pad(H % 12 || 12),
+				H:    H,
+				HH:   pad(H),
+				M:    M,
+				MM:   pad(M),
+				s:    s,
+				ss:   pad(s),
+				l:    pad(L, 3),
+				L:    pad(L > 99 ? Math.round(L / 10) : L),
+				t:    H < 12 ? "a"  : "p",
+				tt:   H < 12 ? "am" : "pm",
+				T:    H < 12 ? "A"  : "P",
+				TT:   H < 12 ? "AM" : "PM",
+				Z:    utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
+				o:    (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
+				S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]
+			};
+
+		return mask.replace(token, function ($0) {
+			return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);
+		});
 	};
-	return (data !== undefined) && (data[key] !== undefined) && (count == 1);
-}
+}();
+
+// Some common format strings
+dateFormat.masks = {
+	"default":      "ddd mmm dd yyyy HH:MM:ss",
+	shortDate:      "m/d/yy",
+	mediumDate:     "mmm d, yyyy",
+	longDate:       "mmmm d, yyyy",
+	fullDate:       "dddd, mmmm d, yyyy",
+	shortTime:      "h:MM TT",
+	mediumTime:     "h:MM:ss TT",
+	longTime:       "h:MM:ss TT Z",
+	isoDate:        "yyyy-mm-dd",
+	isoTime:        "HH:MM:ss",
+	isoDateTime:    "yyyy-mm-dd'T'HH:MM:ss",
+	isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"
+};
+
+// Internationalization strings
+dateFormat.i18n = {
+	dayNames: [
+		"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
+		"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+	],
+	monthNames: [
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+		"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+	]
+};
+
+// For convenience...
+Date.prototype.format = function (mask, utc) {
+	return dateFormat(this, mask, utc);
+};	
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
         if (typeof this !== "function") {
@@ -85,6 +202,7 @@ var initializing = false;
 function compareObj(x, y)
 {
   var p;
+  if( (typeof(x)=='undefined') || (typeof(y)=='undefined') ) {return true;}
   for(p in y) {
 	  if(typeof(x[p])=='undefined') {return true;}
   }
@@ -92,12 +210,12 @@ function compareObj(x, y)
   for(p in x) {
 	  if(typeof(y[p])=='undefined') {return true;}
   }
-  
+
   for(p in y) {
 	  if (y[p]) {
 		  switch(typeof(y[p])) {
 			  case 'object':
-				  if (compare(y[p],x[p])) { return true; } break;
+				  if (compareObj(y[p],x[p])) { return true; } break;
 			  case 'function':
 				  if (typeof(x[p])=='undefined' ||
 					  (y[p].toString() != x[p].toString()))
@@ -118,21 +236,24 @@ function compareObj(x, y)
 var Register = function(){},
 Model = function(data){},
 Uniq = function()
-{ 
-	this.items = {}; 
+{
+	this.items = {};
 	//$(this.instances).trigger('garbage');
 	//this.instances.push(this);
 },
 Collection = function(){},
-Url = Class.extend({
-	_constructor: function(arg) {		
-		this.data = { root: ''};
+
+Url = Class.extend
+({
+	_construct: function(arg) 
+	{
+		this.data = !this.data ? { root: ''} : this.data;
 		switch( $.type(arg) )
 		{
 			case 'string':
-				this.data.url = arg; 
+				this.data.url = arg;
 				break;
-			case 'array': 
+			case 'array':
 				this.data.url = arg[0];
 				if(arg[1] !== undefined) this.data.xfilter = url[0];
 				break;
@@ -140,94 +261,112 @@ Url = Class.extend({
 				this.data.url = arg.url
 				if(arg.xfilter !== undefined) this.data.xfilter = arg.xfilter;
 				break;
-		}			
+		}
 		return this;
 	},
-	xfilter: function() {
-		this.data.xfilter = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];		
+	xfilter: function() 
+	{
+		this.data.xfilter = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];
 		return this;
 	},
-	root: function(root) {
+	root: function(root) 
+	{
 		this.data.root = root;
 		return this;
 	},
-	get: function(){
+	get: function()
+	{
 		return this.data.root + this.data.url;
 	},
-	order: function(key, direction) {
+	order: function(key, direction) 
+	{
 		this.data.order = direction+'='+key;
 		return this;
 	},
-	filter: function(key, value) {
+	filter: function(key, value) 
+	{
 		this.data.filter = key+'='+value;
 		return this;
 	},
-	
-	options: function() {
-		
+	decorate: function(format)
+	{
+		this.data.url = format.replace(/(%s)/g, this.data.url);
+	},
+	options: function() 
+	{
 		var options = {};
 		if(this.data.xfilter)
 			options.headers = { 'X-Filter': this.data.xfilter};
 		return options;
 	}
-}),    
-Sync = 
+}),
+Sync =
 {
 	request: function(source)
 	{
 		var self = this,
 			reqFnc = function(data, predefinedOptions, userOptions)
 			{
-				if(source instanceof Url) {
+				var a;
+				if( source instanceof Url ) 
+				{
 					var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data}, source.options());
-					self.reset();
-					return $.ajax(self.href(source.get()), options);
-				} else {				
+					a = $.ajax(self.href(source.get()), options);
+				} 
+				else 
+				{
 					var options = $.extend(true, {}, predefinedOptions, self.options, userOptions, {data: data});
-					self.reset();
-					return $.ajax(self.href(source), options);
+					a = $.ajax(self.href(source), options);
 				}
+				self.reset();
+				
+				options.fail && a.fail(options.fail);
+				options.done && a.done(options.done);
+				options.always && a.always(options.always);
+				return a;
 			};
-			
-		return { 
-			
+
+		return {
+
 			read: function(userOptions){ return reqFnc({}, self.readOptions, userOptions); },
-			
+
 			update: function(data, userOptions){ return reqFnc(data, self.updateOptions, userOptions); },
-			
+
 			insert: function(data, userOptions){ return reqFnc(data, self.insertOptions, userOptions); },
-			
+
 			remove: function(userOptions){ return reqFnc({}, self.removeOptions, userOptions); }
 		};
 	},
 	href: function(source){ return source; },
 	reset: $.noop,
-	// bunch of options for each type of operation 
+	// bunch of options for each type of operation
 	options: {},
 	readOptions: {dataType: 'json', type: 'get', headers: {'Accept' : 'text/json'}},
 	updateOptions: {type: 'post', headers: {'X-HTTP-Method-Override': 'PUT'}},
 	insertOptions: {dataType: 'json', type: 'post'},
 	removeOptions: {type: 'get', headers: {'X-HTTP-Method-Override': 'DELETE'}}
 };
-	
+
 var uniqueIdCounter = 0;
-Model.prototype = 
+Model.prototype =
 {
 	_changed: false,
+	_new: false,
 	defaults: {},
 	data: {},
 	/*!
 	 * constructor
-	 */ 
+	 */
 	_construct: function(data, options)
 	{
 		this._clientId = uniqueIdCounter++;
-		this.data = {};			
+		this.data = {};
 		//this.exTime = new Date
 		//this.exTime.setMinutes(this.exTime.getMinutes() + 5);
 		this.parseHash(data);
-		var self = this.pushUnique ? this.pushUnique() : this; 
+		var self = this.pushUnique ? this.pushUnique() : this;
 		self._forDelete = false;
+		self._new = true;
 		self.clearChangeset();
 		self._clientHash = null;
 		if( options && typeof options == 'object' ) $.extend(self, options);
@@ -235,9 +374,10 @@ Model.prototype =
 			self.parse(data);
 		}
 		if(!$.isEmptyObject(self.changeset)) {
+			//console.log('_constructor update', self.changeset);
 			self.triggerHandler('update', self.changeset).clearChangeset();
 		}
-		
+
 		return self;
 	},
 	/*!
@@ -251,9 +391,9 @@ Model.prototype =
 	{
 		var ret = {},
 			feedData = fromData ? fromData : this.data;
-		for( var i in feedData ) 
-			ret[i] = feedData[i] instanceof Model ? 
-					(deep ? feedData[i].feed(deep) : feedData[i].relationHash() || feedData[i].hash()) : 
+		for( var i in feedData )
+			ret[i] = feedData[i] instanceof Model ?
+					(deep ? feedData[i].feed(deep) : feedData[i].relationHash() || feedData[i].hash()) :
 					feedData[i];
 		return ret;
 	},
@@ -261,17 +401,17 @@ Model.prototype =
 	 * data sync call
 	 */
 	sync: function()
-	{   
+	{
 		//console.log('sync');
 		var self = this, ret = $.Deferred(), dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
 		this.hash();
 		// trigger an event before sync
 		self.triggerHandler('sync');
-		
+
 		if( this._forDelete ) {// handle delete
 			//console.log('delete');
 			return dataAdapter(arguments[0] || this.href).remove().done(function()
-			{ 
+			{
 				self._remove();
 			});
 		}
@@ -289,7 +429,7 @@ Model.prototype =
 					.Class.triggerHandler('insert', self);
 			});
 		}
-		
+
 		if( this._changed ) {// if changed do an update on the server and return
 			//console.log('update');
 			if(!$.isEmptyObject(this.changeset)) {
@@ -308,7 +448,7 @@ Model.prototype =
 				//console.log('Pull: ',$.extend({},data));
 				self.parse(data);
 				/**
-				 * delete should come first of everything 
+				 * delete should come first of everything
 				 * caz it can be some update data or read data that is telling is a deleted model.
 				 */
 				if(self.isDeleted()){
@@ -316,15 +456,15 @@ Model.prototype =
 					self._remove();
 				}
 				else if(!$.isEmptyObject(self.changeset)) {
-					//console.log('pull update');
+					//console.log('pull update: ',$.extend({},self.changeset));
 					self.triggerHandler('update', self.changeset).clearChangeset();
-				}				
+				}
 				else {
 					//console.log('pull read');
 					self.clearChangeset().triggerHandler('read');
 				}
 			}));
-		
+
 		return ret;
 	},
 	_remove: function()
@@ -340,7 +480,7 @@ Model.prototype =
 	},
 	isDeleted: function()
 	{
-		return this._forDelete;  
+		return this._forDelete;
 	},
 	/*!
 	 * overwrite this to add other logic upon parse complex type data
@@ -357,18 +497,19 @@ Model.prototype =
 		if(data instanceof Model) {
 			data = data.data;
 		}
-		if(data.isParsed)
+		if(data._parsed)
 			return;
-		for( var i in data ) 
+		for( var i in data )
 		{
 			if( this.defaults[i] ) switch(true)
 			{
-				case typeof this.defaults[i] === 'function': // a model or collection constructor
-					var newModel = this.modelDataBuild(new this.defaults[i](data[i]));				
-					if( (this.data[i] !== undefined) && (newModel != this.data[i]) )
+				case (typeof this.defaults[i] === 'function') && (this.data[i] === undefined): // a model or collection constructor
+					
+					var newModel = this.modelDataBuild(new this.defaults[i](data[i]));
+					if( !this._new && (newModel != this.data[i]) && !(newModel instanceof Collection) )
 						this.changeset[i] = newModel;
 					this.data[i] = newModel;
-					
+
 					// fot model w/o href, need to make a collection since it's obviously
 					// an existing one and we don't need a new one
 					// TODO instanceof Model?
@@ -376,42 +517,47 @@ Model.prototype =
 
 					continue;
 					break;
-				
+
 				case $.isArray(this.defaults[i]): // a collection
-					this.data[i] = this.modelDataBuild(new Collection(this.defaults[i][0], data[i].href)); 
+					this.data[i] = this.modelDataBuild(new Collection(this.defaults[i][0], data[i].href));
 					delete this.data[i];
 					continue;
 					break;
-					
+
 				case this.defaults[i] instanceof Collection: // an instance of some colelction/model
 				case this.defaults[i] instanceof Model:
 					this.data[i] = this.defaults[i];
 					continue;
 					break;
 			}
-			if(this.data[i] !== undefined) {
-				if($.type(data[i]) === 'object')
+			else if( !this._new ) 
+			{
+				if( $.type(data[i]) === 'object' )
 				{
 					if(compareObj(this.data[i], data[i]))
 						this.changeset[i] = data[i];
 				}
 				else if( this.data[i] != data[i] )
 				{
-						this.changeset[i] = data[i];
+					this.changeset[i] = data[i];
 				}
 			}
-			this.data[i] = data[i];
+			if( $.type(data[i]) === 'object' && $.type(this.data[i]) === 'object' )
+				$.extend(true, this.data[i], data[i]);
+			else
+				this.data[i] = data[i];
 		}
-		data.isParsed = true;
+		this._new = false;
+		data._parsed = true;
 	},
 	parseHash: function(data)
 	{
-		if( typeof data == 'string' ) 
+		if( typeof data == 'string' )
 			this.href = data;
 		else if( data && data.href !== undefined)
 			this.href = data.href;
-		else if(data && ( data.id !== undefined) && (this.url !== undefined)) 
-			this.href = this.url + data.id;			
+		else if(data && ( data.id !== undefined) && (this.url !== undefined))
+			this.href = this.url + data.id;
 		return this;
 	},
 	clearChangeset: function()
@@ -426,7 +572,7 @@ Model.prototype =
 	},
 	set: function(key, val, options)
 	{
-		var data = {}; 
+		var data = {};
 		if( $.type(key) === 'string' )
 			data[key] = val;
 		else
@@ -441,7 +587,7 @@ Model.prototype =
 			if(!options.silent)
 				this.triggerHandler('set', this.changeset);
 		}
-		
+
 		return this;
 	},
 	/*!
@@ -458,14 +604,22 @@ Model.prototype =
 	hash: function()
 	{
 		if( !this.href && this.data.href ) this.href = this.data.href;
-		return this.data.href || this.href || this._getClientHash(); 
+		return this.data.href || this.href || this._getClientHash();
 	},
 	/*!
 	 * used to relate models. a general standard key would suffice
 	 */
 	relationHash: function(val){ if(val) this.data.Id = val; return this.data.Id; },
 	/*!
-	 * used to place events on this model, 
+	 * used to remove events from this model
+	 */
+	off: function(evt, handler)		
+	{
+		$(this).off(evt, handler);
+		return this;
+	},
+	/*!
+	 * used to place events on this model,
 	 * scope of the call method is sent as obj argument
 	 */
 	on: function(evt, handler, obj)
@@ -501,17 +655,17 @@ Model.prototype =
 /*!
  * defs for unique storage of models
  */
-Uniq.prototype = 
+Uniq.prototype =
 {
-	items: {}, 
+	items: {},
 	garbageTime: 1500, //300000,
 	refresh: function(val)
 	{
 		if( !val._exTime ) val._exTime = new Date;
-		val._exTime.setTime(val._exTime.getTime() + this.garbageTime); 
+		val._exTime.setTime(val._exTime.getTime() + this.garbageTime);
 	},
 	/*!
-	 * 
+	 *
 	 */
 	set: function(key, val)
 	{
@@ -530,17 +684,17 @@ Uniq.prototype =
 		return this.set(newKey, val);
 	},
 	/*!
-	 * 
+	 *
 	 */
 	garbage: function()
 	{
-		for( var key in this.items ) 
+		for( var key in this.items )
 		{
-			if( this.items[key]._exTime && this.items[key]._exTime < new Date ) 
+			if( this.items[key]._exTime && this.items[key]._exTime < new Date )
 			{
 				$(this.items[key]).triggerHandler('garbage');
 				delete this.items[key];
-			}    
+			}
 		}
 	},
 	remove: function(key)
@@ -558,10 +712,16 @@ Model.extend = extendFnc = function(props, options)
 	newly.prototype.Class = newly;
 	newly.on = function(event, handler, obj)
 	{
-		$(newly).on(event, function(){ handler.apply(obj, arguments); }); 
+		$(newly).on(event, function(){ handler.apply(obj, arguments); });
+		return newly;
 	};
+	newly.off = function(event, handler)
+	{
+		$(newly).off(event, handler);
+		return newly;
+	};		
 	newly.triggerHandler = function(event, data){ $(newly).triggerHandler(event, data); };
-	
+
 	if(options && options.register) {
 		Register[options.register] = newly;
 		delete options.register;
@@ -572,7 +732,7 @@ Model.extend = extendFnc = function(props, options)
 	return newly;
 };
 
-Collection.prototype = 
+Collection.prototype =
 {
 	_list: [],
 	getList: function(){ return this._list; },
@@ -584,18 +744,18 @@ Collection.prototype =
 		this.desynced = true;
 		var buildData = buildOptions = function(){ void(0); },
 			self = this;
-		for( var i in arguments ) 
+		for( var i in arguments )
 		{
 			switch( $.type(arguments[i]) )
 			{
 				case 'function': // a model
-					this.model = arguments[i]; 
+					this.model = arguments[i];
 					break;
 				case 'string': // a data source
-					this.href = arguments[i]; 
+					this.href = arguments[i];
 					break;
 				case 'array': // a list of models, a function we're going to call after setting options
-					buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]); 
+					buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]);
 					break;
 				case 'object': // options, same technique as above
 					buildOptions = (function(args){ return function(){ this.options = args; if(args.href) this.href = args.href; }})(arguments[i]);
@@ -617,7 +777,7 @@ Collection.prototype =
 			searchKey = function()
 			{
 				for( var i=0; i<self._list.length; i++ )
-					if( key == self._list[i].hash() || key == self._list[i].relationHash() ) 
+					if( key == self._list[i].hash() || key == self._list[i].relationHash() )
 						return dfd.resolve(self._list[i]);
 				dfd.reject();
 			};
@@ -636,7 +796,7 @@ Collection.prototype =
 	},
 	syncAdapter: Sync,
 	/*!
-	 * 
+	 *
 	 */
 	setHref: function(href)
 	{
@@ -653,17 +813,17 @@ Collection.prototype =
 	{
 		for(var i = this._list.length; i > 0; ++i) {
 			fn.call(scope || this, this[i], i, this);
-		}		
+		}
 	},
 	feed: function(format, deep)
 	{
 		var ret = [];
-		for( var i in this._list ) 
+		for( var i in this._list )
 			ret[i] = this._list[i].feed(format, deep);
 		return ret;
-	},		
+	},
 	/*!
-	 * @param options 
+	 * @param options
 	 */
 	sync: function()
 	{
@@ -682,10 +842,10 @@ Collection.prototype =
 							model = data.list[i];
 							break;
 						}
-					
+
 					if( !model ) {
 						self._list.push(data.list[i]);
-						changeset.push(data.list[i]);						
+						changeset.push(data.list[i]);
 					}
 					else {
 						//self._list[j].parse(model.data);
@@ -699,14 +859,18 @@ Collection.prototype =
 					}
 				}
 				self.desynced = false;
-				if(count === 0)
+				/**
+				 * If the initial data is empty then trigger READ event
+				 * else UPDATE with the changeset if there are some
+				 */
+				if( ( count === 0) ){
 					self.triggerHandler('read');
-				else if( changeset.length > 0) {
+				} else {                    
 					/**
 					 * Trigger handler with changeset extraparameter as a vector of vectors,
 					 * caz jquery will send extraparameters as arguments when calling handler
 					 */
-					$(self).triggerHandler('read', [changeset]);
+					$(self).triggerHandler('update', [changeset]);
 				}
 			}));
 	},
@@ -715,10 +879,10 @@ Collection.prototype =
 	 */
 	modelDataBuild: function(model)
 	{
-		return model
+		return model;
 	},
 	/*!
-	 * 
+	 *
 	 */
 	parse: function(data)
 	{
@@ -729,7 +893,7 @@ Collection.prototype =
 		var extractListData = function(data)
 		{
 			var ret = data;
-			if( !Array.isArray(data) ) for( i in data ) 
+			if( !Array.isArray(data) ) for( i in data )
 			{
 				if( $.isArray(data[i]) )
 				{
@@ -757,7 +921,15 @@ Collection.prototype =
 		return x;
 	},
 	/*!
-	 * used to place events on this model, 
+	 * used to remove events from this model
+	 */
+	off: function(evt, handler)		
+	{
+		$(this).off(evt, handler);
+		return this;
+	},
+	/*!
+	 * used to place events on this model,
 	 * scope of the call method is sent as obj argument
 	 */
 	on: function(evt, handler, obj)
@@ -787,7 +959,7 @@ Collection.prototype =
 	{
 		$(this).triggerHandler(evt, data);
 		return this;
-	}        
+	}
 };
 
 Collection.extend = cextendFnc = function(props)
@@ -796,13 +968,13 @@ Collection.extend = cextendFnc = function(props)
 	newly = Class.extend.call(this, props);
 	newly.extend = cextendFnc;
 	if(options && options.register)
-		Collection[options.register] = newly;		
+		Collection[options.register] = newly;
 	return newly;
 };
 // view
 
 var Render = Class.extend
-({     
+({
 	getProperty: function(prop)
 	{
 		if (!this[prop]) return null;
@@ -813,7 +985,7 @@ View = Render.extend
 ({
 	tagName: 'div',
 	attributes: { className: '', id: ''},
-	namespace: 'view',      
+	namespace: 'view',
 	_constructor: function(data, options)
 	{
 		$.extend(this, data);
@@ -831,7 +1003,7 @@ View = Render.extend
 			if($.type(this.el) === 'string') {
 				if(this.el[0]=='.') {
 					className = className + this.el.substr(0,1);
-				} 
+				}
 				if(this.el[0]=='#') {
 					id = this.el.substr(0,1);
 				}
@@ -845,9 +1017,9 @@ View = Render.extend
 			}
 			el = el + '></'+this.tagName+'>';
 			this.el = $(el);
-		} else 
+		} else
 			this.el = $(this.el);
-	},      
+	},
 	init: function(){ return this; },
 	resetEvents: function()
 	{
@@ -857,7 +1029,7 @@ View = Render.extend
 	delegateEvents: function(events)
 	{
 		var self = this;
-		if (!(events || (events = this.getProperty('events')))) return;                                
+		if (!(events || (events = this.getProperty('events')))) return;
 		for(var selector in events) {
 			var one = events[selector];
 			for(var evnt in one) {
@@ -882,20 +1054,46 @@ View = Render.extend
 	{
 		$(this.el).off(this.getProperty('namespace'));
 	},
-	render: function(){ 
-		
+	render: function(){
+
 		this.delegateEvents();
-		return this; 
+		return this;
 	},
 	remove: function()
 	{
 		$(this.el).remove();
+		this.destroy();
 		return this;
+	},
+	destroy: function()
+	{
+		if(this.model)
+			this.model.trigger('destroy');
+		if(this.collection)
+			this.collection.trigger('destroy');
+		return this;
+	},
+	checkElement: function()
+	{
+		//console.log('Undefined: ',(this.el === undefined));
+		
+		if(this.el === undefined)
+			return false;
+		
+		//console.log('Selector: ',this.el.selector, ' length: ',($(this.el.selector).length === 1));
+		
+		if((this.el.selector !== undefined) && (this.el.selector != ''))
+			return ($(this.el.selector).length === 1);			
+		
+		//console.log('Last: ',this.el, ' length: ',($(this.el).length === 1));
+		
+		return ($(this.el).length === 1);
+		
 	},
 	setElement: function(el)
 	{
 		this.undelegateEvents();
-		var newel = $(el), prevData = this.el.data();			
+		var newel = $(el), prevData = this.el.data();
 		this.el.replaceWith(newel);
 		this.el = newel;
 		this.el.data(prevData);
