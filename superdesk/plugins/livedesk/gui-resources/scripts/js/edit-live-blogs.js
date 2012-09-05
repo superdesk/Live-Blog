@@ -116,6 +116,9 @@ function(providers, Gizmo, $)
 			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
+			/*!
+			 * for auto refresh
+			 */
 			keep: false,
 			init: function(){  },
 			destroy: function(){ this.stop(); },
@@ -332,6 +335,8 @@ function(providers, Gizmo, $)
 				        providers[src].timeline.render.call(self, function()
 				        {
 				            $('.editable', this.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+				            
+				            $(self).triggerHandler('render');
 				        });
 				        rendered = true;
 				    }
@@ -344,11 +349,13 @@ function(providers, Gizmo, $)
 					    .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
 					
 					/*!
-                     * conditionally handing over save functionallity to provider if
+                     * conditionally handing over some functionallity to provider if
                      * model has source name in providers 
                      */
                     if( providers[src] && providers[src].timeline )
     					providers[src].timeline.init.call(self);
+                    
+                    $(self).triggerHandler('render');
 					
 				});
 				
@@ -408,19 +415,34 @@ function(providers, Gizmo, $)
 				});
 				self.collection
 					.off('read update')
-					.on('read', function(){
+					.on('read', function()
+					{
 						self.render();
 					})
-					.on('update', function(evt, data){
+					.on('update', function(evt, data)
+					{
 						self.addAll(data);
 					})
 					.sync();
 				self.collection.view = self;
+				
+				// default autorefresh on
+				localStorage.setItem('superdesk.config.timeline.autorefresh', 1);
+				// toggle autorefresh
+				$('[data-toggle="autorefresh"]', self.uiCtrls).off('click')
+				    .on('click', function(){ self.configAutorefresh.call(self, this); })
+				    .tooltip({placement: 'bottom'});
+				
 			},
 			addOne: function(model)
 			{			
-				current = new PostView({model: model, _parent: this});				
+				var current = new PostView({model: model, _parent: this}),
+				    self = this;				
 				this.el.find('ul.post-list').prepend(current.el);
+				
+				// handle autorefresh case
+				$(current).on('render', function(){ self.autorefreshHandle.call(self, current.el.outerHeight(true)); });
+				
 				current.next = this._latest;
 				if( this._latest !== undefined )
 					this._latest.prev = current;
@@ -429,10 +451,7 @@ function(providers, Gizmo, $)
 			addAll: function(data)
 			{
 				var next = this._latest, current, model, i = data.length;
-				while(i--) {
-					this.addOne(data[i]);
-				}
-				
+				while(i--) this.addOne(data[i]);
 			},
 			render: function()
 			{
@@ -473,7 +492,37 @@ function(providers, Gizmo, $)
 					this.collection.insert({});
 					model.publish();
 				}
-			}
+			},
+			
+			stoppedHeight: false,
+			autorefreshHandle: function(newH)
+			{
+			    if( parseFloat(localStorage.getItem('superdesk.config.timeline.autorefresh')) ) return;
+			    
+			    var x = $('.live-blog-content').parents(':eq(0)').scrollTop();
+			        $('.live-blog-content').parents(':eq(0)').scrollTop( x + newH );
+			    
+			},
+			/*!
+			 * configure autorefresh on timeline
+			 * 0 is for no refresh
+			 * 
+			 */
+			configAutorefresh: function(button)
+            {
+			    var cnfAuto = localStorage.getItem('superdesk.config.timeline.autorefresh');
+	            if( !parseFloat(cnfAuto) )
+	            {
+	                localStorage.setItem('superdesk.config.timeline.autorefresh', 1);
+	                $(button).removeClass('active');
+	            }
+	            else
+	            {
+	                this.stoppedHeight = false;
+	                localStorage.setItem('superdesk.config.timeline.autorefresh', 0);
+	                $(button).addClass('active');
+	            }
+            }
 		}),
 
 		EditView = Gizmo.View.extend
@@ -569,131 +618,134 @@ function(providers, Gizmo, $)
 			{
 				var self = this,
 				
-				    // template data
-					data = $.extend({}, this.model.feed(), 
+			    // template data
+				data = $.extend({}, this.model.feed(), 
+				{
+					BlogHref: self.theBlog,
+					ui: 
 					{
-						BlogHref: self.theBlog,
-						ui: 
-						{
-							content: 'is-content=1',
-							side: 'is-side=1',
-							submenu: 'is-submenu',
-							submenuActive1: 'active'
+						content: 'is-content=1',
+						side: 'is-side=1',
+						submenu: 'is-submenu',
+						submenuActive1: 'active'
+					}
+				});
+			    
+				$.superdesk.applyLayout('livedesk>edit', data, function()
+				{
+					// refresh twitter share button
+					//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
+				    
+					var timelineCollection = Gizmo.Auth(new TimelineCollection( Gizmo.Register.Post ));
+					timelineCollection.href.root(self.theBlog);
+					
+					self.timelineView = new TimelineView
+					({
+						el: $('#timeline-view .results-placeholder', self.el),
+						uiCtrls: $('.timeline-controls', self.el),
+						collection: timelineCollection,
+						_parent: self
+					});
+					
+					self.providers = new ProvidersView
+					({
+						el: $('.side ', self.el),
+						providers: providers,
+						_parent: self,
+						theBlog: self.theBlog
+					});
+					self.providers.render();
+					
+					$('.tabbable', self.el).find('a:eq(0)').tab('show');						
+					$('.live-blog-content', self.el).droppable
+					({
+						activeClass: 'ui-droppable-highlight',
+						accept: ':not(.edit-toolbar,.timeline)',
+						drop: function(evt, ui){ self.drop(evt, ui);
 						}
 					});
-				    
-					$.superdesk.applyLayout('livedesk>edit', data, function()
-					{
-						// refresh twitter share button
-						//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
-					    
-						var timelineCollection = Gizmo.Auth(new TimelineCollection( Gizmo.Register.Post ));
-						timelineCollection.href.root(self.theBlog);
-						
-						self.timelineView = new TimelineView
-						({
-							el: $('#timeline-view .results-placeholder', self.el),
-							collection: timelineCollection,
-							_parent: self
-						});
-						
-						self.providers = new ProvidersView
-						({
-							el: $('.side ', self.el),
-							providers: providers,
-							_parent: self,
-							theBlog: self.theBlog
-						});
-						self.providers.render();
-						
-						$('.tabbable', self.el).find('a:eq(0)').tab('show');						
-						$('.live-blog-content', self.el).droppable
-						({
-							activeClass: 'ui-droppable-highlight',
-							accept: ':not(.edit-toolbar,.timeline)',
-							drop: function(evt, ui){ self.drop(evt, ui);
-							}
-						});
-						$("#MySplitter", self.el).splitter
-						({
-							type: "v",
-							outline: true,
-							sizeLeft: 470,
-							minLeft: 470,
-							minRight: 600,
-							resizeToWidth: true,
-							//dock: "left",
-							dockSpeed: 100,
-							cookie: "docksplitter",
-							dockKey: 'Z',   // Alt-Shift-Z in FF/IE
-							accessKey: 'I'  // Alt-Shift-I in FF/IE
-						});
-						
-						$.superdesk.hideLoader();
-						
+					$("#MySplitter", self.el).splitter
+					({
+						type: "v",
+						outline: true,
+						sizeLeft: 470,
+						minLeft: 470,
+						minRight: 600,
+						resizeToWidth: true,
+						//dock: "left",
+						dockSpeed: 100,
+						cookie: "docksplitter",
+						dockKey: 'Z',   // Alt-Shift-Z in FF/IE
+						accessKey: 'I'  // Alt-Shift-I in FF/IE
 					});
-					/** text editor initialization */
-					var editorImageControl = function()
-					{
-						// call super
-						var command = $.ui.texteditor.prototype.plugins.controls.image.apply(this, arguments);
-						// do something on insert event
-						$(command).on('image-inserted.text-editor', function()
-						{
-							var img = $(this.lib.selectionHas('img'));
-							if( !img.parents('figure.blog-image:eq(0)').length )
-								img.wrap('<figure class="blog-image" />');
-						});
-						return command;
-					},
-					editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
-					content = $(this.el).find('[is-content]'),
-					titleInput = content.find('section header h2'),
-					descrInput = content.find('article#blog-intro');
-					delete h2ctrl.justifyRight;
-					delete h2ctrl.justifyLeft;
-					delete h2ctrl.justifyCenter;
-					delete h2ctrl.html;
-					delete h2ctrl.image;
-					delete h2ctrl.link;
-					// assign editors
-					titleInput.texteditor({
-						plugins: {controls: h2ctrl},
-						floatingToolbar: 'top'
-					});
-					descrInput.texteditor({
-						plugins: {controls: editorTitleControls},
-						floatingToolbar: 'top'
-					});
-					/** text editor stop */
 					
+					$.superdesk.hideLoader();
 					
-					topSubMenu = $(this.el).find('[is-submenu]');
-					$(topSubMenu)
-					.off('click.livedesk', 'a[data-target="configure-blog"]')
-					.on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
+				});
+				/** text editor initialization */
+				var editorImageControl = function()
+				{
+					// call super
+					var command = $.ui.texteditor.prototype.plugins.controls.image.apply(this, arguments);
+					// do something on insert event
+					$(command).on('image-inserted.text-editor', function()
 					{
-						event.preventDefault();
-						var blogHref = $(this).attr('href')
-						$.superdesk.getAction('modules.livedesk.configure')
-						.done(function(action)
-						{
-							action.ScriptPath && 
-								require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
-						});
-					})
-					.off('click.livedesk', 'a[data-target="edit-blog"]')
-					.on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
+						var img = $(this.lib.selectionHas('img'));
+						if( !img.parents('figure.blog-image:eq(0)').length )
+							img.wrap('<figure class="blog-image" />');
+					});
+					return command;
+				},
+				editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : editorImageControl }),
+				content = $(this.el).find('[is-content]'),
+				titleInput = content.find('section header h2'),
+				descrInput = content.find('article#blog-intro');
+				delete h2ctrl.justifyRight;
+				delete h2ctrl.justifyLeft;
+				delete h2ctrl.justifyCenter;
+				delete h2ctrl.html;
+				delete h2ctrl.image;
+				delete h2ctrl.link;
+				// assign editors
+				titleInput.texteditor({
+					plugins: {controls: h2ctrl},
+					floatingToolbar: 'top'
+				});
+				descrInput.texteditor({
+					plugins: {controls: editorTitleControls},
+					floatingToolbar: 'top'
+				});
+				/** text editor stop */
+				
+				
+				topSubMenu = $(this.el).find('[is-submenu]');
+				$(topSubMenu)
+				.off('click.livedesk', 'a[data-target="configure-blog"]')
+				.on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
+				{
+					event.preventDefault();
+					var blogHref = $(this).attr('href')
+					$.superdesk.getAction('modules.livedesk.configure')
+					.done(function(action)
 					{
-						event.preventDefault();
-						var blogHref = $(this).attr('href');
-						$.superdesk.getAction('modules.livedesk.edit')
-						.done(function(action)
-						{
-							action.ScriptPath && 
-								require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
-						});
-					});					
+						action.ScriptPath && 
+							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+					});
+				})
+				.off('click.livedesk', 'a[data-target="edit-blog"]')
+				.on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
+				{
+					event.preventDefault();
+					var blogHref = $(this).attr('href');
+					$.superdesk.getAction('modules.livedesk.edit')
+					.done(function(action)
+					{
+						action.ScriptPath && 
+							require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
+					});
+				});
+				
+				
 			}
 		});	
 	var editView = new EditView({el: '#area-main'});
