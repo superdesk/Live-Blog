@@ -6,7 +6,7 @@ define
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
     config.guiJs('livedesk', 'models/post'),
-    'jquery/splitter', 'jquery/rest', 'jqueryui/droppable',
+    'jquery/splitter', 'jquery/rest', 'jquery/param', 'jqueryui/droppable',
     'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 'jquery/avatar',
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>layouts/blog',
@@ -280,7 +280,10 @@ function(providers, Gizmo, $)
 				self.model.ordering = self;
 				self.model.xfilter(self.xfilter).sync();
 			},
-			
+			/**
+			 * Method used to remake connection in the post list ( dubled linked list )
+			 *   when the post is removed from that position
+			 */			
 			tightkNots: function()
 			{
 				if(this.next !== undefined)
@@ -552,13 +555,16 @@ function(providers, Gizmo, $)
 			/*!
              * Toggle ClosedOn field for the blog
              */			
-			toggleStatus: function()
+			toggleStatus: function(e)
 			{
-				var now = new Date(),data = 'ClosedOn' + (this.model.get('ClosedOn')? '': '='+now.format('yyyy-mm-dd HH:MM:ss')),
-				content = $(this.el).find('[is-content]');
+				var now = new Date(),
+					data = { ClosedOn:  (this.model.get('ClosedOn')? null: now.format('yyyy-mm-dd HH:MM:ss'))},
+					newText = this.model.get('ClosedOn')? _('Close blog'):_('Reopen blog'),
+					content = $(this.el).find('[is-content]');
 				this.model.set(data).sync().done(function() {
 					content.find('.tool-box-top .update-success').removeClass('hide')
 					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
+					$(e.target).html(newText.toString());
 				})
 				.fail(function() {
 					content.find('.tool-box-top .update-error').removeClass('hide')
