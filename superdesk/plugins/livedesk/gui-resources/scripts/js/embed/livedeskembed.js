@@ -171,6 +171,7 @@ window.livedesk.startLoading = function() {
 			auto: function(){
 				var self = this, requestOptions = {data: {'startEx.cId': this._latestCId}, headers: {'X-Filter': 'CId'}};
 				if(this._latestCId === 0) delete requestOptions.data;
+				this.triggerHandler('beforeUpdate');
 				$.gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){
 					self.getMaximumCid(self.parse(data));
 				});
@@ -333,11 +334,16 @@ window.livedesk.startLoading = function() {
 				self.model.on('read', function()
 				{ 
 					if(!self.rendered) {
-						self.model.get('PostPublished').on('read', self.render, self).xfilter('CId').sync();
+						self.model.get('PostPublished')
+							.on('read', self.render, self)
+							.on('update', self.updateStatus, self)
+							.on('beforeUpdate', self.updateingStatus, self)
+							.xfilter('CId').sync();
 					}
 					self.rendered = true;
 				}).on('update', function(e, data){
 					self.ensureStatus();
+					self.renderBlog();
 				});
 				self.sync();				
 			},
@@ -349,10 +355,28 @@ window.livedesk.startLoading = function() {
 				if( this._latest !== undefined )
 					this._latest.prev = current;
 				this._latest = current;
-			},			
-			render: function(evt)
+			},
+			updateingStatus: function()
 			{
-				this.el.html('<article></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div>');
+				this.el.find('#liveblog-status').html('updateing...');
+			},
+			updateStatus: function()
+			{
+				var now = new Date();
+				this.el.find('#liveblog-status').fadeOut(function(){
+					$(this).text('updated on '+now.format('HH:MM:ss')).fadeIn();
+				});
+			},
+			renderBlog: function()
+			{
+				$(this.el).find('article')
+					.find('h2').text(this.model.get('Title')).end()
+					.find('p').text(this.model.get('Description'));
+			},
+			render: function(evt)
+			{				
+				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div>');
+				this.renderBlog();
 				this.ensureStatus();
 				data = this.model.get('PostPublished')._list;
 				var next = this._latest, current, model, i = data.length;
