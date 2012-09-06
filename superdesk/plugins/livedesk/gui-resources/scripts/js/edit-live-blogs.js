@@ -724,10 +724,12 @@ function(providers, Gizmo, $)
 				/** text editor stop */
 				
 				
-				topSubMenu = $(this.el).find('[is-submenu]');
+				var 
+					topSubMenu = $(this.el).find('[is-submenu]'),
+					content = $(this.el).find('[is-content]');
 				$(topSubMenu)
-				.off('click.livedesk', 'a[data-target="configure-blog"]')
-				.on('click.livedesk', 'a[data-target="configure-blog"]', function(event)
+				.off('click'+this.getNamespace(), 'a[data-target="configure-blog"]')
+				.on('click'+this.getNamespace(), 'a[data-target="configure-blog"]', function(event)
 				{
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
@@ -738,8 +740,8 @@ function(providers, Gizmo, $)
 							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
 					});
 				})
-				.off('click.livedesk', 'a[data-target="edit-blog"]')
-				.on('click.livedesk', 'a[data-target="edit-blog"]', function(event)
+				.off('click'+this.getNamespace(), 'a[data-target="edit-blog"]')
+				.on('click'+this.getNamespace(), 'a[data-target="edit-blog"]', function(event)
 				{
 					event.preventDefault();
 					var blogHref = $(this).attr('href');
@@ -750,8 +752,31 @@ function(providers, Gizmo, $)
 							require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
 					});
 				});
-				
-				
+				// wrapup toggle
+				$(content)
+				.off('click'+this.getNamespace())
+				.on('click'+this.getNamespace(), 'li.wrapup', function()
+				{
+					if($(this).hasClass('open'))
+						$(this).removeClass('open').addClass('closed').nextUntil('li.wrapup').hide();
+					else
+						$(this).removeClass('closed').addClass('open').nextUntil('li.wrapup').show();
+				})
+				.on('click'+this.getNamespace(), '.filter-posts a',function(){
+					var datatype = $(this).attr('data-value');
+					if(datatype == 'all') {
+						$('#timeline-view li').show();
+					} else {
+						$('#timeline-view li').show();
+						$('#timeline-view li[data-post-type!="'+datatype+'"]').hide();
+					}
+				})
+				.on('click'+this.getNamespace(), '.collapse-title-page', function()
+				{
+					var intro = $('article#blog-intro', content);
+					!intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
+					intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
+				});				
 			}
 		});	
 	var editView = new EditView({el: '#area-main'});
