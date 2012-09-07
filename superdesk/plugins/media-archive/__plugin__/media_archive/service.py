@@ -9,21 +9,27 @@ Created on Apr 25, 2012
 Contains the services setups for media archive superdesk.
 '''
 
-from ..cdm.local_cdm import contentDeliveryManager
 from ..superdesk import service
-from ..superdesk.db_superdesk import createTables
+from ..superdesk.db_superdesk import bindSuperdeskSession, createTables
 from ally.container import ioc, support
 from cdm.spec import ICDM
 from cdm.support import ExtendPathCDM
-from superdesk.media_archive.api.meta_data import IMetaDataService
-from superdesk.media_archive.core.spec import IThumbnailManager, IThumbnailCreator
-from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
-    MetaDataServiceAlchemy
-from superdesk.media_archive.impl.meta_info import IMetaInfoService, \
-    MetaInfoServiceAlchemy    
-import logging
+from superdesk.media_archive.api.meta_data import IMetaDataService,\
+    IMetaDataUploadService
 from superdesk.media_archive.core.impl.thumbnail_manager import ThumbnailManager, \
     ThumbnailCreatorGraphicsMagick
+from superdesk.media_archive.core.spec import IThumbnailManager, \
+    IThumbnailCreator, QueryIndexer
+from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
+    MetaDataServiceAlchemy
+import logging
+from superdesk.media_archive.core.impl.query_service_creator import createService
+from ..plugin.registry import registerService
+from superdesk.media_archive.impl.query_criteria import QueryCriteriaService
+from superdesk.media_archive.api.query_criteria import IQueryCriteriaService
+from cdm.impl.local_filesystem import LocalFileSystemCDM, IDelivery,\
+    HTTPDelivery
+from __plugin__.cdm.local_cdm import server_uri, repository_path
 
 # --------------------------------------------------------------------
 
@@ -35,6 +41,7 @@ def addMetaDataHandler(handler):
     if not isinstance(handler, IMetaDataService): metaDataHandlers().append(handler)
 
 support.wireEntities(ThumbnailManager, ThumbnailCreatorGraphicsMagick)
+support.bindToEntities(ThumbnailManager, binders=bindSuperdeskSession)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
 
 # --------------------------------------------------------------------
@@ -52,13 +59,24 @@ def thumbnail_sizes():
 # --------------------------------------------------------------------
 
 @ioc.entity
+def delivery() -> IDelivery:
+    d = HTTPDelivery()
+    d.serverURI = server_uri()
+    d.repositoryPath = repository_path()
+    return d
+
+@ioc.entity
+def contentDeliveryManager() -> ICDM:
+    cdm = LocalFileSystemCDM();
+    cdm.delivery = delivery()
+    return cdm
+
+@ioc.entity
 def cdmArchive() -> ICDM:
     '''
     The content delivery manager (CDM) for the media archive.
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'media_archive/%s')
-
-# --------------------------------------------------------------------
 
 @ioc.entity
 def cdmThumbnail() -> ICDM:
@@ -86,8 +104,8 @@ def thumbnailCreator() -> IThumbnailCreator:
 
 # --------------------------------------------------------------------
 
-@ioc.entity
-def metaDataService() -> IMetaDataService:
+@ioc.replace(ioc.getEntity(IMetaDataUploadService, service))
+def metaDataService() -> IMetaDataUploadService:
     b = MetaDataServiceAlchemy()
     b.cdmArchive = cdmArchive()
     b.metaDataHandlers = metaDataHandlers()
@@ -96,15 +114,29 @@ def metaDataService() -> IMetaDataService:
 # --------------------------------------------------------------------
 
 @ioc.entity
-def metaInfoService() -> IMetaInfoService:
-    b = MetaInfoServiceAlchemy()
-    return b
+def metaDataHandlers(): return []
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def metaDataHandlers(): return []
+def queryIndexer() -> QueryIndexer:
+    b = QueryIndexer()
+    return b
 
+# --------------------------------------------------------------------
+
+@ioc.after(createTables)
+def publishQueryService():
+    b = createService(queryIndexer())
+    registerService(b, (bindSuperdeskSession, ))
+    
+# --------------------------------------------------------------------
+
+@ioc.replace(ioc.getEntity(IQueryCriteriaService, service))
+def publishQueryCriteriaService() -> IQueryCriteriaService:
+    b = QueryCriteriaService(queryIndexer() )
+    return b    
+    
 # --------------------------------------------------------------------
 
 @ioc.after(createTables)

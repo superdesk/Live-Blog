@@ -190,7 +190,7 @@ window.livedesk.startLoading = function() {
         Posts = AutoCollection.extend({
             model: Post
         }),
-       
+        
         Blog = $.gizmo.Model.extend
         ({
             defaults: 
