@@ -215,14 +215,14 @@ function compareObj(x, y)
 	  if (y[p]) {
 		  switch(typeof(y[p])) {
 			  case 'object':
-				  if (compareObj(y[p],x[p])) { return true; } break;
+				  if (compareObj(y[p],x[p])) {return true;}break;
 			  case 'function':
 				  if (typeof(x[p])=='undefined' ||
 					  (y[p].toString() != x[p].toString()))
 					  return true;
 				  break;
 			  default:
-				  if (y[p] != x[p]) { return true; }
+				  if (y[p] != x[p]) {return true;}
 		  }
 	  } else {
 		  if (x[p])
@@ -247,7 +247,7 @@ Url = Class.extend
 ({
 	_construct: function(arg) 
 	{
-		this.data = !this.data ? { root: ''} : this.data;
+		this.data = !this.data ? {root: ''} : this.data;
 		switch( $.type(arg) )
 		{
 			case 'string':
@@ -296,7 +296,7 @@ Url = Class.extend
 	{
 		var options = {};
 		if(this.data.xfilter)
-			options.headers = { 'X-Filter': this.data.xfilter};
+			options.headers = {'X-Filter': this.data.xfilter};
 		return options;
 	}
 }),
@@ -328,16 +328,16 @@ Sync =
 
 		return {
 
-			read: function(userOptions){ return reqFnc({}, self.readOptions, userOptions); },
+			read: function(userOptions){return reqFnc({}, self.readOptions, userOptions);},
 
-			update: function(data, userOptions){ return reqFnc(data, self.updateOptions, userOptions); },
+			update: function(data, userOptions){return reqFnc(data, self.updateOptions, userOptions);},
 
-			insert: function(data, userOptions){ return reqFnc(data, self.insertOptions, userOptions); },
+			insert: function(data, userOptions){return reqFnc(data, self.insertOptions, userOptions);},
 
-			remove: function(userOptions){ return reqFnc({}, self.removeOptions, userOptions); }
+			remove: function(userOptions){return reqFnc({}, self.removeOptions, userOptions);}
 		};
 	},
-	href: function(source){ return source; },
+	href: function(source){return source;},
 	reset: $.noop,
 	// bunch of options for each type of operation
 	options: {},
@@ -403,7 +403,7 @@ Model.prototype =
 	sync: function()
 	{
 		//console.log('sync');
-		var self = this, ret = $.Deferred(), dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); };
+		var self = this, ret = $.Deferred(), dataAdapter = function(){return self.syncAdapter.request.apply(self.syncAdapter, arguments);};
 		this.hash();
 		// trigger an event before sync
 		self.triggerHandler('sync');
@@ -580,7 +580,7 @@ Model.prototype =
 			data = key;
 			options = val;
 		}
-		options = $.extend({},{ silent: false}, options);
+		options = $.extend({},{silent: false}, options);
 		this.clearChangeset().parse(data);
 		this._changed = true;
 		if(!$.isEmptyObject(this.changeset)) {
@@ -609,7 +609,7 @@ Model.prototype =
 	/*!
 	 * used to relate models. a general standard key would suffice
 	 */
-	relationHash: function(val){ if(val) this.data.Id = val; return this.data.Id; },
+	relationHash: function(val){if(val) this.data.Id = val;return this.data.Id;},
 	/*!
 	 * used to remove events from this model
 	 */
@@ -670,7 +670,7 @@ Uniq.prototype =
 	set: function(key, val)
 	{
 		var self = this;
-		$(val).on('sync get get-prop set-prop', function(){ self.refresh(this); });
+		$(val).on('sync get get-prop set-prop', function(){self.refresh(this);});
 		self.refresh(val);
 		if( !this.items[key] ) this.items[key] = val;
 		return this.items[key];
@@ -712,7 +712,7 @@ Model.extend = extendFnc = function(props, options)
 	newly.prototype.Class = newly;
 	newly.on = function(event, handler, obj)
 	{
-		$(newly).on(event, function(){ handler.apply(obj, arguments); });
+		$(newly).on(event, function(){handler.apply(obj, arguments);});
 		return newly;
 	};
 	newly.off = function(event, handler)
@@ -720,7 +720,7 @@ Model.extend = extendFnc = function(props, options)
 		$(newly).off(event, handler);
 		return newly;
 	};		
-	newly.triggerHandler = function(event, data){ $(newly).triggerHandler(event, data); };
+	newly.triggerHandler = function(event, data){$(newly).triggerHandler(event, data);};
 
 	if(options && options.register) {
 		Register[options.register] = newly;
@@ -735,14 +735,14 @@ Model.extend = extendFnc = function(props, options)
 Collection.prototype =
 {
 	_list: [],
-	getList: function(){ return this._list; },
-	count: function(){ return this._list.length; },
+	getList: function(){return this._list;},
+	count: function(){return this._list.length;},
 	_construct: function()
 	{
 		if( !this.model ) this.model = Model;
 		this._list = [];
 		this.desynced = true;
-		var buildData = buildOptions = function(){ void(0); },
+		var buildData = buildOptions = function(){void(0);},
 			self = this;
 		for( var i in arguments )
 		{
@@ -755,17 +755,17 @@ Collection.prototype =
 					this.href = arguments[i];
 					break;
 				case 'array': // a list of models, a function we're going to call after setting options
-					buildData = (function(args){ return function(){ this._list = this.parse(args); }})(arguments[i]);
+					buildData = (function(args){return function(){this._list = this.parse(args);}})(arguments[i]);
 					break;
 				case 'object': // options, same technique as above
-					buildOptions = (function(args){ return function(){ this.options = args; if(args.href) this.href = args.href; }})(arguments[i]);
+					buildOptions = (function(args){return function(){this.options = args;if(args.href) this.href = args.href;}})(arguments[i]);
 					break;
 			}
 		}
 		// callbacks in order
 		buildOptions.call(this);
 		buildData.call(this);
-		options = $.extend({}, { init: true}, this.options);
+		options = $.extend({}, {init: true}, this.options);
 		options.init && this.init.apply(this, arguments);
 
 	},
@@ -781,7 +781,7 @@ Collection.prototype =
 						return dfd.resolve(self._list[i]);
 				dfd.reject();
 			};
-		this.desynced && this.sync().done(function(){ dfd.resolve(searchKey()); }) ? dfd : searchKey();
+		this.desynced && this.sync().done(function(){dfd.resolve(searchKey());}) ? dfd : searchKey();
 		return dfd;
 	},
 	remove: function(key)
@@ -853,8 +853,8 @@ Collection.prototype =
 							model._remove();
 						}
 						else {
-							model.on('delete', function(){ self.remove(this.hash()); })
-									.on('garbage', function(){ this.desynced = true; });
+							model.on('delete', function(){self.remove(this.hash());})
+									.on('garbage', function(){this.desynced = true;});
 						}
 					}
 				}
@@ -984,12 +984,12 @@ var Render = Class.extend
 View = Render.extend
 ({
 	tagName: 'div',
-	attributes: { className: '', id: ''},
+	attributes: {className: '', id: ''},
 	namespace: 'view',
 	_constructor: function(data, options)
 	{
 		$.extend(this, data);
-		options = $.extend({}, { init: true, events: true, ensure: true}, options);
+		options = $.extend({}, {init: true, events: true, ensure: true}, options);
 		options.ensure && this._ensureElement();
 		options.init && this.init.apply(this, arguments);
 		options.events && this.delegateEvents();
@@ -1020,7 +1020,7 @@ View = Render.extend
 		} else
 			this.el = $(this.el);
 	},
-	init: function(){ return this; },
+	init: function(){return this;},
 	resetEvents: function()
 	{
 		this.undelegateEvents();
@@ -1110,7 +1110,7 @@ View = Render.extend
 
 
 
-var giz = { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq, View: View, Url: Url, Register: Register};
+var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Uniq, View: View, Url: Url, Register: Register};
     
     var syncReset = function() // reset specific data and headers for superdesk
     {
@@ -1127,7 +1127,7 @@ var giz = { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: U
     }),
     authSync = $.extend({}, newSync, 
     {
-        options: { headers: { 'Authorization': localStorage.getItem('superdesk.login.session') } },
+        options: {headers: {'Authorization': localStorage.getItem('superdesk.login.session')}},
         href: function(source)
         {
             return source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
@@ -1142,15 +1142,15 @@ var giz = { Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: U
     },
     since = function(val) // change id implementation
     {
-        $.extend( this.options, { data:{ 'startEx.CId': val }} );
+        $.extend( this.options, {data:{'startEx.CId': val}} );
     },
     asc = function(col)
     {
-        $.extend( this.options, { data:{ asc: col }} );
+        $.extend( this.options, {data:{asc: col}} );
     },
     desc = function(col)
     {
-        $.extend( this.options, { data:{ desc: col }} );
+        $.extend( this.options, {data:{desc: col}} );
     },
     Model = giz.Model.extend // superdesk Model 
     ({
