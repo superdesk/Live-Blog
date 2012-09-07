@@ -11,6 +11,7 @@ Implementation for the PO file management.
 
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.support.util_io import IInputStream
 from babel import localedata, core
 from babel.core import Locale, UnknownLocaleError
 from babel.messages.catalog import Catalog
@@ -21,10 +22,11 @@ from copy import copy
 from datetime import datetime
 from genericpath import isdir, isfile
 from internationalization.api.message import IMessageService, Message
-from internationalization.api.source import ISourceService, QSource, TYPE_JAVA_SCRIPT
+from internationalization.api.source import ISourceService, QSource, \
+    TYPE_JAVA_SCRIPT
 from internationalization.core.spec import IPOFileManager, InvalidLocaleError
-from internationalization.support.babel.util_babel import msgId, isMsgTranslated, copyTranslation, \
-    fixBabelCatalogAddBug
+from internationalization.support.babel.util_babel import msgId, isMsgTranslated, \
+    copyTranslation, fixBabelCatalogAddBug
 from io import BytesIO
 from os.path import dirname, join
 import os
@@ -44,6 +46,7 @@ FORMAT_MO = '%s_%s.mo'
 
 # TODO: add lock in order to avoid problems when a file is being updated an then read.
 @injected
+@setup(IPOFileManager)
 class POFileManager(IPOFileManager):
     '''
     Implementation for @see: IPOFileManager
@@ -216,7 +219,7 @@ class POFileManager(IPOFileManager):
         '''
         try: locale = Locale.parse(locale)
         except UnknownLocaleError: raise InvalidLocaleError(locale)
-        assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
+        assert isinstance(poFile, IInputStream), 'Invalid file object %s' % poFile
 
         return self._update(locale, self.messageService.getMessages(), poFile, self._filePath(locale),
                             self._filePath(locale, format=FORMAT_MO))
@@ -227,7 +230,7 @@ class POFileManager(IPOFileManager):
         '''
         try: locale = Locale.parse(locale)
         except UnknownLocaleError: raise InvalidLocaleError(locale)
-        assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
+        assert isinstance(poFile, IInputStream), 'Invalid file object %s' % poFile
 
         return self._update(locale, self.messageService.getComponentMessages(component), poFile,
                             self._filePath(locale, component=component),
@@ -239,7 +242,7 @@ class POFileManager(IPOFileManager):
         '''
         try: locale = Locale.parse(locale)
         except UnknownLocaleError: raise InvalidLocaleError(locale)
-        assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
+        assert isinstance(poFile, IInputStream), 'Invalid file object %s' % poFile
 
         return self._update(locale, self.messageService.getPluginMessages(plugin), poFile,
                             self._filePath(locale, plugin=plugin),
@@ -437,7 +440,7 @@ class POFileManager(IPOFileManager):
     def _update(self, locale, messages, poFile, path, pathMO, isGlobal=True):
         assert isinstance(locale, Locale), 'Invalid locale %s' % locale
         assert isinstance(messages, Iterable), 'Invalid messages %s' % messages
-        assert hasattr(poFile, 'read'), 'Invalid file object %s' % poFile
+        assert isinstance(poFile, IInputStream), 'Invalid file object %s' % poFile
         assert isinstance(path, str), 'Invalid path %s' % path
         assert isinstance(pathMO, str), 'Invalid path MO %s' % pathMO
         assert isinstance(isGlobal, bool), 'Invalid is global flag %s' % isGlobal

@@ -1,10 +1,10 @@
 '''
-Created on Apr 25, 2012
+Created on Aug 23, 2012
 
 @package: superdesk media archive image
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
-@author: Gabriel Nistor
+@author: Ioan v. Pocol
 
 Contains the services setups for media image archive.
 '''
@@ -12,28 +12,30 @@ Contains the services setups for media image archive.
 from ally.container import ioc
 from ..superdesk.db_superdesk import createTables
 from superdesk.media_archive.api.image_data import IImageDataService
-from superdesk.media_archive.api.image_persist import IImagePersistanceService
 from superdesk.media_archive.impl.image_data import ImageDataServiceAlchemy
-from superdesk.media_archive.impl.image_persist import ImagePersistanceService
-from superdesk.media_archive.core.spec import IMetaDataHandler
+from __plugin__.superdesk import service
 
 # --------------------------------------------------------------------
 
-@ioc.entity
-def imagePersistanceService() -> IImagePersistanceService:
-    b = ImagePersistanceService()
-    return b
-
-@ioc.entity
-def imageDataHandler() -> IMetaDataHandler:
-    return imagePersistanceService()
-
-@ioc.entity
+imageDataHandler = ioc.getEntity('imageDataHandler', service)
+@ioc.replace(ioc.getEntity(IImageDataService, service))
 def imageData() -> IImageDataService:
     b = ImageDataServiceAlchemy()
     b.handler = imageDataHandler()
     return b
+#    return b
+@ioc.after(createTables)
+def deploy():
+    imageDataHandler().deploy()
+    
+#@ioc.start
+#def register():
+#    registerService(imageData())
+#    registerService(imageInfo())
+    
+
+# --------------------------------------------------------------------
 
 @ioc.after(createTables)
 def deploy():
-    imagePersistanceService().deploy()
+    imageDataHandler().deploy()

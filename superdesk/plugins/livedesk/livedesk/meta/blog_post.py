@@ -55,8 +55,5 @@ class BlogPostMapped(BlogPostDefinition, PostMapped, BlogPost):
         if self.author.Person is not None: return self.author.Person
 
     # Expression for hybrid ------------------------------------
-    @classmethod
-    @AuthorPerson.expression
-    def _AuthorPerson(cls):
-        return case([(cls.author == None, cls.Creator)], else_=
-                    case([(CollaboratorMapped.Person != None, CollaboratorMapped.Person)]))
+    AuthorPerson.expression(lambda cls: case([(cls.author == None, cls.Creator)], else_=
+                                             case([(CollaboratorMapped.Person != None, CollaboratorMapped.Person)])))

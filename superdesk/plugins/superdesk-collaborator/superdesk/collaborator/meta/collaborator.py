@@ -43,7 +43,4 @@ class CollaboratorMapped(Base, Collaborator):
     source = relationship(SourceMapped, uselist=False, lazy='joined')
 
     # Expression for hybrid ------------------------------------
-    @classmethod
-    @Name.expression
-    def _Name(cls):
-        return case([(cls.Person == None, SourceMapped.Name)], else_=PersonMapped.FirstName)
+    Name.expression(lambda cls: case([(cls.Person == None, SourceMapped.Name)], else_=PersonMapped.FirstName))
