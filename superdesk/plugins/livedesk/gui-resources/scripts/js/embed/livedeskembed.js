@@ -187,25 +187,25 @@ window.livedesk.startLoading = function() {
 				this.auto().pause().setIdInterval(function(){self.auto();});
 			}
 		});
-		Posts = AutoCollection.extend({
-			model: Post
-		}),
-		
-		Blog = $.gizmo.Model.extend
-		({
-			defaults: 
-			{
+        Posts = AutoCollection.extend({
+            model: Post
+        }),
+       
+        Blog = $.gizmo.Model.extend
+        ({
+            defaults: 
+            {
                 //Post: Posts,
-				PostPublished: Posts,
+                PostPublished: Posts,
                 //PostUnpublished: Posts
-			}
-		});
-		
-		var i=0,
-		PostItemView = $.gizmo.View.extend
-		({
-			init: function()
-			{
+            }
+        });
+        
+        var i=0,
+        PostItemView = $.gizmo.View.extend
+        ({
+            init: function()
+            {
 				var self = this;
 				self.model
 					.on('read', self.render, self)
