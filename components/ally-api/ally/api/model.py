@@ -9,91 +9,47 @@ Created on Feb 29, 2012
 Provides standard model objects.
 '''
 
-from ally.type_legacy import Iterable
+from ally.support.util_io import IInputStream
 import abc
 
 # --------------------------------------------------------------------
 
-class Content(metaclass=abc.ABCMeta):
+class Content(IInputStream):
     '''
     Class that provides a bytes content, usually the raw content provided in a request.
     '''
+    __slots__ = ('name', 'type', 'charSet', 'length')
 
-    @abc.abstractclassmethod
-    def getName(self):
+    def __init__(self, name=None, type=None, charSet=None, length=None):
         '''
-        Provides the name of the content, usually a file name.
+        Construct the content.
         
-        @return: string|None
-            The content name or None if not available.
+        @param name: string|None
+            The name of the content, usually a file name.
+        @param type: string|None
+            The type of the content.
+        @param charSet: string|None
+            The character set specified for the content.
+        @param length: integer|None
+            The length in bytes for the content.
         '''
+        assert name is None or isinstance(name, str), 'Invalid name %s' % name
+        assert type is None or isinstance(type, str), 'Invalid type %s' % type
+        assert charSet is None or isinstance(charSet, str), 'Invalid char set %s' % charSet
+        assert length is None or isinstance(length, int), 'Invalid length %s' % length
 
-    @abc.abstractclassmethod
-    def getCharSet(self):
-        '''
-        Provides the character set specified for the content.
-        
-        @return: string|None
-            The specified character set for the content or None, if no such information is available.
-        '''
-
-    @abc.abstractclassmethod
-    def getLength(self):
-        '''
-        Provides the length in bytes for the content.
-        
-        @return: integer|None
-            The length for the content or None, if no such information is available.
-        '''
-
-    @abc.abstractclassmethod
-    def read(self, nbytes=None):
-        '''
-        To read a file's contents, call f.read(size), which reads some quantity of data and returns it as a string.
-        @param nbytes: integer
-            Is an optional numeric argument. When size is omitted or negative, the entire contents of the file will be
-            read and returned; it's your problem if the file is twice as large as your machine's memory.
-            Otherwise, at most size bytes are read and returned. If the end of the file has been reached, f.read()
-            will return an empty string ("").
-        @return: bytes
-            The content.
-        '''
+        self.name = name
+        self.type = type
+        self.charSet = charSet
+        self.length = length
 
     @abc.abstractclassmethod
     def next(self):
         '''
-        Only call this method after the content has been properly processed, it will act also as a close method but if
+        Only call this method after the content has been properly processed, it will act also as a close method. If
         there is additional content available this method will return the next Content object otherwise it will return
         None.
         
         @return: Content|None
             The next content or None, if there is no more available.
         '''
-
-class Part:
-    '''
-    Provides a wrapping for iterable objects that represent a part of a bigger collection. Basically beside the actual
-    items this class objects also contain a total count of the big item collection that this iterable is part of.
-    '''
-
-    __slots__ = ('iter', 'total')
-
-    def __init__(self, iter, total):
-        '''
-        Construct the partial iterable.
-        
-        @param iter: Iterable
-            The iterable that provides the actual data.
-        @param total: integer
-            The total count of the elements from which this iterable is part of.
-        '''
-        assert isinstance(iter, Iterable), 'Invalid iterable %s' % iter
-        assert isinstance(total, int), 'Invalid total count %s' % total
-        assert total >= 0, 'Invalid total count %s, cannot be less then 0'
-        self.iter = iter
-        self.total = total
-
-    __iter__ = lambda self: self.iter.__iter__()
-
-    def __str__(self):
-        return '%s[%s, %s]' % (self.__class__.__name__, self.total, self.iter)

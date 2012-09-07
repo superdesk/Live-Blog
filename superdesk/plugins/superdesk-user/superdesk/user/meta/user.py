@@ -6,7 +6,7 @@ Created on Aug 23, 2011
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mihai Balaceanu
 
-Contains the SQL alchemy meta for language API.
+Contains the SQL alchemy meta for user API.
 '''
 
 from ..api.user import User
@@ -26,8 +26,8 @@ class UserMapped(PersonMapped, User):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Name = Column('name', String(20), nullable=False, unique=True)
-    Password = Column('password', String(255), nullable=False, unique=False)
 
     # Non REST model attribute --------------------------------------
     userId = Column('fk_person_id', ForeignKey(PersonMapped.Id), primary_key=True)
+    password = Column('password', String(255), nullable=False)
     # Never map over the inherited id

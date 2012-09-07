@@ -16,7 +16,8 @@ from superdesk.media_archive.core.spec import IThumbnailManager, IThumbnailCreat
 from cdm.spec import ICDM, PathNotFound
 from os.path import join, isfile, exists, isdir, dirname
 from ally.support.util_io import timestampURI
-from shutil import copyfile
+from ally.container.support import setup
+from shutil import copyfile, copyfileobj
 from ally.exception import DevelError
 from superdesk.media_archive.meta.meta_data import ThumbnailFormat
 from ally.container import wire
@@ -24,7 +25,8 @@ from ally.support.sqlalchemy.session import SessionSupport
 from os import access, W_OK, makedirs
 from collections import OrderedDict
 from subprocess import Popen
-from ally.zip.util_zip import normOSPath
+from ally.zip.util_zip import normOSPath, getZipFilePath
+from zipfile import ZipFile
 
 # --------------------------------------------------------------------
 
@@ -34,6 +36,7 @@ ORIGINAL_SIZE = 'original'
 # --------------------------------------------------------------------
 
 @injected
+@setup(IThumbnailManager)
 class ThumbnailManager(SessionSupport, IThumbnailManager):
     '''
     Implementation for @see: IThumbnailManager
@@ -97,7 +100,12 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         '''
         assert isinstance(thumbnailFormatId, int), \
         'Invalid thumbnail format identifier %s' % thumbnailFormatId
-        assert isinstance(imagePath, str) and isfile(imagePath), 'Invalid file path %s' % imagePath
+        assert isinstance(imagePath, str), 'Invalid file path %s' % imagePath
+        if not isfile(imagePath):
+            try: zipPath, inFilePath = getZipFilePath(imagePath)
+            except IOError: raise ValueError('Invalid image path %s' % imagePath)
+        else:
+            zipPath, inFilePath = None, None
         assert not metaData or isinstance(metaData, MetaData), 'Invalid metaData %s' % metaData
         size = size if size else ORIGINAL_SIZE
         assert isinstance(size, str) and size in self.thumbnailSizes, \
@@ -109,7 +117,9 @@ class ThumbnailManager(SessionSupport, IThumbnailManager):
         if not thumbTimestamp or thumbTimestamp < timestampURI(imagePath):
             thumbRepoPath = normOSPath(join(self.thumbnail_dir_path, thumbPath))
             if not isdir(dirname(thumbRepoPath)): makedirs(dirname(thumbRepoPath))
-            copyfile(imagePath, thumbRepoPath)
+            if zipPath:
+                copyfileobj(ZipFile(zipPath).open(inFilePath), open(thumbRepoPath, 'wb'))
+            else: copyfile(imagePath, thumbRepoPath)
             self.thumbnailCreator.createThumbnail(thumbRepoPath,
                                                   self.thumbnailSizes[size][0],
                                                   self.thumbnailSizes[size][0])

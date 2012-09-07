@@ -13,6 +13,7 @@ from ..api.source import ISourceService
 from ..meta.source import SourceMapped
 from ..meta.type import SourceTypeMapped
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.api.util_service import copy
@@ -21,10 +22,12 @@ from sql_alchemy.impl.entity import EntityGetCRUDServiceAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 from superdesk.source.api.source import Source
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
 @injected
+@setup(ISourceService)
 class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
     '''
     Implementation for @see: ISourceService
@@ -36,7 +39,7 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         '''
         EntityGetCRUDServiceAlchemy.__init__(self, SourceMapped)
 
-    def getAll(self, typeKey=None, offset=None, limit=None, q=None):
+    def getAll(self, typeKey=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: ISourceService.getAll
         '''
@@ -44,8 +47,9 @@ class SourceServiceAlchemy(EntityGetCRUDServiceAlchemy, ISourceService):
         if typeKey:
             sql = sql.join(SourceTypeMapped).filter(SourceTypeMapped.Key == typeKey)
         if q: sql = buildQuery(sql, q, SourceMapped)
-        sql = buildLimits(sql, offset, limit)
-        return sql.all()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
     def insert(self, source):
         '''
