@@ -46,7 +46,7 @@ def excluded_plugins():
     '''
     The prefix for the plugins to be excluded, something like: gui-action, introspection-request.
     '''
-    return ['*']
+    return []
 
 # --------------------------------------------------------------------
 

@@ -9,14 +9,17 @@ Created on Jun 28, 2011
 Provides the URI request path handler.
 '''
 
+from ally.api.type import Scheme
 from ally.container.ioc import injected
-from ally.core.http.spec import RequestHTTP
-from ally.core.spec.codes import RESOURCE_NOT_FOUND, RESOURCE_FOUND
-from ally.core.spec.resources import ConverterPath, Path, IResourcesLocator
-from ally.core.spec.server import Response, Processor, ProcessorsChain, \
-    EncoderPath
+from ally.core.http.spec.server import IEncoderPath, IDecoderHeader
+from ally.core.spec.codes import RESOURCE_NOT_FOUND, RESOURCE_FOUND, Code
+from ally.core.spec.resources import ConverterPath, Path, IResourcesLocator, \
+    Converter, Normalizer
+from ally.design.context import Context, requires, defines, optional
+from ally.design.processor import HandlerProcessorProceed
 from urllib.parse import urlencode, urlunsplit, urlsplit
 import logging
+from collections import deque
 
 # --------------------------------------------------------------------
 
@@ -24,25 +27,80 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
+class Request(Context):
+    '''
+    The request context.
+    '''
+    # ---------------------------------------------------------------- Required
+    scheme = requires(str)
+    uriRoot = requires(str)
+    uri = requires(str)
+    decoderHeader = requires(IDecoderHeader)
+    # ---------------------------------------------------------------- Optional
+    argumentsOfType = optional(dict)
+    # ---------------------------------------------------------------- Defined
+    path = defines(Path, doc='''
+    @rtype: Path
+    The path to the resource node.
+    ''')
+    converterId = defines(Converter, doc='''
+    @rtype: Converter
+    The converter to use for model id's.
+    ''')
+    normalizerParameters = defines(Normalizer, doc='''
+    @rtype: Normalizer
+    The normalizer to use for decoding parameters names.
+    ''')
+    converterParameters = defines(Converter, doc='''
+    @rtype: Converter
+    The converter to use for the parameters values.
+    ''')
+
+class Response(Context):
+    '''
+    The response context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    code = defines(Code, doc='''
+    @rtype: Code
+    The code of the response.
+    ''')
+    text = defines(str, doc='''
+    @rtype: string
+    A small text message for the code, usually placed in the response.
+    ''')
+    converterId = defines(Converter, doc='''
+    @rtype: Converter
+    The converter to use for model id's.
+    ''')
+    encoderPath = defines(IEncoderPath, doc='''
+    @rtype: IEncoderPath
+    The path encoder used for encoding paths that will be rendered in the response.
+    ''')
+
+class ResponseContent(Context):
+    '''
+    The response content context.
+    '''
+    # ---------------------------------------------------------------- Defined
+    type = defines(str, doc='''
+    @rtype: string
+    The response content type.
+    ''')
+
+# --------------------------------------------------------------------
+
 @injected
-class URIHandler(Processor):
+class URIHandler(HandlerProcessorProceed):
     '''
     Implementation for a processor that provides the searches based on the request URL the resource path, also
     populates the parameters and extension format on the request.
-    
-    Provides on request: resourcePath, accContentTypes
-    Provides on response: code, encoderPath
-    
-    Requires on request: path
-    Requires on response: NA
     '''
 
     resourcesLocator = IResourcesLocator
     # The resources locator that will provide the path to the resource node.
     converterPath = ConverterPath
     # The converter path used for handling the URL path.
-    scheme = 'http'
-    # The scheme of the uri
     headerHost = 'Host'
     # The header in which the host is provided.
 
@@ -50,19 +108,22 @@ class URIHandler(Processor):
         assert isinstance(self.resourcesLocator, IResourcesLocator), \
         'Invalid resources locator %s' % self.resourcesLocator
         assert isinstance(self.converterPath, ConverterPath), 'Invalid ConverterPath object %s' % self.converterPath
-        assert isinstance(self.scheme, str), 'Invalid string %s' % self.scheme
         assert isinstance(self.headerHost, str), 'Invalid string %s' % self.headerHost
+        super().__init__()
 
-    def process(self, req, rsp, chain):
+    def process(self, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
-        @see: Processor.process
+        @see: HandlerProcessorProceed.process
+        
+        Process the URI to a resource path.
         '''
-        assert isinstance(req, RequestHTTP), 'Invalid HTTP request %s' % req
-        assert isinstance(rsp, Response), 'Invalid response %s' % rsp
-        assert isinstance(chain, ProcessorsChain), 'Invalid processors chain %s' % chain
-        assert isinstance(req.path, str), 'Invalid request path %s' % req.path
+        assert isinstance(request, Request), 'Invalid required request %s' % request
+        assert isinstance(response, Response), 'Invalid response %s' % response
+        assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
+        assert isinstance(request.uri, str), 'Invalid request URI %s' % request.uri
+        if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
 
-        paths = req.path.split('/')
+        paths = request.uri.split('/')
         i = paths[-1].rfind('.') if len(paths) > 0 else -1
         if i < 0:
             extension = None
@@ -71,27 +132,49 @@ class URIHandler(Processor):
             paths[-1] = paths[-1][0:i]
         paths = [p for p in paths if p]
 
-        rsp.encoderPath = EncoderPathURI(self.scheme, req.headers.pop(self.headerHost, ''), req.rootURI,
-                                         self.converterPath, extension)
-        if extension:
-            rsp.contentType = extension
-            req.accContentTypes.insert(0, extension)
-
-        resourcePath = self.resourcesLocator.findPath(self.converterPath, paths)
-        assert isinstance(resourcePath, Path)
-        if not resourcePath.node:
+        request.path = self.resourcesLocator.findPath(self.converterPath, paths)
+        assert isinstance(request.path, Path), 'Invalid path %s' % request.path
+        if not request.path.node:
             # we stop the chain processing
-            rsp.setCode(RESOURCE_NOT_FOUND, 'Cannot find resources for path')
+            response.code, response.text = RESOURCE_NOT_FOUND, 'Cannot find resources for path'
+            assert log.debug('No resource found for URI %s', request.uri) or True
             return
-        rsp.code = RESOURCE_FOUND
-        req.resourcePath = resourcePath
-        rsp.scheme = self.scheme
-        assert log.debug('Successfully found resource for path %s with extension %s', req.path, extension) or True
-        chain.proceed()
+        assert log.debug('Found resource for URI %s', request.uri) or True
+
+        request.converterId = self.converterPath
+        request.converterParameters = self.converterPath
+        request.normalizerParameters = self.converterPath
+
+        if Request.argumentsOfType in request: request.argumentsOfType[Scheme] = request.scheme
+
+        response.code = RESOURCE_FOUND
+        response.encoderPath = self.createEncoderPath(request, extension)
+        response.converterId = self.converterPath
+        if extension: responseCnt.type = extension
+
+    # ----------------------------------------------------------------
+
+    def createEncoderPath(self, request, extension=None):
+        '''
+        Creates the path encoder for the provided request.
+        
+        @param request: Request
+            The request to create the path encoder for.
+        @param extension: string
+            The extension to use on the encoded paths.
+        '''
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        assert isinstance(request.decoderHeader, IDecoderHeader), \
+        'Invalid request decoder header %s' % request.decoderHeader
+        assert isinstance(request.uriRoot, str), 'Invalid request root URI %s' % request.uriRoot
+        assert extension is None or isinstance(extension, str), 'Invalid extension %s' % extension
+
+        host = request.decoderHeader.retrieve(self.headerHost)
+        return EncoderPathURI(request.scheme, host, request.uriRoot, self.converterPath, extension)
 
 # --------------------------------------------------------------------
 
-class EncoderPathURI(EncoderPath):
+class EncoderPathURI(IEncoderPath):
     '''
     Provides encoding for the URI paths generated by the URI processor.
     '''
@@ -116,7 +199,7 @@ class EncoderPathURI(EncoderPath):
         assert isinstance(host, str), 'Invalid host %s' % host
         assert isinstance(root, str), 'Invalid root URI %s' % root
         assert isinstance(converterPath, ConverterPath), 'Invalid converter path %s' % converterPath
-        assert not extension or isinstance(extension, str), 'Invalid extension %s' % extension
+        assert extension is None or isinstance(extension, str), 'Invalid extension %s' % extension
         self.scheme = scheme
         self.host = host
         self.root = root
@@ -130,12 +213,18 @@ class EncoderPathURI(EncoderPath):
         assert isinstance(path, (Path, str)), 'Invalid path %s' % path
         if isinstance(path, Path):
             assert isinstance(path, Path)
-            paths = path.toPaths(self.converterPath)
-            if self.extension: paths.append('.' + self.extension)
-            elif path.node.isGroup: paths.append('')
+
+            url = deque()
+            url.append(self.root)
+            url.append('/'.join(path.toPaths(self.converterPath)))
+            if self.extension:
+                url.append('.')
+                url.append(self.extension)
+            elif path.node.isGroup:
+                url.append('/')
 
             query = urlencode(parameters) if parameters else ''
-            return urlunsplit((self.scheme, self.host, self.root + '/'.join(paths), query, ''))
+            return urlunsplit((self.scheme, self.host, ''.join(url), query, ''))
         else:
             assert isinstance(path, str), 'Invalid path %s' % path
             if not path.strip().startswith('/'):

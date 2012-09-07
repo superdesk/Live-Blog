@@ -15,8 +15,9 @@ from abc import ABCMeta
 from ally.api.operator.container import Query, Container
 from ally.api.operator.type import TypeCriteria
 from ally.exception import DevelError
-import logging
+from ally.support.util_spec import IGet, IContained, ISet, IDelete
 from ally.support.util_sys import getAttrAndClass
+import logging
 
 # --------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ class Reference(TypeSupport):
     Provides the property reference that is provided by the property descriptor.
     '''
 
-    __slots__ = TypeSupport.__slots__ + ('_ally_ref_parent',)
+    __slots__ = ('_ally_ref_parent',)
 
     def __init__(self, type, parent=None):
         '''
@@ -78,43 +79,33 @@ class Reference(TypeSupport):
         r.append(')')
         return ''.join(r)
 
-class Property:
+class Property(IGet, IContained, ISet, IDelete):
     '''
     Provides the descriptor for the model properties. It contains the operation that need to be applied on a model
     object that relate to this property. The property also has a reference that will be returned whenever the property
     is used only with the model class.
     '''
+    __slots__ = ('type',)
 
-    __slots__ = ('type', 'reference')
-
-    def __init__(self, type, reference=None):
+    def __init__(self, type):
         '''
         Constructs the model property descriptor.
         
         @param type: TypeProperty
             The property type represented by the property.
-        @param reference: object|None
-            The reference to be used with the property.
         '''
         assert isinstance(type, TypeProperty), 'Invalid property type %s' % type
 
         self.type = type
-        self.reference = reference
 
     def __get__(self, obj, clazz=None):
         '''
-        Provides the value represented by this property for the provided container object.
-        
-        @param obj: object
-            The container object to provide the value for, None in order to provide the reference.
-        @param clazz: class|None
-            The container class from which the property originates from, can be None if the object is provided.
-        @return: object
-            The value of the property or the reference.
+        @see: IGet.__get__
         '''
         if obj is None:
             assert self.type.parent.isOf(clazz), 'Illegal class %s, expected %s' % (clazz, self.type.parent)
-            return self.reference
+            assert issubclass(clazz, ContainerSupport), 'Invalid container class %s' % clazz
+            return clazz._ally_reference.get(self.type.property)
         else:
             assert isinstance(obj, ContainerSupport), 'Invalid container object %s' % obj
             assert self.type.parent.isValid(obj), 'Invalid container object %s, expected %s' % (obj, self.type.parent)
@@ -122,13 +113,7 @@ class Property:
 
     def __contained__(self, obj):
         '''
-        Checks if the property is contained in the provided object. This is an artifact from the __contains__ method 
-        that is found on the actual model object.
-        
-        @param obj: object
-            The object to check if the property is contained in.
-        @return: boolean
-            True if the property is contained in the object, false otherwise.
+        @see: IContained.__contained__
         '''
         assert isinstance(obj, ContainerSupport), 'Invalid container object %s' % obj
         assert self.type.parent.isValid(obj), 'Invalid container object %s, expected %s' % (obj, self.type.parent)
@@ -136,26 +121,16 @@ class Property:
 
     def __set__(self, obj, value):
         '''
-        Set the value represented by this property for the provided container object.
-        
-        @param obj: object
-            The container object to set the value to.
-        @param value: object
-            The value to set, needs to be valid for this property.
+        @see: ISet.__set__
         '''
         assert isinstance(obj, ContainerSupport), 'Invalid container object %s' % obj
         assert self.type.parent.isValid(obj), 'Invalid container object %s, expected %s' % (obj, self.type.parent)
-        if value is not None and not self.type.isValid(value):
-            raise ValueError('Invalid value "%s" for %s(%s)' % (value, self, self.type.type))
         obj._ally_values[self.type.property] = value
         assert log.debug('Success on setting value (%s) for %s', value, self) or True
 
     def __delete__(self, obj):
         '''
-        Remove the value represented by this property from the provided container object.
-        
-        @param obj: object
-            The container object to remove the value from.
+        @see: IDelete.__delete__
         '''
         assert isinstance(obj, ContainerSupport), 'Invalid container object %s' % obj
         assert self.type.parent.isValid(obj), 'Invalid container object %s, expected %s' % (obj, self.type.parent)
@@ -176,12 +151,11 @@ class Property:
 
 # --------------------------------------------------------------------
 
-class CriteriaEntry:
+class CriteriaEntry(TypeSupport):
     '''
     Descriptor used for defining criteria entries in a query object.
     '''
-
-    __slots__ = TypeSupport.__slots__
+    __slots__ = ()
 
     def __init__(self, type):
         '''
@@ -214,14 +188,28 @@ class CriteriaEntry:
             'Invalid container object %s, expected %s' % (obj, self._ally_type.parent)
             objCrit = obj._ally_values.get(self._ally_type.name)
             if objCrit is None:
-                objCrit = self._ally_type.forClass(queryObj=obj, criteriaName=self._ally_type.name)
+                objCrit = self._ally_type.clazz(queryObj=obj, criteriaName=self._ally_type.name)
                 obj._ally_values[self._ally_type.name] = objCrit
                 assert log.debug('Created criteria object for %s', self) or True
             return objCrit
 
+    def __contained__(self, obj):
+        '''
+        Checks if the entry is contained in the provided object. This is an artifact from the __contains__ method 
+        that is found on the actual model object.
+        
+        @param obj: object
+            The object to check if the entry is contained in.
+        @return: boolean
+            True if the entry is contained in the object, false otherwise.
+        '''
+        assert isinstance(obj, QuerySupport), 'Invalid container object %s' % obj
+        assert self._ally_type.parent.isValid(obj), 'Invalid query object %s, expected %s' % (obj, self._ally_type.parent)
+        return self._ally_type.name in obj._ally_values
+
     def __set__(self, obj, value):
         '''
-        Set the value on the main criteria property, if the represented criteria doe not expose a main property that this
+        Set the value on the main criteria property, if the represented criteria does not expose a main property that this
         set method will fail.
         
         @param obj: object
@@ -236,7 +224,6 @@ class CriteriaEntry:
         if not main:
             raise ValueError('Cannot set value for %s because the criteria %s has no main property' %
                              (self, self._ally_type.criteria))
-
         obj = self.__get__(obj)
         for prop in main: setattr(obj, prop, value)
 
@@ -283,13 +270,14 @@ class ContainerSupport(metaclass=ABCMeta):
     Support class for containers.
     '''
     _ally_type = TypeContainer # Contains the type that represents the container
+    _ally_reference = {} # Provides the references for the property descriptors.
 
     def __new__(cls, *args, **keyargs):
         '''
         Construct the instance of the container.
         '''
         assert isinstance(cls._ally_type, TypeContainer), \
-        'Bad container support class %s, not type assigned' % cls._ally_type
+        'Bad container support class %s, no type assigned' % cls._ally_type
         assert cls._ally_type.isOf(cls), 'Illegal class %s, expected %s' % (cls, cls._ally_type)
         self = object.__new__(cls)
         self._ally_values = self.__dict__
@@ -310,11 +298,12 @@ class ContainerSupport(metaclass=ABCMeta):
         assert isinstance(typ, TypeProperty)
         if typ.parent.isValid(self):
             descriptor, _clazz = getAttrAndClass(self.__class__, typ.property)
-            contained = getattr(descriptor, '__contained__', None)
-            if contained: return contained(self)
+            if isinstance(descriptor, IContained):
+                assert isinstance(descriptor, IContained)
+                return descriptor.__contained__(self)
         return False
 
-    def __repr__(self):
+    def __str__(self):
         container = self._ally_type.container
         assert isinstance(container, Container), 'Invalid container %s' % container
         clazz = self.__class__
@@ -368,7 +357,7 @@ class QuerySupport(metaclass=ABCMeta):
         Construct the instance of the container.
         '''
         assert isinstance(cls._ally_type, TypeQuery), \
-        'Bad query support class %s, not type assigned' % cls._ally_type
+        'Bad query support class %s, no type assigned' % cls._ally_type
         assert cls._ally_type.isOf(cls), 'Illegal class %s, expected %s' % (cls, cls._ally_type)
         query = cls._ally_type.query
         assert isinstance(query, Query)
@@ -395,7 +384,11 @@ class QuerySupport(metaclass=ABCMeta):
         typ = typeFor(ref)
         if isinstance(typ, TypeCriteriaEntry):
             assert isinstance(typ, TypeCriteriaEntry)
-            return typ.parent.isValid(self) and typ.name in self._ally_values
+            if typ.parent.isValid(self):
+                descriptor, _clazz = getAttrAndClass(self.__class__, typ.name)
+                if isinstance(descriptor, IContained):
+                    assert isinstance(descriptor, IContained)
+                    return descriptor.__contained__(self)
         elif isinstance(typ, TypeProperty):
             # We do not need to make any recursive checking here since the criteria will only contain primitive properties
             # so there will not be the case of AQuery.ACriteria.AModel.AProperty the maximum is AQuery.ACriteria.AProperty
@@ -403,13 +396,15 @@ class QuerySupport(metaclass=ABCMeta):
             except AttributeError: pass
             else:
                 if isinstance(typCrt, TypeCriteriaEntry):
-                    assert isinstance(typCrt, TypeCriteriaEntry)
                     if typCrt.parent.isValid(self):
-                        obj = self._ally_values.get(typCrt.name)
-                        if obj is not None: return typ in obj
+                        descriptor, _clazz = getAttrAndClass(self.__class__, typCrt.name)
+                        if isinstance(descriptor, IContained) and isinstance(descriptor, IGet):
+                            assert isinstance(descriptor, IContained)
+                            assert isinstance(descriptor, IGet)
+                            if descriptor.__contained__(self): return typ in descriptor.__get__(self)
         return False
 
-    def __repr__(self):
+    def __str__(self):
         query = self._ally_type.query
         assert isinstance(query, Query), 'Invalid query %s' % query
         clazz = self.__class__
@@ -466,4 +461,3 @@ def typesFor(ref):
         try: ref = ref._ally_ref_parent
         except AttributeError: ref = None
     return types
-

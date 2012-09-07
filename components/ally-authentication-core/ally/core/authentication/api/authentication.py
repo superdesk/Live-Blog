@@ -26,7 +26,6 @@ class LoginToken:
 
 @modelAuthenticate(id='UserName')
 class User:
-    Id = int
     UserName = str
     FirstName = str
     LastName = str
@@ -35,6 +34,7 @@ class User:
 
 @modelAuthenticate(id='Session')
 class Session(User):
+    Session = str
     Session = str
 
 # --------------------------------------------------------------------
