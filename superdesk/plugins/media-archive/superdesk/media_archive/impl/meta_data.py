@@ -15,7 +15,8 @@ from ally.container.ioc import injected
 from ally.exception import InputError
 from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import handle
-from ally.support.util_io import pipe, timestampURI
+from ally.container.support import setup
+from ally.support.util_io import timestampURI
 from ally.support.util_sys import pythonPath
 from cdm.spec import ICDM
 from ..api.meta_data import QMetaData
@@ -26,24 +27,21 @@ from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, thu
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
-from os import remove, makedirs, access, W_OK
-from os.path import join, getsize, abspath, exists, isdir
-from shutil import copyfile
+from os.path import join, getsize
+from superdesk.media_archive.api.meta_data import IMetaDataUploadService
+from ally.api.type import Scheme
 
 # --------------------------------------------------------------------
 
 @injected
-class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
+@setup(IMetaDataUploadService)
+class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IMetaDataUploadService):
     '''
     Implementation for @see: IMetaDataService, and also provides services as the @see: IMetaDataReferencer
     '''
 
-    processing_dir_path = join('workspace', 'media_archive', 'process_queue'); wire.config('processing_dir_path', doc='''
-    The folder path where the content is queued for processing''')
     format_file_name = '%(id)s.%(file)s'; wire.config('format_file_name', doc='''
     The format for the files names in the processing queue of media archive''')
-    content_path = join('workspace', 'media_archive', 'content'); wire.config('content_path', doc='''
-    The root folder path where the content is saved''')
 
     cdmArchive = ICDM
     # The archive CDM.
@@ -56,17 +54,12 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         '''
         Construct the meta data service.
         '''
-        assert isinstance(self.processing_dir_path, str), 'Invalid processing directory %s' % self.processing_dir_path
-        assert isinstance(self.content_path, str), 'Invalid root storage directory %s' % self.content_path
         assert isinstance(self.cdmArchive, ICDM), 'Invalid archive CDM %s' % self.cdmArchive
         assert isinstance(self.thumbnailManager, IThumbnailManager), \
         'Invalid thumbnail referencer %s' % self.thumbnailManager
         assert isinstance(self.metaDataHandlers, list), 'Invalid reference handlers %s' % self.referenceHandlers
+        
         MetaDataServiceBaseAlchemy.__init__(self, MetaDataMapped, QMetaData, self)
-
-        if not exists(self.processing_dir_path): makedirs(self.processing_dir_path)
-        if not isdir(self.processing_dir_path) or not access(self.processing_dir_path, W_OK):
-            raise IOError('Unable to access the processing directory %s' % self.processing_dir_path)
 
     def deploy(self):
         '''
@@ -86,66 +79,60 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer):
         @see: IMetaDataReferencer.populate
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        metaData.Content = self.cdmArchive.getURI(self._reference(metaData), scheme)
+        metaData.Content = self.cdmArchive.getURI(metaData.content, scheme)
         return self.thumbnailManager.populate(metaData, scheme, thumbSize)
 
     # ----------------------------------------------------------------
     
     def generateIdPath (self, id):
-        path = join("{0:03d}".format(id // 1000000000), "{0:03d}".format((id // 1000000) % 1000), "{0:03d}".format((id // 1000) % 1000)) 
+        path = "{0:03d}".format((id // 1000) % 1000)
         
         return path;  
 
     # ----------------------------------------------------------------
 
-    def insert(self, content):
+    def insert(self, content, scheme:Scheme='http'):
         '''
         @see: IMetaDataService.insert
         '''
         assert isinstance(content, Content), 'Invalid content %s' % content
         if not content.getName(): raise InputError(_('No name specified for content'))
 
-        metaData = MetaDataMapped()
-        metaData.CreatedOn = datetime.now()
-        metaData.Name = content.getName()
-        if content.contentType: metaData.Type = content.contentType 
-        else: metaData.Type = self._metaType.Type
+        metaDataMapped = MetaDataMapped()
+        metaDataMapped.CreatedOn = datetime.utcnow()
+        metaDataMapped.Name = content.getName()
+        if content.contentType: contentType = content.contentType 
+        else: contentType = self._metaType.Type
             
-        metaData.typeId = self._metaType.Id
-        metaData.thumbnailFormatId = self._thumbnailFormat.id
+        metaDataMapped.typeId = self._metaType.Id
+        metaDataMapped.thumbnailFormatId = self._thumbnailFormat.id
+        
         try:
-            self.session().add(metaData)
-            self.session().flush((metaData,))
-
-            processingFileName = self.format_file_name % {'id': metaData.Id, 'file': metaData.Name}
-            processingContentPath = abspath(join(self.processing_dir_path, processingFileName))
-            with open(processingContentPath, 'w+b') as fobj: pipe(content, fobj)
-            metaData.SizeInBytes = getsize(processingContentPath)
-            self.session().flush((metaData,))
-            contentPath = abspath(self.content_path)
-
+            self.session().add(metaDataMapped)
+            self.session().flush((metaDataMapped,))
+            
+            fileName = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
+            cdmPath = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', fileName)) 
+            metaDataMapped.content = cdmPath
+            
+            self.cdmArchive.publishContent(cdmPath, content)
+            contentPath = self.cdmArchive.getURI(cdmPath, 'file')            
+            metaDataMapped.SizeInBytes = getsize(contentPath)   
+            
             for handler in self.metaDataHandlers:
                 assert isinstance(handler, IMetaDataHandler), 'Invalid handler %s' % handler
-                if handler.process(metaData, processingContentPath, contentPath): break
+                if handler.processByInfo(metaDataMapped, contentPath, contentType): break
             else:
-                path = abspath(join(contentPath, META_TYPE_KEY, self.generateIdPath(metaData.Id)))
-                if not exists(path): makedirs(path)
-                fileName = self.format_file_name % {'id': metaData.Id, 'file': metaData.Name}
-                path = join(path, fileName)
-                copyfile(processingContentPath, path) 
-                
-            remove(processingContentPath)
-        except SQLAlchemyError as e: handle(e, metaData)
+                for handler in self.metaDataHandlers:    
+                    if handler.process(metaDataMapped, contentPath): break
+            
+            self.session().merge(metaDataMapped)
+            self.session().flush((metaDataMapped,))
+        except SQLAlchemyError as e: handle(e, metaDataMapped) 
+
         
-        return metaData.Id
-
-    # ----------------------------------------------------------------
-
-
-    def _reference(self, metaData):
-        '''
-        Provides the refernce for the meta data.
-        '''
-        assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
-        return ''.join((metaData.Type, '/', str(metaData.Id), '.', metaData.Name))
+        if metaDataMapped.content != cdmPath:
+            self.cdmArchive.republish(cdmPath, metaDataMapped.content)
+        
+        return metaDataMapped.Id
 

@@ -29,6 +29,8 @@ from superdesk.person.api.person import QPerson
 from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
 from superdesk.post.meta.type import PostTypeMapped
 import hashlib
+from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
+from livedesk.api.blog_type_post import IBlogTypePostService
 
 # --------------------------------------------------------------------
 
@@ -91,10 +93,49 @@ def getSourcesIds():
     return _cache_sources
 
 
+BLOG_TYPE_POSTS = [
+                   ('default', 'normal', 'User1', 'User1', 'Hello world!'),
+                   ('default', 'normal', 'User1', 'User1', 'Greetings!')
+                   ]
+
+def createBlogTypePosts():
+    blogTypePostService = entityFor(IBlogTypePostService)
+    assert isinstance(blogTypePostService, IBlogTypePostService)
+    for data in BLOG_TYPE_POSTS:
+        pst = Post()
+        blogType, pst.Type, creator, author, pst.Content = data
+        blogTypeId = getBlogTypesIds()[blogType]
+        exists = False
+        for post in blogTypePostService.getAll(blogTypeId):
+            if post.Content == pst.Content: exists = True; break
+        if not exists:
+            pst.Creator = getUsersIds()[creator]
+            if author: pst.Author = getCollaboratorsIds()[author]
+            blogTypePostService.insert(blogTypeId, pst)
+
+
+BLOG_TYPES = ('default',)
+
+_cache_blog_types = {}
+def getBlogTypesIds():
+    blogTypeService = entityFor(IBlogTypeService)
+    assert isinstance(blogTypeService, IBlogTypeService)
+    if not _cache_blog_types:
+        blogTypePosts = _cache_blog_types
+        for name in BLOG_TYPES:
+            blgTypes = blogTypeService.getAll(q=QBlogType(name=name))
+            if blgTypes: blogTypePosts[name] = next(iter(blgTypes)).Id
+            else:
+                blgType = BlogType()
+                blgType.Name = name
+                blogTypePosts[name] = blogTypeService.insert(blgType)
+    return _cache_blog_types
+
+
 BLOGS = {
-         'GEN Live Desk Master Class': ('User1', 'en', 'An in-depth demonstration of the '
-                                        'current state of development of the GEN Live Desk '
-                                        'tool for live online news coverage.',
+         'GEN Live Desk Master Class': ('default', 'User1', 'en', 'An in-depth demonstration'
+                                        ' of the current state of development of the GEN'
+                                        ' Live Desk tool for live online news coverage.',
                                         datetime.now(), datetime.now()),
          }
 
@@ -110,7 +151,8 @@ def getBlogsIds():
             else:
                 blg = Blog()
                 blg.Title = name
-                usrName, langCode, blg.Description, blg.CreatedOn, blg.LiveOn = BLOGS[name]
+                blogType, usrName, langCode, blg.Description, blg.CreatedOn, blg.LiveOn = BLOGS[name]
+                blg.Type = getBlogTypesIds()[blogType]
                 blg.Creator = getUsersIds()[usrName]
                 blg.Language = getLanguagesIds()[langCode]
                 blogs[name] = blogService.insert(blg)
@@ -339,3 +381,4 @@ def populate():
     createBlogCollaborators()
     createBlogAdmins()
     createBlogPosts()
+    createBlogTypePosts()
