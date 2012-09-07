@@ -239,6 +239,7 @@ window.livedesk.startLoading = function() {
 			},			
 			render: function()
 			{
+                            countLoaded++;
 				var self = this, order = parseFloat(self.model.get('Order'));
 				if ( !isNaN(self.order) && (order != self.order)) {
 					var actions = {prev: 'insertBefore', next: 'insertAfter'}, ways = {prev: 1, next: -1}, anti = {prev: 'next', next: 'prev'}
@@ -290,10 +291,15 @@ window.livedesk.startLoading = function() {
 				var postId = self.model.get('Id');
 				var blogTitle = self._parent.model.get('Title');
 				blogTitle = blogTitle.replace(/ /g, '-');
-				var template ='<li class="'+ style +'"><a name="' + postId + '-' +  encodeURI (blogTitle) + '">' + content + '</a></li>';
-				self.setElement( template );
+                                var hash = postId + '-' +  encodeURI (blogTitle);
+                                var hash = postId;
+				var template ='<li class="'+ style +'"><a name="' + hash + '">' + content + '</a><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /></li>';
+                                self.setElement( template );
 			}
 		}),
+                totalLoad = 0,
+                iidLoadTrace = 0,
+                countLoaded = 0,
 		TimelineView = $.gizmo.View.extend
 		({
 			el: '#livedesk-root',
@@ -325,6 +331,16 @@ window.livedesk.startLoading = function() {
 					this.el.find('#liveblog-status').html('The liveblog coverage was stopped '+closedOn.format('mm/dd/yyyy HH:MM:ss'));
 				}
 			},
+                        
+                        gotoHash : function() {
+                            if (location.hash.length > 0) {
+                                var topHash = location.hash;
+                                console.log('tophash ', topHash);
+                                setTimeout(function(){
+                                    window.location.hash = window.location.hash;
+                                }, 500)
+                            }
+                        },
 			init: function()
 			{
 				var self = this;
@@ -373,6 +389,13 @@ window.livedesk.startLoading = function() {
 					.find('h2').text(this.model.get('Title')).end()
 					.find('p').text(this.model.get('Description'));
 			},
+                        
+                        loadTrace: function() {
+                            if ( countLoaded >= totalLoad) { 
+                                this.gotoHash()
+                                clearInterval(iidLoadTrace);
+                            }
+                        },
 			render: function(evt)
 			{				
 				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div>');
@@ -380,9 +403,16 @@ window.livedesk.startLoading = function() {
 				this.ensureStatus();
 				data = this.model.get('PostPublished')._list;
 				var next = this._latest, current, model, i = data.length;
+                                
+                                totalLoad = data.length;
+                                var self = this;
+                                iidLoadTrace = setInterval(function(){
+                                    self.loadTrace();
+                                }, 900)
 				while(i--) {
 					this.addOne(data[i]);
 				}
+                                
 			}
 			
 		});
