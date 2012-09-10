@@ -209,7 +209,7 @@ function(providers, $, giz, Blog, Collaborator)
                 var colab = this;
                 colab._latestPost = 0;
                 colab._viewModels = [];
-                colab.on('read', function()
+                colab.on('read update', function()
                 { 
                     // get posts for each collaborator
                     colab.get('Post').xfilter('*')
