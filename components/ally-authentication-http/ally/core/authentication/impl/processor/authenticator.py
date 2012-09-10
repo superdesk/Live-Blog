@@ -70,7 +70,7 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
     '''
     sessionName = 'Authorization'
     # The header name for the session identifier.
-    login_token_timeout = timedelta(seconds=10)
+    login_token_timeout = timedelta(seconds=1000)
     # The number of seconds after which the login token expires.
     session_token_timeout = timedelta(seconds=3600)
     # The number of seconds after which the session expires.
@@ -90,15 +90,13 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
         super().__init__()
 
         node = NodePath(self.resourcesRegister.getRoot(), True, 'Authentication')
-        node.get = InvokerFunction(GET, self.loginToken, typeFor(String),
+        node.get = InvokerFunction(GET, self.loginToken, typeFor(LoginToken),
                                    [
-                                    Input('userName', typeFor(String)),
+                                    Input('userName', typeFor(String), True, None),
                                     ], {})
-        node.post = InvokerFunction(INSERT, self.login, typeFor(String),
+        node.insert = InvokerFunction(INSERT, self.login, typeFor(UserSession),
                                    [
-                                    Input('userName', typeFor(String)),
-                                    Input('loginToken', typeFor(String)),
-                                    Input('hashedLoginToken', typeFor(String)),
+                                    Input('login', typeFor(Login)),
                                     ], {})
 
         self._sessions = {}
@@ -118,7 +116,9 @@ class AuthenticationHandler(HeaderHTTPBase, Processor):
 
         # check if the user exists
         self.userKeyGenerator.getUserKey(userName)
-        return self._createSession(userName, self.login_token_timeout)
+        token = LoginToken()
+        token.Token = self._createSession(userName, self.login_token_timeout)
+        return token
 
     def login(self, login):
         '''

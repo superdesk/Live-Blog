@@ -25,6 +25,7 @@ import json
 import logging
 import os
 from mimetypes import guess_type
+from mimetypes import guess_type
 
 # --------------------------------------------------------------------
 
@@ -85,6 +86,8 @@ class ContentDeliveryHandler(HandlerProcessor):
     # Marker used in the link file to indicate that a link is inside a zip file.
     _fsHeader = 'FS'
     # Marker used in the link file to indicate that a link is file system
+    _defaultContentType = 'application/octet-stream'
+
     _defaultContentType = 'application/octet-stream'
 
 

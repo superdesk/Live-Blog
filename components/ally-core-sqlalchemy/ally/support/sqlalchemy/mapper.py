@@ -279,6 +279,19 @@ def mappingFor(mapped):
 
     return mapped._ally_mapping
 
+def mappingFor(mapped):
+    '''
+    Provides the mapper of the provided mapped class.
+    
+    @param mapped: class
+        The mapped class.
+    @return: Mapper
+        The associated mapper.
+    '''
+    assert isinstance(mapped, DeclarativeMetaModel), 'Invalid mapped class %s' % mapped
+
+    return mapped._ally_mapping
+
 def mappingsOf(metadata):
     '''
     Provides the mapping dictionary of the provided meta.

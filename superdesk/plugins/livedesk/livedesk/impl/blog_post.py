@@ -31,6 +31,7 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
+from sqlalchemy.sql.operators import desc_op
 
 # --------------------------------------------------------------------
 
