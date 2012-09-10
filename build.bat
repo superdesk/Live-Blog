@@ -4,7 +4,9 @@ set PYTHONPATH=distribution/libraries/distribute-0.6.27-py3.2.egg;
 del distribution\components\*.egg
 python.exe components\clean_egg.py
 python.exe components\build_egg.py
+python.exe components\clean_egg.py
 del distribution\plugins\*.egg
+python.exe plugins\clean_egg.py
 python.exe plugins\build_egg.py
 python.exe plugins\clean_egg.py
 del superdesk\distribution\components\*.egg
@@ -14,3 +16,4 @@ copy distribution\components\*.egg superdesk\distribution\components\
 rmdir superdesk\distribution\workspace /S /q
 python.exe superdesk\plugins\clean_egg.py
 python.exe superdesk\plugins\build_egg.py
+python.exe superdesk\plugins\clean_egg.py
