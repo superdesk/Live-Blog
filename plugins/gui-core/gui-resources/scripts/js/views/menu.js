@@ -87,7 +87,7 @@ function($, superdesk, Gizmo, AuthApp)
                 });
             })
             .off('click.superdesk')
-            .on('click.superdesk', '.nav a', function(event)
+            .on('click.superdesk', '.nav > li > a', function(event)
             {
                 var self = this;
                 if(!$(self).attr('href')) return;
@@ -95,16 +95,21 @@ function($, superdesk, Gizmo, AuthApp)
 
                 $(self).attr('data-loader') != 'false' && superdesk.showLoader();
                 
-                superdesk.navigation.bind
-                ( 
-                    $(self).attr('href'), 
-                    function(){ require([config.api_url + $(self).attr('script-path')], 
-                        function(x)
-                        { 
-                            x && x.init && x.init(); 
-                        });
-                    }
-                );
+                var callback = function()
+                { 
+                    require
+                    ([config.api_url + $(self).attr('script-path')], 
+                    function(x)
+                    { 
+                        x && x.init && x.init(); 
+                    });
+                };
+                    
+                if( $.trim($(self).attr('href').replace('#', '')) != '' )
+                    superdesk.navigation.bind( $(self).attr('href'), callback );
+                else
+                    callback();
+                
                 event.preventDefault(); 
             });
             
