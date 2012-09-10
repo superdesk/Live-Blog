@@ -18,8 +18,8 @@ from ..gui_core.gui_core import getPublishedGui
 
 @ioc.entity   
 def menuAction():
-    return Action('livedesk', Parent=defaults.menuAction(), Label=NC_('Menu', 'Live Blogs'),
-                  ScriptPath=getPublishedGui('livedesk/scripts/js/menu-live-blogs.js'))
+    return Action('livedesk', Parent=defaults.menuAction(), Label=NC_('Menu', 'Live Blogs') ) # ,
+                  #ScriptPath=getPublishedGui('livedesk/scripts/js/menu-live-blogs.js'))
 
 def menuTestAction():
     return Action('livedesk-test', Parent=defaults.menuAction(), Label=NC_('Menu', 'Test'),
