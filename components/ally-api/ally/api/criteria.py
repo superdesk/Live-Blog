@@ -36,7 +36,7 @@ class AsLike:
     Provides query for properties that can be managed by a like function, this will only handle string types
     '''
     like = str
-    caseSensitive = bool
+    ilike = str
 
 @criteria
 class AsLikeOrdered(AsLike, AsOrdered):
@@ -83,8 +83,8 @@ class AsRange:
     '''
     start = str
     end = str
-    startEx = str
-    endEx = str
+    since = str
+    until = str
 
 @criteria
 class AsRangeOrdered(AsRange, AsOrdered):
@@ -101,8 +101,8 @@ class AsDate:
     '''
     start = Date
     end = Date
-    startEx = Date
-    endEx = Date
+    since = Date
+    until = Date
 
 @criteria
 class AsDateOrdered(AsDate, AsOrdered):
@@ -119,8 +119,8 @@ class AsTime:
     '''
     start = Time
     end = Time
-    startEx = Time
-    endEx = Time
+    since = Time
+    until = Time
 
 @criteria
 class AsTimeOrdered(AsTime, AsOrdered):
@@ -137,8 +137,8 @@ class AsDateTime:
     '''
     start = DateTime
     end = DateTime
-    startEx = DateTime
-    endEx = DateTime
+    since = DateTime
+    until = DateTime
 
 @criteria
 class AsDateTimeOrdered(AsDateTime, AsOrdered):

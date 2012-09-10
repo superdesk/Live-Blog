@@ -24,5 +24,5 @@ class IImagePersistanceService:
     @call
     def insert(self, imageInfo:ImageInfo, image:Content) -> ImageInfo.Id:
         '''
-        Inserts the image into the media archive.
+        Inserts the image into the media archive
         '''

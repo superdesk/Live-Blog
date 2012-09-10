@@ -7,7 +7,9 @@ ally/__init__.py
 ally/core/__init__.py
 ally/core/babel/__init__.py
 ally/core/babel/processor/__init__.py
-ally/core/babel/processor/converter.py
+ally/core/babel/processor/text_conversion.py
+ally/core/babel/spec/__init__.py
+ally/core/babel/spec/codes.py
 ally_core_babel.egg-info/PKG-INFO
 ally_core_babel.egg-info/SOURCES.txt
 ally_core_babel.egg-info/dependency_links.txt

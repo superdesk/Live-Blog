@@ -112,7 +112,7 @@ class POFileService(IPOFileService):
         '''
         assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
         # Convert the byte file to text file
-        poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
+        poFile = codecs.getreader(poFile.charSet or self.default_charset)(poFile)
         try: self.poFileManager.updateGlobalPOFile(locale, poFile)
         except UnicodeDecodeError: raise InvalidPOFile(poFile)
         if poFile.next(): raise ToManyFiles()
@@ -124,7 +124,7 @@ class POFileService(IPOFileService):
         self.componentService.getById(component)
         assert isinstance(poFile, Content), 'Invalid PO content %s' % poFile
         # Convert the byte file to text file
-        poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
+        poFile = codecs.getreader(poFile.charSet or self.default_charset)(poFile)
         try: self.poFileManager.updateComponentPOFile(component, locale, poFile)
         except UnicodeDecodeError: raise InvalidPOFile(poFile)
         if poFile.next(): raise ToManyFiles()
@@ -138,7 +138,7 @@ class POFileService(IPOFileService):
         assert isinstance(pluginObj, Plugin)
         if pluginObj.Component: return self.updateComponentPOFile(pluginObj.Component, locale, poFile)
         # Convert the byte file to text file
-        poFile = codecs.getreader(poFile.getCharSet() or self.default_charset)(poFile)
+        poFile = codecs.getreader(poFile.charSet or self.default_charset)(poFile)
         try: self.poFileManager.updatePluginPOFile(plugin, locale, poFile)
         except UnicodeDecodeError: raise InvalidPOFile(poFile)
         if poFile.next(): raise ToManyFiles()
