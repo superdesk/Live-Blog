@@ -375,6 +375,19 @@ class Assembly:
             self._processors.insert(index, processor)
             index += 1
 
+    def replace(self, replaced, replacer):
+        '''
+        Add to the assembly the provided processors.
+        
+        @param replaced: Processor|Handler
+            The processor to be replaced in to the assembly.
+        @param replacer: Processor|Handler
+            The processor that will replace.
+        '''
+        try: index = self._processors.index(self._processorFrom(replaced))
+        except ValueError: raise AssemblyError('Invalid replaced processor %s' % replaced)
+        self._processors[index] = self._processorFrom(replacer)
+
     def create(self, *flags, **contexts):
         '''
         Create a processing based on all the processors in the assembly.
@@ -462,40 +475,41 @@ class Assembly:
 
     # ----------------------------------------------------------------
 
-    def _processorFrom(self, processorOrHandler):
+    def _processorFrom(self, processor):
         '''
         Provides an the processor from the provided processor or container.
         
-        @param processorOrHandler: Processor|Handler
+        @param processor: Processor|Handler
             The processor or handler to get the processor for.
         '''
-        if isinstance(processorOrHandler, Processor):
-            return processorOrHandler
+        if isinstance(processor, Processor): return processor
 
-        elif isinstance(processorOrHandler, Handler):
-            assert isinstance(processorOrHandler, Handler)
-            assert isinstance(processorOrHandler.processor, Processor), \
-            'Invalid handler %s processor %s' % (processorOrHandler, processorOrHandler.processor)
-            return processorOrHandler.processor
+        elif isinstance(processor, Handler):
+            assert isinstance(processor, Handler)
+            assert isinstance(processor.processor, Processor), \
+            'Invalid handler %s processor %s' % (processor, processor.processor)
+            return processor.processor
 
-        raise AssemblyError('Invalid processor  or handler %s' % processorOrHandler)
+        raise AssemblyError('Invalid processor or handler %s' % processor)
 
-    def _processorsFrom(self, processorsOrHandlers):
+    def _processorsFrom(self, processors):
         '''
         Provides an iterable of the processors obtained from the provided processors or processors containers.
         
-        @param processorsOrHandlers: arguments[Processor|Handler|list[Processor|Handler]|tuple(Processor|Handler)]
+        @param processorsOrHandlers: Iterable[Processor|Handler|Assembly|
+                                              list[Processor|Handler|Assembly]|tuple(Processor|Handler|Assembly)]
             The processors or processors containers to be made in an iterable of processors.
         '''
-        assert isinstance(processorsOrHandlers, Iterable), 'Invalid processors %s' % processorsOrHandlers
+        assert isinstance(processors, Iterable), 'Invalid processors %s' % processors
 
-        for processorOrHandler in processorsOrHandlers:
-            if isinstance(processorOrHandler, (list, tuple)):
-                for processor in self.processorsFrom(processorOrHandler):
-                    yield processor
+        for processor in processors:
+            if isinstance(processor, (list, tuple)):
+                for processor in self.processorsFrom(processor): yield processor
 
-            else:
-                yield self._processorFrom(processorOrHandler)
+            elif isinstance(processor, Assembly):
+                assert isinstance(processor, Assembly)
+                for processor in  processor._processors: yield processor
+            else: yield self._processorFrom(processor)
 
     def _indexAttributes(self, processors):
         '''

@@ -13,24 +13,23 @@ Contains the SQL alchemy meta for livedesk blog posts API.
 from ..api.blog_post import IBlogPostService, QBlogPostUnpublished, \
     QBlogPostPublished
 from ..meta.blog_post import BlogPostMapped, BlogPostEntry
+from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.sqlalchemy.functions import current_timestamp
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
+from sqlalchemy.sql.functions import current_timestamp
+from sqlalchemy.sql.operators import desc_op
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
-from sqlalchemy.sql.operators import desc_op
-from superdesk.post.api.post import IPostService, Post
-from superdesk.source.meta.source import SourceMapped
 
 # --------------------------------------------------------------------
 

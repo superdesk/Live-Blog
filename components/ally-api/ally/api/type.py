@@ -491,6 +491,7 @@ class TypeSupportMeta(ABCMeta):
         @see: ABCMeta.__instancecheck__
         '''
         if ABCMeta.__instancecheck__(self, instance): return True
+        if self is not TypeSupport: return False
         return isinstance(getattr(instance, '_ally_type', None), Type)
 
 class TypeSupport(metaclass=TypeSupportMeta):

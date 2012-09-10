@@ -105,6 +105,7 @@ class RenderJSON(IRender):
         out = self.out
 
         self.openObject(name, attributes)
+        if not self.isFirst: out.write(',')
         out.write(encode_basestring(name))
         out.write(':[')
         self.isFirst = True

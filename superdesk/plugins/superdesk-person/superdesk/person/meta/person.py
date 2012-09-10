@@ -40,8 +40,6 @@ class PersonMapped(Base, Person):
         return self.FirstName + ' ' + self.LastName
 
     # Expression for hybrid ------------------------------------
-    @classmethod
-    @FullName.expression
-    def _FullName(cls):
-        return case([(cls.FirstName == None, cls.LastName)], else_=
-                    case([(cls.LastName == None, cls.FirstName)], else_=cls.FirstName + ' ' + cls.LastName))
+    FullName.expression = lambda cls : case([(cls.FirstName == None, cls.LastName)], else_=
+                                            case([(cls.LastName == None, cls.FirstName)], else_=
+                                                 cls.FirstName + ' ' + cls.LastName))

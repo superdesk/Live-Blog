@@ -5,7 +5,7 @@ __plugin__/cdm/__init__.py
 __plugin__/cdm/local_cdm.py
 __setup__/__init__.py
 __setup__/cdm/__init__.py
-__setup__/cdm/local_delivery.py
+__setup__/cdm/processor.py
 ally/__init__.py
 ally/core/__init__.py
 ally/core/cdm/__init__.py
@@ -23,6 +23,7 @@ support_cdm.egg-info/requires.txt
 support_cdm.egg-info/top_level.txt
 support_cdm.egg-info/zip-safe
 test/__init__.py
-test/cdm/__init__.py
-test/cdm/impl/__init__.py
-test/cdm/impl/local_filesystem.py
+test/unit_testing/__init__.py
+test/unit_testing/cdm/__init__.py
+test/unit_testing/cdm/impl/__init__.py
+test/unit_testing/cdm/impl/local_filesystem.py
