@@ -9,22 +9,22 @@ Created on Jan 19, 2012
 Provides the decorators used for APIs in a much easier to use form.
 '''
 
-from .operator.container import Call, Service, Criteria, Query, Model
-from .operator.descriptor import Property, Reference, CriteriaEntry
+from .operator.container import Call, Service, Criteria, Query, Model, Container
+from .operator.descriptor import Property, Reference, CriteriaEntry, \
+    ContainerSupport, CriteriaSupport, QuerySupport
 from .operator.extract import extractCriterias, extractProperties, \
-    extractPropertiesInherited, extractContainersFrom, \
-    extractCriteriasInherited, extractOuputInput, processGenericCall
-from .operator.type import TypeModel, TypeProperty, TypeModelProperty, TypeCriteria, TypeQuery, \
-    TypeCriteriaEntry, TypeService
+    extractPropertiesInherited, extractContainersFrom, extractCriteriasInherited, \
+    extractOuputInput, processGenericCall
+from .operator.type import TypeModel, TypeProperty, TypeModelProperty, \
+    TypeCriteria, TypeQuery, TypeCriteriaEntry, TypeService, TypeExtension
 from .type import typeFor
 from abc import ABCMeta, abstractmethod
+from ally.api.type import List
 from ally.exception import DevelError
 from functools import partial
 from inspect import isclass, isfunction
 from re import match
 import logging
-from ally.api.operator.descriptor import ContainerSupport, CriteriaSupport, \
-    QuerySupport
 
 # --------------------------------------------------------------------
 
@@ -43,11 +43,17 @@ RULE_CRITERIA_PROPERTY = ('^[a-z]{1,}[\w]*$',
 RULE_QUERY_CRITERIA = ('^[a-z]{1,}[\w]*$',
                        'The query criteria name needs to start with a lower case, got "%s"')
 
+RULE_EXTENSION_PROPERTY = ('^[a-z]{1,}[\w]*$',
+                           'The extension property name needs to start with a lower case, got "%s"')
+
 # The available method actions.
 GET = 1
 INSERT = 2
 UPDATE = 4
 DELETE = 8
+
+# The default limit
+LIMIT_DEFAULT = 30
 
 # The function name to method mapping.
 NAME_TO_METHOD = {
@@ -118,6 +124,11 @@ def model(*args, name=None, **hints):
         assert isinstance(typ, TypeModel)
         propertyId = typ.container.propertyId
 
+    if isinstance(properties[propertyId], List):
+        raise DevelError('The id cannot be a List type, got %s' % properties[propertyId])
+    if isinstance(properties[propertyId], TypeModel):
+        raise DevelError('The id cannot be a model reference, got %s' % properties[propertyId])
+
     modelType = TypeModel(clazz, Model(properties, propertyId, name, hints))
     if replace:
         assert isclass(replace), 'Invalid class %s' % replace
@@ -126,18 +137,21 @@ def model(*args, name=None, **hints):
         if clazz.__module__ != replace.__module__:
             raise DevelError('Replace is available only for classes in the same API module invalid replace class '
                              '%s for replaced class' % (replace, clazz))
-        typ.forClass = clazz
+        typ.clazz = clazz
         typ.container = modelType.container
 
+    reference = {}
     for prop, typ in properties.items():
-        propType = propRefType = TypeModelProperty(modelType, prop)
+        propType = TypeModelProperty(modelType, prop)
+        reference[prop] = Reference(propType)
         if isinstance(typ, TypeModel):
             propType = TypeModelProperty(modelType, prop, typ.container.properties[typ.container.propertyId])
-        setattr(clazz, prop, Property(propType, Reference(propRefType)))
+        setattr(clazz, prop, Property(propType))
 
     clazz._ally_type = modelType # This specified the detected type for the model class by using 'typeFor'
+    clazz._ally_reference = reference # The references to be returned by the properties when used only with class
     clazz.__new__ = ContainerSupport.__new__
-    clazz.__repr__ = ContainerSupport.__repr__
+    clazz.__str__ = ContainerSupport.__str__
     clazz.__contains__ = ContainerSupport.__contains__
 
     return clazz
@@ -186,54 +200,63 @@ def criteria(*args, main=None):
     criteriaContainer = Criteria(properties, main)
     criteriaType = TypeCriteria(clazz, criteriaContainer)
 
+    reference = {}
     for prop in criteriaContainer.properties:
         propType = TypeProperty(criteriaType, prop)
-        setattr(clazz, prop, Property(propType, Reference(propType)))
+        reference[prop] = Reference(propType)
+        setattr(clazz, prop, Property(propType))
 
     clazz._ally_type = criteriaType # This specified the detected type for the model class by using 'typeFor'
+    clazz._ally_reference = reference # The references to be returned by the properties when used only with class
     clazz.__new__ = CriteriaSupport.__new__
-    clazz.__repr__ = CriteriaSupport.__repr__
+    clazz.__str__ = CriteriaSupport.__str__
     clazz.__contains__ = CriteriaSupport.__contains__
 
     return clazz
 
-def query(*args):
+def query(owner):
     '''
     Used for decorating classes that are API queries.
     
+    @param owner: TypeModel container
+        The model that is the target of this query.
+    
     ex:
-        @query
+        @query(Theme)
         class ThemeQuery:
             
             name = OrderBy
     '''
-    if not args: return partial(query)
-    assert len(args) == 1, 'Expected only one argument that is the decorator class, got %s arguments' % len(args)
-    clazz = args[0]
-    assert isclass(clazz), 'Invalid class %s' % clazz
+    queryOwner = typeFor(owner)
+    assert isinstance(queryOwner, TypeModel), 'Invalid owner %s, has no type model' % owner
 
-    criterias = extractCriteriasInherited(clazz.__bases__)
-    log.info('Extracted inherited criterias %s for query class %s', criterias, clazz)
-    criterias.update(extractCriterias(clazz.__dict__))
-    log.info('Extracted criterias %s for query class %s', criterias, clazz)
-    for crt in criterias:
-        if not match(RULE_QUERY_CRITERIA[0], crt): raise DevelError(RULE_QUERY_CRITERIA[1] % crt)
+    def decorator(clazz):
+        assert isclass(clazz), 'Invalid class %s' % clazz
 
-    queryContainer = Query(criterias)
-    queryType = TypeQuery(clazz, queryContainer)
+        criterias = extractCriteriasInherited(clazz.__bases__)
+        log.info('Extracted inherited criterias %s for query class %s', criterias, clazz)
+        criterias.update(extractCriterias(clazz.__dict__))
+        log.info('Extracted criterias %s for query class %s', criterias, clazz)
+        for crt in criterias:
+            if not match(RULE_QUERY_CRITERIA[0], crt): raise DevelError(RULE_QUERY_CRITERIA[1] % crt)
 
-    for crt in queryContainer.criterias:
-        critType = TypeCriteriaEntry(queryType, crt)
-        setattr(clazz, crt, CriteriaEntry(critType))
+        queryContainer = Query(criterias)
+        queryType = TypeQuery(clazz, queryContainer, queryOwner)
 
-    clazz._ally_type = queryType # This specified the detected type for the model class by using 'typeFor'
-    clazz.__new__ = QuerySupport.__new__
-    clazz.__repr__ = QuerySupport.__repr__
-    clazz.__contains__ = QuerySupport.__contains__
+        for crt in queryContainer.criterias:
+            critType = TypeCriteriaEntry(queryType, crt)
+            setattr(clazz, crt, CriteriaEntry(critType))
 
-    return clazz
+        clazz._ally_type = queryType # This specified the detected type for the model class by using 'typeFor'
+        clazz.__new__ = QuerySupport.__new__
+        clazz.__str__ = QuerySupport.__str__
+        clazz.__contains__ = QuerySupport.__contains__
 
-def call(*args, types=None, **hints):
+        return clazz
+
+    return decorator
+
+def call(*args, method=None, **hints):
     '''
     Used for decorating service methods that are used as APIs.
     
@@ -254,38 +277,42 @@ def call(*args, types=None, **hints):
             def assign(self, entity, toEntity):
                 doc string
                 <no method body required>
-            
-    @param types: tuple|list(Type|Type reference)
-        On the first position it will be considered the output type then the input types expected for the
-        service call. Can also be provided as arguments.
+
+    @param method: integer
+        One of the config module constants GET, INSERT, UPDATE, DELETE.
     @param hints: key arguments
-        Provides hints for the call, supported parameters:
+        Provides hints for the call, the hints are used for assembly.
             @keyword exposed: boolean
                 Indicates that the call is exposed for external interactions, usually all defined methods in a service
                 that are not decorated with call are considered unexposed calls.
-            @keyword method: integer
-                One of the config module constants GET, INSERT, UPDATE, DELETE.
     '''
-    if not args: return partial(call, types=types, **hints)
-    assert not types or isinstance(types, (tuple, list)), 'Invalid types %s' % types
-    if not isfunction(args[0]): return partial(call, types=args, **hints)
-    assert len(args) == 1, \
-    'Expected only one argument that is the decorator function, got %s arguments' % len(args)
-    function = args[0]
-    assert isfunction(function), 'Invalid function %s' % function
+    function = None
+    if not args: types = None
+    elif not isfunction(args[0]): types = args
+    else:
+        types = None
+        assert len(args) == 1, \
+        'Expected only one argument that is the decorator function, got %s arguments' % len(args)
+        function = args[0]
 
-    name, method = function.__name__, hints.pop('method', None)
-    if method is None:
-        for regex, m in NAME_TO_METHOD.items():
-            if match(regex, name):
-                method = m
-                break
-        else: raise DevelError('Cannot deduce method for function name "%s"' % name)
+    def decorator(function):
+        assert isfunction(function), 'Invalid function %s' % function
+        nonlocal method
+        name = function.__name__
+        if method is None:
+            for regex, m in NAME_TO_METHOD.items():
+                if match(regex, name):
+                    method = m
+                    break
+            else: raise DevelError('Cannot deduce method for function name "%s"' % name)
 
-    output, inputs = extractOuputInput(function, types, modelToId=method in (GET, DELETE))
+        output, inputs = extractOuputInput(function, types, modelToId=method in (GET, DELETE))
 
-    function._ally_call = Call(name, method, output, inputs, hints)
-    return abstractmethod(function)
+        function._ally_call = Call(name, method, output, inputs, hints)
+        return abstractmethod(function)
+
+    if function is not None: return decorator(function)
+    return decorator
 
 def service(*args, generic=None):
     '''
@@ -362,4 +389,50 @@ def service(*args, generic=None):
 
     clazz._ally_type = TypeService(clazz, Service(calls))
     # This specified the detected type for the model class by using 'typeFor'
+    return clazz
+
+def extension(*args):
+    '''
+    Used for decorating classes that are API extensions. The extension is used as a model but only with primitive
+    properties that is rendered in the response in different manners. Also the extension is not specified in the API
+    and can be returned by the implementation in a dynamic manner.
+    
+    ex:
+        @extension
+        class CollectionWithTotal(Iterable):
+    
+            total = int
+            
+            def __init__(self, iter):
+                self.iter = iter
+                
+            def __iter__(self): return self.iter()
+    '''
+    if not args: return extension
+    assert len(args) == 1, 'Expected only one argument that is the decorator class, got %s arguments' % len(args)
+    clazz = args[0]
+    assert isclass(clazz), 'Invalid class %s' % clazz
+
+    properties = extractPropertiesInherited(clazz.__bases__, TypeExtension)
+    log.info('Extracted extension inherited properties %s for class %s', properties, clazz)
+    properties.update(extractProperties(clazz.__dict__))
+    log.info('Extracted extension properties %s for class %s', properties, clazz)
+    for prop, typ in properties.items():
+        if not match(RULE_EXTENSION_PROPERTY[0], prop): raise DevelError(RULE_EXTENSION_PROPERTY[1] % prop)
+        if not typ.isPrimitive:
+            raise DevelError('Invalid type %s for property \'%s\', only primitives allowed' % (typ, prop))
+
+    extensionContainer = Container(properties)
+    extensionType = TypeExtension(clazz, extensionContainer)
+
+    reference = {}
+    for prop in extensionContainer.properties:
+        propType = TypeProperty(extensionType, prop)
+        reference[prop] = Reference(propType)
+        setattr(clazz, prop, Property(propType))
+
+    clazz._ally_type = extensionType # This specified the detected type for the model class by using 'typeFor'
+    clazz._ally_reference = reference # The references to be returned by the properties when used only with class
+    clazz.__new__ = ContainerSupport.__new__
+
     return clazz

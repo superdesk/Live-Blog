@@ -90,7 +90,7 @@ def validateProperty(refProp, validator, key=(EVENT_PROP_INSERT, EVENT_PROP_UPDA
     assert isinstance(typ, TypeModelProperty), 'No model property available for %s' % refProp
     key = key if isinstance(key, (list, tuple)) else [key]
     key = [k % typ.property for k in key]
-    bindListener(typ.parent.forClass, key, validator, index)
+    bindListener(typ.parent.clazz, key, validator, index)
 
 def validateAutoId(refProp):
     '''
@@ -153,7 +153,7 @@ def bindValidations(proxy, mappings=None):
     assert isinstance(typ, TypeService), 'Invalid service proxy %s' % proxy
     if mappings is None: mappings = {}
     else: assert isinstance(mappings, dict), 'Invalid mappings %s' % mappings
-    assert isinstance(proxy, typ.forClass), 'Invalid proxy %s for service %s' % (proxy, typ.forClass)
+    assert isinstance(proxy, typ.clazz), 'Invalid proxy %s for service %s' % (proxy, typ.clazz)
     registerProxyBinder(proxy)
 
     for call in typ.service.calls:
@@ -164,10 +164,10 @@ def bindValidations(proxy, mappings=None):
                 assert isinstance(inp, Input)
                 typ = inp.type
                 if isinstance(typ, TypeModel):
-                    if typ.forClass in mappings:
-                        typ = typeFor(mappings[typ.forClass])
-                        assert isinstance(typ, TypeModel), 'Invalid model mapping class %s' % mappings[typ.forClass]
-                    if isinstance(typ.forClass, BindableSupport):
+                    if typ.clazz in mappings:
+                        typ = typeFor(mappings[typ.clazz])
+                        assert isinstance(typ, TypeModel), 'Invalid model mapping class %s' % mappings[typ.clazz]
+                    if isinstance(typ.clazz, BindableSupport):
                         positions[k] = typ
             if positions:
                 bindBeforeListener(getattr(proxy, call.name),
@@ -294,12 +294,12 @@ def onCallValidateModel(onInsert, positions, args, keyargs):
         assert isinstance(typ, TypeModel), 'Invalid model type %s for index %s' % (typ, k)
         assert typ.isValid(obj), 'Invalid object %s for %s' % (obj, typ)
         if onInsert:
-            if callListeners(typ.forClass, EVENT_MODEL_INSERT, obj, errors):
+            if callListeners(typ.clazz, EVENT_MODEL_INSERT, obj, errors):
                 for prop in typ.container.properties:
-                    callListeners(typ.forClass, EVENT_PROP_INSERT % prop, prop, obj, errors)
+                    callListeners(typ.clazz, EVENT_PROP_INSERT % prop, prop, obj, errors)
         else:
-            if callListeners(typ.forClass, EVENT_MODEL_UPDATE, obj, errors):
+            if callListeners(typ.clazz, EVENT_MODEL_UPDATE, obj, errors):
                 for prop in typ.container.properties:
-                    callListeners(typ.forClass, EVENT_PROP_UPDATE % prop, prop, obj, errors)
+                    callListeners(typ.clazz, EVENT_PROP_UPDATE % prop, prop, obj, errors)
 
     if errors: raise InputError(*errors)

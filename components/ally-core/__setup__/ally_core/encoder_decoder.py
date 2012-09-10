@@ -9,27 +9,16 @@ Created on Nov 24, 2011
 Provides the configurations for the processors encoders and decoders.
 '''
 
-from .converter import contentNormalizer, converterPath
 from ally.container import ioc
-from ally.core.impl.processor.decoder_none import DecodingNoneHandler
-from ally.core.impl.processor.decoder_text import DecodingTextHandler
-from ally.core.impl.processor.decoder_xml import DecodingXMLHandler
-from ally.core.spec.server import Processor
-from ally.core.impl.processor.encoder_text import EncodingTextHandler
-from ally.core.impl.processor.decoder_content import DecodingContentHandler
+from ally.core.impl.processor.render.text import RenderTextHandler
+from ally.core.impl.processor.render.xml import RenderXMLHandler
+from ally.design.processor import Handler, Assembly
+from ally.core.impl.processor.render.json import RenderJSONHandler
+from ally.core.impl.processor.parser.xml import ParseXMLHandler
+from ally.core.impl.processor.parser.text import ParseTextHandler
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
-
-@ioc.config
-def content_types_xml() -> dict:
-    '''The XML content types'''
-    return {
-            'text/xml':None,
-            'text/plain':'text/xml',
-            'application/xml':None,
-            'xml':'text/xml'
-            }
 
 @ioc.config
 def content_types_json() -> dict:
@@ -42,6 +31,16 @@ def content_types_json() -> dict:
             }
 
 @ioc.config
+def content_types_xml() -> dict:
+    '''The XML content types'''
+    return {
+            'text/xml':None,
+            'text/plain':'text/xml',
+            'application/xml':None,
+            'xml':'text/xml'
+            }
+
+@ioc.config
 def content_types_yaml() -> dict:
     '''The YAML content types'''
     return {
@@ -50,112 +49,93 @@ def content_types_yaml() -> dict:
             'yaml':'text/yaml',
             }
 
-@ioc.entity
-def encodingXML() -> Processor:
-    from ally.core.impl.processor.encoder_xml import EncodingXMLHandler
-    b = EncodingXMLHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.converterId = converterPath()
-    b.contentTypes = content_types_xml()
-    b.encodingError = 'xmlcharrefreplace'
+# --------------------------------------------------------------------
+# Create the renders
 
 @ioc.entity
-def encoderTextJSON():
-    from json.encoder import JSONEncoder
-    def encodeJSON(obj, charSet): return JSONEncoder().iterencode(obj)
-    return encodeJSON
+def renderingAssembly() -> Assembly:
+    '''
+    The assembly containing the response renders.
+    '''
+    return Assembly()
 
 @ioc.entity
-def encodingJSON() -> Processor:
-    b = EncodingTextHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.converterId = converterPath()
+def parsingAssembly() -> Assembly:
+    '''
+    The assembly containing the request parsers.
+    '''
+    return Assembly()
+
+@ioc.entity
+def renderJSON() -> Handler:
+    b = RenderJSONHandler(); yield b
     b.contentTypes = content_types_json()
-    b.encodingError = 'backslashreplace'
-    b.encoder = encoderTextJSON()
+
+# JSON encode by using the text renderer.
+#@ioc.entity
+#def renderJSON() -> Handler:
+#    import json
+#    def rendererJSON(obj, charSet, out): json.dump(obj, out)
+#
+#    b = RenderTextHandler(); yield b
+#    b.contentTypes = content_types_json()
+#    b.rendererTextObject = rendererJSON
 
 @ioc.entity
-def encoderTextYAML():
+def renderXML() -> Handler:
+    b = RenderXMLHandler(); yield b
+    b.contentTypes = content_types_xml()
+
+@ioc.entity
+def renderYAML() -> Handler:
     import yaml
-    def encodeYAML(obj, charSet): yield yaml.dump(obj, default_flow_style=False)
-    return encodeYAML
+    def rendererYAML(obj, charSet, out): yaml.dump(obj, out, default_flow_style=False)
 
-@ioc.entity
-def encodingYAML() -> Processor:
-    b = EncodingTextHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.converterId = converterPath()
+    b = RenderTextHandler(); yield b
     b.contentTypes = content_types_yaml()
-    b.encodingError = 'backslashreplace'
-    b.encoder = encoderTextYAML()
+    b.rendererTextObject = rendererYAML
 
 # --------------------------------------------------------------------
-# Creating the decoding processors
+# Creating the parsers
 
 @ioc.entity
-def decodingNone() -> Processor: return DecodingNoneHandler()
-
-@ioc.entity
-def decodingContent() -> Processor: return DecodingContentHandler()
-
-@ioc.entity
-def decodingXML() -> Processor:
-    b = DecodingXMLHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.converterId = converterPath()
-    b.contentTypes = list(content_types_xml().keys())
-
-@ioc.entity
-def decoderTextJSON():
+def parseJSON() -> Handler:
     import json
     import codecs
-    def decodeJSON(content, charSet):
-        return json.load(codecs.getreader(charSet)(content))
-    return decodeJSON
+    def parserJSON(content, charSet): return json.load(codecs.getreader(charSet)(content))
+
+    b = ParseTextHandler(); yield b
+    b.contentTypes = set(content_types_json())
+    b.parser = parserJSON
+    b.parserName = 'json'
 
 @ioc.entity
-def decodingJSON() -> Processor:
-    b = DecodingTextHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.decoder = decoderTextJSON()
-    b.converterId = converterPath()
-    b.contentTypes = list(content_types_json().keys())
+def parseXML() -> Handler:
+    b = ParseXMLHandler(); yield b
+    b.contentTypes = set(content_types_xml())
 
 @ioc.entity
-def decoderTextYAML():
+def parseYAML() -> Handler:
     import yaml
     import codecs
-    def decodeYAML(content, charSet):
-        return yaml.load(codecs.getreader(charSet)(content))
-    return decodeYAML
+    def parserYAML(content, charSet): return yaml.load(codecs.getreader(charSet)(content))
 
-@ioc.entity
-def decodingYAML() -> Processor:
-    b = DecodingTextHandler(); yield b
-    b.normalizer = contentNormalizer()
-    b.decoder = decoderTextYAML()
-    b.converterId = converterPath()
-    b.contentTypes = list(content_types_yaml().keys())
+    b = ParseTextHandler(); yield b
+    b.contentTypes = set(content_types_yaml())
+    b.parser = parserYAML
+    b.parserName = 'yaml'
 
 # --------------------------------------------------------------------
 
-@ioc.entity
-def handlersEncoding():
-    '''
-    The handlers used for encoding.
-    '''
-    b = [encodingXML(), encodingJSON()]
-    try: b.append(encodingYAML())
+@ioc.before(renderingAssembly)
+def updateRenderingAssembly():
+    renderingAssembly().add(renderJSON())
+    renderingAssembly().add(renderXML())
+    try: renderingAssembly().add(renderYAML())
     except ImportError: pass
-    return b
 
-@ioc.entity
-def handlersDecoding():
-    '''
-    The handlers used for decoding.
-    '''
-    b = [decodingContent(), decodingXML(), decodingJSON(), decodingNone()]
-    try: b.append(decodingYAML())
-    except ImportError: pass
-    return b
-
+@ioc.before(parsingAssembly)
+def updateParsingAssembly():
+    parsingAssembly().add(parseJSON())
+    parsingAssembly().add(parseXML())
+    parsingAssembly().add(parseYAML())

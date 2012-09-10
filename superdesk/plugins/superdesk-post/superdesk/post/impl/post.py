@@ -12,19 +12,19 @@ Contains the SQL alchemy implementation for post API.
 from ..api.post import IPostService
 from ..meta.post import PostMapped
 from ..meta.type import PostTypeMapped
+from ally.api.extension import IterPart
+from ally.container import wire
 from ally.container.ioc import injected
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from ally.support.api.util_service import copy
-from sqlalchemy.orm.exc import NoResultFound
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from superdesk.post.api.post import Post, QPostUnpublished, \
-    QPost
-from ally.support.sqlalchemy.functions import current_timestamp
+from ally.support.api.util_service import copy
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityGetServiceAlchemy
+from sqlalchemy.orm.exc import NoResultFound
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.post.api.post import Post, QPostUnpublished, QPost
 from superdesk.source.meta.source import SourceMapped
-from ally.container import wire
+from sqlalchemy.sql.functions import current_timestamp
 
 # --------------------------------------------------------------------
 
@@ -35,8 +35,8 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     '''
     Implementation for @see: IPostService
     '''
-    # Default source name --------------------------------------
-    default_source_name = 'internal'; wire.config('default_source_name', doc='''The default source name used when a source was not supplied''')
+    default_source_name = 'internal'; wire.config('default_source_name', doc='''
+    The default source name used when a source was not supplied''')
 
     def __init__(self):
         '''
@@ -44,61 +44,39 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         '''
         EntityGetServiceAlchemy.__init__(self, PostMapped)
 
-    def getUnpublishedCount(self, creatorId=None, authorId=None, q=None):
-        '''
-        @see: IPostService.getUnpublishedCount
-        '''
-        assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
-        sql = self._buildQuery(creatorId, authorId, q)
-        sql = sql.filter(PostMapped.PublishedOn == None)
-
-        return sql.count()
-
-    def getUnpublished(self, creatorId=None, authorId=None, offset=None, limit=None, q=None):
+    def getUnpublished(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IPostService.getUnpublished
         '''
         assert q is None or isinstance(q, QPostUnpublished), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
         sql = sql.filter(PostMapped.PublishedOn == None)
-        sql = buildLimits(sql, offset, limit)
-        return sql.all()
 
-    def getPublishedCount(self, creatorId=None, authorId=None, q=None):
-        '''
-        @see: IPostService.getPublishedCount
-        '''
-        assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
-        sql = self._buildQuery(creatorId, authorId, q)
-        sql = sql.filter(PostMapped.PublishedOn != None)
-        return sql.count()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
-    def getPublished(self, creatorId=None, authorId=None, offset=None, limit=None, q=None):
+    def getPublished(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IPostService.getPublished
         '''
         assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
         sql = sql.filter(PostMapped.PublishedOn != None)
-        sql = buildLimits(sql, offset, limit)
-        return sql.all()
 
-    def getAllCount(self, creatorId=None, authorId=None, q=None):
-        '''
-        @see: IPostService.getPublishedCount
-        '''
-        assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
-        sql = self._buildQuery(creatorId, authorId, q)
-        return sql.count()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
-    def getAll(self, creatorId=None, authorId=None, offset=None, limit=10, q=None):
+    def getAll(self, creatorId=None, authorId=None, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IPostService.getPublished
         '''
         assert q is None or isinstance(q, QPost), 'Invalid query %s' % q
         sql = self._buildQuery(creatorId, authorId, q)
-        sql = buildLimits(sql, offset, limit)
-        return sql.all()
+        sqlLimit = buildLimits(sql, offset, limit)
+        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
+        return sqlLimit.all()
 
     def insert(self, post):
         '''

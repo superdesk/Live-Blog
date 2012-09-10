@@ -9,11 +9,15 @@ Created on Nov 23, 2011
 Provides the cherry py web server support.
 '''
 
-from .server_basic import ContentRequestData
 from ally.api.config import UPDATE, INSERT, GET, DELETE
+from ally.support.util_io import IOutputStream
 from ally.container.ioc import injected
-from ally.core.http.spec import RequestHTTP, EncoderHeader, METHOD_OPTIONS
-from ally.core.spec.server import Processors, ProcessorsChain, Response
+from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
+    RequestContentHTTP, ResponseContentHTTP
+from ally.core.spec.codes import Code
+from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
+    CREATE_REPORT
+from ally.support.util_io import readGenerator
 import cherrypy
 import logging
 import re
@@ -30,14 +34,11 @@ class RequestHandler:
     The server class that handles the requests.
     '''
 
-    requestPaths = list
-    # The list[tuple(regex, Processor)] of path-processors chain tuples
-    # The path is a regular expression
-    # The processors is a Processors instance
+    pathAssemblies = list
+    # A list that contains tuples having on the first position a string pattern for matching a path, and as a value 
+    # the assembly to be used for creating the context for handling the request for the path.
     serverVersion = str
     # The server version name
-    encodersHeader = list
-    # The header encoders
 
     methods = {
                'DELETE' : DELETE,
@@ -49,52 +50,70 @@ class RequestHandler:
     methodUnknown = -1
 
     def __init__(self):
-        assert isinstance(self.encodersHeader, list), 'Invalid header encoders list %s' % self.encodersHeader
         assert isinstance(self.serverVersion, str), 'Invalid server version %s' % self.serverVersion
-        if __debug__:
-            for reqPath in self.requestPaths:
-                assert isinstance(reqPath, tuple), 'Invalid request paths %s' % self.requestPaths
-                assert type(reqPath[0]) == type(re.compile('')), 'Invalid path regular expression %s' % reqPath[0]
-                assert isinstance(reqPath[1], Processors), 'Invalid processors chain %s' % reqPath[1]
+        assert isinstance(self.pathAssemblies, list), 'Invalid path assemblies %s' % self.pathAssemblies
+        pathProcessing = []
+        for pattern, assembly in self.pathAssemblies:
+            assert isinstance(pattern, str), 'Invalid pattern %s' % pattern
+            assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+
+            processing, report = assembly.create(ONLY_AVAILABLE, CREATE_REPORT,
+                                                 request=RequestHTTP, requestCnt=RequestContentHTTP,
+                                                 response=ResponseHTTP, responseCnt=ResponseContentHTTP)
+
+            log.info('Assembly report for pattern \'%s\':\n%s', pattern, report)
+            pathProcessing.append((re.compile(pattern), processing))
+        self.pathProcessing = pathProcessing
 
     @cherrypy.expose
     def default(self, *vpath, **params):
         request, response = cherrypy.request, cherrypy.response
-        req = RequestHTTP()
-        req.method = self.methods.get(request.method, self.methodUnknown)
         path = '/'.join(vpath)
 
-        for pathRegex, processors in self.requestPaths:
-            match = pathRegex.match(path)
+        for regex, processing in self.pathProcessing:
+            match = regex.match(path)
             if match:
-                chain = processors.newChain()
-                assert isinstance(chain, ProcessorsChain)
-                req.path = path[match.end():]
-                req.rootURI = path[:match.end()]
-                if not req.rootURI.endswith('/'): req.rootURI += '/'
+                uriRoot = path[:match.end()]
+                if not uriRoot.endswith('/'): uriRoot += '/'
+
+                assert isinstance(processing, Processing), 'Invalid processing %s' % processing
+                req, reqCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
+                rsp, rspCnt = processing.contexts['response'](), processing.contexts['responseCnt']()
+                chain = processing.newChain()
+
+                assert isinstance(chain, Chain), 'Invalid chain %s' % chain
+                assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
+                assert isinstance(reqCnt, RequestContentHTTP), 'Invalid request content %s' % reqCnt
+                assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
+                assert isinstance(rspCnt, ResponseContentHTTP), 'Invalid response content %s' % rspCnt
+
+                req.scheme, req.uriRoot, req.uri = 'http', uriRoot, path[match.end():]
                 break
-        else: raise cherrypy.HTTPError(404)
+        else:
+            raise cherrypy.HTTPError(404)
 
-        req.headers.update(request.headers)
+        req.method = self.methods.get(request.method, self.methodUnknown)
+        req.headers = request.headers
+        reqCnt.source = request.rfile
+
+        parameters = []
         for name, value in params.items():
-            if isinstance(value, list):
-                req.params.extend([(name, v) for v in value])
-            else:
-                req.params.append((name, value))
+            if isinstance(value, list): parameters.extend([(name, v) for v in value])
+            else: parameters.append((name, value))
+        req.parameters = parameters
 
-        req.content = ContentRequestData(request.rfile)
+        chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)
 
-        rsp = Response()
-        chain.process(req, rsp)
+        assert isinstance(rsp.code, Code), 'Invalid response code %s' % rsp.code
 
         response.headers.pop('Content-Type', None)
         response.headers['Server'] = self.serverVersion
-        for headerEncoder in self.encodersHeader:
-            assert isinstance(headerEncoder, EncoderHeader)
-            headerEncoder.encode(response.headers, rsp)
-        response.status = '%s %s' % (rsp.code.code, rsp.codeText)
-        assert log.debug('Finalized request: %s and response: %s' % (req.__dict__, rsp.__dict__)) or True
-        return rsp.content
+        response.headers.update(rsp.headers)
+        if ResponseHTTP.text in rsp: response.status = '%s %s' % (rsp.code.code, rsp.text)
+        else: response.status = str(rsp.code.code)
+
+        if isinstance(rsp.source, IOutputStream): return readGenerator(rsp.source)
+        return rspCnt.source
     default._cp_config = {
                           'response.stream': True, # We make sure that streaming occurs and is not cached
                           'request.process_request_body': False

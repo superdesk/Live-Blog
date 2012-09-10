@@ -1,7 +1,7 @@
 '''
 Created on Dec 19, 2011
 
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -258,3 +258,63 @@ def getAttrAndClass(clazz, name):
         if name in cls.__dict__: return cls.__dict__[name], cls
         classes.extend(cls.__bases__)
     raise AttributeError('The %s has not attribute %r' % (clazz, name))
+
+def validateTypeFor(clazz, name, vauleType, allowNone=True):
+    '''
+    Creates a property descriptor inside a class that provides a getter and a setter that validates the
+    set value against the provided value type.
+    
+    @param clazz: class
+        The class to validate the property for.
+    @param name: string
+        The name to use for the property.
+    @param vauleType: class|tuple(class)
+        The required type of the value to be set.
+    @param allowNone: boolean
+        If True will allow also the None value to be set, otherwise only values of type clazz are allowed.
+    '''
+    assert isclass(clazz), 'Invalid class %s' % clazz
+    assert isinstance(name, str), 'Invalid name %s' % name
+    assert isclass(vauleType) or isinstance(vauleType, tuple), 'Invalid value type %s' % clazz
+    assert isinstance(allowNone, bool), 'Invalid allow flag %s' % allowNone
+
+    try:
+        descriptor, _clazz = getAttrAndClass(clazz, name)
+
+        get = getattr(descriptor, '__get__')
+
+        descriptor.__set__ # Just to raise AttributeError in case there is no __set__ on the descriptor
+        def set(self, value):
+            if not ((allowNone and value is None) or isinstance(value, vauleType)):
+                raise ValueError('Invalid value %s for class %s' % (value, vauleType))
+            descriptor.__set__(self, value)
+
+        delete = getattr(descriptor, '__delete__', None)
+    except AttributeError:
+        get = lambda self: getattr(self, name)
+
+        def set(self, value):
+            if not ((allowNone and value is None) or isinstance(value, vauleType)):
+                raise ValueError('Invalid value %s for class %s' % (value, vauleType))
+            self.__dict__[name] = value
+
+        def delete(self):
+            del self.__dict__[name]
+
+    setattr(clazz, name, property(get, set, delete))
+
+def validateType(name, vauleType, allowNone=True):
+    '''
+    Decorator for @see: validateTypeFor that will only apply the validation if the application is in debug mode.
+    
+    @param name: string
+        The name to use for the property.
+    @param vauleType: class|tuple(class)
+        The required type of the value to be set.
+    @param allowNone: boolean
+        If True will allow also the None value to be set, otherwise only values of type clazz are allowed.
+    '''
+    def decorator(clazz):
+        if __debug__: validateTypeFor(clazz, name, vauleType, allowNone)
+        return clazz
+    return decorator

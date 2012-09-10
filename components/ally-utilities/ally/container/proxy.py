@@ -8,7 +8,7 @@ Created on Jan 3, 2012
 Provides utility functions for creating and managing proxies.
 '''
 
-from ally.support.util import UnextendableMeta
+from ally.support.util import MetaClassUnextendable
 from collections import deque
 from functools import update_wrapper
 from inspect import isclass, isfunction
@@ -191,7 +191,7 @@ class Execution:
         assert isinstance(handler, IProxyHandler), 'Invalid handler %s' % handler
         return handler.handle(self)
 
-class ProxyMeta(UnextendableMeta, ABCMeta):
+class ProxyMeta(MetaClassUnextendable, ABCMeta):
     '''
     Meta describing an unextedable class that also contains abstract base class metas.
     '''
