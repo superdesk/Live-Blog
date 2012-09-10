@@ -188,8 +188,7 @@ class EntityCRUDServiceAlchemy(EntitySupportAlchemy):
         assert isinstance(entity.Id, int), 'Invalid entity %s, with id %s' % (entity, entity.Id)
         entityDb = self.session().query(self.Entity).get(entity.Id)
         if not entityDb: raise InputError(Ref(_('Unknown id'), ref=self.Entity.Id))
-        try:
-            self.session().flush((copy(entity, entityDb),))
+        try: self.session().flush((copy(entity, entityDb),))
         except SQLAlchemyError as e: handle(e, self.Entity)
 
     def delete(self, id):

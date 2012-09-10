@@ -313,7 +313,7 @@ def createBlogPosts():
     blogPostService = entityFor(IBlogPostService)
     assert isinstance(blogPostService, IBlogPostService)
     for _blogName, blogId in _cache_blogs.items():
-        if blogPostService.getPublishedCount(blogId) > 0: return
+        if len(blogPostService.getPublished(blogId)) > 0: return
     for data in POSTS:
         pst = Post()
         blog, pst.Type, creator, author, pst.Content = data

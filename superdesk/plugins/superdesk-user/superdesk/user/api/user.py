@@ -5,6 +5,8 @@ Created on Mar 6, 2012
 @copyright: 2012 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Mihai Balaceanu
+
+The API specifications for the user.
 '''
 
 from ally.api.config import service, query

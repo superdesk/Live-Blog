@@ -12,20 +12,19 @@ Contains the SQL alchemy implementation for post API.
 from ..api.post import IPostService
 from ..meta.post import PostMapped
 from ..meta.type import PostTypeMapped
+from ally.api.extension import IterPart
+from ally.container import wire
 from ally.container.ioc import injected
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from ally.support.api.util_service import copy
-from sqlalchemy.orm.exc import NoResultFound
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from superdesk.post.api.post import Post, QPostUnpublished, \
-    QPost
-from ally.support.sqlalchemy.functions import current_timestamp
-
+from ally.support.api.util_service import copy
+from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from sql_alchemy.impl.entity import EntityGetServiceAlchemy
+from sqlalchemy.orm.exc import NoResultFound
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
+from superdesk.post.api.post import Post, QPostUnpublished, QPost
 from superdesk.source.meta.source import SourceMapped
-from ally.container import wire
+from sqlalchemy.sql.functions import current_timestamp
 
 # --------------------------------------------------------------------
 
