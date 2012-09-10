@@ -37,20 +37,37 @@ define
                 {
                     action.ScriptPath &&
                         require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ addApp = new AddApp(); });
-                });  
+                }); 
+                event.preventDefault();
             });
-            $(this.menu).on('click', '.submenu-blog', function()
+            $(this.menu).on('click', '.submenu-blog', function(event)
             {
                 superdesk.showLoader();
-                var theBlog = $(this).attr('data-blog-link');
+                var theBlog = $(this).attr('data-blog-link'), self = this;
                 superdesk.getAction('modules.livedesk.edit')
                 .done(function(action)
                 {
-                    action.ScriptPath && 
-                        require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); });
+                    var callback = function()
+                    { 
+                        require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); }); 
+                    };
+                    action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
                 });
+                event.preventDefault();
             });
-            this.menu.tmpl('livedesk>submenu', {Blogs: this.model.feed()}); 
+            var self = this;
+            /*!
+             * apply template and go to selected blog if any
+             */
+            this.menu.tmpl('livedesk>submenu', {Blogs: this.model.feed()}, function()
+            {
+                var slashRE = /^\/+|\/+$/g;
+                self.menu.find('[href]').each(function()
+                {
+                    if( $(this).attr('href').replace(slashRE, '') == superdesk.navigation.getStartPathname().replace(slashRE, '')) 
+                        $(this).trigger('click'); 
+                });
+            }); 
         }
     });
     
@@ -59,7 +76,6 @@ define
         init: function(submenu, menu)
         { 
             subMenu.menu = $(submenu);
-            //subMenu.setElement($(submenu, menu)).refresh();
             subMenu.refresh();
             return subMenu; 
         }
