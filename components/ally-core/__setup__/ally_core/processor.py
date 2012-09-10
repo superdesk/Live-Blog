@@ -55,13 +55,6 @@ def converter() -> Converter: return Converter()
 # --------------------------------------------------------------------
 
 @ioc.entity
-def assemblyResources() -> Assembly:
-    '''
-    The assembly containing the handlers that will be used in processing a REST request.
-    '''
-    return Assembly()
-
-@ioc.entity
 def argumentsPrepare() -> Handler: return ArgumentsPrepareHandler()
 
 @ioc.entity
@@ -108,6 +101,15 @@ def renderEncoder() -> Handler: return RenderEncoderHandler()
 
 @ioc.entity
 def explainError(): return ExplainErrorHandler()
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def assemblyResources() -> Assembly:
+    '''
+    The assembly containing the handlers that will be used in processing a REST request.
+    '''
+    return Assembly()
 
 # --------------------------------------------------------------------
 

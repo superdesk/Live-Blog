@@ -124,9 +124,19 @@ def fetcher() -> Handler: return FetcherHandler()
 @ioc.replace(createEncoder)
 def createEncoderPath() -> Handler: return CreateEncoderPathHandler()
 
+@ioc.replace(parser)
+def parserMultiPart() -> Handler:
+    b = ParsingMultiPartHandler()
+    b.charSetDefault = default_characterset()
+    b.parsingAssembly = parsingAssembly()
+    b.populateAssembly = assemblyMultiPartPopulate()
+    return b
+
 @ioc.entity
-def pathAssemblies():
-    return [(server_pattern_rest(), assemblyResources())]
+def redirect() -> Handler:
+    b = RedirectHandler()
+    b.redirectAssembly = assemblyRedirect()
+    return b
 
 # --------------------------------------------------------------------
 
@@ -137,16 +147,6 @@ def assemblyMultiPartPopulate() -> Assembly:
     '''
     return Assembly()
 
-@ioc.replace(parser)
-def parserMultiPart() -> Handler:
-    b = ParsingMultiPartHandler()
-    b.charSetDefault = default_characterset()
-    b.parsingAssembly = parsingAssembly()
-    b.populateAssembly = assemblyMultiPartPopulate()
-    return b
-
-# --------------------------------------------------------------------
-
 @ioc.entity
 def assemblyRedirect() -> Assembly:
     '''
@@ -155,10 +155,8 @@ def assemblyRedirect() -> Assembly:
     return Assembly()
 
 @ioc.entity
-def redirect() -> Handler:
-    b = RedirectHandler()
-    b.redirectAssembly = assemblyRedirect()
-    return b
+def pathAssemblies():
+    return [(server_pattern_rest(), assemblyResources())]
 
 # --------------------------------------------------------------------
 

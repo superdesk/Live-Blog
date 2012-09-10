@@ -1,7 +1,7 @@
 '''
 Created on Jun 9, 2011
 
-@package: utilities
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor

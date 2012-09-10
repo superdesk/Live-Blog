@@ -11,8 +11,7 @@ Provides support for SQL alchemy mapper that is able to link the alchemy with RE
 
 from abc import ABCMeta
 from ally.api.operator.container import Model
-from ally.api.operator.descriptor import ContainerSupport, Property, \
-    PropertyDelegate, PropertyDelegateChange, Reference
+from ally.api.operator.descriptor import ContainerSupport, Reference
 from ally.api.operator.type import TypeModel, TypeModelProperty
 from ally.api.type import typeFor
 from ally.container.binder import indexAfter
@@ -20,12 +19,17 @@ from ally.container.binder_op import INDEX_PROP, validateAutoId, \
     validateRequired, validateMaxLength, validateProperty, validateManaged
 from ally.exception import Ref
 from ally.internationalization import _
+from ally.support.sqlalchemy.descriptor import PropertyAttribute, PropertyHybrid, \
+    PropertyAssociation
 from ally.support.sqlalchemy.session import openSession
 from ally.support.util_sys import getAttrAndClass
+from collections import deque
 from functools import partial
 from inspect import isclass
 from sqlalchemy import event
+from sqlalchemy.ext.associationproxy import AssociationProxy
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.mapper import Mapper
@@ -121,13 +125,19 @@ def mapperModel(clazz, sql, exclude=None, **keyargs):
 
     return mapped
 
+# --------------------------------------------------------------------
+
 class DeclarativeMetaModel(DeclarativeMeta):
     '''
     Extension for @see: DeclarativeMeta class that provides also the merging with the API model.
     '''
 
+    def __new__(cls, name, bases, namespace):
+        namespace['_ally_type'] = None # Makes the type None in order to avoid mistakes by inheriting the type from a model
+        return type.__new__(cls, name, bases, namespace)
+
     def __init__(self, name, bases, namespace):
-        DeclarativeMeta.__init__(self, name, bases, namespace)
+        assert isinstance(namespace, dict), 'Invalid namespace %s' % namespace
 
         mapped, models = [], []
         for cls in bases:
@@ -137,6 +147,7 @@ class DeclarativeMetaModel(DeclarativeMeta):
 
         if not mapped and not models:
             assert log.debug('Cannot find any API model class for \'%s\', no merging required', name) or True
+            DeclarativeMeta.__init__(self, name, bases, namespace)
             return
 
         if len(mapped) > 1: raise MappingError('Cannot inherit more then one mapped class, got %s' % models)
@@ -150,56 +161,36 @@ class DeclarativeMetaModel(DeclarativeMeta):
         assert isinstance(typeModel, TypeModel)
         typeModel = TypeModelMapped(self, typeModel)
 
-        self._ally_type = typeModel
-        self._ally_reference = {prop:Reference(TypeModelProperty(typeModel, prop))
-                                for prop in typeModel.container.properties}
-        self._ally_listeners = {}
-        self._ally_mapping = self.__mapper__
+        self._ally_reference = {prop: Reference(TypeModelProperty(typeModel, prop, propType))
+                                for prop, propType in typeModel.container.properties.items()}
+        self._ally_listeners = {} # Provides the BindableSupport
+        self._ally_type = typeModel # Provides the TypeSupport
+
+        DeclarativeMeta.__init__(self, name, bases, namespace)
+
         self.__clause_element__ = lambda: self.__table__
 
-        try: self.metadata._ally_mappings.append(self)
-        except AttributeError: self.metadata._ally_mappings = [self]
+        for prop in typeModel.container.properties:
+            if typeFor(getattr(self, prop)) != typeFor(self._ally_reference[prop]):
+                value, _class = getAttrAndClass(self, prop)
+                setattr(self, prop, value)
 
-        for key in typeModel.container.properties: self._merge(key)
-
-        self.__setattr_merge__ = self._merge
+        try: mappings = self.metadata._ally_mappers
+        except AttributeError: mappings = self.metadata._ally_mappers = deque()
+        mappings.append(self)
 
     def __setattr__(self, key, value):
         '''
         @see: DeclarativeMeta.__setattr__
         '''
+        if self._ally_type is not None and key in self._ally_type.container.properties:
+            typeProperty = typeFor(self._ally_reference[key])
+
+            if isinstance(value, InstrumentedAttribute): value = PropertyAttribute(typeProperty, value)
+            elif isinstance(value, hybrid_property): value = PropertyHybrid(typeProperty, value)
+            elif isinstance(value, AssociationProxy): value = PropertyAssociation(typeProperty, value)
+
         super().__setattr__(key, value)
-        try: self.__setattr_merge__(key)
-        except AttributeError: pass
-
-    def _merge(self, key):
-        '''
-        Merges the property descriptors.
-        '''
-        if key not in self._ally_type.container.properties: return
-
-        descriptor, _clazz = getAttrAndClass(self, key)
-        if isinstance(descriptor, Property): return
-
-        reference = descriptor.__get__(None, self)
-        if reference is None:
-            log.info('No reference from descriptor %s to assign an ally type' % descriptor)
-        else:
-            typeProperty = TypeModelProperty(self._ally_type, key, self._ally_type.base.childTypeFor(key).type)
-            try: reference._ally_type = typeProperty
-            except AttributeError: log.warn('Cannot assign an ally type to descriptor %s' % descriptor)
-
-            self._ally_reference[key] = reference
-
-        prop, _clazz = getAttrAndClass(self._ally_type.base.clazz, key)
-        assert isinstance(prop, Property), 'Invalid property %s' % prop
-
-        if isinstance(descriptor, InstrumentedAttribute):
-            descriptor = PropertyDelegateChange(prop.type, descriptor)
-        else:
-            descriptor = PropertyDelegate(prop.type, descriptor)
-
-        type.__setattr__(self, key, descriptor)
 
 # --------------------------------------------------------------------
 
@@ -234,7 +225,7 @@ def registerValidation(mapped, exclude=None):
     assert isinstance(model, Model)
 
     properties = set(model.properties)
-    for cp in mapped._ally_mapping.iterate_properties:
+    for cp in mapped.__mapper__.iterate_properties:
         if not isinstance(cp, ColumnProperty): continue
 
         assert isinstance(cp, ColumnProperty)
@@ -250,9 +241,6 @@ def registerValidation(mapped, exclude=None):
                 if __debug__:
                     propType = typeFor(propRef)
                     assert isinstance(propType, TypeModelProperty), 'Invalid property %s with type %s' % (prop, propType)
-                    #TODO: Check if the property type is matching the column type
-                    #assert propType.isOf(column.type), 'Invalid column type %s for property type %s' % \
-                    #(column.type, propType)
 
                 if column.primary_key and column.autoincrement:
                     if prop != model.propertyId:
@@ -276,8 +264,7 @@ def registerValidation(mapped, exclude=None):
                         validateProperty(propRef, partial(onPropertyForeignKey, mapped, fkcol), index=INDEX_PROP_FK)
 
     for prop in properties:
-        if not (exclude and prop in exclude):
-            validateManaged(getattr(mapped, prop))
+        if not (exclude and prop in exclude): validateManaged(getattr(mapped, prop))
 
 def mappingsOf(metadata):
     '''
@@ -290,7 +277,7 @@ def mappingsOf(metadata):
     '''
     assert isinstance(metadata, MetaData), 'Invalid meta data %s' % metadata
 
-    try: mappings = metadata._ally_mappings
+    try: mappings = metadata._ally_mappers
     except AttributeError: return {}
 
     return {typeFor(mapped).base.clazz:mapped for mapped in mappings}
@@ -388,8 +375,8 @@ def addInsertListener(mapped, listener, before=True):
     assert callable(listener), 'Invalid listener %s' % listener
     assert isinstance(before, bool), 'Invalid before flag %s' % before
     def onInsert(mapper, conn, target): listener(target)
-    if before: event.listen(mapped._ally_mapping, 'before_insert', onInsert)
-    else: event.listen(mapped._ally_mapping, 'after_insert', onInsert)
+    if before: event.listen(mapped.__mapper__, 'before_insert', onInsert)
+    else: event.listen(mapped.__mapper__, 'after_insert', onInsert)
 
 def addUpdateListener(mapped, listener, before=True):
     '''
@@ -407,8 +394,8 @@ def addUpdateListener(mapped, listener, before=True):
     assert callable(listener), 'Invalid listener %s' % listener
     assert isinstance(before, bool), 'Invalid before flag %s' % before
     def onUpdate(mapper, conn, target): listener(target)
-    if before: event.listen(mapped._ally_mapping, 'before_update', onUpdate)
-    else: event.listen(mapped._ally_mapping, 'after_update', onUpdate)
+    if before: event.listen(mapped.__mapper__, 'before_update', onUpdate)
+    else: event.listen(mapped.__mapper__, 'after_update', onUpdate)
 
 # --------------------------------------------------------------------
 
@@ -448,7 +435,7 @@ class TypeModelMapped(TypeModel):
 
 class MappedSupportMeta(ABCMeta):
     '''
-    Meta class for mapping support that allows for instance check base on the '_ally_mapping' attribute.
+    Meta class for mapping support that allows for instance check base on the '__mapper__' attribute.
     '''
 
     def __instancecheck__(self, instance):
@@ -456,13 +443,14 @@ class MappedSupportMeta(ABCMeta):
         @see: ABCMeta.__instancecheck__
         '''
         if ABCMeta.__instancecheck__(self, instance): return True
-        return isinstance(getattr(instance, '_ally_mapping', None), Mapper)
+        if self is not MappedSupport: return False
+        return isinstance(getattr(instance, '__mapper__', None), Mapper)
 
 class MappedSupport(metaclass=MappedSupportMeta):
     '''
     Support class for mapped classes.
     '''
-    _ally_mapping = Mapper # Contains the mapper that represents the model
+    __mapper__ = Mapper # Contains the mapper that represents the model
 
 # --------------------------------------------------------------------
 #TODO: check if is still a problem in the new SQL alchemy version

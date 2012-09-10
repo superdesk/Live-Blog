@@ -20,4 +20,5 @@ from ally.core.spec.resources import Path
 
 @ioc.after(resourcesLocator)
 def decorateRoot():
-    resourcesRoot().get = InvokerFunction(GET, resourcesLocator().findGetAllAccessible, List(TypeClass(Path)), [], {})
+    resourcesRoot().get = InvokerFunction(GET, resourcesLocator().findGetAllAccessible,
+                                          List(TypeClass(Path)), [], {})
