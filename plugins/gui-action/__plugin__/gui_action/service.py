@@ -8,14 +8,14 @@ Created on Feb 23, 2012
 
 
 '''
-
+from ..gui_core import service
 from ally.container import ioc
 from gui.action.api.action import IActionManagerService
 from gui.action.impl.action import ActionManagerService
 
 # --------------------------------------------------------------------
 
-@ioc.entity
+@ioc.replace(ioc.getEntity(IActionManagerService, service))
 def actionManagerService() -> IActionManagerService:
     b = ActionManagerService()
     return b
