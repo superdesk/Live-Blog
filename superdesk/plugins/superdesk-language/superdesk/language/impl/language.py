@@ -9,7 +9,6 @@ Created on Jun 23, 2011
 SQL alchemy implementation for language API.
 '''
 
-from ally.api.model import Part
 from ally.container.binder_op import validateProperty
 from ally.container.ioc import injected
 from ally.exception import InputError, DevelError, Ref
@@ -21,10 +20,7 @@ from collections import OrderedDict
 from sql_alchemy.impl.entity import EntityNQServiceAlchemy
 from superdesk.language.api.language import Language, ILanguageService
 from superdesk.language.meta.language import LanguageEntity
-
-# --------------------------------------------------------------------
-
-DEFAULT_LOCALE = ['en']
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -44,7 +40,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         self._locales = OrderedDict(locales)
         validateProperty(LanguageEntity.Code, self._validateCode)
 
-    def getByCode(self, code, locales=DEFAULT_LOCALE):
+    def getByCode(self, code, locales):
         '''
         @see: ILanguageService.getByCode
         '''
@@ -52,7 +48,7 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         if not locale: raise InputError(Ref(_('Unknown language code'), ref=Language.Code))
         return self._populate(Language(code), self._translator(locale, self._localesOf(locales)))
 
-    def getAllAvailable(self, locales=DEFAULT_LOCALE, offset=None, limit=None, q=None):
+    def getAllAvailable(self, locales, offset=None, limit=None, q=None):
         '''
         @see: ILanguageService.getAllAvailable
         '''
@@ -68,9 +64,9 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
             languages = trimIter(self._locales.items(), length, offset, limit)
             languages = (self._populate(Language(code), self._translator(locale, locales))
                          for code, locale in languages)
-        return Part(languages, length)
+        return IterPart(languages, length, offset, limit)
 
-    def getById(self, id, locales=DEFAULT_LOCALE):
+    def getById(self, id, locales):
         '''
         @see: ILanguageService.getById
         '''
@@ -79,20 +75,17 @@ class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
         if not language: raise InputError(Ref(_('Unknown language id'), ref=LanguageEntity.Id))
         return self._populate(language, self._translator(self._localeOf(language.Code), locales))
 
-    def getCount(self):
-        '''
-        @see: ILanguageService.getCount
-        '''
-        return self._getCount()
-
-    def getAll(self, locales=DEFAULT_LOCALE, offset=None, limit=None):
+    def getAll(self, locales=(), offset=None, limit=None, detailed=False):
         '''
         @see: ILanguageService.getAll
         '''
         locales = self._localesOf(locales)
-        languages = self._getAll(offset=offset, limit=limit)
-        return (self._populate(language, self._translator(self._localeOf(language.Code), locales))
+        if detailed: languages, total = self._getAllWithCount(offset=offset, limit=limit)
+        else: languages = self._getAll(offset=offset, limit=limit)
+        languages = (self._populate(language, self._translator(self._localeOf(language.Code), locales))
                 for language in languages)
+        if detailed: return IterPart(languages, total, offset, limit)
+        return languages
 
     # ----------------------------------------------------------------
 
