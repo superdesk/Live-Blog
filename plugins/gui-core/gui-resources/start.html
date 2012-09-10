@@ -3,9 +3,14 @@
 <head>
 	<title>GEN Live Desk</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<!-- base href="http://superdesk.org/my-client/implementation" target="_self" /-->
 	<script>
 	config = new function()
 	{
+	    // this.server_tech = true;
+	    // use this if you have some sort of server tech like mod_rewrite,
+	    // and also would be nice to add a <base /> tag
+	    
 		this.domain = '{server_url}';
 		this.api_url = '//' + this.domain;
 		this.rest_url = '//' + this.domain + '/resources';
