@@ -1,1 +1,0 @@
-define('providers/google/tab', ['providers'], function(providers) {	providers.google = {		className: 'big-icon-google',				init: function() {							require(['providers','providers/google'], function(providers) {				providers.google.init();			});		}	};	return providers;});
