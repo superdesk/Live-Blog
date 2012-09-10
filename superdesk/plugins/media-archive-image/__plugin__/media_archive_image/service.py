@@ -18,20 +18,12 @@ from __plugin__.superdesk import service
 # --------------------------------------------------------------------
 
 imageDataHandler = ioc.getEntity('imageDataHandler', service)
-
 @ioc.replace(ioc.getEntity(IImageDataService, service))
 def imageData() -> IImageDataService:
     b = ImageDataServiceAlchemy()
     b.handler = imageDataHandler()
     return b
-
-#@ioc.entity
-#def imageInfo() -> IImageInfoService:
-#    b = ImageInfoServiceAlchemy()
 #    return b
-
-# --------------------------------------------------------------------
-
 @ioc.after(createTables)
 def deploy():
     imageDataHandler().deploy()
@@ -41,3 +33,9 @@ def deploy():
 #    registerService(imageData())
 #    registerService(imageInfo())
     
+
+# --------------------------------------------------------------------
+
+@ioc.after(createTables)
+def deploy():
+    imageDataHandler().deploy()
