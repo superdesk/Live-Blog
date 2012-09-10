@@ -196,7 +196,7 @@ window.livedesk.startLoading = function() {
             defaults: 
             {
                 //Post: Posts,
-                PostPublished: Posts,
+                PostPublished: Posts
                 //PostUnpublished: Posts
             }
         });
@@ -293,7 +293,8 @@ window.livedesk.startLoading = function() {
 				blogTitle = blogTitle.replace(/ /g, '-');
                                 var hash = postId + '-' +  encodeURI (blogTitle);
                                 var hash = postId;
-				var template ='<li class="'+ style +'"><a name="' + hash + '">' + content + '</a><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /><BR /></li>';
+                                var permalink = '<a rel="bookmark" href="#'+ hash +'" target="_blank">#</a>';
+				var template ='<li class="'+ style +'"><a name="' + hash + '">' + content + '</a>&nbsp;'+ permalink +'</li>';
                                 self.setElement( template );
 			}
 		}),
@@ -335,10 +336,8 @@ window.livedesk.startLoading = function() {
                         gotoHash : function() {
                             if (location.hash.length > 0) {
                                 var topHash = location.hash;
-                                console.log('tophash ', topHash);
-                                setTimeout(function(){
-                                    window.location.hash = window.location.hash;
-                                }, 500)
+                                location.hash = '';
+                                location.hash = topHash;
                             }
                         },
 			init: function()
