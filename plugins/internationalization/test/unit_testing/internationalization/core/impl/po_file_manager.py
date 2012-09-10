@@ -9,17 +9,24 @@ Created on Mar 27, 2012
 Provides unit testing for the PO file manager.
 '''
 
-from datetime import datetime
-import unittest
-from tempfile import TemporaryDirectory
-from os.path import join, dirname, abspath
-from babel.messages.pofile import read_po
+# Required in order to register the package extender whenever the unit test is run.
+if True:
+    import package_extender
+    package_extender.PACKAGE_EXTENDER.setForUnitTest(True)
 
+# --------------------------------------------------------------------
+
+from babel.messages.pofile import read_po
+from datetime import datetime
 from internationalization.api.message import IMessageService, Message
 from internationalization.api.source import ISourceService, Source
 from internationalization.core.impl.po_file_manager import POFileManager
-from ally.babel.util_babel import msgId
+from internationalization.support.babel.util_babel import msgId
+from os.path import join, dirname, abspath
+from tempfile import TemporaryDirectory
+import unittest
 
+# --------------------------------------------------------------------
 
 class TestMessageService(IMessageService):
     _componentStartId = 0

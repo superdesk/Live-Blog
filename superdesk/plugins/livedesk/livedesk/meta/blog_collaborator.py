@@ -18,7 +18,6 @@ from sqlalchemy.ext.declarative import declared_attr
 
 # --------------------------------------------------------------------
 
-#TODO: this is just a temporary extending mechanism needs to be done by using join.
 class BlogCollaboratorDefinition:
     '''
     Provides the mapping for BlogCollaborator definition.
