@@ -35,6 +35,7 @@ class User:
 @modelAuthenticate(id='Session')
 class Session(User):
     Session = str
+    Session = str
 
 # --------------------------------------------------------------------
 
