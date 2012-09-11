@@ -40,7 +40,7 @@ def always_authenticate():
 @ioc.entity
 def uriAuthentication() -> Handler:
     b = URIHandler()
-    b.resourcesLocator = resourcesLocator()
+    b.resourcesLocator = resourcesLocatorAuthentication()
     b.converterPath = converterPath()
     return b
 
