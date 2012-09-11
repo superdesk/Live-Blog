@@ -30,10 +30,9 @@ class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
     '''
     @see: IImageInfoService
     '''
-    
-    queryIndexer = QueryIndexer;wire.entity('queryIndexer')
+
+    queryIndexer = QueryIndexer; wire.entity('queryIndexer')
 
     def __init__(self):
         MetaInfoServiceBaseAlchemy.__init__(self, ImageInfoMapped, QImageInfo, ImageDataMapped, QImageData)
         self.queryIndexer.register(ImageInfoEntry, QImageInfo, ImageDataEntry, QImageData)
-        

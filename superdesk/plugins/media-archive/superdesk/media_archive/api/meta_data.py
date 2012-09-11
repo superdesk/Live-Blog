@@ -20,7 +20,6 @@ from datetime import datetime
 
 # --------------------------------------------------------------------
 
-
 @modelArchive
 class MetaData(Entity):
     '''
@@ -35,7 +34,7 @@ class MetaData(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(MetaData)
 class QMetaData(QEntity):
     '''
     The query for he meta models.
@@ -69,7 +68,7 @@ class IMetaDataUploadService(IMetaDataService):
     '''
     Provides the service methods for the meta data.
     '''
-    
+
     @call(webName='Upload')
     def insert(self, content:Content) -> MetaData.Id:
         '''

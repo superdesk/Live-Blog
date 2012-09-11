@@ -25,7 +25,7 @@ class BlogType(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(BlogType)
 class QBlogType(QEntity):
     '''
     Provides the query for active blog type model.

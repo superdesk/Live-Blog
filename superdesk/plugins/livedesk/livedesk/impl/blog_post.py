@@ -16,11 +16,11 @@ from ..meta.blog_post import BlogPostMapped, BlogPostEntry
 from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from ally.container.support import setup
 from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
@@ -31,7 +31,6 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
-from sqlalchemy.sql.operators import desc_op
 
 # --------------------------------------------------------------------
 
@@ -86,7 +85,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn == None)
 
-        sql = sql.order_by(desc_op(BlogPostMapped.ordering))
+        sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
         return self._trimmDeleted(sql.all())
 
@@ -101,7 +100,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
         sql = sql.filter(BlogPostMapped.Author == None)
 
-        sql = sql.order_by(desc_op(BlogPostMapped.ordering))
+        sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
         return self._trimmDeleted(sql.all())
 
@@ -112,7 +111,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert q is None or isinstance(q, QBlogPost), 'Invalid query %s' % q
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
 
-        sql = sql.order_by(desc_op(BlogPostMapped.ordering))
+        sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
         return self._trimmDeleted(sql.all())
 
@@ -178,22 +177,22 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         @see: IBlogPostService.reorder
         '''
-        sql = self.session().query(BlogPostMapped.ordering)
+        sql = self.session().query(BlogPostMapped.Order)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         sql = sql.filter(BlogPostMapped.Id == refPostId)
         order = sql.scalar()
 
         if not order: raise InputError(Ref(_('Invalid before post')))
 
-        sql = self.session().query(BlogPostMapped.ordering)
+        sql = self.session().query(BlogPostMapped.Order)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         sql = sql.filter(BlogPostMapped.Id != postId)
         if before:
-            sql = sql.filter(BlogPostMapped.ordering > order)
-            sql = sql.order_by(BlogPostMapped.ordering)
+            sql = sql.filter(BlogPostMapped.Order > order)
+            sql = sql.order_by(BlogPostMapped.Order)
         else:
-            sql = sql.filter(BlogPostMapped.ordering < order)
-            sql = sql.order_by(desc_op(BlogPostMapped.ordering))
+            sql = sql.filter(BlogPostMapped.Order < order)
+            sql = sql.order_by(desc_op(BlogPostMapped.Order))
 
         sql = sql.limit(1)
 
@@ -275,6 +274,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         Provides the next ordering.
         '''
-        max = self.session().query(fn.max(BlogPostMapped.ordering)).filter(BlogPostMapped.Blog == blogId).scalar()
+        max = self.session().query(fn.max(BlogPostMapped.Order)).filter(BlogPostMapped.Blog == blogId).scalar()
         if max: return max + 1
         return 1

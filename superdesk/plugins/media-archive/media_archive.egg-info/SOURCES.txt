@@ -12,6 +12,10 @@ media_archive.egg-info/requires.txt
 media_archive.egg-info/top_level.txt
 media_archive.egg-info/zip-safe
 resources/__init__.py
+resources/ffmpeg/__init__.py
+resources/ffmpeg/bin/__init__.py
+resources/ffmpeg/licenses/__init__.py
+resources/ffmpeg/presets/__init__.py
 superdesk/__init__.py
 superdesk/media_archive/__init__.py
 superdesk/media_archive/api/__init__.py
@@ -26,6 +30,7 @@ superdesk/media_archive/core/impl/__init__.py
 superdesk/media_archive/core/impl/meta_service_base.py
 superdesk/media_archive/core/impl/query_service_creator.py
 superdesk/media_archive/core/impl/thumbnail_manager.py
+superdesk/media_archive/core/impl/thumbnail_processor_ffmpeg.py
 superdesk/media_archive/impl/__init__.py
 superdesk/media_archive/impl/meta_data.py
 superdesk/media_archive/impl/meta_info.py

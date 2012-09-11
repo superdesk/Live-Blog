@@ -31,6 +31,7 @@ from superdesk.user.meta.user import UserMapped
 import hashlib
 import hmac
 import logging
+from ally.container.support import setup
 
 # --------------------------------------------------------------------
 
@@ -38,8 +39,14 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
+class IAuthenticationCompoundService(IAuthenticationService, IAuthenticationSupport, ICleanupService):
+    '''
+    Compound specification class formed from the authentication specifications.
+    '''
+
 @injected
-class AuthenticationService(SessionSupport, IAuthenticationService, IAuthenticationSupport, ICleanupService):
+@setup(IAuthenticationCompoundService)
+class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationCompoundService):
     '''
     The service implementation that provides the authentication.
     '''
@@ -154,7 +161,7 @@ class AuthenticationService(SessionSupport, IAuthenticationService, IAuthenticat
         except NoResultFound: return False
         assert isinstance(login, LoginMapped), 'Invalid login %s' % login
         login.AccessedOn = current_timestamp()
-        self.session().flush(login)
+        self.session().flush((login,))
         commitNow()
         # We need to fore the commit because if there is an exception while processing the request we need to make
         # sure that the last access has been updated.

@@ -11,9 +11,8 @@ Provides the decorator to be used by the models in the media archive domain.
 
 from ally.api.config import model
 from functools import partial
-from superdesk.api import domain_superdesk
 
 # --------------------------------------------------------------------
 
-DOMAIN = domain_superdesk.DOMAIN + 'Archive/'
+DOMAIN = 'Archive'
 modelArchive = partial(model, domain=DOMAIN)
