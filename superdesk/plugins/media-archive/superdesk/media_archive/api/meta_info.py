@@ -24,7 +24,7 @@ class MetaInfo(Entity):
     '''
     Provides the meta data information that is provided by the user.
     '''
-    
+
     MetaData = MetaData
     Language = LanguageEntity
     Title = str
@@ -33,7 +33,7 @@ class MetaInfo(Entity):
 
 # --------------------------------------------------------------------
 
-@query
+@query(MetaInfo)
 class QMetaInfo(QEntity):
     '''
     The query for he meta info model.

@@ -9,16 +9,16 @@ Created on Apr 27, 2012
 Provides the specification classes for the media archive.
 '''
 
-import abc
-from inspect import isclass
-from ally.support.api.util_service import namesForQuery
-from ally.api.type import typeFor
 from ally.api.operator.type import TypeCriteriaEntry
-from superdesk.meta.metadata_superdesk import Base
-from superdesk.media_archive.meta.meta_info import MetaInfoMapped
+from ally.api.type import typeFor
+from ally.support.api.util_service import namesForQuery
+from inspect import isclass
+from superdesk.media_archive.api.meta_data import QMetaData
 from superdesk.media_archive.api.meta_info import QMetaInfo
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
-from superdesk.media_archive.api.meta_data import QMetaData
+from superdesk.media_archive.meta.meta_info import MetaInfoMapped
+from superdesk.meta.metadata_superdesk import Base
+import abc
 
 # --------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ class IMetaDataReferencer(metaclass=abc.ABCMeta):
     '''
 
     @abc.abstractclassmethod
-    def populate(self, metaData, scheme, thumbSize=None):
+    def populate(self, metaData, scheme, size=None):
         '''
         Processes the meta data references in respect with the specified thumbnail size. The method will take no action if
         the meta data is not relevant for the handler.
@@ -37,7 +37,7 @@ class IMetaDataReferencer(metaclass=abc.ABCMeta):
             The meta data to have the references processed.
         @param scheme: string
             The scheme protocol to provide the references for.
-        @param thumbSize: string|None
+        @param size: string|None
             The thumbnail size to process for the reference, None value lets the handler peek the thumbnail size.
         @return: MetaData
             The populated meta data, usually the same meta data.
@@ -55,8 +55,8 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
         '''
         Deploy the handler, at this moment the handler should create the required meta types and thumbnail specifications.
         '''
-        
-        
+
+
     @abc.abstractclassmethod
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -67,13 +67,13 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
 
         @param metaDataMapped: MetaDataMapped
             The meta data mapped for the current uploaded content.
-        @contentPath: string
+        @param contentPath: string
             The path were the media file is stored
         @param contentType: string
             The content type of uploaded file.
         @return: boolean
             True if the content has been processed, False otherwise.
-        '''    
+        '''
 
     @abc.abstractclassmethod
     def process(self, metaDataMapped, contentPath):
@@ -97,58 +97,37 @@ class IThumbnailManager(IMetaDataReferencer):
     Interface that defines the API for handling thumbnails.
     '''
 
-    def processThumbnail(self, thumbnailFormatId, imagePath, metaData=None, size=None):
-        '''
-        Process a file identified by metaData.
-        Return the thumbnail content for the given metaData.
-
-        @param thumbnailFormatId: int
-            The thumbnail path format identifier
-        @param imagePath: str
-            The path to the original image from which to generate the thumbnail.
-        @param metaData: Metadata
-            The object containing the content metadata for which the thumbnail is generated.
-        @param size: str
-            The size identifier (None for default)
-        '''
-    
-    # --------------------------------------------------------------------
-    
     @abc.abstractclassmethod
-    def timestampThumbnail(self, thumbnailFormatId, metaData=None, size=None):
+    def putThumbnail(self, thumbnailFormatId, imagePath, metaData=None):
         '''
-        Provides the thumbnail last modification time stamp.
+        Places a thumbnail identified by thumbnail format id.
 
         @param thumbnailFormatId: integer
-            The thumbnail format id to process the timestamp for.
-        @param metaData: Metadata
-            The object containing the content metadata for which the thumbnail was generated.
-        @param size: str
-            The thumbnail size (None for default)
-        @return: datetime|None
-            The datetime of the last modification or None if there is no resource for the thumbnail path.
+            The thumbnail path format identifier
+        @param imagePath: string
+            The path to the original image from which to generate the thumbnail.
+        @param metaData: MetaData|None
+            The object containing the content metadata for which the thumbnail is placed.
         '''
 
-# --------------------------------------------------------------------
-
-class IThumbnailCreator(metaclass=abc.ABCMeta):
+class IThumbnailProcessor(metaclass=abc.ABCMeta):
     '''
-    Specification class that provides the thumbnail creation.
+    Specification class that provides the thumbnail processing.
     '''
 
     @abc.abstractclassmethod
-    def createThumbnail(self, contentPath, width, height):
+    def processThumbnail(self, source, destination, width=None, height=None):
         '''
-        Create a thumbnail for the provided content.
+        Create a thumbnail for the provided content, if the width or height is not provided then no resizing will occur.
 
-        @param contentPath: string
-            The content local file system path where the original content can be found.
-        @param width: integer
+        @param source: string
+            The content local file system path where the thumbnail to be resized can be found.
+         @param destination: string
+            The destination local file system path where to place the resized thumbnail.
+        @param width: integer|None
             The thumbnail width.
-        @param height: integer
+        @param height: integer|None
             The thumbnail height.
-        @return: file bytes object
-            The file like object that is the thumbnail.
         '''
 
 # --------------------------------------------------------------------
@@ -158,7 +137,7 @@ class QueryIndexer:
         Manages the query related information about plugins in order to be able to support
         the multi-plugin queries 
     '''
-    
+
     def __init__(self):
         '''
         @ivar metaInfos: set(EntryMetaInfo class)
@@ -179,15 +158,15 @@ class QueryIndexer:
         '''
         self.metaInfos = set()
         self.metaDatas = set()
-        
+
         self.metaInfoByCriteria = dict()
         self.metaDataByCriteria = dict()
-        
+
         self.infoCriterias = dict()
         self.dataCriterias = dict()
-        
+
     # --------------------------------------------------------------------
-        
+
     def register(self, EntryMetaInfoClass, QMetaInfoClass, EntryMetaDataClass, QMetaDataClass):
         '''
         Construct the meta info base service for the provided classes.
@@ -201,79 +180,79 @@ class QueryIndexer:
         @param QMetaDataClass: class
             A class that extends QMetaData API class.
         '''
-        
+
         assert isclass(EntryMetaInfoClass) and issubclass(EntryMetaInfoClass, Base), \
         'Invalid entry meta info class %s' % EntryMetaInfoClass
         assert not issubclass(EntryMetaInfoClass, MetaInfoMapped), \
         'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
-        
+
         assert isclass(QMetaInfoClass) and issubclass(QMetaInfoClass, QMetaInfo), \
         'Invalid meta info query class %s' % QMetaInfoClass
-        
+
         assert isclass(EntryMetaDataClass) and issubclass(EntryMetaDataClass, Base), \
         'Invalid entry meta data class %s' % EntryMetaDataClass
         assert not issubclass(EntryMetaDataClass, MetaDataMapped), \
         'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
-        
+
         assert isclass(QMetaDataClass) and issubclass(QMetaDataClass, QMetaData), \
         'Invalid meta data query class %s' % QMetaDataClass
-            
-            
+
+
         if (EntryMetaInfoClass in self.metaInfos):
-            raise Exception('Already registered the meta info class %s' % EntryMetaInfoClass)    
-        
+            raise Exception('Already registered the meta info class %s' % EntryMetaInfoClass)
+
         if (EntryMetaDataClass in self.metaDatas):
-            raise Exception('Already registered the meta data class %s' % EntryMetaInfoClass)          
-            
-            
+            raise Exception('Already registered the meta data class %s' % EntryMetaInfoClass)
+
+
         for criteria in namesForQuery(QMetaInfoClass):
             criteriaClass = self.infoCriterias.get(criteria)
             if (criteriaClass is None): continue
-            
-            criteriaType = typeFor(getattr(QMetaInfoClass, criteria)) 
+
+            criteriaType = typeFor(getattr(QMetaInfoClass, criteria))
             assert isinstance(criteriaType, TypeCriteriaEntry)
-            
-            if (criteriaType.forClass != criteriaClass):
+
+            if (criteriaType.clazz != criteriaClass):
                 raise Exception("Can't register meta data %s because the %s criteria has type %s " \
                                 "and this criteria already exist with a different type %s" % \
-                                (EntryMetaInfoClass, criteria, criteriaType.forClass, criteriaClass)) 
-       
-       
+                                (EntryMetaInfoClass, criteria, criteriaType.clazz, criteriaClass))
+
+
         for criteria in namesForQuery(QMetaDataClass):
             criteriaClass = self.dataCriterias.get(criteria)
             if (criteriaClass is None): continue
-            
-            criteriaType = typeFor(getattr(QMetaDataClass, criteria)) 
+
+            criteriaType = typeFor(getattr(QMetaDataClass, criteria))
             assert isinstance(criteriaType, TypeCriteriaEntry)
-            
-            if (criteriaType.forClass != criteriaClass):
+
+            if (criteriaType.clazz != criteriaClass):
                 raise Exception("Can't register meta data %s because the %s criteria has type %s " \
                                 "and this criteria already exist with a different type %s" % \
-                                (EntryMetaDataClass, criteria, criteriaType.forClass, criteriaClass)) 
-        
-        
+                                (EntryMetaDataClass, criteria, criteriaType.clazz, criteriaClass))
+
+
         self.metaInfos.add(EntryMetaInfoClass)
         self.metaDatas.add(EntryMetaDataClass)
-        
+
         for criteria in namesForQuery(QMetaInfoClass):
             criteriaType = typeFor(getattr(QMetaInfoClass, criteria))
             assert isinstance(criteriaType, TypeCriteriaEntry)
-            
+
             infoSet = self.metaInfoByCriteria.get(criteria)
             if infoSet is None:
                 infoSet = self.metaInfoByCriteria[criteria] = set()
-                self.infoCriterias[criteria] = criteriaType.forClass
-                          
-            infoSet.add(EntryMetaInfoClass)     
-            
-         
+                self.infoCriterias[criteria] = criteriaType.clazz
+
+            infoSet.add(EntryMetaInfoClass)
+
+
         for criteria in namesForQuery(QMetaDataClass):
             criteriaType = typeFor(getattr(QMetaDataClass, criteria))
             assert isinstance(criteriaType, TypeCriteriaEntry)
-            
+
             dataSet = self.metaDataByCriteria.get(criteria)
             if dataSet is None:
                 dataSet = self.metaDataByCriteria[criteria] = set()
-                self.dataCriterias[criteria] = criteriaType.forClass
-                     
+                self.dataCriterias[criteria] = criteriaType.clazz
+
             dataSet.add(EntryMetaDataClass)

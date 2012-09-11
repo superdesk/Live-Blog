@@ -31,7 +31,7 @@ class ImageData(MetaData):
 
 # --------------------------------------------------------------------
 
-@query
+@query(ImageData)
 class QImageData(QMetaData):
     '''
     The query for image model.

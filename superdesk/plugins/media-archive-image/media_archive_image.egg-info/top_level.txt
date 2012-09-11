@@ -1,3 +1,2 @@
 superdesk
-resources
 __plugin__

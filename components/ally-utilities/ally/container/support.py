@@ -41,7 +41,7 @@ def setup(type, name=None):
     def decorator(clazz):
         setattr(clazz, '__ally_setup__', (type, name))
         return clazz
-    
+
     return decorator
 
 def createEntitySetup(*classes, formatter=lambda group, clazz, name: group + '.' + name if name else group + '.' + clazz.__name__,
@@ -69,17 +69,17 @@ def createEntitySetup(*classes, formatter=lambda group, clazz, name: group + '.'
         if '__name__' not in registry:
             raise SetupError('The create entity call needs to be made directly from the module')
         group = registry['__name__']
-        
+
     wireClasses = []
     for clazz in _classes(classes):
         if not hasattr(clazz, '__ally_setup__'): continue
         setupTuple = clazz.__ally_setup__
         if not setupTuple: continue
         apiClass, name = setupTuple
-        assert issubclass(clazz, apiClass), 'The impl class % do not extend the declared API class %s' % (clazz, apiClass) 
+        assert issubclass(clazz, apiClass), 'The impl class % do not extend the declared API class %s' % (clazz, apiClass)
         wireClasses.append(clazz)
         register(SetupEntityCreate(clazz, apiClass, name=formatter(group, apiClass, name), group=group), registry)
-                
+
     wireEntities(*wireClasses, setupModule=module)
 
 def wireEntities(*classes, setupModule=None):
@@ -314,7 +314,7 @@ def entityFor(clazz, assembly=None):
     if not entities:
         raise SetupError('There is no entity setup function having a return type of class or subclass %s' % clazz)
     if len(entities) > 1:
-        raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' % 
+        raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' %
                          (', '.join(entities), clazz))
 
     Assembly.stack.append(assembly)

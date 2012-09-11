@@ -9,7 +9,6 @@ Created on Aug 28, 2012
 The implementation for the query criteria API. 
 '''
 
-from ally.api.model import Part
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.api.util_service import processQuery
@@ -34,31 +33,28 @@ class QueryCriteriaService(IQueryCriteriaService):
         Construct the query criteria service.
         '''
         assert isinstance(queryIndexer, QueryIndexer), 'Invalid QueryIndexer %s' % queryIndexer
-        
+
         self.queryIndexer = queryIndexer
         self._locales = {code:Locale.parse(code) for code in locale_identifiers()}
-        
-    # --------------------------------------------------------------------
+
     def getCriterias(self, locales, q=None):
         '''
         @see: QueryCriteriaService.getCriterias
         '''
         locales = self._localesOf(locales)
-        
+
         queryCriterias = list()
-        
+
         for key, criteria in self.queryIndexer.infoCriterias.items():
-            queryCriterias.append(QueryCriteria(key, criteria.__name__, key))#self._translate(key, locales)))
-        
+            queryCriterias.append(QueryCriteria(key, criteria.__name__, key))#TODO: self._translate(key, locales)))
+
         for key, criteria in self.queryIndexer.dataCriterias.items():
-            queryCriterias.append(QueryCriteria(key, criteria.__name__, key))#self._translate(key, locales)))
-        
+            queryCriterias.append(QueryCriteria(key, criteria.__name__, key))#TODO: self._translate(key, locales)))
+
         if q:
             queryCriterias = processQuery(queryCriterias, q, QueryCriteria)
-        
-        length = len(queryCriterias)    
-            
-        return Part(queryCriterias, length)
+
+        return queryCriterias
 
     # ----------------------------------------------------------------
 

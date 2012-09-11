@@ -18,14 +18,13 @@ from ally.design.processor import Chain, HandlerProcessor
 from ally.support.util_io import readGenerator
 from ally.zip.util_zip import normOSPath, normZipPath
 from collections import Iterable
+from mimetypes import guess_type
 from os.path import isdir, isfile, join, dirname, normpath, sep
 from urllib.parse import unquote
 from zipfile import ZipFile
 import json
 import logging
 import os
-from mimetypes import guess_type
-from mimetypes import guess_type
 
 # --------------------------------------------------------------------
 
@@ -69,6 +68,10 @@ class ResponseContent(Context):
     @rtype: GeneratorType
     The generator that provides the response content in bytes.
     ''')
+    type = defines(str, doc='''
+    @rtype: string
+    The type for the streamed content.
+    ''')
 
 # --------------------------------------------------------------------
 
@@ -80,19 +83,18 @@ class ContentDeliveryHandler(HandlerProcessor):
 
     repositoryPath = str
     # The directory where the file repository is
+    defaultContentType = 'application/octet-stream'
+    # The default mime type to set on the content response if None could be guessed
     _linkExt = '.link'
     # Extension to mark the link files in the repository.
     _zipHeader = 'ZIP'
     # Marker used in the link file to indicate that a link is inside a zip file.
     _fsHeader = 'FS'
     # Marker used in the link file to indicate that a link is file system
-    _defaultContentType = 'application/octet-stream'
-
-    _defaultContentType = 'application/octet-stream'
-
 
     def __init__(self):
         assert isinstance(self.repositoryPath, str), 'Invalid repository path value %s' % self.repositoryPath
+        assert isinstance(self.defaultContentType, str), 'Invalid default content type %s' % self.defaultContentType
         self.repositoryPath = normpath(self.repositoryPath)
         if not os.path.exists(self.repositoryPath): os.makedirs(self.repositoryPath)
         assert isdir(self.repositoryPath) and os.access(self.repositoryPath, os.R_OK), \
@@ -149,12 +151,14 @@ class ContentDeliveryHandler(HandlerProcessor):
                 linkPath = subLinkPath
 
         if rf is None:
-            rsp.setCode(RESOURCE_NOT_FOUND, 'Invalid content resource')
-        else:
-            rsp.setCode(RESOURCE_FOUND, 'Resource found')
-            rsp.content = readGenerator(rf)
-            rsp.contentType, _encoding = guess_type(entryPath)
-            if not rsp.contentType: rsp.contentType = self._defaultContentType
+            response.code, response.text = METHOD_NOT_AVAILABLE, 'Invalid content resource'
+            chain.proceed()
+            return
+
+        response.code, response.text = RESOURCE_FOUND, 'Resource found'
+        responseCnt.source = readGenerator(rf)
+        responseCnt.type, _encoding = guess_type(entryPath)
+        if not responseCnt.type: responseCnt.type = self.defaultContentType
 
     # ----------------------------------------------------------------
 

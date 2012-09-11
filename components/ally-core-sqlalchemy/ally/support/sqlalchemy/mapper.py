@@ -244,7 +244,7 @@ def registerValidation(mapped, exclude=None):
 
                 if column.primary_key and column.autoincrement:
                     if prop != model.propertyId:
-                        raise MappingError('The primary key is expected to be %s, but got SQL primary key for %s' % 
+                        raise MappingError('The primary key is expected to be %s, but got SQL primary key for %s' %
                                            (model.propertyId, prop))
                     validateAutoId(propRef)
                 elif not column.nullable:
@@ -277,20 +277,7 @@ def mappingFor(mapped):
     '''
     assert isinstance(mapped, DeclarativeMetaModel), 'Invalid mapped class %s' % mapped
 
-    return mapped._ally_mapping
-
-def mappingFor(mapped):
-    '''
-    Provides the mapper of the provided mapped class.
-    
-    @param mapped: class
-        The mapped class.
-    @return: Mapper
-        The associated mapper.
-    '''
-    assert isinstance(mapped, DeclarativeMetaModel), 'Invalid mapped class %s' % mapped
-
-    return mapped._ally_mapping
+    return mapped.__mapper__
 
 def mappingsOf(metadata):
     '''

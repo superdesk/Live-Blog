@@ -65,19 +65,19 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
         '''
         @see: IMetaDataService.getMetaDatasCount
         '''
-        return self._buildSql(typeId, q).count()
+        return self.buildSql(typeId, q).count()
 
     def getMetaDatas(self, scheme, typeId=None, offset=None, limit=None, q=None, thumbSize=None):
         '''
         @see: IMetaDataService.getMetaDatas
         '''
-        sql = self._buildSql(typeId, q)
+        sql = self.buildSql(typeId, q)
         sql = buildLimits(sql, offset, limit)
         return (self.referencer.populate(metaData, scheme, thumbSize) for metaData in sql.all())
 
     # ----------------------------------------------------------------
 
-    def _buildSql(self, typeId, q):
+    def buildSql(self, typeId, q):
         '''
         Build the sql alchemy based on the provided data.
         '''
@@ -127,19 +127,19 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         '''
         @see: IMetaInfoService.getMetaInfosCount
         '''
-        return self._buildSql(dataId, languageId, qi, qd).count()
+        return self.buildSql(dataId, languageId, qi, qd).count()
 
     def getMetaInfos(self, dataId=None, languageId=None, offset=None, limit=10, qi=None, qd=None):
         '''
         @see: IMetaInfoService.getMetaInfos
         '''
-        sql = self._buildSql(dataId, languageId, qi, qd)
+        sql = self.buildSql(dataId, languageId, qi, qd)
         sql = buildLimits(sql, offset, limit)
         return sql.all()
 
     # ----------------------------------------------------------------
 
-    def _buildSql(self, dataId, languageId, qi, qd):
+    def buildSql(self, dataId, languageId, qi, qd):
         '''
         Build the sql alchemy based on the provided data.
         '''

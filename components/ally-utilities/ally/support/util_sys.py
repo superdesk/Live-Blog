@@ -143,7 +143,6 @@ def pythonPath(level=1):
         modulePath = dirname(modulePath)
     return relpath(modulePath)
 
-
 def searchModules(pattern):
     '''
     Finds all modules available in the sys.path that respect the provided pattern. The search is done directly on the

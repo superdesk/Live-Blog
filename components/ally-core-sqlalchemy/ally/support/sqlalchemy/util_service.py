@@ -9,12 +9,13 @@ Created on Jan 5, 2012
 Provides utility methods for SQL alchemy service implementations.
 '''
 
-from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual, AsDate, AsTime, AsDateTime, \
-    AsRange
+from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual, AsDate, \
+    AsTime, AsDateTime, AsRange
 from ally.api.type import typeFor
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.api.util_service import namesForQuery
+from ally.support.sqlalchemy.mapper import mappingFor
 from itertools import chain
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm.mapper import Mapper
@@ -61,9 +62,9 @@ def buildQuery(sqlQuery, query, mapped):
     clazz = query.__class__
 
     ordered, unordered = [], []
-    mapper = mapped.__mapper__
+    mapper = mappingFor(mapped)
     assert isinstance(mapper, Mapper)
-    
+
     properties = {col.key.lower(): col for col in mapper.columns}
     for criteria in namesForQuery(clazz):
         column = properties.get(criteria.lower())

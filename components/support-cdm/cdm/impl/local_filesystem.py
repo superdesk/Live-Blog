@@ -21,6 +21,7 @@ import abc
 import json
 import logging
 import os
+from ntpath import abspath
 
 
 # --------------------------------------------------------------------
@@ -161,7 +162,7 @@ class LocalFileSystemCDM(ICDM):
                 filePath = join(root, file)
                 self.publishFromFile(publishPath, filePath)
             assert log.debug('Success publishing directory %s to path %s', dirPath, path) or True
-            
+
     def publishContent(self, path, content):
         '''
         @see ICDM.publishContent
@@ -174,8 +175,8 @@ class LocalFileSystemCDM(ICDM):
             os.makedirs(dstDir)
         with open(dstFilePath, 'w+b') as dstFile:
             copyfileobj(content, dstFile)
-            assert log.debug('Success publishing content to path %s', path) or True        
-            
+            assert log.debug('Success publishing content to path %s', path) or True
+
 
     def republish(self, oldPath, newPath):
         '''
@@ -189,7 +190,7 @@ class LocalFileSystemCDM(ICDM):
             raise ValueError('New path %s is already in use' % newPath)
         dstDir = dirname(newFullPath)
         if not isdir(dstDir):
-            os.makedirs(dstDir)      
+            os.makedirs(dstDir)
         move(oldFullPath, newFullPath)
 
     def remove(self, path):
@@ -220,7 +221,7 @@ class LocalFileSystemCDM(ICDM):
         if protocol == 'http':
             return self.delivery.getURI(path)
         if protocol == 'file':
-            return self._getItemPath(path)
+            return abspath(self._getItemPath(path))
         raise UnsupportedProtocol(protocol)
 
     def getTimestamp(self, path):
@@ -384,7 +385,7 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
             return super().getURI(path)
         elif protocol == 'file':
             path, dstFilePath = self._validatePath(path)
-            return dstFilePath
+            return abspath(dstFilePath)
         raise UnsupportedProtocol(protocol)
 
     def getTimestamp(self, path):

@@ -16,6 +16,7 @@ from ally.container import ioc
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
 from ally.design.processor import Handler, Assembly
 from os import path
+from __setup__.ally_core_http.processor import contentTypeEncode
 
 # --------------------------------------------------------------------
 
@@ -55,7 +56,7 @@ def contentDelivery() -> Handler:
 @ioc.before(assemblyContent)
 def updateAssemblyContent():
     assemblyContent().add(internalError(), contentDelivery(), header(), acceptDecode(), renderer(), explainError(),
-                          allowEncode())
+                          allowEncode(), contentTypeEncode())
 
 @ioc.before(pathAssemblies)
 def updatePathAssembliesForContent():

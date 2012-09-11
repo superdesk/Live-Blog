@@ -10,7 +10,6 @@ Contains the services setups for media video archive.
 '''
 
 from ..superdesk import service
-from ..superdesk.db_superdesk import createTables
 from ally.container import ioc
 from superdesk.media_archive.api.video_data import IVideoDataService
 from superdesk.media_archive.impl.video_data import VideoDataServiceAlchemy
@@ -24,9 +23,3 @@ def videoData() -> IVideoDataService:
     b = VideoDataServiceAlchemy()
     b.handler = videoDataHandler()
     return b
-
-# --------------------------------------------------------------------
-
-@ioc.after(createTables)
-def deploy():
-    videoDataHandler().deploy()
