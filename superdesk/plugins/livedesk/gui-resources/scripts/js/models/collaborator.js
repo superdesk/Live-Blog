@@ -1,7 +1,19 @@
-define(['gizmo', 
-        'gui/superdesk/livedesk/scripts/js/models/collaborator-post',
-        'gui/superdesk/livedesk/scripts/js/models/source'], 
-function(giz, CollaboratorPost, Source)
+define(['gizmo/superdesk',
+    config.guiJs('livedesk', 'models/posts'),
+    config.guiJs('livedesk', 'models/source'),
+    config.guiJs('livedesk', 'models/person')], 
+function(giz, Posts, Source, Person)
 {
-    return giz.Model.extend({ defaults:{ Post: CollaboratorPost, Source: Source }});
+    // Collaborator
+    return giz.Model.extend
+    ({ 
+        defaults:
+        { 
+            Post: Posts,
+            PostPublished: Posts,
+            PostUnpublished: Posts,
+            Source: Source,
+            Person: Person
+        }
+    }, { register: 'Collaborator' } );
 });
