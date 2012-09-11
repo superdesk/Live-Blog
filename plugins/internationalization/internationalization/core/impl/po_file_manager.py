@@ -11,6 +11,7 @@ Implementation for the PO file management.
 
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.support.util_io import IInputStream
 from babel import localedata, core
 from babel.core import Locale, UnknownLocaleError

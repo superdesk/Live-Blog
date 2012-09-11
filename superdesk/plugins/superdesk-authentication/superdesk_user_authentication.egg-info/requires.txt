@@ -5,3 +5,4 @@ gui_core >= 1.0
 internationalization >= 1.0
 superdesk >= 1.0
 superdesk_person >= 1.0
+superdesk_user >= 1.0

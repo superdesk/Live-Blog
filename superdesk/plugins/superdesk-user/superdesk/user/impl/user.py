@@ -10,6 +10,7 @@ Implementation for user services.
 '''
 
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.support.api.util_service import copy
 from ally.support.sqlalchemy.util_service import handle
@@ -22,7 +23,7 @@ from superdesk.user.meta.user import UserMapped
 
 @injected
 @setup(IUserService)
-class UserServiceAlchemy(EntityServiceAlchemy, IUserService, IAuthenticate):
+class UserServiceAlchemy(EntityServiceAlchemy, IUserService):
     '''
     @see: IUserService
     '''

@@ -24,7 +24,7 @@ class QueryCriteria:
     Key = str
     Criteria = str
     Name = str
-    
+
     def __init__(self, Key, Criteria, Name=None):
         self.Key = Key
         self.Criteria = Criteria
@@ -32,7 +32,7 @@ class QueryCriteria:
 
 # --------------------------------------------------------------------
 
-@query
+@query(QueryCriteria)
 class QQueryCriteria:
     '''
     The query for query criteria model.
@@ -49,9 +49,9 @@ class IQueryCriteriaService:
     '''
     Provides the service methods for the query criteria service.
     '''
-         
+
     @call
     def getCriterias(self, locales:List(Locale), q:QQueryCriteria=None) -> Iter(QueryCriteria):
         '''
         Provides the list of query criteria that respect the given query conditions.
-        '''     
+        '''

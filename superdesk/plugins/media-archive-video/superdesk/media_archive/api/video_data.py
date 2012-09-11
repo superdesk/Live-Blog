@@ -21,7 +21,7 @@ class VideoData(MetaData):
     '''
     Provides the meta data that is extracted based on the content.
     '''
-    
+
     Length = int
     VideoEncoding = str
     Width = int
@@ -35,7 +35,7 @@ class VideoData(MetaData):
 
 # --------------------------------------------------------------------
 
-@query
+@query(VideoData)
 class QVideoData(QMetaData):
     '''
     The query for video model.

@@ -12,12 +12,18 @@ Contains the services setups for superdesk authentication.
 from ..superdesk.db_superdesk import createTables
 from ally.container import ioc, support
 from sched import scheduler
-import time
 from superdesk.authentication.core.spec import ICleanupService
-from superdesk.authentication.api.authentication import IAuthenticationService
 from threading import Thread
+import time
 
 # --------------------------------------------------------------------
+
+@ioc.config
+def perform_cleanup() -> bool:
+    '''
+    True if the expired sessions and authentications should be cleaned.
+    '''
+    return True
 
 @ioc.config
 def cleanup_timeout() -> int:
@@ -30,8 +36,8 @@ def cleanup_timeout() -> int:
 
 @ioc.after(createTables)
 def cleanup():
-    timeout, cleanup = cleanup_timeout(), support.entityFor(IAuthenticationService)
-    # TODO: fix this after merge with devel
+    if not perform_cleanup(): return
+    timeout, cleanup = cleanup_timeout(), support.entityFor(ICleanupService)
 
     schedule = scheduler(time.time, time.sleep)
     def executeCleanup():

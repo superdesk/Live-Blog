@@ -23,6 +23,6 @@ support.createEntitySetup('superdesk.*.impl.**.*')
 support.bindToEntities('superdesk.*.impl.**.*Alchemy', binders=bindSuperdeskSession)
 support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskValidations), beforeBinding=False)
 support.listenToEntities(IAuthenticationSupport, listeners=registerAuthentication, beforeBinding=False)
-support.loadAllEntities(API)
+support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------
