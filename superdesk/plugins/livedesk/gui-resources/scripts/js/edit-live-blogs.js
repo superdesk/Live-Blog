@@ -34,6 +34,7 @@ function(providers, Gizmo, $)
 	
 	
 		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
+		    timelinectrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
 		
 		/*!
 		 * Views for providers
@@ -337,7 +338,7 @@ function(providers, Gizmo, $)
 				    {
 				        providers[src].timeline.render.call(self, function()
 				        {
-				            $('.editable', this.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+				            $('.editable', this.el).texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
 				            
 				            $(self).triggerHandler('render');
 				        });
@@ -349,7 +350,7 @@ function(providers, Gizmo, $)
 				$.tmpl('livedesk>timeline-item', {Post: this.model.feed()}, function(e, o)
 				{
 					self.setElement(o).el.find('.editable')
-					    .texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
+					    .texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
 					
 					/*!
                      * conditionally handing over some functionallity to provider if
@@ -712,6 +713,11 @@ function(providers, Gizmo, $)
 				delete h2ctrl.html;
 				delete h2ctrl.image;
 				delete h2ctrl.link;
+				delete timelinectrl.justifyRight;
+                delete timelinectrl.justifyLeft;
+                delete timelinectrl.justifyCenter;
+                delete timelinectrl.html;
+                delete timelinectrl.image;
 				// assign editors
 				titleInput.texteditor({
 					plugins: {controls: h2ctrl},
