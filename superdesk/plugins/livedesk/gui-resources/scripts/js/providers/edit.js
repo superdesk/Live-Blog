@@ -18,7 +18,7 @@ define('providers/edit', [
     'jqueryui/texteditor',
     'tmpl!livedesk>providers/edit',
     'tmpl!livedesk>providers/edit/item',
-], function( providers, $, Gizmo ) {
+], function( providers, $, Gizmo, PostType, Post ) {
 	var OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
 			this.desynced = false;
@@ -138,14 +138,17 @@ define('providers/edit', [
 			'[ci="savepost"]': { 'click': 'savepost'},
 			'[ci="save"]': { 'click': 'save'}
 		},
-		init: function(){			
-			var self = this;
-			self.postTypes = new Gizmo.AuthCollection(self.theBlog+'/../../../../Superdesk/PostType', Gizmo.Register.PostType);
-			self.postTypes.xfilter('Key');
-			self.postTypes.on('read', function(){
-				self.render();
-			});
-			self.postTypes.sync();
+		init: function()
+		{			
+			var self = this,
+			    PostTypes = Gizmo.Collection.extend({model: PostType});
+			
+			self.theBlog = self.blogUrl;
+			
+			self.postTypes = Gizmo.Auth(new PostTypes(self.blogUrl+'/../../../../Superdesk/PostType'));
+			
+			self.postTypes.on('read', function(){ self.render(); }).xfilter('Key').sync();
+			
 		},
 		render: function(){
 			var self = this;
@@ -208,10 +211,12 @@ define('providers/edit', [
 			this.postsView.save(data);			
 		}
 	});	
-	$.extend( providers.edit, { 
-		init: function(theBlog){
-			new EditView({ el: this.el, theBlog: theBlog }); 
-		}
-	});
+	var editView = null;
+    $.extend( providers.edit, { init: function(blogUrl)
+    { 
+        console.log(this.el, blogUrl);
+        editView = new EditView({ el: this.el, blogUrl: blogUrl });
+        this.init = $.noop; 
+    }});
 	return providers;	
 });
