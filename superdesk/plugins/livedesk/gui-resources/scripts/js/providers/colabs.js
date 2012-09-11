@@ -158,7 +158,7 @@ function(providers, $, giz, Blog, Collaborator)
         /*!
          * initial - initial count of collaborators
          */
-        readPostsHandle: function(colab, initColabHandle )
+        readPostsHandle: function(colab, initColabHandle, view )
         {
             // list of new posts to append
             var appendPosts = [],
@@ -176,11 +176,11 @@ function(providers, $, giz, Blog, Collaborator)
             updateItemCount += appendPosts.length;
             
             appendPosts.length && 
-            $('.new-results', self.el).trigger('update.livedesk', [updateItemCount, function()
+            $('.new-results', view.el).trigger('update.livedesk', [updateItemCount, function()
             {
                 $(appendPosts).each(function()
                 { 
-                    $('.search-result-list', self.el).prepend( (new PostView({ model: this })).render().el );
+                    $('.search-result-list', view.el).prepend( (new PostView({ model: this })).render().el );
                 });
                 updateItemCount -= appendPosts.length;
             }, initColabHandle()]);
@@ -213,7 +213,7 @@ function(providers, $, giz, Blog, Collaborator)
                 { 
                     // get posts for each collaborator
                     colab.get('Post').xfilter('*')
-                        .on('read', function(){ self.readPostsHandle.call(this, colab, initColabHandle); })
+                        .on('read', function(){ self.readPostsHandle.call(this, colab, initColabHandle, self); })
                         .sync();
                     // start the auto update timers
                     self.startAutoUpdate();
