@@ -4,7 +4,7 @@ define('jquery/avatar', ['utils/str', 'jquery', 'jquery/utils', 'jquery/md5'], f
         defaults: {
             rate: 'pg',
             size: 48,
-            default: encodeURIComponent('http://liveblog.lab.sourcefabric.org/content/lib/core/images/avatar_default_collaborator.png'),
+            default: encodeURIComponent('images/avatar_default_collaborator.png'),
             forcedefault: '',
             key: 'Avatar',
             needle: 'Person.EMail'
