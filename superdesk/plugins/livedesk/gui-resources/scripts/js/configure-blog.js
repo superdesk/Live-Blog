@@ -53,7 +53,6 @@ function($)
         })
         .fail(function(data)
         { 
-            console.log(arguments);
             $('[is-submenu] .alert')
                 .removeClass('alert-success hide')
                 .addClass('alert-error').find('span').text(_('Error'));
@@ -118,7 +117,7 @@ function($)
             .done(function(action)
             {
                 action.ScriptPath && 
-                    require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ new EditApp(blogHref).render(); });
+					require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
             });
         });
         $('[data-action="save"]', content)
@@ -133,13 +132,25 @@ function($)
     },
     app = function(theBlog)
     {
-        blogHref = theBlog;
+        var blogHref = theBlog,
+			EmbedPath = config.content_url+'/'+config.guiJs('livedesk','embed/')
+			EmbedSource = '<ul id="livedesk-root"></ul><'+'script>window.livedesk = { callback: function(){ new this.TimelineView({ url: "'+blogHref+'" });}, contentPath: "'+EmbedPath+'"};';
+			EmbedSource += '(function(d, s, id){var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;js = d.createElement(s); js.id = id;js.src = "'+EmbedPath+'/livedeskembed.js";fjs.parentNode.insertBefore(js, fjs);}(document, "script", "livedesk-jssdk"));<'+'/script>';
         gotColabs = new $.Deferred;
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(data)
         {
             blogData = data;
-            var data = $.extend({}, data, {BlogHref: theBlog, 
-                    ui: {content: 'is-content=1', side: 'is-side=1', submenu: 'is-submenu', submenuActive2: 'active'}}),
+            var data = $.extend({}, data, {
+					BlogHref: theBlog, 
+                    ui: {
+						content: 'is-content=1', 
+						side: 'is-side=1', 
+						submenu: 'is-submenu', 
+						submenuActive2: 'active'
+						
+					},
+					EmbedSource: EmbedSource
+					}),
                 content = $.superdesk.applyLayout('livedesk>configure', data, init);
         });
     };
