@@ -28,7 +28,7 @@ class BlogTypePost(Post):
 
 # --------------------------------------------------------------------
 
-@query
+@query(BlogTypePost)
 class QBlogTypePost(QPostUnpublished):
     '''
     Provides the blog post message query.

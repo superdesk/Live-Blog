@@ -9,7 +9,6 @@ Created on Jul 27, 2012
 Provides support model encode implementations. 
 '''
 
-from ally.api.operator.descriptor import Reference
 from ally.core.spec.resources import Path
 from ally.design.bean import Attribute, Bean
 from collections import OrderedDict, Callable
@@ -45,8 +44,8 @@ class DataModel(Bean):
     @rtype datas: dictionary{string, DataModel}
     The data models to be used for the properties of the encoded model.
     ''')
-    fetchReference = Reference; fetchReference = Attribute(fetchReference, doc='''
-    @rtype fetchReference: Reference
+    fetchReference = object; fetchReference = Attribute(fetchReference, doc='''
+    @rtype fetchReference: object
     The fetch reference for the fetch encode.
     ''')
     fetchEncode = Callable; fetchEncode = Attribute(fetchEncode, doc='''

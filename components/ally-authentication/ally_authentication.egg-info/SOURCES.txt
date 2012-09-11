@@ -7,6 +7,7 @@ ally/api/__init__.py
 ally/api/authentication.py
 ally/api/operator/__init__.py
 ally/api/operator/authentication/__init__.py
+ally/api/operator/authentication/service.py
 ally/api/operator/authentication/type.py
 ally_authentication.egg-info/PKG-INFO
 ally_authentication.egg-info/SOURCES.txt

@@ -28,7 +28,7 @@ class VideoInfo(MetaInfo):
 
 # --------------------------------------------------------------------
 
-@query
+@query(VideoInfo)
 class QVideoInfo(QMetaInfo):
     '''
     The query for video info model.

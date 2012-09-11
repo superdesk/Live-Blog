@@ -10,12 +10,17 @@ Provides utility functions for handling I/O operations.
 '''
 
 from ally.zip.util_zip import normOSPath, getZipFilePath, ZIPSEP
-from os.path import isfile
-from os import stat
-from zipfile import ZipFile
-from datetime import datetime
 from collections import Iterable
+from datetime import datetime
+from genericpath import isdir, exists
+from ntpath import normpath, join, dirname
+from os import stat, makedirs
+from os.path import isfile
+from shutil import copy
+from zipfile import ZipFile, ZipInfo
 import abc
+import os
+import shutil
 
 # --------------------------------------------------------------------
 
@@ -257,11 +262,60 @@ def timestampURI(path):
     zipFilePath, _inZipPath = getZipFilePath(path)
     return datetime.fromtimestamp(stat(zipFilePath).st_mtime)
 
+def synchronizeURIToDir(path, dirPath):
+    '''
+    Publishes the entire contents from the URI path to the provided directory path.
+    
+    @param path: string
+        The path to a resource: a file system path, a ZIP path
+    @param dirPath: string
+        The directory path to synchronize with.
+    '''
+    assert isinstance(path, str) and path, 'Invalid content path %s' % path
+    assert isinstance(dirPath, str), 'Invalid directory path value %s' % dirPath
+
+    if not isdir(path):
+        # not a directory, see if it's a entry in a zip file
+        zipFilePath, inDirPath = getZipFilePath(path)
+        zipFile = ZipFile(zipFilePath)
+        if not inDirPath.endswith(ZIPSEP): inDirPath = inDirPath + ZIPSEP
+
+        lenPath, zipTime = len(inDirPath), datetime.fromtimestamp(stat(zipFilePath).st_mtime)
+        for zipInfo in zipFile.filelist:
+            assert isinstance(zipInfo, ZipInfo), 'Invalid zip info %s' % zipInfo
+            if zipInfo.filename.startswith(inDirPath):
+                if zipInfo.filename[0] == '/': dest = zipInfo.filename[1:]
+                else: dest = zipInfo.filename
+
+                dest = normpath(join(dirPath, dest[lenPath:]))
+
+                if exists(dest) and zipTime <= datetime.fromtimestamp(stat(dest).st_mtime): continue
+                destDir = dirname(dest)
+                if not exists(destDir): makedirs(destDir)
+
+                with zipFile.open(zipInfo) as source:
+                    with open(dest, 'wb') as target:
+                        shutil.copyfileobj(source, target)
+        return
+
+    path = normpath(path)
+    assert os.access(path, os.R_OK), 'Unable to read the directory path %s' % path
+    lenPath = len(path) + 1
+    for root, _dirs, files in os.walk(path):
+        for file in files:
+            src, dest = join(root, file), join(dirPath, root[lenPath:], file)
+
+            if exists(dest) and \
+            datetime.fromtimestamp(stat(src).st_mtime) <= datetime.fromtimestamp(stat(dest).st_mtime): return
+
+            destDir = dirname(dest)
+            if not exists(destDir): makedirs(destDir)
+            copy(src, dest)
+
 class keepOpen:
     '''
     Keeps opened a file object, basically blocks the close calls.
     '''
-
     __slots__ = ['_fileObj']
 
     def __init__(self, fileObj):

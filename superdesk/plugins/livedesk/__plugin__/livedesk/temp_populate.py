@@ -31,6 +31,7 @@ from superdesk.post.meta.type import PostTypeMapped
 import hashlib
 from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
 from livedesk.api.blog_type_post import IBlogTypePostService
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -355,7 +356,9 @@ def createBlogPosts():
     blogPostService = entityFor(IBlogPostService)
     assert isinstance(blogPostService, IBlogPostService)
     for _blogName, blogId in _cache_blogs.items():
-        if len(blogPostService.getPublished(blogId)) > 0: return
+        published = blogPostService.getPublished(blogId, detailed=True, limit=0)
+        assert isinstance(published, IterPart), 'Invalid part %s' % published
+        if published.total > 0: return
     for data in POSTS:
         pst = Post()
         blog, pst.Type, creator, author, pst.Content = data

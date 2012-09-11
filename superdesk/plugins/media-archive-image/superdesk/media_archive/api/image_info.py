@@ -28,7 +28,7 @@ class ImageInfo(MetaInfo):
 
 # --------------------------------------------------------------------
 
-@query
+@query(ImageInfo)
 class QImageInfo(QMetaInfo):
     '''
     The query for image info model.
