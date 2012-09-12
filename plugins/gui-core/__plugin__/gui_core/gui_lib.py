@@ -46,7 +46,7 @@ def ui_demo_file():
 @ioc.config()
 def server_url():
     ''' for demo file update... '''
-    return 'localhost'
+    return 'localhost:8080'
 
 # --------------------------------------------------------------------
 
