@@ -6,6 +6,7 @@ __plugin__/cdm/local_cdm.py
 __setup__/__init__.py
 __setup__/cdm/__init__.py
 __setup__/cdm/processor.py
+__setup__/cdm/support_ajax.py
 ally/__init__.py
 ally/core/__init__.py
 ally/core/cdm/__init__.py
