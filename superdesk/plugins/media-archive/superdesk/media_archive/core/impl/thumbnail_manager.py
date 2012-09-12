@@ -17,7 +17,7 @@ from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.util_io import timestampURI
 from cdm.spec import ICDM, PathNotFound
 from collections import OrderedDict
-from ntpath import splitext
+from os.path import splitext
 from superdesk.media_archive.api.meta_data import MetaData
 from superdesk.media_archive.core.spec import IThumbnailManager, \
     IThumbnailProcessor

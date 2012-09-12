@@ -13,9 +13,8 @@ from ally.zip.util_zip import normOSPath, getZipFilePath, ZIPSEP
 from collections import Iterable
 from datetime import datetime
 from genericpath import isdir, exists
-from ntpath import normpath, join, dirname
 from os import stat, makedirs
-from os.path import isfile
+from os.path import isfile, normpath, join, dirname
 from shutil import copy
 from zipfile import ZipFile, ZipInfo
 import abc
