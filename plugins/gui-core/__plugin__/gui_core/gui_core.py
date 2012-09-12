@@ -26,10 +26,11 @@ def lib_folder_format():
     ''' describes where the gui libraries are published, used by various plugins '''
     return 'lib/%s'
 
+#TODO: check UI files for hardcoded 'lib' path
 @ioc.config
 def gui_folder_format():
     ''' describes where the gui files are published '''
-    return 'gui/%s'
+    return 'lib/%s'
 
 # --------------------------------------------------------------------
 
@@ -40,7 +41,7 @@ def getGuiPath(file=None):
     for _k in range(0, moduleName.count('.') + 1):
         modulePath = os.path.dirname(modulePath)
     path = os.path.join(modulePath, 'gui-resources')
-    if file: 
+    if file:
         path = os.path.join(path, file.replace('/', os.sep))
     return path
 

@@ -69,6 +69,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.getPublished
         '''
         assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
+
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
 

@@ -20,7 +20,7 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 # --------------------------------------------------------------------
 
 OWNED_PROPERTY_PROXY = set(('_ally_type', '_ally_proxied', '__get__', '__contained__'))
-class PropertyProxy(TypeSupport, IGet, IContained):
+class PropertyMappingProxy(TypeSupport, IGet, IContained):
     '''
     Property that acts like a proxy for other descriptors.
     '''
@@ -36,7 +36,7 @@ class PropertyProxy(TypeSupport, IGet, IContained):
         '''
         assert isinstance(type, TypeProperty), 'Invalid property type %s' % type
         TypeSupport.__init__(self, type)
-        if isinstance(proxied, PropertyProxy): proxied = proxied._ally_proxied
+        if isinstance(proxied, PropertyMappingProxy): proxied = proxied._ally_proxied
 
         self._ally_proxied = proxied
 
@@ -50,7 +50,7 @@ class PropertyProxy(TypeSupport, IGet, IContained):
 
 # --------------------------------------------------------------------
 
-class PropertyAttribute(InstrumentedAttribute, PropertyProxy):
+class PropertyAttribute(PropertyMappingProxy, InstrumentedAttribute):
     '''
     Provides the property descriptor for the instrumented attribute.
     '''
@@ -66,7 +66,7 @@ class PropertyAttribute(InstrumentedAttribute, PropertyProxy):
         '''
         assert isinstance(type, TypeProperty), 'Invalid property type %s' % type
         assert isinstance(attribute, InstrumentedAttribute), 'Invalid attribute %s' % attribute
-        PropertyProxy.__init__(self, type, attribute)
+        PropertyMappingProxy.__init__(self, type, attribute)
 
     def __get__(self, obj, clazz=None):
         '''
@@ -87,7 +87,7 @@ class PropertyAttribute(InstrumentedAttribute, PropertyProxy):
         'Invalid container object %s, expected %s' % (obj, self._ally_type.parent)
         return self._ally_type.property in obj._ally_values
 
-class PropertyHybrid(hybrid_property, PropertyProxy):
+class PropertyHybrid(PropertyMappingProxy, hybrid_property):
     '''
     Provides the property descriptor for the hybrid property.
     '''
@@ -102,7 +102,7 @@ class PropertyHybrid(hybrid_property, PropertyProxy):
             The hybrid property to use.
         '''
         assert isinstance(hybrid, hybrid_property), 'Invalid hybrid property %s' % hybrid
-        PropertyProxy.__init__(self, type, hybrid)
+        PropertyMappingProxy.__init__(self, type, hybrid)
 
     def __get__(self, instance, owner):
         '''
@@ -122,7 +122,7 @@ class PropertyHybrid(hybrid_property, PropertyProxy):
         '''
         return True
 
-class PropertyAssociation(AssociationProxy, PropertyProxy):
+class PropertyAssociation(PropertyMappingProxy, AssociationProxy):
     '''
     Provides the property descriptor for the instrumented attribute.
     '''
@@ -138,7 +138,7 @@ class PropertyAssociation(AssociationProxy, PropertyProxy):
         '''
         assert isinstance(type, TypeProperty), 'Invalid property type %s' % type
         assert isinstance(association, AssociationProxy), 'Invalid association proxy %s' % association
-        PropertyProxy.__init__(self, type, association)
+        PropertyMappingProxy.__init__(self, type, association)
 
     def __get__(self, obj, clazz=None):
         '''
