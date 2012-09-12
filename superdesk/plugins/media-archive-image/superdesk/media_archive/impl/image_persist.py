@@ -18,7 +18,7 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from datetime import datetime
-from os.path import join
+from os.path import join, splitext
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
@@ -26,7 +26,6 @@ from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
-from ntpath import splitext
 
 # --------------------------------------------------------------------
 

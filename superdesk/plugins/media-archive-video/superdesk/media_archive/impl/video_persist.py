@@ -18,7 +18,7 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from os import remove
-from os.path import exists
+from os.path import exists, splitext
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
@@ -26,7 +26,6 @@ from superdesk.media_archive.core.impl.meta_service_base import \
 from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.video_data import META_TYPE_KEY
 import re
-from ntpath import splitext
 
 # --------------------------------------------------------------------
 
