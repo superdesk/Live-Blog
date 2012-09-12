@@ -214,7 +214,6 @@ define('providers/edit', [
 	var editView = null;
     $.extend( providers.edit, { init: function(blogUrl)
     { 
-        console.log(this.el, blogUrl);
         editView = new EditView({ el: this.el, blogUrl: blogUrl });
         this.init = $.noop; 
     }});
