@@ -169,7 +169,8 @@ var superdesk =
             
             History.options.debug = true;
             this._base = baseTag.length ? baseTag.attr('href') : History.getBaseUrl().split('#')[0];
-            this._startPathname = window.History.getPageUrl().replace(this._base, '').replace(/^\/+|\/+$/g, '').replace(/^\?+/g, '');
+            this._startPathname = window.History.getPageUrl().replace(this._base, '')
+                                    .replace(/^\/+|\/+$/g, '').replace(/^\?+/g, '').replace(/#/g, '');
             var triggered;
             History.Adapter.bind( window, 'statechange', function()
             {
