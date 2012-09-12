@@ -22,14 +22,13 @@ from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
 from cdm.spec import ICDM
-from os.path import join, getsize
+from os.path import join, getsize, abspath
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.functions import current_timestamp
 from superdesk.media_archive.api.meta_data import IMetaDataUploadService
 from superdesk.media_archive.core.impl.meta_service_base import metaTypeFor, \
     thumbnailFormatFor
 from superdesk.media_archive.meta.meta_data import META_TYPE_KEY
-from ntpath import abspath
 
 # --------------------------------------------------------------------
 
