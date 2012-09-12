@@ -29,7 +29,7 @@ define
         },
         render: function()
         {
-            $(this.menu).on('click', '#submenu-liveblogs-create', function()
+            $(this.menu).on('click', '#submenu-liveblogs-create', function(event)
             {
                 superdesk.showLoader();
                 superdesk.getAction('modules.livedesk.add')
@@ -61,10 +61,10 @@ define
              */
             this.menu.tmpl('livedesk>submenu', {Blogs: this.model.feed()}, function()
             {
-                var slashRE = /^\/+|\/+$/g;
+                if( superdesk.navigation.getStartPathname() == '') return false;
                 self.menu.find('[href]').each(function()
                 {
-                    if( $(this).attr('href').replace(slashRE, '') == superdesk.navigation.getStartPathname().replace(slashRE, '')) 
+                    if( $(this).attr('href').replace(/^\/+|\/+$/g, '') == superdesk.navigation.getStartPathname()) 
                         $(this).trigger('click'); 
                 });
             }); 
