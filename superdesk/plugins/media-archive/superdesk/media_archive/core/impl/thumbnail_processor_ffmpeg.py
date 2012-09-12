@@ -15,7 +15,7 @@ from ally.container.support import setup
 from ally.support.util_io import synchronizeURIToDir
 from ally.support.util_sys import pythonPath
 from genericpath import exists
-from ntpath import join, abspath, dirname
+from os.path import join, abspath, dirname
 from os import makedirs
 from subprocess import Popen
 from superdesk.media_archive.core.spec import IThumbnailProcessor
@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-@setup(IThumbnailProcessor)
+#@setup(IThumbnailProcessor)
 class ThumbnailProcessor(IThumbnailProcessor):
     '''
     Implementation for @see: IThumbnailProcessor
