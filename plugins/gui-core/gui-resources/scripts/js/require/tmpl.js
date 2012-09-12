@@ -93,7 +93,6 @@
 				prefix = config.templatePaths.plugin.replace('{plugin}',arr[0]);
 				name = arr[1];				
 			}
-			
 			var self = this,
                 path = parentRequire.toUrl( prefix + name + '.dust');
             fetchText(path, function(data){
