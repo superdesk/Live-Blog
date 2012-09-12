@@ -1,8 +1,8 @@
 requirejs.config({
 	paths: { 
-		'providers': 'lib/livedesk/scripts/js/providers', 
-		'livedesk/models': 'lib/livedesk/scripts/js/models', 
-		'livedesk/collections': 'lib/livedesk/scripts/js/collections/' 
+		'providers': config.gui('livedesk/scripts/js/providers'), 
+		'livedesk/models': config.gui('lib/livedesk/scripts/js/models'), 
+		'livedesk/collections': config.gui('lib/livedesk/scripts/js/collections/') 
 } });
 define
 ([

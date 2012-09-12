@@ -5,8 +5,8 @@ requirejs.config
 	waitSeconds: 15,
     templatePaths:
 	{
-	    'default': 'lib/core/templates/',
-		'plugin': 'lib/{plugin}/templates/',
+	    'default': config.core('')+'templates/',
+		'plugin': config.gui('{plugin}/templates/')
 	},
 	paths: 
 	{
@@ -38,7 +38,7 @@ require(['concat'], function(){
 		{
 			var args = arguments,
 				self = this;
-			require(['lib/core/scripts/js/views/auth'], function(AuthApp)
+			require([config.core()+'scripts/js/views/auth'], function(AuthApp)
 			{
 				AuthApp.success = makeMenu;
 				AuthApp.require.apply(self, arguments); 
@@ -49,7 +49,7 @@ require(['concat'], function(){
 		{
 			var ajax = r.apply(this, arguments),
 				self = this;
-			ajax.fail(function(resp){ (resp.status == 404 || resp.status == 401)&& authLock.apply(self, arguments); });
+			ajax.fail(function(resp){ (resp.status == 404 || resp.status == 401) && authLock.apply(self, arguments); });
 			return ajax;
 		};
 

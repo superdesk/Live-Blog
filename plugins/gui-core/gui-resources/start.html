@@ -20,7 +20,7 @@
 		this.lib_css_url = this.lib_url + 'styles/css/%s';
 
 		// other
-		this.lib_js_urn = '{lib_core}/scripts/js/';
+		this.lib_js_urn = '{lib_core}/scripts/js/'.replace(/\/+/g, '/');
 		
 		this.gui_url = '{gui}';
 		
@@ -33,7 +33,7 @@
 				return str;
 			}
 		}
-		
+		// TODO core() and gui() is inconsistent 
 		this.core = replace(this.lib_url);
 		this.coreScripts = this.cjs = replace(this.lib_js_url);
 		this.coreStyles = this.ccss = replace(this.lib_css_url);
