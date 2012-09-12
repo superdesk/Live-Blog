@@ -118,22 +118,22 @@ class ContentData(Content):
         super().__init__(**asData(content, RequestContentData))
 
         self._content = content
-        self._cloased = False
+        self._closed = False
 
     def read(self, nbytes=None):
         '''
         @see: Content.read
         '''
-        if self._cloased: raise ValueError('I/O operation on a closed content file')
+        if self._closed: raise ValueError('I/O operation on a closed content file')
         return self._content.source.read(nbytes)
 
     def next(self):
         '''
         @see: Content.next
         '''
-        if self._cloased: raise ValueError('I/O operation on a closed content file')
+        if self._closed: raise ValueError('I/O operation on a closed content file')
 
-        self._cloased = True
+        self._closed = True
         if RequestContent.fetchNextContent in self._content: content = self._content.fetchNextContent()
         else: content = None
 
