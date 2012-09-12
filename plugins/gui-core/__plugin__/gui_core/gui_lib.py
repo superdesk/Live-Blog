@@ -46,7 +46,8 @@ def ui_demo_file():
 @ioc.config()
 def server_url():
     ''' for demo file update... '''
-    return 'localhost:8080'
+    return 'localhost'
+
 # --------------------------------------------------------------------
 
 @ioc.start
@@ -66,7 +67,7 @@ def updateStartup():
     cdmGUI().publishFromFile(bootPath + js_bootstrap_file(), BytesIO(b'\n'.join([fi.read() for fi in fileList])))
 
     for f in fileList: f.close()
-    
+
 @ioc.after(publish)
 def updateDemoFile():
     try:
@@ -76,9 +77,9 @@ def updateDemoFile():
             out = out.replace(b'{gui}', bytes(gui_folder_format(), 'utf-8'));
             out = out.replace(b'{lib_core}', bytes(bootPath, 'utf-8'));
             cdmGUI().publishFromFile(bootPath + ui_demo_file(), BytesIO(out))
-    except Exception as e: 
+    except Exception as e:
         print('Error publishing demo client file:', e)
         return
     assert log.debug('Client demo script published:', server_url() + getPublishedLib('core/' + ui_demo_file())) or True
-    
-    
+
+
