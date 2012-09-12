@@ -158,5 +158,4 @@ class ResourcesRegisterDelegate(IResourcesRegister):
         @see: IResourcesRegister.register
         '''
         self.main.register(implementation)
-        for register in self.others:
-            register.register(implementation)
+        for register in self.others: register.register(implementation)
