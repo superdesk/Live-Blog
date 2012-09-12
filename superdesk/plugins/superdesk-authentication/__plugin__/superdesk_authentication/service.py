@@ -30,7 +30,7 @@ def cleanup_timeout() -> int:
     '''
     The number of seconds at which to run the cleanup for sessions and authentications.
     '''
-    return 10
+    return 180
 
 # --------------------------------------------------------------------
 

@@ -21,7 +21,7 @@ SERVICES = 'superdesk.*.api.**.I*Service'
 
 support.createEntitySetup('superdesk.*.impl.**.*')
 support.bindToEntities('superdesk.*.impl.**.*Alchemy', binders=bindSuperdeskSession)
-support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskValidations), beforeBinding=False)
+support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskSession, bindSuperdeskValidations))
 support.listenToEntities(IAuthenticationSupport, listeners=registerAuthentication, beforeBinding=False)
 support.loadAllEntities(SERVICES)
 

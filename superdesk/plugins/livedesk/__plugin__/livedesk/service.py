@@ -19,7 +19,7 @@ SERVICES = 'livedesk.api.**.I*Service'
 
 support.createEntitySetup('livedesk.impl.**.*')
 support.bindToEntities('livedesk.impl.**.*Alchemy', binders=bindSuperdeskSession)
-support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskValidations), beforeBinding=False)
+support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskSession, bindSuperdeskValidations))
 support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------

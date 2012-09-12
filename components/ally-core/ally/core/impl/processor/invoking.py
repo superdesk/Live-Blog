@@ -118,7 +118,7 @@ class InvokingHandler(HandlerProcessorProceed):
             assert isinstance(e, DevelError)
             response.code, response.text = BAD_CONTENT, 'Invoking problem'
             response.errorMessage = e.message
-            log.info('Problems with the invoked content: %s', e.message, exc_info=True)
+            log.warn('Problems with the invoked content: %s', e.message, exc_info=True)
         except InputError as e:
             assert isinstance(e, InputError)
             response.code, response.text = INPUT_ERROR, 'Input error'
