@@ -112,7 +112,7 @@ class RequestHandler:
         if ResponseHTTP.text in rsp: response.status = '%s %s' % (rsp.code.code, rsp.text)
         else: response.status = str(rsp.code.code)
 
-        if isinstance(rsp.source, IOutputStream): return readGenerator(rsp.source)
+        if isinstance(rspCnt.source, IOutputStream): return readGenerator(rspCnt.source)
         return rspCnt.source
     default._cp_config = {
                           'response.stream': True, # We make sure that streaming occurs and is not cached
