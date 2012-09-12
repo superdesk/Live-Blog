@@ -7,14 +7,20 @@ function($, superdesk, Gizmo, jsSHA)
 {
     var AuthLogin = function(username, password, logintoken)
     {
-		var shaObj = new jsSHA(logintoken, "ASCII"),
-		    shaPassword = new jsSHA(password, "ASCII"),
-			authLogin = new $.rest('Authentication');
+		var 
+			shaUser = new jsSHA(username, "ASCII"),
+			shaPassword = new jsSHA(password, "ASCII"),			
+			shaStep1 = new jsSHA(shaPassword.getHash("SHA-512", "HEX"), "ASCII"),
+			shaStep2 = new jsSHA(logintoken, "ASCII"),			
+			authLogin = new $.rest('Superdesk/Authentication/Login');
+			
+			HashedToken = shaStep1.getHMAC(username, "ASCII", "SHA-512", "HEX");			
+			HashedToken = shaStep2.getHMAC(HashedToken, "ASCII", "SHA-512", "HEX");
 			authLogin.resetData().insert
-			({ 
-			    UserName: username, 
-			    LoginToken: logintoken, 
-			    HashedLoginToken: shaObj.getHMAC(username+shaPassword.getHash("SHA-512", "HEX"), "ASCII", "SHA-512", "HEX")
+			({
+				UserName: username,
+			    Token: logintoken, 
+			    HashedToken: HashedToken
 			})
 			.done(function(user)
 			{
@@ -35,8 +41,8 @@ function($, superdesk, Gizmo, jsSHA)
 	    
 	    auth.set({ userName: username }).sync();*/
 	    
-		var authToken = new $.rest('Authentication');
-		authToken.resetData().select({ userName: username })
+		var authToken = new $.rest('Superdesk/Authentication');
+		authToken.resetData().insert({ userName: username })
 		.done(function(data)
 		{
 		    authLogin = AuthLogin(username, password, data.Token);
