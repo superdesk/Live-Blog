@@ -13,7 +13,7 @@ from ally.container.ioc import injected
 from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath, getZipFilePath, validateInZipPath
 from cdm.spec import ICDM, UnsupportedProtocol, PathNotFound
 from datetime import datetime
-from os.path import isdir, isfile, join, dirname, normpath, relpath
+from os.path import isdir, isfile, join, dirname, normpath, relpath, abspath
 from shutil import copyfile, copyfileobj, move, rmtree
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
@@ -21,7 +21,6 @@ import abc
 import json
 import logging
 import os
-from ntpath import abspath
 
 
 # --------------------------------------------------------------------

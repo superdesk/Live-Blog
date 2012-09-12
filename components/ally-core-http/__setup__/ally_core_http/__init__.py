@@ -30,7 +30,7 @@ def server_type() -> str:
 @ioc.config
 def server_port() -> int:
     '''The port on which the server will run'''
-    return 80
+    return 8080
 
 @ioc.config
 def server_version() -> str:
