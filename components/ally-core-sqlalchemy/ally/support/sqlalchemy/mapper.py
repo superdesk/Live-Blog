@@ -134,7 +134,7 @@ class DeclarativeMetaModel(DeclarativeMeta):
 
     def __new__(cls, name, bases, namespace):
         namespace['_ally_type'] = None # Makes the type None in order to avoid mistakes by inheriting the type from a model
-        return type.__new__(cls, name, bases, namespace)
+        return DeclarativeMeta.__new__(cls, name, bases, namespace)
 
     def __init__(self, name, bases, namespace):
         assert isinstance(namespace, dict), 'Invalid namespace %s' % namespace
@@ -217,15 +217,15 @@ def registerValidation(mapped, exclude=None):
         The property id of the model.
     '''
     assert isclass(mapped), 'Invalid class %s' % mapped
-    assert isinstance(mapped, MappedSupport), 'Invalid mapped class %s' % mapped
-    typeModel = typeFor(mapped)
+    mapper, typeModel = mappingFor(mapped), typeFor(mapped)
+    assert isinstance(mapper, Mapper), 'Invalid mapped class %s' % mapped
     assert isinstance(typeModel, TypeModel), 'Invalid model class %s' % mapped
     assert not exclude or isinstance(exclude, (list, tuple)), 'Invalid exclude %s' % exclude
     model = typeModel.container
     assert isinstance(model, Model)
 
     properties = set(model.properties)
-    for cp in mapped.__mapper__.iterate_properties:
+    for cp in mapper.iterate_properties:
         if not isinstance(cp, ColumnProperty): continue
 
         assert isinstance(cp, ColumnProperty)
@@ -236,7 +236,7 @@ def registerValidation(mapped, exclude=None):
 
             if not (exclude and prop in exclude):
                 propRef = getattr(mapped, prop)
-                column = cp.columns[0]
+                column = getattr(mapper.c, cp.key, None)
                 assert isinstance(column, Column), 'Invalid column %s' % column
                 if __debug__:
                     propType = typeFor(propRef)

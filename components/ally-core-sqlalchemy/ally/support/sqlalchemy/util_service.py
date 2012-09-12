@@ -19,6 +19,7 @@ from ally.support.sqlalchemy.mapper import mappingFor
 from itertools import chain
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm.mapper import Mapper
+from sqlalchemy.orm.properties import ColumnProperty
 
 # --------------------------------------------------------------------
 
@@ -65,7 +66,9 @@ def buildQuery(sqlQuery, query, mapped):
     mapper = mappingFor(mapped)
     assert isinstance(mapper, Mapper)
 
-    properties = {col.key.lower(): col for col in mapper.columns}
+    properties = {cp.key.lower(): getattr(mapper.c, cp.key)
+                  for cp in mapper.iterate_properties if isinstance(cp, ColumnProperty)}
+
     for criteria in namesForQuery(clazz):
         column = properties.get(criteria.lower())
         if column is not None and getattr(clazz, criteria) in query:
