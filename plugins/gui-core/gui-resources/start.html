@@ -20,7 +20,7 @@
 		this.lib_css_url = this.lib_url + 'styles/css/%s';
 
 		// other
-		this.lib_js_urn = '{lib_core}/scripts/js/';
+		this.lib_js_urn = '{lib_core}/scripts/js/'.replace(/\/+/g, '/');
 		
 		this.gui_url = '{gui}';
 		
