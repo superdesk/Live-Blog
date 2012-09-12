@@ -49,7 +49,7 @@ require(['concat'], function(){
 		{
 			var ajax = r.apply(this, arguments),
 				self = this;
-			ajax.fail(function(resp){ (resp.status == 404 || resp.status == 401)&& authLock.apply(self, arguments); });
+			ajax.fail(function(resp){ (resp.status == 404 || resp.status == 401) && authLock.apply(self, arguments); });
 			return ajax;
 		};
 

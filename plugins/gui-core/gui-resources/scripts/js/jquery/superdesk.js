@@ -168,7 +168,7 @@ var superdesk =
                 baseTag = $('base');
             
             History.options.debug = true;
-            this._base = baseTag.length ? baseTag.attr('href') : History.getBaseUrl().split('#')[0];
+            this._base = baseTag.length ? baseTag.attr('href') : History.getPageUrl().split('?')[0].split('#')[0];
             this._startPathname = window.History.getPageUrl().replace(this._base, '')
                                     .replace(/^\/+|\/+$/g, '').replace(/^\?+/g, '').replace(/#/g, '');
             var triggered;
@@ -182,6 +182,7 @@ var superdesk =
             if( typeof callback === 'function' )
             {
                 this._repository[''] = callback;
+                this._base = this._base;
                 History.pushState( {href: ''}, $(document).prop('title'), this._base );
                 !triggered && History.Adapter.trigger( window, 'statechange' );
             }
