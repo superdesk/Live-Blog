@@ -68,6 +68,7 @@ function($, superdesk, Gizmo, jsSHA)
 			AuthApp.showed = true;			
             $.tmpl('auth', null, function(e, o)
             { 
+                
                 var dialog = $(o).eq(0).dialog
                     ({ 
                         draggable: false,
