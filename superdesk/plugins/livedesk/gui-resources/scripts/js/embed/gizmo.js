@@ -307,6 +307,7 @@ Sync =
 		var self = this,
 			reqFnc = function(data, predefinedOptions, userOptions)
 			{
+                                $.support.cors = true;
 				var a;
 				if( source instanceof Url ) 
 				{
