@@ -115,7 +115,7 @@ class ContentDeliveryHandler(HandlerProcessor):
         assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
         if request.method != GET:
-            response.allows |= GET
+            response.allows = GET
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Path only available for GET'
             chain.proceed()
             return

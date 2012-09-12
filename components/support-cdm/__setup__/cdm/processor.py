@@ -55,7 +55,7 @@ def contentDelivery() -> Handler:
 
 @ioc.before(assemblyContent)
 def updateAssemblyContent():
-    assemblyContent().add(internalError(), contentDelivery(), header(), acceptDecode(), renderer(), explainError(),
+    assemblyContent().add(internalError(), header(), contentDelivery(), acceptDecode(), renderer(), explainError(),
                           allowEncode(), contentTypeEncode())
 
 @ioc.before(pathAssemblies)
