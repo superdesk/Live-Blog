@@ -356,7 +356,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         {
                             text: 'Cancel',
                             class: 'btn',
-                            click: function(){ $(calledFor).data('linkCommandActive', false);$(this).dialog("close"); }
+                            click: function()
+							{ 
+								$(calledFor).data('linkCommandActive', false);
+								$(this).dialog("close"); 
+								$(calledFor).focus(); 
+							}
                         },
                         remove : 
                         {
@@ -368,7 +373,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                 document.execCommand("unlink", false, null);
                                 $(self).trigger('link-removed.text-editor');
                                 $(calledFor).data('linkCommandActive', false);
-                                $(this).dialog('close');
+								$(this).dialog('close');
+								$(calledFor).focus();
                             }
                         },
                         insert : 
@@ -397,6 +403,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                 }
                                 $(calledFor).data('linkCommandActive', false);
                                 $(this).dialog('close');
+								$(calledFor).focus(); 
                             }
                         }
                         
