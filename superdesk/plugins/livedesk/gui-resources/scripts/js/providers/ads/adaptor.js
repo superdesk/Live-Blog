@@ -10,7 +10,7 @@ define('providers/ads/adaptor', [
                 var self = this;
                 new $.rest('Superdesk/Collaborator/')
                     .xfilter('Id')
-                    .request({data: { name: 'advertisement'}})
+                    .request({data: { 'qs.name': 'advertisement'}})
                     .done(function(collabs)
                     {
                         if($.isDefined(collabs[0])) {
