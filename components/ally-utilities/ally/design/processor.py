@@ -357,27 +357,32 @@ class Assembly:
         @param after: Processor|Handler
             The processor(s) will be ordered after this processor, you can only specify after or before.
         '''
-        index = len(self._processors)
-        if before is not None:
-            before = self._processorFrom(before)
-            assert after is None, 'Cannot have before and after at the same time'
-
-            try: index = self._processors.index(before)
-            except ValueError: raise AttributeError('Unknown before processor %s in assembly' % before)
-
-        elif after is not None:
-            after = self._processorFrom(after)
-
-            try: index = self._processors.index(after) + 1
-            except ValueError: raise AttributeError('Unknown after processor %s in assembly' % after)
-
+        index = self._indexFrom(before, after)
         for processor in self._processorsFrom(processors):
             self._processors.insert(index, processor)
             index += 1
 
+    def move(self, processor, before=None, after=None):
+        '''
+        Moves in to the assembly the provided processor.
+        
+        @param processor: Processor|Handler
+            The processor to be moved in to the assembly.
+        @param before: Processor|Handler
+            The processor(s) will be moved before this processor, you can only specify before or after.
+        @param after: Processor|Handler
+            The processor(s) will be moved after this processor, you can only specify after or before.
+        '''
+        assert before is not None or after is not None, 'You need to provide an after or a before processor in order to move'
+        processor = self._processorFrom(processor)
+        try: self._processors.remove(processor)
+        except ValueError: raise AttributeError('Unknown processor %s in assembly' % processor)
+        index = self._indexFrom(before, after)
+        self._processors.insert(index, processor)
+
     def replace(self, replaced, replacer):
         '''
-        Add to the assembly the provided processors.
+        Replaces in to the assembly the provided processors.
         
         @param replaced: Processor|Handler
             The processor to be replaced in to the assembly.
@@ -510,6 +515,32 @@ class Assembly:
                 assert isinstance(processor, Assembly)
                 for processor in  processor._processors: yield processor
             else: yield self._processorFrom(processor)
+
+    def _indexFrom(self, before=None, after=None):
+        '''
+        Provides the index where to insert based on the provided before and after processors.
+        
+        @param before: Processor|Handler
+            The processor(s) will be moved before this processor, you can only specify before or after.
+        @param after: Processor|Handler
+            The processor(s) will be moved after this processor, you can only specify after or before.
+        @return: integer
+            The index where to insert.
+        '''
+        index = len(self._processors)
+        if before is not None:
+            before = self._processorFrom(before)
+            assert after is None, 'Cannot have before and after at the same time'
+
+            try: index = self._processors.index(before)
+            except ValueError: raise AttributeError('Unknown before processor %s in assembly' % before)
+
+        elif after is not None:
+            after = self._processorFrom(after)
+
+            try: index = self._processors.index(after) + 1
+            except ValueError: raise AttributeError('Unknown after processor %s in assembly' % after)
+        return index
 
     def _indexAttributes(self, processors):
         '''

@@ -17,11 +17,11 @@ from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from ally.container.support import setup
-from datetime import datetime
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists
 from ally.api.extension import IterPart
+from sqlalchemy.sql.functions import current_timestamp
 
 # --------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         @see: IBlogService.insert
         '''
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
-        if blog.CreatedOn is None: blog.CreatedOn = datetime.now()
+        if blog.CreatedOn is None: blog.CreatedOn = current_timestamp()
         return super().insert(blog)
 
     # ----------------------------------------------------------------

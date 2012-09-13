@@ -168,7 +168,7 @@ class DeclarativeMetaModel(DeclarativeMeta):
 
         DeclarativeMeta.__init__(self, name, bases, namespace)
 
-        self.__clause_element__ = lambda: self.__table__
+        #TODO: see if required: self.__clause_element__ = lambda: self.__table__
 
         for prop in typeModel.container.properties:
             if typeFor(getattr(self, prop)) != typeFor(self._ally_reference[prop]):
