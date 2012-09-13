@@ -145,9 +145,9 @@ class ParsingMultiPartHandler(ParsingHandler, DataMultiPart):
         chain.proceed()
 
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
-        if Request.decoder not in request: return # Skip if there is no decoder.
 
-        if requestCnt.type and self._reMultipart.match(requestCnt.type):
+        isMultipart = requestCnt.type and self._reMultipart.match(requestCnt.type)
+        if isMultipart:
             assert log.debug('Content type %s is multi part', requestCnt.type) or True
             boundary = requestCnt.typeAttr.pop(self.attrBoundary, None)
             if not boundary:
@@ -160,6 +160,10 @@ class ParsingMultiPartHandler(ParsingHandler, DataMultiPart):
             if requestCnt is None:
                 response.code, response.text = BAD_CONTENT, 'No boundary found in multi part content'
                 return
+
+        if Request.decoder not in request:
+            if isMultipart: chain.process(request=request, requestCnt=requestCnt, response=response, **keyargs)
+            return # Skip if there is no decoder.
 
         if self.processParsing(request=request, requestCnt=requestCnt, response=response, **keyargs):
             # We process the chain without the request content anymore

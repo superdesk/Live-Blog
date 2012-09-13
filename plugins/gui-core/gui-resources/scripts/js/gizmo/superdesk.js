@@ -67,15 +67,15 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     },
     since = function(val) // change id implementation
     {
-        $.extend( this.options, { data:{ 'startEx.CId': val }} );
+        $.extend( this.syncAdapter.options, { data:{ 'CId.since': val }} );
     },
     asc = function(col)
     {
-        $.extend( this.options, { data:{ asc: col }} );
+        $.extend( this.syncAdapter.options, { data:{ asc: col }} );
     },
     desc = function(col)
     {
-        $.extend( this.options, { data:{ desc: col }} );
+        $.extend( this.syncAdapter.options, { data:{ desc: col }} );
     },
     Model = giz.Model.extend // superdesk Model 
     ({
@@ -100,7 +100,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     }),
     Collection = giz.Collection.extend
     ({
-        xfilter: xfilter, since: since, syncAdapter: newSync
+        xfilter: xfilter, since: since, asc: asc, desc: desc, syncAdapter: newSync
     }),
     AuthCollection = Collection.extend
     ({
