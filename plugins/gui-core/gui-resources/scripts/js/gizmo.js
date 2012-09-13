@@ -424,12 +424,17 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */
         on: function(evt, handler, obj)
         {
-            if(obj === undefined)
-                $(this).on(evt, handler);
-            else
-                $(this).on(evt, function(){
+            if(obj === undefined) {
+                $(this).off(evt, handler);
+				$(this).on(evt, handler);
+			}
+            else {			
+				var newhandler = function(){
                     handler.apply(obj, arguments);
-                });
+                };
+				$(this).off(evt, newhandler );
+				$(this).on(evt, newhandler );
+			}
             return this;
         },
         /*!
@@ -734,12 +739,17 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
          */
         on: function(evt, handler, obj)
         {
-            if(obj === undefined)
-                $(this).on(evt, handler);
-            else
-                $(this).on(evt, function(){
+            if(obj === undefined) {
+                $(this).off(evt, handler);
+				$(this).on(evt, handler);
+			}
+            else {			
+				var newhandler = function(){
                     handler.apply(obj, arguments);
-                });
+                };
+				$(this).off(evt, newhandler );
+				$(this).on(evt, newhandler );
+			}
             return this;
         },
         /*!

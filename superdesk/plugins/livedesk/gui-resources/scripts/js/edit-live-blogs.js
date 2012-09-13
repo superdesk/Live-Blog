@@ -182,7 +182,7 @@ function(providers, Gizmo, $)
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeModel' },
 				'.editable': { focusout: 'save' },
-				'.editable': { focusin: 'edit' }
+				//'.editable': { focusin: 'edit' }
 			},
 			
 			init: function()
@@ -191,8 +191,7 @@ function(providers, Gizmo, $)
 				self.el.data('view', self);
 				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
-				
-				this.model.off('delete read set update')
+				this.model
 				    .on('delete', this.remove, this)
 					.on('read', function()
 					{
@@ -224,7 +223,6 @@ function(providers, Gizmo, $)
 					})
 					.on('update', function(evt, data)
 					{
-					    //console.log(data);
 					    /*!
                          * conditionally handing over save functionallity to provider if
                          * model has source name in providers 
@@ -414,7 +412,7 @@ function(providers, Gizmo, $)
 			{
 				var self = this;
 				self._latest = undefined;
-				self.collection.model.off('publish').on('publish', function(evt, model){
+				self.collection.model.on('publish', function(evt, model){
 					self.addOne(model);
 				});
 				self.collection
@@ -439,11 +437,13 @@ function(providers, Gizmo, $)
 				
 			},
 			addOne: function(model)
-			{			
+			{	
+				if(model.postview)
+					return;				
 				var current = new PostView({model: model, _parent: this}),
 				    self = this;				
 				this.el.find('ul.post-list').prepend(current.el);
-				
+				model.postview = current;				
 				// handle autorefresh case
 				$(current).on('render', function(){ self.autorefreshHandle.call(self, current.el.outerHeight(true)); });
 				
@@ -455,7 +455,9 @@ function(providers, Gizmo, $)
 			addAll: function(data)
 			{
 				var next = this._latest, current, model, i = data.length;
-				while(i--) this.addOne(data[i]);
+				while(i--) {
+					this.addOne(data[i]);
+				}
 			},
 			render: function()
 			{
