@@ -18,7 +18,6 @@ from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
-#TODO: this is just a temporary extending mechanism needs to be done by using join.
 class AdminDefinition:
     '''
     Provides the mapping for a BlogAdmin definition.

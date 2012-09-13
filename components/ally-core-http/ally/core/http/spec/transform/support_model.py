@@ -25,35 +25,39 @@ class DataModel(Bean):
     the encoding depending on path elements and filters.
     '''
     flag = int; flag = Attribute(flag, default=0, doc='''
-    @rtype flag: integer
+    @rtype: integer
     Flag indicating several situations for the data encode.
     ''')
     path = Path; path = Attribute(path, doc='''
-    @rtype path: Path|None
+    @rtype: Path|None
     The path of the model.
     ''')
+    accessibleIsProcessed = bool; accessibleIsProcessed = Attribute(accessibleIsProcessed, default=False, doc='''
+    @rtype: boolean
+    Flag indicating that the accessible dictionary has been processed.
+    ''')
     accessible = dict; accessible = Attribute(accessible, factory=OrderedDict, doc='''
-    @rtype accessible: dictionary{string, Path}
+    @rtype: dictionary{string, Path}
     The accessible path for the encoded model.
     ''')
     filter = set; filter = Attribute(filter, frozenset, factory=set, doc='''
-    @rtype filter: set(string)
+    @rtype: set(string)
     The properties to be rendered for the model encode, this set needs to include also the accessible paths.
     ''')
     datas = dict; datas = Attribute(datas, factory=dict, doc='''
-    @rtype datas: dictionary{string, DataModel}
+    @rtype: dictionary{string, DataModel}
     The data models to be used for the properties of the encoded model.
     ''')
     fetchReference = object; fetchReference = Attribute(fetchReference, doc='''
-    @rtype fetchReference: object
+    @rtype: object
     The fetch reference for the fetch encode.
     ''')
     fetchEncode = Callable; fetchEncode = Attribute(fetchEncode, doc='''
-    @rtype fetchEncode: Callable
+    @rtype: Callable
     The fetch encode to be used.
     ''')
     fetchData = object; fetchData = Attribute(fetchData, doc='''
-    @rtype fetchData: DataModel
+    @rtype: DataModel
     The fetch data model to be used.
     ''')
 
