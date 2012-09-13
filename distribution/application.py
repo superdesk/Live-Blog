@@ -51,7 +51,7 @@ if __name__ == '__main__':
         try:
             startedIn = timeit.timeit(ally_deploy_application.deploy, number=1)
             #ally_deploy_application.deploy()
-            print('=' * 50, 'Application started in %f seconds' % startedIn)
+            print('=' * 50, 'Application started in %.2f seconds' % startedIn)
         except:
             print('=' * 50, 'Problems while deploying application')
             traceback.print_exc()
