@@ -55,7 +55,7 @@ function(providers,str, $, Gizmo)
                 var self = this;
                 new $.rest('Superdesk/Collaborator/')
                     .xfilter('Id')
-                    .request({data: { name: 'google'}})
+                    .request({data: { 'qs.name': 'google'}})
                     .done(function(collabs)
                     {
                         if($.isDefined(collabs[0])) 

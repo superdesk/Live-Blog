@@ -12,7 +12,7 @@ function($, superdesk, Gizmo, jsSHA)
 			shaPassword = new jsSHA(password, "ASCII"),			
 			shaStep1 = new jsSHA(shaPassword.getHash("SHA-512", "HEX"), "ASCII"),
 			shaStep2 = new jsSHA(logintoken, "ASCII"),			
-			authLogin = new $.rest('Superdesk/Authentication/Login');
+			authLogin = new $.rest('Superdesk/Authentication/Login').xfilter('User.Name,User.Id,User.EMail');
 			
 			HashedToken = shaStep1.getHMAC(username, "ASCII", "SHA-512", "HEX");			
 			HashedToken = shaStep2.getHMAC(HashedToken, "ASCII", "SHA-512", "HEX");
@@ -22,11 +22,12 @@ function($, superdesk, Gizmo, jsSHA)
 			    Token: logintoken, 
 			    HashedToken: HashedToken
 			})
-			.done(function(user)
+			.done(function(data)
 			{
-			    localStorage.setItem('superdesk.login.session', user.Session);
+				var user = data.User;
+			    localStorage.setItem('superdesk.login.session', data.Session);
 			    localStorage.setItem('superdesk.login.id', user.Id);
-			    localStorage.setItem('superdesk.login.name', user.UserName);
+			    localStorage.setItem('superdesk.login.name', user.Name);
 			    localStorage.setItem('superdesk.login.email', user.EMail);
 			    $.restAuth.prototype.requestOptions.headers.Authorization = localStorage.getItem('superdesk.login.session');
 			    superdesk.login = {Id: localStorage.getItem('superdesk.login.id'), Name: localStorage.getItem('superdesk.login.name'), EMail: localStorage.getItem('superdesk.login.email')}
