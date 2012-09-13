@@ -36,7 +36,7 @@ def headers_ajax() -> dict:
 # --------------------------------------------------------------------
 
 @ioc.entity
-def headerSetEncode() -> Handler:
+def headerSetAjax() -> Handler:
     b = HeaderSetEncodeHandler()
     b.headers = headers_ajax()
     return b
@@ -52,4 +52,4 @@ def deliverOkHandler() -> Handler:
 @ioc.after(updateAssemblyResourcesForHTTP)
 def updateAssemblyResourcesForHTTPAjax():
     if ajax_cross_domain():
-        assemblyResources().add(headerSetEncode(), deliverOkHandler(), before=uri())
+        assemblyResources().add(headerSetAjax(), deliverOkHandler(), before=uri())
