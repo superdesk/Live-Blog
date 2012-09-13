@@ -165,15 +165,16 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             //this.exTime = new Date
             //this.exTime.setMinutes(this.exTime.getMinutes() + 5);
             this.parseHash(data);
+			this._new = true;
             var self = this.pushUnique ? this.pushUnique() : this;
             self._forDelete = false;
-			self._new = true;
             self.clearChangeset();
             self._clientHash = null;
             if( options && typeof options == 'object' ) $.extend(self, options);
             if( typeof data == 'object' ) {
                 self.parse(data);
             }
+			//console.log('Changes',self.changeset);
             if(!$.isEmptyObject(self.changeset)) {
                 //console.log('_constructor update', self.changeset);
                 self.triggerHandler('update', self.changeset).clearChangeset();
@@ -332,6 +333,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 }
                 if( !this._new ) 
                 {
+					//console.log('Is not new');
                     if( $.type(data[i]) === 'object' )
                     {
                         if(compareObj(this.data[i], data[i]))
@@ -669,13 +671,15 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 					 * else UPDATE with the changeset if there are some
 					 */
 					if( ( count === 0) ){
+						//console.log('read');
 						self.triggerHandler('read');
                     } else {                    
                         /**
                          * Trigger handler with changeset extraparameter as a vector of vectors,
                          * caz jquery will send extraparameters as arguments when calling handler
                          */
-                        $(self).triggerHandler('update', [changeset]);
+                        //console.log('update');
+						self.triggerHandler('update', [changeset]);
 					}
                 }));
         },
