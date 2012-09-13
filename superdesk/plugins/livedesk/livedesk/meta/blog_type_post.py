@@ -19,7 +19,6 @@ from sqlalchemy.types import REAL
 
 # --------------------------------------------------------------------
 
-#TODO: this is just a temporary extending mechanism needs to be done by using join.
 class BlogTypePostDefinition:
     '''
     Provides the mapping for BlogCollaborator definition.

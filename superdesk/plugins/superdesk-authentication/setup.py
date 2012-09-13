@@ -14,7 +14,7 @@ from setuptools import setup, find_packages
 # --------------------------------------------------------------------
 
 setup(
-    name="superdesk_user_authentication",
+    name="superdesk_authentication",
     version="1.0",
     packages=find_packages(),
     install_requires=['ally_api >= 1.0', 'ally_core_sqlalchemy >= 1.0', 'gui_action >= 1.0',
