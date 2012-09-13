@@ -169,7 +169,7 @@ window.livedesk.startLoading = function() {
 				}
 			},
 			auto: function(){
-				var self = this, requestOptions = {data: {'startEx.cId': this._latestCId}, headers: {'X-Filter': 'CId'}};
+				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': 'CId'}};
 				if(this._latestCId === 0) delete requestOptions.data;
 				this.triggerHandler('beforeUpdate');
 				$.gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){
@@ -293,7 +293,7 @@ window.livedesk.startLoading = function() {
 				blogTitle = blogTitle.replace(/ /g, '-');
                                 var hash = postId + '-' +  encodeURI (blogTitle);
                                 var hash = postId;
-                                var permalink = '<a rel="bookmark" href="#'+ hash +'" target="_blank">#</a>';
+                                var permalink = '<a rel="bookmark" href="#'+ hash +'">#</a>';
 				var template ='<li class="'+ style +'"><a name="' + hash + '">' + content + '</a>&nbsp;'+ permalink +'</li>';
                                 self.setElement( template );
 			}
@@ -351,7 +351,7 @@ window.livedesk.startLoading = function() {
 					if(!self.rendered) {
 						self.model.get('PostPublished')
 							.on('read', self.render, self)
-							.on('update', self.updateStatus, self)
+							.on('update', self.addAll, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter('CId').sync();
 					}
@@ -370,6 +370,14 @@ window.livedesk.startLoading = function() {
 				if( this._latest !== undefined )
 					this._latest.prev = current;
 				this._latest = current;
+			},
+			addAll: function(evt, data)
+			{
+				var i = data.length;
+				while(i--) {
+					this.addOne(data[i]);
+				}
+				this.updateStatus();				
 			},
 			updateingStatus: function()
 			{
