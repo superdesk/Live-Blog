@@ -401,8 +401,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     };
                     this.getDialog = function()
                     {
-                        this.dialog.prop('caller', this);
-                        
+                        this.dialog.prop('caller', this);                        
                         var a = $( $(self.lib.selectionContents() ).eq(0)),
                             aText = $(a).text(),
                             urlRe = new RegExp();
