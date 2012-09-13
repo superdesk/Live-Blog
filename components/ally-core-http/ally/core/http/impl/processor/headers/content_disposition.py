@@ -15,6 +15,7 @@ from ally.core.http.spec.server import IDecoderHeader
 from ally.core.spec.codes import Code
 from ally.design.context import Context, requires, defines
 from ally.design.processor import HandlerProcessorProceed
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -30,6 +31,10 @@ class RequestContent(Context):
     The request content context.
     '''
     # ---------------------------------------------------------------- Defined
+    name = defines(str, doc='''
+    @rtype: string
+    The content name.
+    ''')
     disposition = defines(str, doc='''
     @rtype: string
     The content disposition.
@@ -56,6 +61,9 @@ class ContentDispositionDecodeHandler(HandlerProcessorProceed):
     Implementation for a processor that provides the decoding of content disposition HTTP request header.
     '''
 
+    upload_filename = 'filename'; wire.config('upload_filename', doc='''
+    The filename parameter from a multipart form''')
+
     nameContentDisposition = 'Content-Disposition'
     # The header name where the content disposition is set.
 
@@ -67,7 +75,7 @@ class ContentDispositionDecodeHandler(HandlerProcessorProceed):
     def process(self, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
-        
+
         Provides the content type decode for the request.
         '''
         assert isinstance(request, Request), 'Invalid request %s' % request
@@ -86,3 +94,5 @@ class ContentDispositionDecodeHandler(HandlerProcessorProceed):
             value, attributes = value[0]
             requestCnt.disposition = value
             requestCnt.dispositionAttr = attributes
+            if self.upload_filename in attributes:
+                requestCnt.name = attributes[self.upload_filename]

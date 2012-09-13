@@ -88,11 +88,11 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
         @see: IMetaDataReferencer.populate
         '''
         assert isinstance(metaData, MetaData), 'Invalid metaData %s' % metaData
-        assert isinstance(size, str) and size in self.thumbnailSizes, 'Invalid size value %s' % size
+        assert not size or isinstance(size, str) and size in self.thumbnailSizes, 'Invalid size value %s' % size
 
         if not metaData.thumbnailFormatId: return metaData
 
-        thumbPath = self.thumbnailPath(metaData.thumbnailFormatId, metaData.Id, metaData.Name, size)
+        thumbPath = self.thumbnailPath(metaData.thumbnailFormatId, metaData, size)
         try: self.cdm.getTimestamp(thumbPath)
         except PathNotFound:
             original = self.thumbnailPath(metaData.thumbnailFormatId, metaData)

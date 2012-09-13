@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-#@setup(IThumbnailProcessor)
+@setup(IThumbnailProcessor)
 class ThumbnailProcessor(IThumbnailProcessor):
     '''
     Implementation for @see: IThumbnailProcessor
