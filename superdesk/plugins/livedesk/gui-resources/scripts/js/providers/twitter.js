@@ -64,7 +64,7 @@ $.extend(providers.twitter, {
                     .attr('title',_('Click to turn notifications on or off <br />while this tab is hidden'))
                     .tooltip({placement: 'right'});
                     
-                    console.log('notify-', parseFloat(localStorage.getItem('superdesk.config.providers.twitter.notify')));
+                    //console.log('notify-', parseFloat(localStorage.getItem('superdesk.config.providers.twitter.notify')));
                 
                 
 	},
