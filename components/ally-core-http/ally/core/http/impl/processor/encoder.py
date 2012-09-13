@@ -21,12 +21,12 @@ from ally.core.impl.processor import encoder
 from ally.core.impl.processor.encoder import CreateEncoderHandler, EncodeObject, \
     EncodeCollection
 from ally.core.spec.resources import Path, Normalizer, Invoker
+from ally.core.spec.transform.exploit import handleExploitError
 from ally.core.spec.transform.render import IRender
 from ally.design.context import requires, defines
 from ally.support.core.util_resources import pathLongName
 from ally.support.util import lastCheck, firstOf
 from collections import deque, OrderedDict
-from ally.core.spec.transform.exploit import handleExploitError
 
 # --------------------------------------------------------------------
 
@@ -140,12 +140,7 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
         if path:
             assert isinstance(path, Path), 'Invalid request path %s' % path
             data.path = path.findGetModel(encode.modelType)
-            if showAccessible:
-                accessible = path.findGetAllAccessible()
-                if accessible:
-                    accessible = [(pathLongName(acc), acc) for acc in accessible]
-                    accessible.sort(key=firstOf)
-                    data.accessible = OrderedDict(accessible)
+            if showAccessible: self.processAccessible(data)
 
         for nameProp, encodeProp in encode.properties.items():
             if isinstance(encodeProp, EncodeModel):
@@ -153,6 +148,23 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
                 data.datas[nameProp] = self.createDataModel(encodeProp, path.findGetModel(encodeProp.modelType), False)
 
         return data
+
+    def processAccessible(self, data):
+        '''
+        Process the accessible paths for the provided data.
+        '''
+        assert isinstance(data, DataModel), 'Invalid data model %s' % data
+
+        if data.accessibleIsProcessed: return
+        data.accessibleIsProcessed = True
+        if data.path is None: return
+        assert isinstance(data.path, Path), 'Invalid path %s' % data.path
+
+        accessible = data.path.findGetAllAccessible()
+        if accessible:
+            accessible = [(pathLongName(acc), acc) for acc in accessible]
+            accessible.sort(key=firstOf)
+            data.accessible = OrderedDict(accessible)
 
     def processFilter(self, encode, data, value, normalizer):
         '''
@@ -199,12 +211,19 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
 
                     entry = fexploits.get(name)
                     if not entry:
-                        # We check if the property is not located in the full encoded model.
-                        fdata, fexploits = self.processFetch(fencode, fdata, reference, normalizer, cache)
-                        entry = fexploits.get(name)
+                        if isinstance(fencode, EncodeModelProperty):
+                            # We check if the property is not located in the full encoded model.
+                            fdata, fexploits = self.processFetch(fencode, fdata, reference, normalizer, cache)
+                            entry = fexploits.get(name)
+                        elif not data.accessibleIsProcessed:
+                            self.processAccessible(data)
+                            fexploits = self.exploitsFor(fencode, fdata, normalizer)
+                            entry = fexploits.get(name)
 
                     if not entry:
-                        return 'Unknown filter entry', 'Invalid property \'%s\' in filter \'%s\'' % (name, fvalue)
+                        if name != fvalue:
+                            return 'Unknown filter entry', 'Invalid property \'%s\' in filter \'%s\'' % (name, fvalue)
+                        return 'Unknown filter entry', 'Invalid filter \'%s\'' % name
 
                     fname, fencode = entry
                     fdata.filter.add(fname)
@@ -243,7 +262,6 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
         assert isinstance(normalizer, Normalizer), 'Invalid normalizer %s' % normalizer
         assert isinstance(cache, dict), 'Invalid cache %s' % cache
 
-        # We check if the property is not located in the full encoded model.
         exploits = cache.get(reference)
         if exploits is None:
             data.fetchReference = reference
@@ -301,14 +319,15 @@ class CreateEncoderPathHandler(CreateEncoderHandler):
         '''
         assert isinstance(ofType, TypeModelProperty), 'Invalid type model property %s' % ofType
 
-        exploit = exploit or EncodeModel(self, ofType.parent, getter, ofType)
+        exploit = exploit or EncodeModelProperty(self, ofType.parent, getter, ofType)
         return super().encoderProperty(ofType, getter, exploit)
 
     def encoderModel(self, ofType, getter=None, exploit=None, **keyargs):
         '''
         @see: EncoderHandler.encoderModel
         '''
-        return super().encoderModel(ofType, getter, exploit or EncodeModel(self, ofType, getter))
+        exploit = exploit or EncodeModel(self, ofType, getter)
+        return super().encoderModel(ofType, getter, exploit)
 
 # --------------------------------------------------------------------
 
@@ -389,6 +408,27 @@ class EncodeModel(EncodeObject):
                 render.objectEnd()
 
         render.objectEnd()
+
+class EncodeModelProperty(EncodeModel):
+    '''
+    Exploit for model encoding that represents only a property.
+    '''
+    __slots__ = ()
+
+    def __init__(self, encoder, modelType, getter=None, updateType=None):
+        '''
+        Create a encode exploit for a model with a path and a single property.
+        @see: EncodeModel.__init__
+        '''
+        super().__init__(encoder, modelType, getter, updateType)
+
+    if __debug__:
+
+        def __call__(self, **data):
+            assert len(self.properties) <= 1, 'To many properties %s for a single property model %s' % \
+            (tuple(self.properties.keys()), self.modelType)
+
+            return super().__call__(**data)
 
 class EncodePath:
     '''
