@@ -137,14 +137,14 @@ function(providers, $, giz, Blog, Collaborator)
         
         /*!
          * update posts from collaborators,
-         * call sync with startEx.cId parameter 
+         * call sync with cId.since parameter 
          */
         update: function()
         {
             this.colabsList.each(function()
             {
                 // get post list and sync it with the server
-                this.get('Post').xfilter('*').sync({data: {'startEx.cId': this._latestPost}});
+                this.get('Post').xfilter('*').sync({data: {'cId.since': this._latestPost}});
             });
         },
         
