@@ -370,8 +370,10 @@ function(providers, Gizmo, $)
 			 */
 			preData: $.noop,
 			edit: $.noop,
-			save: function()
+			save: function(evt)
 			{
+				if($(evt.target).data('linkCommandActive'))
+					return;
 				this.model.updater = this;
 				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
 			},
