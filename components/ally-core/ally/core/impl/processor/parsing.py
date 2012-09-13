@@ -87,7 +87,7 @@ class ParsingHandler(Handler):
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
         if Request.decoder not in request: return # Skip if there is no decoder.
 
-        if self.processParsing(request=request, response=response, **keyargs):
+        if self.processParsing(request=request, requestCnt=requestCnt, response=response, **keyargs):
             # We process the chain without the request content anymore
             chain.process(request=request, response=response, **keyargs)
 
