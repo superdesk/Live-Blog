@@ -32,6 +32,10 @@ class DataModel(Bean):
     @rtype: Path|None
     The path of the model.
     ''')
+    accessiblePath = Path; accessiblePath = Attribute(accessiblePath, doc='''
+    @rtype: Path|None
+    The path for the accessible paths.
+    ''')
     accessibleIsProcessed = bool; accessibleIsProcessed = Attribute(accessibleIsProcessed, default=False, doc='''
     @rtype: boolean
     Flag indicating that the accessible dictionary has been processed.
