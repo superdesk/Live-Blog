@@ -35,9 +35,9 @@ class ThumbnailProcessor(IThumbnailProcessor):
     Implementation for @see: IThumbnailProcessor
     '''
 
-    command_transform = '"%(ffmpeg)s" -i "%(source)s" "%(destination)s"'; wire.config('command_transform', doc='''
+    command_transform = '%(ffmpeg)s -i %(source)s %(destination)s'; wire.config('command_transform', doc='''
     The command used to transform the thumbnails''')
-    command_resize = '"%(ffmpeg)s" -i "%(source)s" -s %(width)ix%(height)i "%(destination)s"'
+    command_resize = '%(ffmpeg)s -i %(source)s -s %(width)ix%(height)i %(destination)s'
     wire.config('command_resize', doc='''The command used to resize the thumbnails''')
     ffmpeg_dir_path = join('workspace', 'tools', 'ffmpeg'); wire.config('ffmpeg_dir_path', doc='''
     The path where the ffmpeg is placed in order to be used, if empty will not place the contained ffmpeg''')
@@ -65,16 +65,18 @@ class ThumbnailProcessor(IThumbnailProcessor):
             assert isinstance(height, int), 'Invalid height %s' % height
 
             params.update(width=width, height=height)
-            command = self.command_resize % params
-        else: command = self.command_transform % params
+            command = self.command_resize
+        else: command = self.command_transform
+        args = command.split()
+        args = [arg % params for arg in args]
 
         destDir = dirname(destination)
         if not exists(destDir): makedirs(destDir)
         try:
-            p = Popen(command)
+            p = Popen(args)
             error = p.wait() != 0
-        except:
-            log.exception('Problems while executing command:\n % s', command)
+        except Exception as e:
+            log.exception('Problems while executing command:\n%s \n%s' % (command, e))
             error = True
 
         if error:
