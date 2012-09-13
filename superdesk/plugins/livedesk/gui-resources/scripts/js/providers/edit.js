@@ -195,6 +195,7 @@ define('providers/edit', [
 		clear: function()
 		{
 			this.el.find('[name="type"]').val('normal');
+			this.el.find('.edit-block article.editable').html('');
 		},
 		savepost: function(evt){
 			evt.preventDefault();
@@ -202,6 +203,7 @@ define('providers/edit', [
 				Content: $.styledNodeHtml(this.el.find('.edit-block article.editable')),
 				Type: this.el.find('[name="type"]').val()
 			};
+			this.clear();
 			this.postsView.savepost(data);
 		},
 		save: function(evt){
@@ -210,6 +212,7 @@ define('providers/edit', [
 				Content: $.styledNodeHtml(this.el.find('.edit-block article.editable')),
 				Type: this.el.find('[name="type"]').val()
 			};
+			this.clear();
 			this.postsView.save(data);			
 		}
 	});	
