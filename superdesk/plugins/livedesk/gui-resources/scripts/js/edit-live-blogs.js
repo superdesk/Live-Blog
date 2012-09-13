@@ -181,8 +181,7 @@ function(providers, Gizmo, $)
 			{
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeModel' },
-				'.editable': { focusout: 'save' },
-				//'.editable': { focusin: 'edit' }
+				'.editable': { focusout: 'save',  focusin: 'edit'},
 			},
 			
 			init: function()
