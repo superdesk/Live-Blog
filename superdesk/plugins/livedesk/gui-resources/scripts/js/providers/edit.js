@@ -110,8 +110,9 @@ define('providers/edit', [
 		render: function(evt, data){
 			if ( data === undefined)
 				data = this.posts._list;			
-			for(var len = data.length, i = 0; i < len; i++ )
+			for(var len = data.length, i = 0; i < len; i++ ) {
 				this.addOne(data[i]);
+			}
 		},		
 		addOne: function(model)
 		{
@@ -181,11 +182,12 @@ define('providers/edit', [
 					fixedToolbar: fixedToolbar
 				}});
 				var posts = Gizmo.Auth(new OwnCollection(
-						self.theBlog+ '/Post/Owned?X-Filter=Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name', 
+						self.theBlog+ '/Post/Owned?asc=createdOn', 
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));
 				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name';
+				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
 			} );
