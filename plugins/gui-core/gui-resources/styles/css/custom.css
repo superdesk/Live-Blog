@@ -1355,6 +1355,14 @@ legend {
 ====================================================
 */
 
+
+.ajax-loader {
+    background-image:url('../../images/ajax-loader.gif');
+    width: 32px;
+    height: 32px;
+    margin: 0px auto;
+}
+
 .collaborators-list {
     list-style: none;
     margin: 0 0 0 -10px;
