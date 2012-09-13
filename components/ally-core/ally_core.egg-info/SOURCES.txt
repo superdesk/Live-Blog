@@ -62,3 +62,5 @@ test/unit_testing/ally/core/impl/processor/decoder.py
 test/unit_testing/ally/core/impl/processor/encoder.py
 test/unit_testing/ally/core/impl/processor/method_invoker.py
 test/unit_testing/ally/core/impl/processor/text_conversion.py
+test/unit_testing/ally/core/spec/__init__.py
+test/unit_testing/ally/core/spec/resources.py

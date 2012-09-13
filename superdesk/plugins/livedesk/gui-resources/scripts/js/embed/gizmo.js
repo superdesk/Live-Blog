@@ -365,9 +365,9 @@ Model.prototype =
 		//this.exTime = new Date
 		//this.exTime.setMinutes(this.exTime.getMinutes() + 5);
 		this.parseHash(data);
+		this._new = true;
 		var self = this.pushUnique ? this.pushUnique() : this;
 		self._forDelete = false;
-		self._new = true;
 		self.clearChangeset();
 		self._clientHash = null;
 		if( options && typeof options == 'object' ) $.extend(self, options);

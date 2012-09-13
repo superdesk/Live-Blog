@@ -77,6 +77,7 @@ class InternalErrorHandler(HandlerProcessor):
                 chain.process(response=response, responseCnt=responseCnt, **keyargs)
                 # We process the chain internally so we might cache any exception.
             except DevelError as e:
+                log.warn('Exception occurred while processing the chain', exc_info=True)
                 response.code, response.text, response.errorMessage = BAD_CONTENT, 'Development error', str(e)
                 chain.process(response=response, responseCnt=responseCnt, **keyargs)
                 # We try to process now the chain (where it left of) with the exception set.

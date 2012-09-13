@@ -12,6 +12,7 @@ Provides the deployment of the distribution that contains this deploy.
 import os
 import sys
 import traceback
+import timeit
 
 # --------------------------------------------------------------------
 
@@ -48,9 +49,9 @@ if __name__ == '__main__':
         traceback.print_exc()
     else:
         try:
-            ally_deploy_application.deploy()
-            print('=' * 50, 'Application deployed')
+            startedIn = timeit.timeit(ally_deploy_application.deploy, number=1)
+            #ally_deploy_application.deploy()
+            print('=' * 50, 'Application started in %.2f seconds' % startedIn)
         except:
             print('=' * 50, 'Problems while deploying application')
             traceback.print_exc()
-        print('=' * 50, 'Application fully started')

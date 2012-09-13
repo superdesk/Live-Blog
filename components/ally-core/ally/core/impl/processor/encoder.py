@@ -131,9 +131,6 @@ class CreateEncoderHandler(HandlerProcessorProceed):
                     name, encoderItem = nameEncoder
                     encoder = EncodeCollection(name, encoderItem)
 
-            elif isinstance(ofType, TypeNone):
-                encoder = lambda **data: None
-
             elif isinstance(ofType, TypeModel):
                 encoder = self.encoderModel(ofType)
 
@@ -141,6 +138,9 @@ class CreateEncoderHandler(HandlerProcessorProceed):
                 assert isinstance(ofType, TypeModelProperty)
 
                 encoder = self.encoderProperty(ofType)
+
+            elif isinstance(ofType, TypeNone) or ofType.isOf(bool):
+                encoder = lambda **data: None
 
             else: assert log.debug('Cannot encode object type \'%s\'', ofType) or True
             self._cache[ofType] = encoder
