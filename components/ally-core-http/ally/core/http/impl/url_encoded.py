@@ -55,7 +55,7 @@ def parseStr(theString):
         for k in range(keysLen): #loop found keys in pairs to look for nested objects
             if keys[k].strip() == '': # matched at [] - means list entry
                 if not isinstance(curRet, list): # previous is not already a list
-                    curRet[keys[k - 1]] = [] #TODO: lookbehind
+                    curRet[keys[k - 1]] = [] # lookbehind
                     curRet = curRet[keys[k - 1]]
                 if keysLen - 1 == k: # if last key in this iteration append value to list
                     curRet.append(value)
@@ -67,7 +67,7 @@ def parseStr(theString):
                     else: # append value to current dict
                         if keysLen - 1 == k:
                             curRet[keys[k]] = value
-                        elif keys[k + 1].strip() == '': #TODO: lookahead - next is a list [], init accordingly 
+                        elif keys[k + 1].strip() == '': # lookahead - next is a list [], init accordingly 
                             curRet[keys[k]] = []
                         else:
                             curRet[keys[k]] = {}
