@@ -17,7 +17,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         try
         { 
             delete this.options.headers['X-Filter'];
-            delete this.options.data['startEx.CId'];
+            delete this.options.data['CId.since'];
         }
         catch(e){}
     }, 
