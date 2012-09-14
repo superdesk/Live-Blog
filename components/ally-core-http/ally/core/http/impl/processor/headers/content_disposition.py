@@ -30,6 +30,10 @@ class RequestContent(Context):
     The request content context.
     '''
     # ---------------------------------------------------------------- Defined
+    name = defines(str, doc='''
+    @rtype: string
+    The content name.
+    ''')
     disposition = defines(str, doc='''
     @rtype: string
     The content disposition.
@@ -56,10 +60,13 @@ class ContentDispositionDecodeHandler(HandlerProcessorProceed):
     Implementation for a processor that provides the decoding of content disposition HTTP request header.
     '''
 
+    uploadFilename = 'filename'
+    # The filename parameter from a multipart form
     nameContentDisposition = 'Content-Disposition'
     # The header name where the content disposition is set.
 
     def __init__(self):
+        assert isinstance(self.uploadFilename, str), 'Invalid upload file name %s' % self.uploadFilename
         assert isinstance(self.nameContentDisposition, str), \
         'Invalid content disposition header name %s' % self.nameContentDisposition
         super().__init__()
@@ -67,7 +74,7 @@ class ContentDispositionDecodeHandler(HandlerProcessorProceed):
     def process(self, request:Request, requestCnt:RequestContent, response:Response, **keyargs):
         '''
         @see: HandlerProcessorProceed.process
-        
+
         Provides the content type decode for the request.
         '''
         assert isinstance(request, Request), 'Invalid request %s' % request
@@ -86,3 +93,5 @@ class ContentDispositionDecodeHandler(HandlerProcessorProceed):
             value, attributes = value[0]
             requestCnt.disposition = value
             requestCnt.dispositionAttr = attributes
+            if self.uploadFilename in attributes:
+                requestCnt.name = attributes[self.uploadFilename]
