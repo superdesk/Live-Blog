@@ -168,7 +168,7 @@ window.livedesk.startLoading = function() {
 						this._latestCId = CId;
 				}
 			},
-			auto: function(){
+			auto: function(){                                
 				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': 'CId'}};
 				if(this._latestCId === 0) delete requestOptions.data;
 				this.triggerHandler('beforeUpdate');
@@ -283,7 +283,11 @@ window.livedesk.startLoading = function() {
 						content = jqo.html();
 					} else if (self.model.get('AuthorName') == 'twitter') {        
 						content = self.model.twitter.link.all(content);
-					}
+					} else if (self.model.get('AuthorName') == 'google') {
+                                            if (meta.tbUrl) {
+                                                content += '<p><a href="' + meta.url + '"><img src="' + meta.tbUrl + '" height="' + meta.tbHeight + '" width="' + meta.tbWidth + '"></a></p>';
+                                            }
+                                        }
                                         
                                         content = annotation + content;
                                         
@@ -381,7 +385,7 @@ window.livedesk.startLoading = function() {
 			},
 			updateingStatus: function()
 			{
-				this.el.find('#liveblog-status').html('updateing...');
+				this.el.find('#liveblog-status').html('updating...');
 			},
 			updateStatus: function()
 			{
