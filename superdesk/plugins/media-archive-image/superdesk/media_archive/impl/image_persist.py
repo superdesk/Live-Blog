@@ -18,7 +18,7 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from datetime import datetime
-from os.path import join, splitext
+from os.path import join, splitext, dirname
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
@@ -26,6 +26,8 @@ from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
+from ally.support.util_sys import pythonPath
+from ally.support.util_io import synchronizeURIToDir
 
 # --------------------------------------------------------------------
 
@@ -40,8 +42,10 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the images file names in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the images thumbnails in the media archive''')
-    image_supported_files = 'gif, png, bmp, jpg';wire.config('image_supported_files', doc='''
+    image_supported_files = 'gif, png, bmp, jpg'; wire.config('image_supported_files', doc='''
     The image formats supported by media archive image plugin''')
+    metadata_extractor_path = join('workspace', 'tools', 'media-archive-image', 'metadata_extractor.jar')
+    wire.config('metadata_extractor_path', doc='''The path to the metadata extractor jar file.''')
 
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
@@ -61,6 +65,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
         self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
+        synchronizeURIToDir(join(pythonPath(), 'resources'), dirname(self.metadata_extractor_path))
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -80,8 +85,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
-        jarPath = join('tools', 'media-archive-image', 'metadata_extractor.jar');
-        p = subprocess.Popen(['java', '-jar', jarPath, contentPath],
+        p = subprocess.Popen(['java', '-jar', self.metadata_extractor_path, contentPath],
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if p.wait() != 0: return False
 
