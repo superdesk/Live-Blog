@@ -305,7 +305,7 @@ def synchronizeURIToDir(path, dirPath):
             src, dest = join(root, file), join(dirPath, root[lenPath:], file)
 
             if exists(dest) and \
-            datetime.fromtimestamp(stat(src).st_mtime) <= datetime.fromtimestamp(stat(dest).st_mtime): return
+            datetime.fromtimestamp(stat(src).st_mtime) <= datetime.fromtimestamp(stat(dest).st_mtime): continue
 
             destDir = dirname(dest)
             if not exists(destDir): makedirs(destDir)
