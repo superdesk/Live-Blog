@@ -21,6 +21,7 @@ from subprocess import Popen
 from superdesk.media_archive.core.spec import IThumbnailProcessor
 import logging
 import os
+import shlex
 
 # --------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-#@setup(IThumbnailProcessor)
+@setup(IThumbnailProcessor)
 class ThumbnailProcessor(IThumbnailProcessor):
     '''
     Implementation for @see: IThumbnailProcessor
@@ -71,10 +72,10 @@ class ThumbnailProcessor(IThumbnailProcessor):
         destDir = dirname(destination)
         if not exists(destDir): makedirs(destDir)
         try:
-            p = Popen(command)
+            p = Popen(shlex.split(command))
             error = p.wait() != 0
-        except:
-            log.exception('Problems while executing command:\n % s', command)
+        except Exception as e:
+            log.exception('Problems while executing command:\n%s \n%s' % (command, e))
             error = True
 
         if error:
