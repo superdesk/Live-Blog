@@ -23,6 +23,7 @@ ally/design/context.py
 ally/design/processor.py
 ally/support/__init__.py
 ally/support/util.py
+ally/support/util_deploy.py
 ally/support/util_io.py
 ally/support/util_spec.py
 ally/support/util_sys.py
