@@ -1118,7 +1118,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
         try
         { 
             delete this.options.headers['X-Filter'];
-            delete this.options.data['startEx.CId'];
+            delete this.options.data['CId.since'];
         }
         catch(e){}
     }, 
@@ -1143,7 +1143,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     },
     since = function(val) // change id implementation
     {
-        $.extend( this.options, {data:{'startEx.CId': val}} );
+        $.extend( this.options, {data:{'CId.since': val}} );
     },
     asc = function(col)
     {
