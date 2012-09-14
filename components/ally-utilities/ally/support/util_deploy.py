@@ -17,7 +17,7 @@ from platform import system, machine
 # --------------------------------------------------------------------
 
 SYSTEM_ALL = 'all'
-MACHINE_NOARCH = 'noarch'
+MACHINE_ALL = 'all'
 
 # --------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ def deploy(source, destination, systemName=None, machineName=None):
     machineName = machineName if machineName else machine()
 
     systems = {SYSTEM_ALL:True} if systemName == SYSTEM_ALL else {systemName:True, SYSTEM_ALL:False}
-    machines = {MACHINE_NOARCH:True} if machineName == MACHINE_NOARCH else {machineName:True, MACHINE_NOARCH:False}
+    machines = {MACHINE_ALL:True} if machineName == MACHINE_ALL else {machineName:True, MACHINE_ALL:False}
 
     for (systemName, systemRequired) in systems.items():
         for (machineName, machineRequired) in machines.items():
