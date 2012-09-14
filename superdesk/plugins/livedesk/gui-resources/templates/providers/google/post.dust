@@ -6,7 +6,10 @@
     <div class="google-full-content">
 	    <div class="result-content">
 			{#Meta}<h3><a href="{url}">{title|s}</a></h3>{/Meta}
-			<p class="result-text">{Content|s}</p>
+			<p class="result-text">
+                                {Content|s}
+                                {#Meta}{?tbUrl}<p><a href="{url}"><img src="{tbUrl|s}"/></a></p>{/tbUrl}{/Meta}
+                        </p>
 		{#Meta}
 			<p class="attributes">
 				<i class="source-icon">
