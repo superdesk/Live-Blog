@@ -124,7 +124,14 @@ dateFormat.i18n = {
 // For convenience...
 Date.prototype.format = function (mask, utc) {
 	return dateFormat(this, mask, utc);
-};	
+};
+
+if(!Array.isArray) {
+  Array.isArray = function (vArg) {
+    return Object.prototype.toString.call(vArg) === "[object Array]";
+  };
+}
+
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
         if (typeof this !== "function") {

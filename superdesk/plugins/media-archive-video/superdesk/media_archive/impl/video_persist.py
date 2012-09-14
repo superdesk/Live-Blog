@@ -26,6 +26,7 @@ from superdesk.media_archive.core.impl.meta_service_base import \
 from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.video_data import META_TYPE_KEY
 import re
+from os.path import join
 
 # --------------------------------------------------------------------
 
@@ -42,6 +43,8 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the video thumbnails in the media archive''')
     video_supported_files = 'flv, avi, mov, mp4, mpg, wmv, 3gp, asf, rm, swf'; wire.config('video_supported_files', doc='''
     The video formats supported by media archive video plugin''')
+    ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
+    The path where the ffmpeg is found''')
 
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
@@ -50,6 +53,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.video_supported_files, str), 'Invalid supported files %s' % self.video_supported_files
+        assert isinstance(self.ffmpeg_path, str), 'Invalid ffmpeg path %s' % self.ffmpeg_path
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
         SessionSupport.__init__(self)
 
@@ -81,7 +85,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
         thumbnailPath = contentPath + '.jpg'
-        p = Popen(('avconv', '-i', contentPath, '-vframes', '1', '-an', '-ss', '2', thumbnailPath),
+        p = Popen((self.ffmpeg_path, '-i', contentPath, '-vframes', '1', '-an', '-ss', '2', thumbnailPath),
                   stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         if p.wait() != 0: return False
 
