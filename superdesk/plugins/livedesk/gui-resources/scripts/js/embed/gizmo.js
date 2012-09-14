@@ -124,7 +124,14 @@ dateFormat.i18n = {
 // For convenience...
 Date.prototype.format = function (mask, utc) {
 	return dateFormat(this, mask, utc);
-};	
+};
+
+if(!Array.isArray) {
+  Array.isArray = function (vArg) {
+    return Object.prototype.toString.call(vArg) === "[object Array]";
+  };
+}
+
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
         if (typeof this !== "function") {
@@ -1118,7 +1125,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
         try
         { 
             delete this.options.headers['X-Filter'];
-            delete this.options.data['CId.since'];
+            delete this.options.data['startEx.CId'];
         }
         catch(e){}
     }, 
@@ -1143,7 +1150,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     },
     since = function(val) // change id implementation
     {
-        $.extend( this.options, {data:{'CId.since': val}} );
+        $.extend( this.options, {data:{'startEx.CId': val}} );
     },
     asc = function(col)
     {
