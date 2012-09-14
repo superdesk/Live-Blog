@@ -334,7 +334,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     };
                 },
                 // TODO decorator pattern
-                linkCommand : function(thisPlugin) // passed this object to get other plugins
+                linkCommand : function(thisPlugin, calledFor) // passed this object to get other plugins
                 {
                     var dialog = this.dialog.attr('title', 'Add a link')
                         .append($('<p />')
@@ -346,9 +346,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     var self = this;
                     
                     $(thisPlugin).on('plugins-remove', function()
-                            { 
-                                dialog.dialog('remove').remove();
-                            });
+                    { 
+                        dialog.dialog('remove').remove();
+                    });
                     
                     this.dialogButtons = 
                     {
@@ -356,7 +356,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         {
                             text: 'Cancel',
                             class: 'btn',
-                            click: function(){ $(this).dialog("close"); }
+                            click: function()
+							{ 
+								$(calledFor).data('linkCommandActive', false);
+								$(this).dialog("close"); 
+								$(calledFor).focus(); 
+							}
                         },
                         remove : 
                         {
@@ -367,7 +372,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                 document.execCommand("unlink", false, null);
                                 $(self).trigger('link-removed.text-editor');
-                                $(this).dialog('close');
+                                $(calledFor).data('linkCommandActive', false);
+								$(this).dialog('close');
+								$(calledFor).focus();
                             }
                         },
                         insert : 
@@ -394,14 +401,19 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                     document.execCommand("createLink", false, url);
                                     $(self).trigger('link-inserted.text-editor');   
                                 }
+                                $(calledFor).data('linkCommandActive', false);
                                 $(this).dialog('close');
+								$(calledFor).focus(); 
                             }
                         }
                         
                     };
                     this.getDialog = function()
                     {
-                        this.dialog.prop('caller', this);                        
+                        this.dialog.prop('caller', this);
+                        
+                        $(calledFor).data('linkCommandActive', true);
+                        
                         var a = $( $(self.lib.selectionContents() ).eq(0)),
                             aText = $(a).text(),
                             urlRe = new RegExp();
@@ -568,10 +580,10 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         command = new this.plugins.lib.commandFactory( new this.plugins.lib.command( "JustifyRight" ), element );
                     return command;
                 },
-                link : function()
+                link : function(calledForElements)
                 {
                     var element = $('<a class="link" />').html(''),
-                        command = new this.plugins.lib.commandFactory( new this.plugins.lib.linkCommand(this), element );
+                        command = new this.plugins.lib.commandFactory( new this.plugins.lib.linkCommand(this, calledForElements), element );
                     return command;
                 },
                 image : function()
