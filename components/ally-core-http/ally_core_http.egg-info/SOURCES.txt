@@ -8,6 +8,7 @@ __setup__/ally_core_http/resources.py
 __setup__/ally_core_http/server_basic.py
 __setup__/ally_core_http/server_cherrypy.py
 __setup__/ally_core_http/support_ajax.py
+__setup__/ally_core_http/support_nocache.py
 __setup__/ally_core_http/support_php.py
 ally/__init__.py
 ally/core/__init__.py

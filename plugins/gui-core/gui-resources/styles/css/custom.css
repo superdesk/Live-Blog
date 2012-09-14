@@ -652,7 +652,7 @@ section.main-section {
 		}
 		
 .big-icon-google { 
-	/*background-position: 0 -78px;*/
+	background-position: 0 -78px;
 	}
 	a:hover .big-icon-google { 
 		background-position: -35px -78px;
