@@ -9,7 +9,7 @@ Created on Sep 14, 2012
 Contains ZIP utils
 '''
 
-from os.path import join, isdir
+from os.path import join, isdir, sep
 from ally.support.util_io import synchronizeURIToDir
 from ally.zip.util_zip import getZipFilePath
 from platform import system, machine
@@ -37,7 +37,7 @@ def deploy(source, destination, systemName=None, machineName=None):
         for (machineName, machineRequired) in machines.items():
             srcDir = join(source, systemName, machineName)
             if not isdir(srcDir):
-                try: getZipFilePath(srcDir, source)
+                try: getZipFilePath(srcDir)
                 except IOError:
                     if systemRequired and machineRequired: raise IOError('Invalid deploy directory %s' % srcDir)
                     else: continue
