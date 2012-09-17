@@ -15,10 +15,15 @@ from os import chdir, getcwd, stat, walk
 import configparser
 from tokenize import tokenize
 from token import NAME, OP, STRING
+from copy import copy
+from io import StringIO
 
 # --------------------------------------------------------------------
 
 def getDistDir(packageDir):
+    '''
+    Return the distribution directory corresponding to the given package.
+    '''
     if isfile(join(packageDir, 'setup.cfg')):
         p = configparser.ConfigParser()
         p.read(join(packageDir, 'setup.cfg'))
@@ -27,6 +32,9 @@ def getDistDir(packageDir):
         return dirname(script)
 
 def getPackageName(script):
+    '''
+    Return the package name for the given setup script.
+    '''
     packageName, version = None, None
     with open(script, 'rb') as s:
         g = tokenize(s.readline)
@@ -52,6 +60,10 @@ def getPackageName(script):
             else: return packageName.strip('"\'')
 
 def dirMTime(srcDir):
+    '''
+    Return the last modified time for the given directory (the modified time of the
+    file which was modified last in that directory)
+    '''
     mtime = None
     for root, dirs, files in walk(srcDir):
         relPath = relpath(root, srcDir)
@@ -68,24 +80,55 @@ def dirMTime(srcDir):
 # --------------------------------------------------------------------
 
 if __name__ == '__main__':
-    sys.argv[0] = 'setup.py'
-    sys.argv.insert(1, 'bdist_egg')
+    clean = not(len(sys.argv) > 1 and sys.argv[1] == '-b')
+
+    # make arguments for build and clean operations
+    buildArgv, cleanArgv = copy(sys.argv), copy(sys.argv)
+    buildArgv = sys.argv
+    buildArgv[0] = 'setup.py'
+    buildArgv.insert(1, 'bdist_egg')
+    cleanArgv.insert(1, 'clean')
+    cleanArgv.insert(2, '--all')
+
     currentDir = getcwd()
+    stdout = sys.stdout
+    stderr = sys.stderr
+
     filePath = __file__ if isabs(__file__) else abspath(__file__)
     setupScripts = glob(join(dirname(filePath), '*', 'setup.py'))
     for script in setupScripts:
         packageDir = dirname(script)
         distDir = getDistDir(packageDir)
         packageName = getPackageName(script)
+
+        # do a preclean
+        chdir(dirname(script))
+        sys.argv = cleanArgv
+        sys.stdout, sys.stderr = StringIO(), StringIO()
+        module = imp.load_source('setup', script)
+        sys.stdout, sys.stderr = stdout, stderr
+
         eggs = glob(join(distDir, packageName + '*'))
         packageDirMTime = dirMTime(packageDir)
         if len(eggs) == 1 and packageDirMTime <= stat(eggs[0]).st_mtime:
             print('*** UP TO DATE %s' % packageName)
             print("\n".rjust(79, '-'))
             continue
-        print('*** START %s' % packageName)
-        chdir(dirname(script))
+
+        print('*** BUILD %s' % packageName)
+        sys.argv = buildArgv
+        sys.stdout = StringIO()
         module = imp.load_source('setup', 'setup.py')
-        print('*** END %s' % packageName)
+        sys.stdout = stdout
+
+        if clean:
+            print("\n".rjust(79, '-'))
+            print('*** CLEAN %s' % packageName)
+            sys.argv = cleanArgv
+            sys.stdout, sys.stderr = StringIO(), StringIO()
+            module = imp.load_source('setup', script)
+            sys.stdout, sys.stderr = stdout, stderr
+
         print("\n".rjust(79, '-'))
+
     chdir(currentDir)
