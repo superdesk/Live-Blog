@@ -9,7 +9,7 @@ Created on Sep 14, 2012
 Contains ZIP utils
 '''
 
-from os.path import join, isdir
+from os.path import join, isdir, sep
 from ally.support.util_io import synchronizeURIToDir
 from ally.zip.util_zip import getZipFilePath
 from platform import system, machine
@@ -17,11 +17,12 @@ from platform import system, machine
 # --------------------------------------------------------------------
 
 SYSTEM_ALL = 'all'
-MACHINE_NOARCH = 'noarch'
+MACHINE_ALL = 'all'
 
 # --------------------------------------------------------------------
 
 def deploy(source, destination, systemName=None, machineName=None):
+    #TODO: Mugur: add comments and explain what is going one here.
     assert isinstance(source, str), 'Invalid source path %s' % source
     assert isinstance(destination, str), 'Invalid destination path %s' % destination
     assert not systemName or isinstance(systemName, str), 'Invalid system name %s' % systemName
@@ -31,13 +32,13 @@ def deploy(source, destination, systemName=None, machineName=None):
     machineName = machineName if machineName else machine()
 
     systems = {SYSTEM_ALL:True} if systemName == SYSTEM_ALL else {systemName:True, SYSTEM_ALL:False}
-    machines = {MACHINE_NOARCH:True} if machineName == MACHINE_NOARCH else {machineName:True, MACHINE_NOARCH:False}
+    machines = {MACHINE_ALL:True} if machineName == MACHINE_ALL else {machineName:True, MACHINE_ALL:False}
 
     for (systemName, systemRequired) in systems.items():
         for (machineName, machineRequired) in machines.items():
             srcDir = join(source, systemName, machineName)
             if not isdir(srcDir):
-                try: getZipFilePath(srcDir, source)
+                try: getZipFilePath(srcDir)
                 except IOError:
                     if systemRequired and machineRequired: raise IOError('Invalid deploy directory %s' % srcDir)
                     else: continue

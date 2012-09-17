@@ -4,6 +4,8 @@ __setup__/__init__.py
 __setup__/ally_core_http/__init__.py
 __setup__/ally_core_http/encoder_decoder.py
 __setup__/ally_core_http/processor.py
+__setup__/ally_core_http/processor_babel.py
+__setup__/ally_core_http/processor_time_zone.py
 __setup__/ally_core_http/resources.py
 __setup__/ally_core_http/server_basic.py
 __setup__/ally_core_http/server_cherrypy.py
@@ -23,6 +25,8 @@ ally/core/http/impl/processor/internal_error.py
 ally/core/http/impl/processor/parameter.py
 ally/core/http/impl/processor/parsing_multipart.py
 ally/core/http/impl/processor/redirect.py
+ally/core/http/impl/processor/text_conversion.py
+ally/core/http/impl/processor/time_zone.py
 ally/core/http/impl/processor/uri.py
 ally/core/http/impl/processor/headers/__init__.py
 ally/core/http/impl/processor/headers/accept.py

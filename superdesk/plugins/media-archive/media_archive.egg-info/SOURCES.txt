@@ -13,13 +13,6 @@ media_archive.egg-info/requires.txt
 media_archive.egg-info/top_level.txt
 media_archive.egg-info/zip-safe
 resources/__init__.py
-resources/avconv/__init__.py
-resources/avconv/bin/__init__.py
-resources/avconv/presets/__init__.py
-resources/ffmpeg/__init__.py
-resources/ffmpeg/bin/__init__.py
-resources/ffmpeg/licenses/__init__.py
-resources/ffmpeg/presets/__init__.py
 superdesk/__init__.py
 superdesk/media_archive/__init__.py
 superdesk/media_archive/api/__init__.py
