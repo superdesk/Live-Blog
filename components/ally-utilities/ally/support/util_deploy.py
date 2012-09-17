@@ -22,6 +22,7 @@ MACHINE_ALL = 'all'
 # --------------------------------------------------------------------
 
 def deploy(source, destination, systemName=None, machineName=None):
+    #TODO: Mugur: add comments and explain what is going one here.
     assert isinstance(source, str), 'Invalid source path %s' % source
     assert isinstance(destination, str), 'Invalid destination path %s' % destination
     assert not systemName or isinstance(systemName, str), 'Invalid system name %s' % systemName
