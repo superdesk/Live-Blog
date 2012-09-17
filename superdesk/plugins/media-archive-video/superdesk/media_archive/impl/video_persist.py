@@ -43,7 +43,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the video thumbnails in the media archive''')
     video_supported_files = 'flv, avi, mov, mp4, mpg, wmv, 3gp, asf, rm, swf'; wire.config('video_supported_files', doc='''
     The video formats supported by media archive video plugin''')
-    ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg'); wire.config('ffmpeg_path', doc='''
+    ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
     The path where the ffmpeg is found''')
 
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
