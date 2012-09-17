@@ -152,8 +152,15 @@ define('providers/edit', [
 			
 		},
 		render: function(){
-			var self = this;
-			this.el.tmpl('livedesk>providers/edit', { PostTypes: this.postTypes.feed() }, function(){
+			var self = this,
+			PostTypes = this.postTypes.feed();
+			for(var i=0; i<PostTypes.length; i++){
+				if(PostTypes[i].Key == 'advertisement') {
+					PostTypes.splice(i,1);
+					break;
+				}
+			}
+			this.el.tmpl('livedesk>providers/edit', { PostTypes: PostTypes }, function(){
 				// editor 
 				fixedToolbar = 
 				{
