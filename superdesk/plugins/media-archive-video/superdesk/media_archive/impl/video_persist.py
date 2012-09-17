@@ -104,7 +104,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     videoDataEntry.VideoEncoding = values[0]
                     videoDataEntry.Width = values[1]
                     videoDataEntry.Height = values[2]
-                    videoDataEntry.VideoBitrate = values[3]
+                    if values[3]: videoDataEntry.VideoBitrate = values[3]
                     videoDataEntry.Fps = values[4]
                 except: pass
             elif line.find(': Audio: ') != -1:
@@ -116,7 +116,10 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     videoDataEntry.AudioBitrate = values[3]
                 except: pass
             elif line.find('Duration: ') != -1:
-                try: videoDataEntry.Length = self.extractLength(line)
+                try: 
+                    values = self.extractDuration(line)
+                    videoDataEntry.Length = values[0]
+                    videoDataEntry.VideoBitrate = values[1]
                 except: pass
             elif line.find('Output #0') != -1:
                 break
@@ -143,15 +146,23 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     # ----------------------------------------------------------------
 
-    def extractLength(self, line):
+    def extractDuration(self, line):
         #Duration: 00:00:30.06, start: 0.000000, bitrate: 585 kb/s
-        property = line.partition(':')[2]
-        property = property.partition(',')[0].strip()
-        property = property.split(':')
+        properties = line.split(',')
+        
+        length = properties[0].partition(':')[2]
+        length = length.strip().split(':')
+        length = int(length[0]) * 60 + int(length[1]) * 60 + int(float(length[2]))
 
-        value = int(property[0]) * 60 + int(property[1]) * 60 + int(float(property[2]))
+        bitrate = properties[2]
+        bitrate = bitrate.partition(':')[2]
+        bitrate = bitrate.strip().partition(' ')
+        if bitrate[2] == 'kb/s':
+            bitrate = int(float(bitrate[0]))
+        else:
+            bitrate = None
 
-        return value
+        return (length, bitrate)
 
     def extractVideo(self, line):
         #Stream #0.0(eng): Video: h264 (Constrained Baseline), yuv420p, 416x240, 518 kb/s, 29.97 fps, 29.97 tbr, 2997 tbn, 59.94 tbc
@@ -171,10 +182,10 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             bitrate = int(float(bitrate[0]))
             index += 1
         else:
-            bitrate = None
+            bitrate = None    
 
         fps = properties[index].strip().partition(' ')
-        if fps[2] == 'fps':
+        if fps[2] == 'fps' or fps[2] == 'tbr':
             fps = int(float(fps[0]))
         else:
             fps = None
