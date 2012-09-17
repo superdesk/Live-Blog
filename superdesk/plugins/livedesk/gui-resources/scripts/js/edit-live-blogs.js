@@ -531,7 +531,12 @@ function(providers, Gizmo, $)
 	            }
             }
 		}),
-
+		PostTypeView = Gizmo.View.extend
+		({
+			init: function() {
+				this.model = Gizmo.Auth(new Gizmo.Register.PostType(self.theBlog+'../'));
+			}
+		})
 		EditView = Gizmo.View.extend
 		({
 			timelineView: null,
