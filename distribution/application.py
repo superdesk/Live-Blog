@@ -16,15 +16,8 @@ import timeit
 
 # --------------------------------------------------------------------
 
-def findLibraries(folder):
-    '''
-    Finds all the libraries (that have extension .egg) if the provided folder.
-    '''
-    eggs = []
-    for name in os.listdir(folder):
-        fullPath = os.path.join(folder, name)
-        if os.path.isfile(fullPath) and fullPath.endswith('.egg'): eggs.append(fullPath)
-    return eggs
+findLibraries = lambda folder: (os.path.join(folder, name) for name in os.listdir(folder))
+# Finds all the libraries (that have extension .egg) if the provided folder.
 
 # --------------------------------------------------------------------
 
