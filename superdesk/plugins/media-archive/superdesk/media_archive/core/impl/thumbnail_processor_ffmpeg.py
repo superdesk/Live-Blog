@@ -38,7 +38,7 @@ class ThumbnailProcessor(IThumbnailProcessor):
     The command used to transform the thumbnails''')
     command_resize = '"%(ffmpeg)s" -i "%(source)s" -s %(width)ix%(height)i "%(destination)s"'
     wire.config('command_resize', doc='''The command used to resize the thumbnails''')
-    ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg'); wire.config('ffmpeg_path', doc='''
+    ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
     The path where the ffmpeg is found''')
 
     def __init__(self):
