@@ -36,7 +36,7 @@ define
                 .done(function(action)
                 {
                     action.ScriptPath &&
-                        require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ addApp = new AddApp(); });
+                        require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ AddApp(); });
                 }); 
                 event.preventDefault();
             });
