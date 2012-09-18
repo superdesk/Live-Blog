@@ -169,7 +169,7 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationCompoundServic
         for authType in arguments:
             assert isinstance(authType, Type), 'Invalid type %s' % authType
 
-            if authType == typeFor(User.Id): arguments[authType] = 1
+            if authType == typeFor(User.Id): arguments[authType] = login.User
             else: raise DevelError('Invalid authenticated type %s' % authType)
 
         return True
