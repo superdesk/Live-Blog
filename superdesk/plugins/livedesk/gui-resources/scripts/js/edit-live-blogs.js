@@ -182,7 +182,7 @@ function(providers, Gizmo, $)
 			events: 
 			{
 				'': { sortstop: 'reorder' },
-				'a.close': { click: 'removeModel' },
+				'a.close': { click: 'removeDialog' },
 				'.editable': { focusout: 'save',  focusin: 'edit'}
 			},
 			
@@ -378,8 +378,7 @@ function(providers, Gizmo, $)
 					return;
 				this.model.updater = this;
 				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
-			},
-			
+			},		
 			remove: function()
 			{
 				var self = this;
@@ -387,9 +386,8 @@ function(providers, Gizmo, $)
 				$(this.el).fadeTo(500, '0.1', function(){
 					self.el.remove();
 				});
-			},
-			
-			removeModel: function()
+			},			
+			removeDialog: function()
 			{
 				var self = this;
 				$('#delete-post .yes')
