@@ -397,7 +397,7 @@ window.livedesk.startLoading = function() {
 			renderBlog: function()
 			{
 				$(this.el).find('article')
-					.find('h2').text(this.model.get('Title')).end()
+					//.find('h2').text(this.model.get('Title')).end()
 					.find('p').text(this.model.get('Description'));
 			},
                         
