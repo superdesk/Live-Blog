@@ -1,0 +1,66 @@
+<!-- ... -->
+<style>
+html, body{ overflow: auto; }
+.table .btn-group{ visibility: hidden; }
+.table tr:hover .btn-group{ visibility: visible; } 
+</style>
+<!-- ... -->
+
+<div style="margin-top:60px;background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px 4px 4px 4px;
+    margin: 15px 0;
+    padding: 39px 19px 14px;
+    position: relative;">
+	<div class="input-append pull-right" style="display:inline-block">
+		<input class="span2" size="16" type="text"><button class="btn" type="button">Search</button>
+	</div>
+	{~s}
+	<button class="btn btn-primary">_('Add User')</button>
+	<table class="table table-hover table-bordered">
+		<thead>
+			<tr>
+    			<th>#</th>
+        		<th>First Name</th>
+        		<th>Last Name</th>
+        		<th>E-Mail</th>
+			</tr>
+		</thead>
+		<tbody>
+		
+		</tbody>
+	</table>
+</div>
+
+<div class="modal hide fade" id="user-edit-modal">
+    <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    	<h3>_('Edit User')</h3>
+    </div>
+    <div class="modal-body">
+    	<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="inputFName">First Name</label>
+				<div class="controls">
+					<input type="text" name="FirstName" id="inputFName" placeholder="First Name" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputName">Last Name</label>
+				<div class="controls">
+					<input type="text" name="Name" id="inputName" placeholder="Last Name" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputEmail">E-Mail</label>
+				<div class="controls">
+					<input type="text" name="EMail" id="inputEmail" placeholder="E-Mail" />
+				</div>
+			</div>
+		</form>
+    </div>
+    <div class="modal-footer">
+    	<button class="btn">_('Close')</button>
+    	<button class="btn btn-primary">_('Save changes')</button>
+    </div>
+</div>
