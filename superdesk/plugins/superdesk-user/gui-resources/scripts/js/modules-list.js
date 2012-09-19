@@ -16,21 +16,25 @@ function($, superdesk, giz, User)
         model: null,
         init: function()
         {
+            var self = this;
             this.model.on('read update', this.render, this);
+            this.model.on('delete', function(){ self.el.remove(); })
         },
         render: function()
         {
             $(this.el).tmpl('superdesk/user>item', {User: this.model.feed()});
-            $('.edit', this.el).prop('model', this.model);
+            $('.edit', this.el).prop('model', this.model).prop('view', this);
+            $('.delete', this.el).prop('model', this.model).prop('view', this);
             return this;
         },
-        update: function()
+        update: function(data)
         {
-            
+            for( var i in data ) this.model.set(i, data[i]);
+            return this.model.sync()
         },
         remove: function()
         {
-            
+            this.model.remove().sync();
         }
     }),
     ListView = giz.View.extend
@@ -39,13 +43,8 @@ function($, superdesk, giz, User)
         init: function()
         {
             var self = this;
-            this.users = new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') }));
+            this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') })));
             this.users.on('read update', this.render, this);
-        },
-        activate: function()
-        {
-            var self = this;
-            self.users.xfilter('*').sync();
             
             // delegate events on edit button for items 
             $(self.el).on('click', 'table tbody .edit', function()
@@ -57,14 +56,46 @@ function($, superdesk, giz, User)
                     $(this).val( model.get( $(this).attr('name') ) );
                 });
                 $('#user-edit-modal', self.el).modal();
+                $('#user-edit-modal', self.el).prop('view', $(this).prop('view'));
+            });
+            $(self.el).on('click', '#user-edit-modal [data-action="close"]', function()
+            { 
+                $('#user-edit-modal', self.el).modal('hide'); 
+            });
+            $(self.el).on('click', '#user-edit-modal [data-action="save"]', function()
+            { 
+                var data = {};
+                $('#user-edit-modal form input', self.el).each(function()
+                {
+                    var val = $(this).val();
+                    if( val != '' ) data[$(this).attr('name')] = val;
+                });
+                $('#user-edit-modal', self.el).prop('view').update(data)
+                .done(function()
+                {
+                    $('#user-edit-modal', self.el).modal('hide');
+                }); 
             });
 
             // same thing for delete
             $(self.el).on('click', 'table tbody .delete', function()
             {
-                
+                $('#user-delete-modal', self.el).prop('view', $(this).prop('view'));
+                $('#user-delete-modal', self.el).modal();
             });
-                    
+            $(self.el).on('click', '#user-delete-modal [data-action="delete"]', function()
+            {
+                $('#user-delete-modal', self.el).prop('view').remove();
+            });
+            $(self.el).on('click', '#user-delete-modal [data-action="close"]', function()
+            { 
+                $('#user-delete-modal', self.el).modal('hide'); 
+            });
+        },
+        activate: function()
+        {
+            var self = this;
+            self.users.xfilter('*').sync();
         },
         render: function()
         {
