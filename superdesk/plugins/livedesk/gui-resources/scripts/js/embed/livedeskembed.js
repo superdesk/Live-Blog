@@ -239,7 +239,47 @@ window.livedesk.startLoading = function() {
 					this.next.prev = this.prev;
 				if(this.prev !== undefined)
 					this.prev.next = this.next;				
-			},			
+			},
+                        itemTemplate: function(item, content, time)
+			{
+				// Tw------------------------------------------------------------------------------------------------
+				var returned = '';
+                                var itemClass = item.getClass();
+                                
+                                /*
+                                if(item) {
+                                    returned += '<figure><img src="' + item.get('AuthorName') + imageLink + ' alt="Gravatar" /></figure>';
+                                }
+                                */
+                               
+                                switch (itemClass) {
+                                    case 'tw':
+                                    case 'service':
+                                        returned +=  '<div class="result-content">';
+                                        returned +=     '<div class="result-text">' + content + '</div>';
+                                        returned +=     '<p class="attributes"><i class="source-icon"></i> by ' + item.get('AuthorName');
+                                        returned +=         '<time>' + time + '</time>';
+                                         returned +=     '</p>';
+                                        returned += '</div>';
+                                        break;
+                                    case 'quotation':
+                                        returned +=  '<div class="result-content">';
+                                        returned +=     '<div class="result-text">' + content + '</div>';
+                                        returned +=     '<p class="attributes">by ' + item.get('AuthorName');
+                                        returned +=         '<time>' + time + '</time>';
+                                        returned +=     '</p>';
+                                        returned += '</div>';
+                                        break;
+                                    case 'wrapup':
+                                        returned += '<span class="big-toggle"></span>';
+                                        returned += '<h3>' + content + '</h3>';
+                                        break;
+                                    case 'advertisement':
+                                        returned += content;
+                                        
+                                }
+                               return returned;
+			},
 			render: function()
 			{			
                 countLoaded++;
@@ -267,10 +307,10 @@ window.livedesk.startLoading = function() {
 
 				var style= '';                
 				if (self.model.getClass() == 'wrapup') {
-					style += ' open';
+					style += 'open ';
 				}
 				if (self.model.isService()) {
-					style += ' ' + self.model.get('AuthorName');
+					style += self.model.get('AuthorName');
                                         
                                         var meta = JSON.parse(self.model.get('Meta'));
                                         var annotation = '';
@@ -298,26 +338,26 @@ window.livedesk.startLoading = function() {
                                                 content += '<p><a href="' + meta.url + '"><img src="' + meta.tbUrl + '" height="' + meta.tbHeight + '" width="' + meta.tbWidth + '"></a></p>';
                                             }
                                         }
-                                        
-                                        content = annotation + content;
-                                        
-                                        
+                                        content = annotation + content;                                        
 				}
+                                
+                                
                                 
                                 var publishedon = self.model.get('PublishedOn');
                                 var datan = new Date(publishedon);
                                 var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
                                 var author = self.model.get('AuthorName');
                                 
-                                content = '<div class="result-content"><div class="result-text">' + content + '</div><p class="attributes"><i class="source-icon"></i> by ' + author + '&nbsp;<time>' + time + '</time></p</div>';
+                                content = self.itemTemplate(self.model, content, time);
                                 
 				var postId = self.model.get('Id');
 				var blogTitle = self._parent.model.get('Title');
 				blogTitle = blogTitle.replace(/ /g, '-');
                                 var hash = postId + '-' +  encodeURI (blogTitle);
                                 var hash = postId;
+                                var itemClass = self.model.getClass();
                                 var permalink = '<a rel="bookmark" href="#'+ hash +'">#</a>';
-				var template ='<li class="'+ style +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
+				var template ='<li class="'+ style + itemClass +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
                                 self.setElement( template );
 			}
 		}),
