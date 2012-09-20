@@ -10,10 +10,11 @@ The API specifications for the user.
 '''
 
 from ally.api.config import service, query
-from ally.api.criteria import AsLikeOrdered
+from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered
 from ally.support.api.entity import Entity, IEntityService, QEntity
 from superdesk.api.domain_superdesk import modelSuperDesk
 from superdesk.person.api.person import Person, QPerson
+from datetime import datetime
 
 # --------------------------------------------------------------------
 
@@ -23,6 +24,8 @@ class User(Person):
     Provides the user model.
     '''
     Name = str
+    CreatedOn = datetime
+    DeletedOn = datetime
     Password = str
 
 # --------------------------------------------------------------------
@@ -33,6 +36,7 @@ class QUser(QPerson):
     Query for user service
     '''
     name = AsLikeOrdered
+    createdOn = AsDateTimeOrdered
 
 # --------------------------------------------------------------------
 

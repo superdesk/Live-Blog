@@ -11,13 +11,14 @@ Contains the SQL alchemy meta for user API.
 
 from ..api.user import User
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy.types import String
+from sqlalchemy.types import String, DateTime
 from superdesk.person.meta.person import PersonMapped
 from ally.support.sqlalchemy.mapper import validate
+from ally.container.binder_op import validateManaged, EVENT_PROP_UPDATE
 
 # --------------------------------------------------------------------
 
-@validate
+@validate(exclude=('Password', 'CreatedOn', 'DeletedOn'))
 class UserMapped(PersonMapped, User):
     '''
     Provides the mapping for User entity.
@@ -26,8 +27,13 @@ class UserMapped(PersonMapped, User):
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Name = Column('name', String(20), nullable=False, unique=True)
-
+    CreatedOn = Column('created_on', DateTime, nullable=False)
+    DeletedOn = Column('deleted_on', DateTime)
     # Non REST model attribute --------------------------------------
-    userId = Column('fk_person_id', ForeignKey(PersonMapped.Id), primary_key=True)
+    userId = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'), primary_key=True)
     password = Column('password', String(255), nullable=False)
     # Never map over the inherited id
+
+validateManaged(UserMapped.Password, key=EVENT_PROP_UPDATE)
+validateManaged(UserMapped.CreatedOn)
+validateManaged(UserMapped.DeletedOn)
