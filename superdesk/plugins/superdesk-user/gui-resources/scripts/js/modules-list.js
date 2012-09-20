@@ -46,6 +46,33 @@ function($, superdesk, giz, User)
             this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') })));
             this.users.on('read update', this.render, this);
             
+            $(self.el).on('click', '.add-user', function()
+            {
+                $('#user-add-modal', self.el).modal();
+            });
+            $(self.el).on('click', '#user-add-modal [data-action="save"]', function()
+            {
+                // new model
+                var newModel = new self.users.model();
+                $('#user-add-modal form input', self.el).each(function()
+                {
+                    var val = $(this).val();
+                    if( val != '' ) newModel.set($(this).attr('name'), val);
+                });
+                
+                newModel.on('insert', function()
+                {
+                    $('#user-add-modal', self.el).modal('hide'); 
+                });
+                
+                // sync on collection href for insert
+                newModel.sync(self.users.href.get());
+            });
+            $(self.el).on('click', '#user-add-modal [data-action="close"]', function()
+            { 
+                $('#user-add-modal', self.el).modal('hide'); 
+            });
+            
             // delegate events on edit button for items 
             $(self.el).on('click', 'table tbody .edit', function()
             {
@@ -97,6 +124,12 @@ function($, superdesk, giz, User)
             var self = this;
             self.users.xfilter('*').sync();
         },
+        
+        addItem: function(model)
+        {
+            $('table tbody', this.el).append( (new ItemView({ model: model })).render().el );
+        },
+        
         render: function()
         {
             var data = {},
@@ -104,10 +137,7 @@ function($, superdesk, giz, User)
             superdesk.applyLayout('superdesk/user>list', data, function()
             {
                 // new ItemView for each models 
-                self.users.each(function()
-                { 
-                    $('table tbody', self.el).append( (new ItemView({ model: this })).render().el ); 
-                });
+                self.users.each(function(){ self.addItem(this); });
             });
         }
         
