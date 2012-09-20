@@ -20,7 +20,7 @@ var querycriteria = {
     startLoading : function() {
         var self = this;
         $.ajax({
-            url: 'http://localhost:8080/resources/Superdesk/Archive/QueryCriteria/',
+            url: 'http://localhost:8080/resources/Archive/QueryCriteria/',
             success: function(data){
                 var criterialist = data.QueryCriteriaList;
                 for (var i=0; i < criterialist.length; i++) {
@@ -32,4 +32,3 @@ var querycriteria = {
         });
     }
 }
-

@@ -35,7 +35,8 @@ define('providers/edit', [
 	}),
 	PostView = Gizmo.View.extend({
 		events: { 
-			"": { "dragstart": "adaptor"}
+			"": { "dragstart": "adaptor"},
+			'.close': { click: 'removeDialog' }
 		},
 		init: function(){
 			var self = this;
@@ -93,6 +94,14 @@ define('providers/edit', [
 			self.el.fadeTo(500, '0.1', function(){
 				self.el.remove();
 			});
+		},	
+		removeDialog: function(){
+			var self = this;
+			$('#delete-own-post .yes')
+				.off(this.getEvent('click'))
+				.on(this.getEvent('click'), function(){
+					self.model.removeSync();
+				});
 		},		
 		adaptor: function(evt){
 			$(evt.target).parents('li').data("post", this.model);
@@ -113,7 +122,7 @@ define('providers/edit', [
 			for(var len = data.length, i = 0; i < len; i++ ) {
 				this.addOne(data[i]);
 			}
-		},		
+		},
 		addOne: function(model)
 		{
 			var view = new PostView({model: model, _parent: this});
@@ -152,8 +161,15 @@ define('providers/edit', [
 			
 		},
 		render: function(){
-			var self = this;
-			this.el.tmpl('livedesk>providers/edit', { PostTypes: this.postTypes.feed() }, function(){
+			var self = this,
+			PostTypes = this.postTypes.feed();
+			for(var i=0; i<PostTypes.length; i++){
+				if(PostTypes[i].Key == 'advertisement') {
+					PostTypes.splice(i,1);
+					break;
+				}
+			}
+			this.el.tmpl('livedesk>providers/edit', { PostTypes: PostTypes }, function(){
 				// editor 
 				fixedToolbar = 
 				{
