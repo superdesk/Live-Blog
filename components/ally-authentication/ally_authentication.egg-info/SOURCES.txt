@@ -16,5 +16,7 @@ ally_authentication.egg-info/requires.txt
 ally_authentication.egg-info/top_level.txt
 ally_authentication.egg-info/zip-safe
 test/__init__.py
-test/ally/__init__.py
-test/ally/type_auth.py
+test/unit_testing/__init__.py
+test/unit_testing/ally/__init__.py
+test/unit_testing/ally/api/__init__.py
+test/unit_testing/ally/api/authentication.py

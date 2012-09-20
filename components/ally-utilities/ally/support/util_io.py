@@ -20,6 +20,7 @@ from zipfile import ZipFile, ZipInfo
 import abc
 import os
 from tempfile import TemporaryDirectory
+from stat import S_IEXEC
 
 # --------------------------------------------------------------------
 
@@ -296,6 +297,7 @@ def synchronizeURIToDir(path, dirPath):
 
                 zipFile.extract(zipInfo.filename, tmpDir.name)
                 move(join(tmpDir.name, normOSPath(zipInfo.filename)), dest)
+                if zipInfo.filename.endswith('.exe'): os.chmod(dest, stat(dest).st_mode | S_IEXEC)
 
         return
 

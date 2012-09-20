@@ -1530,3 +1530,7 @@ bootstrap.css (line 1929)
 .ui-draggable-dragging a {
     z-index:2;
 }
+
+li.google .config-notif, li.ads .config-notif, li.flickr .config-notif  {
+    display: none ! important; 
+}
