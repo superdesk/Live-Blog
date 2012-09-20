@@ -206,21 +206,21 @@ window.livedesk.startLoading = function() {
         ({
             init: function()
             {
-				var self = this;
-				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';				
-				self.model
-					.on('read', self.render, self)
-					.on('update', function(evt, data){
-						if(isOnly(data, 'CId')) {
-							self.model.xfilter(self.xfilter).sync(); //
-						}
-						else
-							self.render(evt, data);
-					})
-					.on('delete', self.remove, self)
-					.xfilter(self.xfilter)
-					.sync();
+                        var self = this;
+                        self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+                                                           'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';				
+                        self.model
+                                .on('read', self.render, self)
+                                .on('update', function(evt, data){
+                                        if(isOnly(data, 'CId')) {
+                                                self.model.xfilter(self.xfilter).sync(); //
+                                        }
+                                        else
+                                                self.render(evt, data);
+                                })
+                                .on('delete', self.remove, self)
+                                .xfilter(self.xfilter)
+                                .sync();
 			},
 			remove: function()
 			{
@@ -240,18 +240,16 @@ window.livedesk.startLoading = function() {
 				if(this.prev !== undefined)
 					this.prev.next = this.next;				
 			},
-                        itemTemplate: function(item, content, time)
+                        itemTemplate: function(item, content, time, Avatar)
 			{
 				// Tw------------------------------------------------------------------------------------------------
 				var returned = '';
                                 var itemClass = item.getClass();
-                                
                                 /*
-                                if(item) {
-                                    returned += '<figure><img src="' + item.get('AuthorName') + imageLink + ' alt="Gravatar" /></figure>';
+                                if(Avatar.length > 0) {
+                                    returned += '<figure><img src="' + Avatar + ' alt="Gravatar" /></figure>';
                                 }
-                                */
-                               
+                                */                                
                                 switch (itemClass) {
                                     case 'tw':
                                     case 'service':
@@ -348,7 +346,7 @@ window.livedesk.startLoading = function() {
                                 var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
                                 var author = self.model.get('AuthorName');
                                 
-                                content = self.itemTemplate(self.model, content, time);
+                                content = self.itemTemplate(self.model, content, time, Avatar);
                                 
 				var postId = self.model.get('Id');
 				var blogTitle = self._parent.model.get('Title');
