@@ -162,6 +162,7 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationCompoundServic
         assert isinstance(login, LoginMapped), 'Invalid login %s' % login
         login.AccessedOn = current_timestamp()
         self.session().flush((login,))
+        self.session().expunge(login)
         commitNow()
         # We need to fore the commit because if there is an exception while processing the request we need to make
         # sure that the last access has been updated.
@@ -169,7 +170,7 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationCompoundServic
         for authType in arguments:
             assert isinstance(authType, Type), 'Invalid type %s' % authType
 
-            if authType == typeFor(User.Id): arguments[authType] = 1
+            if authType == typeFor(User.Id): arguments[authType] = login.User
             else: raise DevelError('Invalid authenticated type %s' % authType)
 
         return True
