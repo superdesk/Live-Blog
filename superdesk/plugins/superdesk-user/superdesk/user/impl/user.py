@@ -56,7 +56,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
                 assert isinstance(q, QUser), 'Invalid query %s' % q
                 sql = buildQuery(sql, q, UserMapped)
             if entities is None: entities = buildLimits(sql, offset, limit).all()
-            return IterPart(entities, sql.count(), offset, limit)
+            if detailed: return IterPart(entities, sql.count(), offset, limit)
         return entities
 
     def insert(self, user):
