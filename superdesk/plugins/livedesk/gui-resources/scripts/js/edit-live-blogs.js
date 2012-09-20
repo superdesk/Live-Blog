@@ -5,6 +5,7 @@ define
     'jquery',
 	'utils/extend',
     config.guiJs('livedesk', 'models/blog'),
+	config.guiJs('livedesk', 'models/posttype'),
     config.guiJs('livedesk', 'models/post'),
     'jquery/splitter', 'jquery/rest', 'jquery/param', 'jqueryui/droppable',
     'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 'jquery/avatar',
@@ -13,6 +14,7 @@ define
     'tmpl!livedesk>edit',
     'tmpl!livedesk>timeline-container',
     'tmpl!livedesk>timeline-item',
+	'tmpl!livedesk>timeline-action-item',
     'tmpl!livedesk>provider-content',
     'tmpl!livedesk>provider-link',
     'tmpl!livedesk>providers'
@@ -180,7 +182,7 @@ function(providers, Gizmo, $)
 			events: 
 			{
 				'': { sortstop: 'reorder' },
-				'a.close': { click: 'removeModel' },
+				'a.close': { click: 'removeDialog' },
 				'.editable': { focusout: 'save',  focusin: 'edit'}
 			},
 			
@@ -376,8 +378,7 @@ function(providers, Gizmo, $)
 					return;
 				this.model.updater = this;
 				this.model.set({Content: $(this.el).find('[contenteditable="true"]').html()}).sync();
-			},
-			
+			},		
 			remove: function()
 			{
 				var self = this;
@@ -385,9 +386,8 @@ function(providers, Gizmo, $)
 				$(this.el).fadeTo(500, '0.1', function(){
 					self.el.remove();
 				});
-			},
-			
-			removeModel: function()
+			},			
+			removeDialog: function()
 			{
 				var self = this;
 				$('#delete-post .yes')
@@ -531,7 +531,24 @@ function(providers, Gizmo, $)
 	            }
             }
 		}),
-
+		ActionsView = Gizmo.View.extend
+		({
+			init: function() {
+				var self = this,
+					PostTypes = Gizmo.Collection.extend({model: Gizmo.Register.PostType});
+							
+				self.collection = Gizmo.Auth(new PostTypes(self.theBlog+'/../../../../Superdesk/PostType'));
+				
+				self.collection.on('read', function(){ self.render(); }).xfilter('Key').sync();				
+			},
+			render: function(){
+				var self = this,
+					PostTypes = this.collection.feed();
+				this.el.tmpl('livedesk>timeline-action-item', { PostTypes: PostTypes }, function(){				
+					var self = this;
+				});
+			}
+		}),
 		EditView = Gizmo.View.extend
 		({
 			timelineView: null,
@@ -665,6 +682,12 @@ function(providers, Gizmo, $)
 						theBlog: self.theBlog
 					});
 					self.providers.render();
+					
+					self.actions = new ActionsView
+					({
+						el: $('.filter-posts', self.el),
+						theBlog: self.theBlog
+					});
 					
 					$('.tabbable', self.el).find('a:eq(0)').tab('show');						
 					$('.live-blog-content', self.el).droppable
