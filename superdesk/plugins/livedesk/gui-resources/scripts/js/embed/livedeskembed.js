@@ -276,6 +276,10 @@ window.livedesk.startLoading = function() {
                                             }
                                         }
                                         
+                                        var publishedon = self.model.get('PublishedOn');
+                                        var datan = new Date(publishedon);
+                                        var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
+                                        
 					if (self.model.get('AuthorName') == 'flickr') {
 						var paddedContent = '<span>' + content + '</span>';
 						var jqo = $(paddedContent);
@@ -291,14 +295,23 @@ window.livedesk.startLoading = function() {
                                         
                                         content = annotation + content;
                                         
+                                        
 				}
+                                
+                                var publishedon = self.model.get('PublishedOn');
+                                var datan = new Date(publishedon);
+                                var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
+                                var author = self.model.get('AuthorName');
+                                
+                                content = '<div class="result-content"><div class="result-text">' + content + '</div><p class="attributes"><i class="source-icon"></i> by ' + author + '&nbsp;<time>' + time + '</time></p</div>';
+                                
 				var postId = self.model.get('Id');
 				var blogTitle = self._parent.model.get('Title');
 				blogTitle = blogTitle.replace(/ /g, '-');
                                 var hash = postId + '-' +  encodeURI (blogTitle);
                                 var hash = postId;
                                 var permalink = '<a rel="bookmark" href="#'+ hash +'">#</a>';
-				var template ='<li class="'+ style +'"><a name="' + hash + '">' + content + '</a>&nbsp;'+ permalink +'</li>';
+				var template ='<li class="'+ style +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
                                 self.setElement( template );
 			}
 		}),
@@ -397,7 +410,7 @@ window.livedesk.startLoading = function() {
 			renderBlog: function()
 			{
 				$(this.el).find('article')
-					.find('h2').text(this.model.get('Title')).end()
+					//.find('h2').text(this.model.get('Title')).end()
 					.find('p').text(this.model.get('Description'));
 			},
                         

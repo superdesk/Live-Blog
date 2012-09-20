@@ -134,7 +134,7 @@ function($)
     {
         var blogHref = theBlog,
 			EmbedPath = config.content_url+'/'+config.guiJs('livedesk','embed/')
-			EmbedSource = '<ul id="livedesk-root"></ul><'+'script>window.livedesk = { callback: function(){ new this.TimelineView({ url: "'+blogHref+'" });}, contentPath: "'+EmbedPath+'"};';
+			EmbedSource = '<ul id="livedesk-root"><li>Loading...</li></ul><'+'script>var link=document.createElement("link");link.rel="stylesheet";link.type="text/css";link.href="'+EmbedPath+'"";document.getElementsByTagName("head")[0].appendChild(link);window.livedesk = { callback: function(){ new this.TimelineView({ url: "'+blogHref+'" });}, contentPath: "'+EmbedPath+'"};';
 			EmbedSource += '(function(d, s, id){var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;js = d.createElement(s); js.id = id;js.src = "'+EmbedPath+'/livedeskembed.js";fjs.parentNode.insertBefore(js, fjs);}(document, "script", "livedesk-jssdk"));<'+'/script>';
         gotColabs = new $.Deferred;
         new $.restAuth(theBlog).xfilter('Creator.Name, Creator.Id').done(function(data)
