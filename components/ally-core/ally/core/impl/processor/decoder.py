@@ -354,10 +354,11 @@ class DecodePrimitive:
 
         if path: return False
         # Only if there are no other elements in path we process the exploit
-        if not isinstance(value, str): return False
-        # If the value is not a string then is not valid
-        try: value = converter.asValue(value, self.typeValue)
-        except ValueError: return False
+        if value is not None:
+            if not isinstance(value, str): return False
+            # If the value is not a string then is not valid
+            try: value = converter.asValue(value, self.typeValue)
+            except ValueError: return False
         self.setter(target, value)
         return True
 
