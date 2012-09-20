@@ -207,16 +207,19 @@ window.livedesk.startLoading = function() {
             init: function()
             {
 				var self = this;
+				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';				
 				self.model
 					.on('read', self.render, self)
 					.on('update', function(evt, data){
 						if(isOnly(data, 'CId')) {
-							self.model.sync(); //.xfilter(self.xfilter)
+							self.model.xfilter(self.xfilter).sync(); //
 						}
 						else
 							self.render(evt, data);
 					})
 					.on('delete', self.remove, self)
+					.xfilter(self.xfilter)
 					.sync();
 			},
 			remove: function()
@@ -238,9 +241,12 @@ window.livedesk.startLoading = function() {
 					this.prev.next = this.next;				
 			},			
 			render: function()
-			{
-                            countLoaded++;
-				var self = this, order = parseFloat(self.model.get('Order'));
+			{			
+                countLoaded++;
+				var self = this, order = parseFloat(self.model.get('Order')), Avatar='';
+				if(this.model.get('AuthorPerson') && this.model.get('AuthorPerson').EMail) {
+					Avatar = $.avatar.get(self.model.get('AuthorPerson').EMail);
+				}
 				if ( !isNaN(self.order) && (order != self.order)) {
 					var actions = {prev: 'insertBefore', next: 'insertAfter'}, ways = {prev: 1, next: -1}, anti = {prev: 'next', next: 'prev'}
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
