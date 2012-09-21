@@ -21,8 +21,11 @@ from sqlalchemy.sql.functions import current_timestamp
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.api.extension import IterPart
 from ally.internationalization import _
+from ally.api.criteria import AsLike
 
 # --------------------------------------------------------------------
+
+ALL_NAMES = (UserMapped.Name, UserMapped.FirstName, UserMapped.LastName)
 
 @injected
 @setup(IUserService)
@@ -55,6 +58,16 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             if q:
                 assert isinstance(q, QUser), 'Invalid query %s' % q
                 sql = buildQuery(sql, q, UserMapped)
+                if QUser.all in q:
+                    filter = None
+                    if AsLike.like in q.all:
+                        for col in ALL_NAMES:
+                            filter = col.like(q.all.like) if filter is None else filter | col.like(q.all.like)
+                    elif AsLike.ilike in q.all:
+                        for col in ALL_NAMES:
+                            filter = col.ilike(q.all.ilike) if filter is None else filter | col.ilike(q.all.ilike)
+                    sql = sql.filter(filter)
+
             if entities is None: entities = buildLimits(sql, offset, limit).all()
             if detailed: return IterPart(entities, sql.count(), offset, limit)
         return entities
@@ -64,6 +77,11 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         @see: IUserService.insert
         '''
         assert isinstance(user, User), 'Invalid user %s' % user
+
+        sql = self.session().query(UserMapped)
+        sql = sql.filter(UserMapped.Name == user.Name)
+        sql = sql.filter(UserMapped.DeletedOn == None)
+        if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
 
         userDb = UserMapped()
         userDb.password = user.Password
@@ -89,6 +107,12 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
             raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         try:
+            sql = self.session().query(UserMapped)
+            sql = sql.filter(UserMapped.Id != user.Id)
+            sql = sql.filter(UserMapped.Name == user.Name)
+            sql = sql.filter(UserMapped.DeletedOn == None)
+            if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
+
             self.session().flush((copy(user, userDb),))
         except SQLAlchemyError as e: handle(e, userDb)
 

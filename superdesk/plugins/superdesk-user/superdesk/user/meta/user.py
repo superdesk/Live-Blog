@@ -26,7 +26,7 @@ class UserMapped(PersonMapped, User):
     __tablename__ = 'user'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    Name = Column('name', String(20), nullable=False, unique=True)
+    Name = Column('name', String(20), nullable=False)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     DeletedOn = Column('deleted_on', DateTime)
     # Non REST model attribute --------------------------------------
