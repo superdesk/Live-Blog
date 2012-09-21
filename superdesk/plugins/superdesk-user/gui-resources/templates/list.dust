@@ -15,7 +15,9 @@
     padding: 39px 19px 14px;
     position: relative;">
 	<div class="input-append pull-right" style="display:inline-block">
-		<input class="span2" size="16" type="text"><button class="btn" type="button">Search</button>
+		<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" />
+		<button class="btn hide" data-action="cancel-search" type="button">&times;</button>
+		<button class="btn" data-action="search" type="button">Search</button>
 	</div>
 	{~s}
 	<button class="btn btn-primary add-user">_('Add User')</button>
@@ -42,25 +44,25 @@
     <div class="modal-body">
     	<form class="form-horizontal">
 			<div class="control-group">
-				<label class="control-label" for="inputFName">First Name</label>
+				<label class="control-label" for="inputFName">_('First Name')</label>
 				<div class="controls">
-					<input type="text" name="FirstName" id="inputFName" placeholder="First Name" />
+					<input type="text" name="FirstName" id="inputFName" placeholder="_('First Name')" />
 				</div>
 			</div>
 			<div class="control-group">
-				<label class="control-label" for="inputName">Last Name</label>
+				<label class="control-label" for="inputName">_('Last Name')</label>
 				<div class="controls">
-					<input type="text" name="Name" id="inputName" placeholder="Last Name" />
+					<input type="text" name="Name" id="inputName" placeholder="_('Last Name')" />
 				</div>
 			</div>
 			<div class="control-group">
-				<label class="control-label" for="inputEmail">E-Mail</label>
+				<label class="control-label" for="inputEmail">_('E-Mail')</label>
 				<div class="controls">
-					<input type="text" name="EMail" id="inputEmail" placeholder="E-Mail" />
+					<input type="text" name="EMail" id="inputEmail" placeholder="_('E-Mail')" />
 				</div>
 			</div>
 			<div class="control-group">
-				<label class="control-label" for="inputPass">New Password</label>
+				<label class="control-label" for="inputPass">_('Password')</label>
 				<div class="controls">
 					<input type="password" name="Password" id="inputPass" />
 				</div>
@@ -68,6 +70,7 @@
 		</form>
     </div>
     <div class="modal-footer">
+    	<p class="alert alert-error hide pull-left" style="margin-bottom:0"></p>
     	<button class="btn" data-action="close">_('Close')</button>
     	<button class="btn btn-primary" data-action="save">_('Add user')</button>
     </div>
@@ -81,25 +84,25 @@
     <div class="modal-body">
     	<form class="form-horizontal">
 			<div class="control-group">
-				<label class="control-label" for="inputFName">First Name</label>
+				<label class="control-label" for="inputFName">_('First Name')</label>
 				<div class="controls">
-					<input type="text" name="FirstName" id="inputFName" placeholder="First Name" />
+					<input type="text" name="FirstName" id="inputFName" placeholder="_('First Name')" />
 				</div>
 			</div>
 			<div class="control-group">
 				<label class="control-label" for="inputName">Last Name</label>
 				<div class="controls">
-					<input type="text" name="Name" id="inputName" placeholder="Last Name" />
+					<input type="text" name="Name" id="inputName" placeholder="_('Last Name')" />
 				</div>
 			</div>
 			<div class="control-group">
-				<label class="control-label" for="inputEmail">E-Mail</label>
+				<label class="control-label" for="inputEmail">_('E-Mail')</label>
 				<div class="controls">
-					<input type="text" name="EMail" id="inputEmail" placeholder="E-Mail" />
+					<input type="text" name="EMail" id="inputEmail" placeholder="_('E-Mail')" />
 				</div>
 			</div>
 			<div class="control-group">
-				<label class="control-label" for="inputPass">New Password</label>
+				<label class="control-label" for="inputPass">_('New Password')</label>
 				<div class="controls">
 					<input type="password" name="Password" id="inputPass" />
 				</div>
