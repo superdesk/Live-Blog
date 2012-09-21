@@ -23,6 +23,7 @@ function($, superdesk, giz, User)
         render: function()
         {
             $(this.el).tmpl('superdesk/user>item', {User: this.model.feed()});
+            $(this.el).prop('model', this.model).prop('view', this);
             $('.edit', this.el).prop('model', this.model).prop('view', this);
             $('.delete', this.el).prop('model', this.model).prop('view', this);
             return this;
@@ -35,6 +36,14 @@ function($, superdesk, giz, User)
         remove: function()
         {
             this.model.remove().sync();
+        },
+        hide: function()
+        {
+            $(this.el).addClass('hide');
+        },
+        show: function()
+        {
+            $(this.el).removeClass('hide');
         }
     }),
     ListView = giz.View.extend
@@ -43,11 +52,52 @@ function($, superdesk, giz, User)
         init: function()
         {
             var self = this;
+            
+            this.page = {limit: 10, offset: 0, total: null};
+            
             this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') })));
             this.users.on('read update', this.render, this);
             
+            // on page search
+            $(self.el).on('keypress', '[name="search"]', function(evt)
+            {
+                if(evt.keyCode == 27 ) $('[data-action="cancel-search"]', self.el).trigger('click');
+                if(evt.keyCode == 13) $('[data-action="search"]', self.el).trigger('click');
+            });
+            $(self.el).on('click', '[data-action="cancel-search"]', function(evt)
+            {
+                $('[name="search"]', self.el).val('');
+                $('[data-action="search"]', self.el).trigger('click');
+            });
+            $(self.el).on('click', '[data-action="search"]', function()
+            {
+                var src = $('[name="search"]', self.el).val().toLowerCase();
+                if( src.length <= 1 )
+                {
+                    $('tr', self.el).each(function(){ $(this).prop('view') && $(this).prop('view').show(); });
+                    $('[data-action="cancel-search"]', self.el).addClass('hide');
+                    return;
+                }
+                $('tr', self.el).each(function()
+                {
+                    var mdl = $(this).prop('model');
+                    if( mdl != undefined && 
+                        ( mdl.get('Name').toLowerCase().indexOf(src) == -1 &&
+                          mdl.get('FirstName').toLowerCase().indexOf(src) == -1 &&
+                          mdl.get('EMail').toLowerCase().indexOf(src) == -1 ) )
+                    {
+                        $(this).prop('view').hide();
+                        return true;
+                    }
+                    mdl != undefined && $(this).prop('view').show();
+                });
+                $('[data-action="cancel-search"]', self.el).removeClass('hide');
+            });
+            
+            // add user 
             $(self.el).on('click', '.add-user', function()
             {
+                $('#user-add-modal .alert', self.el).addClass('hide');
                 $('#user-add-modal', self.el).modal();
             });
             $(self.el).on('click', '#user-add-modal [data-action="save"]', function()
@@ -62,15 +112,27 @@ function($, superdesk, giz, User)
                 
                 newModel.on('insert', function()
                 {
-                    $('#user-add-modal', self.el).modal('hide'); 
+                    $('#user-add-modal', self.el).modal('hide');
+                    self.addItem(newModel);
                 });
                 
                 // sync on collection href for insert
-                newModel.sync(self.users.href.get());
+                newModel.sync(self.users.href.get())
+                // some fail handler
+                .fail(function(data)
+                {
+                    eval('var data = '+data.responseText);
+                    var msg = '';
+                    console.log(data);
+                    for(var i in data.details.model.User)
+                        msg += i+', '+data.details.model.User[i]+'. ';
+                    $('#user-add-modal .alert', self.el).removeClass('hide')
+                        .html('<strong>'+data.message+'</strong> '+msg);
+                });
             });
             $(self.el).on('click', '#user-add-modal [data-action="close"]', function()
             { 
-                $('#user-add-modal', self.el).modal('hide'); 
+                $('#user-add-modal', self.el).modal('hide');
             });
             
             // delegate events on edit button for items 
@@ -113,6 +175,7 @@ function($, superdesk, giz, User)
             $(self.el).on('click', '#user-delete-modal [data-action="delete"]', function()
             {
                 $('#user-delete-modal', self.el).prop('view').remove();
+                $('#user-delete-modal', self.el).modal('hide'); 
             });
             $(self.el).on('click', '#user-delete-modal [data-action="close"]', function()
             { 
@@ -122,7 +185,8 @@ function($, superdesk, giz, User)
         activate: function()
         {
             var self = this;
-            self.users.xfilter('*').sync();
+            this.users.xfilter('*').sync( /*{data: {limit: this.page.limit, offset: this.page.offset}})
+                .done(function(data){ self.page.total = data.total; }*/ );
         },
         
         addItem: function(model)
@@ -139,6 +203,7 @@ function($, superdesk, giz, User)
                 // new ItemView for each models 
                 self.users.each(function(){ self.addItem(this); });
             });
+            $.superdesk.hideLoader();
         }
         
     }),
