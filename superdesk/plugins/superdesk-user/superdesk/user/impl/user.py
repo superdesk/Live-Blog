@@ -93,9 +93,6 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         user.Id = userDb.Id
         return user.Id
 
-        user.password = user.Password # We set the password value.
-        return super().insert(user)
-
     def update(self, user):
         '''
         @see: IUserService.update

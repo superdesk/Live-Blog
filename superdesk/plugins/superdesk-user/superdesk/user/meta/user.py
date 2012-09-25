@@ -14,7 +14,7 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String, DateTime
 from superdesk.person.meta.person import PersonMapped
 from ally.support.sqlalchemy.mapper import validate
-from ally.container.binder_op import validateManaged, EVENT_PROP_UPDATE
+from ally.container.binder_op import validateManaged, validateRequired
 
 # --------------------------------------------------------------------
 
@@ -34,6 +34,6 @@ class UserMapped(PersonMapped, User):
     password = Column('password', String(255), nullable=False)
     # Never map over the inherited id
 
-validateManaged(UserMapped.Password, key=EVENT_PROP_UPDATE)
+validateRequired(UserMapped.Password)
 validateManaged(UserMapped.CreatedOn)
 validateManaged(UserMapped.DeletedOn)
