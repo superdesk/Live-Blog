@@ -54,3 +54,20 @@ following steps:
 3. Click 'Configure Blog' button 
 4. Copy the content of the field 'This Blogs embed script' and paste it
 into your site content.
+
+Changing the database server
+----------------------------
+
+Edit the file plugins.properties, search for db_superdesk.database_url and
+modify the URL. E.g.:
+db_superdesk.database_url: mysql+mysqlconnector://root:@localhost/livedesk
+
+The URL is a string in the form
+    ``dialect+driver://user:password@host/dbname[?key=value..]``, where
+    ``dialect`` is a database name such as ``mysql``, ``oracle``, 
+    ``postgresql``, etc., and ``driver`` the name of a DBAPI, such as 
+    ``psycopg2``, ``pyodbc``, ``cx_oracle``, etc.  Alternatively, 
+    the URL can be an instance of :class:`~sqlalchemy.engine.url.URL`.
+
+Read the SQLAlchemy manual for more details:
+http://docs.sqlalchemy.org/en/rel_0_7/core/engines.html
