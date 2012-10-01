@@ -144,7 +144,7 @@ class EntityFindServiceAlchemy(EntitySupportAlchemy):
         @see: IEntityQueryService.getAll
         '''
         if detailed:
-            total, entities = self._getAllWithCount(None, None, offset, limit)
+            entities, total = self._getAllWithCount(None, None, offset, limit)
             return IterPart(entities, total, offset, limit)
         return self._getAll(None, None, offset, limit)
 
