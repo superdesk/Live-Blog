@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>py-postgresql &mdash; py-postgresql 1.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="py-postgresql 1.0.4 documentation" href="#" />
+    <link rel="next" title="Administration" href="admin.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="admin.html" title="Administration"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="py-postgresql">
+<h1>py-postgresql<a class="headerlink" href="#py-postgresql" title="Permalink to this headline">¶</a></h1>
+<p>py-postgresql is a project dedicated to improving the Python interfaces to
+PostgreSQL. It strives to provide substantial convenience to Python programmers
+using PostgreSQL.</p>
+<p>At its core, py-postgresql provides a PG-API, <cite>postgresql.api</cite>, and
+DB-API 2.0 interface for using a PostgreSQL database.</p>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="admin.html">Administration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="admin.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="admin.html#environment">Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="driver.html">Driver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#establishing-a-connection">Establishing a Connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#connections">Connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#prepared-statements">Prepared Statements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#cursors">Cursors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#rows">Rows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#stored-procedures">Stored Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#transactions">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#settings">Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#type-support">Type Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driver.html#database-messages">Database Messages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyman.html">Copy Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="copyman.html#copy-managers">Copy Managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="copyman.html#faults">Faults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="copyman.html#failures">Failures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="copyman.html#producers">Producers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="copyman.html#receivers">Receivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="copyman.html#terminology">Terminology</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notifyman.html">Notification Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notifyman.html#listening-on-a-single-connection">Listening on a Single Connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifyman.html#listening-on-multiple-connections">Listening on Multiple Connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifyman.html#notification-managers">Notification Managers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="alock.html">Advisory Locks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="alock.html#acquiring-alocks">Acquiring ALocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="alock.html#alocks">ALocks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Cluster Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cluster.html#installations">Installations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cluster.html#clusters">Clusters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lib.html">Categories and Libraries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#writing-libraries">Writing Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#using-libraries">Using Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#symbol-types">Symbol Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#symbol-execution-methods">Symbol Execution Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#reference-symbols">Reference Symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#distributing-and-usage">Distributing and Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#audience-and-motivation">Audience and Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#terminology">Terminology</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="clientparameters.html">Client Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="clientparameters.html#collecting-parameters">Collecting Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clientparameters.html#defaults">Defaults</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clientparameters.html#postgresql-environment-variables">PostgreSQL Environment Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clientparameters.html#postgresql-password-file">PostgreSQL Password File</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gotchas.html">Gotchas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gotchas.html#client-encoding-setting-should-be-altered-carefully"><cite>client_encoding</cite> setting should be altered carefully</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gotchas.html#the-user-and-password-is-correct-but-it-does-not-work-when-using-postgresql-driver">The user and password is correct, but it does not work when using <cite>postgresql.driver</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="gotchas.html#backslash-characters-are-being-treated-literally">Backslash characters are being treated literally</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gotchas.html#types-without-binary-support-in-the-driver-are-unsupported-in-arrays-and-records">Types without binary support in the driver are unsupported in arrays and records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gotchas.html#notices-warnings-and-other-messages-are-too-verbose">NOTICEs, WARNINGs, and other messages are too verbose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gotchas.html#strange-typeerror-using-load-rows-or-load-chunks">Strange TypeError using load_rows() or load_chunks()</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bin.html">Commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bin.html#postgresql-bin-pg-python">postgresql.bin.pg_python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bin.html#postgresql-bin-pg-dotconf">postgresql.bin.pg_dotconf</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql"><tt class="docutils literal"><span class="pre">postgresql</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql.sys"><tt class="docutils literal"><span class="pre">postgresql.sys</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql.string"><tt class="docutils literal"><span class="pre">postgresql.string</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql.exceptions"><tt class="docutils literal"><span class="pre">postgresql.exceptions</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql.temporal"><tt class="docutils literal"><span class="pre">postgresql.temporal</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql.installation"><tt class="docutils literal"><span class="pre">postgresql.installation</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql.cluster"><tt class="docutils literal"><span class="pre">postgresql.cluster</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql.copyman"><tt class="docutils literal"><span class="pre">postgresql.copyman</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql.alock"><tt class="docutils literal"><span class="pre">postgresql.alock</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-postgresql.api"><tt class="docutils literal"><span class="pre">postgresql.api</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changes-v1.0.html">Changes in v1.0</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="sample-code">
+<h2>Sample Code<a class="headerlink" href="#sample-code" title="Permalink to this headline">¶</a></h2>
+<p>Using <cite>postgresql.driver</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">postgresql</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span> <span class="o">=</span> <span class="n">postgresql</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s">&quot;pq://user:password@host/name_of_database&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;CREATE TABLE emp (emp_name text PRIMARY KEY, emp_salary numeric)&quot;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Create the statements.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_emp</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&quot;INSERT INTO emp VALUES ($1, $2)&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">raise_emp</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&quot;UPDATE emp SET emp_salary = emp_salary + $2 WHERE emp_name = $1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_emp_with_salary_lt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="s">&quot;SELECT emp_name FROM emp WHERE emp_salay &lt; $1&quot;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Create some employees, but do it in a transaction--all or nothing.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">xact</span><span class="p">():</span>
+<span class="gp">... </span> <span class="n">make_emp</span><span class="p">(</span><span class="s">&quot;John Doe&quot;</span><span class="p">,</span> <span class="s">&quot;150,000&quot;</span><span class="p">)</span>
+<span class="gp">... </span> <span class="n">make_emp</span><span class="p">(</span><span class="s">&quot;Jane Doe&quot;</span><span class="p">,</span> <span class="s">&quot;150,000&quot;</span><span class="p">)</span>
+<span class="gp">... </span> <span class="n">make_emp</span><span class="p">(</span><span class="s">&quot;Andrew Doe&quot;</span><span class="p">,</span> <span class="s">&quot;55,000&quot;</span><span class="p">)</span>
+<span class="gp">... </span> <span class="n">make_emp</span><span class="p">(</span><span class="s">&quot;Susan Doe&quot;</span><span class="p">,</span> <span class="s">&quot;60,000&quot;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Give some raises</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">xact</span><span class="p">():</span>
+<span class="gp">... </span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">get_emp_with_salary_lt</span><span class="p">(</span><span class="s">&quot;125,000&quot;</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">print</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">&quot;emp_name&quot;</span><span class="p">])</span>
+<span class="gp">... </span>  <span class="n">raise_emp</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s">&quot;emp_name&quot;</span><span class="p">],</span> <span class="s">&quot;10,000&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Of course, if DB-API 2.0 is desired, the module is located at
+<cite>postgresql.driver.dbapi20</cite>. DB-API extends PG-API, so the features
+illustrated above are available on DB-API connections.</p>
+<p>See <a class="reference internal" href="driver.html#db-interface"><em>Driver</em></a> for more information.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">py-postgresql</a><ul>
+<li><a class="reference internal" href="#contents">Contents</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#reference">Reference</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#changes">Changes</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#sample-code">Sample Code</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="admin.html"
+                        title="next chapter">Administration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="admin.html" title="Administration"
+             >next</a> |</li>
+        <li><a href="#">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, James William Pye &lt;x@jwp.name&gt;.
+      Last updated on Apr 30, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
