@@ -10,16 +10,15 @@ Implementation for the audio persistence API.
 '''
 
 from ..core.spec import IThumbnailManager
-from ..meta.meta_data import MetaDataMapped
 from ..meta.audio_data import AudioDataEntry
+from ..meta.meta_data import MetaDataMapped
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
-from os import remove
-from os.path import exists, splitext, abspath
 from ally.support.util_sys import pythonPath
+from os.path import splitext, abspath, join
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
@@ -27,7 +26,6 @@ from superdesk.media_archive.core.impl.meta_service_base import \
 from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.audio_data import META_TYPE_KEY
 import re
-from os.path import join
 
 # --------------------------------------------------------------------
 
@@ -44,10 +42,10 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the audio thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the audio thumbnails in the media archive''')
-    audio_supported_files = '3gp, act, AIFF, ALAC, Au, flac, gsm, m4a, m4p, mp3, ogg, ram, raw, vox, wav, wma'; wire.config('audio_supported_files', doc='''
-    The audio formats supported by media archive audio plugin''')
     ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
     The path where the ffmpeg is found''')
+    
+    audio_supported_files = '3gp, act, AIFF, ALAC, Au, flac, gsm, m4a, m4p, mp3, ogg, ram, raw, vox, wav, wma'
     
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
@@ -77,7 +75,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         @see: IMetaDataHandler.processByInfo
         '''
-        if contentType is not None and contentType.find(META_TYPE_KEY) > 0:
+        if contentType is not None and contentType.startswith(META_TYPE_KEY):
             return self.process(metaDataMapped, contentPath)
 
         extension = splitext(metaDataMapped.Name)[1][1:]
@@ -105,8 +103,30 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             line = p.stdout.readline()
             if not line: break
             line = str(line, 'utf-8')
-
-            if line.find(': Audio: ') != -1:
+            
+            if line.find('title           : ') != -1:
+                audioDataEntry.Title = self.extractString(line)
+            elif line.find('artist          : ') != -1:
+                audioDataEntry.Artist = self.extractString(line)
+            elif line.find('track           : ') != -1:
+                audioDataEntry.Track = self.extractNumber(line)
+            elif line.find('album           : ') != -1:
+                audioDataEntry.Album = self.extractString(line)
+            elif line.find('genre           : ') != -1:
+                audioDataEntry.Genre = self.extractString(line)
+            elif line.find('TCMP            : ') != -1:
+                audioDataEntry.Tcmp = self.extractNumber(line)
+            elif line.find('album_artist    : ') != -1:
+                audioDataEntry.AlbumArtist = self.extractString(line)
+            elif line.find('date            : ') != -1:
+                audioDataEntry.Year = self.extractNumber(line)
+            elif line.find('disc            : ') != -1:
+                audioDataEntry.Disk = self.extractNumber(line)
+            elif line.find('TBPM            : ') != -1:
+                audioDataEntry.Tbpm = self.extractNumber(line)
+            elif line.find('composer        : ') != -1:
+                audioDataEntry.Composer = self.extractString(line)
+            elif line.find(': Audio: ') != -1:
                 try:
                     values = self.extractAudio(line)
                     audioDataEntry.AudioEncoding = values[0]
@@ -189,5 +209,15 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     # ----------------------------------------------------------------
 
+    def extractNumber(self, line):
+        return int(float(line.partition(':')[2].strip()))
+
+    # ----------------------------------------------------------------
+    
+    def extractString(self, line):
+        return line.partition(':')[2].strip()
+    
+    # ----------------------------------------------------------------
+      
     def generateIdPath (self, id):
         return "{0:03d}".format((id // 1000) % 1000)
