@@ -37,6 +37,21 @@ class AudioDataDefinition:
     SampleRate = declared_attr(lambda cls: Column('sample_rate', Integer))
     Channels = declared_attr(lambda cls: Column('channels', String(255)))
     AudioBitrate = declared_attr(lambda cls: Column('audio_bitrate', Integer))
+    
+    Title = declared_attr(lambda cls: Column('title', String(255)))
+    Artist = declared_attr(lambda cls: Column('artist', String(255)))
+    Track = declared_attr(lambda cls: Column('track', Integer))
+    Album = declared_attr(lambda cls: Column('album', String(255)))
+    Genre = declared_attr(lambda cls: Column('genre', String(255)))
+    #Part of a compilation 1 - True, 0 - False
+    Tcmp = declared_attr(lambda cls: Column('tcmp', Integer))
+    AlbumArtist = declared_attr(lambda cls: Column('album_artist', String(255)))
+    Year = declared_attr(lambda cls: Column('year', Integer))
+    Disk = declared_attr(lambda cls: Column('disk', Integer))
+    #Beats-per-minute
+    Tbpm = declared_attr(lambda cls: Column('tbpm', Integer))
+    Composer = declared_attr(lambda cls: Column('composer', String(255)))
+
 
 # --------------------------------------------------------------------
 

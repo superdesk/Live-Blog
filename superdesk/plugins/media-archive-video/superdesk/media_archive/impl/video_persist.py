@@ -44,10 +44,10 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the video thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the video thumbnails in the media archive''')
-    video_supported_files = 'flv, avi, mov, mp4, mpg, wmv, 3gp, asf, rm, swf'; wire.config('video_supported_files', doc='''
-    The video formats supported by media archive video plugin''')
     ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
     The path where the ffmpeg is found''')
+
+    video_supported_files = 'flv, avi, mov, mp4, mpg, wmv, 3gp, asf, rm, swf'
 
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
@@ -78,7 +78,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         @see: IMetaDataHandler.processByInfo
         '''
-        if contentType is not None and contentType.find(META_TYPE_KEY) > 0:
+        if contentType is not None and contentType.startswith(META_TYPE_KEY):
             return self.process(metaDataMapped, contentPath)
 
         extension = splitext(metaDataMapped.Name)[1][1:]
