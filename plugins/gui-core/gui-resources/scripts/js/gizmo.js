@@ -899,6 +899,10 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 			
 			if((this.el.selector !== undefined) && (this.el.selector != ''))
 				return ($(this.el.selector).length === 1);			
+
+			//console.log('Visible: ',$(this.el).is(':visible'));
+
+			return ($(this.el).is(':visible'));
 			
 			//console.log('Last: ',this.el, ' length: ',($(this.el).length === 1));
 			
