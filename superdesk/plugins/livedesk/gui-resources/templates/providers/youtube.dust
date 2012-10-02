@@ -14,8 +14,8 @@
 </div>
 
 <!--search results for search -->
-<ul class="search-result-list scroller" id="ytb-src-holder" style="">
-	<ul id="ytb-src-results" class="search-result-list"></ul>
+<ul class="search-result-list scroller" id="ytb-src-holder" style="margin-top:37px">
+	<ul id="ytb-src-results" class="search-result-list" style=""></ul>
 	<ul id="ytb-src-more" style="padding-right:6px; margin-left:0px;"></ul>
 </ul>
 
