@@ -59,7 +59,8 @@ function(providers,str, $, Gizmo)
             },
             universal: function(obj) 
             {
-                var meta =  jQuery.extend(true, {}, obj);                
+                var meta =  jQuery.extend(true, {}, obj);
+                console.log(obj);
                 return new AnnotateView
                 ({
                     data: 
@@ -70,17 +71,6 @@ function(providers,str, $, Gizmo)
                         Meta: meta
                     }
                 });
-            },
-            universalOld: function(content) {
-                var myClone = content.clone();
-                myClone.find('time').remove();
-                
-                var data = {
-                    Content: myClone.find('.result-content').html(),
-                    Type: 'normal',
-                    Author: this.author
-                };
-                return data;
             }
         }
     });
