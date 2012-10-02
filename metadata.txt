@@ -1,0 +1,12 @@
+;FFMETADATA1
+title=Italian Song
+artist=Vangelis
+track=2
+album=Portraits
+genre=Electronic
+TCMP=0
+album_artist=Vangelis at
+date=2010
+disc=1
+TBPM=27
+composer=some composer

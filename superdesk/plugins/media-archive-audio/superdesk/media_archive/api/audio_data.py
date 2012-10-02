@@ -24,14 +24,23 @@ class AudioData(MetaData):
 
     Length = int
     AudioEncoding = str
-    Width = int
-    Height = int
-    AudioBitrate = int
-    Fps = int
-    AudioEncoding = str
     SampleRate = int
     Channels = str
     AudioBitrate = int
+    
+    Title = str
+    Artist = str
+    Track = int
+    Album = str
+    Genre = str
+    #Part of a compilation 1 - True, 0 - False
+    Tcmp = int
+    AlbumArtist = str
+    Year = int
+    Disk = int
+    #Beats-per-minute
+    Tbpm = int
+    Composer = str
 
 # --------------------------------------------------------------------
 
@@ -42,14 +51,23 @@ class QAudioData(QMetaData):
     '''
     length = AsEqualOrdered
     audioEncoding = AsLikeOrdered
-    width = AsEqualOrdered
-    height = AsEqualOrdered
-    audioBitrate = AsEqualOrdered
-    fps = AsEqualOrdered
-    audioEncoding = AsLikeOrdered
     sampleRate = AsEqualOrdered
     channels = AsLikeOrdered
     audioBitrate = AsEqualOrdered
+    
+    title = AsLikeOrdered
+    artist = AsLikeOrdered
+    track = AsEqualOrdered
+    album = AsLikeOrdered
+    genre = AsLikeOrdered
+    #Part of a compilation 1 - True, 0 - False
+    tcmp = AsEqualOrdered
+    albumArtist = AsLikeOrdered
+    year = AsEqualOrdered
+    disk = AsEqualOrdered
+    #Beats-per-minute
+    tbpm = AsEqualOrdered
+    composer = AsLikeOrdered
 
 # --------------------------------------------------------------------
 
