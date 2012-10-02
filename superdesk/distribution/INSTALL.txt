@@ -70,4 +70,4 @@ The URL is a string in the form
     the URL can be an instance of :class:`~sqlalchemy.engine.url.URL`.
 
 Read the SQLAlchemy manual for more details:
-http://docs.sqlalchemy.org/en/rel_0_7/core/engines.html
+http://docs.sqlalchemy.org/en/latest/core/engines.html
