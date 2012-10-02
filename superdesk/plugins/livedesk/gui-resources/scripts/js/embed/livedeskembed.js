@@ -245,11 +245,10 @@ window.livedesk.startLoading = function() {
 				// Tw------------------------------------------------------------------------------------------------
 				var returned = '';
                                 var itemClass = item.getClass();
-                                /*
+                                
                                 if(Avatar.length > 0) {
                                     returned += '<figure><img src="' + Avatar + ' alt="Gravatar" /></figure>';
-                                }
-                                */                                
+                                }                                
                                 switch (itemClass) {
                                     case 'tw':
                                     case 'service':
