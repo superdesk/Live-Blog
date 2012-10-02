@@ -33,8 +33,7 @@ function(providers, Gizmo, $)
 		};
 		return (data !== undefined) && (data[key] !== undefined) && (count == 1);
 	}
-	
-	
+		
 		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
 		    timelinectrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
 		
@@ -344,9 +343,10 @@ function(providers, Gizmo, $)
 				        rendered = true;
 				    }
 				}
-				
+				var posts = this.model.feed();
+				posts = $.avatar.parse(posts, 'AuthorPerson.EMail');
 				!rendered &&
-				$.tmpl('livedesk>timeline-item', {Post: this.model.feed()}, function(e, o)
+				$.tmpl('livedesk>timeline-item', {Post: posts}, function(e, o)
 				{
 					self.setElement(o).el.find('.editable')
 					    .texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});
@@ -355,8 +355,9 @@ function(providers, Gizmo, $)
                      * conditionally handing over some functionallity to provider if
                      * model has source name in providers 
                      */
-                    if( providers[src] && providers[src].timeline )
-    					providers[src].timeline.init.call(self);
+                    if( providers[src] && providers[src].timeline ) {
+						providers[src].timeline.init.call(self);
+					}
                     
                     $(self).triggerHandler('render');
 					
@@ -417,7 +418,6 @@ function(providers, Gizmo, $)
 					self.addOne(model);
 				});
 				self.collection
-					.off('read update')
 					.on('read', function()
 					{
 						self.render();
@@ -439,8 +439,8 @@ function(providers, Gizmo, $)
 			},
 			addOne: function(model)
 			{	
-				if(model.postview)
-					return;				
+				if(model.postview && model.postview.checkElement())
+					return;
 				var current = new PostView({model: model, _parent: this}),
 				    self = this;				
 				this.el.find('ul.post-list').prepend(current.el);
