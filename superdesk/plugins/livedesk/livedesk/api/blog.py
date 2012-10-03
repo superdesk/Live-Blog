@@ -88,7 +88,7 @@ class IBlogService(IEntityCRUDService):
         '''
         
     @call(webName='PutLive', method=UPDATE)
-    def putLive(self, blogId:Blog.Id):
+    def putLive(self, adminId:auth(User.Id), blogId:Blog.Id):
         '''
         Puts blog live
         '''
