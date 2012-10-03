@@ -76,9 +76,9 @@ define([
                 var data = 
                 {
                     Language: $("#add-live-blog [name='Language']:eq(0)").val(),
-                    Title: $.styledNodeHtml(title),
+                    Title: $.styledNodeHtml(title).replace(/<br\s*\/?>\s*$/, ''),
 					Type: '1',
-                    Description: $.styledNodeHtml(descr)
+                    Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, '')
                 };
                 new $.restAuth('LiveDesk/Blog').insert(data).done(function(liveBlog)
                 {
