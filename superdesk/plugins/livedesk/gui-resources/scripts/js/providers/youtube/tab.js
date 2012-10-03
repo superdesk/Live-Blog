@@ -25,7 +25,6 @@ function(providers)
 	        {
 	            var self = this,
 	                feed = this.model.feed();
-	            
 	            try
 	            {
 	                feed.Meta = JSON.parse(feed.Meta);
@@ -34,7 +33,7 @@ function(providers)
 	            {
 	                eval('feed.Meta = '+feed.Meta);
 	            }
-	            feed.Meta.annotation = feed.Meta.annotation[0];
+	            //feed.Meta.annotation = feed.Meta.annotation[0];
 	            
 	            $.tmpl('livedesk>providers/youtube/post', feed, function(e, o)
                 {
