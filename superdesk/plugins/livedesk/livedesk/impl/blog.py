@@ -73,6 +73,13 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         sql = sql.filter((BlogMapped.ClosedOn == None) & (BlogMapped.LiveOn != None))
         return sql.all()
 
+    def putLive(self, blogId):
+        blog = self.getBlog(blogId)
+        assert isinstance(blog, Blog), 'Invalid blog %s' % blog
+        blog.LiveOn = current_timestamp()
+        return self.session().merge(blog)
+        
+
     def insert(self, blog):
         '''
         @see: IBlogService.insert
