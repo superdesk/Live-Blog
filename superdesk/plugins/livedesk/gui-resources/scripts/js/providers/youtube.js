@@ -22,6 +22,7 @@ define('providers/youtube', [
             data: [],
             init: function(){
                 if(!this.initialized) {
+                    this.adaptor.init();
                     this.render();
                 }
                 this.initialized = true;
@@ -136,7 +137,7 @@ define('providers/youtube', [
                                     clone: true,
                                     start: function() {
                                         var idx = parseInt($(this).attr('idx'),10);
-                                        self.adaptor.universal(results[idx]);
+                                        $(this).data('data', self.adaptor.universal( results[idx] ));
                                     }   
                                 });
                             });
@@ -194,11 +195,10 @@ define('providers/youtube', [
                                     zIndex: 2700,
                                     clone: true,
                                     start: function() {
-                                        $(this).data('data', self.adaptor.universal( $(this) ));
-                                        var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
-                                        var itemNo = parseInt( (page * ipp) + idx );
-                                        //self.data[itemNo].type = 'user';
-                                        //$(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                        var idx = parseInt($(this).attr('idx'),10);
+                                        results[idx].id = results[idx].video.id;
+                                        results[idx].uploaded = results[idx].video.uploaded;
+                                        $(this).data('data', self.adaptor.universal( results[idx] ));
                                     }   
                                 });
                             });
@@ -254,11 +254,8 @@ define('providers/youtube', [
                                     zIndex: 2700,
                                     clone: true,
                                     start: function() {
-                                        $(this).data('data', self.adaptor.universal( $(this) ));
-                                        var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
-                                        var itemNo = parseInt( (page * ipp) + idx );
-                                        //self.data[itemNo].type = 'user';
-                                        //$(this).data('data', self.adaptor.universal(self.data[ itemNo ]));
+                                        var idx = parseInt($(this).attr('idx'),10);
+                                        $(this).data('data', self.adaptor.universal( results[idx] ));
                                     }   
                                 });
                             });
