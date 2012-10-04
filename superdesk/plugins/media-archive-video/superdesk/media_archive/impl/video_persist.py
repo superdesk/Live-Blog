@@ -106,7 +106,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             if not line: break
             line = str(line, 'utf-8')
 
-            if line.find(': Video:') != -1:
+            if line.find('Video') != -1 and line.find('Stream') != -1:
                 try:
                     values = self.extractVideo(line)
                     videoDataEntry.VideoEncoding = values[0]
@@ -115,7 +115,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     if values[3]: videoDataEntry.VideoBitrate = values[3]
                     videoDataEntry.Fps = values[4]
                 except: pass
-            elif line.find(': Audio: ') != -1:
+            elif line.find('Audio') != -1 and line.find('Stream') != -1:
                 try:
                     values = self.extractAudio(line)
                     videoDataEntry.AudioEncoding = values[0]
@@ -123,7 +123,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     videoDataEntry.Channels = values[2]
                     videoDataEntry.AudioBitrate = values[3]
                 except: pass
-            elif line.find('Duration: ') != -1:
+            elif line.find('Duration') != -1 and line.find('start') != -1:
                 try: 
                     values = self.extractDuration(line)
                     videoDataEntry.Length = values[0]
