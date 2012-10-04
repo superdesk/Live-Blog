@@ -92,41 +92,58 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         p = Popen((self.ffmpeg_path, '-i', contentPath), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         if p.wait() != 0:
             pass
-            #TODO: ffmpeg requires an out parameter; I don't provide and get an error
-            # if an out parameter is provided, it generates the output file 
-            # found a trick, maybe a metadata operation, for example to add the generated id to the file? 
+            #TODO: ffmpeg requires an out parameter; the out parameter is not provide because it generates a file
+            # if out parameter not provided the error code != 0 
+            # have to found a trick, maybe a metadata operation, for example to add the generated id to the file? 
             #return False
 
         audioDataEntry = AudioDataEntry()
         audioDataEntry.Id = metaDataMapped.Id
+        metadata = False
+        
         while True:
             line = p.stdout.readline()
             if not line: break
             line = str(line, 'utf-8')
             
-            if line.find('title           : ') != -1:
-                audioDataEntry.Title = self.extractString(line)
-            elif line.find('artist          : ') != -1:
-                audioDataEntry.Artist = self.extractString(line)
-            elif line.find('track           : ') != -1:
-                audioDataEntry.Track = self.extractNumber(line)
-            elif line.find('album           : ') != -1:
-                audioDataEntry.Album = self.extractString(line)
-            elif line.find('genre           : ') != -1:
-                audioDataEntry.Genre = self.extractString(line)
-            elif line.find('TCMP            : ') != -1:
-                audioDataEntry.Tcmp = self.extractNumber(line)
-            elif line.find('album_artist    : ') != -1:
-                audioDataEntry.AlbumArtist = self.extractString(line)
-            elif line.find('date            : ') != -1:
-                audioDataEntry.Year = self.extractNumber(line)
-            elif line.find('disc            : ') != -1:
-                audioDataEntry.Disk = self.extractNumber(line)
-            elif line.find('TBPM            : ') != -1:
-                audioDataEntry.Tbpm = self.extractNumber(line)
-            elif line.find('composer        : ') != -1:
-                audioDataEntry.Composer = self.extractString(line)
-            elif line.find(': Audio: ') != -1:
+            if metadata:
+                property = self.extractProperty(line)
+                
+                if property == None:
+                    metadata = False
+                else:
+                    if property == 'title':
+                        audioDataEntry.Title = self.extractString(line)
+                    elif property == 'artist':
+                        audioDataEntry.Artist = self.extractString(line)
+                    elif property == 'track':
+                        audioDataEntry.Track = self.extractNumber(line)
+                    elif property == 'album':
+                        audioDataEntry.Album = self.extractString(line)
+                    elif property == 'genre':
+                        audioDataEntry.Genre = self.extractString(line)
+                    elif property == 'TCMP':
+                        audioDataEntry.Tcmp = self.extractNumber(line)
+                    elif property == 'album_artist':
+                        audioDataEntry.AlbumArtist = self.extractString(line)
+                    elif property == 'date':
+                        audioDataEntry.Year = self.extractNumber(line)
+                    elif property == 'disc':
+                        audioDataEntry.Disk = self.extractNumber(line)
+                    elif property == 'TBPM':
+                        audioDataEntry.Tbpm = self.extractNumber(line)
+                    elif property == 'composer':
+                        audioDataEntry.Composer = self.extractString(line)
+                    elif property == 'Duration':
+                        #Metadata section is finished 
+                        metadata = False
+                            
+                if metadata: continue        
+            elif line.find('Metadata') != -1: 
+                metadata = True 
+                continue 
+            
+            if line.find('Stream') != -1 and line.find('Audio') != -1:
                 try:
                     values = self.extractAudio(line)
                     audioDataEntry.AudioEncoding = values[0]
@@ -134,14 +151,12 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     audioDataEntry.Channels = values[2]
                     audioDataEntry.AudioBitrate = values[3]
                 except: pass
-            elif line.find('Duration: ') != -1:
+            elif line.find('Duration') != -1 and line.find('start') != -1:
                 try: 
                     values = self.extractDuration(line)
                     audioDataEntry.Length = values[0]
                     audioDataEntry.AudioBitrate = values[1]
                 except: pass
-            elif line.find('Output #0') != -1:
-                break
 
         path = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
@@ -206,6 +221,11 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
             bitrate = None
 
         return (encoding, sampleRate, channels, bitrate)
+
+    # ----------------------------------------------------------------
+    
+    def extractProperty(self, line):
+        return line.partition(':')[0].strip()
 
     # ----------------------------------------------------------------
 
