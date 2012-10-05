@@ -19,6 +19,7 @@ define('providers/youtube', [
     ], function( providers, str, $ ) {
         $.extend(providers.youtube, {
             initialized: false,
+            
             data: [],
             init: function(){
                 if(!this.initialized) {
@@ -99,6 +100,24 @@ define('providers/youtube', [
                     $(where).append(o);
                 });
             },
+            
+            trimDesc : function(desc) {
+                if (desc.length > 200) {
+                    return desc.substring(0, 199) + ' ...;'
+                } else {
+                    return desc;
+                }
+            },
+            cleanContent : function(results) {
+                for(var i = 0; i < results.length; i ++) {
+                    if ( results[i].video ) {
+                        results[i].video.description = this.trimDesc(results[i].video.description);
+                    } else {
+                        results[i].description = this.trimDesc(results[i].description);
+                    }
+                }
+                return results;
+            },
             doSearch: function (start) {
                 var self = this;
                 var key = $('#youtube-search-text').val();
@@ -128,7 +147,7 @@ define('providers/youtube', [
                         if( start == 1 && total == 0) {
                             self.noResults('#ytb-src-results');
                         } else {
-                            $.tmpl('livedesk>providers/youtube/clip-item', {results : results}, function(e,o) {
+                            $.tmpl('livedesk>providers/youtube/clip-item', {results : self.cleanContent(results)}, function(e,o) {
                                 $('#ytb-src-results').append(o).find('.youtube').draggable({
                                     revert: 'invalid',
                                     helper: 'clone',
@@ -187,7 +206,7 @@ define('providers/youtube', [
                         if( start == 1 && total == 0) {
                             self.noResults('#ytb-fav-results');
                         } else {
-                            $.tmpl('livedesk>providers/youtube/favorite-item', {results : results}, function(e,o) {
+                            $.tmpl('livedesk>providers/youtube/favorite-item', {results : self.cleanContent(results)}, function(e,o) {
                                 $('#ytb-fav-results').append(o).find('.youtube').draggable({
                                     revert: 'invalid',
                                     helper: 'clone',
@@ -246,7 +265,7 @@ define('providers/youtube', [
                         if( start == 1 && total == 0) {
                             self.noResults('#ytb-usr-results');
                         } else {
-                            $.tmpl('livedesk>providers/youtube/clip-item', {results : results}, function(e,o) {
+                            $.tmpl('livedesk>providers/youtube/clip-item', {results : self.cleanContent(results)}, function(e,o) {
                                 $('#ytb-usr-results').append(o).find('.youtube').draggable({
                                     revert: 'invalid',
                                     helper: 'clone',
