@@ -14,7 +14,7 @@
 		{#Meta}
 			<p class="attributes">
 				<i class="source-icon">
-					<img src="http://g.etfv.co/{url}" style="max-width: 16px" border="0">
+					<img src="http://g.etfv.co/http://www.youtube.com" style="max-width: 16px" border="0">
 				</i>
 				<a class="author-name" href="{url}">{visibleUrl}</a>
 				<time>{uploaded}</time>
