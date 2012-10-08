@@ -27,7 +27,9 @@ def publish_development():
 @ioc.entity
 def requestService() -> IRequestService:
     b = RequestService(); yield b
-    b.root = resourcesRoot()
+    #TODO: repair b.root = resourcesRoot()
+    from __setup__.ally_authentication_core.resources import resourcesRootAuthentication
+    b.root = resourcesRootAuthentication()
     b.converterPath = converterPath()
 
 # --------------------------------------------------------------------
