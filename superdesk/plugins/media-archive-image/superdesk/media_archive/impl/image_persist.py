@@ -19,7 +19,6 @@ from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from datetime import datetime
 from os.path import join, splitext, dirname, abspath
-from ally.support.util_sys import pythonPath
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
