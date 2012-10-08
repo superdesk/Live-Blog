@@ -1,6 +1,6 @@
 define([ 'gizmo/superdesk' ],
 function(Gizmo)
 {
-    // Superdesk generic user
+    // User
     return Gizmo.Model.extend({});
 });
