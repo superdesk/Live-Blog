@@ -18,7 +18,7 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from datetime import datetime
-from os.path import join, splitext, dirname, abspath
+from os.path import join, splitext, dirname
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
@@ -39,21 +39,18 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     format_file_name = '%(id)s.%(file)s'; wire.config('format_file_name', doc='''
     The format for the images file names in the media archive''')
-    default_format_thumbnail = '%(size)s/image.jpg'; wire.config('default_format_thumbnail', doc='''
-    The format for the images thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the images thumbnails in the media archive''')
+    image_supported_files = 'gif, png, bmp, jpg'; wire.config('image_supported_files', doc='''
+    The image formats supported by media archive image plugin''')
     metadata_extractor_path = join('workspace', 'tools', 'media-archive-image', 'metadata_extractor.jar')
-    wire.config('metadata_extractor_path', doc='''The path to the metadata extractor file.''')
+    wire.config('metadata_extractor_path', doc='''The path to the metadata extractor jar file.''')
 
-    image_supported_files = 'gif, png, bmp, jpg'
-    
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
 
     def __init__(self):
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
-        assert isinstance(self.default_format_thumbnail, str), 'Invalid format thumbnail %s' % self.default_format_thumbnail
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.image_supported_files, str), 'Invalid supported files %s' % self.image_supported_files
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
@@ -65,10 +62,6 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         @see: IMetaDataHandler.deploy
         '''
-        
-        self._defaultThumbnailFormat = thumbnailFormatFor(self.session(), self.default_format_thumbnail)
-        self.thumbnailManager.putThumbnail(self._defaultThumbnailFormat.id, abspath(join(pythonPath(), 'resources', 'image.jpg')))
-        
         self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
         self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
         synchronizeURIToDir(join(pythonPath(), 'resources'), dirname(self.metadata_extractor_path))
@@ -77,7 +70,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         @see: IMetaDataHandler.processByInfo
         '''
-        if contentType is not None and contentType.startswith(META_TYPE_KEY):
+        if contentType is not None and contentType.find(META_TYPE_KEY) > 0:
             return self.process(metaDataMapped, contentPath)
 
         extension = splitext(metaDataMapped.Name)[1][1:]
@@ -101,7 +94,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
             line = p.stdout.readline()
             if not line: break
             line = str(line, "utf-8")
-            
+
 
             if line.find('] Image Width -') != -1:
                 imageDataEntry.Width = self.extractNumber(line)
@@ -113,8 +106,8 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
                 imageDataEntry.CameraMake = self.extractString(line)
             elif line.find('] Model -') != -1:
                 imageDataEntry.CameraModel = self.extractString(line)
-                    
-                    
+
+
         path = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
 
@@ -151,9 +144,6 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     def extractSize(self, line):
         str = line.partition('-')[2].strip('\n').strip()
-        str = str.partition('x')
-        return (str[0], str[2])
-
     # ----------------------------------------------------------------
 
     def generateIdPath (self, id):
