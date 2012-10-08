@@ -97,7 +97,7 @@ define('providers/youtube', [
             },
             noResults : function(where) {
                 $.tmpl('livedesk>providers/no-results', {}, function(e,o) {
-                    $(where).append(o);
+                    $(where).html(o);
                 });
             },
             
@@ -112,8 +112,12 @@ define('providers/youtube', [
                 for(var i = 0; i < results.length; i ++) {
                     if ( results[i].video ) {
                         results[i].video.description = this.trimDesc(results[i].video.description);
+                        var upDate = new Date(results[i].video.uploaded);
+                        results[i].video.uploaded = upDate.toDateString();
                     } else {
                         results[i].description = this.trimDesc(results[i].description);
+                        var upDate = new Date(results[i].uploaded);
+                        results[i].uploaded = upDate.toDateString();
                     }
                 }
                 return results;
@@ -176,6 +180,9 @@ define('providers/youtube', [
                     error : function(data){
                         self.noResults('#ytb-usr-results');
                     }
+                }).fail(function() {
+                    self.stopLoading('#ytb-src-more');
+                    self.noResults('#ytb-usr-results');
                 })
             },
             doFavorites: function (start) {
@@ -235,7 +242,10 @@ define('providers/youtube', [
                     error : function(data){
                         self.noResults('#ytb-usr-results');
                     }
-                })
+                }).fail(function() {
+                    self.stopLoading('#ytb-fav-more');
+                    self.noResults('#ytb-fav-results');
+                });
                 
             },
             doUsers: function (start) {
@@ -293,7 +303,10 @@ define('providers/youtube', [
                     error : function(data){
                         self.noResults('#ytb-usr-results');
                     }
-                })
+                }).fail(function() {
+                    self.stopLoading('#ytb-usr-more');
+                    self.noResults('#ytb-usr-results');
+                });
                 
             }		
         });
