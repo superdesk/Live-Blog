@@ -87,7 +87,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
     # ----------------------------------------------------------------
 
-    def insert(self, content):
+    def insert(self, userId, content):
         '''
         @see: IMetaDataService.insert
         '''
@@ -96,6 +96,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
         metaData = MetaDataMapped()
         metaData.CreatedOn = current_timestamp()
+        metaData.Creator = userId
         metaData.Name = content.name
 
         metaData.typeId = self._metaType.Id
