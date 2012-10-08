@@ -1,8 +1,8 @@
 <!-- ... -->
 <style>
-	html, body{ overflow: auto; }
 	.table .btn-group{ visibility: hidden; }
-	.table tr:hover .btn-group{ visibility: visible; } 
+	.table tr:hover .btn-group{ visibility: visible; }
+	#area-main{ height: 100%; -moz-box-sizing: border-box; padding-top: 40px; }  
 </style>
 <!-- ... -->
 
@@ -11,29 +11,30 @@
 	background-color: #FFFFFF;
     border: 1px solid #DDDDDD;
     border-radius: 4px 4px 4px 4px;
-    margin: 15px 0;
-    padding: 39px 19px 14px;
-    position: relative;">
-	<div class="input-append pull-right" style="display:inline-block">
-		<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" />
-		<button class="btn hide" data-action="cancel-search" type="button">&times;</button>
-		<button class="btn" data-action="search" type="button">Search</button>
+    margin: 0;
+    height: 100%; overflow: auto;">
+    <div style="padding: 5px 19px 14px;">
+		<div class="input-append pull-right" style="display:inline-block; margin: 10px 0">
+			<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" />
+			<button class="btn hide" data-action="cancel-search" type="button">&times;</button>
+			<button class="btn" data-action="search" type="button">Search</button>
+		</div>
+		{~s}
+		<button style="margin: 10px 0" class="btn btn-primary add-user">_('Add User')</button>
+		<table class="table table-hover table-bordered">
+			<thead>
+				<tr>
+	    			<th>#</th>
+	        		<th>First Name</th>
+	        		<th>Last Name</th>
+	        		<th>E-Mail</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			</tbody>
+		</table>
 	</div>
-	{~s}
-	<button class="btn btn-primary add-user">_('Add User')</button>
-	<table class="table table-hover table-bordered">
-		<thead>
-			<tr>
-    			<th>#</th>
-        		<th>First Name</th>
-        		<th>Last Name</th>
-        		<th>E-Mail</th>
-			</tr>
-		</thead>
-		<tbody>
-		
-		</tbody>
-	</table>
 </div>
 
 <div class="modal hide fade" id="user-add-modal">
@@ -99,6 +100,12 @@
 				<label class="control-label" for="inputEmail">_('E-Mail')</label>
 				<div class="controls">
 					<input type="text" name="EMail" id="inputEmail" placeholder="_('E-Mail')" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputEmail">_('Address')</label>
+				<div class="controls">
+					<input type="text" name="Address" id="inputEmail" placeholder="_('Address')" />
 				</div>
 			</div>
 			<div class="control-group">
