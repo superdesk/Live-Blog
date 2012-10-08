@@ -4,10 +4,11 @@ define
     'jquery/superdesk',
     'gizmo/superdesk',
     config.guiJs('superdesk/user', 'models/user'),
+    config.guiJs('superdesk/user', 'models/person'),
     'tmpl!superdesk/user>list',
     'tmpl!superdesk/user>item',
 ],
-function($, superdesk, giz, User)
+function($, superdesk, giz, User, Person)
 {
     var 
     ItemView = giz.View.extend
@@ -31,7 +32,7 @@ function($, superdesk, giz, User)
         update: function(data)
         {
             for( var i in data ) this.model.set(i, data[i]);
-            return this.model.sync()
+            return this.model.sync();
         },
         remove: function()
         {
@@ -49,12 +50,98 @@ function($, superdesk, giz, User)
     ListView = giz.View.extend
     ({
         users: null,
+        events:
+        {
+            '[data-action="search"]': { 'click': 'search' },
+            '#user-add-modal [data-action="save"]': { 'click': 'addUser' },
+            '#user-edit-modal [data-action="save"]': { 'click': 'updateUser' },
+        },
+        /*!
+         * search box handler
+         */
+        search: function()
+        {
+            var self = this,
+                src = $('[name="search"]', self.el).val().toLowerCase();
+            if( src.length <= 1 )
+            {
+                $('tr', self.el).each(function(){ $(this).prop('view') && $(this).prop('view').show(); });
+                $('[data-action="cancel-search"]', self.el).addClass('hide');
+                return;
+            }
+            $('tr', self.el).each(function()
+            {
+                var mdl = $(this).prop('model');
+                if( mdl != undefined && 
+                    ( mdl.get('Name').toLowerCase().indexOf(src) == -1 &&
+                      mdl.get('FirstName').toLowerCase().indexOf(src) == -1 &&
+                      mdl.get('EMail').toLowerCase().indexOf(src) == -1 ) )
+                {
+                    $(this).prop('view').hide();
+                    return true;
+                }
+                mdl != undefined && $(this).prop('view').show();
+            });
+            $('[data-action="cancel-search"]', self.el).removeClass('hide');
+        },
+        /*!
+         * add user handler
+         */
+        addUser: function()
+        {
+            // new model
+            var self = this,
+                newModel = new self.users.model();
+            $('#user-add-modal form input', self.el).each(function()
+            {
+                var val = $(this).val();
+                if( val != '' ) newModel.set($(this).attr('name'), val);
+            });
+            
+            newModel.on('insert', function()
+            {
+                $('#user-add-modal', self.el).modal('hide');
+                self.addItem(newModel);
+            });
+            
+            // sync on collection href for insert
+            newModel.sync(self.users.href.get())
+            // some fail handler
+            .fail(function(data)
+            {
+                eval('var data = '+data.responseText);
+                var msg = '';
+                console.log(data);
+                for(var i in data.details.model.User)
+                    msg += i+', '+data.details.model.User[i]+'. ';
+                $('#user-add-modal .alert', self.el).removeClass('hide')
+                    .html('<strong>'+data.message+'</strong> '+msg);
+            });
+        },
+        /*!
+         * update user handler
+         */
+        updateUser: function()
+        { 
+            var data = {};
+            $('#user-edit-modal form input', self.el).each(function()
+            {
+                var val = $(this).val();
+                if( val != '' ) data[$(this).attr('name')] = val;
+            });
+            $('#user-edit-modal', self.el).prop('view').update(data)
+            .done(function()
+            {
+                $('#user-edit-modal', self.el).modal('hide');
+            }); 
+        },
         init: function()
         {
             var self = this;
             
             this.page = {limit: 10, offset: 0, total: null};
             
+            // list all users
             this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') })));
             this.users.on('read update', this.render, this);
             
@@ -69,66 +156,13 @@ function($, superdesk, giz, User)
                 $('[name="search"]', self.el).val('');
                 $('[data-action="search"]', self.el).trigger('click');
             });
-            $(self.el).on('click', '[data-action="search"]', function()
-            {
-                var src = $('[name="search"]', self.el).val().toLowerCase();
-                if( src.length <= 1 )
-                {
-                    $('tr', self.el).each(function(){ $(this).prop('view') && $(this).prop('view').show(); });
-                    $('[data-action="cancel-search"]', self.el).addClass('hide');
-                    return;
-                }
-                $('tr', self.el).each(function()
-                {
-                    var mdl = $(this).prop('model');
-                    if( mdl != undefined && 
-                        ( mdl.get('Name').toLowerCase().indexOf(src) == -1 &&
-                          mdl.get('FirstName').toLowerCase().indexOf(src) == -1 &&
-                          mdl.get('EMail').toLowerCase().indexOf(src) == -1 ) )
-                    {
-                        $(this).prop('view').hide();
-                        return true;
-                    }
-                    mdl != undefined && $(this).prop('view').show();
-                });
-                $('[data-action="cancel-search"]', self.el).removeClass('hide');
-            });
+            
             
             // add user 
             $(self.el).on('click', '.add-user', function()
             {
                 $('#user-add-modal .alert', self.el).addClass('hide');
                 $('#user-add-modal', self.el).modal();
-            });
-            $(self.el).on('click', '#user-add-modal [data-action="save"]', function()
-            {
-                // new model
-                var newModel = new self.users.model();
-                $('#user-add-modal form input', self.el).each(function()
-                {
-                    var val = $(this).val();
-                    if( val != '' ) newModel.set($(this).attr('name'), val);
-                });
-                
-                newModel.on('insert', function()
-                {
-                    $('#user-add-modal', self.el).modal('hide');
-                    self.addItem(newModel);
-                });
-                
-                // sync on collection href for insert
-                newModel.sync(self.users.href.get())
-                // some fail handler
-                .fail(function(data)
-                {
-                    eval('var data = '+data.responseText);
-                    var msg = '';
-                    console.log(data);
-                    for(var i in data.details.model.User)
-                        msg += i+', '+data.details.model.User[i]+'. ';
-                    $('#user-add-modal .alert', self.el).removeClass('hide')
-                        .html('<strong>'+data.message+'</strong> '+msg);
-                });
             });
             $(self.el).on('click', '#user-add-modal [data-action="close"]', function()
             { 
@@ -139,10 +173,14 @@ function($, superdesk, giz, User)
             $(self.el).on('click', 'table tbody .edit', function()
             {
                 var model = $(this).prop('model');
+                
+                var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
+                personModel.sync();
+                
                 // fill in values with bound model props
                 $('#user-edit-modal form input', self.el).each(function()
                 {
-                    $(this).val( model.get( $(this).attr('name') ) );
+                    $(this).val( model.get( $(this).attr('name') ) || personModel.get( $(this).attr('name') ) );
                 });
                 $('#user-edit-modal', self.el).modal();
                 $('#user-edit-modal', self.el).prop('view', $(this).prop('view'));
@@ -151,20 +189,7 @@ function($, superdesk, giz, User)
             { 
                 $('#user-edit-modal', self.el).modal('hide'); 
             });
-            $(self.el).on('click', '#user-edit-modal [data-action="save"]', function()
-            { 
-                var data = {};
-                $('#user-edit-modal form input', self.el).each(function()
-                {
-                    var val = $(this).val();
-                    if( val != '' ) data[$(this).attr('name')] = val;
-                });
-                $('#user-edit-modal', self.el).prop('view').update(data)
-                .done(function()
-                {
-                    $('#user-edit-modal', self.el).modal('hide');
-                }); 
-            });
+            
 
             // same thing for delete
             $(self.el).on('click', 'table tbody .delete', function()
