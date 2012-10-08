@@ -17,6 +17,8 @@ from ally.api.model import Content
 from ally.api.type import Reference, Iter, Scheme#, Count
 from ally.support.api.entity import Entity, QEntity
 from datetime import datetime
+from superdesk.user.api.user import User
+from ally.api.authentication import auth
 
 # --------------------------------------------------------------------
 
@@ -30,6 +32,7 @@ class MetaData(Entity):
     Content = Reference
     Thumbnail = Reference
     SizeInBytes = int
+    Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
     CreatedOn = datetime
 
 # --------------------------------------------------------------------
@@ -70,7 +73,7 @@ class IMetaDataUploadService(IMetaDataService):
     '''
 
     @call(webName='Upload')
-    def insert(self, content:Content) -> MetaData.Id:
+    def insert(self, userId:auth(User.Id), content:Content) -> MetaData.Id:
         '''
         Inserts the meta data content into the media archive. The process of a adding a resource to the media archive is as
         follows:
