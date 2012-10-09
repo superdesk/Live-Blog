@@ -6,27 +6,43 @@ function isOnly(data,key) {
 	};
 	return (data !== undefined) && (data[key] !== undefined) && (count == 1);
 }
+
 window.livedesk.init = function() {
-		var self = this,
-			contentPath = self.contentPath === undefined? '': self.contentPath;		
-		if (typeof jQuery == 'undefined') {
-			self.loadScript('http://code.jquery.com/jquery-1.7.2.min.js', function(){
-				if (typeof $.gizmo == 'undefined') {
-					self.loadScript(contentPath+'gizmo.js', function(){
-						self.startLoading();
-					})
-				}
-			})
-		} else {
-			if (typeof $.gizmo == 'undefined') {			
-				self.loadScript(contentPath+'gizmo.js', function(){
-					self.startLoading();
-				})
-			} else {
-				self.startLoading();
-			}
-		}
-	};
+    var self = this;
+    var loadJQ = false;
+    var giveBack$ = false;
+    contentPath = self.contentPath === undefined? '': self.contentPath;
+    
+    if (typeof jQuery == 'undefined') {
+        loadJQ = true;
+    } else {
+        if(parseFloat($().jquery) < 1.7) {
+            loadJQ = true;
+            //relinquish control of $ variable
+            giveBack$ = true;
+        }
+    }
+    
+    if (loadJQ) {
+        self.loadScript('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function(){
+            if (typeof $.gizmo == 'undefined') {
+                self.loadScript(contentPath+'gizmo.js', function(){
+                    self.preLoad(giveBack$);
+                })
+            } else {
+                self.preLoad(giveBack$);
+            }
+        })
+    } else {
+        if (typeof $.gizmo == 'undefined') {			
+            self.loadScript(contentPath+'gizmo.js', function(){
+                self.preLoad(giveBack$);
+            })
+        } else {
+            self.preLoad(giveBack$);
+        }
+    }
+};
 	
 window.livedesk.loadScript = function (src, callback) {
 		var script = document.createElement("script")
@@ -46,7 +62,15 @@ window.livedesk.loadScript = function (src, callback) {
 		script.src = src;
 		document.getElementsByTagName("head")[0].appendChild(script);
 	};
-window.livedesk.startLoading = function() {
+window.livedesk.preLoad = function (giveBack$) {
+    if (giveBack$) {
+        var jq_17 = $.noConflict(true);
+        this.startLoading(jq_17);
+    } else {
+        this.startLoading(jQuery);
+    }
+};
+window.livedesk.startLoading = function($) {
 		var 
 		User = $.gizmo.Model.extend({}),
 /*		PostType = $.gizmo.Model.extend({}),
