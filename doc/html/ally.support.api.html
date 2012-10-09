@@ -1,0 +1,542 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="support Package" href="ally.support.html" />
+    <link rel="next" title="core Package" href="ally.support.core.html" />
+    <link rel="prev" title="support Package" href="ally.support.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.support.core.html" title="core Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.support.html" title="support Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.support.html" accesskey="U">support Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-package">
+<h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-ally.support.api.entity">
+<span id="entity-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">entity</span></tt> Module<a class="headerlink" href="#module-ally.support.api.entity" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 26, 2011</p>
+<p>&#64;package: ally api
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>General specifications for the entities API that poses an integer Id identifier.</p>
+<dl class="class">
+<dt id="ally.support.api.entity.Entity">
+<em class="property">class </em><tt class="descclassname">ally.support.api.entity.</tt><tt class="descname">Entity</tt><a class="reference internal" href="_modules/ally/support/api/entity.html#Entity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.Entity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the basic container for an entity that has a Id identifier.</p>
+<dl class="attribute">
+<dt id="ally.support.api.entity.Entity.Id">
+<tt class="descname">Id</tt><em class="property"> = Entity.Id(int)</em><a class="headerlink" href="#ally.support.api.entity.Entity.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.entity.IEntityCRUDService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.entity.</tt><tt class="descname">IEntityCRUDService</tt><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityCRUDService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityCRUDService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the entity the CRUD services.</p>
+<dl class="method">
+<dt id="ally.support.api.entity.IEntityCRUDService.delete">
+<tt class="descname">delete</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityCRUDService.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityCRUDService.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the entity for the provided id.</p>
+<dl class="docutils">
+<dt>&#64;param id: integer</dt>
+<dd>The id of the entity to be deleted.</dd>
+</dl>
+<p>&#64;return: True if the delete is successful, false otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.support.api.entity.IEntityCRUDService.insert">
+<tt class="descname">insert</tt><big>(</big><em>entity</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityCRUDService.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityCRUDService.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the entity, also the entity will have automatically assigned the Id to it.</p>
+<dl class="docutils">
+<dt>&#64;param entity: Entity</dt>
+<dd>The entity to be inserted.</dd>
+</dl>
+<p>&#64;return: The id assigned to the entity
+&#64;raise InputError: If the entity is not valid.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.support.api.entity.IEntityCRUDService.update">
+<tt class="descname">update</tt><big>(</big><em>entity</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityCRUDService.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityCRUDService.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the entity.</p>
+<dl class="docutils">
+<dt>&#64;param entity: Entity</dt>
+<dd>The entity to be updated.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.entity.IEntityFindService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.entity.</tt><tt class="descname">IEntityFindService</tt><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityFindService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityFindService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the basic entity find service.</p>
+<dl class="method">
+<dt id="ally.support.api.entity.IEntityFindService.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>offset=None</em>, <em>limit=30</em>, <em>detailed=True</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityFindService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityFindService.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the entities.</p>
+<dl class="docutils">
+<dt>&#64;param offset: integer</dt>
+<dd>The offset to retrieve the entities from.</dd>
+<dt>&#64;param limit: integer</dt>
+<dd>The limit of entities to retrieve.</dd>
+<dt>&#64;param detailed: boolean</dt>
+<dd>If true will present the total count, limit and offset for the partially returned collection.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.entity.IEntityGetCRUDService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.entity.</tt><tt class="descname">IEntityGetCRUDService</tt><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityGetCRUDService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityGetCRUDService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.support.api.entity.IEntityGetService" title="ally.support.api.entity.IEntityGetService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityGetService</span></tt></a>, <a class="reference internal" href="#ally.support.api.entity.IEntityCRUDService" title="ally.support.api.entity.IEntityCRUDService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityCRUDService</span></tt></a></p>
+<p>Provides the get and CRUD.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.entity.IEntityGetService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.entity.</tt><tt class="descname">IEntityGetService</tt><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityGetService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityGetService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the basic entity service. This means locate by id.</p>
+<dl class="method">
+<dt id="ally.support.api.entity.IEntityGetService.getById">
+<tt class="descname">getById</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityGetService.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityGetService.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the entity based on the id.</p>
+<dl class="docutils">
+<dt>&#64;param id: integer</dt>
+<dd>The id of the entity to find.</dd>
+</dl>
+<p>&#64;raise InputError: If the id is not valid.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.entity.IEntityNQService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.entity.</tt><tt class="descname">IEntityNQService</tt><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityNQService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityNQService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.support.api.entity.IEntityGetService" title="ally.support.api.entity.IEntityGetService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityGetService</span></tt></a>, <a class="reference internal" href="#ally.support.api.entity.IEntityFindService" title="ally.support.api.entity.IEntityFindService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityFindService</span></tt></a>, <a class="reference internal" href="#ally.support.api.entity.IEntityCRUDService" title="ally.support.api.entity.IEntityCRUDService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityCRUDService</span></tt></a></p>
+<p>Provides the find without querying, CRUD and query entity services.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.entity.IEntityQueryService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.entity.</tt><tt class="descname">IEntityQueryService</tt><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityQueryService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityQueryService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="method">
+<dt id="ally.support.api.entity.IEntityQueryService.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>offset=None</em>, <em>limit=30</em>, <em>detailed=True</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityQueryService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityQueryService.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the entities searched by the provided query.</p>
+<dl class="docutils">
+<dt>&#64;param offset: integer</dt>
+<dd>The offset to retrieve the entities from.</dd>
+<dt>&#64;param limit: integer</dt>
+<dd>The limit of entities to retrieve.</dd>
+<dt>&#64;param detailed: boolean</dt>
+<dd>If true will present the total count, limit and offset for the partially returned collection.</dd>
+<dt>&#64;param q: QEntity</dt>
+<dd>The query to search by.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.entity.IEntityService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.entity.</tt><tt class="descname">IEntityService</tt><a class="reference internal" href="_modules/ally/support/api/entity.html#IEntityService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.IEntityService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.support.api.entity.IEntityGetService" title="ally.support.api.entity.IEntityGetService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityGetService</span></tt></a>, <a class="reference internal" href="#ally.support.api.entity.IEntityQueryService" title="ally.support.api.entity.IEntityQueryService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityQueryService</span></tt></a>, <a class="reference internal" href="#ally.support.api.entity.IEntityCRUDService" title="ally.support.api.entity.IEntityCRUDService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityCRUDService</span></tt></a></p>
+<p>Provides the find, CRUD and query entity services.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.entity.QEntity">
+<em class="property">class </em><tt class="descclassname">ally.support.api.entity.</tt><tt class="descname">QEntity</tt><a class="reference internal" href="_modules/ally/support/api/entity.html#QEntity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.entity.QEntity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the basic query for an entity.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.support.api.keyed">
+<span id="keyed-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">keyed</span></tt> Module<a class="headerlink" href="#module-ally.support.api.keyed" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 2, 2012</p>
+<p>&#64;package: ally api
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>General specifications for the entities API that poses a string Key identifier.</p>
+<dl class="class">
+<dt id="ally.support.api.keyed.Entity">
+<em class="property">class </em><tt class="descclassname">ally.support.api.keyed.</tt><tt class="descname">Entity</tt><a class="reference internal" href="_modules/ally/support/api/keyed.html#Entity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.Entity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the basic container for an entity that has a Key as the identifier.</p>
+<dl class="attribute">
+<dt id="ally.support.api.keyed.Entity.Key">
+<tt class="descname">Key</tt><em class="property"> = Entity.Key(str)</em><a class="headerlink" href="#ally.support.api.keyed.Entity.Key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.keyed.IEntityCRUDService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.keyed.</tt><tt class="descname">IEntityCRUDService</tt><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityCRUDService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityCRUDService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the entity the CRUD services.</p>
+<dl class="method">
+<dt id="ally.support.api.keyed.IEntityCRUDService.delete">
+<tt class="descname">delete</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityCRUDService.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityCRUDService.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the entity for the provided key.</p>
+<dl class="docutils">
+<dt>&#64;param key: integer</dt>
+<dd>The key of the entity to be deleted.</dd>
+</dl>
+<p>&#64;return: True if the delete is successful, false otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.support.api.keyed.IEntityCRUDService.insert">
+<tt class="descname">insert</tt><big>(</big><em>entity</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityCRUDService.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityCRUDService.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the entity.</p>
+<dl class="docutils">
+<dt>&#64;param entity: Entity</dt>
+<dd>The entity to be inserted.</dd>
+</dl>
+<p>&#64;return: The key assigned to the entity
+&#64;raise InputError: If the entity is not valid.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.support.api.keyed.IEntityCRUDService.update">
+<tt class="descname">update</tt><big>(</big><em>entity</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityCRUDService.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityCRUDService.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the entity.</p>
+<dl class="docutils">
+<dt>&#64;param entity: Entity</dt>
+<dd>The entity to be updated.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.keyed.IEntityFindService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.keyed.</tt><tt class="descname">IEntityFindService</tt><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityFindService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityFindService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the basic entity find service.</p>
+<dl class="method">
+<dt id="ally.support.api.keyed.IEntityFindService.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>offset=None</em>, <em>limit=None</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityFindService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityFindService.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the entities.</p>
+<dl class="docutils">
+<dt>&#64;param offset: integer</dt>
+<dd>The offset to retrieve the entities from.</dd>
+<dt>&#64;param limit: integer</dt>
+<dd>The limit of entities to retrieve.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.keyed.IEntityGetCRUDService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.keyed.</tt><tt class="descname">IEntityGetCRUDService</tt><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityGetCRUDService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityGetCRUDService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.support.api.keyed.IEntityGetService" title="ally.support.api.keyed.IEntityGetService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityGetService</span></tt></a>, <a class="reference internal" href="#ally.support.api.keyed.IEntityCRUDService" title="ally.support.api.keyed.IEntityCRUDService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityCRUDService</span></tt></a></p>
+<p>Provides the get and CRUD.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.keyed.IEntityGetService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.keyed.</tt><tt class="descname">IEntityGetService</tt><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityGetService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityGetService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the basic entity service. This means locate by id.</p>
+<dl class="method">
+<dt id="ally.support.api.keyed.IEntityGetService.getByKey">
+<tt class="descname">getByKey</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityGetService.getByKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityGetService.getByKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the entity based on the key.</p>
+<dl class="docutils">
+<dt>&#64;param key: string</dt>
+<dd>The key of the entity to find.</dd>
+</dl>
+<p>&#64;raise InputError: If the key is not valid.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.keyed.IEntityNQService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.keyed.</tt><tt class="descname">IEntityNQService</tt><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityNQService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityNQService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.support.api.keyed.IEntityGetService" title="ally.support.api.keyed.IEntityGetService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityGetService</span></tt></a>, <a class="reference internal" href="#ally.support.api.keyed.IEntityFindService" title="ally.support.api.keyed.IEntityFindService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityFindService</span></tt></a>, <a class="reference internal" href="#ally.support.api.keyed.IEntityCRUDService" title="ally.support.api.keyed.IEntityCRUDService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityCRUDService</span></tt></a></p>
+<p>Provides the find without querying, CRUD and query entity services.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.keyed.IEntityQueryService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.keyed.</tt><tt class="descname">IEntityQueryService</tt><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityQueryService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityQueryService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="method">
+<dt id="ally.support.api.keyed.IEntityQueryService.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityQueryService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityQueryService.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the entities searched by the provided query.</p>
+<dl class="docutils">
+<dt>&#64;param offset: integer</dt>
+<dd>The offset to retrieve the entities from.</dd>
+<dt>&#64;param limit: integer</dt>
+<dd>The limit of entities to retrieve.</dd>
+<dt>&#64;param q: QEntity</dt>
+<dd>The query to search by.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.keyed.IEntityService">
+<em class="property">class </em><tt class="descclassname">ally.support.api.keyed.</tt><tt class="descname">IEntityService</tt><a class="reference internal" href="_modules/ally/support/api/keyed.html#IEntityService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.IEntityService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.support.api.keyed.IEntityGetService" title="ally.support.api.keyed.IEntityGetService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityGetService</span></tt></a>, <a class="reference internal" href="#ally.support.api.keyed.IEntityQueryService" title="ally.support.api.keyed.IEntityQueryService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityQueryService</span></tt></a>, <a class="reference internal" href="#ally.support.api.keyed.IEntityCRUDService" title="ally.support.api.keyed.IEntityCRUDService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityCRUDService</span></tt></a></p>
+<p>Provides the find, CRUD and query entity services.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.support.api.keyed.QEntity">
+<em class="property">class </em><tt class="descclassname">ally.support.api.keyed.</tt><tt class="descname">QEntity</tt><a class="reference internal" href="_modules/ally/support/api/keyed.html#QEntity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.keyed.QEntity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the basic query for an entity.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.support.api.util_service">
+<span id="util-service-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">util_service</span></tt> Module<a class="headerlink" href="#module-ally.support.api.util_service" title="Permalink to this headline">¶</a></h2>
+<p>Created on Feb 28, 2012</p>
+<p>&#64;package: ally api
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides utility methods for service implementations.</p>
+<dl class="function">
+<dt id="ally.support.api.util_service.copy">
+<tt class="descclassname">ally.support.api.util_service.</tt><tt class="descname">copy</tt><big>(</big><em>src</em>, <em>dest</em>, <em>exclude=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/ally/support/api/util_service.html#copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.util_service.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies the container properties from the object source to object destination, attention only the common properties from
+source and destination will be transfered, the rest of properties will be ignored.
+If common properties are not compatible by types an exception will be raised.</p>
+<dl class="docutils">
+<dt>&#64;param src: container object</dt>
+<dd>The source to copy from.</dd>
+<dt>&#64;param dest: container object</dt>
+<dd>The destination to copy to.</dd>
+<dt>&#64;param exclude: list[string]|tuple(string)</dt>
+<dd>A list of properties names to exclude from copy.</dd>
+<dt>&#64;return: container object</dt>
+<dd>Returns the destination object.</dd>
+</dl>
+<p>&#64;raise ValueError: If the common properties are not compatible by type.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.support.api.util_service.likeAsRegex">
+<tt class="descclassname">ally.support.api.util_service.</tt><tt class="descname">likeAsRegex</tt><big>(</big><em>like</em>, <em>caseInsensitive=True</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/util_service.html#likeAsRegex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.util_service.likeAsRegex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a like pattern (ex: heloo%world) resembling a database form, to an actual regex that can be used to
+compare strings.</p>
+<dl class="docutils">
+<dt>&#64;param like: string</dt>
+<dd>The like pattern to convert to regex.</dd>
+<dt>&#64;param caseInsensitive: boolean</dt>
+<dd>Flag indicating that the regex should be case insensitive.</dd>
+<dt>&#64;return: regex</dt>
+<dd>The regex pattern to use.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.support.api.util_service.namesForContainer">
+<tt class="descclassname">ally.support.api.util_service.</tt><tt class="descname">namesForContainer</tt><big>(</big><em>container</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/util_service.html#namesForContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.util_service.namesForContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the properties names for the provided container object or class.</p>
+<dl class="docutils">
+<dt>&#64;param container: container object|class</dt>
+<dd>The container to provide the properties names for.</dd>
+<dt>&#64;return: Iterator(string)</dt>
+<dd>The iterator containing the properties names</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.support.api.util_service.namesForModel">
+<tt class="descclassname">ally.support.api.util_service.</tt><tt class="descname">namesForModel</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/util_service.html#namesForModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.util_service.namesForModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the properties names for the provided model object or class.</p>
+<dl class="docutils">
+<dt>&#64;param model: model object|class</dt>
+<dd>The model to provide the properties names for.</dd>
+<dt>&#64;return: Iterator(string)</dt>
+<dd>The iterator containing the properties names</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.support.api.util_service.namesForQuery">
+<tt class="descclassname">ally.support.api.util_service.</tt><tt class="descname">namesForQuery</tt><big>(</big><em>query</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/util_service.html#namesForQuery"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.util_service.namesForQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the criteria names for the provided query object or class.</p>
+<dl class="docutils">
+<dt>&#64;param query: query object|class</dt>
+<dd>The query to provide the criteria names for.</dd>
+<dt>&#64;return: Iterator(string)</dt>
+<dd>The iterator containing the criteria names</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.support.api.util_service.processQuery">
+<tt class="descclassname">ally.support.api.util_service.</tt><tt class="descname">processQuery</tt><big>(</big><em>objects</em>, <em>query</em>, <em>clazz</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/util_service.html#processQuery"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.util_service.processQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters the iterable of entities based on the provided query.</p>
+<dl class="docutils">
+<dt>&#64;param objects: Iterable(model object of clazz)</dt>
+<dd>The entities objects iterator to be processed.</dd>
+<dt>&#64;param query: query</dt>
+<dd>The query object to provide filtering on.</dd>
+<dt>&#64;param clazz: class</dt>
+<dd>The model class to use the query on.</dd>
+<dt>&#64;return: list[model object of clazz]</dt>
+<dd>The list of processed entities.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.support.api.util_service.trimIter">
+<tt class="descclassname">ally.support.api.util_service.</tt><tt class="descname">trimIter</tt><big>(</big><em>collection</em>, <em>size=None</em>, <em>offset=None</em>, <em>limit=None</em><big>)</big><a class="reference internal" href="_modules/ally/support/api/util_service.html#trimIter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.support.api.util_service.trimIter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trims the provided iterator based on the offset and limit.</p>
+<dl class="docutils">
+<dt>&#64;param collection: list|Iterable|Iterator|Sized</dt>
+<dd>The iterator to be trimmed.</dd>
+<dt>&#64;param size: integer|None</dt>
+<dd>The size of the iterator, None if the collection is a list.</dd>
+<dt>&#64;param offset: integer</dt>
+<dd>The offset to trim from</dd>
+<dt>&#64;param limit: integer</dt>
+<dd>The limit to trim to.</dd>
+<dt>&#64;return: generator</dt>
+<dd>A generator that will provide the trimmed iterator.</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">api Package</a><ul>
+<li><a class="reference internal" href="#module-ally.support.api.entity"><tt class="docutils literal"><span class="pre">entity</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.support.api.keyed"><tt class="docutils literal"><span class="pre">keyed</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.support.api.util_service"><tt class="docutils literal"><span class="pre">util_service</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.support.html"
+                        title="previous chapter">support Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.support.core.html"
+                        title="next chapter">core Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.support.api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.support.core.html" title="core Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.support.html" title="support Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.support.html" >support Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,532 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.api.config &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.api.config</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jan 19, 2012</span>
+
+<span class="sd">@package: ally api</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides the decorators used for APIs in a much easier to use form.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">.operator.container</span> <span class="kn">import</span> <span class="n">Call</span><span class="p">,</span> <span class="n">Service</span><span class="p">,</span> <span class="n">Criteria</span><span class="p">,</span> <span class="n">Query</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Container</span>
+<span class="kn">from</span> <span class="nn">.operator.descriptor</span> <span class="kn">import</span> <span class="n">Property</span><span class="p">,</span> <span class="n">Reference</span><span class="p">,</span> <span class="n">CriteriaEntry</span><span class="p">,</span> \
+    <span class="n">ContainerSupport</span><span class="p">,</span> <span class="n">CriteriaSupport</span><span class="p">,</span> <span class="n">QuerySupport</span>
+<span class="kn">from</span> <span class="nn">.operator.extract</span> <span class="kn">import</span> <span class="n">extractCriterias</span><span class="p">,</span> <span class="n">extractProperties</span><span class="p">,</span> \
+    <span class="n">extractPropertiesInherited</span><span class="p">,</span> <span class="n">extractContainersFrom</span><span class="p">,</span> <span class="n">extractCriteriasInherited</span><span class="p">,</span> \
+    <span class="n">extractOuputInput</span><span class="p">,</span> <span class="n">processGenericCall</span>
+<span class="kn">from</span> <span class="nn">.operator.type</span> <span class="kn">import</span> <span class="n">TypeModel</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">,</span> <span class="n">TypeModelProperty</span><span class="p">,</span> \
+    <span class="n">TypeCriteria</span><span class="p">,</span> <span class="n">TypeQuery</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">,</span> <span class="n">TypeService</span><span class="p">,</span> <span class="n">TypeExtension</span>
+<span class="kn">from</span> <span class="nn">.type</span> <span class="kn">import</span> <span class="n">typeFor</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">ally.api.type</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">ally.exception</span> <span class="kn">import</span> <span class="n">DevelError</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isclass</span><span class="p">,</span> <span class="n">isfunction</span>
+<span class="kn">from</span> <span class="nn">re</span> <span class="kn">import</span> <span class="n">match</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c"># Defines the naming rules for the API configured classes.</span>
+<span class="n">RULE_MODEL</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;^[A-Z]{1,}[A-Za-z0-9]*$&#39;</span><span class="p">,</span>
+              <span class="s">&#39;The model name needs to start with an upper case and be camel letter format, got &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span><span class="p">)</span>
+
+<span class="n">RULE_MODEL_PROPERTY</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;^[A-Z]{1,}[A-Za-z0-9]*$&#39;</span><span class="p">,</span>
+                       <span class="s">&#39;The model property name needs to start with an upper case and be camel letter format, got &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span><span class="p">)</span>
+
+<span class="n">RULE_CRITERIA_PROPERTY</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;^[a-z]{1,}[\w]*$&#39;</span><span class="p">,</span>
+                          <span class="s">&#39;The criteria property name needs to start with a lower case, got &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span><span class="p">)</span>
+
+<span class="n">RULE_QUERY_CRITERIA</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;^[a-z]{1,}[\w]*$&#39;</span><span class="p">,</span>
+                       <span class="s">&#39;The query criteria name needs to start with a lower case, got &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span><span class="p">)</span>
+
+<span class="n">RULE_EXTENSION_PROPERTY</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;^[a-z]{1,}[\w]*$&#39;</span><span class="p">,</span>
+                           <span class="s">&#39;The extension property name needs to start with a lower case, got &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span><span class="p">)</span>
+
+<span class="c"># The available method actions.</span>
+<span class="n">GET</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">INSERT</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">UPDATE</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">DELETE</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c"># The default limit</span>
+<span class="n">LIMIT_DEFAULT</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="c"># The function name to method mapping.</span>
+<span class="n">NAME_TO_METHOD</span> <span class="o">=</span> <span class="p">{</span>
+                  <span class="s">&#39;(^get[\w]*$)|(^find[\w]*$)&#39;</span><span class="p">:</span><span class="n">GET</span><span class="p">,</span>
+                  <span class="s">&#39;(^insert[\w]*$)|(^persist[\w]*$)&#39;</span><span class="p">:</span><span class="n">INSERT</span><span class="p">,</span>
+                  <span class="s">&#39;(^update[\w]*$)|(^merge[\w]*$)&#39;</span><span class="p">:</span><span class="n">UPDATE</span><span class="p">,</span>
+                  <span class="s">&#39;(^delete[\w]*$)|(^remove[\w]*$)&#39;</span><span class="p">:</span><span class="n">DELETE</span>
+                  <span class="p">}</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="model"><a class="viewcode-back" href="../../../ally.api.html#ally.api.config.model">[docs]</a><span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">hints</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Used for decorating classes that are API models.</span>
+<span class="sd">    </span>
+<span class="sd">    ex:</span>
+<span class="sd">        @model</span>
+<span class="sd">        class Entity:</span>
+<span class="sd">    </span>
+<span class="sd">            Name = String</span>
+<span class="sd">        </span>
+<span class="sd">        @model(name=Entity)</span>
+<span class="sd">        class Entity2(Entity):</span>
+<span class="sd">    </span>
+<span class="sd">            NewProperty = Integer</span>
+<span class="sd">            </span>
+<span class="sd">    @param name: string|None</span>
+<span class="sd">        Provide a name under which the model will be known. If not provided the name of the model is the class name.</span>
+<span class="sd">    @param hints: key word arguments</span>
+<span class="sd">        Provides hints for the model.</span>
+<span class="sd">        @keyword id: string</span>
+<span class="sd">            The name of the property to be considered the model id.</span>
+<span class="sd">        @keyword replace: class</span>
+<span class="sd">            The model class to be replaced by this model class, should only be used whenever you need to prototype a</span>
+<span class="sd">            model in order to be fully defined latter.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span> <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">hints</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Expected only one argument that is the decorator class, got </span><span class="si">%s</span><span class="s"> arguments&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">clazz</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">clazz</span><span class="p">),</span> <span class="s">&#39;Invalid class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">clazz</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">isclass</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">typ</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">),</span> <span class="s">&#39;Invalid class </span><span class="si">%s</span><span class="s"> to extract name, is not a model class&#39;</span> <span class="o">%</span> <span class="n">name</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">typ</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid model name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="n">__name__</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">(</span><span class="n">RULE_MODEL</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="p">):</span> <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="n">RULE_MODEL</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="n">properties</span> <span class="o">=</span> <span class="n">extractPropertiesInherited</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__bases__</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Extracted model inherited properties </span><span class="si">%s</span><span class="s"> for class </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">clazz</span><span class="p">)</span>
+    <span class="n">properties</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extractProperties</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__dict__</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Extracted model properties </span><span class="si">%s</span><span class="s"> for class </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">clazz</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">(</span><span class="n">RULE_MODEL_PROPERTY</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">prop</span><span class="p">):</span> <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="n">RULE_MODEL_PROPERTY</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="n">prop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">)</span> <span class="ow">or</span> <span class="n">typ</span><span class="o">.</span><span class="n">isPrimitive</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;Invalid type </span><span class="si">%s</span><span class="s"> for property </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">, only primitives or models allowed&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">prop</span><span class="p">))</span>
+
+    <span class="n">propertyId</span><span class="p">,</span> <span class="n">replace</span> <span class="o">=</span> <span class="n">hints</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">hints</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;replace&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">propertyId</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">propertyId</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid property id </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">propertyId</span>
+        <span class="k">assert</span> <span class="n">propertyId</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">,</span> <span class="s">&#39;Invalid property id </span><span class="si">%s</span><span class="s"> is not in model properties&#39;</span> <span class="o">%</span> <span class="n">propertyId</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">typ</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">clazz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">):</span> <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;There is no id specified for </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">clazz</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">)</span>
+        <span class="n">propertyId</span> <span class="o">=</span> <span class="n">typ</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">propertyId</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">properties</span><span class="p">[</span><span class="n">propertyId</span><span class="p">],</span> <span class="n">List</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;The id cannot be a List type, got </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">properties</span><span class="p">[</span><span class="n">propertyId</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">properties</span><span class="p">[</span><span class="n">propertyId</span><span class="p">],</span> <span class="n">TypeModel</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;The id cannot be a model reference, got </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">properties</span><span class="p">[</span><span class="n">propertyId</span><span class="p">])</span>
+
+    <span class="n">modelType</span> <span class="o">=</span> <span class="n">TypeModel</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">Model</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">propertyId</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">hints</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">replace</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">replace</span><span class="p">),</span> <span class="s">&#39;Invalid class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">replace</span>
+        <span class="n">typ</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">replace</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">):</span> <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;Invalid replace class </span><span class="si">%s</span><span class="s">, not a model class&#39;</span> <span class="o">%</span> <span class="n">replace</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">clazz</span><span class="o">.</span><span class="n">__module__</span> <span class="o">!=</span> <span class="n">replace</span><span class="o">.</span><span class="n">__module__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;Replace is available only for classes in the same API module invalid replace class &#39;</span>
+                             <span class="s">&#39;</span><span class="si">%s</span><span class="s"> for replaced class&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">replace</span><span class="p">,</span> <span class="n">clazz</span><span class="p">))</span>
+        <span class="n">typ</span><span class="o">.</span><span class="n">clazz</span> <span class="o">=</span> <span class="n">clazz</span>
+        <span class="n">typ</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">modelType</span><span class="o">.</span><span class="n">container</span>
+
+    <span class="n">reference</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">propType</span> <span class="o">=</span> <span class="n">TypeModelProperty</span><span class="p">(</span><span class="n">modelType</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
+        <span class="n">reference</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">Reference</span><span class="p">(</span><span class="n">propType</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">):</span>
+            <span class="n">propType</span> <span class="o">=</span> <span class="n">TypeModelProperty</span><span class="p">(</span><span class="n">modelType</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">typ</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="n">typ</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">propertyId</span><span class="p">])</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">Property</span><span class="p">(</span><span class="n">propType</span><span class="p">))</span>
+
+    <span class="n">clazz</span><span class="o">.</span><span class="n">_ally_type</span> <span class="o">=</span> <span class="n">modelType</span> <span class="c"># This specified the detected type for the model class by using &#39;typeFor&#39;</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">_ally_reference</span> <span class="o">=</span> <span class="n">reference</span> <span class="c"># The references to be returned by the properties when used only with class</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">__new__</span> <span class="o">=</span> <span class="n">ContainerSupport</span><span class="o">.</span><span class="n">__new__</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">__str__</span> <span class="o">=</span> <span class="n">ContainerSupport</span><span class="o">.</span><span class="n">__str__</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">__contains__</span> <span class="o">=</span> <span class="n">ContainerSupport</span><span class="o">.</span><span class="n">__contains__</span>
+
+    <span class="k">return</span> <span class="n">clazz</span>
+</div>
+<div class="viewcode-block" id="criteria"><a class="viewcode-back" href="../../../ally.api.html#ally.api.config.criteria">[docs]</a><span class="k">def</span> <span class="nf">criteria</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Used for decorating classes that are API criteria&#39;s.</span>
+<span class="sd">    </span>
+<span class="sd">    ex:</span>
+<span class="sd">        @criteria(main=&#39;order&#39;)</span>
+<span class="sd">        class OrderBy:</span>
+<span class="sd">    </span>
+<span class="sd">            order = bool</span>
+<span class="sd">            </span>
+<span class="sd">    @param main: string|tuple(string)|list[string]|None</span>
+<span class="sd">        Provide the name of the property/properties that is to be considered the main property for the criteria. </span>
+<span class="sd">        The main property/properties is the property/properties used whenever the criteria is used without a property. </span>
+<span class="sd">        If the main property is None then it will be inherited if is the case from super criteria&#39;s otherwise is left</span>
+<span class="sd">        unset.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span> <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="n">main</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Expected only one argument that is the decorator class, got </span><span class="si">%s</span><span class="s"> arguments&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">clazz</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">clazz</span><span class="p">),</span> <span class="s">&#39;Invalid class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">clazz</span>
+
+    <span class="n">properties</span> <span class="o">=</span> <span class="n">extractPropertiesInherited</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__bases__</span><span class="p">,</span> <span class="n">TypeCriteria</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Extracted criteria inherited properties </span><span class="si">%s</span><span class="s"> for class </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">clazz</span><span class="p">)</span>
+    <span class="n">properties</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extractProperties</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__dict__</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Extracted criteria properties </span><span class="si">%s</span><span class="s"> for class </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">clazz</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">(</span><span class="n">RULE_CRITERIA_PROPERTY</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">prop</span><span class="p">):</span> <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="n">RULE_CRITERIA_PROPERTY</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="n">prop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">typ</span><span class="o">.</span><span class="n">isPrimitive</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;Invalid type </span><span class="si">%s</span><span class="s"> for property </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">, only primitives allowed&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">prop</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">main</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span> <span class="n">main</span> <span class="o">=</span> <span class="p">[</span><span class="n">main</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">inherited</span> <span class="o">=</span> <span class="n">extractContainersFrom</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__bases__</span><span class="p">,</span> <span class="n">TypeCriteria</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">crt</span> <span class="ow">in</span> <span class="n">inherited</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="n">Criteria</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">crt</span><span class="o">.</span><span class="n">main</span><span class="p">:</span>
+                <span class="n">main</span> <span class="o">=</span> <span class="n">crt</span><span class="o">.</span><span class="n">main</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">main</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">criteriaContainer</span> <span class="o">=</span> <span class="n">Criteria</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">main</span><span class="p">)</span>
+    <span class="n">criteriaType</span> <span class="o">=</span> <span class="n">TypeCriteria</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">criteriaContainer</span><span class="p">)</span>
+
+    <span class="n">reference</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">criteriaContainer</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+        <span class="n">propType</span> <span class="o">=</span> <span class="n">TypeProperty</span><span class="p">(</span><span class="n">criteriaType</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
+        <span class="n">reference</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">Reference</span><span class="p">(</span><span class="n">propType</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">Property</span><span class="p">(</span><span class="n">propType</span><span class="p">))</span>
+
+    <span class="n">clazz</span><span class="o">.</span><span class="n">_ally_type</span> <span class="o">=</span> <span class="n">criteriaType</span> <span class="c"># This specified the detected type for the model class by using &#39;typeFor&#39;</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">_ally_reference</span> <span class="o">=</span> <span class="n">reference</span> <span class="c"># The references to be returned by the properties when used only with class</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">__new__</span> <span class="o">=</span> <span class="n">CriteriaSupport</span><span class="o">.</span><span class="n">__new__</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">__str__</span> <span class="o">=</span> <span class="n">CriteriaSupport</span><span class="o">.</span><span class="n">__str__</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">__contains__</span> <span class="o">=</span> <span class="n">CriteriaSupport</span><span class="o">.</span><span class="n">__contains__</span>
+
+    <span class="k">return</span> <span class="n">clazz</span>
+</div>
+<div class="viewcode-block" id="query"><a class="viewcode-back" href="../../../ally.api.html#ally.api.config.query">[docs]</a><span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="n">owner</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Used for decorating classes that are API queries.</span>
+<span class="sd">    </span>
+<span class="sd">    @param owner: TypeModel container</span>
+<span class="sd">        The model that is the target of this query.</span>
+<span class="sd">    </span>
+<span class="sd">    ex:</span>
+<span class="sd">        @query(Theme)</span>
+<span class="sd">        class ThemeQuery:</span>
+<span class="sd">            </span>
+<span class="sd">            name = OrderBy</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">queryOwner</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">owner</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">queryOwner</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">),</span> <span class="s">&#39;Invalid owner </span><span class="si">%s</span><span class="s">, has no type model&#39;</span> <span class="o">%</span> <span class="n">owner</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">clazz</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">clazz</span><span class="p">),</span> <span class="s">&#39;Invalid class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">clazz</span>
+
+        <span class="n">criterias</span> <span class="o">=</span> <span class="n">extractCriteriasInherited</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__bases__</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Extracted inherited criterias </span><span class="si">%s</span><span class="s"> for query class </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">criterias</span><span class="p">,</span> <span class="n">clazz</span><span class="p">)</span>
+        <span class="n">criterias</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extractCriterias</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__dict__</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Extracted criterias </span><span class="si">%s</span><span class="s"> for query class </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">criterias</span><span class="p">,</span> <span class="n">clazz</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">crt</span> <span class="ow">in</span> <span class="n">criterias</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">(</span><span class="n">RULE_QUERY_CRITERIA</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">crt</span><span class="p">):</span> <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="n">RULE_QUERY_CRITERIA</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="n">crt</span><span class="p">)</span>
+
+        <span class="n">queryContainer</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="n">criterias</span><span class="p">)</span>
+        <span class="n">queryType</span> <span class="o">=</span> <span class="n">TypeQuery</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">queryContainer</span><span class="p">,</span> <span class="n">queryOwner</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">crt</span> <span class="ow">in</span> <span class="n">queryContainer</span><span class="o">.</span><span class="n">criterias</span><span class="p">:</span>
+            <span class="n">critType</span> <span class="o">=</span> <span class="n">TypeCriteriaEntry</span><span class="p">(</span><span class="n">queryType</span><span class="p">,</span> <span class="n">crt</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">crt</span><span class="p">,</span> <span class="n">CriteriaEntry</span><span class="p">(</span><span class="n">critType</span><span class="p">))</span>
+
+        <span class="n">clazz</span><span class="o">.</span><span class="n">_ally_type</span> <span class="o">=</span> <span class="n">queryType</span> <span class="c"># This specified the detected type for the model class by using &#39;typeFor&#39;</span>
+        <span class="n">clazz</span><span class="o">.</span><span class="n">__new__</span> <span class="o">=</span> <span class="n">QuerySupport</span><span class="o">.</span><span class="n">__new__</span>
+        <span class="n">clazz</span><span class="o">.</span><span class="n">__str__</span> <span class="o">=</span> <span class="n">QuerySupport</span><span class="o">.</span><span class="n">__str__</span>
+        <span class="n">clazz</span><span class="o">.</span><span class="n">__contains__</span> <span class="o">=</span> <span class="n">QuerySupport</span><span class="o">.</span><span class="n">__contains__</span>
+
+        <span class="k">return</span> <span class="n">clazz</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+</div>
+<div class="viewcode-block" id="call"><a class="viewcode-back" href="../../../ally.api.html#ally.api.config.call">[docs]</a><span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">hints</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Used for decorating service methods that are used as APIs.</span>
+<span class="sd">    </span>
+<span class="sd">    ex:</span>
+<span class="sd">        Using the annotations:</span>
+<span class="sd">            @call</span>
+<span class="sd">            def updateX(self, x:int)-&gt;None:</span>
+<span class="sd">                doc string</span>
+<span class="sd">                &lt;no method body required&gt;</span>
+<span class="sd">                </span>
+<span class="sd">        Using specified types:</span>
+<span class="sd">            @call(Entity, Entity.x, String, webName=&#39;unassigned&#39;)</span>
+<span class="sd">            def findBy(self, x, name):</span>
+<span class="sd">                doc string</span>
+<span class="sd">                &lt;no method body required&gt;</span>
+<span class="sd">                </span>
+<span class="sd">            @call(Entity, Entity, OtherEntity, method=UPDATE)</span>
+<span class="sd">            def assign(self, entity, toEntity):</span>
+<span class="sd">                doc string</span>
+<span class="sd">                &lt;no method body required&gt;</span>
+
+<span class="sd">    @param method: integer</span>
+<span class="sd">        One of the config module constants GET, INSERT, UPDATE, DELETE.</span>
+<span class="sd">    @param hints: key arguments</span>
+<span class="sd">        Provides hints for the call, the hints are used for assembly.</span>
+<span class="sd">            @keyword exposed: boolean</span>
+<span class="sd">                Indicates that the call is exposed for external interactions, usually all defined methods in a service</span>
+<span class="sd">                that are not decorated with call are considered unexposed calls.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">function</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span> <span class="n">types</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">isfunction</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span> <span class="n">types</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> \
+        <span class="s">&#39;Expected only one argument that is the decorator function, got </span><span class="si">%s</span><span class="s"> arguments&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">isfunction</span><span class="p">(</span><span class="n">function</span><span class="p">),</span> <span class="s">&#39;Invalid function </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">function</span>
+        <span class="n">nonlocal</span> <span class="n">method</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">regex</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">NAME_TO_METHOD</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">m</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span> <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;Cannot deduce method for function name &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="n">output</span><span class="p">,</span> <span class="n">inputs</span> <span class="o">=</span> <span class="n">extractOuputInput</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">modelToId</span><span class="o">=</span><span class="n">method</span> <span class="ow">in</span> <span class="p">(</span><span class="n">GET</span><span class="p">,</span> <span class="n">DELETE</span><span class="p">))</span>
+
+        <span class="n">function</span><span class="o">.</span><span class="n">_ally_call</span> <span class="o">=</span> <span class="n">Call</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">hints</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">abstractmethod</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="k">return</span> <span class="n">decorator</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+</div>
+<div class="viewcode-block" id="service"><a class="viewcode-back" href="../../../ally.api.html#ally.api.config.service">[docs]</a><span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">generic</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Used for decorating classes that are API services.</span>
+<span class="sd">    </span>
+<span class="sd">    ex:</span>
+<span class="sd">        @service</span>
+<span class="sd">        class IEntityService:</span>
+<span class="sd">    </span>
+<span class="sd">            @call(Number, Entity.x)</span>
+<span class="sd">            def multipy(self, x):</span>
+<span class="sd">            </span>
+<span class="sd">        </span>
+<span class="sd">        @service((Entity, Issue))</span>
+<span class="sd">        class IInheritingService(IEntityService):</span>
+<span class="sd">    </span>
+<span class="sd">            @call(Number, Issue.x)</span>
+<span class="sd">            def multipy(self, x):</span>
+<span class="sd">            </span>
+<span class="sd">    @param generic: tuple|list((genericClass, replaceClass)|[...(genericClass, replaceClass)])</span>
+<span class="sd">        The classes of that will be generically replaced. Can also be provided as arguments.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span> <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">generic</span><span class="o">=</span><span class="n">generic</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isclass</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span> <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">generic</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Expected only one argument that is the decorator class, got </span><span class="si">%s</span><span class="s"> arguments&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">clazz</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">clazz</span><span class="p">),</span> <span class="s">&#39;Invalid class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">clazz</span>
+    <span class="k">if</span> <span class="n">generic</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">generic</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)),</span> <span class="s">&#39;Invalid generic </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">generic</span>
+        <span class="k">if</span> <span class="n">__debug__</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">gen</span> <span class="ow">in</span> <span class="n">generic</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)),</span> <span class="s">&#39;Invalid generic entry </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">gen</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&#39;Invalid generic entry </span><span class="si">%s</span><span class="s"> has to many entries </span><span class="si">%s</span><span class="s">, expected 2&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">gen</span><span class="p">))</span>
+                <span class="n">replaced</span><span class="p">,</span> <span class="n">replacer</span> <span class="o">=</span> <span class="n">gen</span>
+                <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">replacer</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeFor</span><span class="p">(</span><span class="n">replacer</span><span class="p">),</span> <span class="p">(</span><span class="n">TypeModel</span><span class="p">,</span> <span class="n">TypeQuery</span><span class="p">)),</span> \
+                <span class="s">&#39;Invalid replacer class </span><span class="si">%s</span><span class="s"> in generic entry </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">replacer</span><span class="p">,</span> <span class="n">gen</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">replaced</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeFor</span><span class="p">(</span><span class="n">replaced</span><span class="p">),</span> <span class="p">(</span><span class="n">TypeModel</span><span class="p">,</span> <span class="n">TypeQuery</span><span class="p">)),</span> \
+                <span class="s">&#39;Invalid replaced class </span><span class="si">%s</span><span class="s"> in generic entry </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">replaced</span><span class="p">,</span> <span class="n">gen</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">replacer</span><span class="p">,</span> <span class="n">replaced</span><span class="p">),</span> \
+                <span class="s">&#39;Invalid replacer class </span><span class="si">%s</span><span class="s"> does not extend the replaced class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">replacer</span><span class="p">,</span> <span class="n">replaced</span><span class="p">)</span>
+        <span class="n">generic</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">generic</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">generic</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">calls</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">function</span> <span class="ow">in</span> <span class="n">clazz</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">isfunction</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="s">&#39;_ally_call&#39;</span><span class="p">):</span>
+                <span class="n">fnc</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">__code__</span>
+                <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;No call for method at:</span><span class="se">\n</span><span class="s">File &quot;</span><span class="si">%s</span><span class="s">&quot;, line </span><span class="si">%i</span><span class="s">, in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span>
+                                 <span class="p">(</span><span class="n">fnc</span><span class="o">.</span><span class="n">co_filename</span><span class="p">,</span> <span class="n">fnc</span><span class="o">.</span><span class="n">co_firstlineno</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+            <span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">function</span><span class="o">.</span><span class="n">_ally_call</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">function</span><span class="o">.</span><span class="n">_ally_call</span>
+
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">typeFor</span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">clazz</span><span class="o">.</span><span class="n">__bases__</span><span class="p">]</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">typ</span><span class="o">.</span><span class="n">service</span> <span class="k">for</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">services</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeService</span><span class="p">)]</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="n">call</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">srv</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">srv</span><span class="p">,</span> <span class="n">Service</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">srv</span><span class="o">.</span><span class="n">calls</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">call</span><span class="p">,</span> <span class="n">Call</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">call</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">processGenericCall</span><span class="p">(</span><span class="n">call</span><span class="p">,</span> <span class="n">generic</span><span class="p">))</span>
+                <span class="n">names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">clazz</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ABCMeta</span><span class="p">:</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
+        <span class="n">attributes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;__dict__&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="c"># Removing __dict__ since is a reference to the old class dictionary.</span>
+        <span class="n">attributes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;__weakref__&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">clazz</span> <span class="o">=</span> <span class="n">ABCMeta</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">clazz</span><span class="o">.</span><span class="n">__bases__</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
+    <span class="n">abstract</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__abstractmethods__</span><span class="p">)</span>
+    <span class="n">abstract</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">call</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">})</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">__abstractmethods__</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">abstract</span><span class="p">)</span>
+
+    <span class="n">clazz</span><span class="o">.</span><span class="n">_ally_type</span> <span class="o">=</span> <span class="n">TypeService</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">Service</span><span class="p">(</span><span class="n">calls</span><span class="p">))</span>
+    <span class="c"># This specified the detected type for the model class by using &#39;typeFor&#39;</span>
+    <span class="k">return</span> <span class="n">clazz</span>
+</div>
+<div class="viewcode-block" id="extension"><a class="viewcode-back" href="../../../ally.api.html#ally.api.config.extension">[docs]</a><span class="k">def</span> <span class="nf">extension</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Used for decorating classes that are API extensions. The extension is used as a model but only with primitive</span>
+<span class="sd">    properties that is rendered in the response in different manners. Also the extension is not specified in the API</span>
+<span class="sd">    and can be returned by the implementation in a dynamic manner.</span>
+<span class="sd">    </span>
+<span class="sd">    ex:</span>
+<span class="sd">        @extension</span>
+<span class="sd">        class CollectionWithTotal(Iterable):</span>
+<span class="sd">    </span>
+<span class="sd">            total = int</span>
+<span class="sd">            </span>
+<span class="sd">            def __init__(self, iter):</span>
+<span class="sd">                self.iter = iter</span>
+<span class="sd">                </span>
+<span class="sd">            def __iter__(self): return self.iter()</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span> <span class="k">return</span> <span class="n">extension</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Expected only one argument that is the decorator class, got </span><span class="si">%s</span><span class="s"> arguments&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">clazz</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">clazz</span><span class="p">),</span> <span class="s">&#39;Invalid class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">clazz</span>
+
+    <span class="n">properties</span> <span class="o">=</span> <span class="n">extractPropertiesInherited</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__bases__</span><span class="p">,</span> <span class="n">TypeExtension</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Extracted extension inherited properties </span><span class="si">%s</span><span class="s"> for class </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">clazz</span><span class="p">)</span>
+    <span class="n">properties</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extractProperties</span><span class="p">(</span><span class="n">clazz</span><span class="o">.</span><span class="n">__dict__</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Extracted extension properties </span><span class="si">%s</span><span class="s"> for class </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">clazz</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">(</span><span class="n">RULE_EXTENSION_PROPERTY</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">prop</span><span class="p">):</span> <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="n">RULE_EXTENSION_PROPERTY</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="n">prop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">typ</span><span class="o">.</span><span class="n">isPrimitive</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;Invalid type </span><span class="si">%s</span><span class="s"> for property </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">, only primitives allowed&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">prop</span><span class="p">))</span>
+
+    <span class="n">extensionContainer</span> <span class="o">=</span> <span class="n">Container</span><span class="p">(</span><span class="n">properties</span><span class="p">)</span>
+    <span class="n">extensionType</span> <span class="o">=</span> <span class="n">TypeExtension</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">extensionContainer</span><span class="p">)</span>
+
+    <span class="n">reference</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">extensionContainer</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+        <span class="n">propType</span> <span class="o">=</span> <span class="n">TypeProperty</span><span class="p">(</span><span class="n">extensionType</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
+        <span class="n">reference</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">Reference</span><span class="p">(</span><span class="n">propType</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">Property</span><span class="p">(</span><span class="n">propType</span><span class="p">))</span>
+
+    <span class="n">clazz</span><span class="o">.</span><span class="n">_ally_type</span> <span class="o">=</span> <span class="n">extensionType</span> <span class="c"># This specified the detected type for the model class by using &#39;typeFor&#39;</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">_ally_reference</span> <span class="o">=</span> <span class="n">reference</span> <span class="c"># The references to be returned by the properties when used only with class</span>
+    <span class="n">clazz</span><span class="o">.</span><span class="n">__new__</span> <span class="o">=</span> <span class="n">ContainerSupport</span><span class="o">.</span><span class="n">__new__</span>
+
+    <span class="k">return</span> <span class="n">clazz</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

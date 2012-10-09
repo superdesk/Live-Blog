@@ -1,0 +1,19 @@
+meta Package
+============
+
+:mod:`post` Module
+------------------
+
+.. automodule:: superdesk.post.meta.post
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`type` Module
+------------------
+
+.. automodule:: superdesk.post.meta.type
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

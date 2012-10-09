@@ -1,0 +1,245 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.core.impl.processor.render.json &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.core.impl.processor.render.json</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Aug 3, 2012</span>
+
+<span class="sd">@package: ally core</span>
+<span class="sd">@copyright: 2011 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides the JSON encoder processor handler.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">RenderBaseHandler</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.core.spec.transform.render</span> <span class="kn">import</span> <span class="n">IRender</span>
+<span class="kn">from</span> <span class="nn">ally.support.util_io</span> <span class="kn">import</span> <span class="n">IOutputStream</span>
+<span class="kn">from</span> <span class="nn">codecs</span> <span class="kn">import</span> <span class="n">getwriter</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">from</span> <span class="nn">json.encoder</span> <span class="kn">import</span> <span class="n">encode_basestring</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="nd">@injected</span>
+<div class="viewcode-block" id="RenderJSONHandler"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.json.RenderJSONHandler">[docs]</a><span class="k">class</span> <span class="nc">RenderJSONHandler</span><span class="p">(</span><span class="n">RenderBaseHandler</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the JSON encoding.</span>
+<span class="sd">    @see: RenderBaseHandler</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">encodingError</span> <span class="o">=</span> <span class="s">&#39;backslashreplace&#39;</span>
+    <span class="c"># The encoding error resolving.</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encodingError</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid string </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">encodingError</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RenderJSONHandler.renderFactory"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.json.RenderJSONHandler.renderFactory">[docs]</a>    <span class="k">def</span> <span class="nf">renderFactory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charSet</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: RenderBaseHandler.renderFactory</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">charSet</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid char set </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">charSet</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">IOutputStream</span><span class="p">),</span> <span class="s">&#39;Invalid content output stream </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">output</span>
+
+        <span class="k">return</span> <span class="n">RenderJSON</span><span class="p">(</span><span class="n">getwriter</span><span class="p">(</span><span class="n">charSet</span><span class="p">)(</span><span class="n">output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encodingError</span><span class="p">))</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="RenderJSON"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.json.RenderJSON">[docs]</a><span class="k">class</span> <span class="nc">RenderJSON</span><span class="p">(</span><span class="n">IRender</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Renderer for JSON.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;out&#39;</span><span class="p">,</span> <span class="s">&#39;isObject&#39;</span><span class="p">,</span> <span class="s">&#39;isFirst&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the text object renderer.</span>
+<span class="sd">        </span>
+<span class="sd">        @param out: file writer</span>
+<span class="sd">            The writer to place the JSON.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="n">out</span><span class="p">,</span> <span class="s">&#39;Invalid JSON output stream </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">out</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">out</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span> <span class="o">=</span> <span class="bp">True</span>
+
+<div class="viewcode-block" id="RenderJSON.value"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.json.RenderJSON.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IRender.value</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span><span class="p">,</span> <span class="s">&#39;No container for value&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">value</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encode_basestring</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encode_basestring</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encode_basestring</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="RenderJSON.objectStart"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.json.RenderJSON.objectStart">[docs]</a>    <span class="k">def</span> <span class="nf">objectStart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IRender.objectStart</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">openObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span><span class="o">.</span><span class="n">appendleft</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RenderJSON.objectEnd"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.json.RenderJSON.objectEnd">[docs]</a>    <span class="k">def</span> <span class="nf">objectEnd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IRender.objectEnd</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span><span class="p">,</span> <span class="s">&#39;No object to end&#39;</span>
+        <span class="n">isObject</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">isObject</span><span class="p">,</span> <span class="s">&#39;No object to end&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;}&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RenderJSON.collectionStart"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.json.RenderJSON.collectionStart">[docs]</a>    <span class="k">def</span> <span class="nf">collectionStart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IRender.collectionStart</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">openObject</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span><span class="p">:</span> <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encode_basestring</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;:[&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span><span class="o">.</span><span class="n">appendleft</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RenderJSON.collectionEnd"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.json.RenderJSON.collectionEnd">[docs]</a>    <span class="k">def</span> <span class="nf">collectionEnd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IRender.collectionEnd</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span><span class="p">,</span> <span class="s">&#39;No collection to end&#39;</span>
+        <span class="n">isObject</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">isObject</span><span class="p">,</span> <span class="s">&#39;No collection to end&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;]}&#39;</span><span class="p">)</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="RenderJSON.openObject"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.json.RenderJSON.openObject">[docs]</a>    <span class="k">def</span> <span class="nf">openObject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Used to open a JSON object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="n">attributes</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid attributes </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">attributes</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span><span class="p">:</span> <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isObject</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encode_basestring</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;{&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="n">attributes</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">attrName</span><span class="p">,</span> <span class="n">attrValue</span> <span class="ow">in</span> <span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attrName</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid attribute name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">attrName</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attrValue</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid attribute value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">attrValue</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="k">else</span><span class="p">:</span> <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encode_basestring</span><span class="p">(</span><span class="n">attrName</span><span class="p">))</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">encode_basestring</span><span class="p">(</span><span class="n">attrValue</span><span class="p">))</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

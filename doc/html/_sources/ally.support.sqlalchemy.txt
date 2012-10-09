@@ -1,0 +1,43 @@
+sqlalchemy Package
+==================
+
+:mod:`sqlalchemy` Package
+-------------------------
+
+.. automodule:: ally.support.sqlalchemy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`descriptor` Module
+------------------------
+
+.. automodule:: ally.support.sqlalchemy.descriptor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`mapper` Module
+--------------------
+
+.. automodule:: ally.support.sqlalchemy.mapper
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`session` Module
+---------------------
+
+.. automodule:: ally.support.sqlalchemy.session
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`util_service` Module
+--------------------------
+
+.. automodule:: ally.support.sqlalchemy.util_service
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

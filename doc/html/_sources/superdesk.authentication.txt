@@ -1,0 +1,13 @@
+authentication Package
+======================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.authentication.api
+    superdesk.authentication.core
+    superdesk.authentication.impl
+    superdesk.authentication.meta
+
