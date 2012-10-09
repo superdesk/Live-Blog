@@ -1,0 +1,19 @@
+impl Package
+============
+
+:mod:`impl` Package
+-------------------
+
+.. automodule:: superdesk.country.impl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`country` Module
+---------------------
+
+.. automodule:: superdesk.country.impl.country
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

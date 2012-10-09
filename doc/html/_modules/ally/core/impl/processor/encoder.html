@@ -1,0 +1,562 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.core.impl.processor.encoder &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.core.impl.processor.encoder</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jun 22, 2012</span>
+
+<span class="sd">@package: ally core</span>
+<span class="sd">@copyright: 2011 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides the creation for encoder on the response.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">ally.api.operator.container</span> <span class="kn">import</span> <span class="n">Container</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">ally.api.operator.type</span> <span class="kn">import</span> <span class="n">TypeExtension</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">,</span> \
+    <span class="n">TypeModelProperty</span><span class="p">,</span> <span class="n">TypeModel</span>
+<span class="kn">from</span> <span class="nn">ally.api.type</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Iter</span><span class="p">,</span> <span class="n">Boolean</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">Percentage</span><span class="p">,</span> \
+    <span class="n">String</span><span class="p">,</span> <span class="n">Time</span><span class="p">,</span> <span class="n">Date</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span> <span class="n">TypeNone</span><span class="p">,</span> <span class="n">typeFor</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.core.spec.codes</span> <span class="kn">import</span> <span class="n">Code</span><span class="p">,</span> <span class="n">BAD_CONTENT</span>
+<span class="kn">from</span> <span class="nn">ally.core.spec.resources</span> <span class="kn">import</span> <span class="n">Invoker</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">,</span> <span class="n">Converter</span>
+<span class="kn">from</span> <span class="nn">ally.core.spec.transform.exploit</span> <span class="kn">import</span> <span class="n">IResolve</span><span class="p">,</span> <span class="n">handleExploitError</span>
+<span class="kn">from</span> <span class="nn">ally.core.spec.transform.render</span> <span class="kn">import</span> <span class="n">IRender</span>
+<span class="kn">from</span> <span class="nn">ally.core.spec.transform.support</span> <span class="kn">import</span> <span class="n">getterOnObjIfIn</span>
+<span class="kn">from</span> <span class="nn">ally.design.context</span> <span class="kn">import</span> <span class="n">defines</span><span class="p">,</span> <span class="n">Context</span><span class="p">,</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">ally.design.processor</span> <span class="kn">import</span> <span class="n">HandlerProcessorProceed</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">WeakKeyDictionary</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Request"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.Request">[docs]</a><span class="k">class</span> <span class="nc">Request</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The request context.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Required</span>
+    <span class="n">invoker</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="n">Invoker</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Response"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.Response">[docs]</a><span class="k">class</span> <span class="nc">Response</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The response context.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Required</span>
+    <span class="n">converterId</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="n">Converter</span><span class="p">)</span>
+    <span class="n">converter</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="n">Converter</span><span class="p">)</span>
+    <span class="n">normalizer</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="n">Normalizer</span><span class="p">)</span>
+    <span class="c"># ---------------------------------------------------------------- Defined</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="n">Code</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">encoder</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="n">Callable</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: Callable</span>
+<span class="s">    The encoder to be used for encoding the response object for content rendering.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">encoderData</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: dictionary{string, object}</span>
+<span class="s">    The encoder data used in the rendering process.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="nd">@injected</span>
+<div class="viewcode-block" id="CreateEncoderHandler"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler">[docs]</a><span class="k">class</span> <span class="nc">CreateEncoderHandler</span><span class="p">(</span><span class="n">HandlerProcessorProceed</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation for a handler that provides the creation of encoders for response objects.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">nameList</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">List&#39;</span>
+    <span class="c"># The name to use for rendering lists of models.</span>
+    <span class="n">nameValue</span> <span class="o">=</span> <span class="s">&#39;Value&#39;</span>
+    <span class="c"># The name to use for rendering the values in a list of values.</span>
+    <span class="n">typeOrders</span> <span class="o">=</span> <span class="p">[</span><span class="n">Boolean</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">Percentage</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Time</span><span class="p">,</span> <span class="n">Date</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span> <span class="n">Iter</span><span class="p">]</span>
+    <span class="c"># The order in which </span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the encoder.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameList</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name list </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameList</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameValue</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameValue</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeOrders</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s">&#39;Invalid type orders </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeOrders</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_typeOrders</span> <span class="o">=</span> <span class="p">[</span><span class="n">typeFor</span><span class="p">(</span><span class="n">typ</span><span class="p">)</span> <span class="k">for</span> <span class="n">typ</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeOrders</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">WeakKeyDictionary</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CreateEncoderHandler.process"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span><span class="n">Request</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span><span class="n">Response</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: HandlerProcessorProceed.process</span>
+<span class="sd">        </span>
+<span class="sd">        Create the response content encoder.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">Request</span><span class="p">),</span> <span class="s">&#39;Invalid request </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">request</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">Response</span><span class="p">),</span> <span class="s">&#39;Invalid response </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">response</span>
+
+        <span class="k">if</span> <span class="n">Response</span><span class="o">.</span><span class="n">code</span> <span class="ow">in</span> <span class="n">response</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">isSuccess</span><span class="p">:</span> <span class="k">return</span> <span class="c"># Skip in case the response is in error</span>
+        <span class="k">if</span> <span class="n">Response</span><span class="o">.</span><span class="n">encoder</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span> <span class="k">return</span> <span class="c"># There is already an encoder no need to create another one</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">invoker</span><span class="p">,</span> <span class="n">Invoker</span><span class="p">),</span> <span class="s">&#39;Invalid request invoker </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">request</span><span class="o">.</span><span class="n">invoker</span>
+
+        <span class="n">response</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoderFor</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">invoker</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">encoder</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">BAD_CONTENT</span><span class="p">,</span> <span class="s">&#39;Cannot encode response object&#39;</span>
+            <span class="k">return</span>
+
+        <span class="n">response</span><span class="o">.</span><span class="n">encoderData</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">converterId</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">converterId</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">converter</span><span class="p">,</span>
+                                    <span class="n">normalizer</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">normalizer</span><span class="p">)</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="CreateEncoderHandler.encoderFor"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler.encoderFor">[docs]</a>    <span class="k">def</span> <span class="nf">encoderFor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ofType</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a encode exploit for the provided type.</span>
+<span class="sd">        </span>
+<span class="sd">        @param ofType: Type</span>
+<span class="sd">            The type to create the encoding exploit for.</span>
+<span class="sd">        @return: callable(**data)</span>
+<span class="sd">            The exploit that provides the encoding.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">ofType</span>
+
+        <span class="n">encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ofType</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">encoder</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Creating encoder for type </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">ofType</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">Iter</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">Iter</span><span class="p">)</span>
+
+                <span class="n">nameEncoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoderItem</span><span class="p">(</span><span class="n">ofType</span><span class="o">.</span><span class="n">itemType</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">nameEncoder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">name</span><span class="p">,</span> <span class="n">encoderItem</span> <span class="o">=</span> <span class="n">nameEncoder</span>
+                    <span class="n">encoder</span> <span class="o">=</span> <span class="n">EncodeCollection</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">encoderItem</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">):</span>
+                <span class="n">encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoderModel</span><span class="p">(</span><span class="n">ofType</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">TypeModelProperty</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">TypeModelProperty</span><span class="p">)</span>
+
+                <span class="n">encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoderProperty</span><span class="p">(</span><span class="n">ofType</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">TypeNone</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ofType</span><span class="o">.</span><span class="n">isOf</span><span class="p">(</span><span class="nb">bool</span><span class="p">):</span>
+                <span class="n">encoder</span> <span class="o">=</span> <span class="k">lambda</span> <span class="o">**</span><span class="n">data</span><span class="p">:</span> <span class="bp">None</span>
+
+            <span class="k">else</span><span class="p">:</span> <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Cannot encode object type </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">ofType</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">ofType</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoder</span>
+
+        <span class="k">return</span> <span class="n">encoder</span>
+</div>
+<div class="viewcode-block" id="CreateEncoderHandler.encoderItem"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler.encoderItem">[docs]</a>    <span class="k">def</span> <span class="nf">encoderItem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ofType</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Creates the item encoder for the collection.</span>
+<span class="sd">        </span>
+<span class="sd">        @param ofType: Type</span>
+<span class="sd">            The type of the item.</span>
+<span class="sd">        @return: tuple(string, callable(**data))|None</span>
+<span class="sd">            The name of the collection and exploit that provides the item encoding, None if the item type could not be</span>
+<span class="sd">            solved.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">ofType</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="p">(</span><span class="n">TypeModel</span><span class="p">,</span> <span class="n">TypeModelProperty</span><span class="p">)):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="n">Model</span><span class="p">),</span> <span class="s">&#39;Invalid model </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">ofType</span><span class="o">.</span><span class="n">container</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameList</span> <span class="o">%</span> <span class="n">ofType</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoderFor</span><span class="p">(</span><span class="n">ofType</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Cannot encode collection item type </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">ofType</span><span class="o">.</span><span class="n">itemType</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="CreateEncoderHandler.encoderModel"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler.encoderModel">[docs]</a>    <span class="k">def</span> <span class="nf">encoderModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ofType</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">exploit</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a encode exploit for a model.</span>
+<span class="sd">        </span>
+<span class="sd">        @param ofType: TypeModel</span>
+<span class="sd">            The type model to encode.</span>
+<span class="sd">        @param getter: callable(object) -&gt; object|None</span>
+<span class="sd">            The getter used to get the model from the value object.</span>
+<span class="sd">        @param exploit: EncodeObject|None</span>
+<span class="sd">            The encode model to use.</span>
+<span class="sd">        @return: callable(**data)</span>
+<span class="sd">            The exploit that provides the model encoding.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">),</span> <span class="s">&#39;Invalid type model </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">ofType</span>
+
+        <span class="n">typesProps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ofType</span><span class="o">.</span><span class="n">childTypes</span><span class="p">())</span>
+        <span class="n">typesProps</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ofType</span><span class="o">.</span><span class="n">childTypeId</span><span class="p">())</span>
+        <span class="n">typesProps</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">typeProp</span><span class="p">:</span> <span class="n">typeProp</span><span class="o">.</span><span class="n">property</span><span class="p">)</span>
+        <span class="n">typesProps</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sortTypePropertyKey</span><span class="p">)</span>
+        <span class="n">typesProps</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ofType</span><span class="o">.</span><span class="n">childTypeId</span><span class="p">())</span>
+
+        <span class="n">exploit</span> <span class="o">=</span> <span class="n">exploit</span> <span class="ow">or</span> <span class="n">EncodeObject</span><span class="p">(</span><span class="n">ofType</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">getter</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exploit</span><span class="p">,</span> <span class="n">EncodeObject</span><span class="p">),</span> <span class="s">&#39;Invalid encode object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">exploit</span>
+
+        <span class="k">for</span> <span class="n">typeProp</span> <span class="ow">in</span> <span class="n">typesProps</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeProp</span><span class="p">,</span> <span class="n">TypeModelProperty</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">registerProperty</span><span class="p">(</span><span class="n">exploit</span><span class="p">,</span> <span class="n">typeProp</span><span class="p">,</span> <span class="n">getterOnObjIfIn</span><span class="p">(</span><span class="n">typeProp</span><span class="o">.</span><span class="n">property</span><span class="p">,</span> <span class="n">typeProp</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">exploit</span>
+</div>
+<div class="viewcode-block" id="CreateEncoderHandler.encoderPrimitive"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler.encoderPrimitive">[docs]</a>    <span class="k">def</span> <span class="nf">encoderPrimitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">typeValue</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a encode exploit for a primitive property also encodes primitive value list.</span>
+<span class="sd">        </span>
+<span class="sd">        @param typeValue: Type</span>
+<span class="sd">            The type of the property value to encode.</span>
+<span class="sd">        @param getter: callable(object) -&gt; object|None</span>
+<span class="sd">            The getter used to get the value from the value object, if None provided it will use the received value.</span>
+<span class="sd">        @return: callable(**data)</span>
+<span class="sd">            The exploit that provides the primitive encoding.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeValue</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid property value type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">typeValue</span>
+        <span class="k">assert</span> <span class="n">getter</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">getter</span><span class="p">),</span> <span class="s">&#39;Invalid getter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">getter</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeValue</span><span class="p">,</span> <span class="n">Iter</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeValue</span><span class="p">,</span> <span class="n">Iter</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">EncodePrimitiveCollection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameValue</span><span class="p">,</span> <span class="n">typeValue</span><span class="o">.</span><span class="n">itemType</span><span class="p">,</span> <span class="n">getter</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">EncodePrimitive</span><span class="p">(</span><span class="n">typeValue</span><span class="p">,</span> <span class="n">getter</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="CreateEncoderHandler.encoderId"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler.encoderId">[docs]</a>    <span class="k">def</span> <span class="nf">encoderId</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">typeValue</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a encode exploit for a property id encode and add it to this model encode.</span>
+<span class="sd">        </span>
+<span class="sd">        @param typeValue: Type</span>
+<span class="sd">            The type of the property to encode.</span>
+<span class="sd">        @param getter: callable(object) -&gt; object|None</span>
+<span class="sd">            The getter used to get the value from the model object, if None provided it will use the received value.</span>
+<span class="sd">        @return: callable(**data)</span>
+<span class="sd">            The exploit that provides the id encoding.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeValue</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid property type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">typeValue</span>
+        <span class="k">assert</span> <span class="n">getter</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">getter</span><span class="p">),</span> <span class="s">&#39;Invalid getter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">getter</span>
+
+        <span class="k">return</span> <span class="n">EncodeId</span><span class="p">(</span><span class="n">typeValue</span><span class="p">,</span> <span class="n">getter</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="CreateEncoderHandler.encoderProperty"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler.encoderProperty">[docs]</a>    <span class="k">def</span> <span class="nf">encoderProperty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ofType</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">exploit</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a encode exploit for a property.</span>
+<span class="sd">        </span>
+<span class="sd">        @param ofType: TypeModelProperty</span>
+<span class="sd">            The type property to encode.</span>
+<span class="sd">        @param getter: callable(object) -&gt; object|None</span>
+<span class="sd">            The getter used to get the property from the value object.</span>
+<span class="sd">        @param exploit: EncodeObject|None</span>
+<span class="sd">            The encode model to use.</span>
+<span class="sd">        @return: callable(**data)</span>
+<span class="sd">            The exploit that provides the property encoding.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="p">,</span> <span class="n">TypeModelProperty</span><span class="p">),</span> <span class="s">&#39;Invalid type model property </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">ofType</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ofType</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="n">Model</span><span class="p">)</span>
+
+        <span class="n">exploit</span> <span class="o">=</span> <span class="n">exploit</span> <span class="ow">or</span> <span class="n">EncodeObject</span><span class="p">(</span><span class="n">ofType</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">getter</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exploit</span><span class="p">,</span> <span class="n">EncodeObject</span><span class="p">),</span> <span class="s">&#39;Invalid encode object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">exploit</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">registerProperty</span><span class="p">(</span><span class="n">exploit</span><span class="p">,</span> <span class="n">ofType</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">exploit</span>
+</div>
+<div class="viewcode-block" id="CreateEncoderHandler.registerProperty"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler.registerProperty">[docs]</a>    <span class="k">def</span> <span class="nf">registerProperty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exploit</span><span class="p">,</span> <span class="n">typeProp</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Register an encode exploit for a property type.</span>
+<span class="sd">        </span>
+<span class="sd">        @param exploit: EncodeObject</span>
+<span class="sd">            The encode model to register the property to.</span>
+<span class="sd">        @param typeProp: TypeProperty</span>
+<span class="sd">            The property type to create the exploit for.</span>
+<span class="sd">        @param getter: callable(object) -&gt; object|None</span>
+<span class="sd">            The getter used to get the value from the value object, if None provided it will use the received value.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exploit</span><span class="p">,</span> <span class="n">EncodeObject</span><span class="p">),</span> <span class="s">&#39;Invalid encode model </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">exploit</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeProp</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">),</span> <span class="s">&#39;Invalid type property </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">typeProp</span>
+
+        <span class="k">if</span> <span class="n">typeProp</span><span class="o">.</span><span class="n">property</span> <span class="o">==</span> <span class="n">typeProp</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">propertyId</span><span class="p">:</span>
+            <span class="n">encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoderId</span><span class="p">(</span><span class="n">typeProp</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">getter</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeProp</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeProp</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">TypeModel</span><span class="p">)</span>
+            <span class="n">encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoderProperty</span><span class="p">(</span><span class="n">typeProp</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">childTypeId</span><span class="p">(),</span> <span class="n">getter</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">encoder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoderPrimitive</span><span class="p">(</span><span class="n">typeProp</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">getter</span><span class="p">)</span>
+        <span class="n">exploit</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="n">typeProp</span><span class="o">.</span><span class="n">property</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoder</span>
+</div>
+<div class="viewcode-block" id="CreateEncoderHandler.sortTypePropertyKey"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler.sortTypePropertyKey">[docs]</a>    <span class="k">def</span> <span class="nf">sortTypePropertyKey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">propType</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the sorting key for property types, used in sort functions.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">propType</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">),</span> <span class="s">&#39;Invalid property type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">propType</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="nb">ord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_typeOrders</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">propType</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">:</span> <span class="k">break</span>
+        <span class="k">return</span> <span class="n">k</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="EncodeObject"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.EncodeObject">[docs]</a><span class="k">class</span> <span class="nc">EncodeObject</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Exploit for object encoding.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;getter&#39;</span><span class="p">,</span> <span class="s">&#39;properties&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a encode exploit for a model.</span>
+<span class="sd">        </span>
+<span class="sd">        @param name: string</span>
+<span class="sd">            The name of the model to encode.</span>
+<span class="sd">        @param getter: callable(object) -&gt; object|None</span>
+<span class="sd">            The getter used to get the object from the value object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="n">getter</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">getter</span><span class="p">),</span> <span class="s">&#39;Invalid getter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">getter</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getter</span> <span class="o">=</span> <span class="n">getter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">render</span><span class="p">,</span> <span class="n">normalizer</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">normalizer</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">),</span> <span class="s">&#39;Invalid normalizer </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">normalizer</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">render</span><span class="p">,</span> <span class="n">IRender</span><span class="p">),</span> <span class="s">&#39;Invalid render </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">render</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">:</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">return</span>
+
+        <span class="n">render</span><span class="o">.</span><span class="n">objectStart</span><span class="p">(</span><span class="n">normalizer</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="n">render</span><span class="p">,</span> <span class="n">normalizer</span><span class="o">=</span><span class="n">normalizer</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">nameProp</span><span class="p">,</span> <span class="n">encodeProp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span> <span class="n">encodeProp</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">nameProp</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span> <span class="n">handleExploitError</span><span class="p">(</span><span class="n">encodeProp</span><span class="p">)</span>
+        <span class="n">render</span><span class="o">.</span><span class="n">objectEnd</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="EncodeCollection"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.EncodeCollection">[docs]</a><span class="k">class</span> <span class="nc">EncodeCollection</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Exploit for collection encoding.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;exploitItem&#39;</span><span class="p">,</span> <span class="s">&#39;getter&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">exploitItem</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a encode exploit for a collection.</span>
+<span class="sd">        </span>
+<span class="sd">        @param name: string</span>
+<span class="sd">            The name to use for the collection.</span>
+<span class="sd">        @param exploitItem: callable(**data)</span>
+<span class="sd">            The exploit to be used for the item encoding.</span>
+<span class="sd">        @param getter: callable(object) -&gt; object|None</span>
+<span class="sd">            The getter used to get the model collection from the value object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">exploitItem</span><span class="p">),</span> <span class="s">&#39;Invalid exploit </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">exploitItem</span>
+        <span class="k">assert</span> <span class="n">getter</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">getter</span><span class="p">),</span> <span class="s">&#39;Invalid getter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">getter</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exploitItem</span> <span class="o">=</span> <span class="n">exploitItem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getter</span> <span class="o">=</span> <span class="n">getter</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">normalizer</span><span class="p">,</span> <span class="n">converter</span><span class="p">,</span> <span class="n">render</span><span class="p">,</span> <span class="n">resolve</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">normalizer</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">),</span> <span class="s">&#39;Invalid normalizer </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">normalizer</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">Converter</span><span class="p">),</span> <span class="s">&#39;Invalid converter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">converter</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">render</span><span class="p">,</span> <span class="n">IRender</span><span class="p">),</span> <span class="s">&#39;Invalid render </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">render</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resolve</span><span class="p">,</span> <span class="n">IResolve</span><span class="p">),</span> <span class="s">&#39;Invalid resolve </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">resolve</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">:</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">return</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">),</span> <span class="s">&#39;Invalid value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">value</span>
+
+        <span class="n">typeValue</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">typeValue</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeValue</span><span class="p">,</span> <span class="n">TypeExtension</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeValue</span><span class="p">,</span> <span class="n">TypeExtension</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeValue</span><span class="o">.</span><span class="n">container</span><span class="p">,</span> <span class="n">Container</span><span class="p">)</span>
+            <span class="n">attrs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">prop</span><span class="p">,</span> <span class="n">propType</span> <span class="ow">in</span> <span class="n">typeValue</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">propValue</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">propValue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="n">attrs</span><span class="p">[</span><span class="n">normalizer</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">prop</span><span class="p">)]</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">asString</span><span class="p">(</span><span class="n">propValue</span><span class="p">,</span> <span class="n">propType</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">attrs</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">normalizer</span><span class="o">=</span><span class="n">normalizer</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="n">converter</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="n">render</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">)</span>
+
+        <span class="n">render</span><span class="o">.</span><span class="n">collectionStart</span><span class="p">(</span><span class="n">normalizer</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">attrs</span><span class="p">)</span>
+        <span class="n">resolve</span><span class="o">.</span><span class="n">queueBatch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exploitItem</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value</span><span class="p">))</span>
+        <span class="n">resolve</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">finalize</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="n">render</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EncodeCollection.finalize"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.EncodeCollection.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">render</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">render</span><span class="p">,</span> <span class="n">IRender</span><span class="p">),</span> <span class="s">&#39;Invalid render </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">render</span>
+
+        <span class="n">render</span><span class="o">.</span><span class="n">collectionEnd</span><span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="EncodePrimitive"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.EncodePrimitive">[docs]</a><span class="k">class</span> <span class="nc">EncodePrimitive</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Exploit for primitive encoding.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;typeValue&#39;</span><span class="p">,</span> <span class="s">&#39;getter&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">typeValue</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a encode exploit for a primitive property.</span>
+<span class="sd">        </span>
+<span class="sd">        @param typeValue: Type</span>
+<span class="sd">            The type of the property value to encode.</span>
+<span class="sd">        @param getter: callable(object) -&gt; object|None</span>
+<span class="sd">            The getter used to get the value from the value object, if None provided it will use the received value.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeValue</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid value type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">typeValue</span>
+        <span class="k">assert</span> <span class="n">getter</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">getter</span><span class="p">),</span> <span class="s">&#39;Invalid getter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">getter</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeValue</span> <span class="o">=</span> <span class="n">typeValue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getter</span> <span class="o">=</span> <span class="n">getter</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">render</span><span class="p">,</span> <span class="n">normalizer</span><span class="p">,</span> <span class="n">converter</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">render</span><span class="p">,</span> <span class="n">IRender</span><span class="p">),</span> <span class="s">&#39;Invalid render </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">render</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">normalizer</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">),</span> <span class="s">&#39;Invalid normalizer </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">normalizer</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">Converter</span><span class="p">),</span> <span class="s">&#39;Invalid converter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">converter</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">:</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">return</span>
+        <span class="n">render</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">normalizer</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">converter</span><span class="o">.</span><span class="n">asString</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeValue</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="EncodePrimitiveCollection"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.EncodePrimitiveCollection">[docs]</a><span class="k">class</span> <span class="nc">EncodePrimitiveCollection</span><span class="p">(</span><span class="n">EncodePrimitive</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Exploit for primitive encoding with a specified name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;nameValue&#39;</span><span class="p">,</span> <span class="s">&#39;getterCollection&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nameValue</span><span class="p">,</span> <span class="n">typeValue</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a encode exploit for a primitive property.</span>
+<span class="sd">        @see: EncodePrimitive.__init__</span>
+<span class="sd">        </span>
+<span class="sd">        @param nameValue: string</span>
+<span class="sd">            The name to associate with the rendered value.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nameValue</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid value name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">nameValue</span>
+        <span class="k">assert</span> <span class="n">getter</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">getter</span><span class="p">),</span> <span class="s">&#39;Invalid getter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">getter</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">typeValue</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nameValue</span> <span class="o">=</span> <span class="n">nameValue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getterCollection</span> <span class="o">=</span> <span class="n">getter</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">render</span><span class="p">,</span> <span class="n">normalizer</span><span class="p">,</span> <span class="n">converter</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">render</span><span class="p">,</span> <span class="n">IRender</span><span class="p">),</span> <span class="s">&#39;Invalid render </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">render</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">normalizer</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">),</span> <span class="s">&#39;Invalid normalizer </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">normalizer</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">Converter</span><span class="p">),</span> <span class="s">&#39;Invalid converter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">converter</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getterCollection</span><span class="p">:</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getterCollection</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">return</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">),</span> <span class="s">&#39;Invalid value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">value</span>
+
+        <span class="n">render</span><span class="o">.</span><span class="n">collectionStart</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__call__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameValue</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">render</span><span class="p">,</span> <span class="n">normalizer</span><span class="p">,</span> <span class="n">converter</span><span class="p">)</span>
+        <span class="n">render</span><span class="o">.</span><span class="n">collectionEnd</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="EncodeId"><a class="viewcode-back" href="../../../../../ally.core.impl.processor.html#ally.core.impl.processor.encoder.EncodeId">[docs]</a><span class="k">class</span> <span class="nc">EncodeId</span><span class="p">(</span><span class="n">EncodePrimitive</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Exploit for id encoding.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">render</span><span class="p">,</span> <span class="n">converterId</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">render</span><span class="p">,</span> <span class="n">IRender</span><span class="p">),</span> <span class="s">&#39;Invalid render </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">render</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converterId</span><span class="p">,</span> <span class="n">Converter</span><span class="p">),</span> <span class="s">&#39;Invalid converter id </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">converterId</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">:</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">return</span>
+        <span class="n">render</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">converterId</span><span class="o">.</span><span class="n">asString</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeValue</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

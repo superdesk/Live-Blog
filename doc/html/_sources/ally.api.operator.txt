@@ -1,0 +1,42 @@
+operator Package
+================
+
+:mod:`container` Module
+-----------------------
+
+.. automodule:: ally.api.operator.container
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`descriptor` Module
+------------------------
+
+.. automodule:: ally.api.operator.descriptor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`extract` Module
+---------------------
+
+.. automodule:: ally.api.operator.extract
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`type` Module
+------------------
+
+.. automodule:: ally.api.operator.type
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ally.api.operator.authentication
+

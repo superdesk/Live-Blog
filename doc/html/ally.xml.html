@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>xml Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="ally Package" href="ally.html" />
+    <link rel="next" title="zip Package" href="ally.zip.html" />
+    <link rel="prev" title="sqlalchemy Package" href="ally.support.sqlalchemy.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.zip.html" title="zip Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.support.sqlalchemy.html" title="sqlalchemy Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" accesskey="U">ally Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="xml-package">
+<h1>xml Package<a class="headerlink" href="#xml-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-ally.xml.digester">
+<span id="digester-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">digester</span></tt> Module<a class="headerlink" href="#module-ally.xml.digester" title="Permalink to this headline">¶</a></h2>
+<p>Created on Sep 29, 2011</p>
+<p>&#64;package: ally utilities
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides an XML digester used for parsing XML files by using a SAX parser.</p>
+<dl class="class">
+<dt id="ally.xml.digester.Digester">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester.</tt><tt class="descname">Digester</tt><big>(</big><em>root</em>, <em>acceptAttributes=True</em>, <em>acceptUnknownTags=True</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">xml.sax.handler.ContentHandler</span></tt></p>
+<p>Provides a digester for XML.</p>
+<dl class="method">
+<dt id="ally.xml.digester.Digester.characters">
+<tt class="descname">characters</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester.characters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester.characters" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ContentHandler.characters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Digester.currentName">
+<tt class="descname">currentName</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester.currentName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester.currentName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the current processing name of the digester.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Digester.currentPath">
+<tt class="descname">currentPath</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester.currentPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester.currentPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the current processing path of the digester.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Digester.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester.endElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester.endElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ContentHandler.endElement</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Digester.getColumnNumber">
+<tt class="descname">getColumnNumber</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester.getColumnNumber"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester.getColumnNumber" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Digester.getLineNumber">
+<tt class="descname">getLineNumber</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester.getLineNumber"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester.getLineNumber" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Digester.parse">
+<tt class="descname">parse</tt><big>(</big><em>charSet</em>, <em>file</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the provided content.</p>
+<dl class="docutils">
+<dt>&#64;param charSet: string</dt>
+<dd>The character set of the content.</dd>
+<dt>&#64;param file: byte file</dt>
+<dd>The bytes file object providing the content.</dd>
+<dt>&#64;return: object</dt>
+<dd>The object obtained from parsing.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Digester.parseInputSource">
+<tt class="descname">parseInputSource</tt><big>(</big><em>source</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester.parseInputSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester.parseInputSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the provided input source.</p>
+<dl class="docutils">
+<dt>&#64;param source: InputSource</dt>
+<dd>The input source providing the content.</dd>
+<dt>&#64;return: object</dt>
+<dd>The object obtained from parsing.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Digester.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attributes</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Digester.startElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Digester.startElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ContentHandler.startElement</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="ally.xml.digester.DigesterError">
+<em class="property">exception </em><tt class="descclassname">ally.xml.digester.</tt><tt class="descname">DigesterError</tt><a class="reference internal" href="_modules/ally/xml/digester.html#DigesterError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.DigesterError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<p>Error raised whenever there is a xml digester problem.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.xml.digester.DigesterXMLUpdate">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester.</tt><tt class="descname">DigesterXMLUpdate</tt><big>(</big><em>root</em>, <em>out</em>, <em>encoding='UTF-8'</em>, <em>acceptAttributes=True</em>, <em>acceptUnknownTags=True</em>, <em>shortEmptyElements=True</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#DigesterXMLUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.DigesterXMLUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.xml.digester.Digester" title="ally.xml.digester.Digester"><tt class="xref py py-class docutils literal"><span class="pre">ally.xml.digester.Digester</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">xml.sax.saxutils.XMLGenerator</span></tt></p>
+<p>A digester extension to be used in updating the XML files. If there are rules for a certain path than the rule
+has to call the XMLGenerator for rendering that tag, otherwise all elements that do not have a rule will get
+rendered. Attention the digester will not close the provided output.</p>
+<dl class="method">
+<dt id="ally.xml.digester.DigesterXMLUpdate.parse">
+<tt class="descname">parse</tt><big>(</big><em>charSet</em>, <em>file</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#DigesterXMLUpdate.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.DigesterXMLUpdate.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Digester.parse</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.xml.digester.Node">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester.</tt><tt class="descname">Node</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Defines a node of rules that contain the rule of the node and the childrens.</p>
+<dl class="method">
+<dt id="ally.xml.digester.Node.addRule">
+<tt class="descname">addRule</tt><big>(</big><em>rule</em>, <em>*xpaths</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Node.addRule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Node.addRule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a rule to this node.</p>
+<dl class="docutils">
+<dt>&#64;param rule: Rule</dt>
+<dd>The rule to be added.</dd>
+<dt>&#64;param xpaths: tuple</dt>
+<dd>A tuple of string containing the xpath of the rule.</dd>
+<dt>&#64;return: Node</dt>
+<dd>The node of the added rule.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Node.obtainNode">
+<tt class="descname">obtainNode</tt><big>(</big><em>xpaths</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Node.obtainNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Node.obtainNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains the node for the specified xpaths list.</p>
+<dl class="docutils">
+<dt>&#64;param xpaths: deque(string)</dt>
+<dd>The xpaths list to be searched.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.xml.digester.Rule">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester.</tt><tt class="descname">Rule</tt><a class="reference internal" href="_modules/ally/xml/digester.html#Rule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Rule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the parser rule base.</p>
+<dl class="method">
+<dt id="ally.xml.digester.Rule.begin">
+<tt class="descname">begin</tt><big>(</big><em>digester</em>, <em>**attributes</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Rule.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Rule.begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called at element start.</p>
+<dl class="docutils">
+<dt>&#64;param digester: Digester</dt>
+<dd>The processing digester.</dd>
+<dt>&#64;param attributes: key arguments</dt>
+<dd>The attributes for the tag if the digester allows them.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Rule.content">
+<tt class="descname">content</tt><big>(</big><em>digester</em>, <em>content</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Rule.content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Rule.content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when the element has character data content.</p>
+<dl class="docutils">
+<dt>&#64;param digester: Digester</dt>
+<dd>The processing digester.</dd>
+<dt>&#64;param content: string</dt>
+<dd>The content of the element.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.Rule.end">
+<tt class="descname">end</tt><big>(</big><em>node</em>, <em>digester</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#Rule.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.Rule.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called at element end.</p>
+<dl class="docutils">
+<dt>&#64;param node: Node</dt>
+<dd>The node containing the rule.</dd>
+<dt>&#64;param digester: Digester</dt>
+<dd>The processing digester.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.xml.digester.RuleRoot">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester.</tt><tt class="descname">RuleRoot</tt><a class="reference internal" href="_modules/ally/xml/digester.html#RuleRoot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.RuleRoot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.xml.digester.Node" title="ally.xml.digester.Node"><tt class="xref py py-class docutils literal"><span class="pre">ally.xml.digester.Node</span></tt></a></p>
+<p>Provides a root node.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.xml.digester.RuleXMLUpdate">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester.</tt><tt class="descname">RuleXMLUpdate</tt><a class="reference internal" href="_modules/ally/xml/digester.html#RuleXMLUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.RuleXMLUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.xml.digester.Rule" title="ally.xml.digester.Rule"><tt class="xref py py-class docutils literal"><span class="pre">ally.xml.digester.Rule</span></tt></a></p>
+<p>Rule extension that just delivers the event to the digester XML generator. Used for inheriting whenever you 
+only need to modify like the begin of the rule but the content and end should be propagated.</p>
+<dl class="method">
+<dt id="ally.xml.digester.RuleXMLUpdate.begin">
+<tt class="descname">begin</tt><big>(</big><em>digester</em>, <em>**attributes</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#RuleXMLUpdate.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.RuleXMLUpdate.begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.begin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.RuleXMLUpdate.content">
+<tt class="descname">content</tt><big>(</big><em>digester</em>, <em>content</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#RuleXMLUpdate.content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.RuleXMLUpdate.content" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.content</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.RuleXMLUpdate.end">
+<tt class="descname">end</tt><big>(</big><em>node</em>, <em>digester</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#RuleXMLUpdate.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.RuleXMLUpdate.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.end</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.xml.digester.RuleXMLWrapUpdate">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester.</tt><tt class="descname">RuleXMLWrapUpdate</tt><big>(</big><em>wrapped</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#RuleXMLWrapUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.RuleXMLWrapUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.xml.digester.RuleXMLUpdate" title="ally.xml.digester.RuleXMLUpdate"><tt class="xref py py-class docutils literal"><span class="pre">ally.xml.digester.RuleXMLUpdate</span></tt></a></p>
+<p>Rule extension that just delivers the event to the digester XML generator and also notifies a wrapped rule of the
+triggers.</p>
+<dl class="method">
+<dt id="ally.xml.digester.RuleXMLWrapUpdate.begin">
+<tt class="descname">begin</tt><big>(</big><em>digester</em>, <em>**attributes</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#RuleXMLWrapUpdate.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.RuleXMLWrapUpdate.begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.begin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.RuleXMLWrapUpdate.content">
+<tt class="descname">content</tt><big>(</big><em>digester</em>, <em>content</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#RuleXMLWrapUpdate.content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.RuleXMLWrapUpdate.content" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.content</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester.RuleXMLWrapUpdate.end">
+<tt class="descname">end</tt><big>(</big><em>node</em>, <em>digester</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester.html#RuleXMLWrapUpdate.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester.RuleXMLWrapUpdate.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.end</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.xml.digester_rules">
+<span id="digester-rules-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">digester_rules</span></tt> Module<a class="headerlink" href="#module-ally.xml.digester_rules" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 9, 2012</p>
+<p>&#64;package: ally utilities
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides an XML digester general rules.</p>
+<dl class="class">
+<dt id="ally.xml.digester_rules.RuleCreate">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester_rules.</tt><tt class="descname">RuleCreate</tt><big>(</big><em>create</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester_rules.html#RuleCreate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester_rules.RuleCreate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.xml.digester.Rule" title="ally.xml.digester.Rule"><tt class="xref py py-class docutils literal"><span class="pre">ally.xml.digester.Rule</span></tt></a></p>
+<p>Rule that creates and pushes on the digester stack a value at the begin event and then at the end pulls the value from
+the stack.</p>
+<dl class="method">
+<dt id="ally.xml.digester_rules.RuleCreate.begin">
+<tt class="descname">begin</tt><big>(</big><em>digester</em>, <em>**attributes</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester_rules.html#RuleCreate.begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester_rules.RuleCreate.begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.begin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.xml.digester_rules.RuleCreate.end">
+<tt class="descname">end</tt><big>(</big><em>node</em>, <em>digester</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester_rules.html#RuleCreate.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester_rules.RuleCreate.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.end</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.xml.digester_rules.RuleSet">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester_rules.</tt><tt class="descname">RuleSet</tt><big>(</big><em>setter</em>, <em>toIndex=-2</em>, <em>fromIndex=-1</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester_rules.html#RuleSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester_rules.RuleSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.xml.digester.Rule" title="ally.xml.digester.Rule"><tt class="xref py py-class docutils literal"><span class="pre">ally.xml.digester.Rule</span></tt></a></p>
+<p>Rule that sets on a stack object another stack object based on a provided callable that will manage the set.
+The set is performed at the end event.</p>
+<dl class="method">
+<dt id="ally.xml.digester_rules.RuleSet.end">
+<tt class="descname">end</tt><big>(</big><em>node</em>, <em>digester</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester_rules.html#RuleSet.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester_rules.RuleSet.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.end</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.xml.digester_rules.RuleSetContent">
+<em class="property">class </em><tt class="descclassname">ally.xml.digester_rules.</tt><tt class="descname">RuleSetContent</tt><big>(</big><em>setter</em>, <em>index=-1</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester_rules.html#RuleSetContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester_rules.RuleSetContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.xml.digester.Rule" title="ally.xml.digester.Rule"><tt class="xref py py-class docutils literal"><span class="pre">ally.xml.digester.Rule</span></tt></a></p>
+<p>Rule that sets the content on a stack object whenever content is available.</p>
+<dl class="method">
+<dt id="ally.xml.digester_rules.RuleSetContent.content">
+<tt class="descname">content</tt><big>(</big><em>digester</em>, <em>content</em><big>)</big><a class="reference internal" href="_modules/ally/xml/digester_rules.html#RuleSetContent.content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.xml.digester_rules.RuleSetContent.content" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Rule.content</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">xml Package</a><ul>
+<li><a class="reference internal" href="#module-ally.xml.digester"><tt class="docutils literal"><span class="pre">digester</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.xml.digester_rules"><tt class="docutils literal"><span class="pre">digester_rules</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.support.sqlalchemy.html"
+                        title="previous chapter">sqlalchemy Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.zip.html"
+                        title="next chapter">zip Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.xml.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.zip.html" title="zip Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.support.sqlalchemy.html" title="sqlalchemy Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

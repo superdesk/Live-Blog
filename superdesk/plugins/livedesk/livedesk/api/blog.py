@@ -14,7 +14,7 @@ from ally.support.api.entity import Entity, IEntityCRUDService
 from superdesk.language.api.language import LanguageEntity
 from superdesk.user.api.user import User
 from datetime import datetime
-from ally.api.config import query, service, call
+from ally.api.config import query, service, call, UPDATE
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered
 from ally.api.type import Iter
 from ally.api.authentication import auth
@@ -85,4 +85,10 @@ class IBlogService(IEntityCRUDService):
     def getLive(self, languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs that are live at this moment.
+        '''
+        
+    @call(webName='PutLive', method=UPDATE)
+    def putLive(self, adminId:auth(User.Id), blogId:Blog.Id):
+        '''
+        Puts blog live
         '''

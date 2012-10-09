@@ -6,27 +6,43 @@ function isOnly(data,key) {
 	};
 	return (data !== undefined) && (data[key] !== undefined) && (count == 1);
 }
+
 window.livedesk.init = function() {
-		var self = this,
-			contentPath = self.contentPath === undefined? '': self.contentPath;		
-		if (typeof jQuery == 'undefined') {
-			self.loadScript('http://code.jquery.com/jquery-1.7.2.min.js', function(){
-				if (typeof $.gizmo == 'undefined') {
-					self.loadScript(contentPath+'gizmo.js', function(){
-						self.startLoading();
-					})
-				}
-			})
-		} else {
-			if (typeof $.gizmo == 'undefined') {			
-				self.loadScript(contentPath+'gizmo.js', function(){
-					self.startLoading();
-				})
-			} else {
-				self.startLoading();
-			}
-		}
-	};
+    var self = this;
+    var loadJQ = false;
+    var giveBack$ = false;
+    contentPath = self.contentPath === undefined? '': self.contentPath;
+    
+    if (typeof jQuery == 'undefined') {
+        loadJQ = true;
+    } else {
+        if(parseFloat($().jquery) < 1.7) {
+            loadJQ = true;
+            //relinquish control of $ variable
+            giveBack$ = true;
+        }
+    }
+    
+    if (loadJQ) {
+        self.loadScript('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function(){
+            if (typeof $.gizmo == 'undefined') {
+                self.loadScript(contentPath+'gizmo.js', function(){
+                    self.preLoad(giveBack$);
+                })
+            } else {
+                self.preLoad(giveBack$);
+            }
+        })
+    } else {
+        if (typeof $.gizmo == 'undefined') {			
+            self.loadScript(contentPath+'gizmo.js', function(){
+                self.preLoad(giveBack$);
+            })
+        } else {
+            self.preLoad(giveBack$);
+        }
+    }
+};
 	
 window.livedesk.loadScript = function (src, callback) {
 		var script = document.createElement("script")
@@ -46,7 +62,15 @@ window.livedesk.loadScript = function (src, callback) {
 		script.src = src;
 		document.getElementsByTagName("head")[0].appendChild(script);
 	};
-window.livedesk.startLoading = function() {
+window.livedesk.preLoad = function (giveBack$) {
+    if (giveBack$) {
+        var jq_17 = $.noConflict(true);
+        this.startLoading(jq_17);
+    } else {
+        this.startLoading(jQuery);
+    }
+};
+window.livedesk.startLoading = function($) {
 		var 
 		User = $.gizmo.Model.extend({}),
 /*		PostType = $.gizmo.Model.extend({}),
@@ -245,11 +269,10 @@ window.livedesk.startLoading = function() {
 				// Tw------------------------------------------------------------------------------------------------
 				var returned = '';
                                 var itemClass = item.getClass();
-                                /*
+                                
                                 if(Avatar.length > 0) {
-                                    returned += '<figure><img src="' + Avatar + ' alt="Gravatar" /></figure>';
-                                }
-                                */                                
+                                    returned += '<figure><img src="' + Avatar + '" ></figure>';
+                                }                                
                                 switch (itemClass) {
                                     case 'tw':
                                     case 'service':
@@ -280,7 +303,7 @@ window.livedesk.startLoading = function() {
 			},
 			render: function()
 			{			
-                countLoaded++;
+                                countLoaded++;
 				var self = this, order = parseFloat(self.model.get('Order')), Avatar='';
 				if(this.model.get('AuthorPerson') && this.model.get('AuthorPerson').EMail) {
 					Avatar = $.avatar.get(self.model.get('AuthorPerson').EMail);
@@ -329,7 +352,8 @@ window.livedesk.startLoading = function() {
 						var jqo = $(paddedContent);
 						jqo.find('img').attr('src', jqo.find('a').attr('href'));
 						content = jqo.html();
-					} else if (self.model.get('AuthorName') == 'twitter') {        
+					} else if (self.model.get('AuthorName') == 'twitter') {
+                                                Avatar = meta.profile_image_url;
 						content = self.model.twitter.link.all(content);
 					} else if (self.model.get('AuthorName') == 'google') {
                                             if (meta.tbUrl) {
@@ -480,7 +504,6 @@ window.livedesk.startLoading = function() {
 				while(i--) {
 					this.addOne(data[i]);
 				}
-                                
 			}
 			
 		});

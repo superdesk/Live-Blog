@@ -149,7 +149,7 @@ define('providers/edit', [
 			'[ci="save"]': { 'click': 'save'}
 		},
 		init: function()
-		{			
+		{	
 			var self = this,
 			    PostTypes = Gizmo.Collection.extend({model: PostType});
 			
@@ -232,11 +232,10 @@ define('providers/edit', [
 			this.postsView.save(data);			
 		}
 	});	
-	var editView = null;
+	var editView = false;
     $.extend( providers.edit, { init: function(blogUrl)
-    { 
-        editView = new EditView({ el: this.el, blogUrl: blogUrl });
-        this.init = $.noop; 
+    {
+        editView = new EditView({ el: this.el, blogUrl: blogUrl }); // !editView? new EditView({ el: this.el, blogUrl: blogUrl }): editView;
     }});
 	return providers;	
 });
