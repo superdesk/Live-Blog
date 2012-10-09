@@ -1,0 +1,10 @@
+resources Package
+=================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.ffmpeg
+

@@ -1,0 +1,187 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superdesk.source.impl.source &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for superdesk.source.impl.source</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on May 3, 2012</span>
+
+<span class="sd">@package: superdesk source</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Contains the SQL alchemy implementation for source API.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">..api.source</span> <span class="kn">import</span> <span class="n">ISourceService</span>
+<span class="kn">from</span> <span class="nn">..meta.source</span> <span class="kn">import</span> <span class="n">SourceMapped</span>
+<span class="kn">from</span> <span class="nn">..meta.type</span> <span class="kn">import</span> <span class="n">SourceTypeMapped</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.container.support</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="kn">from</span> <span class="nn">ally.exception</span> <span class="kn">import</span> <span class="n">InputError</span><span class="p">,</span> <span class="n">Ref</span>
+<span class="kn">from</span> <span class="nn">ally.internationalization</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">ally.support.api.util_service</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.util_service</span> <span class="kn">import</span> <span class="n">buildQuery</span><span class="p">,</span> <span class="n">buildLimits</span><span class="p">,</span> <span class="n">handle</span>
+<span class="kn">from</span> <span class="nn">sql_alchemy.impl.entity</span> <span class="kn">import</span> <span class="n">EntityGetCRUDServiceAlchemy</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">SQLAlchemyError</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.exc</span> <span class="kn">import</span> <span class="n">NoResultFound</span>
+<span class="kn">from</span> <span class="nn">superdesk.source.api.source</span> <span class="kn">import</span> <span class="n">Source</span>
+<span class="kn">from</span> <span class="nn">ally.api.extension</span> <span class="kn">import</span> <span class="n">IterPart</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="nd">@injected</span>
+<span class="nd">@setup</span><span class="p">(</span><span class="n">ISourceService</span><span class="p">)</span>
+<div class="viewcode-block" id="SourceServiceAlchemy"><a class="viewcode-back" href="../../../../superdesk.source.impl.html#superdesk.source.impl.source.SourceServiceAlchemy">[docs]</a><span class="k">class</span> <span class="nc">SourceServiceAlchemy</span><span class="p">(</span><span class="n">EntityGetCRUDServiceAlchemy</span><span class="p">,</span> <span class="n">ISourceService</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation for @see: ISourceService</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the source service.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">EntityGetCRUDServiceAlchemy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SourceMapped</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SourceServiceAlchemy.getAll"><a class="viewcode-back" href="../../../../superdesk.source.impl.html#superdesk.source.impl.source.SourceServiceAlchemy.getAll">[docs]</a>    <span class="k">def</span> <span class="nf">getAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">typeKey</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ISourceService.getAll</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SourceMapped</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">typeKey</span><span class="p">:</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SourceTypeMapped</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">SourceTypeMapped</span><span class="o">.</span><span class="n">Key</span> <span class="o">==</span> <span class="n">typeKey</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">q</span><span class="p">:</span> <span class="n">sql</span> <span class="o">=</span> <span class="n">buildQuery</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">SourceMapped</span><span class="p">)</span>
+        <span class="n">sqlLimit</span> <span class="o">=</span> <span class="n">buildLimits</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">detailed</span><span class="p">:</span> <span class="k">return</span> <span class="n">IterPart</span><span class="p">(</span><span class="n">sqlLimit</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="n">sql</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sqlLimit</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SourceServiceAlchemy.insert"><a class="viewcode-back" href="../../../../superdesk.source.impl.html#superdesk.source.impl.source.SourceServiceAlchemy.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ISourceService.insert</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">Source</span><span class="p">),</span> <span class="s">&#39;Invalid source </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">source</span>
+        <span class="n">sourceDb</span> <span class="o">=</span> <span class="n">SourceMapped</span><span class="p">()</span>
+        <span class="n">sourceDb</span><span class="o">.</span><span class="n">typeId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_typeId</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">Type</span><span class="p">)</span>
+        <span class="n">copy</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">sourceDb</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;Type&#39;</span><span class="p">,))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sourceDb</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">flush</span><span class="p">((</span><span class="n">sourceDb</span><span class="p">,))</span>
+        <span class="k">except</span> <span class="n">SQLAlchemyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> <span class="n">handle</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">sourceDb</span><span class="p">)</span>
+        <span class="n">source</span><span class="o">.</span><span class="n">Id</span> <span class="o">=</span> <span class="n">sourceDb</span><span class="o">.</span><span class="n">Id</span>
+        <span class="k">return</span> <span class="n">sourceDb</span><span class="o">.</span><span class="n">Id</span>
+</div>
+<div class="viewcode-block" id="SourceServiceAlchemy.update"><a class="viewcode-back" href="../../../../superdesk.source.impl.html#superdesk.source.impl.source.SourceServiceAlchemy.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ISourceService.update</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">Source</span><span class="p">),</span> <span class="s">&#39;Invalid source </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">source</span>
+        <span class="n">sourceDb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SourceMapped</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sourceDb</span><span class="p">:</span> <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Unknown source id&#39;</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Source</span><span class="o">.</span><span class="n">Id</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">Source</span><span class="o">.</span><span class="n">Type</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span> <span class="n">sourceDb</span><span class="o">.</span><span class="n">typeId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_typeId</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">Type</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">flush</span><span class="p">((</span><span class="n">copy</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">sourceDb</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;Type&#39;</span><span class="p">,)),))</span>
+        <span class="k">except</span> <span class="n">SQLAlchemyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> <span class="n">handle</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">SourceMapped</span><span class="p">)</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+    <span class="k">def</span> <span class="nf">_typeId</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the source type id that has the provided key.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SourceTypeMapped</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">SourceTypeMapped</span><span class="o">.</span><span class="n">Key</span> <span class="o">==</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sql</span><span class="o">.</span><span class="n">one</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="n">NoResultFound</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid source type </span><span class="si">%(type)s</span><span class="s">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">key</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Source</span><span class="o">.</span><span class="n">Type</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

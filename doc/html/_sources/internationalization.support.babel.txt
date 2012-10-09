@@ -1,0 +1,11 @@
+babel Package
+=============
+
+:mod:`util_babel` Module
+------------------------
+
+.. automodule:: internationalization.support.babel.util_babel
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

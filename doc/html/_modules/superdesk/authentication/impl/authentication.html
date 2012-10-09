@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superdesk.authentication.impl.authentication &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for superdesk.authentication.impl.authentication</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Sep 3, 2012</span>
+
+<span class="sd">@package: superdesk authentication</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">The superdesk authentication implementation.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">..api.authentication</span> <span class="kn">import</span> <span class="n">IAuthenticationService</span><span class="p">,</span> <span class="n">Authentication</span>
+<span class="kn">from</span> <span class="nn">ally.api.operator.authentication.service</span> <span class="kn">import</span> <span class="n">IAuthenticationSupport</span>
+<span class="kn">from</span> <span class="nn">ally.api.type</span> <span class="kn">import</span> <span class="n">typeFor</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">from</span> <span class="nn">ally.container</span> <span class="kn">import</span> <span class="n">wire</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.exception</span> <span class="kn">import</span> <span class="n">InputError</span><span class="p">,</span> <span class="n">Ref</span><span class="p">,</span> <span class="n">DevelError</span>
+<span class="kn">from</span> <span class="nn">ally.internationalization</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.session</span> <span class="kn">import</span> <span class="n">SessionSupport</span><span class="p">,</span> <span class="n">commitNow</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.util_service</span> <span class="kn">import</span> <span class="n">handle</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">urandom</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">SQLAlchemyError</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.exc</span> <span class="kn">import</span> <span class="n">NoResultFound</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.functions</span> <span class="kn">import</span> <span class="n">current_timestamp</span>
+<span class="kn">from</span> <span class="nn">superdesk.authentication.core.spec</span> <span class="kn">import</span> <span class="n">ICleanupService</span>
+<span class="kn">from</span> <span class="nn">superdesk.authentication.meta.authentication</span> <span class="kn">import</span> <span class="n">LoginMapped</span><span class="p">,</span> \
+    <span class="n">TokenMapped</span>
+<span class="kn">from</span> <span class="nn">superdesk.user.api.user</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">superdesk.user.meta.user</span> <span class="kn">import</span> <span class="n">UserMapped</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">hmac</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">ally.container.support</span> <span class="kn">import</span> <span class="n">setup</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="IAuthenticationCompoundService"><a class="viewcode-back" href="../../../../superdesk.authentication.impl.html#superdesk.authentication.impl.authentication.IAuthenticationCompoundService">[docs]</a><span class="k">class</span> <span class="nc">IAuthenticationCompoundService</span><span class="p">(</span><span class="n">IAuthenticationService</span><span class="p">,</span> <span class="n">IAuthenticationSupport</span><span class="p">,</span> <span class="n">ICleanupService</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Compound specification class formed from the authentication specifications.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+</div>
+<span class="nd">@injected</span>
+<span class="nd">@setup</span><span class="p">(</span><span class="n">IAuthenticationCompoundService</span><span class="p">)</span>
+<div class="viewcode-block" id="AuthenticationServiceAlchemy"><a class="viewcode-back" href="../../../../superdesk.authentication.impl.html#superdesk.authentication.impl.authentication.AuthenticationServiceAlchemy">[docs]</a><span class="k">class</span> <span class="nc">AuthenticationServiceAlchemy</span><span class="p">(</span><span class="n">SessionSupport</span><span class="p">,</span> <span class="n">IAuthenticationCompoundService</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The service implementation that provides the authentication.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">authentication_token_size</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s">&#39;authentication_token_size&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    The number of characters that the authentication token should have.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">session_token_size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s">&#39;session_token_size&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    The number of characters that the authentication token should have.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">authentication_timeout</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s">&#39;authentication_timeout&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    The number of seconds after which the login token expires.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">session_timeout</span> <span class="o">=</span> <span class="mi">3600</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s">&#39;session_timeout&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    The number of seconds after which the session expires.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the authentication service.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authentication_token_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;Invalid token size </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">authentication_token_size</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_token_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;Invalid session token size </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_token_size</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authentication_timeout</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> \
+        <span class="s">&#39;Invalid authentication timeout </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">authentication_timeout</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session_timeout</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;Invalid session timeout </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_timeout</span>
+        <span class="n">SessionSupport</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">authenticationTimeOut</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">authentication_timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sessionTimeOut</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">session_timeout</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AuthenticationServiceAlchemy.requestLogin"><a class="viewcode-back" href="../../../../superdesk.authentication.impl.html#superdesk.authentication.impl.authentication.AuthenticationServiceAlchemy.requestLogin">[docs]</a>    <span class="k">def</span> <span class="nf">requestLogin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IAuthenticationService.requestLogin</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">()</span>
+        <span class="nb">hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">urandom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authentication_token_size</span><span class="p">))</span>
+
+        <span class="n">token</span> <span class="o">=</span> <span class="n">TokenMapped</span><span class="p">()</span>
+        <span class="n">token</span><span class="o">.</span><span class="n">Token</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="n">token</span><span class="o">.</span><span class="n">requestedOn</span> <span class="o">=</span> <span class="n">current_timestamp</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">SQLAlchemyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> <span class="n">handle</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">token</span>
+</div>
+<div class="viewcode-block" id="AuthenticationServiceAlchemy.performLogin"><a class="viewcode-back" href="../../../../superdesk.authentication.impl.html#superdesk.authentication.impl.authentication.AuthenticationServiceAlchemy.performLogin">[docs]</a>    <span class="k">def</span> <span class="nf">performLogin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">authentication</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IAuthenticationService.performLogin</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">authentication</span><span class="p">,</span> <span class="n">Authentication</span><span class="p">),</span> <span class="s">&#39;Invalid authentication </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">authentication</span>
+
+        <span class="k">if</span> <span class="n">authentication</span><span class="o">.</span><span class="n">Token</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;The login token is required&#39;</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Authentication</span><span class="o">.</span><span class="n">Token</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">authentication</span><span class="o">.</span><span class="n">HashedToken</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;The hashed login token is required&#39;</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Authentication</span><span class="o">.</span><span class="n">HashedToken</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">authentication</span><span class="o">.</span><span class="n">UserName</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;A user name is required for authentication&#39;</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Authentication</span><span class="o">.</span><span class="n">UserName</span><span class="p">))</span>
+
+        <span class="n">olderThan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">current_timestamp</span><span class="p">())</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="n">olderThan</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">authenticationTimeOut</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">TokenMapped</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">TokenMapped</span><span class="o">.</span><span class="n">Token</span> <span class="o">==</span> <span class="n">authentication</span><span class="o">.</span><span class="n">Token</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">TokenMapped</span><span class="o">.</span><span class="n">requestedOn</span> <span class="o">&gt;</span> <span class="n">olderThan</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sql</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">commitNow</span><span class="p">()</span> <span class="c"># We make sure that the delete has been performed</span>
+
+            <span class="k">try</span><span class="p">:</span> <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">UserMapped</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">UserMapped</span><span class="o">.</span><span class="n">Name</span> <span class="o">==</span> <span class="n">authentication</span><span class="o">.</span><span class="n">UserName</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">NoResultFound</span><span class="p">:</span> <span class="n">user</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">UserMapped</span><span class="p">),</span> <span class="s">&#39;Invalid user </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">user</span>
+
+                <span class="n">hashedToken</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">),</span>
+                                       <span class="nb">bytes</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">password</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">),</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+                <span class="n">hashedToken</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">hashedToken</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">),</span>
+                                       <span class="nb">bytes</span><span class="p">(</span><span class="n">authentication</span><span class="o">.</span><span class="n">Token</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">),</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">authentication</span><span class="o">.</span><span class="n">HashedToken</span> <span class="o">==</span> <span class="n">hashedToken</span><span class="p">:</span>
+                    <span class="nb">hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">()</span>
+                    <span class="nb">hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">urandom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authentication_token_size</span><span class="p">))</span>
+
+                    <span class="n">login</span> <span class="o">=</span> <span class="n">LoginMapped</span><span class="p">()</span>
+                    <span class="n">login</span><span class="o">.</span><span class="n">Session</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+                    <span class="n">login</span><span class="o">.</span><span class="n">User</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">Id</span>
+                    <span class="n">login</span><span class="o">.</span><span class="n">CreatedOn</span> <span class="o">=</span> <span class="n">login</span><span class="o">.</span><span class="n">AccessedOn</span> <span class="o">=</span> <span class="n">current_timestamp</span><span class="p">()</span>
+
+                    <span class="k">try</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">login</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">SQLAlchemyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> <span class="n">handle</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">login</span><span class="p">)</span>
+
+                    <span class="k">return</span> <span class="n">login</span>
+
+        <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid credentials&#39;</span><span class="p">))</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="AuthenticationServiceAlchemy.authenticate"><a class="viewcode-back" href="../../../../superdesk.authentication.impl.html#superdesk.authentication.impl.authentication.AuthenticationServiceAlchemy.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IAuthenticationSupport.authenticate</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid identifier </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">identifier</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid attributes </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">attributes</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid arguments </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">arguments</span>
+
+        <span class="n">olderThan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">current_timestamp</span><span class="p">())</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="n">olderThan</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessionTimeOut</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">LoginMapped</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">LoginMapped</span><span class="o">.</span><span class="n">Session</span> <span class="o">==</span> <span class="n">identifier</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">LoginMapped</span><span class="o">.</span><span class="n">AccessedOn</span> <span class="o">&gt;</span> <span class="n">olderThan</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span> <span class="n">login</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">NoResultFound</span><span class="p">:</span> <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">login</span><span class="p">,</span> <span class="n">LoginMapped</span><span class="p">),</span> <span class="s">&#39;Invalid login </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">login</span>
+        <span class="n">login</span><span class="o">.</span><span class="n">AccessedOn</span> <span class="o">=</span> <span class="n">current_timestamp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">flush</span><span class="p">((</span><span class="n">login</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">expunge</span><span class="p">(</span><span class="n">login</span><span class="p">)</span>
+        <span class="n">commitNow</span><span class="p">()</span>
+        <span class="c"># We need to fore the commit because if there is an exception while processing the request we need to make</span>
+        <span class="c"># sure that the last access has been updated.</span>
+
+        <span class="k">for</span> <span class="n">authType</span> <span class="ow">in</span> <span class="n">arguments</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">authType</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">authType</span>
+
+            <span class="k">if</span> <span class="n">authType</span> <span class="o">==</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">Id</span><span class="p">):</span> <span class="n">arguments</span><span class="p">[</span><span class="n">authType</span><span class="p">]</span> <span class="o">=</span> <span class="n">login</span><span class="o">.</span><span class="n">User</span>
+            <span class="k">else</span><span class="p">:</span> <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;Invalid authenticated type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">authType</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="AuthenticationServiceAlchemy.cleanExpired"><a class="viewcode-back" href="../../../../superdesk.authentication.impl.html#superdesk.authentication.impl.authentication.AuthenticationServiceAlchemy.cleanExpired">[docs]</a>    <span class="k">def</span> <span class="nf">cleanExpired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ICleanupService.cleanExpired</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">olderThan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">current_timestamp</span><span class="p">())</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+
+        <span class="c"># Cleaning the expired tokens.</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">TokenMapped</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">TokenMapped</span><span class="o">.</span><span class="n">requestedOn</span> <span class="o">&lt;=</span> <span class="n">olderThan</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">authenticationTimeOut</span><span class="p">)</span>
+        <span class="n">deleted</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Cleaned </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s"> expired authentication requests&#39;</span><span class="p">,</span> <span class="n">deleted</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+
+        <span class="c"># Cleaning the expired sessions.</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">LoginMapped</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">LoginMapped</span><span class="o">.</span><span class="n">AccessedOn</span> <span class="o">&lt;=</span> <span class="n">olderThan</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessionTimeOut</span><span class="p">)</span>
+        <span class="n">deleted</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Cleaned </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s"> expired sessions&#39;</span><span class="p">,</span> <span class="n">deleted</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
