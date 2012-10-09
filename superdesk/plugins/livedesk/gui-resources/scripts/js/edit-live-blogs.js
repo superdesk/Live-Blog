@@ -556,8 +556,9 @@ function(providers, Gizmo, $)
 			{
 				'[is-content] section header h2': { focusout: 'save' },
 				'[is-content] #blog-intro' : { focusout: 'save' },
-				'#toggle-status': { click: 'toggleStatus' }
+				'#toggle-status': { click: 'toggleStatus' },
 				//, '.live-blog-content': { drop: 'drop'}
+				'#put-live .btn-primary': { click : 'putLive' }
 			},
 			postInit: function()
 			{
@@ -621,6 +622,17 @@ function(providers, Gizmo, $)
 					content.find('.tool-box-top .update-error').removeClass('hide')
 					setTimeout(function(){ content.find('.tool-box-top .update-error').addClass('hide'); }, 5000);
 				});
+			},
+			putLive: function()
+			{
+			    this.model
+			    .on('putlive', function()
+			    { 
+			        $('[data-status="live"]').removeClass('hide');
+			        $('[data-status="not-live"]').remove();
+			        
+			    })
+			    .putLive();
 			},
 			/*!
              * Toggle ClosedOn field for the blog
