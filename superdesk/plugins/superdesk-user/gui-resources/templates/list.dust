@@ -15,7 +15,7 @@
     height: 100%; overflow: auto;">
     <div style="padding: 5px 19px 14px;">
 		<div class="input-append pull-right" style="display:inline-block; margin: 10px 0">
-			<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" />
+			<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" style="margin:0" />
 			<button class="btn hide" data-action="cancel-search" type="button">&times;</button>
 			<button class="btn" data-action="search" type="button">Search</button>
 		</div>
@@ -33,6 +33,25 @@
 			<tbody>
 			
 			</tbody>
+			<tfoot>
+			{#pagination}
+				<tr>
+					<td colspan="5" class="pagination">
+					{?currentpages}
+					<ul class="{className}">
+						<li> <a href="javascript:void(0)" data-pagination="prev">&larr;</a> </li> 
+						{#currentpages}
+						<li class="{className}"> 
+							<a href="javascript:void(0)" data-pagination="currentpages" data-offset="{offset}">{page}</a> 
+						</li>	
+						{/currentpages}
+						<li> <a href="javascript:void(0)" data-pagination="next">&rarr;</a> </li>
+					</ul>
+					{/currentpages}
+					</td>
+				</tr> 
+			{/pagination}
+			</tfoot>
 		</table>
 	</div>
 </div>
