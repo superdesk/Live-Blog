@@ -1,0 +1,153 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>package_extender Module &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="next" title="resources Package" href="resources.html" />
+    <link rel="prev" title="meta Package" href="livedesk.meta.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="resources.html" title="resources Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="livedesk.meta.html" title="meta Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-package_extender">
+<span id="package-extender-module"></span><h1>package_extender Module<a class="headerlink" href="#module-package_extender" title="Permalink to this headline">¶</a></h1>
+<p>Created on Jan 9, 2012
+&#64;package: ally utilities
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the support for extending packages that have the same name. This module is not placed in any package to avoid
+any problems in locating the extender itself.</p>
+<dl class="class">
+<dt id="package_extender.ModuleLoader">
+<em class="property">class </em><tt class="descclassname">package_extender.</tt><tt class="descname">ModuleLoader</tt><big>(</big><em>loader</em><big>)</big><a class="reference internal" href="_modules/package_extender.html#ModuleLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#package_extender.ModuleLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the module loader this is used just because when running unit tests some import exceptions get ignored and
+will really throw you off the actual problem, so this is just a wrapper that exposes any exception.</p>
+<dl class="method">
+<dt id="package_extender.ModuleLoader.load_module">
+<tt class="descname">load_module</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/package_extender.html#ModuleLoader.load_module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#package_extender.ModuleLoader.load_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: <a class="reference external" href="http://www.python.org/dev/peps/pep-0302/">http://www.python.org/dev/peps/pep-0302/</a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="package_extender.PackageLoader">
+<em class="property">class </em><tt class="descclassname">package_extender.</tt><tt class="descname">PackageLoader</tt><big>(</big><em>loader</em><big>)</big><a class="reference internal" href="_modules/package_extender.html#PackageLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#package_extender.PackageLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the package loader for the package extender. This is used whenever there is a package to be loaded. This
+class is just a wrapper around the normal loader that will append the package module path.</p>
+<dl class="method">
+<dt id="package_extender.PackageLoader.load_module">
+<tt class="descname">load_module</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/package_extender.html#PackageLoader.load_module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#package_extender.PackageLoader.load_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: <a class="reference external" href="http://www.python.org/dev/peps/pep-0302/">http://www.python.org/dev/peps/pep-0302/</a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="livedesk.meta.html"
+                        title="previous chapter">meta Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="resources.html"
+                        title="next chapter">resources Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/package_extender.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="resources.html" title="resources Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="livedesk.meta.html" title="meta Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

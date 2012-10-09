@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.core.spec.transform.support &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.core.spec.transform.support</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on May 23, 2012</span>
+
+<span class="sd">@package: ally core</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides static functions support for exploit processing. </span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">SAMPLE</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span> <span class="c"># Marker used to instruct the encoders to provide a sample.</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="getSame"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.getSame">[docs]</a><span class="k">def</span> <span class="nf">getSame</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Function that just returns the same value received.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">obj</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="getterOnDict"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.getterOnDict">[docs]</a><span class="k">def</span> <span class="nf">getterOnDict</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a getter on a dictionary for the provided key.</span>
+<span class="sd">    </span>
+<span class="sd">    @param key: object</span>
+<span class="sd">        The key in the dictionary to get the query for.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid dictionary </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">getter</span>
+</div>
+<div class="viewcode-block" id="getterOnObj"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.getterOnObj">[docs]</a><span class="k">def</span> <span class="nf">getterOnObj</span><span class="p">(</span><span class="n">attribute</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a getter on a object attribute.</span>
+<span class="sd">    </span>
+<span class="sd">    @param attribute: string</span>
+<span class="sd">        The attribute name to get the value for.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid attribute </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">attribute</span>
+
+    <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;An object is required&#39;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">getter</span>
+</div>
+<div class="viewcode-block" id="getterOnObjIfIn"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.getterOnObjIfIn">[docs]</a><span class="k">def</span> <span class="nf">getterOnObjIfIn</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">checkIn</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a getter for the attribute. If the provided object is None or the checkIn is no validated like</span>
+<span class="sd">    &#39;checkIn in obj&#39; on the object than the getter will return None.</span>
+<span class="sd">    </span>
+<span class="sd">    @param attribute: string</span>
+<span class="sd">        The attribute name to get the value for.</span>
+<span class="sd">    @param checkIn: object</span>
+<span class="sd">        The object to check if in the object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="n">checkIn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;A check in object is required&#39;</span>
+
+    <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">checkIn</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span> <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">getter</span>
+</div>
+<div class="viewcode-block" id="getterChain"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.getterChain">[docs]</a><span class="k">def</span> <span class="nf">getterChain</span><span class="p">(</span><span class="o">*</span><span class="n">getters</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a getter chain, this means that the first getter will be invoked and the object returned will passed on as </span>
+<span class="sd">    an object to the next getter so fort and so on. If one getter return None then the chain stops.</span>
+<span class="sd">    </span>
+<span class="sd">    @param getters: attributes[callable(object)]</span>
+<span class="sd">        The getters to be invoked in a chain.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="n">getters</span><span class="p">,</span> <span class="s">&#39;At least a getter is required&#39;</span>
+    <span class="k">if</span> <span class="n">__debug__</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">getter</span> <span class="ow">in</span> <span class="n">getters</span><span class="p">:</span> <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">getter</span><span class="p">),</span> <span class="s">&#39;Invalid getter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">getter</span>
+
+    <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">getter</span> <span class="ow">in</span> <span class="n">getters</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">getter</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">break</span>
+        <span class="k">return</span> <span class="n">obj</span>
+    <span class="k">return</span> <span class="n">getter</span>
+</div>
+<div class="viewcode-block" id="setterOnDict"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.setterOnDict">[docs]</a><span class="k">def</span> <span class="nf">setterOnDict</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a setter on a dictionary for the provided key.</span>
+<span class="sd">    </span>
+<span class="sd">    @param key: string</span>
+<span class="sd">        The key in the dictionary to set the value.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid dictionary </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+        <span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">setter</span>
+</div>
+<div class="viewcode-block" id="setterOnObj"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.setterOnObj">[docs]</a><span class="k">def</span> <span class="nf">setterOnObj</span><span class="p">(</span><span class="n">attribute</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a setter on a object attribute.</span>
+<span class="sd">    </span>
+<span class="sd">    @param attribute: string</span>
+<span class="sd">        The attribute name to set the value for.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid attribute </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">attribute</span>
+
+    <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;An object is required&#39;</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">setter</span>
+</div>
+<div class="viewcode-block" id="setterToOthers"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.setterToOthers">[docs]</a><span class="k">def</span> <span class="nf">setterToOthers</span><span class="p">(</span><span class="o">*</span><span class="n">setters</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a setter that will dispatch to a list of other setters.</span>
+<span class="sd">    </span>
+<span class="sd">    @param setters: arguments[callable]</span>
+<span class="sd">        The setters to delegate the set to.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="n">setters</span><span class="p">,</span> <span class="s">&#39;At least a setter is required&#39;</span>
+    <span class="k">if</span> <span class="n">__debug__</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">setter</span> <span class="ow">in</span> <span class="n">setters</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">setter</span><span class="p">),</span> <span class="s">&#39;Invalid setter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">setter</span>
+
+    <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">setter</span> <span class="ow">in</span> <span class="n">setters</span><span class="p">:</span> <span class="n">setter</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">setter</span>
+</div>
+<div class="viewcode-block" id="setterWithGetter"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.setterWithGetter">[docs]</a><span class="k">def</span> <span class="nf">setterWithGetter</span><span class="p">(</span><span class="n">getter</span><span class="p">,</span> <span class="n">setter</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a setter that will first call the getter on the object than set the value on the returned object.</span>
+<span class="sd">    </span>
+<span class="sd">    @param getter: callable(object)</span>
+<span class="sd">        The getter to call with the object before the setter.</span>
+<span class="sd">    @param setter: callable(object)</span>
+<span class="sd">        The setter to be used.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">getter</span><span class="p">),</span> <span class="s">&#39;Invalid getter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">getter</span>
+    <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">setter</span><span class="p">),</span> <span class="s">&#39;Invalid setter </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">setter</span>
+
+    <span class="k">def</span> <span class="nf">sett</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">setter</span><span class="p">(</span><span class="n">getter</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sett</span>
+</div>
+<div class="viewcode-block" id="obtainOnDict"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.obtainOnDict">[docs]</a><span class="k">def</span> <span class="nf">obtainOnDict</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">creator</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create an obtain object on a dictionary for the provided key. Obtaining means that if there is not value</span>
+<span class="sd">    for the key one will be created and assigned.</span>
+<span class="sd">    </span>
+<span class="sd">    @param key: string</span>
+<span class="sd">        The key in the dictionary to obtain the value.</span>
+<span class="sd">    @param creator: callable()</span>
+<span class="sd">        The creator to use in generating the object, has to take no arguments.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">creator</span><span class="p">),</span> <span class="s">&#39;Invalid creator </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">creator</span>
+
+    <span class="k">def</span> <span class="nf">obtain</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid dictionary </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">=</span> <span class="n">creator</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;No value provided by creator </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">creator</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">obtain</span>
+</div>
+<div class="viewcode-block" id="obtainOnObj"><a class="viewcode-back" href="../../../../../ally.core.spec.transform.html#ally.core.spec.transform.support.obtainOnObj">[docs]</a><span class="k">def</span> <span class="nf">obtainOnObj</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">creator</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create an obtain object on another object for the provided attribute. Obtaining means that if there is not value</span>
+<span class="sd">    for the attribute one will be created and assigned.</span>
+<span class="sd">    </span>
+<span class="sd">    @param attribute: string</span>
+<span class="sd">        The attribute in the object to obtain the value.</span>
+<span class="sd">    @param creator: callable()</span>
+<span class="sd">        The creator to use in generating the object, has to take no arguments.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">creator</span><span class="p">),</span> <span class="s">&#39;Invalid creator </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">creator</span>
+
+    <span class="k">def</span> <span class="nf">obtain</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;An object is required&#39;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">creator</span><span class="p">()</span>
+            <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;No value provided by creator </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">creator</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">obtain</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

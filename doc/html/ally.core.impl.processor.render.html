@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>render Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="processor Package" href="ally.core.impl.processor.html" />
+    <link rel="next" title="spec Package" href="ally.core.spec.html" />
+    <link rel="prev" title="parser Package" href="ally.core.impl.processor.parser.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.spec.html" title="spec Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.impl.processor.parser.html" title="parser Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.impl.html" >impl Package</a> &raquo;</li>
+          <li><a href="ally.core.impl.processor.html" accesskey="U">processor Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="render-package">
+<h1>render Package<a class="headerlink" href="#render-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-ally.core.impl.processor.render.base">
+<span id="base-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">base</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.processor.render.base" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jan 25, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the text base encoder processor handler.</p>
+<dl class="class">
+<dt id="ally.core.impl.processor.render.base.RenderBaseHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.render.base.</tt><tt class="descname">RenderBaseHandler</tt><a class="reference internal" href="_modules/ally/core/impl/processor/render/base.html#RenderBaseHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.base.RenderBaseHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessor" title="ally.design.processor.HandlerProcessor"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessor</span></tt></a></p>
+<p>Provides the text base renderer.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.base.RenderBaseHandler.contentTypes">
+<tt class="descname">contentTypes</tt><a class="headerlink" href="#ally.core.impl.processor.render.base.RenderBaseHandler.contentTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.base.RenderBaseHandler.process">
+<tt class="descname">process</tt><big>(</big><em>chain</em>, <em>response</em>, <em>responseCnt</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/base.html#RenderBaseHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.base.RenderBaseHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessor.process</p>
+<p>Encode the ressponse object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.base.RenderBaseHandler.renderFactory">
+<tt class="descname">renderFactory</tt><big>(</big><em>charSet</em>, <em>output</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/base.html#RenderBaseHandler.renderFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.base.RenderBaseHandler.renderFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory method used for creating a renderer.</p>
+<dl class="docutils">
+<dt>&#64;param charSet: string</dt>
+<dd>The character set to be used by the created factory.</dd>
+<dt>&#64;param output: IOutputStream</dt>
+<dd>The output stream to be used by the renderer.</dd>
+<dt>&#64;return: IRender</dt>
+<dd>The renderer.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.processor.render.base.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.render.base.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/base.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.base.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.base.Response.renderFactory">
+<tt class="descname">renderFactory</tt><a class="headerlink" href="#ally.core.impl.processor.render.base.Response.renderFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.processor.render.base.ResponseContent">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.render.base.</tt><tt class="descname">ResponseContent</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/base.html#ResponseContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.base.ResponseContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response content context.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.base.ResponseContent.charSet">
+<tt class="descname">charSet</tt><a class="headerlink" href="#ally.core.impl.processor.render.base.ResponseContent.charSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.base.ResponseContent.type">
+<tt class="descname">type</tt><a class="headerlink" href="#ally.core.impl.processor.render.base.ResponseContent.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.impl.processor.render.json">
+<span id="json-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">json</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.processor.render.json" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 3, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the JSON encoder processor handler.</p>
+<dl class="class">
+<dt id="ally.core.impl.processor.render.json.RenderJSON">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.render.json.</tt><tt class="descname">RenderJSON</tt><big>(</big><em>out</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/json.html#RenderJSON"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.transform.html#ally.core.spec.transform.render.IRender" title="ally.core.spec.transform.render.IRender"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.transform.render.IRender</span></tt></a></p>
+<p>Renderer for JSON.</p>
+<dl class="method">
+<dt id="ally.core.impl.processor.render.json.RenderJSON.collectionEnd">
+<tt class="descname">collectionEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/json.html#RenderJSON.collectionEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON.collectionEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.collectionEnd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.json.RenderJSON.collectionStart">
+<tt class="descname">collectionStart</tt><big>(</big><em>name</em>, <em>attributes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/json.html#RenderJSON.collectionStart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON.collectionStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.collectionStart</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.json.RenderJSON.isFirst">
+<tt class="descname">isFirst</tt><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON.isFirst" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.json.RenderJSON.isObject">
+<tt class="descname">isObject</tt><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON.isObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.json.RenderJSON.objectEnd">
+<tt class="descname">objectEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/json.html#RenderJSON.objectEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON.objectEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.objectEnd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.json.RenderJSON.objectStart">
+<tt class="descname">objectStart</tt><big>(</big><em>name</em>, <em>attributes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/json.html#RenderJSON.objectStart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON.objectStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.objectStart</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.json.RenderJSON.openObject">
+<tt class="descname">openObject</tt><big>(</big><em>name</em>, <em>attributes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/json.html#RenderJSON.openObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON.openObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to open a JSON object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.json.RenderJSON.out">
+<tt class="descname">out</tt><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON.out" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.json.RenderJSON.value">
+<tt class="descname">value</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/json.html#RenderJSON.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSON.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.value</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.processor.render.json.RenderJSONHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.render.json.</tt><tt class="descname">RenderJSONHandler</tt><a class="reference internal" href="_modules/ally/core/impl/processor/render/json.html#RenderJSONHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSONHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.processor.render.base.RenderBaseHandler" title="ally.core.impl.processor.render.base.RenderBaseHandler"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.render.base.RenderBaseHandler</span></tt></a></p>
+<p>Provides the JSON encoding.
+&#64;see: RenderBaseHandler</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.json.RenderJSONHandler.encodingError">
+<tt class="descname">encodingError</tt><em class="property"> = 'backslashreplace'</em><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSONHandler.encodingError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.json.RenderJSONHandler.renderFactory">
+<tt class="descname">renderFactory</tt><big>(</big><em>charSet</em>, <em>output</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/json.html#RenderJSONHandler.renderFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.json.RenderJSONHandler.renderFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: RenderBaseHandler.renderFactory</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.impl.processor.render.text">
+<span id="text-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">text</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.processor.render.text" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jan 25, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the text encoder processor handler that creates text objects to be encoded.</p>
+<dl class="class">
+<dt id="ally.core.impl.processor.render.text.RenderTextHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.render.text.</tt><tt class="descname">RenderTextHandler</tt><a class="reference internal" href="_modules/ally/core/impl/processor/render/text.html#RenderTextHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.processor.render.base.RenderBaseHandler" title="ally.core.impl.processor.render.base.RenderBaseHandler"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.render.base.RenderBaseHandler</span></tt></a></p>
+<p>Provides the text object encoding.
+&#64;see: RenderBaseHandler</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.text.RenderTextHandler.encodingError">
+<tt class="descname">encodingError</tt><em class="property"> = 'backslashreplace'</em><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextHandler.encodingError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.text.RenderTextHandler.renderFactory">
+<tt class="descname">renderFactory</tt><big>(</big><em>charSet</em>, <em>output</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/text.html#RenderTextHandler.renderFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextHandler.renderFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: RenderBaseHandler.renderFactory</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.text.RenderTextHandler.rendererTextObject">
+<tt class="descname">rendererTextObject</tt><em class="property"> = None</em><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextHandler.rendererTextObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.processor.render.text.RenderTextObject">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.render.text.</tt><tt class="descname">RenderTextObject</tt><big>(</big><em>renderer</em>, <em>charSet</em>, <em>output</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/text.html#RenderTextObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.transform.html#ally.core.spec.transform.render.RenderToObject" title="ally.core.spec.transform.render.RenderToObject"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.transform.render.RenderToObject</span></tt></a></p>
+<p>Renderer for text objects.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.text.RenderTextObject.charSet">
+<tt class="descname">charSet</tt><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextObject.charSet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.text.RenderTextObject.collectionEnd">
+<tt class="descname">collectionEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/text.html#RenderTextObject.collectionEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextObject.collectionEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: RenderToObject.collectionEnd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.text.RenderTextObject.objectEnd">
+<tt class="descname">objectEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/text.html#RenderTextObject.objectEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextObject.objectEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: RenderToObject.objectEnd</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.text.RenderTextObject.output">
+<tt class="descname">output</tt><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextObject.output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.text.RenderTextObject.renderer">
+<tt class="descname">renderer</tt><a class="headerlink" href="#ally.core.impl.processor.render.text.RenderTextObject.renderer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.impl.processor.render.xml">
+<span id="xml-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">xml</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.processor.render.xml" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 22, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the XML encoder processor handler.</p>
+<dl class="class">
+<dt id="ally.core.impl.processor.render.xml.RenderXML">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.render.xml.</tt><tt class="descname">RenderXML</tt><big>(</big><em>xml</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/xml.html#RenderXML"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXML" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.transform.html#ally.core.spec.transform.render.IRender" title="ally.core.spec.transform.render.IRender"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.transform.render.IRender</span></tt></a></p>
+<p>Renderer for xml.</p>
+<dl class="method">
+<dt id="ally.core.impl.processor.render.xml.RenderXML.collectionEnd">
+<tt class="descname">collectionEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/xml.html#RenderXML.collectionEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXML.collectionEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.collectionEnd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.xml.RenderXML.collectionStart">
+<tt class="descname">collectionStart</tt><big>(</big><em>name</em>, <em>attributes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/xml.html#RenderXML.collectionStart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXML.collectionStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.collectionStart</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.xml.RenderXML.objectEnd">
+<tt class="descname">objectEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/xml.html#RenderXML.objectEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXML.objectEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.objectEnd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.xml.RenderXML.objectStart">
+<tt class="descname">objectStart</tt><big>(</big><em>name</em>, <em>attributes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/xml.html#RenderXML.objectStart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXML.objectStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.objectStart</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.xml.RenderXML.processing">
+<tt class="descname">processing</tt><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXML.processing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.xml.RenderXML.value">
+<tt class="descname">value</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/xml.html#RenderXML.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXML.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.value</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.xml.RenderXML.xml">
+<tt class="descname">xml</tt><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXML.xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.processor.render.xml.RenderXMLHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.render.xml.</tt><tt class="descname">RenderXMLHandler</tt><a class="reference internal" href="_modules/ally/core/impl/processor/render/xml.html#RenderXMLHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXMLHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.processor.render.base.RenderBaseHandler" title="ally.core.impl.processor.render.base.RenderBaseHandler"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.render.base.RenderBaseHandler</span></tt></a></p>
+<p>Provides the XML encoding.
+&#64;see: RenderBaseHandler</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.render.xml.RenderXMLHandler.encodingError">
+<tt class="descname">encodingError</tt><em class="property"> = 'xmlcharrefreplace'</em><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXMLHandler.encodingError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.render.xml.RenderXMLHandler.renderFactory">
+<tt class="descname">renderFactory</tt><big>(</big><em>charSet</em>, <em>output</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/render/xml.html#RenderXMLHandler.renderFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.render.xml.RenderXMLHandler.renderFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: RenderBaseHandler.renderFactory</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">render Package</a><ul>
+<li><a class="reference internal" href="#module-ally.core.impl.processor.render.base"><tt class="docutils literal"><span class="pre">base</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.impl.processor.render.json"><tt class="docutils literal"><span class="pre">json</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.impl.processor.render.text"><tt class="docutils literal"><span class="pre">text</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.impl.processor.render.xml"><tt class="docutils literal"><span class="pre">xml</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.core.impl.processor.parser.html"
+                        title="previous chapter">parser Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.core.spec.html"
+                        title="next chapter">spec Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.core.impl.processor.render.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.spec.html" title="spec Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.impl.processor.parser.html" title="parser Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.impl.html" >impl Package</a> &raquo;</li>
+          <li><a href="ally.core.impl.processor.html" >processor Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,211 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Gotchas &mdash; py-postgresql 1.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="py-postgresql 1.0.4 documentation" href="index.html" />
+    <link rel="next" title="Commands" href="bin.html" />
+    <link rel="prev" title="Client Parameters" href="clientparameters.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bin.html" title="Commands"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="clientparameters.html" title="Client Parameters"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gotchas">
+<h1>Gotchas<a class="headerlink" href="#gotchas" title="Permalink to this headline">¶</a></h1>
+<p>It is recognized that decisions were made that may not always be ideal for a
+given user. In order to highlight those potential issues and hopefully bring
+some sense into a confusing situation, this document was drawn.</p>
+<div class="section" id="client-encoding-setting-should-be-altered-carefully">
+<h2><cite>client_encoding</cite> setting should be altered carefully<a class="headerlink" href="#client-encoding-setting-should-be-altered-carefully" title="Permalink to this headline">¶</a></h2>
+<p><cite>postgresql.driver</cite>&#8216;s streaming cursor implementation reads a fixed set of rows
+when it queries the server for more. In order to optimize some situations, the
+driver will send a request for more data, but makes no attempt to wait and
+process the data as it is not yet needed. When the user comes back to read more
+data from the cursor, it will then look at this new data. The problem being, if
+<cite>client_encoding</cite> was switched, it may use the wrong codec to transform the
+wire data into higher level Python objects(str).</p>
+<p>To avoid this problem from ever happening, set the <cite>client_encoding</cite> early.
+Furthermore, it is probably best to never change the <cite>client_encoding</cite> as the
+driver automatically makes the necessary transformation to Python strings.</p>
+</div>
+<div class="section" id="the-user-and-password-is-correct-but-it-does-not-work-when-using-postgresql-driver">
+<h2>The user and password is correct, but it does not work when using <cite>postgresql.driver</cite><a class="headerlink" href="#the-user-and-password-is-correct-but-it-does-not-work-when-using-postgresql-driver" title="Permalink to this headline">¶</a></h2>
+<p>This issue likely comes from the possibility that the information sent to the
+server early in the negotiation phase may not be in an encoding that is
+consistent with the server&#8217;s encoding.</p>
+<p>One problem is that PostgreSQL does not provide the client with the server
+encoding early enough in the negotiation phase, and, therefore, is unable to
+process the password data in a way that is consistent with the server&#8217;s
+expectations.</p>
+<p>Another problem is that PostgreSQL takes much of the data in the startup message
+as-is, so a decision about the best way to encode parameters is difficult.</p>
+<p>The easy way to avoid <em>most</em> issues with this problem is to initialize the
+database in the <cite>utf-8</cite> encoding. The driver defaults the expected server
+encoding to <cite>utf-8</cite>. However, this can be overridden by creating the <cite>Connector</cite>
+with a <cite>server_encoding</cite> parameter. Setting <cite>server_encoding</cite> to the proper
+value of the target server will allow the driver to properly encode <em>some</em> of
+the parameters. Also, any GUC parameters passed via the <cite>settings</cite> parameter
+should use typed objects when possible to hint that the server encoding should
+not be used on that parameter(<cite>bytes</cite>, for instance).</p>
+</div>
+<div class="section" id="backslash-characters-are-being-treated-literally">
+<h2>Backslash characters are being treated literally<a class="headerlink" href="#backslash-characters-are-being-treated-literally" title="Permalink to this headline">¶</a></h2>
+<p>The driver enables standard compliant strings. Stop using non-standard features.
+;)</p>
+<p>If support for non-standard strings was provided it would require to the
+driver to provide subjective quote interfaces(eg, db.quote_literal). Doing so is
+not desirable as it introduces difficulties for the driver <em>and</em> the user.</p>
+</div>
+<div class="section" id="types-without-binary-support-in-the-driver-are-unsupported-in-arrays-and-records">
+<h2>Types without binary support in the driver are unsupported in arrays and records<a class="headerlink" href="#types-without-binary-support-in-the-driver-are-unsupported-in-arrays-and-records" title="Permalink to this headline">¶</a></h2>
+<p>When an array or composite type is identified, <cite>postgresql.protocol.typio</cite>
+ultimately chooses the binary format for the transfer of the column or
+parameter. When this is done, PostgreSQL will pack or expect <em>all</em> the values
+in binary format as well. If that binary format is not supported and the type
+is not an string, it will fail to unpack the row or pack the appropriate data for
+the element or attribute.</p>
+<p>In most cases issues related to this can be avoided with explicit casts to text.</p>
+</div>
+<div class="section" id="notices-warnings-and-other-messages-are-too-verbose">
+<h2>NOTICEs, WARNINGs, and other messages are too verbose<a class="headerlink" href="#notices-warnings-and-other-messages-are-too-verbose" title="Permalink to this headline">¶</a></h2>
+<p>For many situations, the information provided with database messages is
+far too verbose. However, considering that py-postgresql is a programmer&#8217;s
+library, the default of high verbosity is taken with the express purpose of
+allowing the programmer to &#8220;adjust the volume&#8221; until appropriate.</p>
+<p>By default, py-postgresql adjusts the <tt class="docutils literal"><span class="pre">client_min_messages</span></tt> to only emit
+messages at the WARNING level or higher&#8211;ERRORs, FATALs, and PANICs.
+This reduces the number of messages generated by most connections dramatically.</p>
+<p>If further customization is needed, the <a class="reference internal" href="driver.html#db-messages"><em>Database Messages</em></a> section has
+information on overriding the default action taken with database messages.</p>
+</div>
+<div class="section" id="strange-typeerror-using-load-rows-or-load-chunks">
+<h2>Strange TypeError using load_rows() or load_chunks()<a class="headerlink" href="#strange-typeerror-using-load-rows-or-load-chunks" title="Permalink to this headline">¶</a></h2>
+<p>When a prepared statement is directly executed using <tt class="docutils literal"><span class="pre">__call__()</span></tt>, it can easily
+validate that the appropriate number of parameters are given to the function.
+When <tt class="docutils literal"><span class="pre">load_rows()</span></tt> or <tt class="docutils literal"><span class="pre">load_chunks()</span></tt> is used, any tuple in the
+the entire sequence can cause this TypeError during the loading process:</p>
+<div class="highlight-python"><pre>TypeError: inconsistent items, N processors and M items in row</pre>
+</div>
+<p>This exception is raised by a generic processing routine whose functionality
+is abstract in nature, so the message is abstract as well. It essentially means
+that a tuple in the sequence given to the loading method had too many or too few
+items.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Gotchas</a><ul>
+<li><a class="reference internal" href="#client-encoding-setting-should-be-altered-carefully"><cite>client_encoding</cite> setting should be altered carefully</a></li>
+<li><a class="reference internal" href="#the-user-and-password-is-correct-but-it-does-not-work-when-using-postgresql-driver">The user and password is correct, but it does not work when using <cite>postgresql.driver</cite></a></li>
+<li><a class="reference internal" href="#backslash-characters-are-being-treated-literally">Backslash characters are being treated literally</a></li>
+<li><a class="reference internal" href="#types-without-binary-support-in-the-driver-are-unsupported-in-arrays-and-records">Types without binary support in the driver are unsupported in arrays and records</a></li>
+<li><a class="reference internal" href="#notices-warnings-and-other-messages-are-too-verbose">NOTICEs, WARNINGs, and other messages are too verbose</a></li>
+<li><a class="reference internal" href="#strange-typeerror-using-load-rows-or-load-chunks">Strange TypeError using load_rows() or load_chunks()</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="clientparameters.html"
+                        title="previous chapter">Client Parameters</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bin.html"
+                        title="next chapter">Commands</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/gotchas.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bin.html" title="Commands"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="clientparameters.html" title="Client Parameters"
+             >previous</a> |</li>
+        <li><a href="index.html">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, James William Pye &lt;x@jwp.name&gt;.
+      Last updated on Apr 30, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
