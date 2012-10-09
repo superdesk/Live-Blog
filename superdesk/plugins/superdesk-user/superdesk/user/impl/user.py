@@ -25,7 +25,7 @@ from ally.api.criteria import AsLike
 
 # --------------------------------------------------------------------
 
-ALL_NAMES = (UserMapped.Name, UserMapped.FirstName, UserMapped.LastName)
+ALL_NAMES = (UserMapped.Name, UserMapped.FirstName, UserMapped.LastName, UserMapped.EMail)
 
 @injected
 @setup(IUserService)
