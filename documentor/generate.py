@@ -32,9 +32,8 @@ HTML_DESTINATION = '../doc/html'
 ARGS_BUILD = ('', CODE_DESTINATION, '--full' , '-o', DOC_SOURCE, '-H', 'ally-py', '-A', 'Gabriel Nistor',
               '-V', '1.0b1')
 # The arguments used for building the sphinx resources.
-#ARGS_HTML = ('', '-b', 'html', '-d', os.path.join(DOC_SOURCE, '_build/doctrees'), '-D', 'latex_paper_size=a4',
-#             DOC_SOURCE, HTML_DESTINATION)
-ARGS_HTML = ('', '-b', 'html', DOC_SOURCE, HTML_DESTINATION)
+ARGS_HTML = ('', '-b', 'html', '-d', os.path.join(DOC_SOURCE, '_build/doctrees'), '-D', 'latex_paper_size=a4',
+             DOC_SOURCE, HTML_DESTINATION)
 # The arguments for building the HTML.
 
 findLibraries = lambda folder: (os.path.join(folder, name) for name in os.listdir(folder))
