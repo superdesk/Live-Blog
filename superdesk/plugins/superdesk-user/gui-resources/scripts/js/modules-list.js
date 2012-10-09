@@ -6,7 +6,7 @@ define
     config.guiJs('superdesk/user', 'models/user'),
     config.guiJs('superdesk/user', 'models/person'),
     'tmpl!superdesk/user>list',
-    'tmpl!superdesk/user>item',
+    'tmpl!superdesk/user>item'
 ],
 function($, superdesk, giz, User, Person)
 {
@@ -55,6 +55,30 @@ function($, superdesk, giz, User, Person)
             '[data-action="search"]': { 'click': 'search' },
             '#user-add-modal [data-action="save"]': { 'click': 'addUser' },
             '#user-edit-modal [data-action="save"]': { 'click': 'updateUser' },
+            '.pagination a': { 'click': 'switchPage' },
+            'table tbody .edit': { 'click': 'showUpdateUser' }
+        },
+        /*!
+         * pagination handler
+         */
+        switchPage: function(evt)
+        {
+            if( this.syncing ) return;
+            if( $(evt.target).attr('data-pagination') == 'currentpages' )
+            {
+                this.page.offset = $(evt.target).attr('data-offset');
+                this.activate();
+            }
+            if( $(evt.target).attr('data-pagination') == 'prev' )
+            {
+                var o = parseInt(this.page.offset) - parseInt(this.page.limit);
+                if( o >= 0 ) { this.page.offset = o; this.activate(); } 
+            }
+            if( $(evt.target).attr('data-pagination') == 'next' )
+            {
+                var o = parseInt(this.page.offset) + parseInt(this.page.limit);
+                if( o < this.page.total ) { this.page.offset = o; this.activate(); } 
+            }
         },
         /*!
          * search box handler
@@ -65,11 +89,17 @@ function($, superdesk, giz, User, Person)
                 src = $('[name="search"]', self.el).val().toLowerCase();
             if( src.length <= 1 )
             {
-                $('tr', self.el).each(function(){ $(this).prop('view') && $(this).prop('view').show(); });
+                //$('tr', self.el).each(function(){ $(this).prop('view') && $(this).prop('view').show(); });
+                this.activate();
                 $('[data-action="cancel-search"]', self.el).addClass('hide');
                 return;
             }
-            $('tr', self.el).each(function()
+            
+            this.users._list = []
+            this.syncing = true;
+            this.users.xfilter('*').sync({data: {'all.ilike': '%'+src+'%'}, done: function(data){ self.syncing = false; }});
+            
+            /*$('tr', self.el).each(function()
             {
                 var mdl = $(this).prop('model');
                 if( mdl != undefined && 
@@ -81,7 +111,7 @@ function($, superdesk, giz, User, Person)
                     return true;
                 }
                 mdl != undefined && $(this).prop('view').show();
-            });
+            });*/
             $('[data-action="cancel-search"]', self.el).removeClass('hide');
         },
         /*!
@@ -111,12 +141,30 @@ function($, superdesk, giz, User, Person)
             {
                 eval('var data = '+data.responseText);
                 var msg = '';
-                console.log(data);
                 for(var i in data.details.model.User)
                     msg += i+', '+data.details.model.User[i]+'. ';
                 $('#user-add-modal .alert', self.el).removeClass('hide')
                     .html('<strong>'+data.message+'</strong> '+msg);
             });
+        },
+        /*!
+         * popup update user interface
+         */
+        showUpdateUser: function(evt)
+        {
+            var $this = $(evt.target),
+                model = $this.prop('model');
+
+            var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
+            personModel.sync();
+            
+            // fill in values with bound model props
+            $('#user-edit-modal form input', self.el).each(function()
+            {
+                $(this).val( model.get( $(this).attr('name') ) || personModel.get( $(this).attr('name') ) );
+            });
+            $('#user-edit-modal', self.el).modal();
+            $('#user-edit-modal', self.el).prop('view', $this.prop('view'));
         },
         /*!
          * update user handler
@@ -139,13 +187,12 @@ function($, superdesk, giz, User, Person)
         {
             var self = this;
             
-            this.page = {limit: 10, offset: 0, total: null};
+            this.page = { limit: 25, offset: 0, total: null, pagecount: 5 };
             
             // list all users
             this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') })));
-            this.users.on('read update', this.render, this);
+            //this.users.on('read update', this.render, this);
             
-            // on page search
             $(self.el).on('keypress', '[name="search"]', function(evt)
             {
                 if(evt.keyCode == 27 ) $('[data-action="cancel-search"]', self.el).trigger('click');
@@ -156,9 +203,6 @@ function($, superdesk, giz, User, Person)
                 $('[name="search"]', self.el).val('');
                 $('[data-action="search"]', self.el).trigger('click');
             });
-            
-            
-            // add user 
             $(self.el).on('click', '.add-user', function()
             {
                 $('#user-add-modal .alert', self.el).addClass('hide');
@@ -168,30 +212,10 @@ function($, superdesk, giz, User, Person)
             { 
                 $('#user-add-modal', self.el).modal('hide');
             });
-            
-            // delegate events on edit button for items 
-            $(self.el).on('click', 'table tbody .edit', function()
-            {
-                var model = $(this).prop('model');
-                
-                var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
-                personModel.sync();
-                
-                // fill in values with bound model props
-                $('#user-edit-modal form input', self.el).each(function()
-                {
-                    $(this).val( model.get( $(this).attr('name') ) || personModel.get( $(this).attr('name') ) );
-                });
-                $('#user-edit-modal', self.el).modal();
-                $('#user-edit-modal', self.el).prop('view', $(this).prop('view'));
-            });
             $(self.el).on('click', '#user-edit-modal [data-action="close"]', function()
             { 
                 $('#user-edit-modal', self.el).modal('hide'); 
             });
-            
-
-            // same thing for delete
             $(self.el).on('click', 'table tbody .delete', function()
             {
                 $('#user-delete-modal', self.el).prop('view', $(this).prop('view'));
@@ -210,8 +234,10 @@ function($, superdesk, giz, User, Person)
         activate: function()
         {
             var self = this;
-            this.users.xfilter('*').sync( /*{data: {limit: this.page.limit, offset: this.page.offset}})
-                .done(function(data){ self.page.total = data.total; }*/ );
+            this.users._list = [];
+            this.syncing = true;
+            this.users.xfilter('*').sync({data: {limit: this.page.limit, offset: this.page.offset},
+                done: function(data){ self.syncing = false; self.page.total = data.total; self.render(); }});
         },
         
         addItem: function(model)
@@ -219,14 +245,36 @@ function($, superdesk, giz, User, Person)
             $('table tbody', this.el).append( (new ItemView({ model: model })).render().el );
         },
         
+        paginate: function()
+        {
+            this.page.currentpages = [];
+            for( var i= -this.page.pagecount/2; i < this.page.pagecount/2; i++ )
+            {
+                var x = parseInt(this.page.offset) + (Math.round(i) * this.page.limit);
+                if( x < 0 || x >= this.page.total ) continue;
+                var currentpage = {offset: x, page: (x/this.page.limit)+1};
+                if( Math.round(i) == 0 ) currentpage.className = 'active';
+                this.page.currentpages.push(currentpage);
+            }
+        },
+        
+        renderList: function()
+        {
+            $('table tbody', this.el).html('');
+            var self = this;
+            this.users.each(function(){ self.addItem(this); });
+        },
+        
         render: function()
         {
-            var data = {},
+            this.paginate();
+            var data = {pagination: this.page},
                 self = this;
             superdesk.applyLayout('superdesk/user>list', data, function()
             {
                 // new ItemView for each models 
-                self.users.each(function(){ self.addItem(this); });
+                self.renderList();
+                self.users.on('read update', self.renderList, self);
             });
             $.superdesk.hideLoader();
         }
