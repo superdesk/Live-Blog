@@ -1,0 +1,943 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="media_archive Package" href="superdesk.media_archive.html" />
+    <link rel="next" title="core Package" href="superdesk.media_archive.core.html" />
+    <link rel="prev" title="media_archive Package" href="superdesk.media_archive.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.core.html" title="core Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.html" title="media_archive Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.media_archive.html" accesskey="U">media_archive Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-package">
+<h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">api</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-superdesk.media_archive.api"></span><p>Created on Jul 15, 2011</p>
+<p>&#64;package: superdesk archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>APIs package.</p>
+</div>
+<div class="section" id="module-superdesk.media_archive.api.domain_archive">
+<span id="domain-archive-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">domain_archive</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.api.domain_archive" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 19, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the decorator to be used by the models in the media archive domain.</p>
+</div>
+<div class="section" id="module-superdesk.media_archive.api.image_data">
+<span id="image-data-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">image_data</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.api.image_data" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 17, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>API specifications for media meta data image archive.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.api.image_data.IImageDataService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.image_data.</tt><tt class="descname">IImageDataService</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/image_data.html#IImageDataService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.image_data.IImageDataService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_data.IMetaDataService" title="superdesk.media_archive.api.meta_data.IMetaDataService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_data.IMetaDataService</span></tt></a></p>
+<p>Provides the service methods for the meta data image.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.image_data.ImageData">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.image_data.</tt><tt class="descname">ImageData</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/image_data.html#ImageData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_data.MetaData" title="superdesk.media_archive.api.meta_data.MetaData"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_data.MetaData</span></tt></a></p>
+<p>Provides the meta data that is extracted based on the content.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.CameraMake">
+<tt class="descname">CameraMake</tt><em class="property"> = ImageData.CameraMake(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.CameraMake" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.CameraModel">
+<tt class="descname">CameraModel</tt><em class="property"> = ImageData.CameraModel(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.CameraModel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.Content">
+<tt class="descname">Content</tt><em class="property"> = ImageData.Content(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.Content" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.CreatedOn">
+<tt class="descname">CreatedOn</tt><em class="property"> = ImageData.CreatedOn(datetime)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.CreationDate">
+<tt class="descname">CreationDate</tt><em class="property"> = ImageData.CreationDate(datetime)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.CreationDate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.Height">
+<tt class="descname">Height</tt><em class="property"> = ImageData.Height(int)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.Height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.Id">
+<tt class="descname">Id</tt><em class="property"> = ImageData.Id(int)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.Name">
+<tt class="descname">Name</tt><em class="property"> = ImageData.Name(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.SizeInBytes">
+<tt class="descname">SizeInBytes</tt><em class="property"> = ImageData.SizeInBytes(int)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.SizeInBytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.Thumbnail">
+<tt class="descname">Thumbnail</tt><em class="property"> = ImageData.Thumbnail(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.Thumbnail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.Type">
+<tt class="descname">Type</tt><em class="property"> = ImageData.Type(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.ImageData.Width">
+<tt class="descname">Width</tt><em class="property"> = ImageData.Width(int)</em><a class="headerlink" href="#superdesk.media_archive.api.image_data.ImageData.Width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.image_data.QImageData">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.image_data.</tt><tt class="descname">QImageData</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/image_data.html#QImageData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.image_data.QImageData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_data.QMetaData" title="superdesk.media_archive.api.meta_data.QMetaData"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_data.QMetaData</span></tt></a></p>
+<p>The query for image model.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.QImageData.cameraMake">
+<tt class="descname">cameraMake</tt><a class="headerlink" href="#superdesk.media_archive.api.image_data.QImageData.cameraMake" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.QImageData.cameraModel">
+<tt class="descname">cameraModel</tt><a class="headerlink" href="#superdesk.media_archive.api.image_data.QImageData.cameraModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.QImageData.createdOn">
+<tt class="descname">createdOn</tt><a class="headerlink" href="#superdesk.media_archive.api.image_data.QImageData.createdOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.QImageData.creationDate">
+<tt class="descname">creationDate</tt><a class="headerlink" href="#superdesk.media_archive.api.image_data.QImageData.creationDate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.QImageData.height">
+<tt class="descname">height</tt><a class="headerlink" href="#superdesk.media_archive.api.image_data.QImageData.height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_data.QImageData.width">
+<tt class="descname">width</tt><a class="headerlink" href="#superdesk.media_archive.api.image_data.QImageData.width" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.api.image_info">
+<span id="image-info-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">image_info</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.api.image_info" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 19, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>API specifications for media archive image info.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.api.image_info.IImageInfoService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.image_info.</tt><tt class="descname">IImageInfoService</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/image_info.html#IImageInfoService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.image_info.IImageInfoService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_info.IMetaInfoService" title="superdesk.media_archive.api.meta_info.IMetaInfoService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_info.IMetaInfoService</span></tt></a></p>
+<p>Provides the service methods for the meta info image.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.image_info.ImageInfo">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.image_info.</tt><tt class="descname">ImageInfo</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/image_info.html#ImageInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.image_info.ImageInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_info.MetaInfo" title="superdesk.media_archive.api.meta_info.MetaInfo"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_info.MetaInfo</span></tt></a></p>
+<p>Provides the meta info image.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.ImageInfo.Caption">
+<tt class="descname">Caption</tt><em class="property"> = ImageInfo.Caption(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_info.ImageInfo.Caption" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.ImageInfo.Description">
+<tt class="descname">Description</tt><em class="property"> = ImageInfo.Description(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_info.ImageInfo.Description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.ImageInfo.Id">
+<tt class="descname">Id</tt><em class="property"> = ImageInfo.Id(int)</em><a class="headerlink" href="#superdesk.media_archive.api.image_info.ImageInfo.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.ImageInfo.Keywords">
+<tt class="descname">Keywords</tt><em class="property"> = ImageInfo.Keywords(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_info.ImageInfo.Keywords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.ImageInfo.Language">
+<tt class="descname">Language</tt><em class="property"> = ImageInfo.Language(LanguageEntity)</em><a class="headerlink" href="#superdesk.media_archive.api.image_info.ImageInfo.Language" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.ImageInfo.MetaData">
+<tt class="descname">MetaData</tt><em class="property"> = ImageInfo.MetaData(ImageData)</em><a class="headerlink" href="#superdesk.media_archive.api.image_info.ImageInfo.MetaData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.ImageInfo.Title">
+<tt class="descname">Title</tt><em class="property"> = ImageInfo.Title(str)</em><a class="headerlink" href="#superdesk.media_archive.api.image_info.ImageInfo.Title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.image_info.QImageInfo">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.image_info.</tt><tt class="descname">QImageInfo</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/image_info.html#QImageInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.image_info.QImageInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_info.QMetaInfo" title="superdesk.media_archive.api.meta_info.QMetaInfo"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_info.QMetaInfo</span></tt></a></p>
+<p>The query for image info model.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.QImageInfo.caption">
+<tt class="descname">caption</tt><a class="headerlink" href="#superdesk.media_archive.api.image_info.QImageInfo.caption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.QImageInfo.description">
+<tt class="descname">description</tt><a class="headerlink" href="#superdesk.media_archive.api.image_info.QImageInfo.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.QImageInfo.keywords">
+<tt class="descname">keywords</tt><a class="headerlink" href="#superdesk.media_archive.api.image_info.QImageInfo.keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.image_info.QImageInfo.title">
+<tt class="descname">title</tt><a class="headerlink" href="#superdesk.media_archive.api.image_info.QImageInfo.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.api.meta_data">
+<span id="meta-data-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">meta_data</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.api.meta_data" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 19, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>API specifications for media archive meta data.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.api.meta_data.IMetaDataService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.meta_data.</tt><tt class="descname">IMetaDataService</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_data.html#IMetaDataService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_data.IMetaDataService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the service methods for the meta data.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.api.meta_data.IMetaDataService.getById">
+<tt class="descname">getById</tt><big>(</big><em>id</em>, <em>scheme</em>, <em>thumbSize=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_data.html#IMetaDataService.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_data.IMetaDataService.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the meta data based on the id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.api.meta_data.IMetaDataService.getMetaDatas">
+<tt class="descname">getMetaDatas</tt><big>(</big><em>scheme</em>, <em>typeId=None</em>, <em>offset=None</em>, <em>limit=10</em>, <em>q=None</em>, <em>thumbSize=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_data.html#IMetaDataService.getMetaDatas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_data.IMetaDataService.getMetaDatas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the meta data&#8217;s.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.meta_data.IMetaDataUploadService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.meta_data.</tt><tt class="descname">IMetaDataUploadService</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_data.html#IMetaDataUploadService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_data.IMetaDataUploadService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_data.IMetaDataService" title="superdesk.media_archive.api.meta_data.IMetaDataService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_data.IMetaDataService</span></tt></a></p>
+<p>Provides the service methods for the meta data.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.api.meta_data.IMetaDataUploadService.insert">
+<tt class="descname">insert</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_data.html#IMetaDataUploadService.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_data.IMetaDataUploadService.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts the meta data content into the media archive. The process of a adding a resource to the media archive is as
+follows:</p>
+<blockquote>
+<div>1. The content is uploaded through this method, automatically the content is identified as to what type of media
+it belongs.
+2. Next the meta info needs to be added to the newly created meta data, the meta info needs to be added based
+on the detected media type.</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.meta_data.MetaData">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.meta_data.</tt><tt class="descname">MetaData</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_data.html#MetaData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_data.MetaData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.Entity" title="ally.support.api.entity.Entity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.Entity</span></tt></a></p>
+<p>Provides the meta data that is extracted based on the content.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_data.MetaData.Content">
+<tt class="descname">Content</tt><em class="property"> = MetaData.Content(str)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_data.MetaData.Content" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_data.MetaData.CreatedOn">
+<tt class="descname">CreatedOn</tt><em class="property"> = MetaData.CreatedOn(datetime)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_data.MetaData.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_data.MetaData.Id">
+<tt class="descname">Id</tt><em class="property"> = MetaData.Id(int)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_data.MetaData.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_data.MetaData.Name">
+<tt class="descname">Name</tt><em class="property"> = MetaData.Name(str)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_data.MetaData.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_data.MetaData.SizeInBytes">
+<tt class="descname">SizeInBytes</tt><em class="property"> = MetaData.SizeInBytes(int)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_data.MetaData.SizeInBytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_data.MetaData.Thumbnail">
+<tt class="descname">Thumbnail</tt><em class="property"> = MetaData.Thumbnail(str)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_data.MetaData.Thumbnail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_data.MetaData.Type">
+<tt class="descname">Type</tt><em class="property"> = MetaData.Type(str)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_data.MetaData.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.meta_data.QMetaData">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.meta_data.</tt><tt class="descname">QMetaData</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_data.html#QMetaData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_data.QMetaData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.QEntity" title="ally.support.api.entity.QEntity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.QEntity</span></tt></a></p>
+<p>The query for he meta models.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_data.QMetaData.createdOn">
+<tt class="descname">createdOn</tt><a class="headerlink" href="#superdesk.media_archive.api.meta_data.QMetaData.createdOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.api.meta_info">
+<span id="meta-info-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">meta_info</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.api.meta_info" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 17, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>API specifications for media archive meta info.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.api.meta_info.IMetaInfoService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.meta_info.</tt><tt class="descname">IMetaInfoService</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_info.html#IMetaInfoService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_info.IMetaInfoService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.IEntityGetCRUDService" title="ally.support.api.entity.IEntityGetCRUDService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityGetCRUDService</span></tt></a></p>
+<p>Provides the service methods for the meta info.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.api.meta_info.IMetaInfoService.getMetaInfos">
+<tt class="descname">getMetaInfos</tt><big>(</big><em>dataId=None</em>, <em>languageId=None</em>, <em>offset=None</em>, <em>limit=10</em>, <em>qi=None</em>, <em>qd=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_info.html#IMetaInfoService.getMetaInfos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_info.IMetaInfoService.getMetaInfos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the meta info&#8217;s.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.meta_info.MetaInfo">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.meta_info.</tt><tt class="descname">MetaInfo</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_info.html#MetaInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_info.MetaInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.Entity" title="ally.support.api.entity.Entity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.Entity</span></tt></a></p>
+<p>Provides the meta data information that is provided by the user.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_info.MetaInfo.Description">
+<tt class="descname">Description</tt><em class="property"> = MetaInfo.Description(str)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_info.MetaInfo.Description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_info.MetaInfo.Id">
+<tt class="descname">Id</tt><em class="property"> = MetaInfo.Id(int)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_info.MetaInfo.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_info.MetaInfo.Keywords">
+<tt class="descname">Keywords</tt><em class="property"> = MetaInfo.Keywords(str)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_info.MetaInfo.Keywords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_info.MetaInfo.Language">
+<tt class="descname">Language</tt><em class="property"> = MetaInfo.Language(LanguageEntity)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_info.MetaInfo.Language" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_info.MetaInfo.MetaData">
+<tt class="descname">MetaData</tt><em class="property"> = MetaInfo.MetaData(MetaData)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_info.MetaInfo.MetaData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_info.MetaInfo.Title">
+<tt class="descname">Title</tt><em class="property"> = MetaInfo.Title(str)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_info.MetaInfo.Title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.meta_info.QMetaInfo">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.meta_info.</tt><tt class="descname">QMetaInfo</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_info.html#QMetaInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_info.QMetaInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.QEntity" title="ally.support.api.entity.QEntity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.QEntity</span></tt></a></p>
+<p>The query for he meta info model.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_info.QMetaInfo.description">
+<tt class="descname">description</tt><a class="headerlink" href="#superdesk.media_archive.api.meta_info.QMetaInfo.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_info.QMetaInfo.keywords">
+<tt class="descname">keywords</tt><a class="headerlink" href="#superdesk.media_archive.api.meta_info.QMetaInfo.keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_info.QMetaInfo.title">
+<tt class="descname">title</tt><a class="headerlink" href="#superdesk.media_archive.api.meta_info.QMetaInfo.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.api.meta_type">
+<span id="meta-type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">meta_type</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.api.meta_type" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 19, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>API specifications for meta type.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.api.meta_type.IMetaTypeService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.meta_type.</tt><tt class="descname">IMetaTypeService</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_type.html#IMetaTypeService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_type.IMetaTypeService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the meta type services.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.api.meta_type.IMetaTypeService.getById">
+<tt class="descname">getById</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_type.html#IMetaTypeService.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_type.IMetaTypeService.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the meta type based on the id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.api.meta_type.IMetaTypeService.getMetaTypes">
+<tt class="descname">getMetaTypes</tt><big>(</big><em>offset=None</em>, <em>limit=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_type.html#IMetaTypeService.getMetaTypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_type.IMetaTypeService.getMetaTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the meta type&#8217;s.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.meta_type.MetaType">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.meta_type.</tt><tt class="descname">MetaType</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/meta_type.html#MetaType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.meta_type.MetaType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the meta types.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_type.MetaType.Id">
+<tt class="descname">Id</tt><em class="property"> = MetaType.Id(int)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_type.MetaType.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.meta_type.MetaType.Type">
+<tt class="descname">Type</tt><em class="property"> = MetaType.Type(str)</em><a class="headerlink" href="#superdesk.media_archive.api.meta_type.MetaType.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.api.query_criteria">
+<span id="query-criteria-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">query_criteria</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.api.query_criteria" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 28, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Ioan v. Pocol</p>
+<p>API specifications for query criteria service.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.api.query_criteria.IQueryCriteriaService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.query_criteria.</tt><tt class="descname">IQueryCriteriaService</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/query_criteria.html#IQueryCriteriaService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.IQueryCriteriaService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the service methods for the query criteria service.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.api.query_criteria.IQueryCriteriaService.getCriterias">
+<tt class="descname">getCriterias</tt><big>(</big><em>locales</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/api/query_criteria.html#IQueryCriteriaService.getCriterias"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.IQueryCriteriaService.getCriterias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the list of query criteria that respect the given query conditions.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.query_criteria.QQueryCriteria">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.query_criteria.</tt><tt class="descname">QQueryCriteria</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/query_criteria.html#QQueryCriteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.QQueryCriteria" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The query for query criteria model.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.query_criteria.QQueryCriteria.criteria">
+<tt class="descname">criteria</tt><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.QQueryCriteria.criteria" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.query_criteria.QQueryCriteria.key">
+<tt class="descname">key</tt><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.QQueryCriteria.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.query_criteria.QQueryCriteria.name">
+<tt class="descname">name</tt><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.QQueryCriteria.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.query_criteria.QueryCriteria">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.query_criteria.</tt><tt class="descname">QueryCriteria</tt><big>(</big><em>Key</em>, <em>Criteria</em>, <em>Name=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/api/query_criteria.html#QueryCriteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.QueryCriteria" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the info about the criteria of multi-plugin query.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.query_criteria.QueryCriteria.Criteria">
+<tt class="descname">Criteria</tt><em class="property"> = QueryCriteria.Criteria(str)</em><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.QueryCriteria.Criteria" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.query_criteria.QueryCriteria.Key">
+<tt class="descname">Key</tt><em class="property"> = QueryCriteria.Key(str)</em><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.QueryCriteria.Key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.query_criteria.QueryCriteria.Name">
+<tt class="descname">Name</tt><em class="property"> = QueryCriteria.Name(str)</em><a class="headerlink" href="#superdesk.media_archive.api.query_criteria.QueryCriteria.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.api.video_data">
+<span id="video-data-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">video_data</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.api.video_data" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 23, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Ioan v. Pocol</p>
+<p>API specifications for media meta data video archive.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.api.video_data.IVideoDataService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.video_data.</tt><tt class="descname">IVideoDataService</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/video_data.html#IVideoDataService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.video_data.IVideoDataService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_data.IMetaDataService" title="superdesk.media_archive.api.meta_data.IMetaDataService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_data.IMetaDataService</span></tt></a></p>
+<p>Provides the service methods for the meta data video.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.video_data.QVideoData">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.video_data.</tt><tt class="descname">QVideoData</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/video_data.html#QVideoData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_data.QMetaData" title="superdesk.media_archive.api.meta_data.QMetaData"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_data.QMetaData</span></tt></a></p>
+<p>The query for video model.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.audioBitrate">
+<tt class="descname">audioBitrate</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.audioBitrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.audioEncoding">
+<tt class="descname">audioEncoding</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.audioEncoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.channels">
+<tt class="descname">channels</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.createdOn">
+<tt class="descname">createdOn</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.createdOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.fps">
+<tt class="descname">fps</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.fps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.height">
+<tt class="descname">height</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.length">
+<tt class="descname">length</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.sampleRate">
+<tt class="descname">sampleRate</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.sampleRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.videoBitrate">
+<tt class="descname">videoBitrate</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.videoBitrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.videoEncoding">
+<tt class="descname">videoEncoding</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.videoEncoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.QVideoData.width">
+<tt class="descname">width</tt><a class="headerlink" href="#superdesk.media_archive.api.video_data.QVideoData.width" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.video_data.VideoData">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.video_data.</tt><tt class="descname">VideoData</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/video_data.html#VideoData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_data.MetaData" title="superdesk.media_archive.api.meta_data.MetaData"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_data.MetaData</span></tt></a></p>
+<p>Provides the meta data that is extracted based on the content.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.AudioBitrate">
+<tt class="descname">AudioBitrate</tt><em class="property"> = VideoData.AudioBitrate(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.AudioBitrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.AudioEncoding">
+<tt class="descname">AudioEncoding</tt><em class="property"> = VideoData.AudioEncoding(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.AudioEncoding" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Channels">
+<tt class="descname">Channels</tt><em class="property"> = VideoData.Channels(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Channels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Content">
+<tt class="descname">Content</tt><em class="property"> = VideoData.Content(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Content" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.CreatedOn">
+<tt class="descname">CreatedOn</tt><em class="property"> = VideoData.CreatedOn(datetime)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Fps">
+<tt class="descname">Fps</tt><em class="property"> = VideoData.Fps(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Fps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Height">
+<tt class="descname">Height</tt><em class="property"> = VideoData.Height(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Id">
+<tt class="descname">Id</tt><em class="property"> = VideoData.Id(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Length">
+<tt class="descname">Length</tt><em class="property"> = VideoData.Length(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Name">
+<tt class="descname">Name</tt><em class="property"> = VideoData.Name(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.SampleRate">
+<tt class="descname">SampleRate</tt><em class="property"> = VideoData.SampleRate(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.SampleRate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.SizeInBytes">
+<tt class="descname">SizeInBytes</tt><em class="property"> = VideoData.SizeInBytes(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.SizeInBytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Thumbnail">
+<tt class="descname">Thumbnail</tt><em class="property"> = VideoData.Thumbnail(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Thumbnail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Type">
+<tt class="descname">Type</tt><em class="property"> = VideoData.Type(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.VideoBitrate">
+<tt class="descname">VideoBitrate</tt><em class="property"> = VideoData.VideoBitrate(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.VideoBitrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.VideoEncoding">
+<tt class="descname">VideoEncoding</tt><em class="property"> = VideoData.VideoEncoding(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.VideoEncoding" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_data.VideoData.Width">
+<tt class="descname">Width</tt><em class="property"> = VideoData.Width(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_data.VideoData.Width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.api.video_info">
+<span id="video-info-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">video_info</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.api.video_info" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 23, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Ioan v. Pocol</p>
+<p>API specifications for media archive video info.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.api.video_info.IVideoInfoService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.video_info.</tt><tt class="descname">IVideoInfoService</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/video_info.html#IVideoInfoService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.video_info.IVideoInfoService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_info.IMetaInfoService" title="superdesk.media_archive.api.meta_info.IMetaInfoService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_info.IMetaInfoService</span></tt></a></p>
+<p>Provides the service methods for the meta info video.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.video_info.QVideoInfo">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.video_info.</tt><tt class="descname">QVideoInfo</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/video_info.html#QVideoInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.video_info.QVideoInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_info.QMetaInfo" title="superdesk.media_archive.api.meta_info.QMetaInfo"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_info.QMetaInfo</span></tt></a></p>
+<p>The query for video info model.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.QVideoInfo.caption">
+<tt class="descname">caption</tt><a class="headerlink" href="#superdesk.media_archive.api.video_info.QVideoInfo.caption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.QVideoInfo.description">
+<tt class="descname">description</tt><a class="headerlink" href="#superdesk.media_archive.api.video_info.QVideoInfo.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.QVideoInfo.keywords">
+<tt class="descname">keywords</tt><a class="headerlink" href="#superdesk.media_archive.api.video_info.QVideoInfo.keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.QVideoInfo.title">
+<tt class="descname">title</tt><a class="headerlink" href="#superdesk.media_archive.api.video_info.QVideoInfo.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.api.video_info.VideoInfo">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.api.video_info.</tt><tt class="descname">VideoInfo</tt><a class="reference internal" href="_modules/superdesk/media_archive/api/video_info.html#VideoInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.api.video_info.VideoInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.api.meta_info.MetaInfo" title="superdesk.media_archive.api.meta_info.MetaInfo"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_info.MetaInfo</span></tt></a></p>
+<p>Provides the meta info video.</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.VideoInfo.Caption">
+<tt class="descname">Caption</tt><em class="property"> = VideoInfo.Caption(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_info.VideoInfo.Caption" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.VideoInfo.Description">
+<tt class="descname">Description</tt><em class="property"> = VideoInfo.Description(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_info.VideoInfo.Description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.VideoInfo.Id">
+<tt class="descname">Id</tt><em class="property"> = VideoInfo.Id(int)</em><a class="headerlink" href="#superdesk.media_archive.api.video_info.VideoInfo.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.VideoInfo.Keywords">
+<tt class="descname">Keywords</tt><em class="property"> = VideoInfo.Keywords(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_info.VideoInfo.Keywords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.VideoInfo.Language">
+<tt class="descname">Language</tt><em class="property"> = VideoInfo.Language(LanguageEntity)</em><a class="headerlink" href="#superdesk.media_archive.api.video_info.VideoInfo.Language" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.VideoInfo.MetaData">
+<tt class="descname">MetaData</tt><em class="property"> = VideoInfo.MetaData(VideoData)</em><a class="headerlink" href="#superdesk.media_archive.api.video_info.VideoInfo.MetaData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.api.video_info.VideoInfo.Title">
+<tt class="descname">Title</tt><em class="property"> = VideoInfo.Title(str)</em><a class="headerlink" href="#superdesk.media_archive.api.video_info.VideoInfo.Title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">api Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">api</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.api.domain_archive"><tt class="docutils literal"><span class="pre">domain_archive</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.api.image_data"><tt class="docutils literal"><span class="pre">image_data</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.api.image_info"><tt class="docutils literal"><span class="pre">image_info</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.api.meta_data"><tt class="docutils literal"><span class="pre">meta_data</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.api.meta_info"><tt class="docutils literal"><span class="pre">meta_info</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.api.meta_type"><tt class="docutils literal"><span class="pre">meta_type</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.api.query_criteria"><tt class="docutils literal"><span class="pre">query_criteria</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.api.video_data"><tt class="docutils literal"><span class="pre">video_data</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.api.video_info"><tt class="docutils literal"><span class="pre">video_info</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superdesk.media_archive.html"
+                        title="previous chapter">media_archive Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superdesk.media_archive.core.html"
+                        title="next chapter">core Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/superdesk.media_archive.api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.core.html" title="core Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.html" title="media_archive Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.media_archive.html" >media_archive Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

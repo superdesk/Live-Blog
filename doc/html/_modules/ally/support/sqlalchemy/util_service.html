@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.support.sqlalchemy.util_service &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.support.sqlalchemy.util_service</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jan 5, 2012</span>
+
+<span class="sd">@package: ally core sql alchemy</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides utility methods for SQL alchemy service implementations.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">ally.api.criteria</span> <span class="kn">import</span> <span class="n">AsLike</span><span class="p">,</span> <span class="n">AsOrdered</span><span class="p">,</span> <span class="n">AsBoolean</span><span class="p">,</span> <span class="n">AsEqual</span><span class="p">,</span> <span class="n">AsDate</span><span class="p">,</span> \
+    <span class="n">AsTime</span><span class="p">,</span> <span class="n">AsDateTime</span><span class="p">,</span> <span class="n">AsRange</span>
+<span class="kn">from</span> <span class="nn">ally.api.type</span> <span class="kn">import</span> <span class="n">typeFor</span>
+<span class="kn">from</span> <span class="nn">ally.exception</span> <span class="kn">import</span> <span class="n">InputError</span><span class="p">,</span> <span class="n">Ref</span>
+<span class="kn">from</span> <span class="nn">ally.internationalization</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">ally.support.api.util_service</span> <span class="kn">import</span> <span class="n">namesForQuery</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.mapper</span> <span class="kn">import</span> <span class="n">mappingFor</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">IntegrityError</span><span class="p">,</span> <span class="n">OperationalError</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.mapper</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.properties</span> <span class="kn">import</span> <span class="n">ColumnProperty</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="handle"><a class="viewcode-back" href="../../../../ally.support.sqlalchemy.html#ally.support.sqlalchemy.util_service.handle">[docs]</a><span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Handles the SQL alchemy exception while inserting or updating.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">IntegrityError</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Cannot persist, failed unique constraints on entity&#39;</span><span class="p">),</span> <span class="n">model</span><span class="o">=</span><span class="n">typeFor</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span><span class="o">.</span><span class="n">container</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">OperationalError</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;A foreign key is not valid&#39;</span><span class="p">),</span> <span class="n">model</span><span class="o">=</span><span class="n">typeFor</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span><span class="o">.</span><span class="n">container</span><span class="p">))</span>
+    <span class="k">raise</span> <span class="n">e</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="buildLimits"><a class="viewcode-back" href="../../../../ally.support.sqlalchemy.html#ally.support.sqlalchemy.util_service.buildLimits">[docs]</a><span class="k">def</span> <span class="nf">buildLimits</span><span class="p">(</span><span class="n">sqlQuery</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Builds limiting on the SQL alchemy query.</span>
+<span class="sd">    </span>
+<span class="sd">    @param offset: integer|None</span>
+<span class="sd">        The offset to fetch elements from.</span>
+<span class="sd">    @param limit: integer|None</span>
+<span class="sd">        The limit of elements to get.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sqlQuery</span>
+</div>
+<div class="viewcode-block" id="buildQuery"><a class="viewcode-back" href="../../../../ally.support.sqlalchemy.html#ally.support.sqlalchemy.util_service.buildQuery">[docs]</a><span class="k">def</span> <span class="nf">buildQuery</span><span class="p">(</span><span class="n">sqlQuery</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">mapped</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Builds the query on the SQL alchemy query.</span>
+<span class="sd">    </span>
+<span class="sd">    @param sqlQuery: SQL alchemy</span>
+<span class="sd">        The sql alchemy query to use.</span>
+<span class="sd">    @param query: query</span>
+<span class="sd">        The REST query object to provide filtering on.</span>
+<span class="sd">    @param mapped: class</span>
+<span class="sd">        The mapped model class to use the query on.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;A query object is required&#39;</span>
+    <span class="n">clazz</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">__class__</span>
+
+    <span class="n">ordered</span><span class="p">,</span> <span class="n">unordered</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">mapper</span> <span class="o">=</span> <span class="n">mappingFor</span><span class="p">(</span><span class="n">mapped</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapper</span><span class="p">,</span> <span class="n">Mapper</span><span class="p">)</span>
+
+    <span class="n">properties</span> <span class="o">=</span> <span class="p">{</span><span class="n">cp</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mapper</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">cp</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+                  <span class="k">for</span> <span class="n">cp</span> <span class="ow">in</span> <span class="n">mapper</span><span class="o">.</span><span class="n">iterate_properties</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span> <span class="n">ColumnProperty</span><span class="p">)}</span>
+
+    <span class="k">for</span> <span class="n">criteria</span> <span class="ow">in</span> <span class="n">namesForQuery</span><span class="p">(</span><span class="n">clazz</span><span class="p">):</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">criteria</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span> <span class="ow">in</span> <span class="n">query</span><span class="p">:</span>
+
+            <span class="n">crt</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="n">AsBoolean</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="n">AsBoolean</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">AsBoolean</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">crt</span><span class="p">:</span>
+                    <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">column</span> <span class="o">==</span> <span class="n">crt</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="n">AsLike</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="n">AsLike</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">AsLike</span><span class="o">.</span><span class="n">like</span> <span class="ow">in</span> <span class="n">crt</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="n">crt</span><span class="o">.</span><span class="n">like</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">AsLike</span><span class="o">.</span><span class="n">ilike</span> <span class="ow">in</span> <span class="n">crt</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">ilike</span><span class="p">(</span><span class="n">crt</span><span class="o">.</span><span class="n">ilike</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="n">AsEqual</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="n">AsEqual</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">AsEqual</span><span class="o">.</span><span class="n">equal</span> <span class="ow">in</span> <span class="n">crt</span><span class="p">:</span>
+                    <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">column</span> <span class="o">==</span> <span class="n">crt</span><span class="o">.</span><span class="n">equal</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="p">(</span><span class="n">AsDate</span><span class="p">,</span> <span class="n">AsTime</span><span class="p">,</span> <span class="n">AsDateTime</span><span class="p">,</span> <span class="n">AsRange</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">crt</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">start</span> <span class="ow">in</span> <span class="n">crt</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">column</span> <span class="o">&gt;=</span> <span class="n">crt</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">crt</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">until</span> <span class="ow">in</span> <span class="n">crt</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">column</span> <span class="o">&lt;</span> <span class="n">crt</span><span class="o">.</span><span class="n">until</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">crt</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">end</span> <span class="ow">in</span> <span class="n">crt</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">column</span> <span class="o">&lt;=</span> <span class="n">crt</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">crt</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">since</span> <span class="ow">in</span> <span class="n">crt</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">column</span> <span class="o">&gt;</span> <span class="n">crt</span><span class="o">.</span><span class="n">since</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="n">AsOrdered</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crt</span><span class="p">,</span> <span class="n">AsOrdered</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">AsOrdered</span><span class="o">.</span><span class="n">ascending</span> <span class="ow">in</span> <span class="n">crt</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">AsOrdered</span><span class="o">.</span><span class="n">priority</span> <span class="ow">in</span> <span class="n">crt</span> <span class="ow">and</span> <span class="n">crt</span><span class="o">.</span><span class="n">priority</span><span class="p">:</span>
+                        <span class="n">ordered</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">column</span><span class="p">,</span> <span class="n">crt</span><span class="o">.</span><span class="n">ascending</span><span class="p">,</span> <span class="n">crt</span><span class="o">.</span><span class="n">priority</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">unordered</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">column</span><span class="p">,</span> <span class="n">crt</span><span class="o">.</span><span class="n">ascending</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+
+            <span class="n">ordered</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">pack</span><span class="p">:</span> <span class="n">pack</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">asc</span><span class="p">,</span> <span class="n">__</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="n">ordered</span><span class="p">,</span> <span class="n">unordered</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">asc</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span> <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">sqlQuery</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">sqlQuery</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

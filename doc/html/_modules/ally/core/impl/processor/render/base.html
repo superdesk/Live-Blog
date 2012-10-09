@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.core.impl.processor.render.base &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.core.impl.processor.render.base</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jan 25, 2012</span>
+
+<span class="sd">@package: ally core</span>
+<span class="sd">@copyright: 2011 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides the text base encoder processor handler.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.design.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">defines</span><span class="p">,</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">ally.design.processor</span> <span class="kn">import</span> <span class="n">HandlerProcessor</span><span class="p">,</span> <span class="n">Chain</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Response"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.base.Response">[docs]</a><span class="k">class</span> <span class="nc">Response</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The response context.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Defined</span>
+    <span class="n">renderFactory</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="n">Callable</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: callable(IOutputStream) -&gt; IRender</span>
+<span class="s">    The renderer factory to be used for the response.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ResponseContent"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.base.ResponseContent">[docs]</a><span class="k">class</span> <span class="nc">ResponseContent</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The response content context.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Required</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">charSet</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="nd">@injected</span>
+<div class="viewcode-block" id="RenderBaseHandler"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.base.RenderBaseHandler">[docs]</a><span class="k">class</span> <span class="nc">RenderBaseHandler</span><span class="p">(</span><span class="n">HandlerProcessor</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the text base renderer.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">contentTypes</span> <span class="o">=</span> <span class="nb">dict</span>
+    <span class="c"># The dictionary{string:string} containing as a key the content types specific for this encoder and as a value</span>
+    <span class="c"># the content type to set on the response, if None will use the key for the content type response. </span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contentTypes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid content types </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">contentTypes</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RenderBaseHandler.process"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.base.RenderBaseHandler.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span><span class="n">Response</span><span class="p">,</span> <span class="n">responseCnt</span><span class="p">:</span><span class="n">ResponseContent</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: HandlerProcessor.process</span>
+<span class="sd">        </span>
+<span class="sd">        Encode the ressponse object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span> <span class="n">Chain</span><span class="p">),</span> <span class="s">&#39;Invalid processors chain </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">chain</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">Response</span><span class="p">),</span> <span class="s">&#39;Invalid response </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">response</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">responseCnt</span><span class="p">,</span> <span class="n">ResponseContent</span><span class="p">),</span> <span class="s">&#39;Invalid response content </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">responseCnt</span>
+
+        <span class="c"># Check if the response is for this encoder</span>
+        <span class="k">if</span> <span class="n">responseCnt</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contentTypes</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;The content type </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s"> is not for this </span><span class="si">%s</span><span class="s"> encoder&#39;</span><span class="p">,</span> <span class="n">responseCnt</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">contentType</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contentTypes</span><span class="p">[</span><span class="n">responseCnt</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">contentType</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Normalized content type </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s"> to </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">responseCnt</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">contentType</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+                <span class="n">responseCnt</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">contentType</span>
+
+            <span class="n">response</span><span class="o">.</span><span class="n">renderFactory</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">renderFactory</span><span class="p">,</span> <span class="n">responseCnt</span><span class="o">.</span><span class="n">charSet</span><span class="p">)</span>
+            <span class="k">return</span> <span class="c"># We need to stop the chain if we have been able to provide the encoding</span>
+
+        <span class="n">chain</span><span class="o">.</span><span class="n">proceed</span><span class="p">()</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="RenderBaseHandler.renderFactory"><a class="viewcode-back" href="../../../../../../ally.core.impl.processor.render.html#ally.core.impl.processor.render.base.RenderBaseHandler.renderFactory">[docs]</a>    <span class="k">def</span> <span class="nf">renderFactory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charSet</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Factory method used for creating a renderer.</span>
+<span class="sd">        </span>
+<span class="sd">        @param charSet: string</span>
+<span class="sd">            The character set to be used by the created factory.</span>
+<span class="sd">        @param output: IOutputStream</span>
+<span class="sd">            The output stream to be used by the renderer.</span>
+<span class="sd">        @return: IRender</span>
+<span class="sd">            The renderer.</span>
+<span class="sd">        &#39;&#39;&#39;</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

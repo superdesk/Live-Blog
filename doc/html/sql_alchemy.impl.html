@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>impl Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="sql_alchemy Package" href="sql_alchemy.html" />
+    <link rel="next" title="superdesk Package" href="superdesk.html" />
+    <link rel="prev" title="sql_alchemy Package" href="sql_alchemy.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.html" title="superdesk Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sql_alchemy.html" title="sql_alchemy Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="sql_alchemy.html" accesskey="U">sql_alchemy Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="impl-package">
+<h1>impl Package<a class="headerlink" href="#impl-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">impl</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-sql_alchemy.impl"></span><p>Created on Jun 23, 2011</p>
+<p>&#64;package support sqlalchemy
+&#64;copyright 2011 Sourcefabric o.p.s.
+&#64;license <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>SQL alchemy implementation for the APIs.</p>
+</div>
+<div class="section" id="module-sql_alchemy.impl.entity">
+<span id="entity-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">entity</span></tt> Module<a class="headerlink" href="#module-sql_alchemy.impl.entity" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 23, 2011</p>
+<p>&#64;package: support plugin
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>SQL alchemy implementation for the generic entities API.</p>
+<dl class="class">
+<dt id="sql_alchemy.impl.entity.EntityCRUDServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.entity.</tt><tt class="descname">EntityCRUDServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityCRUDServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityCRUDServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.entity.EntitySupportAlchemy" title="sql_alchemy.impl.entity.EntitySupportAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntitySupportAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityCRUDService</p>
+<dl class="method">
+<dt id="sql_alchemy.impl.entity.EntityCRUDServiceAlchemy.delete">
+<tt class="descname">delete</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityCRUDServiceAlchemy.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityCRUDServiceAlchemy.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityCRUDService.delete</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sql_alchemy.impl.entity.EntityCRUDServiceAlchemy.insert">
+<tt class="descname">insert</tt><big>(</big><em>entity</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityCRUDServiceAlchemy.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityCRUDServiceAlchemy.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityCRUDService.insert</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sql_alchemy.impl.entity.EntityCRUDServiceAlchemy.update">
+<tt class="descname">update</tt><big>(</big><em>entity</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityCRUDServiceAlchemy.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityCRUDServiceAlchemy.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityCRUDService.update</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.entity.EntityFindServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.entity.</tt><tt class="descname">EntityFindServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityFindServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityFindServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.entity.EntitySupportAlchemy" title="sql_alchemy.impl.entity.EntitySupportAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntitySupportAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityFindService</p>
+<dl class="method">
+<dt id="sql_alchemy.impl.entity.EntityFindServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityFindServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityFindServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityQueryService.getAll</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.entity.EntityGetCRUDServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.entity.</tt><tt class="descname">EntityGetCRUDServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityGetCRUDServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityGetCRUDServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.entity.EntityGetServiceAlchemy" title="sql_alchemy.impl.entity.EntityGetServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityGetServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.entity.EntityCRUDServiceAlchemy" title="sql_alchemy.impl.entity.EntityCRUDServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityCRUDServiceAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityGetCRUDService</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.entity.EntityGetServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.entity.</tt><tt class="descname">EntityGetServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityGetServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityGetServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.entity.EntitySupportAlchemy" title="sql_alchemy.impl.entity.EntitySupportAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntitySupportAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityGetService</p>
+<dl class="method">
+<dt id="sql_alchemy.impl.entity.EntityGetServiceAlchemy.getById">
+<tt class="descname">getById</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityGetServiceAlchemy.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityGetServiceAlchemy.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityGetService.getById</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.entity.EntityNQServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.entity.</tt><tt class="descname">EntityNQServiceAlchemy</tt><big>(</big><em>Entity</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityNQServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityNQServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.entity.EntityGetServiceAlchemy" title="sql_alchemy.impl.entity.EntityGetServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityGetServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.entity.EntityFindServiceAlchemy" title="sql_alchemy.impl.entity.EntityFindServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityFindServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.entity.EntityCRUDServiceAlchemy" title="sql_alchemy.impl.entity.EntityCRUDServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityCRUDServiceAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityService</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.entity.EntityQueryServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.entity.</tt><tt class="descname">EntityQueryServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityQueryServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityQueryServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.entity.EntitySupportAlchemy" title="sql_alchemy.impl.entity.EntitySupportAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntitySupportAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityQueryService</p>
+<dl class="method">
+<dt id="sql_alchemy.impl.entity.EntityQueryServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityQueryServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityQueryServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityQueryService.getAll</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.entity.EntityServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.entity.</tt><tt class="descname">EntityServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntityServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntityServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.entity.EntityGetServiceAlchemy" title="sql_alchemy.impl.entity.EntityGetServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityGetServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.entity.EntityQueryServiceAlchemy" title="sql_alchemy.impl.entity.EntityQueryServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityQueryServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.entity.EntityCRUDServiceAlchemy" title="sql_alchemy.impl.entity.EntityCRUDServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityCRUDServiceAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityService</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.entity.EntitySupportAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.entity.</tt><tt class="descname">EntitySupportAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/entity.html#EntitySupportAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.entity.EntitySupportAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.sqlalchemy.html#ally.support.sqlalchemy.session.SessionSupport" title="ally.support.sqlalchemy.session.SessionSupport"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.session.SessionSupport</span></tt></a></p>
+<p>Provides support generic entity handling.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-sql_alchemy.impl.keyed">
+<span id="keyed-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">keyed</span></tt> Module<a class="headerlink" href="#module-sql_alchemy.impl.keyed" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 2, 2012</p>
+<p>&#64;package: support plugin
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>SQL alchemy implementation for the generic keyed entities API.</p>
+<dl class="class">
+<dt id="sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.keyed.</tt><tt class="descname">EntityCRUDServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityCRUDServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.keyed.EntitySupportAlchemy" title="sql_alchemy.impl.keyed.EntitySupportAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntitySupportAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityCRUDService</p>
+<dl class="method">
+<dt id="sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy.delete">
+<tt class="descname">delete</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityCRUDServiceAlchemy.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityCRUDService.delete</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy.insert">
+<tt class="descname">insert</tt><big>(</big><em>entity</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityCRUDServiceAlchemy.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityCRUDService.insert</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy.update">
+<tt class="descname">update</tt><big>(</big><em>entity</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityCRUDServiceAlchemy.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityCRUDService.update</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.keyed.EntityFindServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.keyed.</tt><tt class="descname">EntityFindServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityFindServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityFindServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.keyed.EntitySupportAlchemy" title="sql_alchemy.impl.keyed.EntitySupportAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntitySupportAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityFindService</p>
+<dl class="method">
+<dt id="sql_alchemy.impl.keyed.EntityFindServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>offset=None</em>, <em>limit=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityFindServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityFindServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityQueryService.getAll</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.keyed.EntityGetCRUDServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.keyed.</tt><tt class="descname">EntityGetCRUDServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityGetCRUDServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityGetCRUDServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.keyed.EntityGetServiceAlchemy" title="sql_alchemy.impl.keyed.EntityGetServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityGetServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy" title="sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityGetCRUDService</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.keyed.EntityGetServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.keyed.</tt><tt class="descname">EntityGetServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityGetServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityGetServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.keyed.EntitySupportAlchemy" title="sql_alchemy.impl.keyed.EntitySupportAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntitySupportAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityGetService</p>
+<dl class="method">
+<dt id="sql_alchemy.impl.keyed.EntityGetServiceAlchemy.getByKey">
+<tt class="descname">getByKey</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityGetServiceAlchemy.getByKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityGetServiceAlchemy.getByKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityGetService.getByKey</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.keyed.EntityNQServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.keyed.</tt><tt class="descname">EntityNQServiceAlchemy</tt><big>(</big><em>Entity</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityNQServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityNQServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.keyed.EntityGetServiceAlchemy" title="sql_alchemy.impl.keyed.EntityGetServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityGetServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.keyed.EntityFindServiceAlchemy" title="sql_alchemy.impl.keyed.EntityFindServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityFindServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy" title="sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityService</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.keyed.EntityQueryServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.keyed.</tt><tt class="descname">EntityQueryServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityQueryServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityQueryServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.keyed.EntitySupportAlchemy" title="sql_alchemy.impl.keyed.EntitySupportAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntitySupportAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityQueryService</p>
+<dl class="method">
+<dt id="sql_alchemy.impl.keyed.EntityQueryServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityQueryServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityQueryServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEntityQueryService.getAll</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.keyed.EntityServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.keyed.</tt><tt class="descname">EntityServiceAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntityServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntityServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sql_alchemy.impl.keyed.EntityGetServiceAlchemy" title="sql_alchemy.impl.keyed.EntityGetServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityGetServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.keyed.EntityQueryServiceAlchemy" title="sql_alchemy.impl.keyed.EntityQueryServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityQueryServiceAlchemy</span></tt></a>, <a class="reference internal" href="#sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy" title="sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityCRUDServiceAlchemy</span></tt></a></p>
+<p>Generic implementation for &#64;see: IEntityService</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="sql_alchemy.impl.keyed.EntitySupportAlchemy">
+<em class="property">class </em><tt class="descclassname">sql_alchemy.impl.keyed.</tt><tt class="descname">EntitySupportAlchemy</tt><big>(</big><em>Entity</em>, <em>QEntity=None</em><big>)</big><a class="reference internal" href="_modules/sql_alchemy/impl/keyed.html#EntitySupportAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sql_alchemy.impl.keyed.EntitySupportAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.sqlalchemy.html#ally.support.sqlalchemy.session.SessionSupport" title="ally.support.sqlalchemy.session.SessionSupport"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.session.SessionSupport</span></tt></a></p>
+<p>Provides support generic entity handling.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">impl Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">impl</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-sql_alchemy.impl.entity"><tt class="docutils literal"><span class="pre">entity</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-sql_alchemy.impl.keyed"><tt class="docutils literal"><span class="pre">keyed</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sql_alchemy.html"
+                        title="previous chapter">sql_alchemy Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superdesk.html"
+                        title="next chapter">superdesk Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/sql_alchemy.impl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.html" title="superdesk Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sql_alchemy.html" title="sql_alchemy Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="sql_alchemy.html" >sql_alchemy Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

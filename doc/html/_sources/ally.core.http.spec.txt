@@ -1,0 +1,34 @@
+spec Package
+============
+
+:mod:`spec` Package
+-------------------
+
+.. automodule:: ally.core.http.spec
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`codes` Module
+-------------------
+
+.. automodule:: ally.core.http.spec.codes
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`server` Module
+--------------------
+
+.. automodule:: ally.core.http.spec.server
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ally.core.http.spec.transform
+

@@ -114,9 +114,8 @@ class Parse(ContentHandler):
         if not self.path: raise ParseError('Unexpected end element \'%s\' at line %s and column %s' %
                                            (name, self.parser.getLineNumber(), self.parser.getColumnNumber()))
         path = deque(self.path)
-        ename = self.path.pop()
-        if name != ename: raise ParseError('Expected end element \'%s\' at line %s and column %s, got \'%s\'' %
-                                           (ename, self.parser.getLineNumber(), self.parser.getColumnNumber(), name))
+        if name != self.path[-1]: raise ParseError('Expected end element \'%s\' at line %s and column %s, got \'%s\'' %
+                                           (self.path[-1], self.parser.getLineNumber(), self.parser.getColumnNumber(), name))
 
         contains = self.contains.popleft()
         if contains:
@@ -126,4 +125,7 @@ class Parse(ContentHandler):
                                  (content, name, self.parser.getLineNumber(), self.parser.getColumnNumber()))
         else:
             content = '\n'.join(self.content.popleft())
-            self.decoder(path=path, value=content, **self.data)
+            if self.decoder(path=path, value=content, **self.data): self.path.pop()
+            else:
+                raise ParseError('Invalid path \'%s\' at line %s and column %s' %
+                                 ('/'.join(self.path), self.parser.getLineNumber(), self.parser.getColumnNumber()))
