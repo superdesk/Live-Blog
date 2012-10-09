@@ -18,7 +18,8 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from os import remove
-from os.path import exists, splitext
+from os.path import exists, splitext, abspath
+from ally.support.util_sys import pythonPath
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
@@ -39,18 +40,21 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     format_file_name = '%(id)s.%(file)s'; wire.config('format_file_name', doc='''
     The format for the videos file names in the media archive''')
+    default_format_thumbnail = '%(size)s/video.jpg'; wire.config('default_format_thumbnail', doc='''
+    The format for the video thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the video thumbnails in the media archive''')
-    video_supported_files = 'flv, avi, mov, mp4, mpg, wmv, 3gp, asf, rm, swf'; wire.config('video_supported_files', doc='''
-    The video formats supported by media archive video plugin''')
     ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
     The path where the ffmpeg is found''')
+
+    video_supported_files = 'flv, avi, mov, mp4, mpg, wmv, 3gp, asf, rm, swf'
 
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
 
     def __init__(self):
         assert isinstance(self.format_file_name, str), 'Invalid format file name %s' % self.format_file_name
+        assert isinstance(self.default_format_thumbnail, str), 'Invalid format thumbnail %s' % self.default_format_thumbnail
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.video_supported_files, str), 'Invalid supported files %s' % self.video_supported_files
         assert isinstance(self.ffmpeg_path, str), 'Invalid ffmpeg path %s' % self.ffmpeg_path
@@ -63,6 +67,10 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         @see: IMetaDataHandler.deploy
         '''
+        
+        self._defaultThumbnailFormat = thumbnailFormatFor(self.session(), self.default_format_thumbnail)
+        self.thumbnailManager.putThumbnail(self._defaultThumbnailFormat.id, abspath(join(pythonPath(), 'resources', 'video.jpg')))
+        
         self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
         self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
 
@@ -70,7 +78,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         @see: IMetaDataHandler.processByInfo
         '''
-        if contentType is not None and contentType.find(META_TYPE_KEY) > 0:
+        if contentType is not None and contentType.startswith(META_TYPE_KEY):
             return self.process(metaDataMapped, contentPath)
 
         extension = splitext(metaDataMapped.Name)[1][1:]
@@ -93,12 +101,12 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
         videoDataEntry = VideoDataEntry()
         videoDataEntry.Id = metaDataMapped.Id
-        while 1:
+        while True:
             line = p.stdout.readline()
             if not line: break
             line = str(line, 'utf-8')
 
-            if line.find(': Video:') != -1:
+            if line.find('Video') != -1 and line.find('Stream') != -1:
                 try:
                     values = self.extractVideo(line)
                     videoDataEntry.VideoEncoding = values[0]
@@ -107,7 +115,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     if values[3]: videoDataEntry.VideoBitrate = values[3]
                     videoDataEntry.Fps = values[4]
                 except: pass
-            elif line.find(': Audio: ') != -1:
+            elif line.find('Audio') != -1 and line.find('Stream') != -1:
                 try:
                     values = self.extractAudio(line)
                     videoDataEntry.AudioEncoding = values[0]
@@ -115,7 +123,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     videoDataEntry.Channels = values[2]
                     videoDataEntry.AudioBitrate = values[3]
                 except: pass
-            elif line.find('Duration: ') != -1:
+            elif line.find('Duration') != -1 and line.find('start') != -1:
                 try: 
                     values = self.extractDuration(line)
                     videoDataEntry.Length = values[0]

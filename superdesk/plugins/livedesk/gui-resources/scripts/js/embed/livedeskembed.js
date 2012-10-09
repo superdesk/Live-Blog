@@ -245,11 +245,10 @@ window.livedesk.startLoading = function() {
 				// Tw------------------------------------------------------------------------------------------------
 				var returned = '';
                                 var itemClass = item.getClass();
-                                /*
+                                
                                 if(Avatar.length > 0) {
-                                    returned += '<figure><img src="' + Avatar + ' alt="Gravatar" /></figure>';
-                                }
-                                */                                
+                                    returned += '<figure><img src="' + Avatar + '" ></figure>';
+                                }                                
                                 switch (itemClass) {
                                     case 'tw':
                                     case 'service':
@@ -280,7 +279,7 @@ window.livedesk.startLoading = function() {
 			},
 			render: function()
 			{			
-                countLoaded++;
+                                countLoaded++;
 				var self = this, order = parseFloat(self.model.get('Order')), Avatar='';
 				if(this.model.get('AuthorPerson') && this.model.get('AuthorPerson').EMail) {
 					Avatar = $.avatar.get(self.model.get('AuthorPerson').EMail);
@@ -329,7 +328,8 @@ window.livedesk.startLoading = function() {
 						var jqo = $(paddedContent);
 						jqo.find('img').attr('src', jqo.find('a').attr('href'));
 						content = jqo.html();
-					} else if (self.model.get('AuthorName') == 'twitter') {        
+					} else if (self.model.get('AuthorName') == 'twitter') {
+                                                Avatar = meta.profile_image_url;
 						content = self.model.twitter.link.all(content);
 					} else if (self.model.get('AuthorName') == 'google') {
                                             if (meta.tbUrl) {
@@ -480,7 +480,6 @@ window.livedesk.startLoading = function() {
 				while(i--) {
 					this.addOne(data[i]);
 				}
-                                
 			}
 			
 		});

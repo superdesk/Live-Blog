@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.support.util &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.support.util</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jun 9, 2011</span>
+
+<span class="sd">@package: ally utilities</span>
+<span class="sd">@copyright: 2011 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides implementations that provide general behavior or functionality.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Iterator</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isclass</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">currentThread</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="c"># Flag indicating that the python version is 3k or more.</span>
+<span class="n">IS_PY3K</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">[:</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mi">3</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Uninstantiable"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.Uninstantiable">[docs]</a><span class="k">class</span> <span class="nc">Uninstantiable</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Extending this class will not allow for the creation of any instance of the class.</span>
+<span class="sd">    This has to be the first class inherited in order to properly work.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Does not allow you to create an instance.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Cannot create an instance of </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s"> class&#39;</span> <span class="o">%</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="Singletone"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.Singletone">[docs]</a><span class="k">class</span> <span class="nc">Singletone</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Extending this class will always return the same instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Will always return the same instance.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span> <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_singletone</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_singletone</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_singletone</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="MetaClassUnextendable"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.MetaClassUnextendable">[docs]</a><span class="k">class</span> <span class="nc">MetaClassUnextendable</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides a meta class that doesn&#39;t allow for any class extension.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Cannot extend class in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">bases</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="immut"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.immut">[docs]</a><span class="k">class</span> <span class="nc">immut</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;The immutable dictionary class&#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;__hash__value&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">args</span> <span class="ow">or</span> <span class="n">keyargs</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span> <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">__empty__</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="n">cls</span><span class="o">.</span><span class="n">__empty__</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">__empty__</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="immut.update"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.immut.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">):</span> <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&#39;Operation not allowed on immutable dictionary&#39;</span><span class="p">)</span></div>
+    <span class="n">__setitem__</span> <span class="o">=</span> <span class="n">__delitem__</span> <span class="o">=</span> <span class="n">setdefault</span> <span class="o">=</span> <span class="n">pop</span> <span class="o">=</span> <span class="n">popitem</span> <span class="o">=</span> <span class="n">clear</span> <span class="o">=</span> <span class="n">update</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the hash code for a immutable dictionary.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hash__value</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hash__value</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hash__value</span>
+</div>
+<div class="viewcode-block" id="firstOf"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.firstOf">[docs]</a><span class="k">def</span> <span class="nf">firstOf</span><span class="p">(</span><span class="n">coll</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the first element from the provided collection.</span>
+<span class="sd">    </span>
+<span class="sd">    @param coll: list|tuple|iterable</span>
+<span class="sd">        The collection to provide the first item.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coll</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span> <span class="k">return</span> <span class="n">coll</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">coll</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">coll</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">coll</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="lastCheck"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.lastCheck">[docs]</a><span class="k">def</span> <span class="nf">lastCheck</span><span class="p">(</span><span class="n">iterator</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Checks the last element from the provided iterator. It will return a tuple containing as the first value a boolean</span>
+<span class="sd">    with False if the element is not the last element in the provided iterator and True if is the last one. On the last</span>
+<span class="sd">    position of the tuple it will return the actual value provided by the iterator.</span>
+<span class="sd">    </span>
+<span class="sd">    @param iterator: Iterator</span>
+<span class="sd">        The iterator to wrap for the last element check.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterator</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">):</span> <span class="n">iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+
+    <span class="n">item</span><span class="p">,</span> <span class="n">stop</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">iterator</span><span class="p">),</span> <span class="bp">False</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">itemNext</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="bp">False</span><span class="p">,</span> <span class="n">item</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">itemNext</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">stop</span><span class="p">:</span> <span class="k">raise</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">yield</span> <span class="bp">True</span><span class="p">,</span> <span class="n">item</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="n">_attrNameIds</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="c"># Used by the attribute to assign a unique id to a name.</span>
+
+<span class="n">attrIdForName</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">_attrNameIds</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">_attrNameIds</span><span class="p">)))</span>
+<span class="c"># Provides the name id.</span>
+
+<div class="viewcode-block" id="AttributeOnThread"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.AttributeOnThread">[docs]</a><span class="k">class</span> <span class="nc">AttributeOnThread</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class used for creating attributes for python threads.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">valueType</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Creates a new attribute.</span>
+<span class="sd">        </span>
+<span class="sd">        @param group: string</span>
+<span class="sd">            The group name for the attribute, this is usually the module name where is created, it helps to distinguish</span>
+<span class="sd">            between same names but with other purposes.</span>
+<span class="sd">        @param name: string</span>
+<span class="sd">            The name of the attribute.</span>
+<span class="sd">        @param valueType: type</span>
+<span class="sd">            The type to check for the set and get values.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid group name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">group</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">valueType</span> <span class="ow">or</span> <span class="n">isclass</span><span class="p">(</span><span class="n">valueType</span><span class="p">),</span> <span class="s">&#39;Invalid value type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">valueType</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__group</span> <span class="o">=</span> <span class="n">group</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__type</span> <span class="o">=</span> <span class="n">valueType</span>
+        <span class="k">if</span> <span class="n">__debug__</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__id</span> <span class="o">=</span> <span class="n">group</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__id</span> <span class="o">=</span> <span class="n">attrIdForName</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="n">attrIdForName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AttributeOnThread.has"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.AttributeOnThread.has">[docs]</a>    <span class="k">def</span> <span class="nf">has</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if there is a value for the current thread.</span>
+<span class="sd">        </span>
+<span class="sd">        @return: boolean</span>
+<span class="sd">            True if there is a value, False otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">currentThread</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__id</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AttributeOnThread.get"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.AttributeOnThread.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">default</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the value from the current thread.</span>
+<span class="sd">        </span>
+<span class="sd">        @param default: argument</span>
+<span class="sd">            If provided will return the default if no argument value is available.</span>
+<span class="sd">        @return: object</span>
+<span class="sd">            The value.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">currentThread</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__id</span><span class="p">,</span> <span class="o">*</span><span class="n">default</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__type</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__type</span><span class="p">),</span> <span class="s">&#39;Invalid value </span><span class="si">%s</span><span class="s"> to get for &#39;</span> \
+        <span class="s">&#39;required type </span><span class="si">%s</span><span class="s">, for attribute </span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="AttributeOnThread.set"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.AttributeOnThread.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Sets the value to the current thread.</span>
+<span class="sd">        </span>
+<span class="sd">        @param value: object</span>
+<span class="sd">            The value to set.</span>
+<span class="sd">        @return: object</span>
+<span class="sd">            The provided value.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__type</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__type</span><span class="p">),</span> <span class="s">&#39;Invalid value </span><span class="si">%s</span><span class="s"> to set for &#39;</span> \
+        <span class="s">&#39;required type </span><span class="si">%s</span><span class="s">, for attribute </span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__name</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">currentThread</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__id</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="AttributeOnThread.delete"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.AttributeOnThread.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Deletes the value from the provided object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">delattr</span><span class="p">(</span><span class="n">currentThread</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__id</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AttributeOnThread.clear"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util.AttributeOnThread.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Deletes the value from the current thread if is present.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">thread</span> <span class="o">=</span> <span class="n">currentThread</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__id</span><span class="p">):</span> <span class="nb">delattr</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__id</span><span class="p">)</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

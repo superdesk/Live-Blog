@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>impl Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="core Package" href="internationalization.core.html" />
+    <link rel="next" title="impl Package" href="internationalization.impl.html" />
+    <link rel="prev" title="core Package" href="internationalization.core.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="internationalization.impl.html" title="impl Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="internationalization.core.html" title="core Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="internationalization.html" >internationalization Package</a> &raquo;</li>
+          <li><a href="internationalization.core.html" accesskey="U">core Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="impl-package">
+<h1>impl Package<a class="headerlink" href="#impl-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-internationalization.core.impl.po_file_manager">
+<span id="po-file-manager-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">po_file_manager</span></tt> Module<a class="headerlink" href="#module-internationalization.core.impl.po_file_manager" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 13, 2012</p>
+<p>&#64;package: internationalization
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mugur Rus</p>
+<p>Implementation for the PO file management.</p>
+<dl class="class">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager">
+<em class="property">class </em><tt class="descclassname">internationalization.core.impl.po_file_manager.</tt><tt class="descname">POFileManager</tt><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="internationalization.core.html#internationalization.core.spec.IPOFileManager" title="internationalization.core.spec.IPOFileManager"><tt class="xref py py-class docutils literal"><span class="pre">internationalization.core.spec.IPOFileManager</span></tt></a></p>
+<p>Implementation for &#64;see: IPOFileManager</p>
+<dl class="attribute">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.catalog_config">
+<tt class="descname">catalog_config</tt><em class="property"> = {'project': 'Sourcefabric', 'last_translator': 'Automatic', 'version': '1.0', 'copyright_holder': 'Sourcefabric o.p.s.', 'language_team': 'Automatic', 'msgid_bugs_address': 'contact&#64;sourcefabric.org', 'fuzzy': False, 'header_comment': '# Translations template for PROJECT.\n# Copyright (C) YEAR ORGANIZATION\n# This file is distributed under the same license as the PROJECT project.\n# Gabriel Nistor &lt;gabriel.nistor&#64;sourcefabric.org&gt;, YEAR.\n#'}</em><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.catalog_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.getComponentAsDict">
+<tt class="descname">getComponentAsDict</tt><big>(</big><em>component</em>, <em>locale</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.getComponentAsDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.getComponentAsDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.getComponentAsDict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.getComponentPOFile">
+<tt class="descname">getComponentPOFile</tt><big>(</big><em>component</em>, <em>locale</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.getComponentPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.getComponentPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.getComponentPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.getComponentPOTimestamp">
+<tt class="descname">getComponentPOTimestamp</tt><big>(</big><em>component</em>, <em>locale</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.getComponentPOTimestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.getComponentPOTimestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.getComponentPOTimestamp</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.getGlobalAsDict">
+<tt class="descname">getGlobalAsDict</tt><big>(</big><em>locale</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.getGlobalAsDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.getGlobalAsDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.getGlobalAsDict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.getGlobalPOFile">
+<tt class="descname">getGlobalPOFile</tt><big>(</big><em>locale</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.getGlobalPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.getGlobalPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.getGlobalPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.getGlobalPOTimestamp">
+<tt class="descname">getGlobalPOTimestamp</tt><big>(</big><em>locale</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.getGlobalPOTimestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.getGlobalPOTimestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.getGlobalPOTimestamp</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.getPluginAsDict">
+<tt class="descname">getPluginAsDict</tt><big>(</big><em>plugin</em>, <em>locale</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.getPluginAsDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.getPluginAsDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.getPluginAsDict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.getPluginPOFile">
+<tt class="descname">getPluginPOFile</tt><big>(</big><em>plugin</em>, <em>locale</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.getPluginPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.getPluginPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.getPluginPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.getPluginPOTimestamp">
+<tt class="descname">getPluginPOTimestamp</tt><big>(</big><em>plugin</em>, <em>locale</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.getPluginPOTimestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.getPluginPOTimestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.getComponentPOTimestamp</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.locale_dir_path">
+<tt class="descname">locale_dir_path</tt><em class="property"> = 'workspace/locale'</em><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.locale_dir_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.messageService">
+<tt class="descname">messageService</tt><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.messageService" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IMessageService</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.sourceService">
+<tt class="descname">sourceService</tt><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.sourceService" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">ISourceService</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.updateComponentPOFile">
+<tt class="descname">updateComponentPOFile</tt><big>(</big><em>component</em>, <em>locale</em>, <em>poFile</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.updateComponentPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.updateComponentPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.updateComponentPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.updateGlobalPOFile">
+<tt class="descname">updateGlobalPOFile</tt><big>(</big><em>locale</em>, <em>poFile</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.updateGlobalPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.updateGlobalPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.updateGlobalPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.updatePluginPOFile">
+<tt class="descname">updatePluginPOFile</tt><big>(</big><em>plugin</em>, <em>locale</em>, <em>poFile</em><big>)</big><a class="reference internal" href="_modules/internationalization/core/impl/po_file_manager.html#POFileManager.updatePluginPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.updatePluginPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileManager.updatePluginPOFile</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.core.impl.po_file_manager.POFileManager.write_po_config">
+<tt class="descname">write_po_config</tt><em class="property"> = {'no_location': False, 'omit_header': False, 'sort_output': True, 'ignore_obsolete': True, 'include_previous': False, 'sort_by_file': True}</em><a class="headerlink" href="#internationalization.core.impl.po_file_manager.POFileManager.write_po_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">impl Package</a><ul>
+<li><a class="reference internal" href="#module-internationalization.core.impl.po_file_manager"><tt class="docutils literal"><span class="pre">po_file_manager</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="internationalization.core.html"
+                        title="previous chapter">core Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="internationalization.impl.html"
+                        title="next chapter">impl Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/internationalization.core.impl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="internationalization.impl.html" title="impl Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="internationalization.core.html" title="core Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="internationalization.html" >internationalization Package</a> &raquo;</li>
+          <li><a href="internationalization.core.html" >core Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

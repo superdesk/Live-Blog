@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="person Package" href="superdesk.person.html" />
+    <link rel="next" title="impl Package" href="superdesk.person.impl.html" />
+    <link rel="prev" title="person Package" href="superdesk.person.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.person.impl.html" title="impl Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.person.html" title="person Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.person.html" accesskey="U">person Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-package">
+<h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-superdesk.person.api.person">
+<span id="person-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">person</span></tt> Module<a class="headerlink" href="#module-superdesk.person.api.person" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 6, 2012</p>
+<p>&#64;package: superdesk person
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mihai Balaceanu</p>
+<p>APIs for person.</p>
+<dl class="class">
+<dt id="superdesk.person.api.person.IPersonService">
+<em class="property">class </em><tt class="descclassname">superdesk.person.api.person.</tt><tt class="descname">IPersonService</tt><a class="reference internal" href="_modules/superdesk/person/api/person.html#IPersonService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.person.api.person.IPersonService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.IEntityService" title="ally.support.api.entity.IEntityService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityService</span></tt></a></p>
+<p>Person model service interface</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.person.api.person.Person">
+<em class="property">class </em><tt class="descclassname">superdesk.person.api.person.</tt><tt class="descname">Person</tt><a class="reference internal" href="_modules/superdesk/person/api/person.html#Person"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.person.api.person.Person" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.Entity" title="ally.support.api.entity.Entity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.Entity</span></tt></a></p>
+<p>Provides the person model.</p>
+<dl class="attribute">
+<dt id="superdesk.person.api.person.Person.Address">
+<tt class="descname">Address</tt><em class="property"> = Person.Address(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.Address" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.person.api.person.Person.EMail">
+<tt class="descname">EMail</tt><em class="property"> = Person.EMail(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.EMail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.person.api.person.Person.FirstName">
+<tt class="descname">FirstName</tt><em class="property"> = Person.FirstName(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.FirstName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.person.api.person.Person.FullName">
+<tt class="descname">FullName</tt><em class="property"> = Person.FullName(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.FullName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.person.api.person.Person.Id">
+<tt class="descname">Id</tt><em class="property"> = Person.Id(int)</em><a class="headerlink" href="#superdesk.person.api.person.Person.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.person.api.person.Person.LastName">
+<tt class="descname">LastName</tt><em class="property"> = Person.LastName(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.LastName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.person.api.person.QPerson">
+<em class="property">class </em><tt class="descclassname">superdesk.person.api.person.</tt><tt class="descname">QPerson</tt><a class="reference internal" href="_modules/superdesk/person/api/person.html#QPerson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.person.api.person.QPerson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.QEntity" title="ally.support.api.entity.QEntity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.QEntity</span></tt></a></p>
+<p>Query for person service</p>
+<dl class="attribute">
+<dt id="superdesk.person.api.person.QPerson.email">
+<tt class="descname">email</tt><a class="headerlink" href="#superdesk.person.api.person.QPerson.email" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.person.api.person.QPerson.firstName">
+<tt class="descname">firstName</tt><a class="headerlink" href="#superdesk.person.api.person.QPerson.firstName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.person.api.person.QPerson.lastName">
+<tt class="descname">lastName</tt><a class="headerlink" href="#superdesk.person.api.person.QPerson.lastName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">api Package</a><ul>
+<li><a class="reference internal" href="#module-superdesk.person.api.person"><tt class="docutils literal"><span class="pre">person</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superdesk.person.html"
+                        title="previous chapter">person Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superdesk.person.impl.html"
+                        title="next chapter">impl Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/superdesk.person.api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.person.impl.html" title="impl Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.person.html" title="person Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.person.html" >person Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
