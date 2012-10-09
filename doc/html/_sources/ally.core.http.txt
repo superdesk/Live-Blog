@@ -1,0 +1,20 @@
+http Package
+============
+
+:mod:`http` Package
+-------------------
+
+.. automodule:: ally.core.http
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ally.core.http.impl
+    ally.core.http.server
+    ally.core.http.spec
+

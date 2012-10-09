@@ -1,0 +1,12 @@
+person Package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.person.api
+    superdesk.person.impl
+    superdesk.person.meta
+

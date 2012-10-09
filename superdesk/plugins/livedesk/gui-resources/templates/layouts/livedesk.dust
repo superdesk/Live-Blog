@@ -1,6 +1,11 @@
 <header {ui.submenu}>
 <div class="subnav subnav-fixed">
-	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" href="#put-live">_('Put live')</a>
+	{?LiveOn}
+		<a class="btn btn-medium pull-right btn-success disabled">_('Live')</a>
+	{:else}
+		<a class="btn btn-medium pull-right btn-success hide disabled" data-status="live">_('Live')</a>
+		<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" href="#put-live" data-status="not-live">_('Put live')</a>
+	{/LiveOn}
 	<a class="btn btn-medium btn-primary pull-right" data-toggle="modal" id="toggle-status">_('Close blog')</a>
 	<ul class="nav nav-pills pull-left">	
     {!#blog!}

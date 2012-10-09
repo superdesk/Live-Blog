@@ -1,0 +1,356 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="introspection Package" href="admin.introspection.html" />
+    <link rel="next" title="impl Package" href="admin.introspection.impl.html" />
+    <link rel="prev" title="introspection Package" href="admin.introspection.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="admin.introspection.impl.html" title="impl Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="admin.introspection.html" title="introspection Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="admin.html" >admin Package</a> &raquo;</li>
+          <li><a href="admin.introspection.html" accesskey="U">introspection Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-package">
+<h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">api</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-admin.introspection.api"></span><p>Created on May 26, 2011</p>
+<p>&#64;package: administration introspection
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Specifications for plugin APIs.</p>
+</div>
+<div class="section" id="module-admin.introspection.api.component">
+<span id="component-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">component</span></tt> Module<a class="headerlink" href="#module-admin.introspection.api.component" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 4, 2012</p>
+<p>&#64;package: administration introspection
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the components introspection.</p>
+<dl class="class">
+<dt id="admin.introspection.api.component.Component">
+<em class="property">class </em><tt class="descclassname">admin.introspection.api.component.</tt><tt class="descname">Component</tt><a class="reference internal" href="_modules/admin/introspection/api/component.html#Component"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#admin.introspection.api.component.Component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the component data.</p>
+<dl class="attribute">
+<dt id="admin.introspection.api.component.Component.Description">
+<tt class="descname">Description</tt><em class="property"> = Component.Description(str)</em><a class="headerlink" href="#admin.introspection.api.component.Component.Description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.Component.Group">
+<tt class="descname">Group</tt><em class="property"> = Component.Group(str)</em><a class="headerlink" href="#admin.introspection.api.component.Component.Group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.Component.Id">
+<tt class="descname">Id</tt><em class="property"> = Component.Id(str)</em><a class="headerlink" href="#admin.introspection.api.component.Component.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.Component.InEgg">
+<tt class="descname">InEgg</tt><em class="property"> = Component.InEgg(bool)</em><a class="headerlink" href="#admin.introspection.api.component.Component.InEgg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.Component.Loaded">
+<tt class="descname">Loaded</tt><em class="property"> = Component.Loaded(bool)</em><a class="headerlink" href="#admin.introspection.api.component.Component.Loaded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.Component.Locale">
+<tt class="descname">Locale</tt><em class="property"> = Component.Locale(str)</em><a class="headerlink" href="#admin.introspection.api.component.Component.Locale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.Component.Name">
+<tt class="descname">Name</tt><em class="property"> = Component.Name(str)</em><a class="headerlink" href="#admin.introspection.api.component.Component.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.Component.Path">
+<tt class="descname">Path</tt><em class="property"> = Component.Path(str)</em><a class="headerlink" href="#admin.introspection.api.component.Component.Path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.Component.Version">
+<tt class="descname">Version</tt><em class="property"> = Component.Version(str)</em><a class="headerlink" href="#admin.introspection.api.component.Component.Version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="admin.introspection.api.component.IComponentService">
+<em class="property">class </em><tt class="descclassname">admin.introspection.api.component.</tt><tt class="descname">IComponentService</tt><a class="reference internal" href="_modules/admin/introspection/api/component.html#IComponentService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#admin.introspection.api.component.IComponentService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides services for ally components.</p>
+<dl class="method">
+<dt id="admin.introspection.api.component.IComponentService.getById">
+<tt class="descname">getById</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/admin/introspection/api/component.html#IComponentService.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#admin.introspection.api.component.IComponentService.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the component based on the provided id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="admin.introspection.api.component.IComponentService.getComponents">
+<tt class="descname">getComponents</tt><big>(</big><em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/admin/introspection/api/component.html#IComponentService.getComponents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#admin.introspection.api.component.IComponentService.getComponents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the components.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="admin.introspection.api.component.QComponent">
+<em class="property">class </em><tt class="descclassname">admin.introspection.api.component.</tt><tt class="descname">QComponent</tt><a class="reference internal" href="_modules/admin/introspection/api/component.html#QComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#admin.introspection.api.component.QComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the component query.</p>
+<dl class="attribute">
+<dt id="admin.introspection.api.component.QComponent.group">
+<tt class="descname">group</tt><a class="headerlink" href="#admin.introspection.api.component.QComponent.group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.QComponent.inEgg">
+<tt class="descname">inEgg</tt><a class="headerlink" href="#admin.introspection.api.component.QComponent.inEgg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.QComponent.loaded">
+<tt class="descname">loaded</tt><a class="headerlink" href="#admin.introspection.api.component.QComponent.loaded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.QComponent.locale">
+<tt class="descname">locale</tt><a class="headerlink" href="#admin.introspection.api.component.QComponent.locale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.QComponent.name">
+<tt class="descname">name</tt><a class="headerlink" href="#admin.introspection.api.component.QComponent.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.QComponent.path">
+<tt class="descname">path</tt><a class="headerlink" href="#admin.introspection.api.component.QComponent.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.component.QComponent.version">
+<tt class="descname">version</tt><a class="headerlink" href="#admin.introspection.api.component.QComponent.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-admin.introspection.api.plugin">
+<span id="plugin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">plugin</span></tt> Module<a class="headerlink" href="#module-admin.introspection.api.plugin" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 4, 2012</p>
+<p>&#64;package: administration introspection
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the components introspection.</p>
+<dl class="class">
+<dt id="admin.introspection.api.plugin.IPluginService">
+<em class="property">class </em><tt class="descclassname">admin.introspection.api.plugin.</tt><tt class="descname">IPluginService</tt><a class="reference internal" href="_modules/admin/introspection/api/plugin.html#IPluginService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#admin.introspection.api.plugin.IPluginService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides services for ally plugins.</p>
+<dl class="method">
+<dt id="admin.introspection.api.plugin.IPluginService.getById">
+<tt class="descname">getById</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/admin/introspection/api/plugin.html#IPluginService.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#admin.introspection.api.plugin.IPluginService.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the plugin based on the provided id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="admin.introspection.api.plugin.IPluginService.getPlugins">
+<tt class="descname">getPlugins</tt><big>(</big><em>offset=None</em>, <em>limit=None</em><big>)</big><a class="reference internal" href="_modules/admin/introspection/api/plugin.html#IPluginService.getPlugins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#admin.introspection.api.plugin.IPluginService.getPlugins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the plugins.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="admin.introspection.api.plugin.Plugin">
+<em class="property">class </em><tt class="descclassname">admin.introspection.api.plugin.</tt><tt class="descname">Plugin</tt><a class="reference internal" href="_modules/admin/introspection/api/plugin.html#Plugin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#admin.introspection.api.plugin.Plugin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the component data.</p>
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.Component">
+<tt class="descname">Component</tt><em class="property"> = Plugin.Component(Component)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.Component" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.Description">
+<tt class="descname">Description</tt><em class="property"> = Plugin.Description(str)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.Description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.Group">
+<tt class="descname">Group</tt><em class="property"> = Plugin.Group(str)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.Group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.Id">
+<tt class="descname">Id</tt><em class="property"> = Plugin.Id(str)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.InEgg">
+<tt class="descname">InEgg</tt><em class="property"> = Plugin.InEgg(bool)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.InEgg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.Loaded">
+<tt class="descname">Loaded</tt><em class="property"> = Plugin.Loaded(bool)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.Loaded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.Locale">
+<tt class="descname">Locale</tt><em class="property"> = Plugin.Locale(str)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.Locale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.Name">
+<tt class="descname">Name</tt><em class="property"> = Plugin.Name(str)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.Path">
+<tt class="descname">Path</tt><em class="property"> = Plugin.Path(str)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.Path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="admin.introspection.api.plugin.Plugin.Version">
+<tt class="descname">Version</tt><em class="property"> = Plugin.Version(str)</em><a class="headerlink" href="#admin.introspection.api.plugin.Plugin.Version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">api Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">api</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-admin.introspection.api.component"><tt class="docutils literal"><span class="pre">component</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-admin.introspection.api.plugin"><tt class="docutils literal"><span class="pre">plugin</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="admin.introspection.html"
+                        title="previous chapter">introspection Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="admin.introspection.impl.html"
+                        title="next chapter">impl Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/admin.introspection.api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="admin.introspection.impl.html" title="impl Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="admin.introspection.html" title="introspection Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="admin.html" >admin Package</a> &raquo;</li>
+          <li><a href="admin.introspection.html" >introspection Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
