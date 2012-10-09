@@ -1,6 +1,6 @@
 define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
 {
-    var AuthApp;
+    var AuthApp, ErrorApp;
     // delete login on trigger logout from other apps
     require([config.lib_js_urn + 'views/auth'], function(a)
     {
@@ -10,6 +10,11 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
             localStorage.removeItem('superdesk.login.session')
             delete authSync.options.headers.Authorization;
         });
+    });
+    // error display
+    require([config.lib_js_urn + 'views/error'], function(a)
+    {
+        ErrorApp = a;
     });
     
     var syncReset = function() // reset specific data and headers for superdesk
@@ -32,12 +37,12 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         var args = arguments,
             self = this;
 
-            // reset headers on success
-            AuthApp.success = function()
-            { 
-                self.options.headers.Authorization = localStorage.getItem('superdesk.login.session');
-            };
-            AuthApp.require.apply(self, arguments); 
+        // reset headers on success
+        AuthApp.success = function()
+        { 
+            self.options.headers.Authorization = localStorage.getItem('superdesk.login.session');
+        };
+        AuthApp.require.apply(self, arguments); 
     },
     
     authSync = $.extend({}, newSync, 
@@ -50,7 +55,8 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
             fail: function(resp)
             { 
                 // TODO 404? shouldn't be covered by auth
-                (resp.status == 404 || resp.status == 401) && authLock.apply(authSync, arguments); 
+                (resp.status == 401) && authLock.apply(authSync, arguments);
+                (resp.status == 404) && ErrorApp.require.apply(this, arguments);
             } 
         },
         href: function(source)

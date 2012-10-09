@@ -1,0 +1,22 @@
+internationalization Package
+============================
+
+:mod:`scanner` Module
+---------------------
+
+.. automodule:: internationalization.scanner
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    internationalization.api
+    internationalization.core
+    internationalization.impl
+    internationalization.meta
+    internationalization.support
+

@@ -18,6 +18,18 @@ function(Gizmo, User, Language, Posts, Collaborators)
             Post: Posts,
             PostPublished: Posts,
             PostUnpublished: Posts
+        },
+        putLive: function()
+        {
+            var putLiveHref = this.href+'/PutLive';
+            var self = this,
+                dataAdapter = function()
+                { 
+                    return self.syncAdapter.request.apply(self.syncAdapter, arguments); 
+                },
+                ret = dataAdapter(putLiveHref).update();
+            this.triggerHandler('putlive');
+            return ret;
         }
     }, 
     { register: 'Blog' } );

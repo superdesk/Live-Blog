@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>internationalization.core.spec &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for internationalization.core.spec</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Mar 13, 2012</span>
+
+<span class="sd">@package: internationalization</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Mugur Rus</span>
+
+<span class="sd">API specifications for PO file management.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="InvalidLocaleError"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.InvalidLocaleError">[docs]</a><span class="k">class</span> <span class="nc">InvalidLocaleError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Raise whenever there is a invalid locale provided.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="IPOFileManager"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager">[docs]</a><span class="k">class</span> <span class="nc">IPOFileManager</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The PO file manager: processes and returns the PO global, component or plugin</span>
+<span class="sd">    PO files.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.getGlobalPOTimestamp"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.getGlobalPOTimestamp">[docs]</a>    <span class="k">def</span> <span class="nf">getGlobalPOTimestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the timestamp of the last update for the PO file identified by</span>
+<span class="sd">        the given locale.</span>
+
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale identifying the translation file.</span>
+<span class="sd">        @return: datetime</span>
+<span class="sd">            The last modification.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.getComponentPOTimestamp"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.getComponentPOTimestamp">[docs]</a>    <span class="k">def</span> <span class="nf">getComponentPOTimestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the timestamp of the last update for the PO file identified by</span>
+<span class="sd">        the given component and locale.</span>
+
+<span class="sd">        @param component: string</span>
+<span class="sd">            The component id identifying the translation file.</span>
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale identifying the translation file.</span>
+<span class="sd">        @return: datetime</span>
+<span class="sd">            The last modification.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.getPluginPOTimestamp"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.getPluginPOTimestamp">[docs]</a>    <span class="k">def</span> <span class="nf">getPluginPOTimestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the timestamp of the last update for the PO file identified by</span>
+<span class="sd">        the given plugin and locale.</span>
+
+<span class="sd">        @param plugin: string</span>
+<span class="sd">            The plugin id identifying the translation file.</span>
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale identifying the translation file.</span>
+<span class="sd">        @return: datetime</span>
+<span class="sd">            The last modification.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.getGlobalPOFile"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.getGlobalPOFile">[docs]</a>    <span class="k">def</span> <span class="nf">getGlobalPOFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the messages for the whole application and the given locale.</span>
+
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale for which to return the translation.</span>
+<span class="sd">        @return: bytes file like object</span>
+<span class="sd">            The PO file containing the translation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.getGlobalAsDict"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.getGlobalAsDict">[docs]</a>    <span class="k">def</span> <span class="nf">getGlobalAsDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the messages for the whole application and the given locale in the</span>
+<span class="sd">        form of a dictionary. The dictionary has the following structure:</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;mydomain&quot; : {</span>
+<span class="sd">                // po header fields</span>
+<span class="sd">                &quot;&quot; : {</span>
+<span class="sd">                    &quot;plural-forms&quot; : &quot;...&quot;,</span>
+<span class="sd">                    &quot;lang&quot; : &quot;en&quot;,</span>
+<span class="sd">                },</span>
+<span class="sd">                // all the msgid strings and translations</span>
+<span class="sd">                &quot;context:msgid&quot; : [ &quot;msgid_plural&quot;, &quot;translation&quot;, &quot;plural_translation&quot; ],</span>
+<span class="sd">            },</span>
+<span class="sd">        }</span>
+
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale for which to return the translation.</span>
+<span class="sd">        @return: dict</span>
+<span class="sd">            The dictionary containing the translation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.getComponentPOFile"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.getComponentPOFile">[docs]</a>    <span class="k">def</span> <span class="nf">getComponentPOFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the messages for the given component and the given locale.</span>
+
+<span class="sd">        @param component: string</span>
+<span class="sd">            The component id for which to return the translation.</span>
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale for which to return the translation.</span>
+<span class="sd">        @return: bytes file like object</span>
+<span class="sd">            The PO file containing the translation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.getComponentAsDict"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.getComponentAsDict">[docs]</a>    <span class="k">def</span> <span class="nf">getComponentAsDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the messages for the given component and the given locale in the</span>
+<span class="sd">        form of a dictionary. For dictionary structure:</span>
+<span class="sd">        @see IPOFileManager.getGlobalAsDict</span>
+
+<span class="sd">        @param component: string</span>
+<span class="sd">            The component id for which to return the translation.</span>
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale for which to return the translation.</span>
+<span class="sd">        @return: bytes file like object</span>
+<span class="sd">            The dictionary containing the translation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.getPluginPOFile"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.getPluginPOFile">[docs]</a>    <span class="k">def</span> <span class="nf">getPluginPOFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the messages for the given plugin and the given locale.</span>
+
+<span class="sd">        @param plugin: string</span>
+<span class="sd">            The plugin id for which to return the translation.</span>
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale for which to return the translation.</span>
+<span class="sd">        @return: bytes  file like object</span>
+<span class="sd">            The PO file containing the translation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.getPluginAsDict"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.getPluginAsDict">[docs]</a>    <span class="k">def</span> <span class="nf">getPluginAsDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="n">locale</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the messages for the given component and the given locale in the</span>
+<span class="sd">        form of a dictionary. For dictionary structure:</span>
+<span class="sd">        @see IPOFileManager.getGlobalAsDict</span>
+
+<span class="sd">        @param plugin: string</span>
+<span class="sd">            The plugin id for which to return the translation.</span>
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale for which to return the translation.</span>
+<span class="sd">        @return: bytes file like object</span>
+<span class="sd">            The dictionary containing the translation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.updateGlobalPOFile"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.updateGlobalPOFile">[docs]</a>    <span class="k">def</span> <span class="nf">updateGlobalPOFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locale</span><span class="p">,</span> <span class="n">poFile</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Updates the messages for all components / plugins and the given locale.</span>
+<span class="sd">        </span>
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale for which to update the translation.</span>
+<span class="sd">        @param poFile: text file like object</span>
+<span class="sd">            The source PO file from which to read the translation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.updateComponentPOFile"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.updateComponentPOFile">[docs]</a>    <span class="k">def</span> <span class="nf">updateComponentPOFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">locale</span><span class="p">,</span> <span class="n">poFile</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Updates the messages for the given component and the given locale.</span>
+
+<span class="sd">        @param component: Component.Id</span>
+<span class="sd">            The component for which to update the translation.</span>
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale for which to update the translation.</span>
+<span class="sd">        @param poFile: text file like object</span>
+<span class="sd">            The source PO file from which to read the translation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IPOFileManager.updatePluginPOFile"><a class="viewcode-back" href="../../../internationalization.core.html#internationalization.core.spec.IPOFileManager.updatePluginPOFile">[docs]</a>    <span class="k">def</span> <span class="nf">updatePluginPOFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="n">locale</span><span class="p">,</span> <span class="n">poFile</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Updates the messages for the given plugin and the given locale.</span>
+<span class="sd">        </span>
+<span class="sd">        @param plugin: string</span>
+<span class="sd">            The plugin id for which to update the translation.</span>
+<span class="sd">        @param locale: string</span>
+<span class="sd">            The locale for which to update the translation.</span>
+<span class="sd">        @param poFile: text file like object</span>
+<span class="sd">            The source PO file from which to read the translation.</span>
+<span class="sd">        &#39;&#39;&#39;</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

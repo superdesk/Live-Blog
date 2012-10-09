@@ -1,0 +1,651 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>design Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="ally Package" href="ally.html" />
+    <link rel="next" title="support Package" href="ally.support.html" />
+    <link rel="prev" title="processor Package" href="ally.core.sqlalchemy.processor.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.support.html" title="support Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.sqlalchemy.processor.html" title="processor Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" accesskey="U">ally Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="design-package">
+<h1>design Package<a class="headerlink" href="#design-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-ally.design.bean">
+<span id="bean-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">bean</span></tt> Module<a class="headerlink" href="#module-ally.design.bean" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 22, 2012</p>
+<p>&#64;package: utilities
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the bean support.</p>
+<dl class="attribute">
+<dt id="ally.design.bean.Attribute">
+<tt class="descclassname">ally.design.bean.</tt><tt class="descname">Attribute</tt><a class="reference internal" href="_modules/ally/design/bean.html#Attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.bean.Attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a bean attribute.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.bean.Bean">
+<em class="property">class </em><tt class="descclassname">ally.design.bean.</tt><tt class="descname">Bean</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/design/bean.html#Bean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.bean.Bean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The base bean class, this class is to be inherited by bean classes in order to provide more functionality for
+attributes.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.bean.BeanMetaClass">
+<em class="property">class </em><tt class="descclassname">ally.design.bean.</tt><tt class="descname">BeanMetaClass</tt><a class="reference internal" href="_modules/ally/design/bean.html#BeanMetaClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.bean.BeanMetaClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">abc.ABCMeta</span></tt></p>
+<p>Used for the bean objects to behave like a data container only.
+The bean can be checked against any object that has the specified attributes with values of the specified 
+classes instance.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.design.context">
+<span id="context-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">context</span></tt> Module<a class="headerlink" href="#module-ally.design.context" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 12, 2012</p>
+<p>&#64;package: utilities
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the context support.</p>
+<dl class="attribute">
+<dt id="ally.design.context.Attribute">
+<tt class="descclassname">ally.design.context.</tt><tt class="descname">Attribute</tt><a class="reference internal" href="_modules/ally/design/context.html#Attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.context.Attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.context.Context">
+<em class="property">class </em><tt class="descclassname">ally.design.context.</tt><tt class="descname">Context</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/design/context.html#Context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.context.Context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The base context class, this class needs to be inherited by all classes that need to behave like a data context.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.context.ContextMetaClass">
+<em class="property">class </em><tt class="descclassname">ally.design.context.</tt><tt class="descname">ContextMetaClass</tt><a class="reference internal" href="_modules/ally/design/context.html#ContextMetaClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.context.ContextMetaClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">abc.ABCMeta</span></tt></p>
+<p>Used for the context objects to behave like a data container only.
+The context can be checked against any object that has the specified attributes with values of the specified 
+classes instance.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.design.context.asData">
+<tt class="descclassname">ally.design.context.</tt><tt class="descname">asData</tt><big>(</big><em>context</em>, <em>*classes</em><big>)</big><a class="reference internal" href="_modules/ally/design/context.html#asData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.context.asData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the data that is represented in the provided context classes.</p>
+<dl class="docutils">
+<dt>&#64;param context: object</dt>
+<dd>The context object to get the data from.</dd>
+<dt>&#64;param classes: arguments[ContextMetaClass]</dt>
+<dd>The context classes to construct the data based on.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.design.context.defines">
+<tt class="descclassname">ally.design.context.</tt><tt class="descname">defines</tt><big>(</big><em>doc</em>, <em>*types</em><big>)</big><a class="reference internal" href="_modules/ally/design/context.html#defines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.context.defines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a defining attribute for the context. The defines attribute means that the context can provide a value
+for the attribute, but is not mandatory also whenever managing an attribute if this type is a good idea to check
+if there aren&#8217;t already values provided.</p>
+<dl class="docutils">
+<dt>&#64;param types: arguments[class]</dt>
+<dd>The types of the defined attribute.</dd>
+<dt>&#64;keyword doc: string</dt>
+<dd>The documentation associated with the attribute.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.design.context.optional">
+<tt class="descclassname">ally.design.context.</tt><tt class="descname">optional</tt><big>(</big><em>doc</em>, <em>*types</em><big>)</big><a class="reference internal" href="_modules/ally/design/context.html#optional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.context.optional" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct an optional attribute for the context. The optional attribute means that the context is valid even if
+there is no value for the attribute.</p>
+<dl class="docutils">
+<dt>&#64;param types: arguments[class]</dt>
+<dd>The types of the optional attribute, the attribute value can be any one of the provided attributes.</dd>
+<dt>&#64;keyword doc: string</dt>
+<dd>The documentation associated with the attribute.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.design.context.requires">
+<tt class="descclassname">ally.design.context.</tt><tt class="descname">requires</tt><big>(</big><em>doc</em>, <em>*types</em><big>)</big><a class="reference internal" href="_modules/ally/design/context.html#requires"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.context.requires" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a required attribute for the context. The requires attribute means that the context is valid only if
+there is a value for the attribute.</p>
+<dl class="docutils">
+<dt>&#64;param types: arguments[class]</dt>
+<dd>The types of the required attribute, the attribute value can be any one of the provided attributes.</dd>
+<dt>&#64;param doc: string</dt>
+<dd>The documentation associated with the attribute.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.design.processor">
+<span id="processor-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">processor</span></tt> Module<a class="headerlink" href="#module-ally.design.processor" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 11, 2012</p>
+<p>&#64;package: utilities
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Module containing the support for a chained processors execution of context type objects.</p>
+<dl class="class">
+<dt id="ally.design.processor.Assembly">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">Assembly</tt><a class="reference internal" href="_modules/ally/design/processor.html#Assembly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The assembly provides a container for the processors.</p>
+<dl class="method">
+<dt id="ally.design.processor.Assembly.add">
+<tt class="descname">add</tt><big>(</big><em>before</em>, <em>after</em>, <em>*processors</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Assembly.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Assembly.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add to the assembly the provided processors.</p>
+<dl class="docutils">
+<dt>&#64;param processors: arguments[Processor|Handler|list[Processor|Handler]|tuple(Processor|Handler)]</dt>
+<dd>The processor(s) to be added to the assembly.</dd>
+<dt>&#64;param before: Processor|Handler</dt>
+<dd>The processor(s) will be ordered before this processor, you can only specify before or after.</dd>
+<dt>&#64;param after: Processor|Handler</dt>
+<dd>The processor(s) will be ordered after this processor, you can only specify after or before.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.Assembly.create">
+<tt class="descname">create</tt><big>(</big><em>*flags</em>, <em>**contexts</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Assembly.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Assembly.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a processing based on all the processors in the assembly.</p>
+<dl class="docutils">
+<dt>&#64;param flags: arguments[integer]</dt>
+<dd>Flags that dictate the behavior of the processing creation.</dd>
+<dt>&#64;param contexts: key arguments of ContextMetaClass</dt>
+<dd>Key arguments that have as a value the context classes that the processing chain will be used with.</dd>
+<dt>&#64;return: Processing|tuple of two</dt>
+<dd>processing: Processing
+A processing created based on the current structure of the assembly.
+report: string
+A text containing the report for the processing creation</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.Assembly.move">
+<tt class="descname">move</tt><big>(</big><em>processor</em>, <em>before=None</em>, <em>after=None</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Assembly.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Assembly.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves in to the assembly the provided processor.</p>
+<dl class="docutils">
+<dt>&#64;param processor: Processor|Handler</dt>
+<dd>The processor to be moved in to the assembly.</dd>
+<dt>&#64;param before: Processor|Handler</dt>
+<dd>The processor(s) will be moved before this processor, you can only specify before or after.</dd>
+<dt>&#64;param after: Processor|Handler</dt>
+<dd>The processor(s) will be moved after this processor, you can only specify after or before.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.Assembly.replace">
+<tt class="descname">replace</tt><big>(</big><em>replaced</em>, <em>replacer</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Assembly.replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Assembly.replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replaces in to the assembly the provided processors.</p>
+<dl class="docutils">
+<dt>&#64;param replaced: Processor|Handler</dt>
+<dd>The processor to be replaced in to the assembly.</dd>
+<dt>&#64;param replacer: Processor|Handler</dt>
+<dd>The processor that will replace.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.AssemblyAttribute">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">AssemblyAttribute</tt><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyAttribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyAttribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Contains the data for an attribute assembly.</p>
+<dl class="method">
+<dt id="ally.design.processor.AssemblyAttribute.add">
+<tt class="descname">add</tt><big>(</big><em>attribute</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyAttribute.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyAttribute.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combines this attribute assembly with the provided attribute.</p>
+<dl class="docutils">
+<dt>&#64;param attr: Attribute</dt>
+<dd>The attributes to be combined with.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyAttribute.create">
+<tt class="descname">create</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyAttribute.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyAttribute.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the attribute based on this assembly.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.AssemblyAttribute.defined">
+<tt class="descname">defined</tt><a class="headerlink" href="#ally.design.processor.AssemblyAttribute.defined" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.AssemblyAttribute.doc">
+<tt class="descname">doc</tt><a class="headerlink" href="#ally.design.processor.AssemblyAttribute.doc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.AssemblyAttribute.required">
+<tt class="descname">required</tt><a class="headerlink" href="#ally.design.processor.AssemblyAttribute.required" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.AssemblyAttribute.status">
+<tt class="descname">status</tt><a class="headerlink" href="#ally.design.processor.AssemblyAttribute.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.AssemblyContext">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">AssemblyContext</tt><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyContext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Contains the data for an attribute assembly.</p>
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.add">
+<tt class="descname">add</tt><big>(</big><em>processors=None</em>, <em>contexts=None</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyContext.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyContext.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds processors or contexts or both to this assembly.</p>
+<dl class="docutils">
+<dt>&#64;param processors: Iterable(Processor)|None</dt>
+<dd>The processors to add.</dd>
+<dt>&#64;param contexts: dictionary{string, ContextMetaClass}|None</dt>
+<dd>The contexts to add.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.addContexts">
+<tt class="descname">addContexts</tt><big>(</big><em>contexts</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyContext.addContexts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyContext.addContexts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the contexts to this attributes assembly.</p>
+<dl class="docutils">
+<dt>&#64;param contexts: dictionary{string, ContextMetaClass}</dt>
+<dd>The contexts to add.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.addProcessors">
+<tt class="descname">addProcessors</tt><big>(</big><em>processors</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyContext.addProcessors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyContext.addProcessors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the processors to this attributes assembly.</p>
+<dl class="docutils">
+<dt>&#64;param processors: Iterable(Processor)</dt>
+<dd>The processors to add.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.AssemblyContext.attributes">
+<tt class="descname">attributes</tt><a class="headerlink" href="#ally.design.processor.AssemblyContext.attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyContext.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyContext.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the assembly of any attributes and data.</p>
+<dl class="docutils">
+<dt>&#64;return: self</dt>
+<dd>Same instance for chaining purposes.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.create">
+<tt class="descname">create</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyContext.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyContext.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the contexts based on this assembly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.defined">
+<tt class="descname">defined</tt><big>(</big><big>)</big><a class="headerlink" href="#ally.design.processor.AssemblyContext.defined" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.definedOnly">
+<tt class="descname">definedOnly</tt><big>(</big><big>)</big><a class="headerlink" href="#ally.design.processor.AssemblyContext.definedOnly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.optional">
+<tt class="descname">optional</tt><big>(</big><big>)</big><a class="headerlink" href="#ally.design.processor.AssemblyContext.optional" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.optionalOnly">
+<tt class="descname">optionalOnly</tt><big>(</big><big>)</big><a class="headerlink" href="#ally.design.processor.AssemblyContext.optionalOnly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.required">
+<tt class="descname">required</tt><big>(</big><big>)</big><a class="headerlink" href="#ally.design.processor.AssemblyContext.required" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.AssemblyContext.requiredOnly">
+<tt class="descname">requiredOnly</tt><big>(</big><big>)</big><a class="headerlink" href="#ally.design.processor.AssemblyContext.requiredOnly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="ally.design.processor.AssemblyError">
+<em class="property">exception </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">AssemblyError</tt><a class="reference internal" href="_modules/ally/design/processor.html#AssemblyError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.AssemblyError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<p>Raised when there is a assembly problem.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.Chain">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">Chain</tt><big>(</big><em>calls</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Chain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="docutils">
+<dt>A chain that contains a list of processors (callables) that are executed one by one. Each processor will have</dt>
+<dd>the duty to proceed with the processing if is the case by calling the chain.</dd>
+</dl>
+<dl class="method">
+<dt id="ally.design.processor.Chain.isConsumed">
+<tt class="descname">isConsumed</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Chain.isConsumed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Chain.isConsumed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the chain is consumed.</p>
+<dl class="docutils">
+<dt>&#64;return: boolean</dt>
+<dd>True if all processors from the chain have been executed, False if a processor from the chain has stopped
+the execution of the other processors.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.Chain.proceed">
+<tt class="descname">proceed</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Chain.proceed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Chain.proceed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates to the chain that it should proceed with the chain execution after a processor has returned. 
+The proceed is available only when the chain is in execution. The execution is continued with the same
+arguments.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.Chain.process">
+<tt class="descname">process</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Chain.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Chain.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called in order to execute the next processors in the chain. This method will stop processing when all
+the processors have been executed.</p>
+<dl class="docutils">
+<dt>&#64;param keyargs: key arguments</dt>
+<dd>The key arguments that are passed on to the next processors.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.Contextual">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">Contextual</tt><big>(</big><em>function</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Contextual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Contextual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.design.processor.Function" title="ally.design.processor.Function"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.Function</span></tt></a></p>
+<p>A processor that takes as the call a function and uses the annotations on the function arguments to extract the
+contexts.</p>
+<dl class="staticmethod">
+<dt id="ally.design.processor.Contextual.contextsFrom">
+<em class="property">static </em><tt class="descname">contextsFrom</tt><big>(</big><em>arguments</em>, <em>annotations</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Contextual.contextsFrom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Contextual.contextsFrom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the contexts based on the provided list of arguments and annotations.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.ContextualProceed">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">ContextualProceed</tt><big>(</big><em>function</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#ContextualProceed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.ContextualProceed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.design.processor.Processor" title="ally.design.processor.Processor"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.Processor</span></tt></a></p>
+<p>A processor that takes as the call a function and uses the annotations on the function arguments to extract the
+contexts. The function will not receive the chain as an argument and will always proceed.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.Function">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">Function</tt><big>(</big><em>contexts</em>, <em>function</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.design.processor.Processor" title="ally.design.processor.Processor"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.Processor</span></tt></a></p>
+<p>A processor that takes as the call a function and automatically populates name, fileName and lineNumber.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.Handler">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">Handler</tt><big>(</big><em>processor</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Handler base that provides a container for a processor.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.HandlerProcessor">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">HandlerProcessor</tt><a class="reference internal" href="_modules/ally/design/processor.html#HandlerProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.HandlerProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.design.processor.Handler" title="ally.design.processor.Handler"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.Handler</span></tt></a></p>
+<p>A handler that contains a processor derived on the contextual &#8216;process&#8217; function.</p>
+<dl class="method">
+<dt id="ally.design.processor.HandlerProcessor.process">
+<tt class="descname">process</tt><big>(</big><em>chain</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#HandlerProcessor.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.HandlerProcessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>The contextual process function used by the handler.</p>
+<dl class="docutils">
+<dt>&#64;param chain: Chain</dt>
+<dd>The processing chain.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.HandlerProcessorProceed">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">HandlerProcessorProceed</tt><a class="reference internal" href="_modules/ally/design/processor.html#HandlerProcessorProceed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.HandlerProcessorProceed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.design.processor.Handler" title="ally.design.processor.Handler"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.Handler</span></tt></a></p>
+<p>A handler that contains a processor derived on the contextual &#8216;process&#8217; function.</p>
+<dl class="method">
+<dt id="ally.design.processor.HandlerProcessorProceed.process">
+<tt class="descname">process</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#HandlerProcessorProceed.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.HandlerProcessorProceed.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>The contextual process function used by the handler, this process will not require a chain and will always
+proceed with the execution.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.Processing">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">Processing</tt><big>(</big><em>contexts</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Processing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Processing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Container for processor&#8217;s, provides chains for their execution.
+!!! Attention, never ever use a processing in multiple threads, only one thread is allowed to execute 
+a processing at one time.</p>
+<dl class="attribute">
+<dt id="ally.design.processor.Processing.calls">
+<tt class="descname">calls</tt><a class="headerlink" href="#ally.design.processor.Processing.calls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.Processing.contexts">
+<tt class="descname">contexts</tt><a class="headerlink" href="#ally.design.processor.Processing.contexts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.Processing.newChain">
+<tt class="descname">newChain</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Processing.newChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Processing.newChain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a new processors chain.</p>
+<dl class="docutils">
+<dt>&#64;return: Chain</dt>
+<dd>The chain of processors.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.design.processor.Processor">
+<em class="property">class </em><tt class="descclassname">ally.design.processor.</tt><tt class="descname">Processor</tt><big>(</big><em>contexts</em>, <em>call</em>, <em>name=''</em>, <em>fileName=''</em>, <em>lineNumber=0</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Processor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Processor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The processor specification.</p>
+<dl class="attribute">
+<dt id="ally.design.processor.Processor.call">
+<tt class="descname">call</tt><a class="headerlink" href="#ally.design.processor.Processor.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.Processor.contexts">
+<tt class="descname">contexts</tt><a class="headerlink" href="#ally.design.processor.Processor.contexts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.Processor.fileName">
+<tt class="descname">fileName</tt><a class="headerlink" href="#ally.design.processor.Processor.fileName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.Processor.lineNumber">
+<tt class="descname">lineNumber</tt><a class="headerlink" href="#ally.design.processor.Processor.lineNumber" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.design.processor.Processor.name">
+<tt class="descname">name</tt><a class="headerlink" href="#ally.design.processor.Processor.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.design.processor.Processor.register">
+<tt class="descname">register</tt><big>(</big><em>processing</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#Processor.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.Processor.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register the processor call into the provided processing. The order in which the register functions are called
+is provided by an assembler, so usually the call should be only appended to the processors deque in the
+processing.</p>
+<dl class="docutils">
+<dt>&#64;param processing: Processing</dt>
+<dd>The processing to register to.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.design.processor.location">
+<tt class="descclassname">ally.design.processor.</tt><tt class="descname">location</tt><big>(</big><em>processor</em><big>)</big><a class="reference internal" href="_modules/ally/design/processor.html#location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.design.processor.location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a processor location message used for exceptions.</p>
+<dl class="docutils">
+<dt>&#64;param index: integer</dt>
+<dd>The processor index to have the location message.</dd>
+<dt>&#64;return: string</dt>
+<dd>The location message.</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">design Package</a><ul>
+<li><a class="reference internal" href="#module-ally.design.bean"><tt class="docutils literal"><span class="pre">bean</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.design.context"><tt class="docutils literal"><span class="pre">context</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.design.processor"><tt class="docutils literal"><span class="pre">processor</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.core.sqlalchemy.processor.html"
+                        title="previous chapter">processor Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.support.html"
+                        title="next chapter">support Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.design.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.support.html" title="support Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.sqlalchemy.processor.html" title="processor Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

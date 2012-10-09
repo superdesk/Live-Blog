@@ -1,0 +1,232 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>cdm.spec &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for cdm.spec</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jan 5, 2012</span>
+
+<span class="sd">@package support - cdm</span>
+<span class="sd">@copyright 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license http: // www.gnu.org / licenses / gpl - 3.0.txt</span>
+<span class="sd">@author: Mugur Rus</span>
+
+<span class="sd">Contains the Content Delivery Manager (CDM) interface</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="ICDM"><a class="viewcode-back" href="../../cdm.html#cdm.spec.ICDM">[docs]</a><span class="k">class</span> <span class="nc">ICDM</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Content Delivery Manager (CDM) interface</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ICDM.publishFromFile"><a class="viewcode-back" href="../../cdm.html#cdm.spec.ICDM.publishFromFile">[docs]</a>    <span class="k">def</span> <span class="nf">publishFromFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Publish content from a file.</span>
+
+<span class="sd">        @param path: string</span>
+<span class="sd">                The path of the content item. This is a unique</span>
+<span class="sd">                     identifier of the item.</span>
+<span class="sd">        @param filePath: string or file object</span>
+<span class="sd">                The path of the file on the file system or a readable file object</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ICDM.publishFromDir"><a class="viewcode-back" href="../../cdm.html#cdm.spec.ICDM.publishFromDir">[docs]</a>    <span class="k">def</span> <span class="nf">publishFromDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dirPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Publish content from a file.</span>
+
+<span class="sd">        @param path: string</span>
+<span class="sd">                The path of the content item. This is a unique</span>
+<span class="sd">                     identifier of the item.</span>
+<span class="sd">        @param dirPath: string</span>
+<span class="sd">                The path of the directory on the file system</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ICDM.publishContent"><a class="viewcode-back" href="../../cdm.html#cdm.spec.ICDM.publishContent">[docs]</a>    <span class="k">def</span> <span class="nf">publishContent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Publish content from a string.</span>
+
+<span class="sd">        @param path: string</span>
+<span class="sd">                The path of the content item. This is a unique</span>
+<span class="sd">                     identifier of the item.</span>
+<span class="sd">        @param content: input stream</span>
+<span class="sd">                The content as input stream</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ICDM.republish"><a class="viewcode-back" href="../../cdm.html#cdm.spec.ICDM.republish">[docs]</a>    <span class="k">def</span> <span class="nf">republish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldPath</span><span class="p">,</span> <span class="n">newPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Re-publish an existing path under a new path.</span>
+
+<span class="sd">        @param oldPath: string</span>
+<span class="sd">                The path of the existing item. This is a unique</span>
+<span class="sd">                     identifier of the item.</span>
+<span class="sd">        @param newPath: string</span>
+<span class="sd">                The new path under which the item will be published.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ICDM.remove"><a class="viewcode-back" href="../../cdm.html#cdm.spec.ICDM.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Remove the given path from the repository.</span>
+
+<span class="sd">        @param path: string</span>
+<span class="sd">                The path of the content item. This is a unique</span>
+<span class="sd">                     identifier of the item.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ICDM.getSupportedProtocols"><a class="viewcode-back" href="../../cdm.html#cdm.spec.ICDM.getSupportedProtocols">[docs]</a>    <span class="k">def</span> <span class="nf">getSupportedProtocols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @return: Returns a tuple of supported protocol names.</span>
+<span class="sd">        @rtype: tuple</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ICDM.getURI"><a class="viewcode-back" href="../../cdm.html#cdm.spec.ICDM.getURI">[docs]</a>    <span class="k">def</span> <span class="nf">getURI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">protocol</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the URI of a certain content identified by the unique path. Attention this method should not perform any</span>
+<span class="sd">        checks to see if the content is valid or exists.</span>
+
+<span class="sd">        @param path: string</span>
+<span class="sd">            The path of the content item. This is a unique identifier of the item.</span>
+<span class="sd">        @param protocol: string</span>
+<span class="sd">            A string containing the name of the protocol</span>
+<span class="sd">        @return: string</span>
+<span class="sd">            The URI of the content</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="ICDM.getTimestamp"><a class="viewcode-back" href="../../cdm.html#cdm.spec.ICDM.getTimestamp">[docs]</a>    <span class="k">def</span> <span class="nf">getTimestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the time stamp of a certain content identified by the unique</span>
+<span class="sd">        path.</span>
+
+<span class="sd">        @param path: string</span>
+<span class="sd">            The path of the content item. This is a unique identifier of the item.</span>
+<span class="sd">        @return: datetime</span>
+<span class="sd">            The last modification time for the content in path.</span>
+<span class="sd">        @raise PathNotFound: in case the path does not exist in the CDM.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div></div>
+<div class="viewcode-block" id="PathNotFound"><a class="viewcode-back" href="../../cdm.html#cdm.spec.PathNotFound">[docs]</a><span class="k">class</span> <span class="nc">PathNotFound</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Exception thrown when a path was not found in the repository</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="c"># The path identifier</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid protocol </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Path not found: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="UnsupportedProtocol"><a class="viewcode-back" href="../../cdm.html#cdm.spec.UnsupportedProtocol">[docs]</a><span class="k">class</span> <span class="nc">UnsupportedProtocol</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Exception thrown when an URI was requested for an unsupported protocol.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">protocol</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="c"># The protocol identifier</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid protocol </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">protocol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">protocol</span>
+        <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Unsupported protocol </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">protocol</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

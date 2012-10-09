@@ -1,0 +1,1911 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>processor Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="impl Package" href="ally.core.http.impl.html" />
+    <link rel="next" title="headers Package" href="ally.core.http.impl.processor.headers.html" />
+    <link rel="prev" title="impl Package" href="ally.core.http.impl.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.impl.processor.headers.html" title="headers Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.impl.html" title="impl Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.http.html" >http Package</a> &raquo;</li>
+          <li><a href="ally.core.http.impl.html" accesskey="U">impl Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="processor-package">
+<h1>processor Package<a class="headerlink" href="#processor-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">processor</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-ally.core.http.impl.processor"></span><p>Created on Jul 15, 2011</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the processors that are specific for HTTP data handling, for instance the URI to resource path processor or the
+request content wrapper processor.</p>
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.encoder">
+<span id="encoder-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">encoder</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.encoder" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 22, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the meta creation for encoding the response.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.encoder.</tt><tt class="descname">CreateEncoderPathHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.impl.processor.html#ally.core.impl.processor.encoder.CreateEncoderHandler" title="ally.core.impl.processor.encoder.CreateEncoderHandler"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.encoder.CreateEncoderHandler</span></tt></a></p>
+<p>Extends the model encoder with paths also.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.createDataModel">
+<tt class="descname">createDataModel</tt><big>(</big><em>encode</em>, <em>path</em>, <em>showAccessible</em>, <em>inCollection</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.createDataModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.createDataModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the data model for the provided encode model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.encoderItem">
+<tt class="descname">encoderItem</tt><big>(</big><em>ofType</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.encoderItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.encoderItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: EncoderHandler.encoderItem</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.encoderModel">
+<tt class="descname">encoderModel</tt><big>(</big><em>ofType</em>, <em>getter=None</em>, <em>exploit=None</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.encoderModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.encoderModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: EncoderHandler.encoderModel</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.encoderPrimitive">
+<tt class="descname">encoderPrimitive</tt><big>(</big><em>typeValue</em>, <em>getter=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.encoderPrimitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.encoderPrimitive" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: CreateEncoderHandler.encoderPrimitive</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.encoderProperty">
+<tt class="descname">encoderProperty</tt><big>(</big><em>ofType</em>, <em>getter=None</em>, <em>exploit=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.encoderProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.encoderProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: EncoderHandler.encoderProperty</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.exploitsFor">
+<tt class="descname">exploitsFor</tt><big>(</big><em>encode</em>, <em>data</em>, <em>normalizer</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.exploitsFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.exploitsFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the exploits.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.nameAll">
+<tt class="descname">nameAll</tt><em class="property"> = '*'</em><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.nameAll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.namePaths">
+<tt class="descname">namePaths</tt><em class="property"> = 'Resources'</em><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.namePaths" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.nameRef">
+<tt class="descname">nameRef</tt><em class="property"> = 'href'</em><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.nameRef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.nameXFilter">
+<tt class="descname">nameXFilter</tt><em class="property"> = 'X-Filter'</em><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.nameXFilter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: CreateEncoderHandler.process</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.processAccessible">
+<tt class="descname">processAccessible</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.processAccessible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.processAccessible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the accessible paths for the provided data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.processFetch">
+<tt class="descname">processFetch</tt><big>(</big><em>encode</em>, <em>data</em>, <em>reference</em>, <em>normalizer</em>, <em>cache</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.processFetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.processFetch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the fetch.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.processFilter">
+<tt class="descname">processFilter</tt><big>(</big><em>encode</em>, <em>data</em>, <em>value</em>, <em>normalizer</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.processFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.processFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the filtering for the encoded models.</p>
+<dl class="docutils">
+<dt>&#64;return: tuple(text, errorMessage)</dt>
+<dd>In case of error.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.processFilterDefault">
+<tt class="descname">processFilterDefault</tt><big>(</big><em>encode</em>, <em>data</em>, <em>showAll</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#CreateEncoderPathHandler.processFilterDefault"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.processFilterDefault" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the default properties to be presented if none specified by filtering.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.separatorNames">
+<tt class="descname">separatorNames</tt><em class="property"> = '.'</em><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.separatorNames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.valueDenied">
+<tt class="descname">valueDenied</tt><em class="property"> = 'denied'</em><a class="headerlink" href="#ally.core.http.impl.processor.encoder.CreateEncoderPathHandler.valueDenied" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.encoder.EncodeModel">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.encoder.</tt><tt class="descname">EncodeModel</tt><big>(</big><em>encoder</em>, <em>modelType</em>, <em>getter=None</em>, <em>updateType=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#EncodeModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.EncodeModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.impl.processor.html#ally.core.impl.processor.encoder.EncodeObject" title="ally.core.impl.processor.encoder.EncodeObject"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.encoder.EncodeObject</span></tt></a></p>
+<p>Exploit for model encoding.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.EncodeModel.encoder">
+<tt class="descname">encoder</tt><a class="headerlink" href="#ally.core.http.impl.processor.encoder.EncodeModel.encoder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.EncodeModel.modelType">
+<tt class="descname">modelType</tt><a class="headerlink" href="#ally.core.http.impl.processor.encoder.EncodeModel.modelType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.EncodeModel.updateType">
+<tt class="descname">updateType</tt><a class="headerlink" href="#ally.core.http.impl.processor.encoder.EncodeModel.updateType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.encoder.EncodeModelProperty">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.encoder.</tt><tt class="descname">EncodeModelProperty</tt><big>(</big><em>encoder</em>, <em>modelType</em>, <em>getter=None</em>, <em>updateType=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#EncodeModelProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.EncodeModelProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.http.impl.processor.encoder.EncodeModel" title="ally.core.http.impl.processor.encoder.EncodeModel"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.http.impl.processor.encoder.EncodeModel</span></tt></a></p>
+<p>Exploit for model encoding that represents only a property.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.encoder.EncodePath">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.encoder.</tt><tt class="descname">EncodePath</tt><big>(</big><em>nameRef</em>, <em>getter=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#EncodePath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.EncodePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Exploit for path encoding.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.EncodePath.getter">
+<tt class="descname">getter</tt><a class="headerlink" href="#ally.core.http.impl.processor.encoder.EncodePath.getter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.EncodePath.nameRef">
+<tt class="descname">nameRef</tt><a class="headerlink" href="#ally.core.http.impl.processor.encoder.EncodePath.nameRef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.encoder.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.encoder.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.impl.processor.html#ally.core.impl.processor.encoder.Request" title="ally.core.impl.processor.encoder.Request"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.encoder.Request</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.Request.path">
+<tt class="descname">path</tt><a class="headerlink" href="#ally.core.http.impl.processor.encoder.Request.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.encoder.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.encoder.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/encoder.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.encoder.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.impl.processor.html#ally.core.impl.processor.encoder.Response" title="ally.core.impl.processor.encoder.Response"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.encoder.Response</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.Response.encoderDataModel">
+<tt class="descname">encoderDataModel</tt><a class="headerlink" href="#ally.core.http.impl.processor.encoder.Response.encoderDataModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.Response.encoderPath">
+<tt class="descname">encoderPath</tt><a class="headerlink" href="#ally.core.http.impl.processor.encoder.Response.encoderPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.encoder.Response.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.http.impl.processor.encoder.Response.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.fetcher">
+<span id="fetcher-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">fetcher</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.fetcher" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jul 31, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the standard headers handling.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.fetcher.Fetcher">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.fetcher.</tt><tt class="descname">Fetcher</tt><big>(</big><em>fetcher</em>, <em>args</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#Fetcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Fetcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.http.spec.transform.html#ally.core.http.spec.transform.support_model.IFetcher" title="ally.core.http.spec.transform.support_model.IFetcher"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.http.spec.transform.support_model.IFetcher</span></tt></a></p>
+<p>The fetcher implementation.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.Fetcher.args">
+<tt class="descname">args</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Fetcher.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.fetcher.Fetcher.fetch">
+<tt class="descname">fetch</tt><big>(</big><em>reference</em>, <em>valueId</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#Fetcher.fetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Fetcher.fetch" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IFetcher.fetch</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.Fetcher.fetcher">
+<tt class="descname">fetcher</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Fetcher.fetcher" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.fetcher.</tt><tt class="descname">FetcherHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#FetcherHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a>, <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.INodeInvokerListener" title="ally.core.spec.resources.INodeInvokerListener"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.INodeInvokerListener</span></tt></a></p>
+<p>Implementation for a handler that provides the fetcher used in getting the filtered models.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherHandler.extractFetch">
+<tt class="descname">extractFetch</tt><big>(</big><em>data</em>, <em>fetch=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#FetcherHandler.extractFetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherHandler.extractFetch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts from the data model all the required fetch model values.</p>
+<dl class="docutils">
+<dt>&#64;return: dictionary{Reference:Invoker}</dt>
+<dd>A dictionary containing the reference of the model and as a value the invoker that delivers the model for
+the reference.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherHandler.onInvokerChange">
+<tt class="descname">onInvokerChange</tt><big>(</big><em>node</em>, <em>old</em>, <em>new</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#FetcherHandler.onInvokerChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherHandler.onInvokerChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: INodeInvokerListener.onInvokerChange</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#FetcherHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherHandler.typeResponse">
+<tt class="descname">typeResponse</tt><em class="property"> = &lt;ally.api.type.TypeClass object at 0x5c389b0&gt;</em><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherHandler.typeResponse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherInvoker">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.fetcher.</tt><tt class="descname">FetcherInvoker</tt><big>(</big><em>invoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#FetcherInvoker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherInvoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Invoker" title="ally.core.spec.resources.Invoker"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Invoker</span></tt></a></p>
+<p>Invoker that provides the model fetching.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherInvoker.addFetch">
+<tt class="descname">addFetch</tt><big>(</big><em>reference</em>, <em>invoker</em>, <em>indexes</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#FetcherInvoker.addFetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherInvoker.addFetch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new reference entry in the fetcher.</p>
+<dl class="docutils">
+<dt>&#64;param reference: Reference</dt>
+<dd>The reference for fetching.</dd>
+<dt>&#64;param invoker: Invoker</dt>
+<dd>The invoker associated with the reference.</dd>
+<dt>&#64;param indexes: list[integer]</dt>
+<dd>The indexes in the invoker arguments to be used for the invoker at fetching, basically all the indexes of
+the arguments (beside of the model id one which is None in the indexes) to be used for call the invoker.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherInvoker.addInput">
+<tt class="descname">addInput</tt><big>(</big><em>inp</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#FetcherInvoker.addInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherInvoker.addInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new optional input to the invoker inputs.</p>
+<dl class="docutils">
+<dt>&#64;param inp: Input</dt>
+<dd>The input to be added.</dd>
+<dt>&#64;return: integer</dt>
+<dd>The index of the input.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherInvoker.invoke">
+<tt class="descname">invoke</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#FetcherInvoker.invoke"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherInvoker.invoke" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Invoker.invoke</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherInvoker.invoker">
+<tt class="descname">invoker</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherInvoker.invoker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherInvoker.invokers">
+<tt class="descname">invokers</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherInvoker.invokers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.FetcherInvoker.references">
+<tt class="descname">references</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.FetcherInvoker.references" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.fetcher.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.fetcher.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.Request.arguments">
+<tt class="descname">arguments</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Request.arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.Request.invoker">
+<tt class="descname">invoker</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Request.invoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.Request.path">
+<tt class="descname">path</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Request.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.fetcher.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.fetcher.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/fetcher.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.Response.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Response.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.Response.encoderData">
+<tt class="descname">encoderData</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Response.encoderData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.fetcher.Response.encoderDataModel">
+<tt class="descname">encoderDataModel</tt><a class="headerlink" href="#ally.core.http.impl.processor.fetcher.Response.encoderDataModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.header">
+<span id="header-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">header</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.header" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jul 9, 2011</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the standard headers handling.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.header.DecoderHeader">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.header.</tt><tt class="descname">DecoderHeader</tt><big>(</big><em>handler</em>, <em>headers</em>, <em>parameters=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#DecoderHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.DecoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.http.spec.html#ally.core.http.spec.server.IDecoderHeader" title="ally.core.http.spec.server.IDecoderHeader"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.http.spec.server.IDecoderHeader</span></tt></a></p>
+<p>Implementation for &#64;see: IDecoderHeader.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.header.DecoderHeader.decode">
+<tt class="descname">decode</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#DecoderHeader.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.DecoderHeader.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IDecoderHeader.decode</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.DecoderHeader.handler">
+<tt class="descname">handler</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.DecoderHeader.handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.DecoderHeader.headers">
+<tt class="descname">headers</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.DecoderHeader.headers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.DecoderHeader.parameters">
+<tt class="descname">parameters</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.DecoderHeader.parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.DecoderHeader.parametersUsed">
+<tt class="descname">parametersUsed</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.DecoderHeader.parametersUsed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.header.DecoderHeader.parse">
+<tt class="descname">parse</tt><big>(</big><em>value</em>, <em>parsed=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#DecoderHeader.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.DecoderHeader.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the provided value.</p>
+<dl class="docutils">
+<dt>&#64;param value: string</dt>
+<dd>The value to parse.</dd>
+<dt>&#64;param parsed: list[tuple(string, dictionary{string, string}]</dt>
+<dd>The parsed values.</dd>
+<dt>&#64;return: list[tuple(string, dictionary{string, string}]</dt>
+<dd>The parsed values, if parsed is provided then it will be the same list.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.header.DecoderHeader.readParameters">
+<tt class="descname">readParameters</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#DecoderHeader.readParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.DecoderHeader.readParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the parameters for the provided name.</p>
+<dl class="docutils">
+<dt>&#64;param name: string</dt>
+<dd>The name to read the parameters for.</dd>
+<dt>&#64;return: deque[string]</dt>
+<dd>The list of found values, might be empty.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.header.DecoderHeader.retrieve">
+<tt class="descname">retrieve</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#DecoderHeader.retrieve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.DecoderHeader.retrieve" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IDecoderHeader.retrieve</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.header.EncoderHeader">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.header.</tt><tt class="descname">EncoderHeader</tt><big>(</big><em>handler</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#EncoderHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.EncoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.http.spec.html#ally.core.http.spec.server.IEncoderHeader" title="ally.core.http.spec.server.IEncoderHeader"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.http.spec.server.IEncoderHeader</span></tt></a></p>
+<p>Implementation for &#64;see: IEncoderHeader.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.header.EncoderHeader.encode">
+<tt class="descname">encode</tt><big>(</big><em>name</em>, <em>*value</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#EncoderHeader.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.EncoderHeader.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IEncoderHeader.encode</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.EncoderHeader.handler">
+<tt class="descname">handler</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.EncoderHeader.handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.EncoderHeader.headers">
+<tt class="descname">headers</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.EncoderHeader.headers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.header.HeaderHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.header.</tt><tt class="descname">HeaderHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#HeaderHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.HeaderHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Provides encoder/decoder for handling HTTP headers.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.header.HeaderHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#HeaderHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.HeaderHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Provide the headers encoders and decoders.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.HeaderHandler.separatorAttr">
+<tt class="descname">separatorAttr</tt><em class="property"> = ';'</em><a class="headerlink" href="#ally.core.http.impl.processor.header.HeaderHandler.separatorAttr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.HeaderHandler.separatorMain">
+<tt class="descname">separatorMain</tt><em class="property"> = ','</em><a class="headerlink" href="#ally.core.http.impl.processor.header.HeaderHandler.separatorMain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.HeaderHandler.separatorValue">
+<tt class="descname">separatorValue</tt><em class="property"> = '='</em><a class="headerlink" href="#ally.core.http.impl.processor.header.HeaderHandler.separatorValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.HeaderHandler.useParameters">
+<tt class="descname">useParameters</tt><em class="property"> = False</em><a class="headerlink" href="#ally.core.http.impl.processor.header.HeaderHandler.useParameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.header.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.header.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.Request.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.Request.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.Request.headers">
+<tt class="descname">headers</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.Request.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.Request.parameters">
+<tt class="descname">parameters</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.Request.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.header.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.header.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/header.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.header.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.Response.encoderHeader">
+<tt class="descname">encoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.Response.encoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.header.Response.headers">
+<tt class="descname">headers</tt><a class="headerlink" href="#ally.core.http.impl.processor.header.Response.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.internal_error">
+<span id="internal-error-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">internal_error</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.internal_error" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 22, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provide the internal error representation. This is usually when the server fails badly.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.internal_error.InternalErrorHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.internal_error.</tt><tt class="descname">InternalErrorHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/internal_error.html#InternalErrorHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.InternalErrorHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessor" title="ally.design.processor.HandlerProcessor"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessor</span></tt></a></p>
+<p>Implementation for a processor that provides the handling of internal errors.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.internal_error.InternalErrorHandler.errorHeaders">
+<tt class="descname">errorHeaders</tt><em class="property"> = {'Content-Type': 'text'}</em><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.InternalErrorHandler.errorHeaders" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.internal_error.InternalErrorHandler.errorResponse">
+<tt class="descname">errorResponse</tt><big>(</big><em>error</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/internal_error.html#InternalErrorHandler.errorResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.InternalErrorHandler.errorResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the error response.</p>
+<dl class="docutils">
+<dt>&#64;param error: StringIO</dt>
+<dd>The error stream that contains the stack info.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.internal_error.InternalErrorHandler.process">
+<tt class="descname">process</tt><big>(</big><em>chain</em>, <em>response</em>, <em>responseCnt</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/internal_error.html#InternalErrorHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.InternalErrorHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessor.process</p>
+<p>Provides the additional arguments by type to be populated.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.internal_error.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.internal_error.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/internal_error.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.internal_error.Response.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.Response.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.internal_error.Response.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.Response.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.internal_error.Response.headers">
+<tt class="descname">headers</tt><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.Response.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.internal_error.Response.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.Response.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.internal_error.ResponseContent">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.internal_error.</tt><tt class="descname">ResponseContent</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/internal_error.html#ResponseContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.ResponseContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response content context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.internal_error.ResponseContent.source">
+<tt class="descname">source</tt><a class="headerlink" href="#ally.core.http.impl.processor.internal_error.ResponseContent.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.parameter">
+<span id="parameter-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">parameter</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.parameter" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 25, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the parameters handler.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.parameter.</tt><tt class="descname">ParameterHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a>, <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.INodeInvokerListener" title="ally.core.spec.resources.INodeInvokerListener"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.INodeInvokerListener</span></tt></a></p>
+<p>Implementation for a processor that provides the transformation of parameters into arguments.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.decodeCriteria">
+<tt class="descname">decodeCriteria</tt><big>(</big><em>typeCriteria</em>, <em>getterCriteria</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.decodeCriteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.decodeCriteria" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exploit that provides the decoder for the criteria.</p>
+<dl class="docutils">
+<dt>&#64;param typeCriteria: TypeCriteria</dt>
+<dd>The criteria type to decode.</dd>
+<dt>&#64;param getterCriteria: callable(object) -&gt; object</dt>
+<dd>The getter used to get the criteria from the target object.</dd>
+<dt>&#64;return: callable(<a href="#id2"><span class="problematic" id="id3">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit that provides the criteria decoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.decodeInvoker">
+<tt class="descname">decodeInvoker</tt><big>(</big><em>invoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.decodeInvoker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.decodeInvoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a decode exploit for the invoker.</p>
+<dl class="docutils">
+<dt>&#64;param invoker: Invoker</dt>
+<dd>The invoker to create a parameters decoder for.</dd>
+<dt>&#64;return: callable(<a href="#id4"><span class="problematic" id="id5">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit that provides the invoker decoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.decodeOrder">
+<tt class="descname">decodeOrder</tt><big>(</big><em>ascending</em>, <em>exploitOrder</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.decodeOrder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.decodeOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exploit to decode the order. Basically this exploit converts the ascending and descending parameter values to
+paths that are processed by the provided children.</p>
+<dl class="docutils">
+<dt>&#64;param ascending: boolean</dt>
+<dd>The value used for this order.</dd>
+<dt>&#64;param exploitOrder: callable(<a href="#id6"><span class="problematic" id="id7">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit to be used in the order decoding.</dd>
+<dt>&#64;return: callable(<a href="#id8"><span class="problematic" id="id9">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit that provides the ordering decoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.decodePath">
+<tt class="descname">decodePath</tt><big>(</big><em>children</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.decodePath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.decodePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exploit to locate a decoder in the provided children based on the exploit path.</p>
+<dl class="docutils">
+<dt>&#64;param children: dictionary{string, callable(<a href="#id10"><span class="problematic" id="id11">**</span></a>data)}</dt>
+<dd>The children exploits to be identified based on the key.</dd>
+<dt>&#64;return: callable(<a href="#id12"><span class="problematic" id="id13">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit that provides the path decoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.decodePrimitive">
+<tt class="descname">decodePrimitive</tt><big>(</big><em>setter</em>, <em>typeValue</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.decodePrimitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.decodePrimitive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a decode exploit for a primitive value.</p>
+<dl class="docutils">
+<dt>&#64;param setter: callable(object, object)</dt>
+<dd>The setter used to set the value to the target object.</dd>
+<dt>&#64;param typeValue: Type</dt>
+<dd>The type of the value to decode.</dd>
+<dt>&#64;return: callable(<a href="#id14"><span class="problematic" id="id15">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit that provides the primitive decoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.decodePrimitiveList">
+<tt class="descname">decodePrimitiveList</tt><big>(</big><em>setter</em>, <em>typeItem</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.decodePrimitiveList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.decodePrimitiveList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exploit to decode a primitive value list.</p>
+<dl class="docutils">
+<dt>&#64;param setter: callable(object, object)</dt>
+<dd>The setter used to set the value to the target object.</dd>
+<dt>&#64;param typeItem: Type</dt>
+<dd>The type represented by the list items.</dd>
+<dt>&#64;return: callable(<a href="#id16"><span class="problematic" id="id17">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit that provides the primitive list decoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.decodeSetOrder">
+<tt class="descname">decodeSetOrder</tt><big>(</big><em>typeEntry</em>, <em>getterQuery</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.decodeSetOrder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.decodeSetOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a decode exploit that sets the orderer.</p>
+<dl class="docutils">
+<dt>&#64;param typeEntry: TypeCriteriaEntry</dt>
+<dd>The criteria entry type to set the order for.</dd>
+<dt>&#64;param getterQuery: callable(object) -&gt; object</dt>
+<dd>The getter used to get the query from the target object.</dd>
+<dt>&#64;return: callable(<a href="#id18"><span class="problematic" id="id19">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit that sets the ordering.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.encodeCriteria">
+<tt class="descname">encodeCriteria</tt><big>(</big><em>typeCriteria</em>, <em>getterCriteria</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.encodeCriteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.encodeCriteria" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exploit that provides the encoding for the criteria.</p>
+<dl class="docutils">
+<dt>&#64;param typeCriteria: TypeCriteria</dt>
+<dd>The criteria type to encode.</dd>
+<dt>&#64;param getterCriteria: callable(object) -&gt; object</dt>
+<dd>The getter used to get the criteria from the value object.</dd>
+<dt>&#64;return: callable(<a href="#id20"><span class="problematic" id="id21">**</span></a>data)</dt>
+<dd>The exploit that provides the criteria encoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.encodeGetOrder">
+<tt class="descname">encodeGetOrder</tt><big>(</big><em>typeEntry</em>, <em>getterQuery</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.encodeGetOrder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.encodeGetOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a encode exploit that gets the orderer.</p>
+<dl class="docutils">
+<dt>&#64;param typeEntry: TypeCriteriaEntry</dt>
+<dd>The criteria entry type to get the order for.</dd>
+<dt>&#64;param getterQuery: callable(object) -&gt; object</dt>
+<dd>The getter used to get the query from the value object.</dd>
+<dt>&#64;return: callable(<a href="#id22"><span class="problematic" id="id23">**</span></a>data)</dt>
+<dd>The exploit that gets the ordering.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.encodeInvoker">
+<tt class="descname">encodeInvoker</tt><big>(</big><em>invoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.encodeInvoker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.encodeInvoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an encode exploit for the invoker.</p>
+<dl class="docutils">
+<dt>&#64;param invoker: Invoker</dt>
+<dd>The invoker to create a parameters encoder for.</dd>
+<dt>&#64;return: callable(<a href="#id24"><span class="problematic" id="id25">**</span></a>data)</dt>
+<dd>The exploit that provides the invoker encoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.encodeOrder">
+<tt class="descname">encodeOrder</tt><big>(</big><em>exploitOrder</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.encodeOrder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.encodeOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exploit to encode the order.</p>
+<dl class="docutils">
+<dt>&#64;param exploitOrder: callable(<a href="#id26"><span class="problematic" id="id27">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit to be used in getting the order values.</dd>
+<dt>&#64;return: callable(<a href="#id28"><span class="problematic" id="id29">**</span></a>data) -&gt; boolean</dt>
+<dd>The exploit that provides the ordering encode.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.encodePath">
+<tt class="descname">encodePath</tt><big>(</big><em>children</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.encodePath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.encodePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exploit to encode the path of the exploits by using the children keys.</p>
+<dl class="docutils">
+<dt>&#64;param children: dictionary{string, callable(<a href="#id30"><span class="problematic" id="id31">**</span></a>data)}</dt>
+<dd>The children exploits to be identified based on the key.</dd>
+<dt>&#64;return: callable(<a href="#id32"><span class="problematic" id="id33">**</span></a>data)</dt>
+<dd>The exploit that provides the path encoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.encodePrimitive">
+<tt class="descname">encodePrimitive</tt><big>(</big><em>typeValue</em>, <em>getterValue</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.encodePrimitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.encodePrimitive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a encode exploit for a primitive value also encodes primitive value list.</p>
+<dl class="docutils">
+<dt>&#64;param typeValue: Type</dt>
+<dd>The type of the value to encode.</dd>
+<dt>&#64;param getterValue: callable(object) -&gt; object</dt>
+<dd>The getter used to get the value from the value object.</dd>
+<dt>&#64;return: callable(<a href="#id34"><span class="problematic" id="id35">**</span></a>data)</dt>
+<dd>The exploit that provides the primitive encoding.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.nameOrderAsc">
+<tt class="descname">nameOrderAsc</tt><em class="property"> = 'asc'</em><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.nameOrderAsc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.nameOrderDesc">
+<tt class="descname">nameOrderDesc</tt><em class="property"> = 'desc'</em><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.nameOrderDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.onInvokerChange">
+<tt class="descname">onInvokerChange</tt><big>(</big><em>node</em>, <em>old</em>, <em>new</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.onInvokerChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.onInvokerChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: INodeInvokerListener.onInvokerChange</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#ParameterHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Process the parameters into arguments.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.regexNormalizeValue">
+<tt class="descname">regexNormalizeValue</tt><em class="property"> = '\\\\(?=\\,)'</em><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.regexNormalizeValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.regexSplitValues">
+<tt class="descname">regexSplitValues</tt><em class="property"> = '[\\s]*(?&lt;!\\\\)\\,[\\s]*'</em><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.regexSplitValues" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.separatorName">
+<tt class="descname">separatorName</tt><em class="property"> = '.'</em><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.separatorName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.separatorValue">
+<tt class="descname">separatorValue</tt><em class="property"> = ','</em><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.separatorValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.ParameterHandler.separatorValueEscape">
+<tt class="descname">separatorValueEscape</tt><em class="property"> = '\\,'</em><a class="headerlink" href="#ally.core.http.impl.processor.parameter.ParameterHandler.separatorValueEscape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.parameter.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.parameter.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Request.arguments">
+<tt class="descname">arguments</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Request.arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Request.converterParameters">
+<tt class="descname">converterParameters</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Request.converterParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Request.invoker">
+<tt class="descname">invoker</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Request.invoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Request.normalizerParameters">
+<tt class="descname">normalizerParameters</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Request.normalizerParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Request.parameters">
+<tt class="descname">parameters</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Request.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Request.path">
+<tt class="descname">path</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Request.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.parameter.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.parameter.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parameter.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Response.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Response.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Response.errorDetails">
+<tt class="descname">errorDetails</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Response.errorDetails" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Response.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Response.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parameter.Response.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.parameter.Response.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.parsing_multipart">
+<span id="parsing-multipart-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">parsing_multipart</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.parsing_multipart" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 30, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the multipart content parsing based on RFC1341.
+&#64;see: <a class="reference external" href="http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html">http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html</a></p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.parsing_multipart.DataMultiPart">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.parsing_multipart.</tt><tt class="descname">DataMultiPart</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/parsing_multipart.html#DataMultiPart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.DataMultiPart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Contains the data required by the multi part stream.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.DataMultiPart.charSet">
+<tt class="descname">charSet</tt><em class="property"> = 'ASCII'</em><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.DataMultiPart.charSet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.DataMultiPart.formatMarkEnd">
+<tt class="descname">formatMarkEnd</tt><em class="property"> = '--%s--\r\n'</em><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.DataMultiPart.formatMarkEnd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.DataMultiPart.formatMarkStart">
+<tt class="descname">formatMarkStart</tt><em class="property"> = '--%s\r\n'</em><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.DataMultiPart.formatMarkStart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.DataMultiPart.markHeaderEnd">
+<tt class="descname">markHeaderEnd</tt><em class="property"> = '\r\n\r\n'</em><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.DataMultiPart.markHeaderEnd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.DataMultiPart.packageSize">
+<tt class="descname">packageSize</tt><em class="property"> = 1024</em><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.DataMultiPart.packageSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.DataMultiPart.separatorHeader">
+<tt class="descname">separatorHeader</tt><em class="property"> = ':'</em><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.DataMultiPart.separatorHeader" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.DataMultiPart.trimBodyAtEnd">
+<tt class="descname">trimBodyAtEnd</tt><em class="property"> = '\r\n'</em><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.DataMultiPart.trimBodyAtEnd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.parsing_multipart.NextContent">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.parsing_multipart.</tt><tt class="descname">NextContent</tt><big>(</big><em>requestCnt</em>, <em>response</em>, <em>processing</em>, <em>data</em>, <em>stream</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parsing_multipart.html#NextContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.NextContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Callable used for processing the next request content.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.parsing_multipart.</tt><tt class="descname">ParsingMultiPartHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/parsing_multipart.html#ParsingMultiPartHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.impl.processor.html#ally.core.impl.processor.parsing.ParsingHandler" title="ally.core.impl.processor.parsing.ParsingHandler"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.parsing.ParsingHandler</span></tt></a>, <a class="reference internal" href="#ally.core.http.impl.processor.parsing_multipart.DataMultiPart" title="ally.core.http.impl.processor.parsing_multipart.DataMultiPart"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.http.impl.processor.parsing_multipart.DataMultiPart</span></tt></a></p>
+<p>Provides the multipart content handler parsing.
+&#64;see: <a class="reference external" href="http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html">http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html</a></p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler.attrBoundary">
+<tt class="descname">attrBoundary</tt><em class="property"> = 'boundary'</em><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler.attrBoundary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler.populateAssembly">
+<tt class="descname">populateAssembly</tt><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler.populateAssembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Assembly</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler.process">
+<tt class="descname">process</tt><big>(</big><em>chain</em>, <em>request</em>, <em>requestCnt</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parsing_multipart.html#ParsingMultiPartHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the request content.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler.regexMultipart">
+<tt class="descname">regexMultipart</tt><em class="property"> = '^multipart($|\\/.)'</em><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.ParsingMultiPartHandler.regexMultipart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.parsing_multipart.</tt><tt class="descname">RequestContentMultiPart</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parsing_multipart.html#RequestContentMultiPart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.impl.processor.html#ally.core.impl.processor.parsing.RequestContent" title="ally.core.impl.processor.parsing.RequestContent"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.parsing.RequestContent</span></tt></a></p>
+<p>The request content context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart.fetchNextContent">
+<tt class="descname">fetchNextContent</tt><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart.fetchNextContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart.previousContent">
+<tt class="descname">previousContent</tt><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart.previousContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart.source">
+<tt class="descname">source</tt><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart.typeAttr">
+<tt class="descname">typeAttr</tt><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.RequestContentMultiPart.typeAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.parsing_multipart.RequestPopulate">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.parsing_multipart.</tt><tt class="descname">RequestPopulate</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parsing_multipart.html#RequestPopulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.RequestPopulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context used in populating the request content.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.parsing_multipart.RequestPopulate.headers">
+<tt class="descname">headers</tt><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.RequestPopulate.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.parsing_multipart.StreamMultiPart">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.parsing_multipart.</tt><tt class="descname">StreamMultiPart</tt><big>(</big><em>data</em>, <em>stream</em>, <em>boundary</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parsing_multipart.html#StreamMultiPart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.StreamMultiPart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util_io.IInputStream" title="ally.support.util_io.IInputStream"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util_io.IInputStream</span></tt></a>, <a class="reference internal" href="ally.support.html#ally.support.util_io.IClosable" title="ally.support.util_io.IClosable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util_io.IClosable</span></tt></a></p>
+<p>Provides the muti part stream content.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parsing_multipart.StreamMultiPart.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parsing_multipart.html#StreamMultiPart.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.StreamMultiPart.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IClosable.close</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.parsing_multipart.StreamMultiPart.read">
+<tt class="descname">read</tt><big>(</big><em>nbytes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/parsing_multipart.html#StreamMultiPart.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.parsing_multipart.StreamMultiPart.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IInputStream.read</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.redirect">
+<span id="redirect-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">redirect</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.redirect" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 12, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the content location redirect based on references.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.redirect.RedirectHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.redirect.</tt><tt class="descname">RedirectHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/redirect.html#RedirectHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.redirect.RedirectHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.Handler" title="ally.design.processor.Handler"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.Handler</span></tt></a></p>
+<p>Implementation for a processor that provides the redirect by using the content location based on found references.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.redirect.RedirectHandler.nameLocation">
+<tt class="descname">nameLocation</tt><em class="property"> = 'Location'</em><a class="headerlink" href="#ally.core.http.impl.processor.redirect.RedirectHandler.nameLocation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.redirect.RedirectHandler.process">
+<tt class="descname">process</tt><big>(</big><em>redirectProcessing</em>, <em>chain</em>, <em>request</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/redirect.html#RedirectHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.redirect.RedirectHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the redirect.</p>
+<dl class="docutils">
+<dt>&#64;param redirectProcessing: Processing</dt>
+<dd>The processing that provides the redirecting chain.</dd>
+</dl>
+<p>The rest of the parameters are contexts.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.redirect.RedirectHandler.redirectAssembly">
+<tt class="descname">redirectAssembly</tt><a class="headerlink" href="#ally.core.http.impl.processor.redirect.RedirectHandler.redirectAssembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Assembly</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.redirect.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.redirect.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/redirect.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.redirect.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.redirect.Request.invoker">
+<tt class="descname">invoker</tt><a class="headerlink" href="#ally.core.http.impl.processor.redirect.Request.invoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.redirect.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.redirect.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/redirect.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.redirect.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.redirect.Response.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.redirect.Response.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.redirect.Response.encoderHeader">
+<tt class="descname">encoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.redirect.Response.encoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.redirect.Response.encoderPath">
+<tt class="descname">encoderPath</tt><a class="headerlink" href="#ally.core.http.impl.processor.redirect.Response.encoderPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.redirect.Response.obj">
+<tt class="descname">obj</tt><a class="headerlink" href="#ally.core.http.impl.processor.redirect.Response.obj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.redirect.Response.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.redirect.Response.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.text_conversion">
+<span id="text-conversion-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">text_conversion</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.text_conversion" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 10, 2011</p>
+<p>&#64;package: ally core babel
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the converters for the response content and request content.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.text_conversion.</tt><tt class="descname">BabelConversionDecodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#BabelConversionDecodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation based on Babel for a processor that provides the converters based on language and object formating 
+for the response content and request content.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.defaults">
+<tt class="descname">defaults</tt><em class="property"> = {&lt;class 'ally.api.type.DateTime'&gt;: 'short', &lt;class 'ally.api.type.Date'&gt;: 'short', &lt;class 'ally.api.type.Time'&gt;: 'short'}</em><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.defaults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.formatContentNameX">
+<tt class="descname">formatContentNameX</tt><em class="property"> = 'X-Content-Format-%s'</em><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.formatContentNameX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.formatNameX">
+<tt class="descname">formatNameX</tt><em class="property"> = 'X-Format-%s'</em><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.formatNameX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.formats">
+<tt class="descname">formats</tt><em class="property"> = {&lt;class 'ally.api.type.DateTime'&gt;: ('full', 'long', 'medium', 'short'), &lt;class 'ally.api.type.Date'&gt;: ('full', 'long', 'medium', 'short'), &lt;class 'ally.api.type.Time'&gt;: ('full', 'long', 'medium', 'short')}</em><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.formats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.languageDefault">
+<tt class="descname">languageDefault</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.languageDefault" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.normalizer">
+<tt class="descname">normalizer</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Normalizer</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#BabelConversionDecodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Provide the character conversion for response content.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.processFormats">
+<tt class="descname">processFormats</tt><big>(</big><em>locale</em>, <em>formats</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#BabelConversionDecodeHandler.processFormats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionDecodeHandler.processFormats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the formats to a complete list of formats that will be used by conversion.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionEncodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.text_conversion.</tt><tt class="descname">BabelConversionEncodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#BabelConversionEncodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionEncodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation based on Babel for a processor that encodes the Babel converter format.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionEncodeHandler.formatContentNameX">
+<tt class="descname">formatContentNameX</tt><em class="property"> = 'X-FormatContent-%s'</em><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionEncodeHandler.formatContentNameX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.text_conversion.BabelConversionEncodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#BabelConversionEncodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.BabelConversionEncodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Provide the response formatting header encode.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.text_conversion.ConverterBabel">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.text_conversion.</tt><tt class="descname">ConverterBabel</tt><big>(</big><em>locale</em>, <em>formats</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#ConverterBabel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ConverterBabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Converter" title="ally.core.spec.resources.Converter"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Converter</span></tt></a></p>
+<p>Converter implementation based on Babel.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.text_conversion.ConverterBabel.asString">
+<tt class="descname">asString</tt><big>(</big><em>objValue</em>, <em>objType</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#ConverterBabel.asString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ConverterBabel.asString" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Converter.asString</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.text_conversion.ConverterBabel.asValue">
+<tt class="descname">asValue</tt><big>(</big><em>strValue</em>, <em>objType</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#ConverterBabel.asValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ConverterBabel.asValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Converter.asValue</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ConverterBabel.formats">
+<tt class="descname">formats</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ConverterBabel.formats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ConverterBabel.locale">
+<tt class="descname">locale</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ConverterBabel.locale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="ally.core.http.impl.processor.text_conversion.FormatError">
+<em class="property">exception </em><tt class="descclassname">ally.core.http.impl.processor.text_conversion.</tt><tt class="descname">FormatError</tt><big>(</big><em>message</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#FormatError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.FormatError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<p>Thrown for invalid formatting.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.text_conversion.RequestDecode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.text_conversion.</tt><tt class="descname">RequestDecode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#RequestDecode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.RequestDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.RequestDecode.accLanguages">
+<tt class="descname">accLanguages</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.RequestDecode.accLanguages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.RequestDecode.argumentsOfType">
+<tt class="descname">argumentsOfType</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.RequestDecode.argumentsOfType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.RequestDecode.converter">
+<tt class="descname">converter</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.RequestDecode.converter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.RequestDecode.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.RequestDecode.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.RequestDecode.language">
+<tt class="descname">language</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.RequestDecode.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.RequestDecode.normalizer">
+<tt class="descname">normalizer</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.RequestDecode.normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseDecode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.text_conversion.</tt><tt class="descname">ResponseDecode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#ResponseDecode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseDecode.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseDecode.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseDecode.converter">
+<tt class="descname">converter</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseDecode.converter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseDecode.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseDecode.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseDecode.language">
+<tt class="descname">language</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseDecode.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseDecode.normalizer">
+<tt class="descname">normalizer</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseDecode.normalizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseDecode.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseDecode.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseEncode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.text_conversion.</tt><tt class="descname">ResponseEncode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/text_conversion.html#ResponseEncode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseEncode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseEncode.converter">
+<tt class="descname">converter</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseEncode.converter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.text_conversion.ResponseEncode.encoderHeader">
+<tt class="descname">encoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.text_conversion.ResponseEncode.encoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.time_zone">
+<span id="time-zone-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">time_zone</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.time_zone" title="Permalink to this headline">¶</a></h2>
+<p>Created on Sep 14, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the GMT support transformation.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.time_zone.ConverterTimeZone">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.time_zone.</tt><tt class="descname">ConverterTimeZone</tt><big>(</big><em>converter</em>, <em>baseTimeZone</em>, <em>timeZone</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/time_zone.html#ConverterTimeZone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.ConverterTimeZone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Converter" title="ally.core.spec.resources.Converter"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Converter</span></tt></a></p>
+<p>Provides the converter time zone support.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.time_zone.ConverterTimeZone.asString">
+<tt class="descname">asString</tt><big>(</big><em>objValue</em>, <em>objType</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/time_zone.html#ConverterTimeZone.asString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.ConverterTimeZone.asString" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Converter.asString</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.time_zone.ConverterTimeZone.asValue">
+<tt class="descname">asValue</tt><big>(</big><em>strValue</em>, <em>objType</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/time_zone.html#ConverterTimeZone.asValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.ConverterTimeZone.asValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Converter.asValue</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.ConverterTimeZone.baseTimeZone">
+<tt class="descname">baseTimeZone</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.ConverterTimeZone.baseTimeZone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.ConverterTimeZone.converter">
+<tt class="descname">converter</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.ConverterTimeZone.converter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.ConverterTimeZone.timeZone">
+<tt class="descname">timeZone</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.ConverterTimeZone.timeZone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.time_zone.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.time_zone.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/time_zone.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.Request.converter">
+<tt class="descname">converter</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.Request.converter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.Request.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.Request.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.time_zone.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.time_zone.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/time_zone.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.Response.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.Response.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.Response.converter">
+<tt class="descname">converter</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.Response.converter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.Response.errorDetails">
+<tt class="descname">errorDetails</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.Response.errorDetails" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.Response.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.Response.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.Response.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.Response.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.time_zone.TimeZoneHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.time_zone.</tt><tt class="descname">TimeZoneHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/time_zone.html#TimeZoneHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.TimeZoneHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the time zone decoder and converter handler.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.TimeZoneHandler.baseTimeZone">
+<tt class="descname">baseTimeZone</tt><em class="property"> = 'UTC'</em><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.TimeZoneHandler.baseTimeZone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.TimeZoneHandler.defaultTimeZone">
+<tt class="descname">defaultTimeZone</tt><em class="property"> = 'UTC'</em><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.TimeZoneHandler.defaultTimeZone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.TimeZoneHandler.nameContentTimeZone">
+<tt class="descname">nameContentTimeZone</tt><em class="property"> = 'X-Content-TimeZone'</em><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.TimeZoneHandler.nameContentTimeZone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.time_zone.TimeZoneHandler.nameTimeZone">
+<tt class="descname">nameTimeZone</tt><em class="property"> = 'X-TimeZone'</em><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.TimeZoneHandler.nameTimeZone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.time_zone.TimeZoneHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/time_zone.html#TimeZoneHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.time_zone.TimeZoneHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Provides the time zone support for the content converters.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.uri">
+<span id="uri-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">uri</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.uri" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 28, 2011</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the URI request path handler.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.uri.EncoderPathURI">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.uri.</tt><tt class="descname">EncoderPathURI</tt><big>(</big><em>scheme</em>, <em>host</em>, <em>root</em>, <em>converterPath</em>, <em>extension</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/uri.html#EncoderPathURI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.uri.EncoderPathURI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.http.spec.html#ally.core.http.spec.server.IEncoderPath" title="ally.core.http.spec.server.IEncoderPath"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.http.spec.server.IEncoderPath</span></tt></a></p>
+<p>Provides encoding for the URI paths generated by the URI processor.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.EncoderPathURI.converterPath">
+<tt class="descname">converterPath</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.EncoderPathURI.converterPath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.uri.EncoderPathURI.encode">
+<tt class="descname">encode</tt><big>(</big><em>path</em>, <em>parameters=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/uri.html#EncoderPathURI.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.uri.EncoderPathURI.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: EncoderPath.encode</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.EncoderPathURI.extension">
+<tt class="descname">extension</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.EncoderPathURI.extension" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.EncoderPathURI.host">
+<tt class="descname">host</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.EncoderPathURI.host" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.EncoderPathURI.root">
+<tt class="descname">root</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.EncoderPathURI.root" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.EncoderPathURI.scheme">
+<tt class="descname">scheme</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.EncoderPathURI.scheme" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.uri.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.uri.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/uri.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Request.argumentsOfType">
+<tt class="descname">argumentsOfType</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request.argumentsOfType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Request.converterId">
+<tt class="descname">converterId</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request.converterId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Request.converterParameters">
+<tt class="descname">converterParameters</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request.converterParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Request.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Request.normalizerParameters">
+<tt class="descname">normalizerParameters</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request.normalizerParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Request.path">
+<tt class="descname">path</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Request.scheme">
+<tt class="descname">scheme</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request.scheme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Request.uri">
+<tt class="descname">uri</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request.uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Request.uriRoot">
+<tt class="descname">uriRoot</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Request.uriRoot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.uri.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.uri.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/uri.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.uri.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Response.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Response.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Response.converterId">
+<tt class="descname">converterId</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Response.converterId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Response.encoderPath">
+<tt class="descname">encoderPath</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Response.encoderPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.Response.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.Response.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.uri.ResponseContent">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.uri.</tt><tt class="descname">ResponseContent</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/uri.html#ResponseContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.uri.ResponseContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response content context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.ResponseContent.type">
+<tt class="descname">type</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.ResponseContent.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.uri.URIHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.uri.</tt><tt class="descname">URIHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/uri.html#URIHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.uri.URIHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the searches based on the request URL the resource path, also
+populates the parameters and extension format on the request.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.URIHandler.converterPath">
+<tt class="descname">converterPath</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.URIHandler.converterPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">ConverterPath</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.uri.URIHandler.createEncoderPath">
+<tt class="descname">createEncoderPath</tt><big>(</big><em>request</em>, <em>extension=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/uri.html#URIHandler.createEncoderPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.uri.URIHandler.createEncoderPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the path encoder for the provided request.</p>
+<dl class="docutils">
+<dt>&#64;param request: Request</dt>
+<dd>The request to create the path encoder for.</dd>
+<dt>&#64;param extension: string</dt>
+<dd>The extension to use on the encoded paths.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.URIHandler.headerHost">
+<tt class="descname">headerHost</tt><em class="property"> = 'Host'</em><a class="headerlink" href="#ally.core.http.impl.processor.uri.URIHandler.headerHost" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.uri.URIHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>response</em>, <em>responseCnt</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/uri.html#URIHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.uri.URIHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Process the URI to a resource path.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.uri.URIHandler.resourcesLocator">
+<tt class="descname">resourcesLocator</tt><a class="headerlink" href="#ally.core.http.impl.processor.uri.URIHandler.resourcesLocator" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IResourcesLocator</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ally.core.http.impl.processor.headers.html">headers Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.accept"><tt class="docutils literal"><span class="pre">accept</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.allow"><tt class="docutils literal"><span class="pre">allow</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.content_disposition"><tt class="docutils literal"><span class="pre">content_disposition</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.content_language"><tt class="docutils literal"><span class="pre">content_language</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.content_length"><tt class="docutils literal"><span class="pre">content_length</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.content_type"><tt class="docutils literal"><span class="pre">content_type</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.override_method"><tt class="docutils literal"><span class="pre">override_method</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.set_fixed"><tt class="docutils literal"><span class="pre">set_fixed</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ally.core.http.impl.processor.parser.html">parser Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.impl.processor.parser.html#module-ally.core.http.impl.processor.parser.formdata"><tt class="docutils literal"><span class="pre">formdata</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">processor Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">processor</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.encoder"><tt class="docutils literal"><span class="pre">encoder</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.fetcher"><tt class="docutils literal"><span class="pre">fetcher</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.header"><tt class="docutils literal"><span class="pre">header</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.internal_error"><tt class="docutils literal"><span class="pre">internal_error</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.parameter"><tt class="docutils literal"><span class="pre">parameter</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.parsing_multipart"><tt class="docutils literal"><span class="pre">parsing_multipart</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.redirect"><tt class="docutils literal"><span class="pre">redirect</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.text_conversion"><tt class="docutils literal"><span class="pre">text_conversion</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.time_zone"><tt class="docutils literal"><span class="pre">time_zone</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.uri"><tt class="docutils literal"><span class="pre">uri</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.core.http.impl.html"
+                        title="previous chapter">impl Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.core.http.impl.processor.headers.html"
+                        title="next chapter">headers Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.core.http.impl.processor.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.impl.processor.headers.html" title="headers Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.impl.html" title="impl Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.http.html" >http Package</a> &raquo;</li>
+          <li><a href="ally.core.http.impl.html" >impl Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

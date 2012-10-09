@@ -1,0 +1,19 @@
+impl Package
+============
+
+:mod:`post` Module
+------------------
+
+.. automodule:: superdesk.post.impl.post
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`type` Module
+------------------
+
+.. automodule:: superdesk.post.impl.type
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
