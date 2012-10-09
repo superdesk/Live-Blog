@@ -1,0 +1,197 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.xml.digester_rules &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.xml.digester_rules</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Mar 9, 2012</span>
+
+<span class="sd">@package: ally utilities</span>
+<span class="sd">@copyright: 2011 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides an XML digester general rules.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">.digester</span> <span class="kn">import</span> <span class="n">Rule</span><span class="p">,</span> <span class="n">Digester</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="RuleCreate"><a class="viewcode-back" href="../../../ally.xml.html#ally.xml.digester_rules.RuleCreate">[docs]</a><span class="k">class</span> <span class="nc">RuleCreate</span><span class="p">(</span><span class="n">Rule</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Rule that creates and pushes on the digester stack a value at the begin event and then at the end pulls the value from</span>
+<span class="sd">    the stack.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">create</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the push rule.</span>
+<span class="sd">        </span>
+<span class="sd">        @param create: callable()</span>
+<span class="sd">            The callable that provides the value to push on the stack, the callable has to take no parameters.</span>
+<span class="sd">        @param end: callable(object)|None</span>
+<span class="sd">            The callable that is notified at the end when the object is pulled from the stack, the callable will take a</span>
+<span class="sd">            parameter whcih is the pulled object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">create</span><span class="p">),</span> <span class="s">&#39;Invalid create callable </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">create</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create</span> <span class="o">=</span> <span class="n">create</span>
+
+<div class="viewcode-block" id="RuleCreate.begin"><a class="viewcode-back" href="../../../ally.xml.html#ally.xml.digester_rules.RuleCreate.begin">[docs]</a>    <span class="k">def</span> <span class="nf">begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digester</span><span class="p">,</span> <span class="o">**</span><span class="n">attributes</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Rule.begin</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">digester</span><span class="p">,</span> <span class="n">Digester</span><span class="p">),</span> <span class="s">&#39;Invalid digester </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">digester</span>
+        <span class="n">digester</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="RuleCreate.end"><a class="viewcode-back" href="../../../ally.xml.html#ally.xml.digester_rules.RuleCreate.end">[docs]</a>    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">digester</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Rule.end</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">digester</span><span class="p">,</span> <span class="n">Digester</span><span class="p">),</span> <span class="s">&#39;Invalid digester </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">digester</span>
+        <span class="n">digester</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="RuleSet"><a class="viewcode-back" href="../../../ally.xml.html#ally.xml.digester_rules.RuleSet">[docs]</a><span class="k">class</span> <span class="nc">RuleSet</span><span class="p">(</span><span class="n">Rule</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Rule that sets on a stack object another stack object based on a provided callable that will manage the set.</span>
+<span class="sd">    The set is performed at the end event.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setter</span><span class="p">,</span> <span class="n">toIndex</span><span class="o">=</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">fromIndex</span><span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the set rule.</span>
+<span class="sd">        </span>
+<span class="sd">        @param setter: callable(object, object)</span>
+<span class="sd">            The callable used to set the second object to the first object.</span>
+<span class="sd">        @param toIndex: integer</span>
+<span class="sd">            The index to which to set the from stack value object.</span>
+<span class="sd">        @param fromIndex: integer</span>
+<span class="sd">            The index from which to take the stack value object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">setter</span><span class="p">),</span> <span class="s">&#39;Invalid setter callable </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">setter</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">toIndex</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;Invalid to index </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">toIndex</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fromIndex</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;Invalid from index </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fromIndex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setter</span> <span class="o">=</span> <span class="n">setter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_toIndex</span> <span class="o">=</span> <span class="n">toIndex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fromIndex</span> <span class="o">=</span> <span class="n">fromIndex</span>
+
+<div class="viewcode-block" id="RuleSet.end"><a class="viewcode-back" href="../../../ally.xml.html#ally.xml.digester_rules.RuleSet.end">[docs]</a>    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">digester</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Rule.end</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">digester</span><span class="p">,</span> <span class="n">Digester</span><span class="p">),</span> <span class="s">&#39;Invalid digester </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">digester</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setter</span><span class="p">(</span><span class="n">digester</span><span class="o">.</span><span class="n">stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_toIndex</span><span class="p">],</span> <span class="n">digester</span><span class="o">.</span><span class="n">stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_fromIndex</span><span class="p">])</span>
+</div></div>
+<div class="viewcode-block" id="RuleSetContent"><a class="viewcode-back" href="../../../ally.xml.html#ally.xml.digester_rules.RuleSetContent">[docs]</a><span class="k">class</span> <span class="nc">RuleSetContent</span><span class="p">(</span><span class="n">Rule</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Rule that sets the content on a stack object whenever content is available.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setter</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the set rule.</span>
+<span class="sd">        </span>
+<span class="sd">        @param setter: callable(object, string)</span>
+<span class="sd">            The callable used to set on the first object the received content (second entry).</span>
+<span class="sd">        @param index: integer</span>
+<span class="sd">            The index from which to take the stack object to set the content on.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">setter</span><span class="p">),</span> <span class="s">&#39;Invalid setter callable </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">setter</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;Invalid index </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setter</span> <span class="o">=</span> <span class="n">setter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">index</span>
+
+<div class="viewcode-block" id="RuleSetContent.content"><a class="viewcode-back" href="../../../ally.xml.html#ally.xml.digester_rules.RuleSetContent.content">[docs]</a>    <span class="k">def</span> <span class="nf">content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digester</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Rule.content</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setter</span><span class="p">(</span><span class="n">digester</span><span class="o">.</span><span class="n">stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">],</span> <span class="n">content</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

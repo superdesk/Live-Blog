@@ -1,0 +1,43 @@
+meta Package
+============
+
+:mod:`meta` Package
+-------------------
+
+.. automodule:: internationalization.meta
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`file` Module
+------------------
+
+.. automodule:: internationalization.meta.file
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`message` Module
+---------------------
+
+.. automodule:: internationalization.meta.message
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`metadata_internationalization` Module
+-------------------------------------------
+
+.. automodule:: internationalization.meta.metadata_internationalization
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`source` Module
+--------------------
+
+.. automodule:: internationalization.meta.source
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
