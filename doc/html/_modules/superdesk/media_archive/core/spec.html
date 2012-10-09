@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superdesk.media_archive.core.spec &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for superdesk.media_archive.core.spec</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Apr 27, 2012</span>
+
+<span class="sd">@package: superdesk media archive</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides the specification classes for the media archive.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">ally.api.operator.type</span> <span class="kn">import</span> <span class="n">TypeCriteriaEntry</span>
+<span class="kn">from</span> <span class="nn">ally.api.type</span> <span class="kn">import</span> <span class="n">typeFor</span>
+<span class="kn">from</span> <span class="nn">ally.support.api.util_service</span> <span class="kn">import</span> <span class="n">namesForQuery</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isclass</span>
+<span class="kn">from</span> <span class="nn">superdesk.media_archive.api.meta_data</span> <span class="kn">import</span> <span class="n">QMetaData</span>
+<span class="kn">from</span> <span class="nn">superdesk.media_archive.api.meta_info</span> <span class="kn">import</span> <span class="n">QMetaInfo</span>
+<span class="kn">from</span> <span class="nn">superdesk.media_archive.meta.meta_data</span> <span class="kn">import</span> <span class="n">MetaDataMapped</span>
+<span class="kn">from</span> <span class="nn">superdesk.media_archive.meta.meta_info</span> <span class="kn">import</span> <span class="n">MetaInfoMapped</span>
+<span class="kn">from</span> <span class="nn">superdesk.meta.metadata_superdesk</span> <span class="kn">import</span> <span class="n">Base</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="IMetaDataReferencer"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataReferencer">[docs]</a><span class="k">class</span> <span class="nc">IMetaDataReferencer</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the meta data references handler.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IMetaDataReferencer.populate"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataReferencer.populate">[docs]</a>    <span class="k">def</span> <span class="nf">populate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metaData</span><span class="p">,</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Processes the meta data references in respect with the specified thumbnail size. The method will take no action if</span>
+<span class="sd">        the meta data is not relevant for the handler.</span>
+
+<span class="sd">        @param metaData: MetaDataMapped (from the meta package)</span>
+<span class="sd">            The meta data to have the references processed.</span>
+<span class="sd">        @param scheme: string</span>
+<span class="sd">            The scheme protocol to provide the references for.</span>
+<span class="sd">        @param size: string|None</span>
+<span class="sd">            The thumbnail size to process for the reference, None value lets the handler peek the thumbnail size.</span>
+<span class="sd">        @return: MetaData</span>
+<span class="sd">            The populated meta data, usually the same meta data.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="IMetaDataHandler"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataHandler">[docs]</a><span class="k">class</span> <span class="nc">IMetaDataHandler</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Interface that provides the handling for the meta data&#39;s.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IMetaDataHandler.deploy"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataHandler.deploy">[docs]</a>    <span class="k">def</span> <span class="nf">deploy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Deploy the handler, at this moment the handler should create the required meta types and thumbnail specifications.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IMetaDataHandler.processByInfo"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataHandler.processByInfo">[docs]</a>    <span class="k">def</span> <span class="nf">processByInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metaDataMapped</span><span class="p">,</span> <span class="n">contentPath</span><span class="p">,</span> <span class="n">contentType</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Processes the meta data persistence and type association. The meta data will already be in the database this method</span>
+<span class="sd">        has to update and associate the meta data in respect with the handler. By using the contentType and file extension</span>
+<span class="sd">        info, the plugin will decide if process or not the request. The method will take no action if fails to process the </span>
+<span class="sd">        content (content has wrong format, or wrong declared format).</span>
+
+<span class="sd">        @param metaDataMapped: MetaDataMapped</span>
+<span class="sd">            The meta data mapped for the current uploaded content.</span>
+<span class="sd">        @param contentPath: string</span>
+<span class="sd">            The path were the media file is stored</span>
+<span class="sd">        @param contentType: string</span>
+<span class="sd">            The content type of uploaded file.</span>
+<span class="sd">        @return: boolean</span>
+<span class="sd">            True if the content has been processed, False otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IMetaDataHandler.process"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataHandler.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metaDataMapped</span><span class="p">,</span> <span class="n">contentPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Processes the meta data persistence and type association. The meta data will already be in the database this method</span>
+<span class="sd">        has to update and associate the meta data and meta info in respect with the handler. The method will take no action if fails to process the </span>
+<span class="sd">        content (content has wrong format)</span>
+
+<span class="sd">        @param metaDataMapped: MetaDataMapped</span>
+<span class="sd">            The meta data mapped for the current uploaded content.</span>
+<span class="sd">        @contentPath: string</span>
+<span class="sd">            The path were the media file is stored    </span>
+<span class="sd">        @return: boolean</span>
+<span class="sd">            True if the content has been processed, False otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="IThumbnailManager"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IThumbnailManager">[docs]</a><span class="k">class</span> <span class="nc">IThumbnailManager</span><span class="p">(</span><span class="n">IMetaDataReferencer</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Interface that defines the API for handling thumbnails.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IThumbnailManager.putThumbnail"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IThumbnailManager.putThumbnail">[docs]</a>    <span class="k">def</span> <span class="nf">putThumbnail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thumbnailFormatId</span><span class="p">,</span> <span class="n">imagePath</span><span class="p">,</span> <span class="n">metaData</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Places a thumbnail identified by thumbnail format id.</span>
+
+<span class="sd">        @param thumbnailFormatId: integer</span>
+<span class="sd">            The thumbnail path format identifier</span>
+<span class="sd">        @param imagePath: string</span>
+<span class="sd">            The path to the original image from which to generate the thumbnail.</span>
+<span class="sd">        @param metaData: MetaData|None</span>
+<span class="sd">            The object containing the content metadata for which the thumbnail is placed.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div></div>
+<div class="viewcode-block" id="IThumbnailProcessor"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IThumbnailProcessor">[docs]</a><span class="k">class</span> <span class="nc">IThumbnailProcessor</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Specification class that provides the thumbnail processing.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IThumbnailProcessor.processThumbnail"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IThumbnailProcessor.processThumbnail">[docs]</a>    <span class="k">def</span> <span class="nf">processThumbnail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a thumbnail for the provided content, if the width or height is not provided then no resizing will occur.</span>
+
+<span class="sd">        @param source: string</span>
+<span class="sd">            The content local file system path where the thumbnail to be resized can be found.</span>
+<span class="sd">         @param destination: string</span>
+<span class="sd">            The destination local file system path where to place the resized thumbnail.</span>
+<span class="sd">        @param width: integer|None</span>
+<span class="sd">            The thumbnail width.</span>
+<span class="sd">        @param height: integer|None</span>
+<span class="sd">            The thumbnail height.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="QueryIndexer"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.QueryIndexer">[docs]</a><span class="k">class</span> <span class="nc">QueryIndexer</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Manages the query related information about plugins in order to be able to support</span>
+<span class="sd">        the multi-plugin queries </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @ivar metaInfos: set(EntryMetaInfo class)</span>
+<span class="sd">        The set of plugin specific entry meta info for registered plugins</span>
+<span class="sd">        @ivar metaDatas: set(EntryMetaData class)</span>
+<span class="sd">        The set of plugin specific entry meta data for registered plugins    </span>
+<span class="sd">        </span>
+<span class="sd">        @ivar metaInfoByCriteria: dict{CriteriaName : set(EntryMetaInfo class)}</span>
+<span class="sd">        The set of plugin specific entry meta info for registered plugins grouped by criteria name   </span>
+<span class="sd">        @ivar metaDataByCriteria: dict{CriteriaName : set(EntryMetaData class)}</span>
+<span class="sd">        The set of plugin specific entry meta data for registered plugins grouped by criteria name   </span>
+<span class="sd">        </span>
+<span class="sd">        @ivar infoCriterias: dict{CriteriaName, Criteria class)</span>
+<span class="sd">        Contains all meta info related criteria names and associated criteria class</span>
+<span class="sd">        @ivar dataCriterias: dict{CriteriaName, Criteria class)</span>
+<span class="sd">        Contains all meta data related criteria names and associated criteria class </span>
+<span class="sd">        </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metaInfos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metaDatas</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metaInfoByCriteria</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metaDataByCriteria</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">infoCriterias</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataCriterias</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="QueryIndexer.register"><a class="viewcode-back" href="../../../../superdesk.media_archive.core.html#superdesk.media_archive.core.spec.QueryIndexer.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EntryMetaInfoClass</span><span class="p">,</span> <span class="n">QMetaInfoClass</span><span class="p">,</span> <span class="n">EntryMetaDataClass</span><span class="p">,</span> <span class="n">QMetaDataClass</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the meta info base service for the provided classes.</span>
+<span class="sd">        </span>
+<span class="sd">        @param EntryMetaInfoClass: class</span>
+<span class="sd">            A class that contains the specific for media meta info related columns.</span>
+<span class="sd">        @param QMetaInfoClass: class</span>
+<span class="sd">            A class that extends QMetaInfo API class.</span>
+<span class="sd">        @param MetaDataClass: class</span>
+<span class="sd">            A class that contains the specific for media meta data related columns.</span>
+<span class="sd">        @param QMetaDataClass: class</span>
+<span class="sd">            A class that extends QMetaData API class.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">EntryMetaInfoClass</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">EntryMetaInfoClass</span><span class="p">,</span> <span class="n">Base</span><span class="p">),</span> \
+        <span class="s">&#39;Invalid entry meta info class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">EntryMetaInfoClass</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">EntryMetaInfoClass</span><span class="p">,</span> <span class="n">MetaInfoMapped</span><span class="p">),</span> \
+        <span class="s">&#39;The Entry class should be registered, not extended class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">EntryMetaInfoClass</span>
+
+        <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">QMetaInfoClass</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">QMetaInfoClass</span><span class="p">,</span> <span class="n">QMetaInfo</span><span class="p">),</span> \
+        <span class="s">&#39;Invalid meta info query class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">QMetaInfoClass</span>
+
+        <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">EntryMetaDataClass</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">EntryMetaDataClass</span><span class="p">,</span> <span class="n">Base</span><span class="p">),</span> \
+        <span class="s">&#39;Invalid entry meta data class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">EntryMetaDataClass</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">EntryMetaDataClass</span><span class="p">,</span> <span class="n">MetaDataMapped</span><span class="p">),</span> \
+        <span class="s">&#39;The Entry class should be registered, not extended class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">EntryMetaInfoClass</span>
+
+        <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">QMetaDataClass</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">QMetaDataClass</span><span class="p">,</span> <span class="n">QMetaData</span><span class="p">),</span> \
+        <span class="s">&#39;Invalid meta data query class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">QMetaDataClass</span>
+
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">EntryMetaInfoClass</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metaInfos</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Already registered the meta info class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">EntryMetaInfoClass</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">EntryMetaDataClass</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metaDatas</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Already registered the meta data class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">EntryMetaInfoClass</span><span class="p">)</span>
+
+
+        <span class="k">for</span> <span class="n">criteria</span> <span class="ow">in</span> <span class="n">namesForQuery</span><span class="p">(</span><span class="n">QMetaInfoClass</span><span class="p">):</span>
+            <span class="n">criteriaClass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">infoCriterias</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">criteriaClass</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">):</span> <span class="k">continue</span>
+
+            <span class="n">criteriaType</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">QMetaInfoClass</span><span class="p">,</span> <span class="n">criteria</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">criteriaType</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">criteriaType</span><span class="o">.</span><span class="n">clazz</span> <span class="o">!=</span> <span class="n">criteriaClass</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Can&#39;t register meta data </span><span class="si">%s</span><span class="s"> because the </span><span class="si">%s</span><span class="s"> criteria has type </span><span class="si">%s</span><span class="s"> &quot;</span> \
+                                <span class="s">&quot;and this criteria already exist with a different type </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
+                                <span class="p">(</span><span class="n">EntryMetaInfoClass</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">criteriaType</span><span class="o">.</span><span class="n">clazz</span><span class="p">,</span> <span class="n">criteriaClass</span><span class="p">))</span>
+
+
+        <span class="k">for</span> <span class="n">criteria</span> <span class="ow">in</span> <span class="n">namesForQuery</span><span class="p">(</span><span class="n">QMetaDataClass</span><span class="p">):</span>
+            <span class="n">criteriaClass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataCriterias</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">criteriaClass</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">):</span> <span class="k">continue</span>
+
+            <span class="n">criteriaType</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">QMetaDataClass</span><span class="p">,</span> <span class="n">criteria</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">criteriaType</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">criteriaType</span><span class="o">.</span><span class="n">clazz</span> <span class="o">!=</span> <span class="n">criteriaClass</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Can&#39;t register meta data </span><span class="si">%s</span><span class="s"> because the </span><span class="si">%s</span><span class="s"> criteria has type </span><span class="si">%s</span><span class="s"> &quot;</span> \
+                                <span class="s">&quot;and this criteria already exist with a different type </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
+                                <span class="p">(</span><span class="n">EntryMetaDataClass</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">criteriaType</span><span class="o">.</span><span class="n">clazz</span><span class="p">,</span> <span class="n">criteriaClass</span><span class="p">))</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metaInfos</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">EntryMetaInfoClass</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metaDatas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">EntryMetaDataClass</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">criteria</span> <span class="ow">in</span> <span class="n">namesForQuery</span><span class="p">(</span><span class="n">QMetaInfoClass</span><span class="p">):</span>
+            <span class="n">criteriaType</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">QMetaInfoClass</span><span class="p">,</span> <span class="n">criteria</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">criteriaType</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">)</span>
+
+            <span class="n">infoSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metaInfoByCriteria</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">infoSet</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">infoSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metaInfoByCriteria</span><span class="p">[</span><span class="n">criteria</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">infoCriterias</span><span class="p">[</span><span class="n">criteria</span><span class="p">]</span> <span class="o">=</span> <span class="n">criteriaType</span><span class="o">.</span><span class="n">clazz</span>
+
+            <span class="n">infoSet</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">EntryMetaInfoClass</span><span class="p">)</span>
+
+
+        <span class="k">for</span> <span class="n">criteria</span> <span class="ow">in</span> <span class="n">namesForQuery</span><span class="p">(</span><span class="n">QMetaDataClass</span><span class="p">):</span>
+            <span class="n">criteriaType</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">QMetaDataClass</span><span class="p">,</span> <span class="n">criteria</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">criteriaType</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">)</span>
+
+            <span class="n">dataSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metaDataByCriteria</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dataSet</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">dataSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metaDataByCriteria</span><span class="p">[</span><span class="n">criteria</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataCriterias</span><span class="p">[</span><span class="n">criteria</span><span class="p">]</span> <span class="o">=</span> <span class="n">criteriaType</span><span class="o">.</span><span class="n">clazz</span>
+
+            <span class="n">dataSet</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">EntryMetaDataClass</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

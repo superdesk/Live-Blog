@@ -1,0 +1,18 @@
+core Package
+============
+
+:mod:`spec` Module
+------------------
+
+.. automodule:: superdesk.media_archive.core.spec
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.media_archive.core.impl
+
