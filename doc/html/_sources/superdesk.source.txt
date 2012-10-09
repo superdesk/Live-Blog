@@ -1,0 +1,12 @@
+source Package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.source.api
+    superdesk.source.impl
+    superdesk.source.meta
+

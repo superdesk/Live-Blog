@@ -1,0 +1,19 @@
+api Package
+===========
+
+:mod:`api` Package
+------------------
+
+.. automodule:: gui.action.api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`action` Module
+--------------------
+
+.. automodule:: gui.action.api.action
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

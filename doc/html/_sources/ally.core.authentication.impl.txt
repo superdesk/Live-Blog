@@ -1,0 +1,18 @@
+impl Package
+============
+
+:mod:`assembler` Module
+-----------------------
+
+.. automodule:: ally.core.authentication.impl.assembler
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ally.core.authentication.impl.processor
+
