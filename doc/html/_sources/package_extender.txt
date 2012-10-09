@@ -1,0 +1,7 @@
+package_extender Module
+=======================
+
+.. automodule:: package_extender
+    :members:
+    :undoc-members:
+    :show-inheritance:

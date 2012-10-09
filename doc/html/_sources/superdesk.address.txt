@@ -1,0 +1,10 @@
+address Package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.address.api
+

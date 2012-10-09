@@ -1,0 +1,817 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>impl Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="core Package" href="ally.core.html" />
+    <link rel="next" title="processor Package" href="ally.core.impl.processor.html" />
+    <link rel="prev" title="transform Package" href="ally.core.http.spec.transform.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.impl.processor.html" title="processor Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.spec.transform.html" title="transform Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" accesskey="U">core Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="impl-package">
+<h1>impl Package<a class="headerlink" href="#impl-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">impl</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-ally.core.impl"></span><p>Created on Jun 18, 2011</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Has modules that implement specifications for the server. This implementations range from organizational classes like
+the <em>assmebler</em>, <em>node</em> and <em>invoker</em> to actual content handling classes like the encoders and decoders. This
+implementations are general by nature they are not binded to the HTTP protocol bu some are binded to text representations
+for instance the XML encoder.</p>
+</div>
+<div class="section" id="module-ally.core.impl.assembler">
+<span id="assembler-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">assembler</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.assembler" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 18, 2011</p>
+<p>&#64;package: ally core
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the call assemblers used in constructing the resources node.</p>
+<dl class="class">
+<dt id="ally.core.impl.assembler.AssembleBase">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.assembler.</tt><tt class="descname">AssembleBase</tt><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.IAssembler" title="ally.core.spec.resources.IAssembler"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.IAssembler</span></tt></a></p>
+<p>Provides support for assemblers that want to do the assembling on an invoker at one time.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.assembler.AssembleBase.hintCallReplaceFor">
+<tt class="descname">hintCallReplaceFor</tt><em class="property"> = 'replaceFor'</em><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.hintCallReplaceFor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.assembler.AssembleBase.hintCallWebName">
+<tt class="descname">hintCallWebName</tt><em class="property"> = 'webName'</em><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.hintCallWebName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.assembler.AssembleBase.hintModelDomain">
+<tt class="descname">hintModelDomain</tt><em class="property"> = 'domain'</em><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.hintModelDomain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.isModelIn">
+<tt class="descname">isModelIn</tt><big>(</big><em>model</em>, <em>types</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.isModelIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.isModelIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the model is present in the provided types.</p>
+<dl class="docutils">
+<dt>&#64;param model: Model</dt>
+<dd>The model to check if present.</dd>
+<dt>&#64;param types: list[Input|TypeModel|Model|tuple(string,boolean)]|tuple(...)</dt>
+<dd>The types to check.</dd>
+<dt>&#64;return: boolean</dt>
+<dd>True if the model is present, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.knownCallHints">
+<tt class="descname">knownCallHints</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.knownCallHints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.knownCallHints" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IAssembler.knownCallHints</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.knownModelHints">
+<tt class="descname">knownModelHints</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.knownModelHints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.knownModelHints" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IAssembler.knownModelHints</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.obtainNode">
+<tt class="descname">obtainNode</tt><big>(</big><em>root</em>, <em>types</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.obtainNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.obtainNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains the node represented by all the provided types.</p>
+<dl class="docutils">
+<dt>&#64;param root: Node</dt>
+<dd>The root node to obtain the node in.</dd>
+<dt>&#64;param types: list[Input|TypeModel|Model|tuple(string,boolean)]|tuple(...)</dt>
+<dd>The list of types to identify the node.</dd>
+<dt>&#64;return: Node|boolean</dt>
+<dd>The node for the types or False if unable to obtain one for the provided types.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.obtainNodeModel">
+<tt class="descname">obtainNodeModel</tt><big>(</big><em>root</em>, <em>model</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.obtainNodeModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.obtainNodeModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the model node in the provided root Node.</p>
+<dl class="docutils">
+<dt>&#64;param root: Node</dt>
+<dd>The root node to obtain the model node in.</dd>
+<dt>&#64;param model: Model</dt>
+<dd>The model to obtain the node for.</dd>
+<dt>&#64;return: NodePath</dt>
+<dd>The model node.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.obtainNodePath">
+<tt class="descname">obtainNodePath</tt><big>(</big><em>root</em>, <em>name</em>, <em>isGroup=False</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.obtainNodePath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.obtainNodePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the path node with name in the provided root Node.</p>
+<dl class="docutils">
+<dt>&#64;param root: Node</dt>
+<dd>The root node to obtain the path node in.</dd>
+<dt>&#64;param name: string</dt>
+<dd>The name for the path node.</dd>
+<dt>&#64;param isGroup: boolean</dt>
+<dd>Flag indicating that the path node should be considered a group node (True) or an object node (False).</dd>
+<dt>&#64;return: NodePath</dt>
+<dd>The path node.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.obtainNodeProperty">
+<tt class="descname">obtainNodeProperty</tt><big>(</big><em>root</em>, <em>inp</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.obtainNodeProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.obtainNodeProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the property node in the provided root Node.</p>
+<dl class="docutils">
+<dt>&#64;param root: Node</dt>
+<dd>The root node to obtain the path node in.</dd>
+<dt>&#64;param inp: Input</dt>
+<dd>The input to find the node for.</dd>
+<dt>&#64;return: NodeProperty</dt>
+<dd>The property node.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.processHintReplace">
+<tt class="descname">processHintReplace</tt><big>(</big><em>invoker</em>, <em>prevInvoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.processHintReplace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.processHintReplace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the replace for hint for the invokers.</p>
+<dl class="docutils">
+<dt>&#64;param invoker: Invoker</dt>
+<dd>The invoker to be processed.</dd>
+<dt>&#64;param prevInvoker: Invoker|None</dt>
+<dd>The previous invoker found on the node if is the case.</dd>
+<dt>&#64;return: Invoker</dt>
+<dd>The invoker to be used.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.processHintWebName">
+<tt class="descname">processHintWebName</tt><big>(</big><em>types</em>, <em>hints</em>, <em>isGroup=False</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.processHintWebName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.processHintWebName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the web name hint found on the call and alters the provided types list according to it.</p>
+<dl class="docutils">
+<dt>&#64;param types: list[Input|TypeModel|Model|tuple(string,boolean)]</dt>
+<dd>The list of types to be altered based on the web name hint.</dd>
+<dt>&#64;param hints: dictionary{string, object}</dt>
+<dd>The hints to be processed for the types.</dd>
+<dt>&#64;param isGroup: boolean</dt>
+<dd>Flag indicating that the web name hint should be considered a group node (True) or an object node (False).</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.processInvokerHints">
+<tt class="descname">processInvokerHints</tt><big>(</big><em>invoker</em>, <em>prevInvoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.processInvokerHints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.processInvokerHints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the hints that affect the invoker used on the assembled node.</p>
+<dl class="docutils">
+<dt>&#64;param invoker: Invoker</dt>
+<dd>The invoker to be processed.</dd>
+<dt>&#64;param prevInvoker: Invoker|None</dt>
+<dd>The previous invoker found on the node if is the case.</dd>
+<dt>&#64;return: Invoker</dt>
+<dd>The invoker to be used.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleBase.processTypesHints">
+<tt class="descname">processTypesHints</tt><big>(</big><em>types</em>, <em>hints</em>, <em>isGroup=False</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleBase.processTypesHints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleBase.processTypesHints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the hints that affect the types used for constructing the node path.</p>
+<dl class="docutils">
+<dt>&#64;param types: list[Input|TypeModel|Model|tuple(string,boolean)]</dt>
+<dd>The list of types to be altered based on the type hints.</dd>
+<dt>&#64;param hints: dictionary{string, object}</dt>
+<dd>The hints to be processed for the types.</dd>
+<dt>&#64;param isGroup: boolean</dt>
+<dd>Flag indicating that the hints should be considered for a group node (True) or an object node (False).</dd>
+<dt>&#64;return: list[TypeModelProperty|TypeModel|Model|tuple(string,boolean)]</dt>
+<dd>The processed types.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.assembler.AssembleDelete">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.assembler.</tt><tt class="descname">AssembleDelete</tt><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleDelete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleDelete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.assembler.AssembleOneByOne" title="ally.core.impl.assembler.AssembleOneByOne"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.assembler.AssembleOneByOne</span></tt></a></p>
+<p>Resolving the DELETE method invokers.
+Method signature needs to be flagged with DELETE and look like:
+boolean
+%
+([...AnyEntity.Property], [AnyEntity.Id])
+The last property needs to target the actual entity that is being deleted.
+!!!Attention the order of the mandatory arguments is crucial since based on that the call is placed in the REST
+Node tree.</p>
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleDelete.assembleInvoker">
+<tt class="descname">assembleInvoker</tt><big>(</big><em>root</em>, <em>invoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleDelete.assembleInvoker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleDelete.assembleInvoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: AssembleOneByOne.assembleInvoker</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.assembler.AssembleGet">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.assembler.</tt><tt class="descname">AssembleGet</tt><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleGet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleGet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.assembler.AssembleOneByOne" title="ally.core.impl.assembler.AssembleOneByOne"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.assembler.AssembleOneByOne</span></tt></a></p>
+<p>Resolving the GET method invokers.
+Method signature needs to be flagged with GET and look like:
+AnyEntity|AnyEntity.Property|Iter(AnyEntity)|Iter(AnyEntity.Id)
+%
+([...AnyEntity.Property])
+!!!Attention the order of the mandatory arguments is crucial since based on that the call is placed in the REST
+Node tree.</p>
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleGet.assembleInvoker">
+<tt class="descname">assembleInvoker</tt><big>(</big><em>root</em>, <em>invoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleGet.assembleInvoker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleGet.assembleInvoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: AssembleOneByOne.assembleInvoker</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleGet.nodesFor">
+<tt class="descname">nodesFor</tt><big>(</big><em>root</em>, <em>model</em>, <em>isGroup</em>, <em>mandatory</em>, <em>optional</em>, <em>hints</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleGet.nodesFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleGet.nodesFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the nodes for the provided model obtained by combining the mandatory and extra types.</p>
+<dl class="docutils">
+<dt>&#64;param root: Node</dt>
+<dd>The root node to assemble to.</dd>
+<dt>&#64;param model: Model</dt>
+<dd>The model to obtain the nodes for.</dd>
+<dt>&#64;param isGroup: boolean</dt>
+<dd>Flag indicating that the model is actually provided as a collection.</dd>
+<dt>&#64;param mandatory: list[Input]</dt>
+<dd>The mandatory inputs.</dd>
+<dt>&#64;param optional: list[Input]</dt>
+<dd>The optional inputs.</dd>
+<dt>&#64;param hints: dictionary{string, object}</dt>
+<dd>The hints for the invoker.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.assembler.AssembleInsert">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.assembler.</tt><tt class="descname">AssembleInsert</tt><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleInsert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleInsert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.assembler.AssembleOneByOne" title="ally.core.impl.assembler.AssembleOneByOne"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.assembler.AssembleOneByOne</span></tt></a></p>
+<p>Resolving the INSERT method invokers.
+Method signature needs to be flagged with INSERT and look like:
+TheEntity|TheEnity.Property (usually the unique id property)
+%
+([...AnyEntity.Property], [TheEntity])
+!!!Attention the order of the mandatory arguments is crucial since based on that the call is placed in the REST
+Node tree.</p>
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleInsert.assembleInvoker">
+<tt class="descname">assembleInvoker</tt><big>(</big><em>root</em>, <em>invoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleInsert.assembleInvoker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleInsert.assembleInvoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: AssembleOneByOne.assembleInvoker</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.assembler.AssembleOneByOne">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.assembler.</tt><tt class="descname">AssembleOneByOne</tt><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleOneByOne"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleOneByOne" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.assembler.AssembleBase" title="ally.core.impl.assembler.AssembleBase"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.assembler.AssembleBase</span></tt></a></p>
+<p>Provides methods for assembling the list of invokers one by one.
+&#64;see: AssembleBase</p>
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleOneByOne.assemble">
+<tt class="descname">assemble</tt><big>(</big><em>root</em>, <em>invokers</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleOneByOne.assemble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleOneByOne.assemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Assembler.resolve</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleOneByOne.assembleInvoker">
+<tt class="descname">assembleInvoker</tt><big>(</big><em>root</em>, <em>invoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleOneByOne.assembleInvoker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleOneByOne.assembleInvoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the assembling for a single invoker.</p>
+<dl class="docutils">
+<dt>&#64;param root: Node</dt>
+<dd>The root node to assemble the invokers to.</dd>
+<dt>&#64;param invoker: Invoker</dt>
+<dd>The invoker to be assembled.</dd>
+<dt>&#64;return: boolean</dt>
+<dd>True if the assembling has been successful, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.assembler.AssembleUpdate">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.assembler.</tt><tt class="descname">AssembleUpdate</tt><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.assembler.AssembleOneByOne" title="ally.core.impl.assembler.AssembleOneByOne"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.assembler.AssembleOneByOne</span></tt></a></p>
+<p>Resolving the UPDATE method invokers.
+Method signature needs to be flagged with UPDATE and look like:
+boolean
+%
+([...AnyEntity.Property], [TheEntity])
+!!!Attention the order of the mandatory arguments is crucial since based on that the call is placed in the REST
+Node tree.</p>
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleUpdate.assembleInvoker">
+<tt class="descname">assembleInvoker</tt><big>(</big><em>root</em>, <em>invoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleUpdate.assembleInvoker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleUpdate.assembleInvoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: AssembleOneByOne.assembleInvoker</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.assembler.AssembleUpdateModel">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.assembler.</tt><tt class="descname">AssembleUpdateModel</tt><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleUpdateModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleUpdateModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.assembler.AssembleUpdate" title="ally.core.impl.assembler.AssembleUpdate"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.assembler.AssembleUpdate</span></tt></a></p>
+<p>Resolving the UPDATE method invokers.
+Method signature needs to be flagged with UPDATE and look like:
+boolean
+%
+([...AnyEntity.Property], TheEntity)
+A parameter needs to be of the updated model type.
+!!!Attention the order of the mandatory arguments is crucial since based on that the call is placed in the REST
+Node tree.</p>
+<dl class="method">
+<dt id="ally.core.impl.assembler.AssembleUpdateModel.assembleInvoker">
+<tt class="descname">assembleInvoker</tt><big>(</big><em>root</em>, <em>invoker</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/assembler.html#AssembleUpdateModel.assembleInvoker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.assembler.AssembleUpdateModel.assembleInvoker" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: AssembleOneByOne.assembleInvoker</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.impl.invoker">
+<span id="invoker-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">invoker</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.invoker" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 25, 2011</p>
+<p>&#64;package: ally core
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the invokers implementations.</p>
+<dl class="class">
+<dt id="ally.core.impl.invoker.InvokerCall">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.invoker.</tt><tt class="descname">InvokerCall</tt><big>(</big><em>implementation</em>, <em>call</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/invoker.html#InvokerCall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.invoker.InvokerCall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Invoker" title="ally.core.spec.resources.Invoker"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Invoker</span></tt></a></p>
+<p>Provides invoking for API calls.</p>
+<dl class="method">
+<dt id="ally.core.impl.invoker.InvokerCall.invoke">
+<tt class="descname">invoke</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/invoker.html#InvokerCall.invoke"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.invoker.InvokerCall.invoke" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Invoker.invoke</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.invoker.InvokerFunction">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.invoker.</tt><tt class="descname">InvokerFunction</tt><big>(</big><em>method</em>, <em>function</em>, <em>output</em>, <em>inputs</em>, <em>hints</em>, <em>name=None</em>, <em>infoIMPL=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/invoker.html#InvokerFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.invoker.InvokerFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Invoker" title="ally.core.spec.resources.Invoker"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Invoker</span></tt></a></p>
+<p>Provides invoking for API calls.</p>
+<dl class="method">
+<dt id="ally.core.impl.invoker.InvokerFunction.invoke">
+<tt class="descname">invoke</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/invoker.html#InvokerFunction.invoke"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.invoker.InvokerFunction.invoke" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Invoker.invoke</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.invoker.InvokerInfoMethod">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.invoker.</tt><tt class="descname">InvokerInfoMethod</tt><big>(</big><em>name</em>, <em>clazz</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/invoker.html#InvokerInfoMethod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.invoker.InvokerInfoMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.InvokerInfo" title="ally.core.spec.resources.InvokerInfo"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.InvokerInfo</span></tt></a></p>
+<p>Provides the info object for a class method.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.invoker.InvokerRestructuring">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.invoker.</tt><tt class="descname">InvokerRestructuring</tt><big>(</big><em>invoker</em>, <em>inputs</em>, <em>indexes</em>, <em>indexesSetValue={}</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/invoker.html#InvokerRestructuring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.invoker.InvokerRestructuring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Invoker" title="ally.core.spec.resources.Invoker"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Invoker</span></tt></a></p>
+<p>Invoker that provides the inputs restructuring based on a list of indexes.</p>
+<dl class="method">
+<dt id="ally.core.impl.invoker.InvokerRestructuring.invoke">
+<tt class="descname">invoke</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/invoker.html#InvokerRestructuring.invoke"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.invoker.InvokerRestructuring.invoke" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Invoker.invoke</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.impl.node">
+<span id="node-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">node</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.node" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 19, 2011</p>
+<p>&#64;package: ally core
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the nodes used in constructing the resources node tree.</p>
+<dl class="class">
+<dt id="ally.core.impl.node.MatchProperty">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.node.</tt><tt class="descname">MatchProperty</tt><big>(</big><em>node</em>, <em>value=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Match" title="ally.core.spec.resources.Match"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Match</span></tt></a></p>
+<p>Match class for string for a property.</p>
+<p>&#64;see: Match</p>
+<dl class="method">
+<dt id="ally.core.impl.node.MatchProperty.asArgument">
+<tt class="descname">asArgument</tt><big>(</big><em>invoker</em>, <em>args</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchProperty.asArgument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchProperty.asArgument" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchProperty.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchProperty.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchProperty.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.clone</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchProperty.isValid">
+<tt class="descname">isValid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchProperty.isValid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchProperty.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.isValid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchProperty.toPath">
+<tt class="descname">toPath</tt><big>(</big><em>converterPath</em>, <em>isFirst</em>, <em>isLast</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchProperty.toPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchProperty.toPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.toPath</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchProperty.update">
+<tt class="descname">update</tt><big>(</big><em>obj</em>, <em>objType</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchProperty.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchProperty.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.update</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.node.MatchRoot">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.node.</tt><tt class="descname">MatchRoot</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchRoot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchRoot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Match" title="ally.core.spec.resources.Match"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Match</span></tt></a></p>
+<p>Match class for root node.</p>
+<p>&#64;see: Match</p>
+<dl class="method">
+<dt id="ally.core.impl.node.MatchRoot.asArgument">
+<tt class="descname">asArgument</tt><big>(</big><em>invoker</em>, <em>args</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchRoot.asArgument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchRoot.asArgument" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.asArgument</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchRoot.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchRoot.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchRoot.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.clone</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchRoot.isValid">
+<tt class="descname">isValid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchRoot.isValid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchRoot.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.isValid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchRoot.toPath">
+<tt class="descname">toPath</tt><big>(</big><em>converterPath</em>, <em>isFirst</em>, <em>isLast</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchRoot.toPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchRoot.toPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.toPath</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchRoot.update">
+<tt class="descname">update</tt><big>(</big><em>obj</em>, <em>objType</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchRoot.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchRoot.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.update</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.node.MatchString">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.node.</tt><tt class="descname">MatchString</tt><big>(</big><em>node</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Match" title="ally.core.spec.resources.Match"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Match</span></tt></a></p>
+<p>Match class for string.</p>
+<p>&#64;see: Match</p>
+<dl class="method">
+<dt id="ally.core.impl.node.MatchString.asArgument">
+<tt class="descname">asArgument</tt><big>(</big><em>invoker</em>, <em>args</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchString.asArgument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchString.asArgument" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.asArgument</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchString.clone">
+<tt class="descname">clone</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchString.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchString.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.clone</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchString.isValid">
+<tt class="descname">isValid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchString.isValid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchString.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.isValid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchString.toPath">
+<tt class="descname">toPath</tt><big>(</big><em>converterPath</em>, <em>isFirst</em>, <em>isLast</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchString.toPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchString.toPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.toPath</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.MatchString.update">
+<tt class="descname">update</tt><big>(</big><em>obj</em>, <em>objType</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#MatchString.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.MatchString.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Match.update</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.node.NodePath">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.node.</tt><tt class="descname">NodePath</tt><big>(</big><em>parent</em>, <em>isGroup</em>, <em>name</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodePath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Node" title="ally.core.spec.resources.Node"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Node</span></tt></a></p>
+<p>Provides a node that matches a simple string path element.</p>
+<p>&#64;see: Node</p>
+<dl class="method">
+<dt id="ally.core.impl.node.NodePath.newMatch">
+<tt class="descname">newMatch</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodePath.newMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodePath.newMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Node.newMatch</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.NodePath.tryMatch">
+<tt class="descname">tryMatch</tt><big>(</big><em>converterPath</em>, <em>paths</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodePath.tryMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodePath.tryMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Node.tryMatch</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.node.NodeProperty">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.node.</tt><tt class="descname">NodeProperty</tt><big>(</big><em>parent</em>, <em>inp</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodeProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodeProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Node" title="ally.core.spec.resources.Node"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Node</span></tt></a></p>
+<p>Provides a node based on a type property.</p>
+<p>&#64;see: Node</p>
+<dl class="method">
+<dt id="ally.core.impl.node.NodeProperty.addInput">
+<tt class="descname">addInput</tt><big>(</big><em>inp</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodeProperty.addInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodeProperty.addInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new input to the node property.</p>
+<dl class="docutils">
+<dt>&#64;param inp: Input</dt>
+<dd>The input to be acknowledged by the node.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.NodeProperty.isFor">
+<tt class="descname">isFor</tt><big>(</big><em>inp</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodeProperty.isFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodeProperty.isFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the node property is for the provided input.</p>
+<dl class="docutils">
+<dt>&#64;param inp: Input</dt>
+<dd>The input to check if valid for this node.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.NodeProperty.newMatch">
+<tt class="descname">newMatch</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodeProperty.newMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodeProperty.newMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Node.newMatch</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.NodeProperty.tryMatch">
+<tt class="descname">tryMatch</tt><big>(</big><em>converterPath</em>, <em>paths</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodeProperty.tryMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodeProperty.tryMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Node.tryMatch</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.node.NodeRoot">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.node.</tt><tt class="descname">NodeRoot</tt><a class="reference internal" href="_modules/ally/core/impl/node.html#NodeRoot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodeRoot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.Node" title="ally.core.spec.resources.Node"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.Node</span></tt></a></p>
+<p>Provides a node for the root.</p>
+<p>&#64;see: Node</p>
+<dl class="method">
+<dt id="ally.core.impl.node.NodeRoot.newMatch">
+<tt class="descname">newMatch</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodeRoot.newMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodeRoot.newMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Node.newMatch</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.node.NodeRoot.tryMatch">
+<tt class="descname">tryMatch</tt><big>(</big><em>converterPath</em>, <em>paths</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/node.html#NodeRoot.tryMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.node.NodeRoot.tryMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Node.tryMatch</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.impl.resources_management">
+<span id="resources-management-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">resources_management</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.resources_management" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 28, 2011</p>
+<p>&#64;package: ally core
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Module containing the implementation for the resources manager.</p>
+<dl class="class">
+<dt id="ally.core.impl.resources_management.ResourcesManager">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.resources_management.</tt><tt class="descname">ResourcesManager</tt><a class="reference internal" href="_modules/ally/core/impl/resources_management.html#ResourcesManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.resources_management.ResourcesManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.IResourcesRegister" title="ally.core.spec.resources.IResourcesRegister"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.IResourcesRegister</span></tt></a>, <a class="reference internal" href="ally.core.spec.html#ally.core.spec.resources.IResourcesLocator" title="ally.core.spec.resources.IResourcesLocator"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.resources.IResourcesLocator</span></tt></a></p>
+<p>&#64;see: IResourcesRegister, IResourcesLocator implementations.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.resources_management.ResourcesManager.assemblers">
+<tt class="descname">assemblers</tt><a class="headerlink" href="#ally.core.impl.resources_management.ResourcesManager.assemblers" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.resources_management.ResourcesManager.findGetAllAccessible">
+<tt class="descname">findGetAllAccessible</tt><big>(</big><em>fromPath=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/resources_management.html#ResourcesManager.findGetAllAccessible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.resources_management.ResourcesManager.findGetAllAccessible" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResourcesLocator.findGetAllAccessible</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.resources_management.ResourcesManager.findGetModel">
+<tt class="descname">findGetModel</tt><big>(</big><em>fromPath</em>, <em>typeModel</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/resources_management.html#ResourcesManager.findGetModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.resources_management.ResourcesManager.findGetModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResourcesLocator.findGetModel</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.resources_management.ResourcesManager.findPath">
+<tt class="descname">findPath</tt><big>(</big><em>converterPath</em>, <em>paths</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/resources_management.html#ResourcesManager.findPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.resources_management.ResourcesManager.findPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResourcesLocator.findPath</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.resources_management.ResourcesManager.register">
+<tt class="descname">register</tt><big>(</big><em>implementation</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/resources_management.html#ResourcesManager.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.resources_management.ResourcesManager.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResourcesRegister.register</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.resources_management.ResourcesManager.root">
+<tt class="descname">root</tt><a class="headerlink" href="#ally.core.impl.resources_management.ResourcesManager.root" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Node</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ally.core.impl.processor.html">processor Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#id1"><tt class="docutils literal"><span class="pre">processor</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.arguments"><tt class="docutils literal"><span class="pre">arguments</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.content"><tt class="docutils literal"><span class="pre">content</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.decoder"><tt class="docutils literal"><span class="pre">decoder</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.deliver_ok"><tt class="docutils literal"><span class="pre">deliver_ok</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.encoder"><tt class="docutils literal"><span class="pre">encoder</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.explain_error"><tt class="docutils literal"><span class="pre">explain_error</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.invoking"><tt class="docutils literal"><span class="pre">invoking</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.method_invoker"><tt class="docutils literal"><span class="pre">method_invoker</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.parsing"><tt class="docutils literal"><span class="pre">parsing</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.render_encoder"><tt class="docutils literal"><span class="pre">render_encoder</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.rendering"><tt class="docutils literal"><span class="pre">rendering</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.text_conversion"><tt class="docutils literal"><span class="pre">text_conversion</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.impl.processor.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ally.core.impl.processor.parser.html">parser Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.processor.parser.html#module-ally.core.impl.processor.parser.base"><tt class="docutils literal"><span class="pre">base</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.processor.parser.html#module-ally.core.impl.processor.parser.text"><tt class="docutils literal"><span class="pre">text</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.processor.parser.html#module-ally.core.impl.processor.parser.xml"><tt class="docutils literal"><span class="pre">xml</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ally.core.impl.processor.render.html">render Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.processor.render.html#module-ally.core.impl.processor.render.base"><tt class="docutils literal"><span class="pre">base</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.processor.render.html#module-ally.core.impl.processor.render.json"><tt class="docutils literal"><span class="pre">json</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.processor.render.html#module-ally.core.impl.processor.render.text"><tt class="docutils literal"><span class="pre">text</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.processor.render.html#module-ally.core.impl.processor.render.xml"><tt class="docutils literal"><span class="pre">xml</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">impl Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">impl</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-ally.core.impl.assembler"><tt class="docutils literal"><span class="pre">assembler</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.impl.invoker"><tt class="docutils literal"><span class="pre">invoker</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.impl.node"><tt class="docutils literal"><span class="pre">node</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.impl.resources_management"><tt class="docutils literal"><span class="pre">resources_management</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.core.http.spec.transform.html"
+                        title="previous chapter">transform Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.core.impl.processor.html"
+                        title="next chapter">processor Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.core.impl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.impl.processor.html" title="processor Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.spec.transform.html" title="transform Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

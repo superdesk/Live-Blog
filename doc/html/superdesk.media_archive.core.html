@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>core Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="media_archive Package" href="superdesk.media_archive.html" />
+    <link rel="next" title="impl Package" href="superdesk.media_archive.core.impl.html" />
+    <link rel="prev" title="api Package" href="superdesk.media_archive.api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.core.impl.html" title="impl Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.api.html" title="api Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.media_archive.html" accesskey="U">media_archive Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="core-package">
+<h1>core Package<a class="headerlink" href="#core-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-superdesk.media_archive.core.spec">
+<span id="spec-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">spec</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.core.spec" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 27, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the specification classes for the media archive.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.core.spec.IMetaDataHandler">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.core.spec.</tt><tt class="descname">IMetaDataHandler</tt><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IMetaDataHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IMetaDataHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Interface that provides the handling for the meta data&#8217;s.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.core.spec.IMetaDataHandler.deploy">
+<tt class="descname">deploy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IMetaDataHandler.deploy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IMetaDataHandler.deploy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deploy the handler, at this moment the handler should create the required meta types and thumbnail specifications.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.core.spec.IMetaDataHandler.process">
+<tt class="descname">process</tt><big>(</big><em>metaDataMapped</em>, <em>contentPath</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IMetaDataHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IMetaDataHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the meta data persistence and type association. The meta data will already be in the database this method
+has to update and associate the meta data and meta info in respect with the handler. The method will take no action if fails to process the 
+content (content has wrong format)</p>
+<dl class="docutils">
+<dt>&#64;param metaDataMapped: MetaDataMapped</dt>
+<dd>The meta data mapped for the current uploaded content.</dd>
+<dt>&#64;contentPath: string</dt>
+<dd>The path were the media file is stored</dd>
+<dt>&#64;return: boolean</dt>
+<dd>True if the content has been processed, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.core.spec.IMetaDataHandler.processByInfo">
+<tt class="descname">processByInfo</tt><big>(</big><em>metaDataMapped</em>, <em>contentPath</em>, <em>contentType</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IMetaDataHandler.processByInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IMetaDataHandler.processByInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the meta data persistence and type association. The meta data will already be in the database this method
+has to update and associate the meta data in respect with the handler. By using the contentType and file extension
+info, the plugin will decide if process or not the request. The method will take no action if fails to process the 
+content (content has wrong format, or wrong declared format).</p>
+<dl class="docutils">
+<dt>&#64;param metaDataMapped: MetaDataMapped</dt>
+<dd>The meta data mapped for the current uploaded content.</dd>
+<dt>&#64;param contentPath: string</dt>
+<dd>The path were the media file is stored</dd>
+<dt>&#64;param contentType: string</dt>
+<dd>The content type of uploaded file.</dd>
+<dt>&#64;return: boolean</dt>
+<dd>True if the content has been processed, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.core.spec.IMetaDataReferencer">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.core.spec.</tt><tt class="descname">IMetaDataReferencer</tt><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IMetaDataReferencer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IMetaDataReferencer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the meta data references handler.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.core.spec.IMetaDataReferencer.populate">
+<tt class="descname">populate</tt><big>(</big><em>metaData</em>, <em>scheme</em>, <em>size=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IMetaDataReferencer.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IMetaDataReferencer.populate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the meta data references in respect with the specified thumbnail size. The method will take no action if
+the meta data is not relevant for the handler.</p>
+<dl class="docutils">
+<dt>&#64;param metaData: MetaDataMapped (from the meta package)</dt>
+<dd>The meta data to have the references processed.</dd>
+<dt>&#64;param scheme: string</dt>
+<dd>The scheme protocol to provide the references for.</dd>
+<dt>&#64;param size: string|None</dt>
+<dd>The thumbnail size to process for the reference, None value lets the handler peek the thumbnail size.</dd>
+<dt>&#64;return: MetaData</dt>
+<dd>The populated meta data, usually the same meta data.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.core.spec.IThumbnailManager">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.core.spec.</tt><tt class="descname">IThumbnailManager</tt><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IThumbnailManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IThumbnailManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superdesk.media_archive.core.spec.IMetaDataReferencer" title="superdesk.media_archive.core.spec.IMetaDataReferencer"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.spec.IMetaDataReferencer</span></tt></a></p>
+<p>Interface that defines the API for handling thumbnails.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.core.spec.IThumbnailManager.putThumbnail">
+<tt class="descname">putThumbnail</tt><big>(</big><em>thumbnailFormatId</em>, <em>imagePath</em>, <em>metaData=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IThumbnailManager.putThumbnail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IThumbnailManager.putThumbnail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Places a thumbnail identified by thumbnail format id.</p>
+<dl class="docutils">
+<dt>&#64;param thumbnailFormatId: integer</dt>
+<dd>The thumbnail path format identifier</dd>
+<dt>&#64;param imagePath: string</dt>
+<dd>The path to the original image from which to generate the thumbnail.</dd>
+<dt>&#64;param metaData: MetaData|None</dt>
+<dd>The object containing the content metadata for which the thumbnail is placed.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.core.spec.IThumbnailProcessor">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.core.spec.</tt><tt class="descname">IThumbnailProcessor</tt><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IThumbnailProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IThumbnailProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Specification class that provides the thumbnail processing.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.core.spec.IThumbnailProcessor.processThumbnail">
+<tt class="descname">processThumbnail</tt><big>(</big><em>source</em>, <em>destination</em>, <em>width=None</em>, <em>height=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#IThumbnailProcessor.processThumbnail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.IThumbnailProcessor.processThumbnail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a thumbnail for the provided content, if the width or height is not provided then no resizing will occur.</p>
+<dl class="docutils">
+<dt>&#64;param source: string</dt>
+<dd><blockquote class="first">
+<div>The content local file system path where the thumbnail to be resized can be found.</div></blockquote>
+<dl class="last docutils">
+<dt>&#64;param destination: string</dt>
+<dd>The destination local file system path where to place the resized thumbnail.</dd>
+</dl>
+</dd>
+<dt>&#64;param width: integer|None</dt>
+<dd>The thumbnail width.</dd>
+<dt>&#64;param height: integer|None</dt>
+<dd>The thumbnail height.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.media_archive.core.spec.QueryIndexer">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.core.spec.</tt><tt class="descname">QueryIndexer</tt><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#QueryIndexer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.QueryIndexer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Manages the query related information about plugins in order to be able to support
+the multi-plugin queries</p>
+<dl class="method">
+<dt id="superdesk.media_archive.core.spec.QueryIndexer.register">
+<tt class="descname">register</tt><big>(</big><em>EntryMetaInfoClass</em>, <em>QMetaInfoClass</em>, <em>EntryMetaDataClass</em>, <em>QMetaDataClass</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/core/spec.html#QueryIndexer.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.core.spec.QueryIndexer.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the meta info base service for the provided classes.</p>
+<dl class="docutils">
+<dt>&#64;param EntryMetaInfoClass: class</dt>
+<dd>A class that contains the specific for media meta info related columns.</dd>
+<dt>&#64;param QMetaInfoClass: class</dt>
+<dd>A class that extends QMetaInfo API class.</dd>
+<dt>&#64;param MetaDataClass: class</dt>
+<dd>A class that contains the specific for media meta data related columns.</dd>
+<dt>&#64;param QMetaDataClass: class</dt>
+<dd>A class that extends QMetaData API class.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="superdesk.media_archive.core.impl.html">impl Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="superdesk.media_archive.core.impl.html#module-superdesk.media_archive.core.impl.meta_service_base"><tt class="docutils literal"><span class="pre">meta_service_base</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superdesk.media_archive.core.impl.html#module-superdesk.media_archive.core.impl.query_service_creator"><tt class="docutils literal"><span class="pre">query_service_creator</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superdesk.media_archive.core.impl.html#module-superdesk.media_archive.core.impl.thumbnail_manager"><tt class="docutils literal"><span class="pre">thumbnail_manager</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superdesk.media_archive.core.impl.html#module-superdesk.media_archive.core.impl.thumbnail_processor_avconv"><tt class="docutils literal"><span class="pre">thumbnail_processor_avconv</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superdesk.media_archive.core.impl.html#module-superdesk.media_archive.core.impl.thumbnail_processor_ffmpeg"><tt class="docutils literal"><span class="pre">thumbnail_processor_ffmpeg</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">core Package</a><ul>
+<li><a class="reference internal" href="#module-superdesk.media_archive.core.spec"><tt class="docutils literal"><span class="pre">spec</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superdesk.media_archive.api.html"
+                        title="previous chapter">api Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superdesk.media_archive.core.impl.html"
+                        title="next chapter">impl Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/superdesk.media_archive.core.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.core.impl.html" title="impl Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.api.html" title="api Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.media_archive.html" >media_archive Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

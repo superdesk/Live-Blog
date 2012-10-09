@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superdesk.country.impl.country &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for superdesk.country.impl.country</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jun 23, 2011</span>
+
+<span class="sd">@package superdesk</span>
+<span class="sd">@copyright 2011 Sourcefabric o.p.s.</span>
+<span class="sd">@license http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">SQL alchemy implementation for language API.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">..api.country</span> <span class="kn">import</span> <span class="n">Country</span><span class="p">,</span> <span class="n">ICountryService</span>
+<span class="kn">from</span> <span class="nn">ally.container</span> <span class="kn">import</span> <span class="n">wire</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.exception</span> <span class="kn">import</span> <span class="n">InputError</span><span class="p">,</span> <span class="n">Ref</span>
+<span class="kn">from</span> <span class="nn">ally.internationalization</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">ally.support.api.util_service</span> <span class="kn">import</span> <span class="n">trimIter</span><span class="p">,</span> <span class="n">processQuery</span>
+<span class="kn">from</span> <span class="nn">babel.core</span> <span class="kn">import</span> <span class="n">Locale</span>
+<span class="kn">from</span> <span class="nn">babel.localedata</span> <span class="kn">import</span> <span class="n">locale_identifiers</span>
+<span class="kn">from</span> <span class="nn">ally.api.extension</span> <span class="kn">import</span> <span class="n">IterPart</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Countries"><a class="viewcode-back" href="../../../../superdesk.country.impl.html#superdesk.country.impl.country.Countries">[docs]</a><span class="k">class</span> <span class="nc">Countries</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    A simple dictionary class used for marking the countries codes (as keys) and country default names (as values).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+</div>
+<span class="nd">@injected</span>
+<div class="viewcode-block" id="CountryServiceBabelAlchemy"><a class="viewcode-back" href="../../../../superdesk.country.impl.html#superdesk.country.impl.country.CountryServiceBabelAlchemy">[docs]</a><span class="k">class</span> <span class="nc">CountryServiceBabelAlchemy</span><span class="p">(</span><span class="n">ICountryService</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation for @see: ICountryService using Babel library for translating country names and for the country codes</span>
+<span class="sd">    it uses an external source.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">countries</span> <span class="o">=</span> <span class="n">Countries</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;countries&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the country service.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">,</span> <span class="n">Countries</span><span class="p">),</span> <span class="s">&#39;Invalid countries </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locales</span> <span class="o">=</span> <span class="p">{</span><span class="n">code</span><span class="p">:</span><span class="n">Locale</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">locale_identifiers</span><span class="p">()}</span>
+
+<div class="viewcode-block" id="CountryServiceBabelAlchemy.getByCode"><a class="viewcode-back" href="../../../../superdesk.country.impl.html#superdesk.country.impl.country.CountryServiceBabelAlchemy.getByCode">[docs]</a>    <span class="k">def</span> <span class="nf">getByCode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">locales</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ICountryService.getByCode</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">:</span> <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Unknown country code&#39;</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Country</span><span class="o">.</span><span class="n">Code</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Country</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_translate</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_localesOf</span><span class="p">(</span><span class="n">locales</span><span class="p">)))</span>
+</div>
+<div class="viewcode-block" id="CountryServiceBabelAlchemy.getAllAvailable"><a class="viewcode-back" href="../../../../superdesk.country.impl.html#superdesk.country.impl.country.CountryServiceBabelAlchemy.getAllAvailable">[docs]</a>    <span class="k">def</span> <span class="nf">getAllAvailable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locales</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ILanguageService.getAllAvailable</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">locales</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_localesOf</span><span class="p">(</span><span class="n">locales</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">q</span><span class="p">:</span>
+            <span class="n">countries</span> <span class="o">=</span> <span class="p">(</span><span class="n">Country</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_translate</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">locales</span><span class="p">))</span> <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">)</span>
+            <span class="n">countries</span> <span class="o">=</span> <span class="n">processQuery</span><span class="p">(</span><span class="n">countries</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">Country</span><span class="p">)</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">countries</span><span class="p">)</span>
+            <span class="n">countries</span> <span class="o">=</span> <span class="n">trimIter</span><span class="p">(</span><span class="n">countries</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">)</span>
+            <span class="n">countries</span> <span class="o">=</span> <span class="n">trimIter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+            <span class="n">countries</span> <span class="o">=</span> <span class="p">(</span><span class="n">Country</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_translate</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">locales</span><span class="p">))</span> <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">countries</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">IterPart</span><span class="p">(</span><span class="n">countries</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+    <span class="k">def</span> <span class="nf">_localeOf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Helper that parses the code to a babel locale.</span>
+<span class="sd">        </span>
+<span class="sd">        @param code: string</span>
+<span class="sd">            The language code to provide the locale for.</span>
+<span class="sd">        @return: Locale|None</span>
+<span class="sd">            The locale for the code or None if the code is not valid.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid code </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">code</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locales</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="s">&#39;_&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_localesOf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Helper method that based on a language code list will provide a babel locales.</span>
+<span class="sd">        </span>
+<span class="sd">        @param codes: string|iter(string)</span>
+<span class="sd">            The language code to provide the locale for.</span>
+<span class="sd">        @return: Locale|None</span>
+<span class="sd">            The locale for the code or None if the code is not valid.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">codes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span> <span class="n">codes</span> <span class="o">=</span> <span class="p">[</span><span class="n">codes</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_localeOf</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">codes</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">locales</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Helper method that provides the translated country name for based on the babel locales list, the first</span>
+<span class="sd">        locale will be used if not translation will be available for that than it will fall back to the next.</span>
+<span class="sd">        </span>
+<span class="sd">        @param code: string</span>
+<span class="sd">            The country code to get the translated name for.</span>
+<span class="sd">        @param locales: list[Locale]|tuple(Locale)</span>
+<span class="sd">            The locales to translate the name for.</span>
+<span class="sd">        @return: string</span>
+<span class="sd">            The translated country name.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid code </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">code</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">locales</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)),</span> <span class="s">&#39;Invalid locales </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">locales</span>
+        <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">locales</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">Locale</span><span class="p">),</span> <span class="s">&#39;Invalid locale </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">loc</span>
+            <span class="n">translated</span> <span class="o">=</span> <span class="n">loc</span><span class="o">.</span><span class="n">territories</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">translated</span><span class="p">:</span> <span class="k">return</span> <span class="n">translated</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">countries</span><span class="p">[</span><span class="n">code</span><span class="p">]</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
