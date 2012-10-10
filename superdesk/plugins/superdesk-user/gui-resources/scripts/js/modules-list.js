@@ -6,7 +6,9 @@ define
     config.guiJs('superdesk/user', 'models/user'),
     config.guiJs('superdesk/user', 'models/person'),
     'tmpl!superdesk/user>list',
-    'tmpl!superdesk/user>item'
+    'tmpl!superdesk/user>item',
+    'tmpl!superdesk/user>add',
+    'tmpl!superdesk/user>update'
 ],
 function($, superdesk, giz, User, Person)
 {
@@ -52,12 +54,51 @@ function($, superdesk, giz, User, Person)
         users: null,
         events:
         {
+            '[name="search"]': { 'keypress': 'key2Search' },
             '[data-action="search"]': { 'click': 'search' },
+            '[data-action="cancel-search"]': { 'click': 'cancelSearch' },
             '#user-add-modal [data-action="save"]': { 'click': 'addUser' },
             '#user-edit-modal [data-action="save"]': { 'click': 'updateUser' },
             '.pagination a': { 'click': 'switchPage' },
-            'table tbody .edit': { 'click': 'showUpdateUser' }
+            'table tbody .edit': { 'click': 'showUpdateUser' },
+            'table tbody .delete': { 'click': 'showDeleteUser' },
+            '.add-user': { 'click': 'showAddUser' },
+            '#user-add-modal [data-action="close"]': { 'click': 'closeAddUser' },
+            '#user-edit-modal [data-action="close"]': { 'click': 'closeUpdateUser' },
+            '#user-delete-modal [data-action="delete"]': { 'click': 'deleteUser' },
+            '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' }
+            
         },
+        
+        closeUpdateUser: function(){ $('#user-edit-modal', this.el).modal('hide'); },
+        
+        closeAddUser: function(){ $('#user-add-modal', this.el).modal('hide'); },
+        
+        closeDeleteUser: function(){ $('#user-delete-modal', this.el).modal('hide'); },
+        
+        showAddUser: function(){ $('#user-add-modal .alert', this.el).addClass('hide'); $('#user-add-modal', this.el).modal(); },
+        
+        showDeleteUser: function(evt)
+        { 
+            $('#user-delete-modal', this.el).prop('view', $(evt.target).prop('view')); 
+            $('#user-delete-modal', this.el).modal(); 
+        },
+        
+        key2Search: function(evt)
+        {
+            if(evt.keyCode == 27 ) 
+            { 
+                $('[data-action="cancel-search"]', this.el).trigger('click'); 
+                evt.preventDefault(); 
+            }
+            if(evt.keyCode == 13) $('[data-action="search"]', this.el).trigger('click');
+        },
+        cancelSearch: function()
+        {
+            $('[name="search"]', this.el).val('');
+            $('[data-action="search"]', this.el).trigger('click');
+        },
+        
         /*!
          * pagination handler
          */
@@ -99,21 +140,15 @@ function($, superdesk, giz, User, Person)
             this.syncing = true;
             this.users.xfilter('*').sync({data: {'all.ilike': '%'+src+'%'}, done: function(data){ self.syncing = false; }});
             
-            /*$('tr', self.el).each(function()
-            {
-                var mdl = $(this).prop('model');
-                if( mdl != undefined && 
-                    ( mdl.get('Name').toLowerCase().indexOf(src) == -1 &&
-                      mdl.get('FirstName').toLowerCase().indexOf(src) == -1 &&
-                      mdl.get('EMail').toLowerCase().indexOf(src) == -1 ) )
-                {
-                    $(this).prop('view').hide();
-                    return true;
-                }
-                mdl != undefined && $(this).prop('view').show();
-            });*/
             $('[data-action="cancel-search"]', self.el).removeClass('hide');
         },
+        
+        deleteUser: function()
+        {
+            $('#user-delete-modal', this.el).prop('view').remove();
+            $('#user-delete-modal', this.el).modal('hide'); 
+        },
+        
         /*!
          * add user handler
          */
@@ -189,47 +224,7 @@ function($, superdesk, giz, User, Person)
             
             this.page = { limit: 25, offset: 0, total: null, pagecount: 5 };
             
-            // list all users
             this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') })));
-            //this.users.on('read update', this.render, this);
-            
-            $(self.el).on('keypress', '[name="search"]', function(evt)
-            {
-                if(evt.keyCode == 27 ) $('[data-action="cancel-search"]', self.el).trigger('click');
-                if(evt.keyCode == 13) $('[data-action="search"]', self.el).trigger('click');
-            });
-            $(self.el).on('click', '[data-action="cancel-search"]', function(evt)
-            {
-                $('[name="search"]', self.el).val('');
-                $('[data-action="search"]', self.el).trigger('click');
-            });
-            $(self.el).on('click', '.add-user', function()
-            {
-                $('#user-add-modal .alert', self.el).addClass('hide');
-                $('#user-add-modal', self.el).modal();
-            });
-            $(self.el).on('click', '#user-add-modal [data-action="close"]', function()
-            { 
-                $('#user-add-modal', self.el).modal('hide');
-            });
-            $(self.el).on('click', '#user-edit-modal [data-action="close"]', function()
-            { 
-                $('#user-edit-modal', self.el).modal('hide'); 
-            });
-            $(self.el).on('click', 'table tbody .delete', function()
-            {
-                $('#user-delete-modal', self.el).prop('view', $(this).prop('view'));
-                $('#user-delete-modal', self.el).modal();
-            });
-            $(self.el).on('click', '#user-delete-modal [data-action="delete"]', function()
-            {
-                $('#user-delete-modal', self.el).prop('view').remove();
-                $('#user-delete-modal', self.el).modal('hide'); 
-            });
-            $(self.el).on('click', '#user-delete-modal [data-action="close"]', function()
-            { 
-                $('#user-delete-modal', self.el).modal('hide'); 
-            });
         },
         activate: function()
         {
@@ -272,6 +267,8 @@ function($, superdesk, giz, User, Person)
                 self = this;
             superdesk.applyLayout('superdesk/user>list', data, function()
             {
+                $.tmpl('superdesk/user>add', {}, function(e, o){ $(self.el).append(o); });
+                $.tmpl('superdesk/user>update', {}, function(e, o){ $(self.el).append(o); });
                 // new ItemView for each models 
                 self.renderList();
                 self.users.on('read update', self.renderList, self);
@@ -283,55 +280,6 @@ function($, superdesk, giz, User, Person)
     
     listView = new ListView({ el: '#area-main' }); 
     
-    return function()
-    {
-        listView.activate();
-    };
-    
-    
-    
-    
-    
-    
-    
-    users,
-    presentation = this;
-    var app = function()
-    {
-        $('#area-main').html(layout);
-        
-        users = new $.rest(superdesk.apiUrl + '/resources/Superdesk/User').xfilter('Id, Name')
-            .done(function(users)
-            {
-                $('#area-content', layout)
-                    .tmpl($("#tpl-user-list", superdesk.tmplRepo), {users: users, scriptPath: args.updateScript});
-            });
-    };
-    
-    this.view.load('user/templates/list.html').done(app);
-    
-    // edit button functionality 
-    $(document)
-    .off('click.superdesk-user-list', '.user-list .btn-primary')
-    .on('click.superdesk-user-list', '.user-list .btn-primary', function(event)
-    {
-        presentation
-            .setScript(args.updateScript)
-            .setLayout(superdesk.layouts.update.clone())
-            .setArgs({users: users, userId: $(this).attr('user-id')})
-            .run();
-        event.preventDefault();
-    });
-    
-    $(document)
-    .off('click.superdesk-user-list', '#btn-add-user')
-    .on('click.superdesk-user-list', '#btn-add-user', function(event)
-    {
-        presentation
-            .setScript(args.addScript)
-            .setLayout(superdesk.layouts.update.clone())
-            .setArgs({users: users})
-            .run()
-    })    
+    return function(){ listView.activate(); };
 });
 
