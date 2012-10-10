@@ -31,6 +31,7 @@ gui-resources/templates/providers/edit/__init__.py
 gui-resources/templates/providers/flickr/__init__.py
 gui-resources/templates/providers/google/__init__.py
 gui-resources/templates/providers/twitter/__init__.py
+gui-resources/templates/providers/youtube/__init__.py
 livedesk/__init__.py
 livedesk.egg-info/PKG-INFO
 livedesk.egg-info/SOURCES.txt
