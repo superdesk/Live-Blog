@@ -1,13 +1,15 @@
-define('providers/twitter/adaptor', [
+define('providers/youtube/adaptor', 
+[
     'providers',
     'utils/str',
     'jquery',
     'gizmo',
     'jquery/rest',
     'jquery/utils',
-    'providers/twitter/tab',
-    'tmpl!livedesk>providers/twitter/post'
-], function(providers,str, $, Gizmo)
+    'providers/youtube/tab',
+    'tmpl!livedesk>providers/youtube/post'
+], 
+function(providers,str, $, Gizmo)
 {
     var AnnotateView = Gizmo.View.extend
     ({
@@ -17,11 +19,11 @@ define('providers/twitter/adaptor', [
             var self = this;
             $(self.el).on('click', '.btn.publish', function()
             {
-                //self.data.Content = $('.twitter-full-content .result-text', self.el).html();
-                self.data.Meta.annotation = [$('.twitter-full-content .annotation:eq(0)', self.el).html(), 
-                    $('.twitter-full-content .annotation:eq(1)', self.el).html()];
+                self.data.Content = $('.youtube-full-content', self.el).html();
                 self.data.Meta = JSON.stringify(self.data.Meta);
-                self.parent.insert(self.data, self);
+                self.data.Meta.annotation = [$('.youtube-full-content .annotation:eq(0)', self.el).html(), 
+                    $('.youtube-full-content .annotation:eq(1)', self.el).html()];                
+                self.parent.insert(self.data);
                 $('.actions', self.el).remove();
             });
             $(self.el).on('click', '.btn.cancel', function()
@@ -32,17 +34,13 @@ define('providers/twitter/adaptor', [
         },
         render: function()
         {
-            var self = this;
-            $.tmpl('livedesk>providers/twitter/post', this.data, function(e, o)
-            { 
-                self.el.addClass( $(o).attr('class') );
-                self.el.html( $(o).html() );
-                $('.actions', self.el).removeClass('hide');
-            });
+            this.el.tmpl('livedesk>providers/youtube/post', this.data);
+            this.el.addClass('with-avatar youtube clearfix');
+            $('.actions', this.el).removeClass('hide');
         }
     });
     
-    $.extend(providers.twitter, 
+    $.extend(providers.youtube, 
     {
         adaptor: 
         {
@@ -52,32 +50,30 @@ define('providers/twitter/adaptor', [
                 var self = this;
                 new $.rest('Superdesk/Collaborator/')
                     .xfilter('Id')
-                    .request({data: { 'qs.name': 'twitter'}})
+                    .request({data: { 'qs.name': 'youtube'}})
                     .done(function(collabs)
                     {
-                        if( $.isDefined(collabs[0]) ) 
+                        if($.isDefined(collabs[0])) 
                             self.author = collabs[0].Id;
                     });
             },
             universal: function(obj) 
             {
                 var meta =  jQuery.extend(true, {}, obj);
-                delete meta.text
-                
-                return new AnnotateView
+                var returner = new AnnotateView
                 ({
                     data: 
                     {
-                        Content: obj.text,
+                        Content: obj.title,
                         Type: 'normal',
                         Author: this.author,
                         Meta: meta
                     }
                 });
+                return returner;
             }
         }
     });
-    return providers;
+	return providers;
 });
-
 
