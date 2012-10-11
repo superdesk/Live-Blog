@@ -477,6 +477,7 @@ function(providers, Gizmo, $)
 			 */
 			insert: function(data, view)
 			{
+				/*
 			    var self = this,
 			        post = Gizmo.Auth(new this.collection.model(data)),
 			        syncAction = this.collection.insert(post);
@@ -487,6 +488,16 @@ function(providers, Gizmo, $)
 			        newView.el.insertAfter(view.el);
 			        view.el.remove();
 			    });
+				*/
+				var self = this,
+					post = Gizmo.Auth(new this.collection.model(data))
+				this.collection.insert(post).done(function(){
+					console.log(post);
+					self.addOne(post);				
+				});
+				if(view) {
+					view.el.remove();
+				}				
 			},
 			
 			publish: function(post)

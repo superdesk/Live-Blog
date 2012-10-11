@@ -232,10 +232,10 @@ define('providers/edit', [
 			this.postsView.save(data);			
 		}
 	});	
-	var editView = null;
+	var editView = false;
     $.extend( providers.edit, { init: function(blogUrl)
     {
-        editView = new EditView({ el: this.el, blogUrl: blogUrl });
+        editView = new EditView({ el: this.el, blogUrl: blogUrl }); // !editView? new EditView({ el: this.el, blogUrl: blogUrl }): editView;
     }});
 	return providers;	
 });
