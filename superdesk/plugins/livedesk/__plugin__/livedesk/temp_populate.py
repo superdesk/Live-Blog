@@ -74,6 +74,7 @@ SOURCES = {
            'google': (False, 'www.google.com', 'xml'),
            'twitter': (False, 'www.twitter.com', 'xml'),
            'flickr': (False, 'www.flickr.com', 'xml'),
+           'youtube': (False, 'www.youtube.com', 'xml'), 
            }
 
 _cache_sources = {}
@@ -234,6 +235,7 @@ COLLABORATORS = {
                  'google': 'google',
                  'twitter': 'twitter',
                  'flickr': 'flickr',
+                 'youtube': 'youtube',
                  }
 
 _cache_collaborators = {}
