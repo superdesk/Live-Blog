@@ -50,7 +50,7 @@ class IMetaDataService:
     '''
 
     @call
-    def getById(self, id:MetaData.Id, scheme:Scheme, thumbSize:str=None) -> MetaData:
+    def getById(self, id:MetaData.Id, scheme:Scheme='http', thumbSize:str=None) -> MetaData:
         '''
         Provides the meta data based on the id.
         '''
