@@ -55,5 +55,5 @@ def registerActions():
     actionManagerService().add(modulesAddAction())
     actionManagerService().add(modulesEditAction())
     actionManagerService().add(modulesConfigureAction())
-    
-    actionManagerService().add(menuTestAction())
+
+#    actionManagerService().add(menuTestAction())
