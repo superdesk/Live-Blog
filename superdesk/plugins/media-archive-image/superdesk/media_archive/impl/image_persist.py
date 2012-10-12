@@ -27,7 +27,6 @@ from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
-from ally.support.util_sys import pythonPath
 from ally.support.util_io import synchronizeURIToDir
 
 # --------------------------------------------------------------------
@@ -93,59 +92,28 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
+        p = subprocess.Popen(['java', '-jar', self.metadata_extractor_path, contentPath],
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if p.wait() != 0: return False
 
-        if self.metadata_extractor_path.endswith('jar'):
+        imageDataEntry = ImageDataEntry()
+        imageDataEntry.Id = metaDataMapped.Id
+        while True:
+            line = p.stdout.readline()
+            if not line: break
+            line = str(line, "utf-8")
             
-            p = subprocess.Popen(['java', '-jar', self.metadata_extractor_path, contentPath],
-                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            if p.wait() != 0: return False
-    
-            imageDataEntry = ImageDataEntry()
-            imageDataEntry.Id = metaDataMapped.Id
-            while True:
-                line = p.stdout.readline()
-                if not line: break
-                line = str(line, "utf-8")
-    
-                if line.find('] Image Width -') != -1:
-                    imageDataEntry.Width = self.extractNumber(line, '-')
-                elif line.find('] Image Height -') != -1:
-                    imageDataEntry.Height = self.extractNumber(line, '-')
-                elif line.find('] Date/Time Original -') != -1:
-                    imageDataEntry.CreationDate = self.extractDateTime(line, '-')
-                elif line.find('] Make -') != -1:
-                    imageDataEntry.CameraMake = self.extractString(line, '-')
-                elif line.find('] Model -') != -1:
-                    imageDataEntry.CameraModel = self.extractString(line, '-')
-                    
-        else:
-            
-            p = subprocess.Popen([self.metadata_extractor_path, contentPath],
-                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            if p.wait() != 0: return False
-    
-            imageDataEntry = ImageDataEntry()
-            imageDataEntry.Id = metaDataMapped.Id
-            while True:
-                line = p.stdout.readline()
-                if not line: break
-                line = str(line, "utf-8")
-                
-                property = self.extractProperty(line, ':')
-                
-                if property is None:
-                    continue
-    
-                if property == 'Image size':
-                    size = self.extractSize(line, ':')
-                    imageDataEntry.Width = size[0]
-                    imageDataEntry.Height = size[1]
-                elif property == 'Image timestamp':
-                    imageDataEntry.CreationDate = self.extractDateTime(line, ':')
-                elif property == 'Camera make':
-                    imageDataEntry.CameraMake = self.extractString(line, ':')
-                elif property == 'Camera model':
-                    imageDataEntry.CameraModel = self.extractString(line, ':')
+
+            if line.find('] Image Width -') != -1:
+                imageDataEntry.Width = self.extractNumber(line)
+            elif line.find('] Image Height -') != -1:
+                imageDataEntry.Height = self.extractNumber(line)
+            elif line.find('] Date/Time Original -') != -1:
+                imageDataEntry.CreationDate = self.extractDateTime(line)
+            elif line.find('] Make -') != -1:
+                imageDataEntry.CameraMake = self.extractString(line)
+            elif line.find('] Model -') != -1:
+                imageDataEntry.CameraModel = self.extractString(line)
                     
                     
         path = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
@@ -167,26 +135,23 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     # ----------------------------------------------------------------
 
-    def extractProperty(self, line, separator):
-        return line.partition(separator)[0].strip()
-
     def extractNumber(self, line):
         for s in line.split():
             if s.isdigit():
                 return int(s)
 
-    def extractString(self, line, separator):
-        str = line.partition(separator)[2].strip('\n')
+    def extractString(self, line):
+        str = line.partition('-')[2].strip('\n').strip()
         return str
 
-    def extractDateTime(self, line, separator):
-        #example:' 2010:11:08 18:33:13'
+    def extractDateTime(self, line):
+        #example:'2010:11:08 18:33:13'
         dateTimeFormat = ' %Y:%m:%d %H:%M:%S'
-        str = line.partition(separator)[2].strip('\n')
+        str = line.partition('-')[2].strip('\n').strip()
         return datetime.strptime(str, dateTimeFormat)
 
-    def extractSize(self, line, separator):
-        str = line.partition(separator)[2].strip('\n')
+    def extractSize(self, line):
+        str = line.partition('-')[2].strip('\n').strip()
         str = str.partition('x')
         return (str[0], str[2])
 

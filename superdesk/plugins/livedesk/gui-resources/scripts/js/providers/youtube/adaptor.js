@@ -1,4 +1,4 @@
-define('providers/flickr/adaptor', 
+define('providers/youtube/adaptor', 
 [
     'providers',
     'utils/str',
@@ -6,8 +6,8 @@ define('providers/flickr/adaptor',
     'gizmo',
     'jquery/rest',
     'jquery/utils',
-    'providers/flickr/tab',
-    'tmpl!livedesk>providers/flickr/post'
+    'providers/youtube/tab',
+    'tmpl!livedesk>providers/youtube/post'
 ], 
 function(providers,str, $, Gizmo)
 {
@@ -19,11 +19,11 @@ function(providers,str, $, Gizmo)
             var self = this;
             $(self.el).on('click', '.btn.publish', function()
             {
-                self.data.Content = $('.flickr-full-content .result-text', self.el).html();
-                self.data.Meta.annotation = [$('.flickr-full-content .annotation:eq(0)', self.el).html(), 
-                    $('.flickr-full-content .annotation:eq(1)', self.el).html()];
+                self.data.Content = $('.youtube-full-content', self.el).html();
                 self.data.Meta = JSON.stringify(self.data.Meta);
-                self.parent.insert(self.data, self);
+                self.data.Meta.annotation = [$('.youtube-full-content .annotation:eq(0)', self.el).html(), 
+                    $('.youtube-full-content .annotation:eq(1)', self.el).html()];                
+                self.parent.insert(self.data);
                 $('.actions', self.el).remove();
             });
             $(self.el).on('click', '.btn.cancel', function()
@@ -34,13 +34,13 @@ function(providers,str, $, Gizmo)
         },
         render: function()
         {
-            this.el.tmpl('livedesk>providers/flickr/post', this.data);
-            this.el.addClass('with-avatar twitter clearfix');
+            this.el.tmpl('livedesk>providers/youtube/post', this.data);
+            this.el.addClass('with-avatar youtube clearfix');
             $('.actions', this.el).removeClass('hide');
         }
     });
     
-    $.extend(providers.flickr, 
+    $.extend(providers.youtube, 
     {
         adaptor: 
         {
@@ -50,7 +50,7 @@ function(providers,str, $, Gizmo)
                 var self = this;
                 new $.rest('Superdesk/Collaborator/')
                     .xfilter('Id')
-                    .request({data: { 'qs.name': 'flickr'}})
+                    .request({data: { 'qs.name': 'youtube'}})
                     .done(function(collabs)
                     {
                         if($.isDefined(collabs[0])) 
@@ -59,8 +59,8 @@ function(providers,str, $, Gizmo)
             },
             universal: function(obj) 
             {
-                var meta =  jQuery.extend(true, {}, obj);                
-                return new AnnotateView
+                var meta =  jQuery.extend(true, {}, obj);
+                var returner = new AnnotateView
                 ({
                     data: 
                     {
@@ -70,17 +70,7 @@ function(providers,str, $, Gizmo)
                         Meta: meta
                     }
                 });
-            },
-            universalOld: function(content) {
-                var myClone = content.clone();
-                myClone.find('time').remove();
-                
-                var data = {
-                    Content: myClone.find('.result-content').html(),
-                    Type: 'normal',
-                    Author: this.author
-                };
-                return data;
+                return returner;
             }
         }
     });
