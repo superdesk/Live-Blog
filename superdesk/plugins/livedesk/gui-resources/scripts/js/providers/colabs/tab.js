@@ -4,6 +4,7 @@ function(providers)
     providers.colabs = 
     {
         className: 'big-icon-collaborators',       
+        tooltip: _('Collaborators'),
         init: function() 
         {
             var args = arguments;
