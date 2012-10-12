@@ -106,6 +106,7 @@ function(providers, Gizmo, $)
 						links.append(providerLinkView.render().el);
 						contents.append(providerContentView.render().el);
 					}
+                                        $("[rel='tooltip']").tooltip();
 				});
 			}
 		}),

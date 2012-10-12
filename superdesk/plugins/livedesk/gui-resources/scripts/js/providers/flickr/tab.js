@@ -4,7 +4,8 @@ function(providers)
 {
 	providers.flickr = 
 	{
-		className: 'big-icon-flickr',		
+		className: 'big-icon-flickr',	
+                tooltip: _('Flickr'),
 		init: function() 
 		{				
 			require(['providers','providers/flickr'], function(providers) {
