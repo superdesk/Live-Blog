@@ -1,0 +1,183 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>impl Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="country Package" href="superdesk.country.html" />
+    <link rel="next" title="language Package" href="superdesk.language.html" />
+    <link rel="prev" title="api Package" href="superdesk.country.api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.language.html" title="language Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.country.api.html" title="api Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.country.html" accesskey="U">country Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="impl-package">
+<h1>impl Package<a class="headerlink" href="#impl-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">impl</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-superdesk.country.impl"></span><p>Created on Jul 15, 2011</p>
+<p>&#64;package: superdesk
+&#64;copyright 2011 Sourcefabric o.p.s.
+&#64;license <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Implementations package.</p>
+</div>
+<div class="section" id="module-superdesk.country.impl.country">
+<span id="country-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">country</span></tt> Module<a class="headerlink" href="#module-superdesk.country.impl.country" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 23, 2011</p>
+<p>&#64;package superdesk
+&#64;copyright 2011 Sourcefabric o.p.s.
+&#64;license <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>SQL alchemy implementation for language API.</p>
+<dl class="class">
+<dt id="superdesk.country.impl.country.Countries">
+<em class="property">class </em><tt class="descclassname">superdesk.country.impl.country.</tt><tt class="descname">Countries</tt><a class="reference internal" href="_modules/superdesk/country/impl/country.html#Countries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.country.impl.country.Countries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.dict</span></tt></p>
+<p>A simple dictionary class used for marking the countries codes (as keys) and country default names (as values).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="superdesk.country.impl.country.CountryServiceBabelAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.country.impl.country.</tt><tt class="descname">CountryServiceBabelAlchemy</tt><a class="reference internal" href="_modules/superdesk/country/impl/country.html#CountryServiceBabelAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.country.impl.country.CountryServiceBabelAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.country.api.html#superdesk.country.api.country.ICountryService" title="superdesk.country.api.country.ICountryService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.country.api.country.ICountryService</span></tt></a></p>
+<p>Implementation for &#64;see: ICountryService using Babel library for translating country names and for the country codes
+it uses an external source.</p>
+<dl class="attribute">
+<dt id="superdesk.country.impl.country.CountryServiceBabelAlchemy.countries">
+<tt class="descname">countries</tt><a class="headerlink" href="#superdesk.country.impl.country.CountryServiceBabelAlchemy.countries" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#superdesk.country.impl.country.Countries" title="superdesk.country.impl.country.Countries"><tt class="xref py py-class docutils literal"><span class="pre">Countries</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.country.impl.country.CountryServiceBabelAlchemy.getAllAvailable">
+<tt class="descname">getAllAvailable</tt><big>(</big><em>locales</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/country/impl/country.html#CountryServiceBabelAlchemy.getAllAvailable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.country.impl.country.CountryServiceBabelAlchemy.getAllAvailable" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ILanguageService.getAllAvailable</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.country.impl.country.CountryServiceBabelAlchemy.getByCode">
+<tt class="descname">getByCode</tt><big>(</big><em>code</em>, <em>locales</em><big>)</big><a class="reference internal" href="_modules/superdesk/country/impl/country.html#CountryServiceBabelAlchemy.getByCode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.country.impl.country.CountryServiceBabelAlchemy.getByCode" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ICountryService.getByCode</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">impl Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">impl</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-superdesk.country.impl.country"><tt class="docutils literal"><span class="pre">country</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superdesk.country.api.html"
+                        title="previous chapter">api Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superdesk.language.html"
+                        title="next chapter">language Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/superdesk.country.impl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.language.html" title="language Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.country.api.html" title="api Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.country.html" >country Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

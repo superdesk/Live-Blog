@@ -9,6 +9,7 @@ media_archive_video.egg-info/dependency_links.txt
 media_archive_video.egg-info/requires.txt
 media_archive_video.egg-info/top_level.txt
 media_archive_video.egg-info/zip-safe
+resources/__init__.py
 superdesk/__init__.py
 superdesk/media_archive/__init__.py
 superdesk/media_archive/api/__init__.py

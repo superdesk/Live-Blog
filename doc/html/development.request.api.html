@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="request Package" href="development.request.html" />
+    <link rel="next" title="impl Package" href="development.request.impl.html" />
+    <link rel="prev" title="request Package" href="development.request.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="development.request.impl.html" title="impl Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="development.request.html" title="request Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="development.html" >development Package</a> &raquo;</li>
+          <li><a href="development.request.html" accesskey="U">request Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-package">
+<h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">api</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-development.request.api"></span><p>Created on May 26, 2011</p>
+<p>&#64;package: introspection request
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Nistor Gabriel</p>
+<p>Specifications for the introspection of requests.</p>
+</div>
+<div class="section" id="module-development.request.api.request">
+<span id="request-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">request</span></tt> Module<a class="headerlink" href="#module-development.request.api.request" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jan 23, 2012</p>
+<p>&#64;package: introspection request
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Nistor Gabriel</p>
+<p>API specifications for the node presenter.</p>
+<dl class="class">
+<dt id="development.request.api.request.IRequestService">
+<em class="property">class </em><tt class="descclassname">development.request.api.request.</tt><tt class="descname">IRequestService</tt><a class="reference internal" href="_modules/development/request/api/request.html#IRequestService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#development.request.api.request.IRequestService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides services for the request nodes.</p>
+<dl class="method">
+<dt id="development.request.api.request.IRequestService.getAllInputs">
+<tt class="descname">getAllInputs</tt><big>(</big><em>id=None</em><big>)</big><a class="reference internal" href="_modules/development/request/api/request.html#IRequestService.getAllInputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#development.request.api.request.IRequestService.getAllInputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the pattern inputs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="development.request.api.request.IRequestService.getAllRequests">
+<tt class="descname">getAllRequests</tt><big>(</big><em>offset=None</em>, <em>limit=None</em><big>)</big><a class="reference internal" href="_modules/development/request/api/request.html#IRequestService.getAllRequests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#development.request.api.request.IRequestService.getAllRequests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the request nodes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="development.request.api.request.IRequestService.getMethod">
+<tt class="descname">getMethod</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/development/request/api/request.html#IRequestService.getMethod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#development.request.api.request.IRequestService.getMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the method for the provided id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="development.request.api.request.IRequestService.getRequest">
+<tt class="descname">getRequest</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/development/request/api/request.html#IRequestService.getRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#development.request.api.request.IRequestService.getRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the request for the provided id.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="development.request.api.request.Input">
+<em class="property">class </em><tt class="descclassname">development.request.api.request.</tt><tt class="descname">Input</tt><a class="reference internal" href="_modules/development/request/api/request.html#Input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#development.request.api.request.Input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the input.</p>
+<dl class="attribute">
+<dt id="development.request.api.request.Input.Description">
+<tt class="descname">Description</tt><em class="property"> = Input.Description(str)</em><a class="headerlink" href="#development.request.api.request.Input.Description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Input.ForRequest">
+<tt class="descname">ForRequest</tt><em class="property"> = Input.ForRequest(Request)</em><a class="headerlink" href="#development.request.api.request.Input.ForRequest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Input.Id">
+<tt class="descname">Id</tt><em class="property"> = Input.Id(int)</em><a class="headerlink" href="#development.request.api.request.Input.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Input.Mandatory">
+<tt class="descname">Mandatory</tt><em class="property"> = Input.Mandatory(bool)</em><a class="headerlink" href="#development.request.api.request.Input.Mandatory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Input.Name">
+<tt class="descname">Name</tt><em class="property"> = Input.Name(str)</em><a class="headerlink" href="#development.request.api.request.Input.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="development.request.api.request.Method">
+<em class="property">class </em><tt class="descclassname">development.request.api.request.</tt><tt class="descname">Method</tt><a class="reference internal" href="_modules/development/request/api/request.html#Method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#development.request.api.request.Method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#development.request.api.request.MethodPrototype" title="development.request.api.request.MethodPrototype"><tt class="xref py py-class docutils literal"><span class="pre">development.request.api.request.MethodPrototype</span></tt></a></p>
+<p>Provides a call method of a request.</p>
+<dl class="attribute">
+<dt id="development.request.api.request.Method.APIClass">
+<tt class="descname">APIClass</tt><em class="property"> = Method.APIClass(str)</em><a class="headerlink" href="#development.request.api.request.Method.APIClass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Method.APIClassDefiner">
+<tt class="descname">APIClassDefiner</tt><em class="property"> = Method.APIClassDefiner(str)</em><a class="headerlink" href="#development.request.api.request.Method.APIClassDefiner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Method.APIDoc">
+<tt class="descname">APIDoc</tt><em class="property"> = Method.APIDoc(str)</em><a class="headerlink" href="#development.request.api.request.Method.APIDoc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Method.ForRequest">
+<tt class="descname">ForRequest</tt><em class="property"> = Method.ForRequest(Request)</em><a class="headerlink" href="#development.request.api.request.Method.ForRequest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Method.IMPL">
+<tt class="descname">IMPL</tt><em class="property"> = Method.IMPL(str)</em><a class="headerlink" href="#development.request.api.request.Method.IMPL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Method.IMPLDefiner">
+<tt class="descname">IMPLDefiner</tt><em class="property"> = Method.IMPLDefiner(str)</em><a class="headerlink" href="#development.request.api.request.Method.IMPLDefiner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Method.IMPLDoc">
+<tt class="descname">IMPLDoc</tt><em class="property"> = Method.IMPLDoc(str)</em><a class="headerlink" href="#development.request.api.request.Method.IMPLDoc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Method.Id">
+<tt class="descname">Id</tt><em class="property"> = Method.Id(int)</em><a class="headerlink" href="#development.request.api.request.Method.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Method.Name">
+<tt class="descname">Name</tt><em class="property"> = Method.Name(str)</em><a class="headerlink" href="#development.request.api.request.Method.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Method.Type">
+<tt class="descname">Type</tt><em class="property"> = Method.Type(str)</em><a class="headerlink" href="#development.request.api.request.Method.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="development.request.api.request.MethodPrototype">
+<em class="property">class </em><tt class="descclassname">development.request.api.request.</tt><tt class="descname">MethodPrototype</tt><a class="reference internal" href="_modules/development/request/api/request.html#MethodPrototype"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#development.request.api.request.MethodPrototype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides a call method of a request.</p>
+<dl class="attribute">
+<dt id="development.request.api.request.MethodPrototype.APIClass">
+<tt class="descname">APIClass</tt><em class="property"> = Method.APIClass(str)</em><a class="headerlink" href="#development.request.api.request.MethodPrototype.APIClass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.MethodPrototype.APIClassDefiner">
+<tt class="descname">APIClassDefiner</tt><em class="property"> = Method.APIClassDefiner(str)</em><a class="headerlink" href="#development.request.api.request.MethodPrototype.APIClassDefiner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.MethodPrototype.APIDoc">
+<tt class="descname">APIDoc</tt><em class="property"> = Method.APIDoc(str)</em><a class="headerlink" href="#development.request.api.request.MethodPrototype.APIDoc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.MethodPrototype.IMPL">
+<tt class="descname">IMPL</tt><em class="property"> = Method.IMPL(str)</em><a class="headerlink" href="#development.request.api.request.MethodPrototype.IMPL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.MethodPrototype.IMPLDefiner">
+<tt class="descname">IMPLDefiner</tt><em class="property"> = Method.IMPLDefiner(str)</em><a class="headerlink" href="#development.request.api.request.MethodPrototype.IMPLDefiner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.MethodPrototype.IMPLDoc">
+<tt class="descname">IMPLDoc</tt><em class="property"> = Method.IMPLDoc(str)</em><a class="headerlink" href="#development.request.api.request.MethodPrototype.IMPLDoc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.MethodPrototype.Id">
+<tt class="descname">Id</tt><em class="property"> = Method.Id(int)</em><a class="headerlink" href="#development.request.api.request.MethodPrototype.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.MethodPrototype.Name">
+<tt class="descname">Name</tt><em class="property"> = Method.Name(str)</em><a class="headerlink" href="#development.request.api.request.MethodPrototype.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.MethodPrototype.Type">
+<tt class="descname">Type</tt><em class="property"> = Method.Type(str)</em><a class="headerlink" href="#development.request.api.request.MethodPrototype.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="development.request.api.request.Request">
+<em class="property">class </em><tt class="descclassname">development.request.api.request.</tt><tt class="descname">Request</tt><a class="reference internal" href="_modules/development/request/api/request.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#development.request.api.request.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the request.</p>
+<dl class="attribute">
+<dt id="development.request.api.request.Request.Delete">
+<tt class="descname">Delete</tt><em class="property"> = Request.Delete(Method)</em><a class="headerlink" href="#development.request.api.request.Request.Delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Request.Get">
+<tt class="descname">Get</tt><em class="property"> = Request.Get(Method)</em><a class="headerlink" href="#development.request.api.request.Request.Get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Request.Id">
+<tt class="descname">Id</tt><em class="property"> = Request.Id(int)</em><a class="headerlink" href="#development.request.api.request.Request.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Request.Insert">
+<tt class="descname">Insert</tt><em class="property"> = Request.Insert(Method)</em><a class="headerlink" href="#development.request.api.request.Request.Insert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Request.Pattern">
+<tt class="descname">Pattern</tt><em class="property"> = Request.Pattern(str)</em><a class="headerlink" href="#development.request.api.request.Request.Pattern" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="development.request.api.request.Request.Update">
+<tt class="descname">Update</tt><em class="property"> = Request.Update(Method)</em><a class="headerlink" href="#development.request.api.request.Request.Update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">api Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">api</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-development.request.api.request"><tt class="docutils literal"><span class="pre">request</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="development.request.html"
+                        title="previous chapter">request Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="development.request.impl.html"
+                        title="next chapter">impl Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/development.request.api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="development.request.impl.html" title="impl Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="development.request.html" title="request Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="development.html" >development Package</a> &raquo;</li>
+          <li><a href="development.request.html" >request Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
