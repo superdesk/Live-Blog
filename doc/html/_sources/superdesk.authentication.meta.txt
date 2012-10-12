@@ -1,0 +1,11 @@
+meta Package
+============
+
+:mod:`authentication` Module
+----------------------------
+
+.. automodule:: superdesk.authentication.meta.authentication
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -1,0 +1,164 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superdesk.media_archive.meta.meta_data &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for superdesk.media_archive.meta.meta_data</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Apr 19, 2012</span>
+
+<span class="sd">@package: superdesk media archive</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Contains the SQL alchemy meta for media meta data API.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">..api.meta_data</span> <span class="kn">import</span> <span class="n">MetaData</span>
+<span class="kn">from</span> <span class="nn">.meta_type</span> <span class="kn">import</span> <span class="n">MetaTypeMapped</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.dialects.mysql.base</span> <span class="kn">import</span> <span class="n">INTEGER</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.mapper</span> <span class="kn">import</span> <span class="n">reconstructor</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.schema</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">ForeignKey</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.types</span> <span class="kn">import</span> <span class="n">String</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span> <span class="n">Integer</span>
+<span class="kn">from</span> <span class="nn">superdesk.meta.metadata_superdesk</span> <span class="kn">import</span> <span class="n">Base</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.session</span> <span class="kn">import</span> <span class="n">openSession</span>
+<span class="kn">from</span> <span class="nn">ally.internationalization</span> <span class="kn">import</span> <span class="n">N_</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">META_TYPE_KEY</span> <span class="o">=</span> <span class="n">N_</span><span class="p">(</span><span class="s">&#39;other&#39;</span><span class="p">)</span>
+<span class="c"># The key used for simple meta data objects</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="ThumbnailFormat"><a class="viewcode-back" href="../../../../superdesk.media_archive.meta.html#superdesk.media_archive.meta.meta_data.ThumbnailFormat">[docs]</a><span class="k">class</span> <span class="nc">ThumbnailFormat</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the mapping for thumbnails.</span>
+<span class="sd">    This is not a REST model.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;archive_thumbnail&#39;</span>
+    <span class="n">__table_args__</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mysql_engine</span><span class="o">=</span><span class="s">&#39;InnoDB&#39;</span><span class="p">)</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">INTEGER</span><span class="p">(</span><span class="n">unsigned</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">format</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s">&#39;format&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    The format for the reference of the thumbnail images in the media archive</span>
+<span class="s">    id = the meta data database id; name = the name of the content file; size = the key of the thumbnail size</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MetaDataMapped"><a class="viewcode-back" href="../../../../superdesk.media_archive.meta.html#superdesk.media_archive.meta.meta_data.MetaDataMapped">[docs]</a><span class="k">class</span> <span class="nc">MetaDataMapped</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the mapping for MetaData.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;archive_meta_data&#39;</span>
+    <span class="n">__table_args__</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mysql_engine</span><span class="o">=</span><span class="s">&#39;InnoDB&#39;</span><span class="p">,</span> <span class="n">mysql_charset</span><span class="o">=</span><span class="s">&#39;utf8&#39;</span><span class="p">)</span>
+
+    <span class="n">Id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">INTEGER</span><span class="p">(</span><span class="n">unsigned</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">Name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">SizeInBytes</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s">&#39;size_in_bytes&#39;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">)</span>
+    <span class="n">CreatedOn</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s">&#39;created_on&#39;</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    
+    <span class="c"># None REST model attribute --------------------------------------</span>
+    <span class="n">typeId</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s">&#39;fk_type_id&#39;</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">MetaTypeMapped</span><span class="o">.</span><span class="n">Id</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s">&#39;RESTRICT&#39;</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">thumbnailFormatId</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s">&#39;fk_thumbnail_format_id&#39;</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">ThumbnailFormat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ondelete</span><span class="o">=</span><span class="s">&#39;RESTRICT&#39;</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="s">&#39;content&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">(</span><span class="mi">255</span><span class="p">))</span>
+
+    <span class="n">_cache_types</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c"># A dictionary having as a key the type id and as a value the type. This is because not too many meta data types are</span>
+    <span class="c"># expected.</span>
+    <span class="nd">@reconstructor</span>
+<div class="viewcode-block" id="MetaDataMapped.init_on_load"><a class="viewcode-back" href="../../../../superdesk.media_archive.meta.html#superdesk.media_archive.meta.meta_data.MetaDataMapped.init_on_load">[docs]</a>    <span class="k">def</span> <span class="nf">init_on_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeId</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">metaType</span> <span class="o">=</span> <span class="n">openSession</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">MetaTypeMapped</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeId</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metaType</span><span class="p">,</span> <span class="n">MetaTypeMapped</span><span class="p">),</span> <span class="s">&#39;Invalid type id </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">metaType</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_types</span><span class="p">[</span><span class="n">metaType</span><span class="o">.</span><span class="n">Id</span><span class="p">]</span> <span class="o">=</span> <span class="n">metaType</span><span class="o">.</span><span class="n">Type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Type</span> <span class="o">=</span> <span class="nb">type</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

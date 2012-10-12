@@ -1,0 +1,27 @@
+server Package
+==============
+
+:mod:`server` Package
+---------------------
+
+.. automodule:: ally.core.http.server
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`server_basic` Module
+--------------------------
+
+.. automodule:: ally.core.http.server.server_basic
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`server_cherrypy` Module
+-----------------------------
+
+.. automodule:: ally.core.http.server.server_cherrypy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

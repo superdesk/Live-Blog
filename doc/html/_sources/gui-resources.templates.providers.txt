@@ -1,0 +1,15 @@
+providers Package
+=================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    gui-resources.templates.providers.ads
+    gui-resources.templates.providers.colabs
+    gui-resources.templates.providers.edit
+    gui-resources.templates.providers.flickr
+    gui-resources.templates.providers.google
+    gui-resources.templates.providers.twitter
+

@@ -1,0 +1,635 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>transform Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="spec Package" href="ally.core.spec.html" />
+    <link rel="next" title="sqlalchemy Package" href="ally.core.sqlalchemy.html" />
+    <link rel="prev" title="spec Package" href="ally.core.spec.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.sqlalchemy.html" title="sqlalchemy Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.spec.html" title="spec Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.spec.html" accesskey="U">spec Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="transform-package">
+<h1>transform Package<a class="headerlink" href="#transform-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">transform</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-ally.core.spec.transform"></span><p>Created on Jun 28, 2011</p>
+<p>&#64;package: ally core
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the general specifications for the the encoding and decoding.</p>
+</div>
+<div class="section" id="module-ally.core.spec.transform.exploit">
+<span id="exploit-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">exploit</span></tt> Module<a class="headerlink" href="#module-ally.core.spec.transform.exploit" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 23, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides basic meta decode implementations.</p>
+<dl class="class">
+<dt id="ally.core.spec.transform.exploit.IResolve">
+<em class="property">class </em><tt class="descclassname">ally.core.spec.transform.exploit.</tt><tt class="descname">IResolve</tt><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#IResolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.IResolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Specification for exploits resolving.</p>
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.IResolve.do">
+<tt class="descname">do</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#IResolve.do"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.IResolve.do" title="Permalink to this definition">¶</a></dt>
+<dd><p>Proceeds with the resolve requests.</p>
+<dl class="docutils">
+<dt>&#64;return: boolean</dt>
+<dd>True if the current resolve request has been finalized successful, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.IResolve.doAll">
+<tt class="descname">doAll</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#IResolve.doAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.IResolve.doAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process all requests. Only call this method if there are requests queued.</p>
+<dl class="docutils">
+<dt>&#64;return: boolean</dt>
+<dd>True if all the requests have been finalized successfully, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.IResolve.has">
+<tt class="descname">has</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#IResolve.has"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.IResolve.has" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if there are any more request to be resolved.</p>
+<dl class="docutils">
+<dt>&#64;return: boolean</dt>
+<dd>True if there are requests queued, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.IResolve.queue">
+<tt class="descname">queue</tt><big>(</big><em>exploit</em>, <em>**data</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#IResolve.queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.IResolve.queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push a raw exploit in requests queue.</p>
+<dl class="docutils">
+<dt>&#64;param expoit: callable(<a href="#id2"><span class="problematic" id="id3">**</span></a>data) -&gt; boolean</dt>
+<dd><p class="first">The exploit attached to the locator.
+&#64;param data: key arguments</p>
+<blockquote>
+<div>The data used for processing the exploit.</div></blockquote>
+<dl class="last docutils">
+<dt>&#64;return: boolean|None</dt>
+<dd>True or None for process success, False otherwise.</dd>
+</dl>
+</dd>
+<dt>&#64;param data: key arguments</dt>
+<dd>The data to resolve the exploit with.</dd>
+<dt>&#64;return: IResolve</dt>
+<dd>This resolve for chaining purposes.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.IResolve.queueBatch">
+<tt class="descname">queueBatch</tt><big>(</big><em>exploit</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#IResolve.queueBatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.IResolve.queueBatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a batch of requests with the same exploit using data provided by the data iterable.</p>
+<dl class="docutils">
+<dt>&#64;param expoit: callable(<a href="#id4"><span class="problematic" id="id5">**</span></a>data) -&gt; boolean</dt>
+<dd><p class="first">The exploit attached to the locator.
+&#64;param data: key arguments</p>
+<blockquote>
+<div>The data used for processing the exploit.</div></blockquote>
+<dl class="last docutils">
+<dt>&#64;return: boolean</dt>
+<dd>True or None for process success, False otherwise.</dd>
+</dl>
+</dd>
+<dt>&#64;param data: Iterable(dictionary{string, object})</dt>
+<dd>The data to resolve the path with.</dd>
+<dt>&#64;return: IResolve</dt>
+<dd>This resolve for chaining purposes.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.IResolve.request">
+<tt class="descname">request</tt><big>(</big><em>**data</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#IResolve.request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.IResolve.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request a resolve with the contained exploits the data. The resolve is done asynchronous, in order to process it 
+you need to make the do call.</p>
+<dl class="docutils">
+<dt>&#64;param data: key arguments</dt>
+<dd>The data to resolve with.</dd>
+<dt>&#64;return: IResolve</dt>
+<dd>This resolve for chaining purposes.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.spec.transform.exploit.Resolve">
+<em class="property">class </em><tt class="descclassname">ally.core.spec.transform.exploit.</tt><tt class="descname">Resolve</tt><big>(</big><em>root</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#Resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.spec.transform.exploit.IResolve" title="ally.core.spec.transform.exploit.IResolve"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.transform.exploit.IResolve</span></tt></a></p>
+<p>The default resolve implementation.</p>
+<dl class="attribute">
+<dt id="ally.core.spec.transform.exploit.Resolve.count">
+<tt class="descname">count</tt><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.exploit.Resolve.counts">
+<tt class="descname">counts</tt><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.counts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.Resolve.do">
+<tt class="descname">do</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#Resolve.do"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.do" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResolve.do</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.Resolve.doAll">
+<tt class="descname">doAll</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#Resolve.doAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.doAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResolve.doAll</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.Resolve.has">
+<tt class="descname">has</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#Resolve.has"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.has" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResolve.has</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.Resolve.queue">
+<tt class="descname">queue</tt><big>(</big><em>exploit</em>, <em>**data</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#Resolve.queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResolve.queue</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.Resolve.queueBatch">
+<tt class="descname">queueBatch</tt><big>(</big><em>exploit</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#Resolve.queueBatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.queueBatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResolve.queueBatch</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.exploit.Resolve.request">
+<tt class="descname">request</tt><big>(</big><em>**data</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#Resolve.request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IResolve.request</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.exploit.Resolve.requests">
+<tt class="descname">requests</tt><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.requests" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.exploit.Resolve.root">
+<tt class="descname">root</tt><a class="headerlink" href="#ally.core.spec.transform.exploit.Resolve.root" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="ally.core.spec.transform.exploit.ResolveError">
+<em class="property">exception </em><tt class="descclassname">ally.core.spec.transform.exploit.</tt><tt class="descname">ResolveError</tt><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#ResolveError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.ResolveError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<p>Exception raise when there is a problem with resolving.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.exploit.handleExploitError">
+<tt class="descclassname">ally.core.spec.transform.exploit.</tt><tt class="descname">handleExploitError</tt><big>(</big><em>exploit</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/exploit.html#handleExploitError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.exploit.handleExploitError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the error for the provided exploit.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.spec.transform.render">
+<span id="render-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">render</span></tt> Module<a class="headerlink" href="#module-ally.core.spec.transform.render" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 27, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides exploits for transforming object to rendered content.</p>
+<dl class="class">
+<dt id="ally.core.spec.transform.render.IRender">
+<em class="property">class </em><tt class="descclassname">ally.core.spec.transform.render.</tt><tt class="descname">IRender</tt><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#IRender"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.IRender" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The specification for the renderer of encoded objects.</p>
+<dl class="method">
+<dt id="ally.core.spec.transform.render.IRender.collectionEnd">
+<tt class="descname">collectionEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#IRender.collectionEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.IRender.collectionEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to signal that the current collection has ended the rendering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.render.IRender.collectionStart">
+<tt class="descname">collectionStart</tt><big>(</big><em>name</em>, <em>attributes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#IRender.collectionStart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.IRender.collectionStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to signal that a collection has to be rendered.</p>
+<dl class="docutils">
+<dt>&#64;param name: string</dt>
+<dd>The collection name.</dd>
+<dt>&#64;param attributes: dictionary{string, string}|None</dt>
+<dd>The attributes for the collection.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.render.IRender.objectEnd">
+<tt class="descname">objectEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#IRender.objectEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.IRender.objectEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to signal that the current object has ended the rendering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.render.IRender.objectStart">
+<tt class="descname">objectStart</tt><big>(</big><em>name</em>, <em>attributes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#IRender.objectStart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.IRender.objectStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to signal that an object has to be rendered.</p>
+<dl class="docutils">
+<dt>&#64;param name: string</dt>
+<dd>The object name.</dd>
+<dt>&#64;param attributes: dictionary{string, string}|None</dt>
+<dd>The attributes for the value.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.render.IRender.value">
+<tt class="descname">value</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#IRender.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.IRender.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to signal that a value has to be rendered.</p>
+<dl class="docutils">
+<dt>&#64;param name: string</dt>
+<dd>The value name.</dd>
+<dt>&#64;param value: string</dt>
+<dd>The value.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.spec.transform.render.List">
+<em class="property">class </em><tt class="descclassname">ally.core.spec.transform.render.</tt><tt class="descname">List</tt><big>(</big><em>name</em>, <em>attributes</em>, <em>*items</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#List"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.List" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Container for a text collection.</p>
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.List.attributes">
+<tt class="descname">attributes</tt><a class="headerlink" href="#ally.core.spec.transform.render.List.attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.List.items">
+<tt class="descname">items</tt><a class="headerlink" href="#ally.core.spec.transform.render.List.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.List.name">
+<tt class="descname">name</tt><a class="headerlink" href="#ally.core.spec.transform.render.List.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.spec.transform.render.Object">
+<em class="property">class </em><tt class="descclassname">ally.core.spec.transform.render.</tt><tt class="descname">Object</tt><big>(</big><em>name</em>, <em>attributes</em>, <em>*properties</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#Object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.Object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Container for a text object.</p>
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.Object.attributes">
+<tt class="descname">attributes</tt><a class="headerlink" href="#ally.core.spec.transform.render.Object.attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.Object.name">
+<tt class="descname">name</tt><a class="headerlink" href="#ally.core.spec.transform.render.Object.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.Object.properties">
+<tt class="descname">properties</tt><a class="headerlink" href="#ally.core.spec.transform.render.Object.properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.spec.transform.render.RenderToObject">
+<em class="property">class </em><tt class="descclassname">ally.core.spec.transform.render.</tt><tt class="descname">RenderToObject</tt><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#RenderToObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.RenderToObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.spec.transform.render.IRender" title="ally.core.spec.transform.render.IRender"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.spec.transform.render.IRender</span></tt></a></p>
+<p>A &#64;see: IRender implementation that captures the data into a text object.</p>
+<dl class="method">
+<dt id="ally.core.spec.transform.render.RenderToObject.collectionEnd">
+<tt class="descname">collectionEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#RenderToObject.collectionEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.RenderToObject.collectionEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.collectionEnd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.render.RenderToObject.collectionStart">
+<tt class="descname">collectionStart</tt><big>(</big><em>name</em>, <em>attributes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#RenderToObject.collectionStart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.RenderToObject.collectionStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.collectionStart</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.RenderToObject.obj">
+<tt class="descname">obj</tt><a class="headerlink" href="#ally.core.spec.transform.render.RenderToObject.obj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.render.RenderToObject.objectEnd">
+<tt class="descname">objectEnd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#RenderToObject.objectEnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.RenderToObject.objectEnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.objectEnd</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.render.RenderToObject.objectStart">
+<tt class="descname">objectStart</tt><big>(</big><em>name</em>, <em>attributes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#RenderToObject.objectStart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.RenderToObject.objectStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.objectStart</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.RenderToObject.processing">
+<tt class="descname">processing</tt><a class="headerlink" href="#ally.core.spec.transform.render.RenderToObject.processing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.spec.transform.render.RenderToObject.value">
+<tt class="descname">value</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#RenderToObject.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.RenderToObject.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IRender.value</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.spec.transform.render.Value">
+<em class="property">class </em><tt class="descclassname">ally.core.spec.transform.render.</tt><tt class="descname">Value</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#Value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.Value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Container for the text value.</p>
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.Value.name">
+<tt class="descname">name</tt><a class="headerlink" href="#ally.core.spec.transform.render.Value.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.spec.transform.render.Value.value">
+<tt class="descname">value</tt><a class="headerlink" href="#ally.core.spec.transform.render.Value.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.render.renderObject">
+<tt class="descclassname">ally.core.spec.transform.render.</tt><tt class="descname">renderObject</tt><big>(</big><em>txt</em>, <em>render</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/render.html#renderObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.render.renderObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders the text object on to the provided renderer.</p>
+<dl class="docutils">
+<dt>&#64;param txt: Value, Object, List</dt>
+<dd>The text object to render.</dd>
+<dt>&#64;param renderer: IRender</dt>
+<dd>The renderer to render to.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.spec.transform.support">
+<span id="support-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">support</span></tt> Module<a class="headerlink" href="#module-ally.core.spec.transform.support" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 23, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides static functions support for exploit processing.</p>
+<dl class="function">
+<dt id="ally.core.spec.transform.support.getSame">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">getSame</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#getSame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.getSame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that just returns the same value received.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.getterChain">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">getterChain</tt><big>(</big><em>*getters</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#getterChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.getterChain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a getter chain, this means that the first getter will be invoked and the object returned will passed on as 
+an object to the next getter so fort and so on. If one getter return None then the chain stops.</p>
+<dl class="docutils">
+<dt>&#64;param getters: attributes[callable(object)]</dt>
+<dd>The getters to be invoked in a chain.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.getterOnDict">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">getterOnDict</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#getterOnDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.getterOnDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a getter on a dictionary for the provided key.</p>
+<dl class="docutils">
+<dt>&#64;param key: object</dt>
+<dd>The key in the dictionary to get the query for.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.getterOnObj">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">getterOnObj</tt><big>(</big><em>attribute</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#getterOnObj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.getterOnObj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a getter on a object attribute.</p>
+<dl class="docutils">
+<dt>&#64;param attribute: string</dt>
+<dd>The attribute name to get the value for.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.getterOnObjIfIn">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">getterOnObjIfIn</tt><big>(</big><em>attribute</em>, <em>checkIn</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#getterOnObjIfIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.getterOnObjIfIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a getter for the attribute. If the provided object is None or the checkIn is no validated like
+&#8216;checkIn in obj&#8217; on the object than the getter will return None.</p>
+<dl class="docutils">
+<dt>&#64;param attribute: string</dt>
+<dd>The attribute name to get the value for.</dd>
+<dt>&#64;param checkIn: object</dt>
+<dd>The object to check if in the object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.obtainOnDict">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">obtainOnDict</tt><big>(</big><em>key</em>, <em>creator</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#obtainOnDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.obtainOnDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an obtain object on a dictionary for the provided key. Obtaining means that if there is not value
+for the key one will be created and assigned.</p>
+<dl class="docutils">
+<dt>&#64;param key: string</dt>
+<dd>The key in the dictionary to obtain the value.</dd>
+<dt>&#64;param creator: callable()</dt>
+<dd>The creator to use in generating the object, has to take no arguments.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.obtainOnObj">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">obtainOnObj</tt><big>(</big><em>attribute</em>, <em>creator</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#obtainOnObj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.obtainOnObj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an obtain object on another object for the provided attribute. Obtaining means that if there is not value
+for the attribute one will be created and assigned.</p>
+<dl class="docutils">
+<dt>&#64;param attribute: string</dt>
+<dd>The attribute in the object to obtain the value.</dd>
+<dt>&#64;param creator: callable()</dt>
+<dd>The creator to use in generating the object, has to take no arguments.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.setterOnDict">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">setterOnDict</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#setterOnDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.setterOnDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a setter on a dictionary for the provided key.</p>
+<dl class="docutils">
+<dt>&#64;param key: string</dt>
+<dd>The key in the dictionary to set the value.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.setterOnObj">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">setterOnObj</tt><big>(</big><em>attribute</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#setterOnObj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.setterOnObj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a setter on a object attribute.</p>
+<dl class="docutils">
+<dt>&#64;param attribute: string</dt>
+<dd>The attribute name to set the value for.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.setterToOthers">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">setterToOthers</tt><big>(</big><em>*setters</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#setterToOthers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.setterToOthers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a setter that will dispatch to a list of other setters.</p>
+<dl class="docutils">
+<dt>&#64;param setters: arguments[callable]</dt>
+<dd>The setters to delegate the set to.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.core.spec.transform.support.setterWithGetter">
+<tt class="descclassname">ally.core.spec.transform.support.</tt><tt class="descname">setterWithGetter</tt><big>(</big><em>getter</em>, <em>setter</em><big>)</big><a class="reference internal" href="_modules/ally/core/spec/transform/support.html#setterWithGetter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.spec.transform.support.setterWithGetter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a setter that will first call the getter on the object than set the value on the returned object.</p>
+<dl class="docutils">
+<dt>&#64;param getter: callable(object)</dt>
+<dd>The getter to call with the object before the setter.</dd>
+<dt>&#64;param setter: callable(object)</dt>
+<dd>The setter to be used.</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">transform Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">transform</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-ally.core.spec.transform.exploit"><tt class="docutils literal"><span class="pre">exploit</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.spec.transform.render"><tt class="docutils literal"><span class="pre">render</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.spec.transform.support"><tt class="docutils literal"><span class="pre">support</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.core.spec.html"
+                        title="previous chapter">spec Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.core.sqlalchemy.html"
+                        title="next chapter">sqlalchemy Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.core.spec.transform.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.sqlalchemy.html" title="sqlalchemy Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.spec.html" title="spec Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.spec.html" >spec Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

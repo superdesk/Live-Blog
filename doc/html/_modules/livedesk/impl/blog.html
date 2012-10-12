@@ -1,0 +1,192 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>livedesk.impl.blog &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for livedesk.impl.blog</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on May 4, 2012</span>
+
+<span class="sd">@package: livedesk</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Contains the SQL alchemy meta for blog API.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">..api.blog</span> <span class="kn">import</span> <span class="n">IBlogService</span><span class="p">,</span> <span class="n">QBlog</span><span class="p">,</span> <span class="n">Blog</span>
+<span class="kn">from</span> <span class="nn">..meta.blog</span> <span class="kn">import</span> <span class="n">BlogMapped</span>
+<span class="kn">from</span> <span class="nn">..meta.blog_admin</span> <span class="kn">import</span> <span class="n">AdminEntry</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.exception</span> <span class="kn">import</span> <span class="n">InputError</span><span class="p">,</span> <span class="n">Ref</span>
+<span class="kn">from</span> <span class="nn">ally.internationalization</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.util_service</span> <span class="kn">import</span> <span class="n">buildQuery</span><span class="p">,</span> <span class="n">buildLimits</span>
+<span class="kn">from</span> <span class="nn">ally.container.support</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="kn">from</span> <span class="nn">sql_alchemy.impl.entity</span> <span class="kn">import</span> <span class="n">EntityCRUDServiceAlchemy</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.exc</span> <span class="kn">import</span> <span class="n">NoResultFound</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.expression</span> <span class="kn">import</span> <span class="n">exists</span>
+<span class="kn">from</span> <span class="nn">ally.api.extension</span> <span class="kn">import</span> <span class="n">IterPart</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.functions</span> <span class="kn">import</span> <span class="n">current_timestamp</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="nd">@injected</span>
+<span class="nd">@setup</span><span class="p">(</span><span class="n">IBlogService</span><span class="p">)</span>
+<div class="viewcode-block" id="BlogServiceAlchemy"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog.BlogServiceAlchemy">[docs]</a><span class="k">class</span> <span class="nc">BlogServiceAlchemy</span><span class="p">(</span><span class="n">EntityCRUDServiceAlchemy</span><span class="p">,</span> <span class="n">IBlogService</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation for @see: IBlogService</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the blog service.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">EntityCRUDServiceAlchemy</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">BlogMapped</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BlogServiceAlchemy.getBlog"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog.BlogServiceAlchemy.getBlog">[docs]</a>    <span class="k">def</span> <span class="nf">getBlog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogService.getBlog</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BlogMapped</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogMapped</span><span class="o">.</span><span class="n">Id</span> <span class="o">==</span> <span class="n">blogId</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span> <span class="k">return</span> <span class="n">sql</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">NoResultFound</span><span class="p">:</span> <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Unknown id&#39;</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Blog</span><span class="o">.</span><span class="n">Id</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="BlogServiceAlchemy.getAll"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog.BlogServiceAlchemy.getAll">[docs]</a>    <span class="k">def</span> <span class="nf">getAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">languageId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">adminId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogService.getAll</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildQuery</span><span class="p">(</span><span class="n">languageId</span><span class="p">,</span> <span class="n">adminId</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">sqlLimit</span> <span class="o">=</span> <span class="n">buildLimits</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">detailed</span><span class="p">:</span> <span class="k">return</span> <span class="n">IterPart</span><span class="p">(</span><span class="n">sqlLimit</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="n">sql</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sqlLimit</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BlogServiceAlchemy.getLiveWhereAdmin"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog.BlogServiceAlchemy.getLiveWhereAdmin">[docs]</a>    <span class="k">def</span> <span class="nf">getLiveWhereAdmin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adminId</span><span class="p">,</span> <span class="n">languageId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogService.getLiveWhereAdmin</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildQuery</span><span class="p">(</span><span class="n">languageId</span><span class="p">,</span> <span class="n">adminId</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogMapped</span><span class="o">.</span><span class="n">ClosedOn</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sql</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BlogServiceAlchemy.getLive"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog.BlogServiceAlchemy.getLive">[docs]</a>    <span class="k">def</span> <span class="nf">getLive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">languageId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogService.getLive</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildQuery</span><span class="p">(</span><span class="n">languageId</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">((</span><span class="n">BlogMapped</span><span class="o">.</span><span class="n">ClosedOn</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">BlogMapped</span><span class="o">.</span><span class="n">LiveOn</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">sql</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BlogServiceAlchemy.insert"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog.BlogServiceAlchemy.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blog</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogService.insert</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">blog</span><span class="p">,</span> <span class="n">Blog</span><span class="p">),</span> <span class="s">&#39;Invalid blog </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">blog</span>
+        <span class="k">if</span> <span class="n">blog</span><span class="o">.</span><span class="n">CreatedOn</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">blog</span><span class="o">.</span><span class="n">CreatedOn</span> <span class="o">=</span> <span class="n">current_timestamp</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">blog</span><span class="p">)</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+    <span class="k">def</span> <span class="nf">_buildQuery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">languageId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">adminId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Builds the general query for blogs.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BlogMapped</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">languageId</span><span class="p">:</span> <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogMapped</span><span class="o">.</span><span class="n">Language</span> <span class="o">==</span> <span class="n">languageId</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">adminId</span><span class="p">:</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">((</span><span class="n">BlogMapped</span><span class="o">.</span><span class="n">Creator</span> <span class="o">==</span> <span class="n">adminId</span><span class="p">)</span> <span class="o">|</span>
+                             <span class="n">exists</span><span class="p">()</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">AdminEntry</span><span class="o">.</span><span class="n">adminId</span> <span class="o">==</span> <span class="n">adminId</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">AdminEntry</span><span class="o">.</span><span class="n">Blog</span> <span class="o">==</span> <span class="n">BlogMapped</span><span class="o">.</span><span class="n">Id</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">q</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">QBlog</span><span class="p">),</span> <span class="s">&#39;Invalid query </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">q</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">buildQuery</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">BlogMapped</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sql</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

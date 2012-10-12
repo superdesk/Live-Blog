@@ -1,0 +1,318 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superdesk.media_archive.impl.video_persist &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for superdesk.media_archive.impl.video_persist</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Aug 23, 2012</span>
+
+<span class="sd">@package: superdesk media archive</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Ioan v. Pocol</span>
+
+<span class="sd">Implementation for the video persistence API.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">..core.spec</span> <span class="kn">import</span> <span class="n">IThumbnailManager</span>
+<span class="kn">from</span> <span class="nn">..meta.meta_data</span> <span class="kn">import</span> <span class="n">MetaDataMapped</span>
+<span class="kn">from</span> <span class="nn">..meta.video_data</span> <span class="kn">import</span> <span class="n">VideoDataEntry</span>
+<span class="kn">from</span> <span class="nn">ally.container</span> <span class="kn">import</span> <span class="n">wire</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.container.support</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.session</span> <span class="kn">import</span> <span class="n">SessionSupport</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.util_service</span> <span class="kn">import</span> <span class="n">handle</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">remove</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">exists</span><span class="p">,</span> <span class="n">splitext</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">SQLAlchemyError</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span><span class="p">,</span> <span class="n">STDOUT</span>
+<span class="kn">from</span> <span class="nn">superdesk.media_archive.core.impl.meta_service_base</span> <span class="kn">import</span> \
+    <span class="n">thumbnailFormatFor</span><span class="p">,</span> <span class="n">metaTypeFor</span>
+<span class="kn">from</span> <span class="nn">superdesk.media_archive.core.spec</span> <span class="kn">import</span> <span class="n">IMetaDataHandler</span>
+<span class="kn">from</span> <span class="nn">superdesk.media_archive.meta.video_data</span> <span class="kn">import</span> <span class="n">META_TYPE_KEY</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="nd">@injected</span>
+<span class="nd">@setup</span><span class="p">(</span><span class="n">IMetaDataHandler</span><span class="p">,</span> <span class="s">&#39;videoDataHandler&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="VideoPersistanceAlchemy"><a class="viewcode-back" href="../../../../superdesk.media_archive.impl.html#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy">[docs]</a><span class="k">class</span> <span class="nc">VideoPersistanceAlchemy</span><span class="p">(</span><span class="n">SessionSupport</span><span class="p">,</span> <span class="n">IMetaDataHandler</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the service that handles the video persistence @see: IVideoPersistanceService.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">format_file_name</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%(id)s</span><span class="s">.</span><span class="si">%(file)s</span><span class="s">&#39;</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s">&#39;format_file_name&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    The format for the videos file names in the media archive&#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">format_thumbnail</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%(size)s</span><span class="s">/</span><span class="si">%(id)s</span><span class="s">.</span><span class="si">%(name)s</span><span class="s">.jpg&#39;</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s">&#39;format_thumbnail&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    The format for the video thumbnails in the media archive&#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">video_supported_files</span> <span class="o">=</span> <span class="s">&#39;flv, avi, mov, mp4, mpg, wmv, 3gp, asf, rm, swf&#39;</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s">&#39;video_supported_files&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    The video formats supported by media archive video plugin&#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">ffmpeg_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="s">&#39;workspace&#39;</span><span class="p">,</span> <span class="s">&#39;tools&#39;</span><span class="p">,</span> <span class="s">&#39;ffmpeg&#39;</span><span class="p">,</span> <span class="s">&#39;bin&#39;</span><span class="p">,</span> <span class="s">&#39;ffmpeg.exe&#39;</span><span class="p">);</span> <span class="n">wire</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s">&#39;ffmpeg_path&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    The path where the ffmpeg is found&#39;&#39;&#39;</span><span class="p">)</span>
+
+    <span class="n">thumbnailManager</span> <span class="o">=</span> <span class="n">IThumbnailManager</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;thumbnailManager&#39;</span><span class="p">)</span>
+    <span class="c"># Provides the thumbnail referencer</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_file_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid format file name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_file_name</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_thumbnail</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid format thumbnail </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_thumbnail</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_supported_files</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid supported files </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">video_supported_files</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid ffmpeg path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg_path</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thumbnailManager</span><span class="p">,</span> <span class="n">IThumbnailManager</span><span class="p">),</span> <span class="s">&#39;Invalid thumbnail manager </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">thumbnailManager</span>
+        <span class="n">SessionSupport</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">videoSupportedFiles</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;[</span><span class="se">\\</span><span class="s">s]*</span><span class="se">\\</span><span class="s">,[</span><span class="se">\\</span><span class="s">s]*&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">video_supported_files</span><span class="p">))</span>
+
+<div class="viewcode-block" id="VideoPersistanceAlchemy.deploy"><a class="viewcode-back" href="../../../../superdesk.media_archive.impl.html#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.deploy">[docs]</a>    <span class="k">def</span> <span class="nf">deploy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IMetaDataHandler.deploy</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thumbnailFormat</span> <span class="o">=</span> <span class="n">thumbnailFormatFor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_thumbnail</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metaTypeId</span> <span class="o">=</span> <span class="n">metaTypeFor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">(),</span> <span class="n">META_TYPE_KEY</span><span class="p">)</span><span class="o">.</span><span class="n">Id</span>
+</div>
+<div class="viewcode-block" id="VideoPersistanceAlchemy.processByInfo"><a class="viewcode-back" href="../../../../superdesk.media_archive.impl.html#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.processByInfo">[docs]</a>    <span class="k">def</span> <span class="nf">processByInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metaDataMapped</span><span class="p">,</span> <span class="n">contentPath</span><span class="p">,</span> <span class="n">contentType</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IMetaDataHandler.processByInfo</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">contentType</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">contentType</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">META_TYPE_KEY</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">metaDataMapped</span><span class="p">,</span> <span class="n">contentPath</span><span class="p">)</span>
+
+        <span class="n">extension</span> <span class="o">=</span> <span class="n">splitext</span><span class="p">(</span><span class="n">metaDataMapped</span><span class="o">.</span><span class="n">Name</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="n">extension</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">videoSupportedFiles</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">metaDataMapped</span><span class="p">,</span> <span class="n">contentPath</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="VideoPersistanceAlchemy.process"><a class="viewcode-back" href="../../../../superdesk.media_archive.impl.html#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metaDataMapped</span><span class="p">,</span> <span class="n">contentPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IMetaDataHandler.process</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metaDataMapped</span><span class="p">,</span> <span class="n">MetaDataMapped</span><span class="p">),</span> <span class="s">&#39;Invalid meta data mapped </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">metaDataMapped</span>
+
+        <span class="n">thumbnailPath</span> <span class="o">=</span> <span class="n">contentPath</span> <span class="o">+</span> <span class="s">&#39;.jpg&#39;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg_path</span><span class="p">,</span> <span class="s">&#39;-i&#39;</span><span class="p">,</span> <span class="n">contentPath</span><span class="p">,</span> <span class="s">&#39;-vframes&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;-an&#39;</span><span class="p">,</span> <span class="s">&#39;-ss&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="n">thumbnailPath</span><span class="p">),</span>
+                  <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">STDOUT</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">thumbnailPath</span><span class="p">):</span> <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="n">videoDataEntry</span> <span class="o">=</span> <span class="n">VideoDataEntry</span><span class="p">()</span>
+        <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">Id</span> <span class="o">=</span> <span class="n">metaDataMapped</span><span class="o">.</span><span class="n">Id</span>
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span> <span class="k">break</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;: Video:&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractVideo</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">VideoEncoding</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">Width</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">Height</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">VideoBitrate</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">Fps</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+                <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+            <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;: Audio: &#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractAudio</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">AudioEncoding</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">SampleRate</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">Channels</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">AudioBitrate</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+            <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;Duration: &#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span> 
+                    <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractDuration</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">Length</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">videoDataEntry</span><span class="o">.</span><span class="n">VideoBitrate</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+            <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;Output #0&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_file_name</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="n">metaDataMapped</span><span class="o">.</span><span class="n">Id</span><span class="p">,</span> <span class="s">&#39;file&#39;</span><span class="p">:</span> <span class="n">metaDataMapped</span><span class="o">.</span><span class="n">Name</span><span class="p">}</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">META_TYPE_KEY</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generateIdPath</span><span class="p">(</span><span class="n">metaDataMapped</span><span class="o">.</span><span class="n">Id</span><span class="p">),</span> <span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
+
+        <span class="n">metaDataMapped</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="n">metaDataMapped</span><span class="o">.</span><span class="n">typeId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metaTypeId</span>
+        <span class="n">metaDataMapped</span><span class="o">.</span><span class="n">thumbnailFormatId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thumbnailFormat</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">metaDataMapped</span><span class="o">.</span><span class="n">IsAvailable</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">thumbnailManager</span><span class="o">.</span><span class="n">putThumbnail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_thumbnailFormat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">thumbnailPath</span><span class="p">,</span> <span class="n">metaDataMapped</span><span class="p">)</span>
+        <span class="n">remove</span><span class="p">(</span><span class="n">thumbnailPath</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">videoDataEntry</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">flush</span><span class="p">((</span><span class="n">videoDataEntry</span><span class="p">,))</span>
+        <span class="k">except</span> <span class="n">SQLAlchemyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">metaDataMapped</span><span class="o">.</span><span class="n">IsAvailable</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">handle</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">VideoDataEntry</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="VideoPersistanceAlchemy.extractDuration"><a class="viewcode-back" href="../../../../superdesk.media_archive.impl.html#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.extractDuration">[docs]</a>    <span class="k">def</span> <span class="nf">extractDuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="c">#Duration: 00:00:30.06, start: 0.000000, bitrate: 585 kb/s</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+        
+        <span class="n">length</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">length</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">length</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+        <span class="n">bitrate</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">bitrate</span> <span class="o">=</span> <span class="n">bitrate</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">bitrate</span> <span class="o">=</span> <span class="n">bitrate</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bitrate</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;kb/s&#39;</span><span class="p">:</span>
+            <span class="n">bitrate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bitrate</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bitrate</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">bitrate</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="VideoPersistanceAlchemy.extractVideo"><a class="viewcode-back" href="../../../../superdesk.media_archive.impl.html#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.extractVideo">[docs]</a>    <span class="k">def</span> <span class="nf">extractVideo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="c">#Stream #0.0(eng): Video: h264 (Constrained Baseline), yuv420p, 416x240, 518 kb/s, 29.97 fps, 29.97 tbr, 2997 tbn, 59.94 tbc</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s">&#39;Video:&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">encoding</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="n">index</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">properties</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">)</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">bitrate</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bitrate</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;kb/s&#39;</span><span class="p">:</span>
+            <span class="n">bitrate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bitrate</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bitrate</span> <span class="o">=</span> <span class="bp">None</span>    
+
+        <span class="n">fps</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fps</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;fps&#39;</span> <span class="ow">or</span> <span class="n">fps</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;tbr&#39;</span><span class="p">:</span>
+            <span class="n">fps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fps</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fps</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">bitrate</span><span class="p">,</span> <span class="n">fps</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="VideoPersistanceAlchemy.extractAudio"><a class="viewcode-back" href="../../../../superdesk.media_archive.impl.html#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.extractAudio">[docs]</a>    <span class="k">def</span> <span class="nf">extractAudio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="c">#Stream #0.1(eng): Audio: aac, 44100 Hz, stereo, s16, 61 kb/s</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">encoding</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">sampleRate</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sampleRate</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;Hz&#39;</span><span class="p">:</span>
+            <span class="n">sampleRate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sampleRate</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sampleRate</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="n">index</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="n">bitrate</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bitrate</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;kb/s&#39;</span><span class="p">:</span>
+            <span class="n">bitrate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">bitrate</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bitrate</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">sampleRate</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">bitrate</span><span class="p">)</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="VideoPersistanceAlchemy.generateIdPath"><a class="viewcode-back" href="../../../../superdesk.media_archive.impl.html#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.generateIdPath">[docs]</a>    <span class="k">def</span> <span class="nf">generateIdPath</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;{0:03d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="nb">id</span> <span class="o">//</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1000</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

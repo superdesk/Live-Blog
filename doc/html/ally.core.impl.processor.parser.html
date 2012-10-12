@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>parser Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="processor Package" href="ally.core.impl.processor.html" />
+    <link rel="next" title="render Package" href="ally.core.impl.processor.render.html" />
+    <link rel="prev" title="processor Package" href="ally.core.impl.processor.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.impl.processor.render.html" title="render Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.impl.processor.html" title="processor Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.impl.html" >impl Package</a> &raquo;</li>
+          <li><a href="ally.core.impl.processor.html" accesskey="U">processor Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="parser-package">
+<h1>parser Package<a class="headerlink" href="#parser-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-ally.core.impl.processor.parser.base">
+<span id="base-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">base</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.processor.parser.base" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 24, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the text base parser processor handler.</p>
+<dl class="class">
+<dt id="ally.core.impl.processor.parser.base.ParseBaseHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.parser.base.</tt><tt class="descname">ParseBaseHandler</tt><a class="reference internal" href="_modules/ally/core/impl/processor/parser/base.html#ParseBaseHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.base.ParseBaseHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessor" title="ally.design.processor.HandlerProcessor"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessor</span></tt></a></p>
+<p>Provides the text base renderer.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.ParseBaseHandler.contentTypes">
+<tt class="descname">contentTypes</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.ParseBaseHandler.contentTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">set</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.parser.base.ParseBaseHandler.parse">
+<tt class="descname">parse</tt><big>(</big><em>decoder</em>, <em>data</em>, <em>source</em>, <em>charSet</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/base.html#ParseBaseHandler.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.base.ParseBaseHandler.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the input stream using the decoder.</p>
+<dl class="docutils">
+<dt>&#64;param decoder: callable</dt>
+<dd>The decoder to be used by the parsing.</dd>
+<dt>&#64;param data: dictionary{string, object}</dt>
+<dd>The data used for the decoder.</dd>
+<dt>&#64;param source: IInputStream</dt>
+<dd>The byte input stream containing the content to be parsed.</dd>
+<dt>&#64;param charSet: string</dt>
+<dd>The character set for the input source stream.</dd>
+<dt>&#64;return: string|None</dt>
+<dd>If a problem occurred while parsing and decoding it will return a detailed error message, if the parsing is
+successful a None value will be returned.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.parser.base.ParseBaseHandler.process">
+<tt class="descname">process</tt><big>(</big><em>chain</em>, <em>request</em>, <em>requestCnt</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/base.html#ParseBaseHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.base.ParseBaseHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessor.process</p>
+<p>Parse the request object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.parser.base.ParseBaseHandler.processInputError">
+<tt class="descname">processInputError</tt><big>(</big><em>e</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/base.html#ParseBaseHandler.processInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.base.ParseBaseHandler.processInputError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the input error into an error object.</p>
+<dl class="docutils">
+<dt>&#64;return: Object</dt>
+<dd>The object containing the details of the input error.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.processor.parser.base.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.parser.base.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/base.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.base.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.Request.decoder">
+<tt class="descname">decoder</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.Request.decoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.Request.decoderData">
+<tt class="descname">decoderData</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.Request.decoderData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.processor.parser.base.RequestContent">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.parser.base.</tt><tt class="descname">RequestContent</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/base.html#RequestContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.base.RequestContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request content context.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.RequestContent.charSet">
+<tt class="descname">charSet</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.RequestContent.charSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.RequestContent.source">
+<tt class="descname">source</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.RequestContent.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.RequestContent.type">
+<tt class="descname">type</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.RequestContent.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.processor.parser.base.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.parser.base.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/base.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.base.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.Response.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.Response.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.Response.errorDetails">
+<tt class="descname">errorDetails</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.Response.errorDetails" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.Response.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.Response.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.base.Response.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.impl.processor.parser.base.Response.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.impl.processor.parser.text">
+<span id="text-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">text</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.processor.parser.text" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 28, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the text parser processor handler.</p>
+<dl class="class">
+<dt id="ally.core.impl.processor.parser.text.ParseTextHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.parser.text.</tt><tt class="descname">ParseTextHandler</tt><a class="reference internal" href="_modules/ally/core/impl/processor/parser/text.html#ParseTextHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.text.ParseTextHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.processor.parser.base.ParseBaseHandler" title="ally.core.impl.processor.parser.base.ParseBaseHandler"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.parser.base.ParseBaseHandler</span></tt></a></p>
+<p>Provides the text parsing.
+&#64;see: ParseBaseHandler</p>
+<dl class="method">
+<dt id="ally.core.impl.processor.parser.text.ParseTextHandler.parse">
+<tt class="descname">parse</tt><big>(</big><em>decoder</em>, <em>data</em>, <em>source</em>, <em>charSet</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/text.html#ParseTextHandler.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.text.ParseTextHandler.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ParseBaseHandler.parse</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.text.ParseTextHandler.parser">
+<tt class="descname">parser</tt><a class="headerlink" href="#ally.core.impl.processor.parser.text.ParseTextHandler.parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Callable</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.text.ParseTextHandler.parserName">
+<tt class="descname">parserName</tt><a class="headerlink" href="#ally.core.impl.processor.parser.text.ParseTextHandler.parserName" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.impl.processor.parser.xml">
+<span id="xml-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">xml</span></tt> Module<a class="headerlink" href="#module-ally.core.impl.processor.parser.xml" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 24, 2012</p>
+<p>&#64;package: ally core
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the XML parser processor handler.</p>
+<dl class="class">
+<dt id="ally.core.impl.processor.parser.xml.Parse">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.parser.xml.</tt><tt class="descname">Parse</tt><big>(</big><em>parser</em>, <em>decoder</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/xml.html#Parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">xml.sax.handler.ContentHandler</span></tt></p>
+<p>Content handler used for parsing the xml content.</p>
+<dl class="method">
+<dt id="ally.core.impl.processor.parser.xml.Parse.characters">
+<tt class="descname">characters</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/xml.html#Parse.characters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse.characters" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ContentHandler.characters</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.xml.Parse.content">
+<tt class="descname">content</tt><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse.content" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.xml.Parse.data">
+<tt class="descname">data</tt><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.xml.Parse.decoder">
+<tt class="descname">decoder</tt><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse.decoder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.parser.xml.Parse.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/xml.html#Parse.endElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse.endElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ContentHandler.endElement</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.xml.Parse.error">
+<tt class="descname">error</tt><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.xml.Parse.parser">
+<tt class="descname">parser</tt><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse.parser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.impl.processor.parser.xml.Parse.path">
+<tt class="descname">path</tt><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse.path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.impl.processor.parser.xml.Parse.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attributes</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/xml.html#Parse.startElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.xml.Parse.startElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ContentHandler.startElement</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="ally.core.impl.processor.parser.xml.ParseError">
+<em class="property">exception </em><tt class="descclassname">ally.core.impl.processor.parser.xml.</tt><tt class="descname">ParseError</tt><a class="reference internal" href="_modules/ally/core/impl/processor/parser/xml.html#ParseError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.xml.ParseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<p>Error raised whenever there is a XML parsing problem.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.impl.processor.parser.xml.ParseXMLHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.impl.processor.parser.xml.</tt><tt class="descname">ParseXMLHandler</tt><a class="reference internal" href="_modules/ally/core/impl/processor/parser/xml.html#ParseXMLHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.xml.ParseXMLHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.core.impl.processor.parser.base.ParseBaseHandler" title="ally.core.impl.processor.parser.base.ParseBaseHandler"><tt class="xref py py-class docutils literal"><span class="pre">ally.core.impl.processor.parser.base.ParseBaseHandler</span></tt></a></p>
+<p>Provides the XML parsing.
+&#64;see: ParseBaseHandler</p>
+<dl class="method">
+<dt id="ally.core.impl.processor.parser.xml.ParseXMLHandler.parse">
+<tt class="descname">parse</tt><big>(</big><em>decoder</em>, <em>data</em>, <em>source</em>, <em>charSet</em><big>)</big><a class="reference internal" href="_modules/ally/core/impl/processor/parser/xml.html#ParseXMLHandler.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.impl.processor.parser.xml.ParseXMLHandler.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: ParseBaseHandler.parse</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">parser Package</a><ul>
+<li><a class="reference internal" href="#module-ally.core.impl.processor.parser.base"><tt class="docutils literal"><span class="pre">base</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.impl.processor.parser.text"><tt class="docutils literal"><span class="pre">text</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.impl.processor.parser.xml"><tt class="docutils literal"><span class="pre">xml</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.core.impl.processor.html"
+                        title="previous chapter">processor Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.core.impl.processor.render.html"
+                        title="next chapter">render Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.core.impl.processor.parser.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.impl.processor.render.html" title="render Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.impl.processor.html" title="processor Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.impl.html" >impl Package</a> &raquo;</li>
+          <li><a href="ally.core.impl.processor.html" >processor Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
