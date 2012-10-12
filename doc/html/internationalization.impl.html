@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>impl Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="internationalization Package" href="internationalization.html" />
+    <link rel="next" title="meta Package" href="internationalization.meta.html" />
+    <link rel="prev" title="impl Package" href="internationalization.core.impl.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="internationalization.meta.html" title="meta Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="internationalization.core.impl.html" title="impl Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="internationalization.html" accesskey="U">internationalization Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="impl-package">
+<h1>impl Package<a class="headerlink" href="#impl-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">impl</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-internationalization.impl"></span><p>Created on Jun 23, 2011</p>
+<p>&#64;package: internationalization
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Implementations for the internationalization APIs.</p>
+</div>
+<div class="section" id="module-internationalization.impl.file">
+<span id="file-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">file</span></tt> Module<a class="headerlink" href="#module-internationalization.impl.file" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 5, 2012</p>
+<p>&#64;package: internationalization
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Implementation for the file API.</p>
+<dl class="class">
+<dt id="internationalization.impl.file.FileServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">internationalization.impl.file.</tt><tt class="descname">FileServiceAlchemy</tt><a class="reference internal" href="_modules/internationalization/impl/file.html#FileServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.file.FileServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.entity.EntityServiceAlchemy" title="sql_alchemy.impl.entity.EntityServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityServiceAlchemy</span></tt></a>, <a class="reference internal" href="internationalization.api.html#internationalization.api.file.IFileService" title="internationalization.api.file.IFileService"><tt class="xref py py-class docutils literal"><span class="pre">internationalization.api.file.IFileService</span></tt></a></p>
+<p>Alchemy implementation for &#64;see: IFileService</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-internationalization.impl.json_locale">
+<span id="json-locale-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">json_locale</span></tt> Module<a class="headerlink" href="#module-internationalization.impl.json_locale" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 9, 2012</p>
+<p>&#64;package: internationalization
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mugur Rus</p>
+<p>Implementation for the PO file management.</p>
+<dl class="class">
+<dt id="internationalization.impl.json_locale.JSONFileService">
+<em class="property">class </em><tt class="descclassname">internationalization.impl.json_locale.</tt><tt class="descname">JSONFileService</tt><a class="reference internal" href="_modules/internationalization/impl/json_locale.html#JSONFileService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.json_locale.JSONFileService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="internationalization.api.html#internationalization.api.json_locale.IJSONLocaleFileService" title="internationalization.api.json_locale.IJSONLocaleFileService"><tt class="xref py py-class docutils literal"><span class="pre">internationalization.api.json_locale.IJSONLocaleFileService</span></tt></a></p>
+<p>Implementation for &#64;see: IJSONLocaleFileService</p>
+<dl class="attribute">
+<dt id="internationalization.impl.json_locale.JSONFileService.cdmLocale">
+<tt class="descname">cdmLocale</tt><a class="headerlink" href="#internationalization.impl.json_locale.JSONFileService.cdmLocale" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">ICDM</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.impl.json_locale.JSONFileService.componentService">
+<tt class="descname">componentService</tt><a class="headerlink" href="#internationalization.impl.json_locale.JSONFileService.componentService" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IComponentService</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.impl.json_locale.JSONFileService.default_charset">
+<tt class="descname">default_charset</tt><em class="property"> = 'UTF-8'</em><a class="headerlink" href="#internationalization.impl.json_locale.JSONFileService.default_charset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.json_locale.JSONFileService.getComponentJSONFile">
+<tt class="descname">getComponentJSONFile</tt><big>(</big><em>component</em>, <em>locale</em>, <em>scheme</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/json_locale.html#JSONFileService.getComponentJSONFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.json_locale.JSONFileService.getComponentJSONFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOService.getComponentPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.json_locale.JSONFileService.getGlobalJSONFile">
+<tt class="descname">getGlobalJSONFile</tt><big>(</big><em>locale</em>, <em>scheme</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/json_locale.html#JSONFileService.getGlobalJSONFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.json_locale.JSONFileService.getGlobalJSONFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOService.getGlobalPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.json_locale.JSONFileService.getPluginJSONFile">
+<tt class="descname">getPluginJSONFile</tt><big>(</big><em>plugin</em>, <em>locale</em>, <em>scheme</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/json_locale.html#JSONFileService.getPluginJSONFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.json_locale.JSONFileService.getPluginJSONFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOService.getPluginPOFile</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.impl.json_locale.JSONFileService.pluginService">
+<tt class="descname">pluginService</tt><a class="headerlink" href="#internationalization.impl.json_locale.JSONFileService.pluginService" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IPluginService</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.impl.json_locale.JSONFileService.poFileManager">
+<tt class="descname">poFileManager</tt><a class="headerlink" href="#internationalization.impl.json_locale.JSONFileService.poFileManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IPOFileManager</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-internationalization.impl.message">
+<span id="message-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">message</span></tt> Module<a class="headerlink" href="#module-internationalization.impl.message" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 5, 2012</p>
+<p>&#64;package: internationalization
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Implementation for the message API.</p>
+<dl class="class">
+<dt id="internationalization.impl.message.MessageServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">internationalization.impl.message.</tt><tt class="descname">MessageServiceAlchemy</tt><a class="reference internal" href="_modules/internationalization/impl/message.html#MessageServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.message.MessageServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.entity.EntityGetCRUDServiceAlchemy" title="sql_alchemy.impl.entity.EntityGetCRUDServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityGetCRUDServiceAlchemy</span></tt></a>, <a class="reference internal" href="internationalization.api.html#internationalization.api.message.IMessageService" title="internationalization.api.message.IMessageService"><tt class="xref py py-class docutils literal"><span class="pre">internationalization.api.message.IMessageService</span></tt></a></p>
+<p>Alchemy implementation for &#64;see: IMessageService</p>
+<dl class="method">
+<dt id="internationalization.impl.message.MessageServiceAlchemy.getComponentMessages">
+<tt class="descname">getComponentMessages</tt><big>(</big><em>component</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>qm=None</em>, <em>qs=None</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/message.html#MessageServiceAlchemy.getComponentMessages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.message.MessageServiceAlchemy.getComponentMessages" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMessageService.getComponentMessages</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.message.MessageServiceAlchemy.getMessages">
+<tt class="descname">getMessages</tt><big>(</big><em>sourceId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>qm=None</em>, <em>qs=None</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/message.html#MessageServiceAlchemy.getMessages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.message.MessageServiceAlchemy.getMessages" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMessageService.getMessages</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.message.MessageServiceAlchemy.getPluginMessages">
+<tt class="descname">getPluginMessages</tt><big>(</big><em>plugin</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>qm=None</em>, <em>qs=None</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/message.html#MessageServiceAlchemy.getPluginMessages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.message.MessageServiceAlchemy.getPluginMessages" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMessageService.getPluginMessages</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-internationalization.impl.po_file">
+<span id="po-file-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">po_file</span></tt> Module<a class="headerlink" href="#module-internationalization.impl.po_file" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 9, 2012</p>
+<p>&#64;package: internationalization
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mugur Rus</p>
+<p>Implementation for the PO file management.</p>
+<dl class="function">
+<dt id="internationalization.impl.po_file.InvalidPOFile">
+<tt class="descclassname">internationalization.impl.po_file.</tt><tt class="descname">InvalidPOFile</tt><big>(</big><em>poFile</em><big>)</big><a class="headerlink" href="#internationalization.impl.po_file.InvalidPOFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="internationalization.impl.po_file.POFileService">
+<em class="property">class </em><tt class="descclassname">internationalization.impl.po_file.</tt><tt class="descname">POFileService</tt><a class="reference internal" href="_modules/internationalization/impl/po_file.html#POFileService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.po_file.POFileService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="internationalization.api.html#internationalization.api.po_file.IPOFileService" title="internationalization.api.po_file.IPOFileService"><tt class="xref py py-class docutils literal"><span class="pre">internationalization.api.po_file.IPOFileService</span></tt></a></p>
+<p>Implementation for &#64;see: IPOFileService</p>
+<dl class="attribute">
+<dt id="internationalization.impl.po_file.POFileService.cdmLocale">
+<tt class="descname">cdmLocale</tt><a class="headerlink" href="#internationalization.impl.po_file.POFileService.cdmLocale" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">ICDM</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.impl.po_file.POFileService.componentService">
+<tt class="descname">componentService</tt><a class="headerlink" href="#internationalization.impl.po_file.POFileService.componentService" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IComponentService</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.impl.po_file.POFileService.default_charset">
+<tt class="descname">default_charset</tt><em class="property"> = 'UTF-8'</em><a class="headerlink" href="#internationalization.impl.po_file.POFileService.default_charset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.po_file.POFileService.getComponentPOFile">
+<tt class="descname">getComponentPOFile</tt><big>(</big><em>component</em>, <em>locale</em>, <em>scheme</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/po_file.html#POFileService.getComponentPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.po_file.POFileService.getComponentPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileService.getComponentPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.po_file.POFileService.getGlobalPOFile">
+<tt class="descname">getGlobalPOFile</tt><big>(</big><em>locale</em>, <em>scheme</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/po_file.html#POFileService.getGlobalPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.po_file.POFileService.getGlobalPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileService.getGlobalPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.po_file.POFileService.getPluginPOFile">
+<tt class="descname">getPluginPOFile</tt><big>(</big><em>plugin</em>, <em>locale</em>, <em>scheme</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/po_file.html#POFileService.getPluginPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.po_file.POFileService.getPluginPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileService.getPluginPOFile</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.impl.po_file.POFileService.pluginService">
+<tt class="descname">pluginService</tt><a class="headerlink" href="#internationalization.impl.po_file.POFileService.pluginService" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IPluginService</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="internationalization.impl.po_file.POFileService.poFileManager">
+<tt class="descname">poFileManager</tt><a class="headerlink" href="#internationalization.impl.po_file.POFileService.poFileManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IPOFileManager</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.po_file.POFileService.updateComponentPOFile">
+<tt class="descname">updateComponentPOFile</tt><big>(</big><em>component</em>, <em>locale</em>, <em>poFile</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/po_file.html#POFileService.updateComponentPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.po_file.POFileService.updateComponentPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileService.updateComponentPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.po_file.POFileService.updateGlobalPOFile">
+<tt class="descname">updateGlobalPOFile</tt><big>(</big><em>locale</em>, <em>poFile</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/po_file.html#POFileService.updateGlobalPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.po_file.POFileService.updateGlobalPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileService.updateGlobalPOFile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="internationalization.impl.po_file.POFileService.updatePluginPOFile">
+<tt class="descname">updatePluginPOFile</tt><big>(</big><em>plugin</em>, <em>locale</em>, <em>poFile</em><big>)</big><a class="reference internal" href="_modules/internationalization/impl/po_file.html#POFileService.updatePluginPOFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.po_file.POFileService.updatePluginPOFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPOFileService.updatePluginPOFile</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="internationalization.impl.po_file.ToManyFiles">
+<tt class="descclassname">internationalization.impl.po_file.</tt><tt class="descname">ToManyFiles</tt><big>(</big><big>)</big><a class="headerlink" href="#internationalization.impl.po_file.ToManyFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-internationalization.impl.source">
+<span id="source-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">source</span></tt> Module<a class="headerlink" href="#module-internationalization.impl.source" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mar 5, 2012</p>
+<p>&#64;package: internationalization
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Implementation for the source API.</p>
+<dl class="class">
+<dt id="internationalization.impl.source.SourceServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">internationalization.impl.source.</tt><tt class="descname">SourceServiceAlchemy</tt><a class="reference internal" href="_modules/internationalization/impl/source.html#SourceServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#internationalization.impl.source.SourceServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.entity.EntityServiceAlchemy" title="sql_alchemy.impl.entity.EntityServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityServiceAlchemy</span></tt></a>, <a class="reference internal" href="internationalization.api.html#internationalization.api.source.ISourceService" title="internationalization.api.source.ISourceService"><tt class="xref py py-class docutils literal"><span class="pre">internationalization.api.source.ISourceService</span></tt></a></p>
+<p>Alchemy implementation for &#64;see: ISourceService</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">impl Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">impl</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-internationalization.impl.file"><tt class="docutils literal"><span class="pre">file</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-internationalization.impl.json_locale"><tt class="docutils literal"><span class="pre">json_locale</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-internationalization.impl.message"><tt class="docutils literal"><span class="pre">message</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-internationalization.impl.po_file"><tt class="docutils literal"><span class="pre">po_file</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-internationalization.impl.source"><tt class="docutils literal"><span class="pre">source</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="internationalization.core.impl.html"
+                        title="previous chapter">impl Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="internationalization.meta.html"
+                        title="next chapter">meta Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/internationalization.impl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="internationalization.meta.html" title="meta Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="internationalization.core.impl.html" title="impl Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="internationalization.html" >internationalization Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

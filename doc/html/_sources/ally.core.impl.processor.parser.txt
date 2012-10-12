@@ -1,0 +1,27 @@
+parser Package
+==============
+
+:mod:`base` Module
+------------------
+
+.. automodule:: ally.core.impl.processor.parser.base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`text` Module
+------------------
+
+.. automodule:: ally.core.impl.processor.parser.text
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`xml` Module
+-----------------
+
+.. automodule:: ally.core.impl.processor.parser.xml
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -1,0 +1,559 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.api.operator.descriptor &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.api.operator.descriptor</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Mar 13, 2012</span>
+
+<span class="sd">@package: ally api</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides the operator descriptors for the APIs.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">..type</span> <span class="kn">import</span> <span class="n">typeFor</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeSupport</span>
+<span class="kn">from</span> <span class="nn">.type</span> <span class="kn">import</span> <span class="n">TypeContainer</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">,</span> <span class="n">TypeQuery</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
+<span class="kn">from</span> <span class="nn">ally.api.operator.container</span> <span class="kn">import</span> <span class="n">Query</span><span class="p">,</span> <span class="n">Container</span>
+<span class="kn">from</span> <span class="nn">ally.api.operator.type</span> <span class="kn">import</span> <span class="n">TypeCriteria</span>
+<span class="kn">from</span> <span class="nn">ally.exception</span> <span class="kn">import</span> <span class="n">DevelError</span>
+<span class="kn">from</span> <span class="nn">ally.support.util_spec</span> <span class="kn">import</span> <span class="n">IGet</span><span class="p">,</span> <span class="n">IContained</span><span class="p">,</span> <span class="n">ISet</span><span class="p">,</span> <span class="n">IDelete</span>
+<span class="kn">from</span> <span class="nn">ally.support.util_sys</span> <span class="kn">import</span> <span class="n">getAttrAndClass</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Reference"><a class="viewcode-back" href="../../../../ally.api.operator.html#ally.api.operator.descriptor.Reference">[docs]</a><span class="k">class</span> <span class="nc">Reference</span><span class="p">(</span><span class="n">TypeSupport</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the property reference that is provided by the property descriptor.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;_ally_ref_parent&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructs the container property descriptor.</span>
+<span class="sd">        </span>
+<span class="sd">        @param type: TypeProperty</span>
+<span class="sd">            The property type represented by the property.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">),</span> <span class="s">&#39;Invalid property type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">type</span>
+        <span class="k">assert</span> <span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">TypeSupport</span><span class="p">),</span> \
+        <span class="s">&#39;Invalid parent </span><span class="si">%s</span><span class="s">, needs to be a type support&#39;</span> <span class="o">%</span> <span class="n">parent</span>
+        <span class="n">TypeSupport</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ally_ref_parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the contained container properties.</span>
+<span class="sd">        </span>
+<span class="sd">        @param name: string</span>
+<span class="sd">            The property to get from the contained container.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="n">typ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeContainer</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeContainer</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Reference</span><span class="p">(</span><span class="n">typ</span><span class="o">.</span><span class="n">childTypeFor</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s"> object has no attribute </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_ally_type</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_ref_parent</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_ref_parent</span><span class="p">))</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;-&gt;&#39;</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="p">))</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Property"><a class="viewcode-back" href="../../../../ally.api.operator.html#ally.api.operator.descriptor.Property">[docs]</a><span class="k">class</span> <span class="nc">Property</span><span class="p">(</span><span class="n">IGet</span><span class="p">,</span> <span class="n">IContained</span><span class="p">,</span> <span class="n">ISet</span><span class="p">,</span> <span class="n">IDelete</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the descriptor for the model properties. It contains the operation that need to be applied on a model</span>
+<span class="sd">    object that relate to this property. The property also has a reference that will be returned whenever the property</span>
+<span class="sd">    is used only with the model class.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructs the model property descriptor.</span>
+<span class="sd">        </span>
+<span class="sd">        @param type: TypeProperty</span>
+<span class="sd">            The property type represented by the property.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">),</span> <span class="s">&#39;Invalid property type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">type</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">clazz</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IGet.__get__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isOf</span><span class="p">(</span><span class="n">clazz</span><span class="p">),</span> <span class="s">&#39;Illegal class </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">ContainerSupport</span><span class="p">),</span> <span class="s">&#39;Invalid container class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">clazz</span>
+            <span class="k">return</span> <span class="n">clazz</span><span class="o">.</span><span class="n">_ally_reference</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">property</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">ContainerSupport</span><span class="p">),</span> <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">property</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__contained__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IContained.__contained__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">ContainerSupport</span><span class="p">),</span> <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">property</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span>
+
+    <span class="k">def</span> <span class="nf">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ISet.__set__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">ContainerSupport</span><span class="p">),</span> <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Invalid value &quot;</span><span class="si">%s</span><span class="s">&quot; for </span><span class="si">%s</span><span class="s">(</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">property</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success on setting value (</span><span class="si">%s</span><span class="s">) for </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__delete__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IDelete.__delete__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">ContainerSupport</span><span class="p">),</span> <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">property</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">property</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success on removing value for </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="CriteriaEntry"><a class="viewcode-back" href="../../../../ally.api.operator.html#ally.api.operator.descriptor.CriteriaEntry">[docs]</a><span class="k">class</span> <span class="nc">CriteriaEntry</span><span class="p">(</span><span class="n">TypeSupport</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Descriptor used for defining criteria entries in a query object.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the criteria entry descriptor.</span>
+<span class="sd">        </span>
+<span class="sd">        @param type: TypeCriteriaEntry</span>
+<span class="sd">            The criteria entry type represented by the criteria entry descriptor.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">),</span> <span class="s">&#39;Invalid criteria entry type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">type</span>
+        <span class="n">TypeSupport</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">clazz</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the value represented by this criteria entry for the provided query object.</span>
+<span class="sd">        </span>
+<span class="sd">        @param obj: object</span>
+<span class="sd">            The query object to provide the value for, None provides the criteria entry.</span>
+<span class="sd">        @param clazz: class</span>
+<span class="sd">            The query class from which the criteria originates from, can be None if the object is provided.</span>
+<span class="sd">        @return: object</span>
+<span class="sd">            The value of the criteria or the criteria entry if used only with the class.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isOf</span><span class="p">(</span><span class="n">clazz</span><span class="p">),</span> \
+            <span class="s">&#39;Illegal class </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">QuerySupport</span><span class="p">),</span> <span class="s">&#39;Invalid query object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> \
+            <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="n">objCrit</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">objCrit</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">objCrit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">clazz</span><span class="p">(</span><span class="n">queryObj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span> <span class="n">criteriaName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">objCrit</span>
+                <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Created criteria object for </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="n">objCrit</span>
+
+    <span class="k">def</span> <span class="nf">__contained__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if the entry is contained in the provided object. This is an artifact from the __contains__ method </span>
+<span class="sd">        that is found on the actual model object.</span>
+<span class="sd">        </span>
+<span class="sd">        @param obj: object</span>
+<span class="sd">            The object to check if the entry is contained in.</span>
+<span class="sd">        @return: boolean</span>
+<span class="sd">            True if the entry is contained in the object, false otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">QuerySupport</span><span class="p">),</span> <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="s">&#39;Invalid query object </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span>
+
+    <span class="k">def</span> <span class="nf">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set the value on the main criteria property, if the represented criteria does not expose a main property that this</span>
+<span class="sd">        set method will fail.</span>
+<span class="sd">        </span>
+<span class="sd">        @param obj: object</span>
+<span class="sd">            The query object to set the value to.</span>
+<span class="sd">        @param value: object</span>
+<span class="sd">            The value to set, needs to be valid for the main property.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">QuerySupport</span><span class="p">),</span> <span class="s">&#39;Invalid query object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> \
+        <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">main</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">criteria</span><span class="o">.</span><span class="n">main</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">main</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Cannot set value for </span><span class="si">%s</span><span class="s"> because the criteria </span><span class="si">%s</span><span class="s"> has no main property&#39;</span> <span class="o">%</span> 
+                             <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">criteria</span><span class="p">))</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">main</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__delete__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Remove the criteria represented by this criteria entry from the provided query object.</span>
+<span class="sd">        </span>
+<span class="sd">        @param obj: object</span>
+<span class="sd">            The query object to remove the value from.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">QuerySupport</span><span class="p">),</span> <span class="s">&#39;Invalid query object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">obj</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> \
+        <span class="s">&#39;Invalid container object </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ally_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success on removing value for </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the contained criteria properties.</span>
+<span class="sd">        </span>
+<span class="sd">        @param name: string</span>
+<span class="sd">            The property to get from the contained criteria.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">Reference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">childTypeFor</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_ally_type</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="n">ABCMeta</span> <span class="o">=</span> <span class="n">ABCMeta</span> <span class="c"># Just to get rid of the pydev warning of not used</span>
+
+<div class="viewcode-block" id="ContainerSupport"><a class="viewcode-back" href="../../../../ally.api.operator.html#ally.api.operator.descriptor.ContainerSupport">[docs]</a><span class="k">class</span> <span class="nc">ContainerSupport</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Support class for containers.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">_ally_type</span> <span class="o">=</span> <span class="n">TypeContainer</span> <span class="c"># Contains the type that represents the container</span>
+    <span class="n">_ally_reference</span> <span class="o">=</span> <span class="p">{}</span> <span class="c"># Provides the references for the property descriptors.</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the instance of the container.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_ally_type</span><span class="p">,</span> <span class="n">TypeContainer</span><span class="p">),</span> \
+        <span class="s">&#39;Bad container support class </span><span class="si">%s</span><span class="s">, no type assigned&#39;</span> <span class="o">%</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_type</span>
+        <span class="k">assert</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">isOf</span><span class="p">(</span><span class="n">cls</span><span class="p">),</span> <span class="s">&#39;Illegal class </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_type</span><span class="p">)</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ally_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if the object contains a value for the property even if that value is None.</span>
+<span class="sd">        </span>
+<span class="sd">        @param ref: TypeProperty reference</span>
+<span class="sd">            The type property to check.</span>
+<span class="sd">        @return: boolean</span>
+<span class="sd">            True if a value for the reference is present, false otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">typ</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">):</span> <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">typ</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">descriptor</span><span class="p">,</span> <span class="n">_clazz</span> <span class="o">=</span> <span class="n">getAttrAndClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="n">typ</span><span class="o">.</span><span class="n">property</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">IContained</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">IContained</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">__contained__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">container</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">Container</span><span class="p">),</span> <span class="s">&#39;Invalid container </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">container</span>
+        <span class="n">clazz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">clazz</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="s">&#39;[&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">container</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__contains__</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">prop</span><span class="p">)):</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">)))</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;,&#39;</span><span class="p">:</span> <span class="k">del</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c"># Just remove the last comma</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">ContainerSupport</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeFor</span><span class="p">(</span><span class="n">C</span><span class="p">),</span> <span class="n">TypeContainer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
+</div>
+<div class="viewcode-block" id="CriteriaSupport"><a class="viewcode-back" href="../../../../ally.api.operator.html#ally.api.operator.descriptor.CriteriaSupport">[docs]</a><span class="k">class</span> <span class="nc">CriteriaSupport</span><span class="p">(</span><span class="n">ContainerSupport</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Support class for criterias.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">queryObj</span><span class="p">,</span> <span class="n">criteriaName</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">queryObj</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">criteriaName</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;The criteria can be created only within a query object&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">criteriaName</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid criteria name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">criteriaName</span>
+
+        <span class="bp">self</span> <span class="o">=</span> <span class="n">ContainerSupport</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ally_query</span> <span class="o">=</span> <span class="n">queryObj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ally_criteria</span> <span class="o">=</span> <span class="n">criteriaName</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">CriteriaSupport</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeFor</span><span class="p">(</span><span class="n">C</span><span class="p">),</span> <span class="n">TypeCriteria</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
+</div>
+<div class="viewcode-block" id="QuerySupport"><a class="viewcode-back" href="../../../../ally.api.operator.html#ally.api.operator.descriptor.QuerySupport">[docs]</a><span class="k">class</span> <span class="nc">QuerySupport</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Support class for queries.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">_ally_type</span> <span class="o">=</span> <span class="n">TypeQuery</span> <span class="c"># Contains the type that represents the query</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the instance of the container.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_ally_type</span><span class="p">,</span> <span class="n">TypeQuery</span><span class="p">),</span> \
+        <span class="s">&#39;Bad query support class </span><span class="si">%s</span><span class="s">, no type assigned&#39;</span> <span class="o">%</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_type</span>
+        <span class="k">assert</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">isOf</span><span class="p">(</span><span class="n">cls</span><span class="p">),</span> <span class="s">&#39;Illegal class </span><span class="si">%s</span><span class="s">, expected </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_type</span><span class="p">)</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">query</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">Query</span><span class="p">)</span>
+
+        <span class="bp">self</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ally_values</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keyargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">criterias</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">DevelError</span><span class="p">(</span><span class="s">&#39;Invalid criteria name </span><span class="si">%r</span><span class="s"> for </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if the object contains a value for the property even if that value is None.</span>
+<span class="sd">        </span>
+<span class="sd">        @param ref: TypeCriteriaEntry|TypeProperty reference</span>
+<span class="sd">            The type property to check.</span>
+<span class="sd">        @return: boolean</span>
+<span class="sd">            True if a value for the reference is present, false otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">typ</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">typ</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">descriptor</span><span class="p">,</span> <span class="n">_clazz</span> <span class="o">=</span> <span class="n">getAttrAndClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="n">typ</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">IContained</span><span class="p">):</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">IContained</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">__contained__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">TypeProperty</span><span class="p">):</span>
+            <span class="c"># We do not need to make any recursive checking here since the criteria will only contain primitive properties</span>
+            <span class="c"># so there will not be the case of AQuery.ACriteria.AModel.AProperty the maximum is AQuery.ACriteria.AProperty</span>
+            <span class="k">try</span><span class="p">:</span> <span class="n">typCrt</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">_ally_ref_parent</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typCrt</span><span class="p">,</span> <span class="n">TypeCriteriaEntry</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">typCrt</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">isValid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                        <span class="n">descriptor</span><span class="p">,</span> <span class="n">_clazz</span> <span class="o">=</span> <span class="n">getAttrAndClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="n">typCrt</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">IContained</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">IGet</span><span class="p">):</span>
+                            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">IContained</span><span class="p">)</span>
+                            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">descriptor</span><span class="p">,</span> <span class="n">IGet</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">__contained__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span><span class="o">.</span><span class="n">query</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">Query</span><span class="p">),</span> <span class="s">&#39;Invalid query </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">query</span>
+        <span class="n">clazz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">clazz</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="s">&#39;[&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">crt</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">criterias</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__contains__</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span> <span class="n">crt</span><span class="p">)):</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">crt</span><span class="p">)</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crt</span><span class="p">)))</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;,&#39;</span><span class="p">:</span> <span class="k">del</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c"># Just remove the last comma</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;]&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">QuerySupport</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typeFor</span><span class="p">(</span><span class="n">C</span><span class="p">),</span> <span class="n">TypeQuery</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="typesFor"><a class="viewcode-back" href="../../../../ally.api.operator.html#ally.api.operator.descriptor.typesFor">[docs]</a><span class="k">def</span> <span class="nf">typesFor</span><span class="p">(</span><span class="n">ref</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the types of the provided references. This function provides a list of types that represent the references.</span>
+<span class="sd">    </span>
+<span class="sd">    ex:</span>
+<span class="sd">        @model</span>
+<span class="sd">        class Entity:</span>
+<span class="sd">            Name = Integer</span>
+<span class="sd">        </span>
+<span class="sd">        @model</span>
+<span class="sd">        class EntityContainer1:</span>
+<span class="sd">            Entity = Entity</span>
+<span class="sd">            </span>
+<span class="sd">        @model</span>
+<span class="sd">        class EntityContainer2:</span>
+<span class="sd">            EntityContainer = EntityContainer1 </span>
+<span class="sd">            </span>
+<span class="sd">        typesOf(EntityContainer2.EntityContainer.Entity.Name) will return:</span>
+<span class="sd">        [EntityContainer2.EntityContainer, EntityContainer1.Entity, Entity.Name]</span>
+<span class="sd">    </span>
+<span class="sd">    @param ref: object</span>
+<span class="sd">        The reference object to provide the types for.</span>
+<span class="sd">    @return: list[Type]</span>
+<span class="sd">        The list of types of the reference.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="n">ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;None is not a valid reference&#39;</span>
+    <span class="n">types</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">ref</span><span class="p">:</span>
+        <span class="n">typ</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">typ</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid reference </span><span class="si">%s</span><span class="s">, has no type&#39;</span> <span class="o">%</span> <span class="n">ref</span>
+        <span class="n">types</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">typ</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span> <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">_ally_ref_parent</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="n">ref</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">return</span> <span class="n">types</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

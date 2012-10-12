@@ -1,0 +1,43 @@
+impl Package
+============
+
+:mod:`meta_service_base` Module
+-------------------------------
+
+.. automodule:: superdesk.media_archive.core.impl.meta_service_base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`query_service_creator` Module
+-----------------------------------
+
+.. automodule:: superdesk.media_archive.core.impl.query_service_creator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`thumbnail_manager` Module
+-------------------------------
+
+.. automodule:: superdesk.media_archive.core.impl.thumbnail_manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`thumbnail_processor_avconv` Module
+----------------------------------------
+
+.. automodule:: superdesk.media_archive.core.impl.thumbnail_processor_avconv
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`thumbnail_processor_ffmpeg` Module
+----------------------------------------
+
+.. automodule:: superdesk.media_archive.core.impl.thumbnail_processor_ffmpeg
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

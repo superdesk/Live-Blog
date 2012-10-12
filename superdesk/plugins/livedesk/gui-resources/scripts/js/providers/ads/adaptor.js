@@ -21,7 +21,7 @@ define('providers/ads/adaptor', [
             universal: function(obj)
             {
                 return {
-                    Content: $(obj).find('.result-text').html(),
+                    Content: $(obj).html(),
                     Type: 'advertisement',
                     Author: this.author
                 };

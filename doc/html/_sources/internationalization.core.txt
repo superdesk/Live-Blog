@@ -1,0 +1,18 @@
+core Package
+============
+
+:mod:`spec` Module
+------------------
+
+.. automodule:: internationalization.core.spec
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    internationalization.core.impl
+
