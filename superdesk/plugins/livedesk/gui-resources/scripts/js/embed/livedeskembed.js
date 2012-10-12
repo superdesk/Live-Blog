@@ -28,7 +28,7 @@ window.livedesk.init = function() {
             if (typeof $.gizmo == 'undefined') {
                 self.loadScript(contentPath+'gizmo.js', function(){
                     self.preLoad(giveBack$);
-                })
+                });
             } else {
                 self.preLoad(giveBack$);
             }
@@ -181,6 +181,7 @@ window.livedesk.startLoading = function($) {
 			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
+                        
 			setIdInterval: function(fn){
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
@@ -301,6 +302,20 @@ window.livedesk.startLoading = function($) {
                                 }
                                return returned;
 			},
+                        toggleWrap: function(e) {
+                            //e.preventDefault();
+                            this._toggleWrap($(e).closest('li').first());
+                        },
+                        _toggleWrap: function(item) {
+                            if (item.hasClass('open')) {
+                                item.removeClass('open').addClass('closed');
+                                item.nextUntil('.wrapup').hide();
+                            } else {
+                                item.removeClass('closed').addClass('open');
+                                item.nextUntil('.wrapup').show();
+                            }
+                        },
+
 			render: function()
 			{			
                                 countLoaded++;
@@ -381,6 +396,12 @@ window.livedesk.startLoading = function($) {
                                 var permalink = '<a rel="bookmark" href="#'+ hash +'">#</a>';
 				var template ='<li class="'+ style + itemClass +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
                                 self.setElement( template );
+                                self.model.triggerHandler('rendered');
+                                
+                                $(self.el).off('click.view').on('click.view', '.big-toggle', function(){
+                                    self.toggleWrap(this);
+                                });
+
 			}
 		}),
                 totalLoad = 0,
@@ -455,6 +476,7 @@ window.livedesk.startLoading = function($) {
 				if( this._latest !== undefined )
 					this._latest.prev = current;
 				this._latest = current;
+                                return current;
 			},
 			addAll: function(evt, data)
 			{
@@ -497,14 +519,36 @@ window.livedesk.startLoading = function($) {
 				var next = this._latest, current, model, i = data.length;
                                 
                                 totalLoad = data.length;
-                                var self = this;
+                                var self = this, auxView;
                                 iidLoadTrace = setInterval(function(){
                                     self.loadTrace();
                                 }, 900)
+                                this.views=[];
+                                this.renderedTotal = i;
+
 				while(i--) {
-					this.addOne(data[i]);
+					auxView = this.addOne(data[i]);
+                                        auxView.model.on('rendered', this.renderedOn, this);
+					this.views.push(auxView);
 				}
-			}
+                                
+			},
+                        renderedOn: function(){
+                           this.renderedTotal--;
+                           if(!this.renderedTotal) {
+                                this.closeAllButFirstWrapup();
+                           }
+                        },
+                        closeAllButFirstWrapup: function(views) {
+                            var first = true, views= this.views;
+                            views.reverse();
+                            for (var i = 0; i < views.length; i++) {
+                                 if ($(views[i].el).hasClass('wrapup')) {
+                                      views[i]._toggleWrap($(views[i].el));
+                                 }
+                            }
+                        }
+
 			
 		});
 		window.livedesk.TimelineView = TimelineView;
