@@ -141,17 +141,17 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
                 return int(s)
 
     def extractString(self, line):
-        str = line.partition('-')[2].strip('\n')
+        str = line.partition('-')[2].strip('\n').strip()
         return str
 
     def extractDateTime(self, line):
-        #example:' 2010:11:08 18:33:13'
+        #example:'2010:11:08 18:33:13'
         dateTimeFormat = ' %Y:%m:%d %H:%M:%S'
-        str = line.partition('-')[2].strip('\n')
+        str = line.partition('-')[2].strip('\n').strip()
         return datetime.strptime(str, dateTimeFormat)
 
     def extractSize(self, line):
-        str = line.partition('-')[2].strip('\n')
+        str = line.partition('-')[2].strip('\n').strip()
         str = str.partition('x')
         return (str[0], str[2])
 
