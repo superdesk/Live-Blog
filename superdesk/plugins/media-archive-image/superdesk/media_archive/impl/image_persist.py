@@ -95,6 +95,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
             line = p.stdout.readline()
             if not line: break
             line = str(line, "utf-8")
+            
 
             if line.find('] Image Width -') != -1:
                 imageDataEntry.Width = self.extractNumber(line)
