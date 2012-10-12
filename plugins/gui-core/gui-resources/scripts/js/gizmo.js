@@ -643,13 +643,13 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                     for( var i=0; i < data.list.length; i++ )
                     {
                         var model = false;
-                        for( var j=0; j<count; j++ )
-                            if( data.list[i].hash() == self._list[j].hash() )
+                        for( var j=0; j<count; j++ ) {
+							if( data.list[i].hash() == self._list[j].hash() )
                             {
-                                model = data.list[i];
+								model = data.list[i];
                                 break;
                             }
-
+						}
                         if( !model ) {
                             self._list.push(data.list[i]);
                             changeset.push(data.list[i]);
@@ -723,7 +723,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         insert: function(model)
         {
             this.desynced = false;
-            if( !(model instanceof Model) ) model = new this.model(model);
+            if( !(model instanceof Model) ) model = this.modelDataBuild(new this.model(model));
             this._list.push(model);
             model.hash();
             var x = model.sync(this.href);
@@ -806,7 +806,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             options = $.extend({}, { init: true, events: true, ensure: true}, options);
 			options.ensure && this._ensureElement();
 			options.init && this.init.apply(this, arguments);
-            options.events && this.delegateEvents();
+            options.events && this.resetEvents();
         },
         _ensureElement: function()
         {
@@ -858,16 +858,17 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                 }
             }
         },
+        undelegateEvents: function()
+        {
+            $(this.el).off(this.getNamespace());
+			return this;
+        },		
         getEvent: function(evnt){
             return evnt + this.getNamespace();
         },
         getNamespace: function()
         {
             return '.'+this.getProperty('namespace');
-        },
-        undelegateEvents: function()
-        {
-            $(this.el).off(this.getProperty('namespace'));
         },
         render: function(){
 
@@ -921,7 +922,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         },
         resetElement: function(el)
         {
-                this.el = $(el);
+            this.el = $(el);
             this._ensureElement();
             this.delegateEvents();
         }
