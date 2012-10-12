@@ -1,0 +1,205 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>impl Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="post Package" href="superdesk.post.html" />
+    <link rel="next" title="meta Package" href="superdesk.post.meta.html" />
+    <link rel="prev" title="api Package" href="superdesk.post.api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.post.meta.html" title="meta Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.post.api.html" title="api Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.post.html" accesskey="U">post Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="impl-package">
+<h1>impl Package<a class="headerlink" href="#impl-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-superdesk.post.impl.post">
+<span id="post-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">post</span></tt> Module<a class="headerlink" href="#module-superdesk.post.impl.post" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 3, 2012</p>
+<p>&#64;package: superdesk posts
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy implementation for post API.</p>
+<dl class="class">
+<dt id="superdesk.post.impl.post.PostServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.post.impl.post.</tt><tt class="descname">PostServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/post/impl/post.html#PostServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.post.impl.post.PostServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.entity.EntityGetServiceAlchemy" title="sql_alchemy.impl.entity.EntityGetServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityGetServiceAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.post.api.html#superdesk.post.api.post.IPostService" title="superdesk.post.api.post.IPostService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.api.post.IPostService</span></tt></a></p>
+<p>Implementation for &#64;see: IPostService</p>
+<dl class="attribute">
+<dt id="superdesk.post.impl.post.PostServiceAlchemy.default_source_name">
+<tt class="descname">default_source_name</tt><em class="property"> = 'internal'</em><a class="headerlink" href="#superdesk.post.impl.post.PostServiceAlchemy.default_source_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.post.impl.post.PostServiceAlchemy.delete">
+<tt class="descname">delete</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/superdesk/post/impl/post.html#PostServiceAlchemy.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.post.impl.post.PostServiceAlchemy.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPostService.delete</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.post.impl.post.PostServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>creatorId=None</em>, <em>authorId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/post/impl/post.html#PostServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.post.impl.post.PostServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPostService.getPublished</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.post.impl.post.PostServiceAlchemy.getPublished">
+<tt class="descname">getPublished</tt><big>(</big><em>creatorId=None</em>, <em>authorId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/post/impl/post.html#PostServiceAlchemy.getPublished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.post.impl.post.PostServiceAlchemy.getPublished" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPostService.getPublished</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.post.impl.post.PostServiceAlchemy.getUnpublished">
+<tt class="descname">getUnpublished</tt><big>(</big><em>creatorId=None</em>, <em>authorId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/post/impl/post.html#PostServiceAlchemy.getUnpublished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.post.impl.post.PostServiceAlchemy.getUnpublished" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPostService.getUnpublished</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.post.impl.post.PostServiceAlchemy.insert">
+<tt class="descname">insert</tt><big>(</big><em>post</em><big>)</big><a class="reference internal" href="_modules/superdesk/post/impl/post.html#PostServiceAlchemy.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.post.impl.post.PostServiceAlchemy.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPostService.insert</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.post.impl.post.PostServiceAlchemy.update">
+<tt class="descname">update</tt><big>(</big><em>post</em><big>)</big><a class="reference internal" href="_modules/superdesk/post/impl/post.html#PostServiceAlchemy.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.post.impl.post.PostServiceAlchemy.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IPostService.update</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.post.impl.type">
+<span id="type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">type</span></tt> Module<a class="headerlink" href="#module-superdesk.post.impl.type" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 3, 2012</p>
+<p>&#64;package: superdesk source
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy implementation for post type API.</p>
+<dl class="class">
+<dt id="superdesk.post.impl.type.PostTypeServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.post.impl.type.</tt><tt class="descname">PostTypeServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/post/impl/type.html#PostTypeServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.post.impl.type.PostTypeServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.keyed.EntityGetServiceAlchemy" title="sql_alchemy.impl.keyed.EntityGetServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityGetServiceAlchemy</span></tt></a>, <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.keyed.EntityFindServiceAlchemy" title="sql_alchemy.impl.keyed.EntityFindServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityFindServiceAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.post.api.html#superdesk.post.api.type.IPostTypeService" title="superdesk.post.api.type.IPostTypeService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.api.type.IPostTypeService</span></tt></a></p>
+<p>Implementation for &#64;see: IPostTypeService</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">impl Package</a><ul>
+<li><a class="reference internal" href="#module-superdesk.post.impl.post"><tt class="docutils literal"><span class="pre">post</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.post.impl.type"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superdesk.post.api.html"
+                        title="previous chapter">api Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superdesk.post.meta.html"
+                        title="next chapter">meta Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/superdesk.post.impl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.post.meta.html" title="meta Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.post.api.html" title="api Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.post.html" >post Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

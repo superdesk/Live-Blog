@@ -1,0 +1,884 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>headers Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="processor Package" href="ally.core.http.impl.processor.html" />
+    <link rel="next" title="parser Package" href="ally.core.http.impl.processor.parser.html" />
+    <link rel="prev" title="processor Package" href="ally.core.http.impl.processor.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.impl.processor.parser.html" title="parser Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.impl.processor.html" title="processor Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.http.html" >http Package</a> &raquo;</li>
+          <li><a href="ally.core.http.impl.html" >impl Package</a> &raquo;</li>
+          <li><a href="ally.core.http.impl.processor.html" accesskey="U">processor Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="headers-package">
+<h1>headers Package<a class="headerlink" href="#headers-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-ally.core.http.impl.processor.headers.accept">
+<span id="accept-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">accept</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.headers.accept" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 11, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the accept headers handling.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.accept.</tt><tt class="descname">AcceptDecodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/accept.html#AcceptDecodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the decoding of accept HTTP request headers.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler.nameAccept">
+<tt class="descname">nameAccept</tt><em class="property"> = 'Accept'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler.nameAccept" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler.nameAcceptCharset">
+<tt class="descname">nameAcceptCharset</tt><em class="property"> = 'Accept-Charset'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler.nameAcceptCharset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler.nameAcceptLanguage">
+<tt class="descname">nameAcceptLanguage</tt><em class="property"> = 'Accept-Language'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler.nameAcceptLanguage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/accept.html#AcceptDecodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.AcceptDecodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Decode the accepted headers.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.accept.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.accept.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/accept.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.accept.Request.accCharSets">
+<tt class="descname">accCharSets</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.Request.accCharSets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.accept.Request.accLanguages">
+<tt class="descname">accLanguages</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.Request.accLanguages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.accept.Request.accTypes">
+<tt class="descname">accTypes</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.Request.accTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.accept.Request.argumentsOfType">
+<tt class="descname">argumentsOfType</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.Request.argumentsOfType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.accept.Request.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.accept.Request.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.headers.allow">
+<span id="allow-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">allow</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.headers.allow" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 11, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the allow headers handling.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.allow.AllowEncodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.allow.</tt><tt class="descname">AllowEncodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/allow.html#AllowEncodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.allow.AllowEncodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the encoding of allow HTTP request headers.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.allow.AllowEncodeHandler.methodsAllow">
+<tt class="descname">methodsAllow</tt><em class="property"> = ((1, 'GET'), (8, 'DELETE'), (2, 'POST'), (4, 'PUT'))</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.allow.AllowEncodeHandler.methodsAllow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.allow.AllowEncodeHandler.nameAllow">
+<tt class="descname">nameAllow</tt><em class="property"> = 'Allow'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.allow.AllowEncodeHandler.nameAllow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.allow.AllowEncodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/allow.html#AllowEncodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.allow.AllowEncodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Encode the allow headers.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.allow.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.allow.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/allow.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.allow.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.allow.Response.allows">
+<tt class="descname">allows</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.allow.Response.allows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.allow.Response.encoderHeader">
+<tt class="descname">encoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.allow.Response.encoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.headers.content_disposition">
+<span id="content-disposition-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">content_disposition</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.headers.content_disposition" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 11, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the content disposition header decoding.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.ContentDispositionDecodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_disposition.</tt><tt class="descname">ContentDispositionDecodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_disposition.html#ContentDispositionDecodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.ContentDispositionDecodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the decoding of content disposition HTTP request header.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.ContentDispositionDecodeHandler.nameContentDisposition">
+<tt class="descname">nameContentDisposition</tt><em class="property"> = 'Content-Disposition'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.ContentDispositionDecodeHandler.nameContentDisposition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.ContentDispositionDecodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>requestCnt</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_disposition.html#ContentDispositionDecodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.ContentDispositionDecodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Provides the content type decode for the request.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.ContentDispositionDecodeHandler.uploadFilename">
+<tt class="descname">uploadFilename</tt><em class="property"> = 'filename'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.ContentDispositionDecodeHandler.uploadFilename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_disposition.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_disposition.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.Request.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.Request.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.RequestContent">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_disposition.</tt><tt class="descname">RequestContent</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_disposition.html#RequestContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.RequestContent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request content context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.RequestContent.disposition">
+<tt class="descname">disposition</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.RequestContent.disposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.RequestContent.dispositionAttr">
+<tt class="descname">dispositionAttr</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.RequestContent.dispositionAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.RequestContent.name">
+<tt class="descname">name</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.RequestContent.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_disposition.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_disposition.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.Response.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.Response.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.Response.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.Response.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_disposition.Response.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_disposition.Response.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.headers.content_language">
+<span id="content-language-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">content_language</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.headers.content_language" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 12, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the content language header decoding.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_language.ContentLanguageDecodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_language.</tt><tt class="descname">ContentLanguageDecodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_language.html#ContentLanguageDecodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.ContentLanguageDecodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the decoding of content language HTTP request header.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_language.ContentLanguageDecodeHandler.nameContentLanguage">
+<tt class="descname">nameContentLanguage</tt><em class="property"> = 'Content-Language'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.ContentLanguageDecodeHandler.nameContentLanguage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.content_language.ContentLanguageDecodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_language.html#ContentLanguageDecodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.ContentLanguageDecodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Provides the content language decode for the request.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_language.ContentLanguageEncodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_language.</tt><tt class="descname">ContentLanguageEncodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_language.html#ContentLanguageEncodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.ContentLanguageEncodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the encoding of content language HTTP request header.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_language.ContentLanguageEncodeHandler.nameContentLanguage">
+<tt class="descname">nameContentLanguage</tt><em class="property"> = 'Content-Language'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.ContentLanguageEncodeHandler.nameContentLanguage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.content_language.ContentLanguageEncodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_language.html#ContentLanguageEncodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.ContentLanguageEncodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Encodes the content language.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_language.RequestDecode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_language.</tt><tt class="descname">RequestDecode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_language.html#RequestDecode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.RequestDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_language.RequestDecode.argumentsOfType">
+<tt class="descname">argumentsOfType</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.RequestDecode.argumentsOfType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_language.RequestDecode.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.RequestDecode.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_language.RequestDecode.language">
+<tt class="descname">language</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.RequestDecode.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_language.ResponseEncode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_language.</tt><tt class="descname">ResponseEncode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_language.html#ResponseEncode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.ResponseEncode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_language.ResponseEncode.encoderHeader">
+<tt class="descname">encoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.ResponseEncode.encoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_language.ResponseEncode.language">
+<tt class="descname">language</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_language.ResponseEncode.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.headers.content_length">
+<span id="content-length-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">content_length</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.headers.content_length" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 11, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the decoding/encoding for the content length header.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_length.ContentLengthDecodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_length.</tt><tt class="descname">ContentLengthDecodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#ContentLengthDecodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ContentLengthDecodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the decoding of content length HTTP response header.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.ContentLengthDecodeHandler.nameContentLength">
+<tt class="descname">nameContentLength</tt><em class="property"> = 'Content-Length'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ContentLengthDecodeHandler.nameContentLength" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.content_length.ContentLengthDecodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>requestCnt</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#ContentLengthDecodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ContentLengthDecodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Decodes the request content length also wraps the content source if is the case.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_length.ContentLengthEncodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_length.</tt><tt class="descname">ContentLengthEncodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#ContentLengthEncodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ContentLengthEncodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the encoding of content length HTTP response header.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.ContentLengthEncodeHandler.nameContentLength">
+<tt class="descname">nameContentLength</tt><em class="property"> = 'Content-Length'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ContentLengthEncodeHandler.nameContentLength" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.content_length.ContentLengthEncodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>response</em>, <em>responseCnt</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#ContentLengthEncodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ContentLengthEncodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Encodes the content length.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_length.RequestContentDecode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_length.</tt><tt class="descname">RequestContentDecode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#RequestContentDecode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.RequestContentDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request content context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.RequestContentDecode.length">
+<tt class="descname">length</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.RequestContentDecode.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.RequestContentDecode.source">
+<tt class="descname">source</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.RequestContentDecode.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_length.RequestDecode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_length.</tt><tt class="descname">RequestDecode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#RequestDecode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.RequestDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.RequestDecode.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.RequestDecode.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_length.ResponseContentEncode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_length.</tt><tt class="descname">ResponseContentEncode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#ResponseContentEncode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ResponseContentEncode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response content context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.ResponseContentEncode.length">
+<tt class="descname">length</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ResponseContentEncode.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_length.ResponseDecode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_length.</tt><tt class="descname">ResponseDecode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#ResponseDecode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ResponseDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.ResponseDecode.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ResponseDecode.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.ResponseDecode.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ResponseDecode.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.ResponseDecode.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ResponseDecode.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_length.ResponseEncode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_length.</tt><tt class="descname">ResponseEncode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#ResponseEncode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ResponseEncode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_length.ResponseEncode.encoderHeader">
+<tt class="descname">encoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.ResponseEncode.encoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_length.StreamLimitedLength">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_length.</tt><tt class="descname">StreamLimitedLength</tt><big>(</big><em>stream</em>, <em>length</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#StreamLimitedLength"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.StreamLimitedLength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util_io.IInputStream" title="ally.support.util_io.IInputStream"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util_io.IInputStream</span></tt></a>, <a class="reference internal" href="ally.support.html#ally.support.util_io.IClosable" title="ally.support.util_io.IClosable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util_io.IClosable</span></tt></a></p>
+<p>Provides a class that implements the &#64;see: IInputStream that limits the reading from another stream based on the
+provided length.</p>
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.content_length.StreamLimitedLength.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#StreamLimitedLength.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.StreamLimitedLength.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IClosable.close</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.content_length.StreamLimitedLength.read">
+<tt class="descname">read</tt><big>(</big><em>nbytes=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_length.html#StreamLimitedLength.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_length.StreamLimitedLength.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IInputStream.read</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.headers.content_type">
+<span id="content-type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">content_type</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.headers.content_type" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 11, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the content type header decoding/encoding.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_type.ContentTypeDecodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_type.</tt><tt class="descname">ContentTypeDecodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_type.html#ContentTypeDecodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ContentTypeDecodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the decoding of content type HTTP request header.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ContentTypeDecodeHandler.attrContentTypeCharSet">
+<tt class="descname">attrContentTypeCharSet</tt><em class="property"> = 'charset'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ContentTypeDecodeHandler.attrContentTypeCharSet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ContentTypeDecodeHandler.nameContentType">
+<tt class="descname">nameContentType</tt><em class="property"> = 'Content-Type'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ContentTypeDecodeHandler.nameContentType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.content_type.ContentTypeDecodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>requestCnt</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_type.html#ContentTypeDecodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ContentTypeDecodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Decode the content type for the request.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_type.ContentTypeEncodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_type.</tt><tt class="descname">ContentTypeEncodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_type.html#ContentTypeEncodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ContentTypeEncodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Implementation for a processor that provides the encoding of content type HTTP request header.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ContentTypeEncodeHandler.attrContentTypeCharSet">
+<tt class="descname">attrContentTypeCharSet</tt><em class="property"> = 'charset'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ContentTypeEncodeHandler.attrContentTypeCharSet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ContentTypeEncodeHandler.nameContentType">
+<tt class="descname">nameContentType</tt><em class="property"> = 'Content-Type'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ContentTypeEncodeHandler.nameContentType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.content_type.ContentTypeEncodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>response</em>, <em>responseCnt</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_type.html#ContentTypeEncodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ContentTypeEncodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Encodes the content type for the response.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_type.RequestContentDecode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_type.</tt><tt class="descname">RequestContentDecode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_type.html#RequestContentDecode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.RequestContentDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request content context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.RequestContentDecode.charSet">
+<tt class="descname">charSet</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.RequestContentDecode.charSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.RequestContentDecode.type">
+<tt class="descname">type</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.RequestContentDecode.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.RequestContentDecode.typeAttr">
+<tt class="descname">typeAttr</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.RequestContentDecode.typeAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_type.RequestDecode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_type.</tt><tt class="descname">RequestDecode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_type.html#RequestDecode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.RequestDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.RequestDecode.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.RequestDecode.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_type.ResponseContentEncode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_type.</tt><tt class="descname">ResponseContentEncode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_type.html#ResponseContentEncode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ResponseContentEncode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response content context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ResponseContentEncode.charSet">
+<tt class="descname">charSet</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ResponseContentEncode.charSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ResponseContentEncode.type">
+<tt class="descname">type</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ResponseContentEncode.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_type.ResponseDecode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_type.</tt><tt class="descname">ResponseDecode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_type.html#ResponseDecode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ResponseDecode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ResponseDecode.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ResponseDecode.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ResponseDecode.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ResponseDecode.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ResponseDecode.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ResponseDecode.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.content_type.ResponseEncode">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.content_type.</tt><tt class="descname">ResponseEncode</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/content_type.html#ResponseEncode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ResponseEncode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.content_type.ResponseEncode.encoderHeader">
+<tt class="descname">encoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.content_type.ResponseEncode.encoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.headers.override_method">
+<span id="override-method-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">override_method</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.headers.override_method" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 9, 2011</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the method override header handling.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.override_method.</tt><tt class="descname">MethodOverrideDecodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/override_method.html#MethodOverrideDecodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Provides the method override processor.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler.methods">
+<tt class="descname">methods</tt><em class="property"> = {'PUT': 4, 'POST': 2, 'GET': 1, 'DELETE': 8}</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler.methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler.methodsOverride">
+<tt class="descname">methodsOverride</tt><em class="property"> = {1: {8, 1}, 2: {2, 4}}</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler.methodsOverride" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler.nameXMethodOverride">
+<tt class="descname">nameXMethodOverride</tt><em class="property"> = 'X-HTTP-Method-Override'</em><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler.nameXMethodOverride" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>request</em>, <em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/override_method.html#MethodOverrideDecodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Overrides the request method based on a provided header.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.override_method.Request">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.override_method.</tt><tt class="descname">Request</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/override_method.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The request context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.override_method.Request.decoderHeader">
+<tt class="descname">decoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.Request.decoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.override_method.Request.method">
+<tt class="descname">method</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.Request.method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.override_method.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.override_method.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/override_method.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.override_method.Response.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.Response.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.override_method.Response.errorMessage">
+<tt class="descname">errorMessage</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.Response.errorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.override_method.Response.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.override_method.Response.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.core.http.impl.processor.headers.set_fixed">
+<span id="set-fixed-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">set_fixed</span></tt> Module<a class="headerlink" href="#module-ally.core.http.impl.processor.headers.set_fixed" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 5, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides support for setting fixed headers on responses.</p>
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.set_fixed.HeaderSetEncodeHandler">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.set_fixed.</tt><tt class="descname">HeaderSetEncodeHandler</tt><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/set_fixed.html#HeaderSetEncodeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.set_fixed.HeaderSetEncodeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.processor.HandlerProcessorProceed" title="ally.design.processor.HandlerProcessorProceed"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.processor.HandlerProcessorProceed</span></tt></a></p>
+<p>Provides the setting of static header values.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.set_fixed.HeaderSetEncodeHandler.headers">
+<tt class="descname">headers</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.set_fixed.HeaderSetEncodeHandler.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.impl.processor.headers.set_fixed.HeaderSetEncodeHandler.process">
+<tt class="descname">process</tt><big>(</big><em>response</em>, <em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/set_fixed.html#HeaderSetEncodeHandler.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.set_fixed.HeaderSetEncodeHandler.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: HandlerProcessorProceed.process</p>
+<p>Set the fixed header values on the response.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.impl.processor.headers.set_fixed.Response">
+<em class="property">class </em><tt class="descclassname">ally.core.http.impl.processor.headers.set_fixed.</tt><tt class="descname">Response</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/impl/processor/headers/set_fixed.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.impl.processor.headers.set_fixed.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>The response context.</p>
+<dl class="attribute">
+<dt id="ally.core.http.impl.processor.headers.set_fixed.Response.encoderHeader">
+<tt class="descname">encoderHeader</tt><a class="headerlink" href="#ally.core.http.impl.processor.headers.set_fixed.Response.encoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">headers Package</a><ul>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.headers.accept"><tt class="docutils literal"><span class="pre">accept</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.headers.allow"><tt class="docutils literal"><span class="pre">allow</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.headers.content_disposition"><tt class="docutils literal"><span class="pre">content_disposition</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.headers.content_language"><tt class="docutils literal"><span class="pre">content_language</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.headers.content_length"><tt class="docutils literal"><span class="pre">content_length</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.headers.content_type"><tt class="docutils literal"><span class="pre">content_type</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.headers.override_method"><tt class="docutils literal"><span class="pre">override_method</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.impl.processor.headers.set_fixed"><tt class="docutils literal"><span class="pre">set_fixed</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.core.http.impl.processor.html"
+                        title="previous chapter">processor Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.core.http.impl.processor.parser.html"
+                        title="next chapter">parser Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.core.http.impl.processor.headers.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.impl.processor.parser.html" title="parser Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.impl.processor.html" title="processor Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.http.html" >http Package</a> &raquo;</li>
+          <li><a href="ally.core.http.impl.html" >impl Package</a> &raquo;</li>
+          <li><a href="ally.core.http.impl.processor.html" >processor Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

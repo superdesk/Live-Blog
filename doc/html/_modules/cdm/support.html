@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>cdm.support &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for cdm.support</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Apr 11, 2012</span>
+
+<span class="sd">@package: support cdm</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license http://www.gnu.org/licenses/gpl - 3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provide support classes for the CDM handling.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">cdm.spec</span> <span class="kn">import</span> <span class="n">ICDM</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="ExtendPathCDM"><a class="viewcode-back" href="../../cdm.html#cdm.support.ExtendPathCDM">[docs]</a><span class="k">class</span> <span class="nc">ExtendPathCDM</span><span class="p">(</span><span class="n">ICDM</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides a CDM that delegates the call to a wrapped CDM but before that it alters the path.</span>
+<span class="sd">    @see: ICDM</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wrapped</span><span class="p">,</span> <span class="n">format</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the extend path CDM.</span>
+<span class="sd">        </span>
+<span class="sd">        @param wrapped: ICDM</span>
+<span class="sd">            The wrapped CDM.</span>
+<span class="sd">        @param format: string</span>
+<span class="sd">            The format to apply to the path before being delivered to the wrapped CDM, something like &#39;my_root_folder/%s&#39;</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">ICDM</span><span class="p">),</span> <span class="s">&#39;Invalid wrapped CDM </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">wrapped</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid path format </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span> <span class="o">=</span> <span class="n">wrapped</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">format</span>
+
+<div class="viewcode-block" id="ExtendPathCDM.publishFromFile"><a class="viewcode-back" href="../../cdm.html#cdm.support.ExtendPathCDM.publishFromFile">[docs]</a>    <span class="k">def</span> <span class="nf">publishFromFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ICDM.publishFromFile</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span><span class="o">.</span><span class="n">publishFromFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">%</span> <span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ExtendPathCDM.publishFromDir"><a class="viewcode-back" href="../../cdm.html#cdm.support.ExtendPathCDM.publishFromDir">[docs]</a>    <span class="k">def</span> <span class="nf">publishFromDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dirPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ICDM.publishFromDir</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span><span class="o">.</span><span class="n">publishFromDir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">%</span> <span class="n">path</span><span class="p">,</span> <span class="n">dirPath</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ExtendPathCDM.publishContent"><a class="viewcode-back" href="../../cdm.html#cdm.support.ExtendPathCDM.publishContent">[docs]</a>    <span class="k">def</span> <span class="nf">publishContent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ICDM.publishContent</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span><span class="o">.</span><span class="n">publishContent</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">%</span> <span class="n">path</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ExtendPathCDM.republish"><a class="viewcode-back" href="../../cdm.html#cdm.support.ExtendPathCDM.republish">[docs]</a>    <span class="k">def</span> <span class="nf">republish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldPath</span><span class="p">,</span> <span class="n">newPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">         @see: ICDM.republish</span>
+<span class="sd">        &#39;&#39;&#39;</span>    
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span><span class="o">.</span><span class="n">republish</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">%</span> <span class="n">oldPath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">%</span> <span class="n">newPath</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ExtendPathCDM.remove"><a class="viewcode-back" href="../../cdm.html#cdm.support.ExtendPathCDM.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ICDM.remove</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ExtendPathCDM.getSupportedProtocols"><a class="viewcode-back" href="../../cdm.html#cdm.support.ExtendPathCDM.getSupportedProtocols">[docs]</a>    <span class="k">def</span> <span class="nf">getSupportedProtocols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ICDM.getSupportedProtocols</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span><span class="o">.</span><span class="n">getSupportedProtocols</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ExtendPathCDM.getURI"><a class="viewcode-back" href="../../cdm.html#cdm.support.ExtendPathCDM.getURI">[docs]</a>    <span class="k">def</span> <span class="nf">getURI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">protocol</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ICDM.getURI</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span><span class="o">.</span><span class="n">getURI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">%</span> <span class="n">path</span><span class="p">,</span> <span class="n">protocol</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ExtendPathCDM.getTimestamp"><a class="viewcode-back" href="../../cdm.html#cdm.support.ExtendPathCDM.getTimestamp">[docs]</a>    <span class="k">def</span> <span class="nf">getTimestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ICDM.getTimestamp</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrapped</span><span class="o">.</span><span class="n">getTimestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

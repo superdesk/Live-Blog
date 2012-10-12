@@ -1,0 +1,995 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="livedesk Package" href="livedesk.html" />
+    <link rel="next" title="impl Package" href="livedesk.impl.html" />
+    <link rel="prev" title="livedesk Package" href="livedesk.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="livedesk.impl.html" title="impl Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="livedesk.html" title="livedesk Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="livedesk.html" accesskey="U">livedesk Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-package">
+<h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-livedesk.api.blog">
+<span id="blog-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog</span></tt> Module<a class="headerlink" href="#module-livedesk.api.blog" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>API specifications for livedesk blog.</p>
+<dl class="class">
+<dt id="livedesk.api.blog.Blog">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog.</tt><tt class="descname">Blog</tt><a class="reference internal" href="_modules/livedesk/api/blog.html#Blog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog.Blog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.Entity" title="ally.support.api.entity.Entity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.Entity</span></tt></a></p>
+<p>Provides the blog model.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.ClosedOn">
+<tt class="descname">ClosedOn</tt><em class="property"> = Blog.ClosedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog.Blog.ClosedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.CreatedOn">
+<tt class="descname">CreatedOn</tt><em class="property"> = Blog.CreatedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog.Blog.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.Creator">
+<tt class="descname">Creator</tt><em class="property"> = Blog.Creator(User)</em><a class="headerlink" href="#livedesk.api.blog.Blog.Creator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.Description">
+<tt class="descname">Description</tt><em class="property"> = Blog.Description(str)</em><a class="headerlink" href="#livedesk.api.blog.Blog.Description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.Id">
+<tt class="descname">Id</tt><em class="property"> = Blog.Id(int)</em><a class="headerlink" href="#livedesk.api.blog.Blog.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.Language">
+<tt class="descname">Language</tt><em class="property"> = Blog.Language(LanguageEntity)</em><a class="headerlink" href="#livedesk.api.blog.Blog.Language" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.LastUpdatedOn">
+<tt class="descname">LastUpdatedOn</tt><em class="property"> = Blog.LastUpdatedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog.Blog.LastUpdatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.LiveOn">
+<tt class="descname">LiveOn</tt><em class="property"> = Blog.LiveOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog.Blog.LiveOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.OutputLink">
+<tt class="descname">OutputLink</tt><em class="property"> = Blog.OutputLink(str)</em><a class="headerlink" href="#livedesk.api.blog.Blog.OutputLink" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.Title">
+<tt class="descname">Title</tt><em class="property"> = Blog.Title(str)</em><a class="headerlink" href="#livedesk.api.blog.Blog.Title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.Type">
+<tt class="descname">Type</tt><em class="property"> = Blog.Type(BlogType)</em><a class="headerlink" href="#livedesk.api.blog.Blog.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.Blog.UpdatedOn">
+<tt class="descname">UpdatedOn</tt><em class="property"> = Blog.UpdatedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog.Blog.UpdatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog.IBlogService">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog.</tt><tt class="descname">IBlogService</tt><a class="reference internal" href="_modules/livedesk/api/blog.html#IBlogService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog.IBlogService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.IEntityCRUDService" title="ally.support.api.entity.IEntityCRUDService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityCRUDService</span></tt></a></p>
+<p>Provides the service methods for the blogs.</p>
+<dl class="method">
+<dt id="livedesk.api.blog.IBlogService.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>languageId=None</em>, <em>adminId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=True</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog.html#IBlogService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog.IBlogService.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the blogs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog.IBlogService.getBlog">
+<tt class="descname">getBlog</tt><big>(</big><em>blogId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog.html#IBlogService.getBlog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog.IBlogService.getBlog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the blog based on the specified id, is the user is not specified the blog will be returned only if is
+in live mode.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog.IBlogService.getLive">
+<tt class="descname">getLive</tt><big>(</big><em>languageId=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog.html#IBlogService.getLive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog.IBlogService.getLive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the blogs that are live at this moment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog.IBlogService.getLiveWhereAdmin">
+<tt class="descname">getLiveWhereAdmin</tt><big>(</big><em>adminId</em>, <em>languageId=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog.html#IBlogService.getLiveWhereAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog.IBlogService.getLiveWhereAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the blogs that are administered by the provided user.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog.QBlog">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog.</tt><tt class="descname">QBlog</tt><a class="reference internal" href="_modules/livedesk/api/blog.html#QBlog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog.QBlog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.Entity" title="ally.support.api.entity.Entity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.Entity</span></tt></a></p>
+<p>Provides the query for active blog model.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog.QBlog.createdOn">
+<tt class="descname">createdOn</tt><a class="headerlink" href="#livedesk.api.blog.QBlog.createdOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.QBlog.lastUpdatedOn">
+<tt class="descname">lastUpdatedOn</tt><a class="headerlink" href="#livedesk.api.blog.QBlog.lastUpdatedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.QBlog.liveOn">
+<tt class="descname">liveOn</tt><a class="headerlink" href="#livedesk.api.blog.QBlog.liveOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog.QBlog.title">
+<tt class="descname">title</tt><a class="headerlink" href="#livedesk.api.blog.QBlog.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.api.blog_admin">
+<span id="blog-admin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_admin</span></tt> Module<a class="headerlink" href="#module-livedesk.api.blog_admin" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>API specifications for livedesk blog administrators.</p>
+<dl class="class">
+<dt id="livedesk.api.blog_admin.Admin">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_admin.</tt><tt class="descname">Admin</tt><a class="reference internal" href="_modules/livedesk/api/blog_admin.html#Admin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_admin.Admin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.user.api.html#superdesk.user.api.user.User" title="superdesk.user.api.user.User"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.user.api.user.User</span></tt></a></p>
+<p>Provides the blog administrator model.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.Address">
+<tt class="descname">Address</tt><em class="property"> = Admin.Address(str)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.Address" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.Blog">
+<tt class="descname">Blog</tt><em class="property"> = Admin.Blog(Blog)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.CreatedOn">
+<tt class="descname">CreatedOn</tt><em class="property"> = Admin.CreatedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.DeletedOn">
+<tt class="descname">DeletedOn</tt><em class="property"> = Admin.DeletedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.DeletedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.EMail">
+<tt class="descname">EMail</tt><em class="property"> = Admin.EMail(str)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.EMail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.FirstName">
+<tt class="descname">FirstName</tt><em class="property"> = Admin.FirstName(str)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.FirstName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.FullName">
+<tt class="descname">FullName</tt><em class="property"> = Admin.FullName(str)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.FullName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.Id">
+<tt class="descname">Id</tt><em class="property"> = Admin.Id(int)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.LastName">
+<tt class="descname">LastName</tt><em class="property"> = Admin.LastName(str)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.LastName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.Name">
+<tt class="descname">Name</tt><em class="property"> = Admin.Name(str)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_admin.Admin.Password">
+<tt class="descname">Password</tt><em class="property"> = Admin.Password(str)</em><a class="headerlink" href="#livedesk.api.blog_admin.Admin.Password" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_admin.IBlogAdminService">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_admin.</tt><tt class="descname">IBlogAdminService</tt><a class="reference internal" href="_modules/livedesk/api/blog_admin.html#IBlogAdminService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_admin.IBlogAdminService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the service methods for the blog administrators.</p>
+<dl class="method">
+<dt id="livedesk.api.blog_admin.IBlogAdminService.addAdmin">
+<tt class="descname">addAdmin</tt><big>(</big><em>blogId</em>, <em>userId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_admin.html#IBlogAdminService.addAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_admin.IBlogAdminService.addAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assigns the user as a user administrator to the blog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_admin.IBlogAdminService.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>blogId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_admin.html#IBlogAdminService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_admin.IBlogAdminService.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the blog administrators.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_admin.IBlogAdminService.getById">
+<tt class="descname">getById</tt><big>(</big><em>blogId</em>, <em>adminId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_admin.html#IBlogAdminService.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_admin.IBlogAdminService.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the blog admin based on the id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_admin.IBlogAdminService.removeAdmin">
+<tt class="descname">removeAdmin</tt><big>(</big><em>blogId</em>, <em>userId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_admin.html#IBlogAdminService.removeAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_admin.IBlogAdminService.removeAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the user administrator from the blog.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.api.blog_collaborator">
+<span id="blog-collaborator-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_collaborator</span></tt> Module<a class="headerlink" href="#module-livedesk.api.blog_collaborator" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>API specifications for livedesk blog collaborator.</p>
+<dl class="class">
+<dt id="livedesk.api.blog_collaborator.BlogCollaborator">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_collaborator.</tt><tt class="descname">BlogCollaborator</tt><a class="reference internal" href="_modules/livedesk/api/blog_collaborator.html#BlogCollaborator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_collaborator.BlogCollaborator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.collaborator.api.html#superdesk.collaborator.api.collaborator.Collaborator" title="superdesk.collaborator.api.collaborator.Collaborator"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.collaborator.api.collaborator.Collaborator</span></tt></a></p>
+<p>Provides the blog collaborator model.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_collaborator.BlogCollaborator.Blog">
+<tt class="descname">Blog</tt><em class="property"> = BlogCollaborator.Blog(Blog)</em><a class="headerlink" href="#livedesk.api.blog_collaborator.BlogCollaborator.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_collaborator.BlogCollaborator.Id">
+<tt class="descname">Id</tt><em class="property"> = BlogCollaborator.Id(int)</em><a class="headerlink" href="#livedesk.api.blog_collaborator.BlogCollaborator.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_collaborator.BlogCollaborator.Name">
+<tt class="descname">Name</tt><em class="property"> = BlogCollaborator.Name(str)</em><a class="headerlink" href="#livedesk.api.blog_collaborator.BlogCollaborator.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_collaborator.BlogCollaborator.Person">
+<tt class="descname">Person</tt><em class="property"> = BlogCollaborator.Person(Person)</em><a class="headerlink" href="#livedesk.api.blog_collaborator.BlogCollaborator.Person" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_collaborator.BlogCollaborator.Source">
+<tt class="descname">Source</tt><em class="property"> = BlogCollaborator.Source(Source)</em><a class="headerlink" href="#livedesk.api.blog_collaborator.BlogCollaborator.Source" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_collaborator.IBlogCollaboratorService">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_collaborator.</tt><tt class="descname">IBlogCollaboratorService</tt><a class="reference internal" href="_modules/livedesk/api/blog_collaborator.html#IBlogCollaboratorService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_collaborator.IBlogCollaboratorService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the service methods for the blog collaborators.</p>
+<dl class="method">
+<dt id="livedesk.api.blog_collaborator.IBlogCollaboratorService.addCollaborator">
+<tt class="descname">addCollaborator</tt><big>(</big><em>blogId</em>, <em>collaboratorId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_collaborator.html#IBlogCollaboratorService.addCollaborator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_collaborator.IBlogCollaboratorService.addCollaborator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assigns the collaborator as a collaborator to the blog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_collaborator.IBlogCollaboratorService.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>blogId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_collaborator.html#IBlogCollaboratorService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_collaborator.IBlogCollaboratorService.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the blog collaborators.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_collaborator.IBlogCollaboratorService.getById">
+<tt class="descname">getById</tt><big>(</big><em>blogId</em>, <em>collaboratorId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_collaborator.html#IBlogCollaboratorService.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_collaborator.IBlogCollaboratorService.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the blog collaborator based on the id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_collaborator.IBlogCollaboratorService.removeCollaborator">
+<tt class="descname">removeCollaborator</tt><big>(</big><em>blogId</em>, <em>collaboratorId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_collaborator.html#IBlogCollaboratorService.removeCollaborator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_collaborator.IBlogCollaboratorService.removeCollaborator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the collaborator from the blog.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.api.blog_post">
+<span id="blog-post-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_post</span></tt> Module<a class="headerlink" href="#module-livedesk.api.blog_post" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>API specifications for livedesk blog posts.</p>
+<dl class="class">
+<dt id="livedesk.api.blog_post.BlogPost">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_post.</tt><tt class="descname">BlogPost</tt><a class="reference internal" href="_modules/livedesk/api/blog_post.html#BlogPost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.BlogPost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.post.api.html#superdesk.post.api.post.Post" title="superdesk.post.api.post.Post"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.api.post.Post</span></tt></a></p>
+<p>Provides the blog post model.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.Author">
+<tt class="descname">Author</tt><em class="property"> = BlogPost.Author(Collaborator)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.Author" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.AuthorName">
+<tt class="descname">AuthorName</tt><em class="property"> = BlogPost.AuthorName(str)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.AuthorName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.AuthorPerson">
+<tt class="descname">AuthorPerson</tt><em class="property"> = BlogPost.AuthorPerson(Person)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.AuthorPerson" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.Blog">
+<tt class="descname">Blog</tt><em class="property"> = BlogPost.Blog(Blog)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.CId">
+<tt class="descname">CId</tt><em class="property"> = BlogPost.CId(int)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.CId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.Content">
+<tt class="descname">Content</tt><em class="property"> = BlogPost.Content(str)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.Content" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.ContentPlain">
+<tt class="descname">ContentPlain</tt><em class="property"> = BlogPost.ContentPlain(str)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.ContentPlain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.CreatedOn">
+<tt class="descname">CreatedOn</tt><em class="property"> = BlogPost.CreatedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.Creator">
+<tt class="descname">Creator</tt><em class="property"> = BlogPost.Creator(User)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.Creator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.DeletedOn">
+<tt class="descname">DeletedOn</tt><em class="property"> = BlogPost.DeletedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.DeletedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.Id">
+<tt class="descname">Id</tt><em class="property"> = BlogPost.Id(int)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.IsModified">
+<tt class="descname">IsModified</tt><em class="property"> = BlogPost.IsModified(bool)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.IsModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.Meta">
+<tt class="descname">Meta</tt><em class="property"> = BlogPost.Meta(str)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.Meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.Order">
+<tt class="descname">Order</tt><em class="property"> = BlogPost.Order(Number)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.Order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.PublishedOn">
+<tt class="descname">PublishedOn</tt><em class="property"> = BlogPost.PublishedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.PublishedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.Type">
+<tt class="descname">Type</tt><em class="property"> = BlogPost.Type(PostType)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.BlogPost.UpdatedOn">
+<tt class="descname">UpdatedOn</tt><em class="property"> = BlogPost.UpdatedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_post.BlogPost.UpdatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_post.IBlogPostService">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_post.</tt><tt class="descname">IBlogPostService</tt><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the service methods for the blog posts.</p>
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.delete">
+<tt class="descname">delete</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the post for the provided id.</p>
+<dl class="docutils">
+<dt>&#64;param id: integer</dt>
+<dd>The id of the post to be deleted.</dd>
+</dl>
+<p>&#64;return: True if the delete is successful, false otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>blogId</em>, <em>typeId=None</em>, <em>creatorId=None</em>, <em>authorId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the unpublished blogs posts.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.getById">
+<tt class="descname">getById</tt><big>(</big><em>blogId</em>, <em>postId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the blog post based on the id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.getOwned">
+<tt class="descname">getOwned</tt><big>(</big><em>blogId</em>, <em>creatorId</em>, <em>typeId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.getOwned"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.getOwned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the unpublished blogs posts that belong to the creator, this means that the posts will not have
+an Author.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.getPublished">
+<tt class="descname">getPublished</tt><big>(</big><em>blogId</em>, <em>typeId=None</em>, <em>creatorId=None</em>, <em>authorId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=True</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.getPublished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.getPublished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the blogs published posts.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.getUnpublished">
+<tt class="descname">getUnpublished</tt><big>(</big><em>blogId</em>, <em>typeId=None</em>, <em>creatorId=None</em>, <em>authorId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.getUnpublished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.getUnpublished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the unpublished blogs posts.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.insert">
+<tt class="descname">insert</tt><big>(</big><em>blogId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts the post for the blog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.insertAndPublish">
+<tt class="descname">insertAndPublish</tt><big>(</big><em>blogId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.insertAndPublish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.insertAndPublish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts the post for the blog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.publish">
+<tt class="descname">publish</tt><big>(</big><em>blogId</em>, <em>postId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.publish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts the post for the blog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.reorder">
+<tt class="descname">reorder</tt><big>(</big><em>blogId</em>, <em>postId</em>, <em>refPostId</em>, <em>before=True</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.reorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.reorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorder the post.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_post.IBlogPostService.update">
+<tt class="descname">update</tt><big>(</big><em>blogId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_post.html#IBlogPostService.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.IBlogPostService.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the post for the blog.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_post.QBlogPost">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_post.</tt><tt class="descname">QBlogPost</tt><a class="reference internal" href="_modules/livedesk/api/blog_post.html#QBlogPost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.QBlogPost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.post.api.html#superdesk.post.api.post.QPost" title="superdesk.post.api.post.QPost"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.api.post.QPost</span></tt></a>, <a class="reference internal" href="#livedesk.api.blog_post.QWithCId" title="livedesk.api.blog_post.QWithCId"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_post.QWithCId</span></tt></a></p>
+<p>Provides the blog post message query.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPost.cId">
+<tt class="descname">cId</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPost.cId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPost.createdOn">
+<tt class="descname">createdOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPost.createdOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPost.deletedOn">
+<tt class="descname">deletedOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPost.deletedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPost.isModified">
+<tt class="descname">isModified</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPost.isModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPost.isPublished">
+<tt class="descname">isPublished</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPost.isPublished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPost.publishedOn">
+<tt class="descname">publishedOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPost.publishedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPost.updatedOn">
+<tt class="descname">updatedOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPost.updatedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_post.QBlogPostPublished">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_post.</tt><tt class="descname">QBlogPostPublished</tt><a class="reference internal" href="_modules/livedesk/api/blog_post.html#QBlogPostPublished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostPublished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.post.api.html#superdesk.post.api.post.QPost" title="superdesk.post.api.post.QPost"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.api.post.QPost</span></tt></a>, <a class="reference internal" href="#livedesk.api.blog_post.QWithCId" title="livedesk.api.blog_post.QWithCId"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_post.QWithCId</span></tt></a></p>
+<p>Provides the blog post message query.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostPublished.cId">
+<tt class="descname">cId</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostPublished.cId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostPublished.createdOn">
+<tt class="descname">createdOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostPublished.createdOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostPublished.deletedOn">
+<tt class="descname">deletedOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostPublished.deletedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostPublished.isModified">
+<tt class="descname">isModified</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostPublished.isModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostPublished.publishedOn">
+<tt class="descname">publishedOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostPublished.publishedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostPublished.updatedOn">
+<tt class="descname">updatedOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostPublished.updatedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_post.QBlogPostUnpublished">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_post.</tt><tt class="descname">QBlogPostUnpublished</tt><a class="reference internal" href="_modules/livedesk/api/blog_post.html#QBlogPostUnpublished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostUnpublished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.post.api.html#superdesk.post.api.post.QPostUnpublished" title="superdesk.post.api.post.QPostUnpublished"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.api.post.QPostUnpublished</span></tt></a>, <a class="reference internal" href="#livedesk.api.blog_post.QWithCId" title="livedesk.api.blog_post.QWithCId"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_post.QWithCId</span></tt></a></p>
+<p>Provides the blog post message query.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostUnpublished.cId">
+<tt class="descname">cId</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostUnpublished.cId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostUnpublished.createdOn">
+<tt class="descname">createdOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostUnpublished.createdOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostUnpublished.deletedOn">
+<tt class="descname">deletedOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostUnpublished.deletedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostUnpublished.isModified">
+<tt class="descname">isModified</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostUnpublished.isModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QBlogPostUnpublished.updatedOn">
+<tt class="descname">updatedOn</tt><a class="headerlink" href="#livedesk.api.blog_post.QBlogPostUnpublished.updatedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_post.QWithCId">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_post.</tt><tt class="descname">QWithCId</tt><a class="reference internal" href="_modules/livedesk/api/blog_post.html#QWithCId"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_post.QWithCId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the query for cId.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_post.QWithCId.cId">
+<tt class="descname">cId</tt><a class="headerlink" href="#livedesk.api.blog_post.QWithCId.cId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.api.blog_type">
+<span id="blog-type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_type</span></tt> Module<a class="headerlink" href="#module-livedesk.api.blog_type" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 30, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mugur Rus</p>
+<p>API specifications for livedesk blog type.</p>
+<dl class="class">
+<dt id="livedesk.api.blog_type.BlogType">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_type.</tt><tt class="descname">BlogType</tt><a class="reference internal" href="_modules/livedesk/api/blog_type.html#BlogType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type.BlogType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.Entity" title="ally.support.api.entity.Entity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.Entity</span></tt></a></p>
+<p>Provides the blog type model.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_type.BlogType.Id">
+<tt class="descname">Id</tt><em class="property"> = BlogType.Id(int)</em><a class="headerlink" href="#livedesk.api.blog_type.BlogType.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type.BlogType.Name">
+<tt class="descname">Name</tt><em class="property"> = BlogType.Name(str)</em><a class="headerlink" href="#livedesk.api.blog_type.BlogType.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_type.IBlogTypeService">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_type.</tt><tt class="descname">IBlogTypeService</tt><a class="reference internal" href="_modules/livedesk/api/blog_type.html#IBlogTypeService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type.IBlogTypeService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.IEntityService" title="ally.support.api.entity.IEntityService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityService</span></tt></a></p>
+<p>Provides the service methods for the blogs.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_type.QBlogType">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_type.</tt><tt class="descname">QBlogType</tt><a class="reference internal" href="_modules/livedesk/api/blog_type.html#QBlogType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type.QBlogType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.QEntity" title="ally.support.api.entity.QEntity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.QEntity</span></tt></a></p>
+<p>Provides the query for active blog type model.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_type.QBlogType.name">
+<tt class="descname">name</tt><a class="headerlink" href="#livedesk.api.blog_type.QBlogType.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.api.blog_type_post">
+<span id="blog-type-post-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_type_post</span></tt> Module<a class="headerlink" href="#module-livedesk.api.blog_type_post" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 30, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mugur Rus</p>
+<p>API specifications for livedesk blog type posts.</p>
+<dl class="class">
+<dt id="livedesk.api.blog_type_post.BlogTypePost">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_type_post.</tt><tt class="descname">BlogTypePost</tt><a class="reference internal" href="_modules/livedesk/api/blog_type_post.html#BlogTypePost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.post.api.html#superdesk.post.api.post.Post" title="superdesk.post.api.post.Post"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.api.post.Post</span></tt></a></p>
+<p>Provides the blog post model.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.Author">
+<tt class="descname">Author</tt><em class="property"> = BlogTypePost.Author(Collaborator)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.Author" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.AuthorName">
+<tt class="descname">AuthorName</tt><em class="property"> = BlogTypePost.AuthorName(str)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.AuthorName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.BlogType">
+<tt class="descname">BlogType</tt><em class="property"> = BlogTypePost.BlogType(BlogType)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.BlogType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.Content">
+<tt class="descname">Content</tt><em class="property"> = BlogTypePost.Content(str)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.Content" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.ContentPlain">
+<tt class="descname">ContentPlain</tt><em class="property"> = BlogTypePost.ContentPlain(str)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.ContentPlain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.CreatedOn">
+<tt class="descname">CreatedOn</tt><em class="property"> = BlogTypePost.CreatedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.Creator">
+<tt class="descname">Creator</tt><em class="property"> = BlogTypePost.Creator(User)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.Creator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.DeletedOn">
+<tt class="descname">DeletedOn</tt><em class="property"> = BlogTypePost.DeletedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.DeletedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.Id">
+<tt class="descname">Id</tt><em class="property"> = BlogTypePost.Id(int)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.IsModified">
+<tt class="descname">IsModified</tt><em class="property"> = BlogTypePost.IsModified(bool)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.IsModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.Meta">
+<tt class="descname">Meta</tt><em class="property"> = BlogTypePost.Meta(str)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.Meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.Order">
+<tt class="descname">Order</tt><em class="property"> = BlogTypePost.Order(Number)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.Order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.PublishedOn">
+<tt class="descname">PublishedOn</tt><em class="property"> = BlogTypePost.PublishedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.PublishedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.Type">
+<tt class="descname">Type</tt><em class="property"> = BlogTypePost.Type(PostType)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.BlogTypePost.UpdatedOn">
+<tt class="descname">UpdatedOn</tt><em class="property"> = BlogTypePost.UpdatedOn(datetime)</em><a class="headerlink" href="#livedesk.api.blog_type_post.BlogTypePost.UpdatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_type_post.IBlogTypePostService">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_type_post.</tt><tt class="descname">IBlogTypePostService</tt><a class="reference internal" href="_modules/livedesk/api/blog_type_post.html#IBlogTypePostService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type_post.IBlogTypePostService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the service methods for the blog posts.</p>
+<dl class="method">
+<dt id="livedesk.api.blog_type_post.IBlogTypePostService.delete">
+<tt class="descname">delete</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_type_post.html#IBlogTypePostService.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type_post.IBlogTypePostService.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the post for the provided id.</p>
+<dl class="docutils">
+<dt>&#64;param id: integer</dt>
+<dd>The id of the post to be deleted.</dd>
+</dl>
+<p>&#64;return: True if the delete is successful, false otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_type_post.IBlogTypePostService.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>blogTypeId</em>, <em>typeId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_type_post.html#IBlogTypePostService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type_post.IBlogTypePostService.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides all the blog type posts.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_type_post.IBlogTypePostService.getById">
+<tt class="descname">getById</tt><big>(</big><em>blogTypeId</em>, <em>postId</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_type_post.html#IBlogTypePostService.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type_post.IBlogTypePostService.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the blog post based on the id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_type_post.IBlogTypePostService.insert">
+<tt class="descname">insert</tt><big>(</big><em>blogTypeId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_type_post.html#IBlogTypePostService.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type_post.IBlogTypePostService.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts the post for the blog type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_type_post.IBlogTypePostService.reorder">
+<tt class="descname">reorder</tt><big>(</big><em>blogTypeId</em>, <em>postId</em>, <em>refPostId</em>, <em>before=True</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_type_post.html#IBlogTypePostService.reorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type_post.IBlogTypePostService.reorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorder the post.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.api.blog_type_post.IBlogTypePostService.update">
+<tt class="descname">update</tt><big>(</big><em>blogTypeId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/api/blog_type_post.html#IBlogTypePostService.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type_post.IBlogTypePostService.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the post for the blog.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.api.blog_type_post.QBlogTypePost">
+<em class="property">class </em><tt class="descclassname">livedesk.api.blog_type_post.</tt><tt class="descname">QBlogTypePost</tt><a class="reference internal" href="_modules/livedesk/api/blog_type_post.html#QBlogTypePost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.api.blog_type_post.QBlogTypePost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.post.api.html#superdesk.post.api.post.QPostUnpublished" title="superdesk.post.api.post.QPostUnpublished"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.api.post.QPostUnpublished</span></tt></a></p>
+<p>Provides the blog post message query.</p>
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.QBlogTypePost.createdOn">
+<tt class="descname">createdOn</tt><a class="headerlink" href="#livedesk.api.blog_type_post.QBlogTypePost.createdOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.QBlogTypePost.deletedOn">
+<tt class="descname">deletedOn</tt><a class="headerlink" href="#livedesk.api.blog_type_post.QBlogTypePost.deletedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.QBlogTypePost.isModified">
+<tt class="descname">isModified</tt><a class="headerlink" href="#livedesk.api.blog_type_post.QBlogTypePost.isModified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.api.blog_type_post.QBlogTypePost.updatedOn">
+<tt class="descname">updatedOn</tt><a class="headerlink" href="#livedesk.api.blog_type_post.QBlogTypePost.updatedOn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor used for defining criteria entries in a query object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.api.domain_livedesk">
+<span id="domain-livedesk-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">domain_livedesk</span></tt> Module<a class="headerlink" href="#module-livedesk.api.domain_livedesk" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 19, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the decorator to be used by the models in the livedesk domain.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">api Package</a><ul>
+<li><a class="reference internal" href="#module-livedesk.api.blog"><tt class="docutils literal"><span class="pre">blog</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.api.blog_admin"><tt class="docutils literal"><span class="pre">blog_admin</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.api.blog_collaborator"><tt class="docutils literal"><span class="pre">blog_collaborator</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.api.blog_post"><tt class="docutils literal"><span class="pre">blog_post</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.api.blog_type"><tt class="docutils literal"><span class="pre">blog_type</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.api.blog_type_post"><tt class="docutils literal"><span class="pre">blog_type_post</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.api.domain_livedesk"><tt class="docutils literal"><span class="pre">domain_livedesk</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="livedesk.html"
+                        title="previous chapter">livedesk Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="livedesk.impl.html"
+                        title="next chapter">impl Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/livedesk.api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="livedesk.impl.html" title="impl Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="livedesk.html" title="livedesk Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="livedesk.html" >livedesk Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -37,7 +37,7 @@ def modulesListAction():
 def modulesAddAction():
     return Action('add', Parent=modulesAction(), ScriptPath=getPublishedGui('superdesk/user/scripts/js/modules-add.js'))
 
-#@ioc.start
+@ioc.start
 def registerActions():
     actionManagerService().add(menuAction())
     actionManagerService().add(modulesAction())

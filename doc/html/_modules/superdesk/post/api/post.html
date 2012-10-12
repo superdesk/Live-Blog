@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superdesk.post.api.post &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for superdesk.post.api.post</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on May 2, 2012</span>
+
+<span class="sd">@package: superdesk posts</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">API specifications for posts.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">ally.api.authentication</span> <span class="kn">import</span> <span class="n">auth</span>
+<span class="kn">from</span> <span class="nn">ally.api.config</span> <span class="kn">import</span> <span class="n">service</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">LIMIT_DEFAULT</span>
+<span class="kn">from</span> <span class="nn">ally.api.criteria</span> <span class="kn">import</span> <span class="n">AsDateTimeOrdered</span><span class="p">,</span> <span class="n">AsBoolean</span>
+<span class="kn">from</span> <span class="nn">ally.api.type</span> <span class="kn">import</span> <span class="n">Iter</span>
+<span class="kn">from</span> <span class="nn">ally.support.api.entity</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">IEntityGetCRUDService</span>
+<span class="kn">from</span> <span class="nn">ally.support.api.keyed</span> <span class="kn">import</span> <span class="n">QEntity</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">superdesk.api.domain_superdesk</span> <span class="kn">import</span> <span class="n">modelSuperDesk</span>
+<span class="kn">from</span> <span class="nn">superdesk.collaborator.api.collaborator</span> <span class="kn">import</span> <span class="n">Collaborator</span>
+<span class="kn">from</span> <span class="nn">superdesk.post.api.type</span> <span class="kn">import</span> <span class="n">PostType</span>
+<span class="kn">from</span> <span class="nn">superdesk.user.api.user</span> <span class="kn">import</span> <span class="n">User</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="nd">@modelSuperDesk</span>
+<div class="viewcode-block" id="Post"><a class="viewcode-back" href="../../../../superdesk.post.api.html#superdesk.post.api.post.Post">[docs]</a><span class="k">class</span> <span class="nc">Post</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the post message model.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">Type</span> <span class="o">=</span> <span class="n">PostType</span>
+    <span class="n">Creator</span> <span class="o">=</span> <span class="n">auth</span><span class="p">(</span><span class="n">User</span><span class="p">)</span>
+    <span class="n">Author</span> <span class="o">=</span> <span class="n">Collaborator</span>
+    <span class="n">IsModified</span> <span class="o">=</span> <span class="nb">bool</span>
+    <span class="n">Meta</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">ContentPlain</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">Content</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">CreatedOn</span> <span class="o">=</span> <span class="n">datetime</span>
+    <span class="n">PublishedOn</span> <span class="o">=</span> <span class="n">datetime</span>
+    <span class="n">UpdatedOn</span> <span class="o">=</span> <span class="n">datetime</span>
+    <span class="n">DeletedOn</span> <span class="o">=</span> <span class="n">datetime</span>
+    <span class="n">AuthorName</span> <span class="o">=</span> <span class="nb">str</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="nd">@query</span><span class="p">(</span><span class="n">Post</span><span class="p">)</span>
+<div class="viewcode-block" id="QPostUnpublished"><a class="viewcode-back" href="../../../../superdesk.post.api.html#superdesk.post.api.post.QPostUnpublished">[docs]</a><span class="k">class</span> <span class="nc">QPostUnpublished</span><span class="p">(</span><span class="n">QEntity</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the post message query.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">createdOn</span> <span class="o">=</span> <span class="n">AsDateTimeOrdered</span>
+    <span class="n">isModified</span> <span class="o">=</span> <span class="n">AsBoolean</span>
+    <span class="n">updatedOn</span> <span class="o">=</span> <span class="n">AsDateTimeOrdered</span>
+    <span class="n">deletedOn</span> <span class="o">=</span> <span class="n">AsDateTimeOrdered</span>
+</div>
+<span class="nd">@query</span><span class="p">(</span><span class="n">Post</span><span class="p">)</span>
+<div class="viewcode-block" id="QPostPublished"><a class="viewcode-back" href="../../../../superdesk.post.api.html#superdesk.post.api.post.QPostPublished">[docs]</a><span class="k">class</span> <span class="nc">QPostPublished</span><span class="p">(</span><span class="n">QPostUnpublished</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the post message query.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">publishedOn</span> <span class="o">=</span> <span class="n">AsDateTimeOrdered</span>
+</div>
+<span class="nd">@query</span><span class="p">(</span><span class="n">Post</span><span class="p">)</span>
+<div class="viewcode-block" id="QPost"><a class="viewcode-back" href="../../../../superdesk.post.api.html#superdesk.post.api.post.QPost">[docs]</a><span class="k">class</span> <span class="nc">QPost</span><span class="p">(</span><span class="n">QPostPublished</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the post message query.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">deletedOn</span> <span class="o">=</span> <span class="n">AsDateTimeOrdered</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="nd">@service</span><span class="p">((</span><span class="n">Entity</span><span class="p">,</span> <span class="n">Post</span><span class="p">))</span>
+<div class="viewcode-block" id="IPostService"><a class="viewcode-back" href="../../../../superdesk.post.api.html#superdesk.post.api.post.IPostService">[docs]</a><span class="k">class</span> <span class="nc">IPostService</span><span class="p">(</span><span class="n">IEntityGetCRUDService</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the service methods for the post.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@call</span><span class="p">(</span><span class="n">webName</span><span class="o">=</span><span class="s">&#39;Unpublished&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="IPostService.getUnpublished"><a class="viewcode-back" href="../../../../superdesk.post.api.html#superdesk.post.api.post.IPostService.getUnpublished">[docs]</a>    <span class="k">def</span> <span class="nf">getUnpublished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">creatorId</span><span class="p">:</span><span class="n">User</span><span class="o">.</span><span class="n">Id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">authorId</span><span class="p">:</span><span class="n">Collaborator</span><span class="o">.</span><span class="n">Id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                       <span class="n">limit</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="n">LIMIT_DEFAULT</span><span class="p">,</span> <span class="n">detailed</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span><span class="n">QPostUnpublished</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iter</span><span class="p">(</span><span class="n">Post</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides all the unpublished posts.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@call</span><span class="p">(</span><span class="n">webName</span><span class="o">=</span><span class="s">&#39;Published&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="IPostService.getPublished"><a class="viewcode-back" href="../../../../superdesk.post.api.html#superdesk.post.api.post.IPostService.getPublished">[docs]</a>    <span class="k">def</span> <span class="nf">getPublished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">creatorId</span><span class="p">:</span><span class="n">User</span><span class="o">.</span><span class="n">Id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">authorId</span><span class="p">:</span><span class="n">Collaborator</span><span class="o">.</span><span class="n">Id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                     <span class="n">limit</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="n">LIMIT_DEFAULT</span><span class="p">,</span> <span class="n">detailed</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span><span class="n">QPostPublished</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iter</span><span class="p">(</span><span class="n">Post</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides all the published posts.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@call</span>
+<div class="viewcode-block" id="IPostService.getAll"><a class="viewcode-back" href="../../../../superdesk.post.api.html#superdesk.post.api.post.IPostService.getAll">[docs]</a>    <span class="k">def</span> <span class="nf">getAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">creatorId</span><span class="p">:</span><span class="n">User</span><span class="o">.</span><span class="n">Id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">authorId</span><span class="p">:</span><span class="n">Collaborator</span><span class="o">.</span><span class="n">Id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="n">LIMIT_DEFAULT</span><span class="p">,</span>
+               <span class="n">detailed</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span><span class="n">QPost</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iter</span><span class="p">(</span><span class="n">Post</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides all the posts.</span>
+<span class="sd">        &#39;&#39;&#39;</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
