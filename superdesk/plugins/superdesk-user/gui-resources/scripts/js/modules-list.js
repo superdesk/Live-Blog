@@ -33,7 +33,10 @@ function($, superdesk, giz, User, Person)
         },
         update: function(data)
         {
-            for( var i in data ) this.model.set(i, data[i]);
+            /*!
+             * Set all the data at once, caz a nasty bug in set model in gizmojs.
+             */
+            this.model.set(data);
             return this.model.sync();
         },
         remove: function()
@@ -65,8 +68,8 @@ function($, superdesk, giz, User, Person)
             '.add-user': { 'click': 'showAddUser' },
             '#user-add-modal [data-action="close"]': { 'click': 'closeAddUser' },
             '#user-edit-modal [data-action="close"]': { 'click': 'closeUpdateUser' },
-            '#user-delete-modal [data-action="delete"]': { 'click': 'deleteUser' },
-            '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' }
+            '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' },
+            '#user-delete-modal [data-action="delete"]': { 'click': 'deleteUser' }
             
         },
         
