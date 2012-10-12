@@ -27,7 +27,6 @@ from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
-from ally.support.util_sys import pythonPath
 from ally.support.util_io import synchronizeURIToDir
 
 # --------------------------------------------------------------------
@@ -136,26 +135,23 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     # ----------------------------------------------------------------
 
-    def extractProperty(self, line, separator):
-        return line.partition(separator)[0].strip()
-
     def extractNumber(self, line):
         for s in line.split():
             if s.isdigit():
                 return int(s)
 
-    def extractString(self, line, separator):
-        str = line.partition(separator)[2].strip('\n')
+    def extractString(self, line):
+        str = line.partition('-')[2].strip('\n')
         return str
 
-    def extractDateTime(self, line, separator):
+    def extractDateTime(self, line):
         #example:' 2010:11:08 18:33:13'
         dateTimeFormat = ' %Y:%m:%d %H:%M:%S'
-        str = line.partition(separator)[2].strip('\n')
+        str = line.partition('-')[2].strip('\n')
         return datetime.strptime(str, dateTimeFormat)
 
-    def extractSize(self, line, separator):
-        str = line.partition(separator)[2].strip('\n')
+    def extractSize(self, line):
+        str = line.partition('-')[2].strip('\n')
         str = str.partition('x')
         return (str[0], str[2])
 
