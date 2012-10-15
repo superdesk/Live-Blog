@@ -193,13 +193,17 @@ define('providers/edit', [
 					}
 				};
 				var editControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : uploadCom.texteditor });
-				self.el.find('.edit-block article.editable').texteditor({ plugins: 
-				{
-				    controls: editControls,
-					floatingToolbar: null, 
-					draggableToolbar: null, 
-					fixedToolbar: fixedToolbar
-				}});
+				self.el.find('.edit-block article.editable').texteditor
+				({ 
+				    imageDefaultWidth: null,
+				    plugins: 
+    				{
+    				    controls: editControls,
+    					floatingToolbar: null, 
+    					draggableToolbar: null, 
+    					fixedToolbar: fixedToolbar
+    				}
+				});
 				var posts = Gizmo.Auth(new OwnCollection(
 						self.theBlog+ '/Post/Owned?asc=createdOn', 
 						Gizmo.Register.Post,
