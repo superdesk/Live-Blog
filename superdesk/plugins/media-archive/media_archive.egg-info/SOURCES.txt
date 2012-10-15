@@ -6,6 +6,8 @@ __plugin__/media_archive/actions.py
 __plugin__/media_archive/gui.py
 __plugin__/media_archive/service.py
 gui-resources/__init__.py
+gui-resources/scripts/__init__.py
+gui-resources/scripts/js/__init__.py
 media_archive.egg-info/PKG-INFO
 media_archive.egg-info/SOURCES.txt
 media_archive.egg-info/dependency_links.txt
