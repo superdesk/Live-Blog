@@ -10,6 +10,9 @@ define
     'tmpl!superdesk/user>add',
     'tmpl!superdesk/user>update'
 ],
+
+// TODO remove cleanup duplicate code
+
 function($, superdesk, giz, User, Person)
 {
     var 
@@ -25,6 +28,7 @@ function($, superdesk, giz, User, Person)
         },
         render: function()
         {
+            delete this.model.data['Password'];
             $(this.el).tmpl('superdesk/user>item', {User: this.model.feed()});
             $(this.el).prop('model', this.model).prop('view', this);
             $('.edit', this.el).prop('model', this.model).prop('view', this);
@@ -79,7 +83,16 @@ function($, superdesk, giz, User, Person)
         
         closeDeleteUser: function(){ $('#user-delete-modal', this.el).modal('hide'); },
         
-        showAddUser: function(){ $('#user-add-modal .alert', this.el).addClass('hide'); $('#user-add-modal', this.el).modal(); },
+        showAddUser: function()
+        { 
+            $('#user-add-modal .alert', this.el).addClass('hide'); 
+            $('#user-add-modal', this.el).modal();
+            $('#user-add-modal form', this.el).trigger('reset');
+            $('#user-add-modal', this.el).on('shown', function()
+            { 
+                $('#user-add-modal form input:eq(0)', this.el).focus(); 
+            });
+        },
         
         showDeleteUser: function(evt)
         { 
@@ -151,7 +164,12 @@ function($, superdesk, giz, User, Person)
             $('#user-delete-modal', this.el).prop('view').remove();
             $('#user-delete-modal', this.el).modal('hide'); 
         },
-        
+        checkPass: function(modal)
+        {
+            var pass = $(modal+' form input#inputPass', self.el).val();
+            if( pass.length > 0 && $(modal+' form input#inputPassConfirm', self.el).val() !== pass ) return false;
+            return true;
+        },
         /*!
          * add user handler
          */
@@ -160,16 +178,29 @@ function($, superdesk, giz, User, Person)
             // new model
             var self = this,
                 newModel = new self.users.model();
+            
+            if( !self.checkPass('#user-add-modal') ) 
+            {
+                $('#user-add-modal .alert', self.el).removeClass('hide')
+                    .html(_('Password mismatch!')+'');
+                return false;
+            }
             $('#user-add-modal form input', self.el).each(function()
             {
-                var val = $(this).val();
-                if( val != '' ) newModel.set($(this).attr('name'), val);
+                var val = $(this).val(),
+                    name = $(this).attr('name');
+                if( name && val != '' ) newModel.set(name, val);
             });
             
             newModel.on('insert', function()
             {
                 $('#user-add-modal', self.el).modal('hide');
                 self.addItem(newModel);
+                delete newModel.data['Password'];
+                // scroll to last page
+                var e = new $.Event;
+                e.target = $('<a data-offset="'+String(Math.floor(self.page.total/self.page.limit)*self.page.limit)+'" data-pagination="currentpages" />');
+                self.switchPage(e);
             });
             
             // sync on collection href for insert
@@ -179,7 +210,7 @@ function($, superdesk, giz, User, Person)
             {
                 eval('var data = '+data.responseText);
                 var msg = '';
-                for(var i in data.details.model.User)
+                if(data.details) for(var i in data.details.model.User)
                     msg += i+', '+data.details.model.User[i]+'. ';
                 $('#user-add-modal .alert', self.el).removeClass('hide')
                     .html('<strong>'+data.message+'</strong> '+msg);
@@ -201,7 +232,9 @@ function($, superdesk, giz, User, Person)
             {
                 $(this).val( model.get( $(this).attr('name') ) || personModel.get( $(this).attr('name') ) );
             });
+            $('#user-edit-modal .alert', this.el).addClass('hide');
             $('#user-edit-modal', self.el).modal();
+            $('#user-edit-modal', this.el).on('shown', function(){ $('#user-add-modal form input:eq(0)', this.el).focus(); });
             $('#user-edit-modal', self.el).prop('view', $this.prop('view'));
         },
         /*!
@@ -209,13 +242,30 @@ function($, superdesk, giz, User, Person)
          */
         updateUser: function()
         { 
-            var data = {};
+            var data = {},
+                self = this;
+            if( !self.checkPass('#user-edit-modal') ) 
+            {
+                $('#user-edit-modal .alert', self.el).removeClass('hide')
+                    .html(_('Password mismatch!')+'');
+                return false;
+            }
             $('#user-edit-modal form input', self.el).each(function()
             {
-                var val = $(this).val();
-                if( val != '' ) data[$(this).attr('name')] = val;
+                var val = $(this).val(),
+                    name = $(this).attr('name');
+                if( name && val != '' ) data[name] = val;
             });
             $('#user-edit-modal', self.el).prop('view').update(data)
+            .fail(function(data)
+            {
+                eval('var data = '+data.responseText);
+                var msg = '';
+                if(data.details) for(var i in data.details.model.User)
+                    msg += i+', '+data.details.model.User[i]+'. ';
+                $('#user-edit-modal .alert', self.el).removeClass('hide')
+                    .html('<strong>'+data.message+'</strong> '+msg);  
+            })
             .done(function()
             {
                 $('#user-edit-modal', self.el).modal('hide');
