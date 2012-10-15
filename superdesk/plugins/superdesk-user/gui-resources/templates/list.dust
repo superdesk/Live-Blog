@@ -6,7 +6,8 @@
 </style>
 <!-- ... -->
 
-<div style="
+<div data-main-table="true" 
+	style="
 	margin-top:60px;
 	background-color: #FFFFFF;
     border: 1px solid #DDDDDD;
@@ -27,6 +28,7 @@
 	    			<th>#</th>
 	        		<th>First Name</th>
 	        		<th>Last Name</th>
+	        		<th>Login</th>
 	        		<th>E-Mail</th>
 				</tr>
 			</thead>
@@ -36,7 +38,7 @@
 			<tfoot>
 			{#pagination}
 				<tr>
-					<td colspan="5" class="pagination">
+					<td colspan="6" class="pagination">
 					{?currentpages}
 					<ul class="{className}">
 						<li> <a href="javascript:void(0)" data-pagination="prev">&larr;</a> </li> 
