@@ -4,6 +4,9 @@
     	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
     </div>
     <div class="youtube-full-content">
+            <div class="editable annotation">
+                    {Meta.annotation.before|s}
+            </div>
 	    <div class="result-content">
                         <iframe src="http://youtube.com/embed/{Meta.id}" style='display: block'></iframe>
 			{#Meta}<h3><a href="{url}">{title|s}</a></h3>{/Meta}
@@ -21,7 +24,9 @@
 			</p>
                {/Meta}
     	</div>
-		
+	<div class="editable annotation">
+                {Meta.annotation.after|s}
+        </div>	
 	</div> 
     <div class="btn-group pull-right clearfix actions hide">
     	<button class="btn btn-mini cancel">Cancel</button>
