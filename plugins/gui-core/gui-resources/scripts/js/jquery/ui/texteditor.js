@@ -80,11 +80,14 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                 {
                     if( window.getSelection )
                     {
-                        var range = window.getSelection().getRangeAt(0),
-                            contents = $(range.commonAncestorContainer).contents();
-                        for( var i = range.startOffset; i < range.endOffset; i++ )
-                            if( $(contents[i]).is(nodeName) ) 
-                                return $(contents[i]);
+                        var range = window.getSelection().getRangeAt(0);
+                        if( range.startContainer.nodeType == Node.TEXT_NODE ||
+                            range.startContainer.nodeType == Node.COMMENT_NODE ||
+                            range.startContainer.nodeType == Node.CDATA_SECTION_NODE ) return false;
+                              
+                        for( var i = range.startOffset; i <= range.endOffset; i++ )
+                            if( $(range.startContainer.childNodes[i]).is(nodeName) ) return $(range.startContainer.childNodes[i]); 
+                        
                         return false;
                     }
                 },
@@ -240,9 +243,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         self = this;
                     
                     $(thisPlugin).on('plugins-remove', function()
-                            { 
-                                dialog.dialog('remove').remove();
-                            });
+                    { 
+                        dialog.dialog('remove').remove();
+                    });
                     
                     this.queryState = function()
                     {
@@ -258,8 +261,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             {
                                 var url = $(this).find('[data-option="image-value"]').val(),
                                     text = $(this).find('[data-option="image-text"]').val(),
-                                    width = $(this).find('[data-option="image-width"]').val(),
-                                    height = $(this).find('[data-option="image-height"]').val(),
+                                    width = $(this).find('[data-option="image-width"]').val() || thisPlugin.options.imageDefaultWidth,
+                                    height = $(this).find('[data-option="image-height"]').val() || thisPlugin.options.imageDefaultHeight,
                                     align = $(this).find('[data-toggle="buttons-radio"] .active');
                                 
                                 if( url === null )
@@ -276,8 +279,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                     self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                     var newImg = $(self.lib.selectionHas('img'));
                                     align && newImg.attr('align', align.attr('data-value'));
-                                    width && newImg.attr('width', width);
-                                    height && newImg.attr('height', height);
+                                    width && newImg.css('width', width);
+                                    height && newImg.css('height', height);
                                     newImg.attr('alt', text);
                                     $(self).trigger('image-inserted.text-editor');
                                 }
@@ -771,6 +774,8 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
         {
             placeholderClass: 'placeholder',
             toolbar:{ class: null, classes:{ topFixed: 'fixed-top' }},
+            imageDefaultHeight: 100,
+            imageDefaultWidth: 100,
             imageDialogUI: 
                 '<form class="form-horizontal"><fieldset>'+
                 '<div class="control-group">'+
