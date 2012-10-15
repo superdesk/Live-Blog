@@ -281,7 +281,7 @@ window.livedesk.startLoading = function($) {
                                         returned +=     '<div class="result-text">' + content + '</div>';
                                         returned +=     '<p class="attributes"><i class="source-icon"></i> by ' + item.get('AuthorName');
                                         returned +=         '<time>' + time + '</time>';
-                                         returned +=     '</p>';
+                                        returned +=     '</p>';
                                         returned += '</div>';
                                         break;
                                     case 'quotation':

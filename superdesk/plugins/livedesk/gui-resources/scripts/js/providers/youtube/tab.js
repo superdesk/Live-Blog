@@ -30,13 +30,13 @@ function(providers)
 	            try
 	            {
 	                feed.Meta = JSON.parse(feed.Meta);
+                        var a = feed.Meta.annotation;
+                        feed.Meta.annotation = {before: a[0], after: a[1]};
 	            }
 	            catch(e)
 	            {
 	                eval('feed.Meta = '+feed.Meta);
 	            }
-	            //feed.Meta.annotation = feed.Meta.annotation[0];
-	            
 	            $.tmpl('livedesk>providers/youtube/post', feed, function(e, o)
                 {
                     self.setElement(o);
@@ -44,7 +44,7 @@ function(providers)
                     {
                         var data = 
                         {
-                            Content: $('.youtube-full-content .result-text', self.el).html(),
+                            Content: $('.youtube-full-content', self.el).html(),
                             Meta: JSON.stringify( $.extend( feed.Meta, 
                             {
                                 annotation: [$('.youtube-full-content .annotation:eq(0)', self.el).html(),
