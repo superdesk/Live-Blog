@@ -143,12 +143,7 @@ class LocalFileSystemCDM(ICDM):
         if not isdir(dirPath):
             # not a directory, see if it's a entry in a zip file
             zipFilePath, inDirPath = getZipFilePath(dirPath, self.delivery.getRepositoryPath())
-            zipFile = ZipFile(zipFilePath)
-            if not inDirPath.endswith(ZIPSEP):
-                inDirPath = inDirPath + ZIPSEP
-            fileInfo = zipFile.getinfo(inDirPath)
-            if not fileInfo.filename.endswith(ZIPSEP):
-                raise IOError('Trying to publish a file from a ZIP directory path: %s' % fileInfo.filename)
+            if not inDirPath.endswith(ZIPSEP): inDirPath = inDirPath + ZIPSEP
             self._copyZipDir(zipFilePath, inDirPath, fullPath)
             assert log.debug('Success publishing ZIP dir %s (%s) to path %s', inDirPath, zipFilePath, path) or True
             return
