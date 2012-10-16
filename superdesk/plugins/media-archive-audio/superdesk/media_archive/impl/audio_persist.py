@@ -18,7 +18,8 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
-from os.path import splitext, abspath, join
+from os import remove
+from os.path import splitext, abspath, join, exists
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
@@ -89,12 +90,16 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
-        #fake operation in order to have an output parameter for ffmpeg; if no output parameter -> get error code 1
-        #the fake operation don't generate anything in output
-               
-        p = Popen((self.ffmpeg_path, '-i', contentPath, '-y', '-f', 'rawvideo', '-vframes', '1', '/dev/null'), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        #extract metadata operation to a file in order to have an output parameter for ffmpeg; if no output parameter -> get error code 1
+        #the generated metadata file will be deleted
         
-        if p.wait() != 0: return False
+        if exists('metadata.txt'):
+            remove('metadata.txt')       
+               
+        p = Popen((self.ffmpeg_path, '-i', contentPath, '-f', 'ffmetadata',  'metadata.txt'), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        result = p.wait() 
+        
+        if result != 0: return False
 
         audioDataEntry = AudioDataEntry()
         audioDataEntry.Id = metaDataMapped.Id
