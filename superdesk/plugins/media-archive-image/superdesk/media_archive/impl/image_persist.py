@@ -27,6 +27,7 @@ from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
 from ally.support.util_deploy import deploy as deployTool
+from ally.support.util_sys import pythonPath
 
 # --------------------------------------------------------------------
 
@@ -47,7 +48,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     wire.config('metadata_extractor_path', doc='''The path to the metadata extractor file.''')
 
     image_supported_files = 'gif, png, bmp, jpg'
-    
+
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
 
@@ -65,13 +66,13 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         @see: IMetaDataHandler.deploy
         '''
-        
+
         self._defaultThumbnailFormat = thumbnailFormatFor(self.session(), self.default_format_thumbnail)
         self.thumbnailManager.putThumbnail(self._defaultThumbnailFormat.id, abspath(join(pythonPath(), 'resources', 'image.jpg')))
-        
+
         self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
         self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
-                
+
         deployTool(join(pythonPath(), 'resources', 'exiv2'), self.metadata_extractor_path)
 
 # --------------------------------------------------------------------
@@ -94,25 +95,25 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
-            
+
         p = subprocess.Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        
+
         result = p.wait()
-        
+
         #253 is the exiv2 code for error: No Exif data found in the file
         if result != 0 and result != 253: return False
 
         imageDataEntry = ImageDataEntry()
         imageDataEntry.Id = metaDataMapped.Id
-        
+
         while True:
             line = p.stdout.readline()
             if not line: break
             line = str(line, "utf-8")
-            
+
             property = self.extractProperty(line, ':')
-            
+
             if property is None:
                 continue
 
@@ -126,8 +127,8 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
                 imageDataEntry.CameraMake = self.extractString(line, ':')
             elif property == 'Camera model':
                 imageDataEntry.CameraModel = self.extractString(line, ':')
-                    
-                    
+
+
         path = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
 
@@ -170,8 +171,6 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         str = str.partition('x')
         return (str[0], str[2])
 
-    def extractSize(self, line):
-        str = line.partition('-')[2].strip('\n').strip()
     # ----------------------------------------------------------------
 
     def generateIdPath (self, id):
