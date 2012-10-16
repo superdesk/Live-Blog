@@ -1,0 +1,11 @@
+#!/bin/sh
+
+python_cli=python3
+
+dirs="components plugins superdesk/plugins"
+
+export PYTHONPATH=distribution/tools/distribute-0.6.27-py3.2.egg
+
+for dir in $dirs; do $python_cli "$dir/build_egg.py"; done
+
+$python_cli "superdesk/plugins/copy_eggs.py"

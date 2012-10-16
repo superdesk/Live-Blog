@@ -1,0 +1,21 @@
+superdesk Package
+=================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.address
+    superdesk.api
+    superdesk.authentication
+    superdesk.collaborator
+    superdesk.country
+    superdesk.language
+    superdesk.media_archive
+    superdesk.meta
+    superdesk.person
+    superdesk.post
+    superdesk.source
+    superdesk.user
+

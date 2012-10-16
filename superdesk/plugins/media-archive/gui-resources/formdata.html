@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script>
+
+function upload(postUrl, fieldName, filePath)
+{
+	var formData = new FormData(),
+		file = document.getElementById('file').files[0];
+	formData.append(fieldName, file);
+	var req = new XMLHttpRequest();
+	req.open("POST", postUrl);
+	req.onload = function(event) { console.log(event.target.responseText); };
+	req.send(formData);
+	return false;
+}
+
+</script>
+
+</head>
+<body>
+<form onsubmit='upload("http://localhost/test/upload.php", "xfile"); return false;'>
+
+	<input type="file" id="file"  />
+	<input type="submit" />
+	<input type="button" value="rest" onclick="upload('http://localhost:8080/resources/Archive/MetaData/Upload', 'upload_file')"/>
+
+</form>
+</body>
+</html>

@@ -1,0 +1,35 @@
+transform Package
+=================
+
+:mod:`transform` Package
+------------------------
+
+.. automodule:: ally.core.spec.transform
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`exploit` Module
+---------------------
+
+.. automodule:: ally.core.spec.transform.exploit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`render` Module
+--------------------
+
+.. automodule:: ally.core.spec.transform.render
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`support` Module
+---------------------
+
+.. automodule:: ally.core.spec.transform.support
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
