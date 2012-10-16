@@ -17,6 +17,7 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String, DateTime, Integer
 from superdesk.meta.metadata_superdesk import Base
 from ally.support.sqlalchemy.session import openSession
+from superdesk.user.meta.user import UserMapped
 from ally.internationalization import N_
 
 # --------------------------------------------------------------------
@@ -51,6 +52,7 @@ class MetaDataMapped(Base, MetaData):
     Name = Column('name', String(255), nullable=False)
     SizeInBytes = Column('size_in_bytes', Integer)
     CreatedOn = Column('created_on', DateTime, nullable=False)
+    Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id), nullable=False)
     
     # None REST model attribute --------------------------------------
     typeId = Column('fk_type_id', ForeignKey(MetaTypeMapped.Id, ondelete='RESTRICT'), nullable=False)
