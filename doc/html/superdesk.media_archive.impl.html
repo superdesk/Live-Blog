@@ -1,0 +1,532 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>impl Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="media_archive Package" href="superdesk.media_archive.html" />
+    <link rel="next" title="meta Package" href="superdesk.media_archive.meta.html" />
+    <link rel="prev" title="impl Package" href="superdesk.media_archive.core.impl.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.meta.html" title="meta Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.core.impl.html" title="impl Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.media_archive.html" accesskey="U">media_archive Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="impl-package">
+<h1>impl Package<a class="headerlink" href="#impl-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-superdesk.media_archive.impl.image_data">
+<span id="image-data-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">image_data</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.image_data" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 19, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>SQL Alchemy based implementation for the image data API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.image_data.ImageDataServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.image_data.</tt><tt class="descname">ImageDataServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_data.html#ImageDataServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_data.ImageDataServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.media_archive.core.impl.html#superdesk.media_archive.core.impl.meta_service_base.MetaDataServiceBaseAlchemy" title="superdesk.media_archive.core.impl.meta_service_base.MetaDataServiceBaseAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.impl.meta_service_base.MetaDataServiceBaseAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataReferencer" title="superdesk.media_archive.core.spec.IMetaDataReferencer"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.spec.IMetaDataReferencer</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.api.html#superdesk.media_archive.api.image_data.IImageDataService" title="superdesk.media_archive.api.image_data.IImageDataService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.image_data.IImageDataService</span></tt></a></p>
+<p>&#64;see: IImageDataService</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.image_data.ImageDataServiceAlchemy.handler">
+<tt class="descname">handler</tt><a class="headerlink" href="#superdesk.media_archive.impl.image_data.ImageDataServiceAlchemy.handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IMetaDataHandler</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.image_data.ImageDataServiceAlchemy.populate">
+<tt class="descname">populate</tt><big>(</big><em>metaData</em>, <em>scheme</em>, <em>thumbSize=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_data.html#ImageDataServiceAlchemy.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_data.ImageDataServiceAlchemy.populate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.impl.image_info">
+<span id="image-info-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">image_info</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.image_info" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 20, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>SQL Alchemy based implementation for the image data API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.image_info.ImageInfoServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.image_info.</tt><tt class="descname">ImageInfoServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_info.html#ImageInfoServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_info.ImageInfoServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.media_archive.core.impl.html#superdesk.media_archive.core.impl.meta_service_base.MetaInfoServiceBaseAlchemy" title="superdesk.media_archive.core.impl.meta_service_base.MetaInfoServiceBaseAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.impl.meta_service_base.MetaInfoServiceBaseAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.api.html#superdesk.media_archive.api.image_info.IImageInfoService" title="superdesk.media_archive.api.image_info.IImageInfoService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.image_info.IImageInfoService</span></tt></a></p>
+<p>&#64;see: IImageInfoService</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.image_info.ImageInfoServiceAlchemy.queryIndexer">
+<tt class="descname">queryIndexer</tt><a class="headerlink" href="#superdesk.media_archive.impl.image_info.ImageInfoServiceAlchemy.queryIndexer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">QueryIndexer</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.impl.image_persist">
+<span id="image-persist-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">image_persist</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.image_persist" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 25, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Implementation for the image persistence API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.image_persist.</tt><tt class="descname">ImagePersistanceAlchemy</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_persist.html#ImagePersistanceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.sqlalchemy.html#ally.support.sqlalchemy.session.SessionSupport" title="ally.support.sqlalchemy.session.SessionSupport"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.session.SessionSupport</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataHandler" title="superdesk.media_archive.core.spec.IMetaDataHandler"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.spec.IMetaDataHandler</span></tt></a></p>
+<p>Provides the service that handles the image persistence &#64;see: IImagePersistanceService.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.deploy">
+<tt class="descname">deploy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_persist.html#ImagePersistanceAlchemy.deploy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.deploy" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaDataHandler.deploy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.extractDateTime">
+<tt class="descname">extractDateTime</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_persist.html#ImagePersistanceAlchemy.extractDateTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.extractDateTime" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.extractNumber">
+<tt class="descname">extractNumber</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_persist.html#ImagePersistanceAlchemy.extractNumber"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.extractNumber" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.extractString">
+<tt class="descname">extractString</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_persist.html#ImagePersistanceAlchemy.extractString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.extractString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.format_file_name">
+<tt class="descname">format_file_name</tt><em class="property"> = '%(id)s.%(file)s'</em><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.format_file_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.format_thumbnail">
+<tt class="descname">format_thumbnail</tt><em class="property"> = '%(size)s/%(id)s.%(name)s.jpg'</em><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.format_thumbnail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.generateIdPath">
+<tt class="descname">generateIdPath</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_persist.html#ImagePersistanceAlchemy.generateIdPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.generateIdPath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.image_supported_files">
+<tt class="descname">image_supported_files</tt><em class="property"> = 'gif, png, bmp, jpg'</em><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.image_supported_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.metadata_extractor_path">
+<tt class="descname">metadata_extractor_path</tt><em class="property"> = 'workspace/tools/media-archive-image/metadata_extractor.jar'</em><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.metadata_extractor_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.process">
+<tt class="descname">process</tt><big>(</big><em>metaDataMapped</em>, <em>contentPath</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_persist.html#ImagePersistanceAlchemy.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaDataHandler.process</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.processByInfo">
+<tt class="descname">processByInfo</tt><big>(</big><em>metaDataMapped</em>, <em>contentPath</em>, <em>contentType</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/image_persist.html#ImagePersistanceAlchemy.processByInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.processByInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaDataHandler.processByInfo</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.thumbnailManager">
+<tt class="descname">thumbnailManager</tt><a class="headerlink" href="#superdesk.media_archive.impl.image_persist.ImagePersistanceAlchemy.thumbnailManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IThumbnailManager</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.impl.meta_data">
+<span id="meta-data-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">meta_data</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.meta_data" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 19, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>SQL Alchemy based implementation for the meta data API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.meta_data.</tt><tt class="descname">MetaDataServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/meta_data.html#MetaDataServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.media_archive.core.impl.html#superdesk.media_archive.core.impl.meta_service_base.MetaDataServiceBaseAlchemy" title="superdesk.media_archive.core.impl.meta_service_base.MetaDataServiceBaseAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.impl.meta_service_base.MetaDataServiceBaseAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataReferencer" title="superdesk.media_archive.core.spec.IMetaDataReferencer"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.spec.IMetaDataReferencer</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.api.html#superdesk.media_archive.api.meta_data.IMetaDataUploadService" title="superdesk.media_archive.api.meta_data.IMetaDataUploadService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_data.IMetaDataUploadService</span></tt></a></p>
+<p>Implementation for &#64;see: IMetaDataService, and also provides services as the &#64;see: IMetaDataReferencer</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.cdmArchive">
+<tt class="descname">cdmArchive</tt><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.cdmArchive" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">ICDM</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.deploy">
+<tt class="descname">deploy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/meta_data.html#MetaDataServiceAlchemy.deploy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.deploy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deploy the meta data and all handlers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.format_file_name">
+<tt class="descname">format_file_name</tt><em class="property"> = '%(id)s.%(name)s'</em><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.format_file_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.format_thumbnail">
+<tt class="descname">format_thumbnail</tt><em class="property"> = '%(size)s/other.jpg'</em><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.format_thumbnail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.generateIdPath">
+<tt class="descname">generateIdPath</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/meta_data.html#MetaDataServiceAlchemy.generateIdPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.generateIdPath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.insert">
+<tt class="descname">insert</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/meta_data.html#MetaDataServiceAlchemy.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaDataService.insert</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.metaDataHandlers">
+<tt class="descname">metaDataHandlers</tt><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.metaDataHandlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.populate">
+<tt class="descname">populate</tt><big>(</big><em>metaData</em>, <em>scheme</em>, <em>thumbSize=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/meta_data.html#MetaDataServiceAlchemy.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.populate" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaDataReferencer.populate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.thumbnailManager">
+<tt class="descname">thumbnailManager</tt><a class="headerlink" href="#superdesk.media_archive.impl.meta_data.MetaDataServiceAlchemy.thumbnailManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IThumbnailManager</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.impl.meta_info">
+<span id="meta-info-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">meta_info</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.meta_info" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 19, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>SQL Alchemy based implementation for the meta info API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.meta_info.MetaInfoServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.meta_info.</tt><tt class="descname">MetaInfoServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/meta_info.html#MetaInfoServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.meta_info.MetaInfoServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.media_archive.core.impl.html#superdesk.media_archive.core.impl.meta_service_base.MetaInfoServiceBaseAlchemy" title="superdesk.media_archive.core.impl.meta_service_base.MetaInfoServiceBaseAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.impl.meta_service_base.MetaInfoServiceBaseAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.api.html#superdesk.media_archive.api.meta_info.IMetaInfoService" title="superdesk.media_archive.api.meta_info.IMetaInfoService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_info.IMetaInfoService</span></tt></a></p>
+<p>Implementation for &#64;see: IMetaInfoService</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.impl.meta_type">
+<span id="meta-type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">meta_type</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.meta_type" title="Permalink to this headline">¶</a></h2>
+<p>Created on Apr 19, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>SQL Alchemy based implementation for the meta type API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.meta_type.MetaTypeServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.meta_type.</tt><tt class="descname">MetaTypeServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/meta_type.html#MetaTypeServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.meta_type.MetaTypeServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.sqlalchemy.html#ally.support.sqlalchemy.session.SessionSupport" title="ally.support.sqlalchemy.session.SessionSupport"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.session.SessionSupport</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.api.html#superdesk.media_archive.api.meta_type.IMetaTypeService" title="superdesk.media_archive.api.meta_type.IMetaTypeService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.meta_type.IMetaTypeService</span></tt></a></p>
+<p>Implementation based on SQL alchemy for &#64;see: IMetaTypeService</p>
+<dl class="method">
+<dt id="superdesk.media_archive.impl.meta_type.MetaTypeServiceAlchemy.getById">
+<tt class="descname">getById</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/meta_type.html#MetaTypeServiceAlchemy.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.meta_type.MetaTypeServiceAlchemy.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaTypeService.getById</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.meta_type.MetaTypeServiceAlchemy.getMetaTypes">
+<tt class="descname">getMetaTypes</tt><big>(</big><em>offset=None</em>, <em>limit=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/meta_type.html#MetaTypeServiceAlchemy.getMetaTypes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.meta_type.MetaTypeServiceAlchemy.getMetaTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaTypeService.getByKey</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.impl.query_criteria">
+<span id="query-criteria-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">query_criteria</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.query_criteria" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 28, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Ioan v. Pocol</p>
+<p>The implementation for the query criteria API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.query_criteria.QueryCriteriaService">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.query_criteria.</tt><tt class="descname">QueryCriteriaService</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/query_criteria.html#QueryCriteriaService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.query_criteria.QueryCriteriaService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.media_archive.api.html#superdesk.media_archive.api.query_criteria.IQueryCriteriaService" title="superdesk.media_archive.api.query_criteria.IQueryCriteriaService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.query_criteria.IQueryCriteriaService</span></tt></a></p>
+<p>Implementation for &#64;see: IQueryCriteriaService to get the list of multi-plugin query criteria and
+uses Babel library for translating the names of query criteria.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.impl.query_criteria.QueryCriteriaService.getCriterias">
+<tt class="descname">getCriterias</tt><big>(</big><em>locales</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/query_criteria.html#QueryCriteriaService.getCriterias"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.query_criteria.QueryCriteriaService.getCriterias" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: QueryCriteriaService.getCriterias</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.impl.video_data">
+<span id="video-data-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">video_data</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.video_data" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 23, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Ioan v. Pocol</p>
+<p>SQL Alchemy based implementation for the video data API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.video_data.VideoDataServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.video_data.</tt><tt class="descname">VideoDataServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_data.html#VideoDataServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_data.VideoDataServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.media_archive.core.impl.html#superdesk.media_archive.core.impl.meta_service_base.MetaDataServiceBaseAlchemy" title="superdesk.media_archive.core.impl.meta_service_base.MetaDataServiceBaseAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.impl.meta_service_base.MetaDataServiceBaseAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataReferencer" title="superdesk.media_archive.core.spec.IMetaDataReferencer"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.spec.IMetaDataReferencer</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.api.html#superdesk.media_archive.api.video_data.IVideoDataService" title="superdesk.media_archive.api.video_data.IVideoDataService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.video_data.IVideoDataService</span></tt></a></p>
+<p>&#64;see: IVideoDataService</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.video_data.VideoDataServiceAlchemy.handler">
+<tt class="descname">handler</tt><a class="headerlink" href="#superdesk.media_archive.impl.video_data.VideoDataServiceAlchemy.handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IMetaDataHandler</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.video_data.VideoDataServiceAlchemy.populate">
+<tt class="descname">populate</tt><big>(</big><em>metaData</em>, <em>scheme</em>, <em>thumbSize=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_data.html#VideoDataServiceAlchemy.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_data.VideoDataServiceAlchemy.populate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.impl.video_info">
+<span id="video-info-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">video_info</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.video_info" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 23, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Ioan v. Pocol</p>
+<p>SQL Alchemy based implementation for the video data API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.video_info.VideoInfoServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.video_info.</tt><tt class="descname">VideoInfoServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_info.html#VideoInfoServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_info.VideoInfoServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="superdesk.media_archive.core.impl.html#superdesk.media_archive.core.impl.meta_service_base.MetaInfoServiceBaseAlchemy" title="superdesk.media_archive.core.impl.meta_service_base.MetaInfoServiceBaseAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.impl.meta_service_base.MetaInfoServiceBaseAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.api.html#superdesk.media_archive.api.video_info.IVideoInfoService" title="superdesk.media_archive.api.video_info.IVideoInfoService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.api.video_info.IVideoInfoService</span></tt></a></p>
+<p>&#64;see: IVideoInfoService</p>
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.video_info.VideoInfoServiceAlchemy.queryIndexer">
+<tt class="descname">queryIndexer</tt><a class="headerlink" href="#superdesk.media_archive.impl.video_info.VideoInfoServiceAlchemy.queryIndexer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">QueryIndexer</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-superdesk.media_archive.impl.video_persist">
+<span id="video-persist-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">video_persist</span></tt> Module<a class="headerlink" href="#module-superdesk.media_archive.impl.video_persist" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 23, 2012</p>
+<p>&#64;package: superdesk media archive
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Ioan v. Pocol</p>
+<p>Implementation for the video persistence API.</p>
+<dl class="class">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy">
+<em class="property">class </em><tt class="descclassname">superdesk.media_archive.impl.video_persist.</tt><tt class="descname">VideoPersistanceAlchemy</tt><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_persist.html#VideoPersistanceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.sqlalchemy.html#ally.support.sqlalchemy.session.SessionSupport" title="ally.support.sqlalchemy.session.SessionSupport"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.session.SessionSupport</span></tt></a>, <a class="reference internal" href="superdesk.media_archive.core.html#superdesk.media_archive.core.spec.IMetaDataHandler" title="superdesk.media_archive.core.spec.IMetaDataHandler"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.media_archive.core.spec.IMetaDataHandler</span></tt></a></p>
+<p>Provides the service that handles the video persistence &#64;see: IVideoPersistanceService.</p>
+<dl class="method">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.deploy">
+<tt class="descname">deploy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_persist.html#VideoPersistanceAlchemy.deploy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.deploy" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaDataHandler.deploy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.extractAudio">
+<tt class="descname">extractAudio</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_persist.html#VideoPersistanceAlchemy.extractAudio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.extractAudio" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.extractDuration">
+<tt class="descname">extractDuration</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_persist.html#VideoPersistanceAlchemy.extractDuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.extractDuration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.extractVideo">
+<tt class="descname">extractVideo</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_persist.html#VideoPersistanceAlchemy.extractVideo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.extractVideo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.ffmpeg_path">
+<tt class="descname">ffmpeg_path</tt><em class="property"> = 'workspace/tools/ffmpeg/bin/ffmpeg.exe'</em><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.ffmpeg_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.format_file_name">
+<tt class="descname">format_file_name</tt><em class="property"> = '%(id)s.%(file)s'</em><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.format_file_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.format_thumbnail">
+<tt class="descname">format_thumbnail</tt><em class="property"> = '%(size)s/%(id)s.%(name)s.jpg'</em><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.format_thumbnail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.generateIdPath">
+<tt class="descname">generateIdPath</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_persist.html#VideoPersistanceAlchemy.generateIdPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.generateIdPath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.process">
+<tt class="descname">process</tt><big>(</big><em>metaDataMapped</em>, <em>contentPath</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_persist.html#VideoPersistanceAlchemy.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaDataHandler.process</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.processByInfo">
+<tt class="descname">processByInfo</tt><big>(</big><em>metaDataMapped</em>, <em>contentPath</em>, <em>contentType</em><big>)</big><a class="reference internal" href="_modules/superdesk/media_archive/impl/video_persist.html#VideoPersistanceAlchemy.processByInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.processByInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IMetaDataHandler.processByInfo</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.thumbnailManager">
+<tt class="descname">thumbnailManager</tt><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.thumbnailManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IThumbnailManager</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.video_supported_files">
+<tt class="descname">video_supported_files</tt><em class="property"> = 'flv, avi, mov, mp4, mpg, wmv, 3gp, asf, rm, swf'</em><a class="headerlink" href="#superdesk.media_archive.impl.video_persist.VideoPersistanceAlchemy.video_supported_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">impl Package</a><ul>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.image_data"><tt class="docutils literal"><span class="pre">image_data</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.image_info"><tt class="docutils literal"><span class="pre">image_info</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.image_persist"><tt class="docutils literal"><span class="pre">image_persist</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.meta_data"><tt class="docutils literal"><span class="pre">meta_data</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.meta_info"><tt class="docutils literal"><span class="pre">meta_info</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.meta_type"><tt class="docutils literal"><span class="pre">meta_type</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.query_criteria"><tt class="docutils literal"><span class="pre">query_criteria</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.video_data"><tt class="docutils literal"><span class="pre">video_data</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.video_info"><tt class="docutils literal"><span class="pre">video_info</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-superdesk.media_archive.impl.video_persist"><tt class="docutils literal"><span class="pre">video_persist</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superdesk.media_archive.core.impl.html"
+                        title="previous chapter">impl Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superdesk.media_archive.meta.html"
+                        title="next chapter">meta Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/superdesk.media_archive.impl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.meta.html" title="meta Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superdesk.media_archive.core.impl.html" title="impl Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="superdesk.html" >superdesk Package</a> &raquo;</li>
+          <li><a href="superdesk.media_archive.html" >media_archive Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

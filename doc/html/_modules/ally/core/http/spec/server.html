@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.core.http.spec.server &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.core.http.spec.server</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jun 1, 2012</span>
+
+<span class="sd">@package: ally core http</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides HTTP server specification.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">ally.support.util_io</span> <span class="kn">import</span> <span class="n">IInputStream</span><span class="p">,</span> <span class="n">IOutputStream</span>
+<span class="kn">from</span> <span class="nn">ally.core.spec.codes</span> <span class="kn">import</span> <span class="n">Code</span>
+<span class="kn">from</span> <span class="nn">ally.design.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">defines</span><span class="p">,</span> <span class="n">requires</span><span class="p">,</span> <span class="n">optional</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+<span class="c"># Additional HTTP methods.</span>
+
+<span class="n">METHOD_OPTIONS</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="RequestHTTP"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.RequestHTTP">[docs]</a><span class="k">class</span> <span class="nc">RequestHTTP</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Context for HTTP request data. </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Defined</span>
+    <span class="n">scheme</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: string</span>
+<span class="s">    The scheme URI protocol name to be used for the response.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: integer</span>
+<span class="s">    The method of the request.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">uriRoot</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: string</span>
+<span class="s">    The root URI to be considered for constructing a request path, basically the relative path root.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">uri</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: string</span>
+<span class="s">    The relative request URI.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: list[tuple(string, string)]</span>
+<span class="s">    The parameters of the request.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: dictionary{string, string}</span>
+<span class="s">    The raw headers.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RequestContentHTTP"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.RequestContentHTTP">[docs]</a><span class="k">class</span> <span class="nc">RequestContentHTTP</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Context for HTTP request content data. </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Defined</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="n">IInputStream</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: IInputStream</span>
+<span class="s">    The source for the request content.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ResponseHTTP"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.ResponseHTTP">[docs]</a><span class="k">class</span> <span class="nc">ResponseHTTP</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Context for HTTP response data. </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Required</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="n">Code</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: Code</span>
+<span class="s">    The response code.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="c"># ---------------------------------------------------------------- Optional</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">optional</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: str</span>
+<span class="s">    The response text message (a short message).</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="n">optional</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: dictionary{String, string}</span>
+<span class="s">    The response headers.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ResponseContentHTTP"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.ResponseContentHTTP">[docs]</a><span class="k">class</span> <span class="nc">ResponseContentHTTP</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Context for HTTP response content data. </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Required</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="n">IOutputStream</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;&#39;</span>
+<span class="s">    @rtype: IOutputStream|Iterable</span>
+<span class="s">    The source for the response content.</span>
+<span class="s">    &#39;&#39;&#39;</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="IDecoderHeader"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.IDecoderHeader">[docs]</a><span class="k">class</span> <span class="nc">IDecoderHeader</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the header retrieve, parsing and decoding.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IDecoderHeader.retrieve"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.IDecoderHeader.retrieve">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the raw header value.</span>
+<span class="sd">        </span>
+<span class="sd">        @param name: string</span>
+<span class="sd">            The name of the header to retrieve.</span>
+<span class="sd">        @return: string|None</span>
+<span class="sd">            The raw header value or None if there is no such header.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IDecoderHeader.decode"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.IDecoderHeader.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the decoded the header value.</span>
+<span class="sd">        </span>
+<span class="sd">        @param name: string</span>
+<span class="sd">            The name of the header to decode.</span>
+<span class="sd">        @return: list[tuple(string, dictionary{string:string})]</span>
+<span class="sd">            A list of tuples having as the first entry the header value and the second entry a dictionary </span>
+<span class="sd">            with the value attribute.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div></div>
+<div class="viewcode-block" id="IEncoderHeader"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.IEncoderHeader">[docs]</a><span class="k">class</span> <span class="nc">IEncoderHeader</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the header encoding.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IEncoderHeader.encode"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.IEncoderHeader.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Encodes the header values.</span>
+<span class="sd">        ex:</span>
+<span class="sd">            convert(&#39;multipart/formdata&#39;, &#39;mixed&#39;) == &#39;multipart/formdata, mixed&#39;</span>
+<span class="sd">            </span>
+<span class="sd">            convert((&#39;multipart/formdata&#39;, (&#39;charset&#39;, &#39;utf-8&#39;), (&#39;boundry&#39;, &#39;12))) ==</span>
+<span class="sd">            &#39;multipart/formdata; charset=utf-8; boundry=12&#39;</span>
+<span class="sd">        </span>
+<span class="sd">        @param name: string</span>
+<span class="sd">            The name of the header to set.</span>
+<span class="sd">        @param value: arguments[tuple(string, tuple(string, string))|string]</span>
+<span class="sd">            Tuples containing as first value found in the header and as the second value a tuple with the</span>
+<span class="sd">            values attribute.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div></div>
+<div class="viewcode-block" id="IEncoderPath"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.IEncoderPath">[docs]</a><span class="k">class</span> <span class="nc">IEncoderPath</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the path encoding.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IEncoderPath.encode"><a class="viewcode-back" href="../../../../../ally.core.http.spec.html#ally.core.http.spec.server.IEncoderPath.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Encodes the provided path to a full request path.</span>
+<span class="sd">        </span>
+<span class="sd">        @param path: Path|string</span>
+<span class="sd">            The path to be encoded, for a local REST resource it will be a Path object, also it can be a string that will</span>
+<span class="sd">            be interpreted as a path.</span>
+<span class="sd">        @param parameters: list</span>
+<span class="sd">            A list of tuples containing on the first position the parameter string name and on the second the string</span>
+<span class="sd">            parameter value as to be represented in the request path.</span>
+<span class="sd">        @return: object</span>
+<span class="sd">            The full compiled request path, the type depends on the implementation.</span>
+<span class="sd">        &#39;&#39;&#39;</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

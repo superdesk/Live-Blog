@@ -1,0 +1,197 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.core.http.impl.processor.headers.override_method &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.core.http.impl.processor.headers.override_method</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Aug 9, 2011</span>
+
+<span class="sd">@package: ally core http</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides the method override header handling.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">ally.api.config</span> <span class="kn">import</span> <span class="n">DELETE</span><span class="p">,</span> <span class="n">GET</span><span class="p">,</span> <span class="n">INSERT</span><span class="p">,</span> <span class="n">UPDATE</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.core.http.spec.codes</span> <span class="kn">import</span> <span class="n">INVALID_HEADER_VALUE</span>
+<span class="kn">from</span> <span class="nn">ally.core.http.spec.server</span> <span class="kn">import</span> <span class="n">IDecoderHeader</span>
+<span class="kn">from</span> <span class="nn">ally.core.spec.codes</span> <span class="kn">import</span> <span class="n">Code</span>
+<span class="kn">from</span> <span class="nn">ally.design.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">requires</span><span class="p">,</span> <span class="n">defines</span>
+<span class="kn">from</span> <span class="nn">ally.design.processor</span> <span class="kn">import</span> <span class="n">HandlerProcessorProceed</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Request"><a class="viewcode-back" href="../../../../../../../ally.core.http.impl.processor.headers.html#ally.core.http.impl.processor.headers.override_method.Request">[docs]</a><span class="k">class</span> <span class="nc">Request</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The request context.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Required</span>
+    <span class="n">decoderHeader</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="n">IDecoderHeader</span><span class="p">)</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Response"><a class="viewcode-back" href="../../../../../../../ally.core.http.impl.processor.headers.html#ally.core.http.impl.processor.headers.override_method.Response">[docs]</a><span class="k">class</span> <span class="nc">Response</span><span class="p">(</span><span class="n">Context</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The response context.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># ---------------------------------------------------------------- Defined</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="n">Code</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">errorMessage</span> <span class="o">=</span> <span class="n">defines</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="nd">@injected</span>
+<div class="viewcode-block" id="MethodOverrideDecodeHandler"><a class="viewcode-back" href="../../../../../../../ally.core.http.impl.processor.headers.html#ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler">[docs]</a><span class="k">class</span> <span class="nc">MethodOverrideDecodeHandler</span><span class="p">(</span><span class="n">HandlerProcessorProceed</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the method override processor.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">nameXMethodOverride</span> <span class="o">=</span> <span class="s">&#39;X-HTTP-Method-Override&#39;</span>
+    <span class="c"># The header name for the method override.</span>
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">{</span>
+              <span class="s">&#39;DELETE&#39;</span> <span class="p">:</span> <span class="n">DELETE</span><span class="p">,</span>
+              <span class="s">&#39;GET&#39;</span> <span class="p">:</span> <span class="n">GET</span><span class="p">,</span>
+              <span class="s">&#39;POST&#39;</span> <span class="p">:</span> <span class="n">INSERT</span><span class="p">,</span>
+              <span class="s">&#39;PUT&#39;</span> <span class="p">:</span> <span class="n">UPDATE</span><span class="p">,</span>
+              <span class="p">}</span>
+    <span class="n">methodsOverride</span> <span class="o">=</span> <span class="p">{</span>
+                       <span class="n">GET</span><span class="p">:{</span><span class="n">GET</span><span class="p">,</span> <span class="n">DELETE</span><span class="p">},</span>
+                       <span class="n">INSERT</span><span class="p">:{</span><span class="n">INSERT</span><span class="p">,</span> <span class="n">UPDATE</span><span class="p">},</span>
+                       <span class="p">}</span>
+    <span class="c"># A dictionary containing as a key the original method and as a value the methods that are allowed for override.</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameXMethodOverride</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid method override name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameXMethodOverride</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid methods </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">methods</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodsOverride</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid methods override </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodsOverride</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MethodOverrideDecodeHandler.process"><a class="viewcode-back" href="../../../../../../../ally.core.http.impl.processor.headers.html#ally.core.http.impl.processor.headers.override_method.MethodOverrideDecodeHandler.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span><span class="n">Request</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span><span class="n">Response</span><span class="p">,</span> <span class="o">**</span><span class="n">keyargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: HandlerProcessorProceed.process</span>
+<span class="sd">        </span>
+<span class="sd">        Overrides the request method based on a provided header.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">Request</span><span class="p">),</span> <span class="s">&#39;Invalid request </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">request</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">Response</span><span class="p">),</span> <span class="s">&#39;Invalid response </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">response</span>
+        <span class="k">if</span> <span class="n">Response</span><span class="o">.</span><span class="n">code</span> <span class="ow">in</span> <span class="n">response</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">isSuccess</span><span class="p">:</span> <span class="k">return</span> <span class="c"># Skip in case the response is in error</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">decoderHeader</span><span class="p">,</span> <span class="n">IDecoderHeader</span><span class="p">),</span> <span class="s">&#39;Invalid header decoder </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">request</span><span class="o">.</span><span class="n">decoderHeader</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">decoderHeader</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nameXMethodOverride</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">over</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">over</span><span class="p">:</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">INVALID_HEADER_VALUE</span><span class="p">,</span> <span class="s">&#39;Invalid method </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">value</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">errorMessage</span> <span class="o">=</span> <span class="s">&#39;Invalid override method </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s"> for header </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">&#39;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameXMethodOverride</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="n">allowed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodsOverride</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allowed</span><span class="p">:</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">INVALID_HEADER_VALUE</span><span class="p">,</span> <span class="s">&#39;Cannot override method&#39;</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="n">over</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">:</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">INVALID_HEADER_VALUE</span><span class="p">,</span> <span class="s">&#39;Override method </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s"> not allowed&#39;</span> <span class="o">%</span> <span class="n">value</span>
+                <span class="k">return</span>
+
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Successfully overridden method </span><span class="si">%s</span><span class="s"> with </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+            <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">over</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
