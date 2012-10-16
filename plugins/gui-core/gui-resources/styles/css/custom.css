@@ -1169,7 +1169,7 @@ li.image, li.image:hover {
 			width:95%;
 			display:inline-block;
 			}
-			.post-list > li.advertisement a.close {width:auto; display:block;}
+			.post-list > li.advertisement a.close {display:block;}
 		
 	.post-list > li.quote .result-text {
 		font-style:italic;
