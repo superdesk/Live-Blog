@@ -44,7 +44,7 @@ function(providers)
                     {
                         var data = 
                         {
-                            Content: $('.youtube-full-content', self.el).html(),
+                            Content: $('.youtube-full-content .result-content', self.el).html(),
                             Meta: JSON.stringify( $.extend( feed.Meta, 
                             {
                                 annotation: [$('.youtube-full-content .annotation:eq(0)', self.el).html(),

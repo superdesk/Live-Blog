@@ -19,7 +19,7 @@ function(providers,str, $, Gizmo)
             var self = this;
             $(self.el).on('click', '.btn.publish', function()
             {
-                self.data.Content = $('.youtube-full-content', self.el).html();
+                self.data.Content = $('.youtube-full-content .result-content', self.el).html();
                 
                 self.data.Meta.annotation = [$('.youtube-full-content .annotation:eq(0)', self.el).html(), 
                     $('.youtube-full-content .annotation:eq(1)', self.el).html()];
