@@ -89,13 +89,12 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
-        p = Popen((self.ffmpeg_path, '-i', contentPath), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-        if p.wait() != 0:
-            pass
-            #TODO: ffmpeg requires an out parameter; the out parameter is not provide because it generates a file
-            # if out parameter not provided the error code != 0 
-            # have to found a trick, maybe a metadata operation, for example to add the generated id to the file? 
-            #return False
+        #fake operation in order to have an output parameter for ffmpeg; if no output parameter -> get error code 1
+        #the fake operation don't generate anything in output
+               
+        p = Popen((self.ffmpeg_path, '-i', contentPath, '-y', '-f', 'rawvideo', '-vframes', '1', '/dev/null'), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        
+        if p.wait() != 0: return False
 
         audioDataEntry = AudioDataEntry()
         audioDataEntry.Id = metaDataMapped.Id
