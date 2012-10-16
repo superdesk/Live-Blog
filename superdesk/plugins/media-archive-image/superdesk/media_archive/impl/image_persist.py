@@ -146,7 +146,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     def extractDateTime(self, line):
         #example:'2010:11:08 18:33:13'
-        dateTimeFormat = ' %Y:%m:%d %H:%M:%S'
+        dateTimeFormat = '%Y:%m:%d %H:%M:%S'
         str = line.partition('-')[2].strip('\n').strip()
         return datetime.strptime(str, dateTimeFormat)
 

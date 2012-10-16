@@ -25,8 +25,8 @@ str.prototype = {
 	},
 	toString: function() {
 		return this.str;
-	},
-}
+	}
+};
 /*
 * Add integers, wrapping at 2^32. This uses 16-bit operations internally
 * to work around bugs in some JS interpreters.
@@ -276,7 +276,7 @@ var gravatar = {
 	defaults: {
 		rate: 'pg',
 		size: 48,
-		default: encodeURIComponent('images/avatar_default_collaborator.png'),
+		"default": encodeURIComponent('images/avatar_default_collaborator.png'),
 		forcedefault: '',
 		key: 'Avatar',
 		needle: 'Person.EMail'

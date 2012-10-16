@@ -14,7 +14,13 @@
 			<div class="control-group">
 				<label class="control-label" for="inputName">_('Last Name')</label>
 				<div class="controls">
-					<input type="text" name="Name" id="inputName" placeholder="_('Last Name')" />
+					<input type="text" name="LastName" id="inputName" placeholder="_('Last Name')" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputName">Login</label>
+				<div class="controls">
+					<input type="text" name="Name" id="inputLogin" placeholder="_('Login Name')" />
 				</div>
 			</div>
 			<div class="control-group">
@@ -27,6 +33,12 @@
 				<label class="control-label" for="inputPass">_('Password')</label>
 				<div class="controls">
 					<input type="password" name="Password" id="inputPass" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputPass">_('Confirm Password')</label>
+				<div class="controls">
+					<input type="password" id="inputPassConfirm" />
 				</div>
 			</div>
 		</form>
