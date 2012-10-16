@@ -23,3 +23,4 @@ def imageData() -> IImageDataService:
     b = ImageDataServiceAlchemy()
     b.handler = imageDataHandler()
     return b
+
