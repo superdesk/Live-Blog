@@ -72,8 +72,8 @@ function($, superdesk, giz, User, Person)
             '.add-user': { 'click': 'showAddUser' },
             '#user-add-modal [data-action="close"]': { 'click': 'closeAddUser' },
             '#user-edit-modal [data-action="close"]': { 'click': 'closeUpdateUser' },
-            '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' },
-            '#user-delete-modal [data-action="delete"]': { 'click': 'deleteUser' }
+            '#user-delete-modal [data-action="delete"]': { 'click': 'deleteUser' },
+            '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' }
             
         },
         
