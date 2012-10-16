@@ -21,9 +21,9 @@ def menuAction():
     return Action('livedesk', Parent=defaults.menuAction(), Label=NC_('Menu', 'Live Blogs') ) # ,
                   #ScriptPath=getPublishedGui('livedesk/scripts/js/menu-live-blogs.js'))
 
-def menuTestAction():
-    return Action('livedesk-test', Parent=defaults.menuAction(), Label=NC_('Menu', 'Test'),
-                  ScriptPath=getPublishedGui('livedesk/scripts/js/test.js'))
+#def menuTestAction():
+#    return Action('livedesk-test', Parent=defaults.menuAction(), Label=NC_('Menu', 'Test'),
+#                  ScriptPath=getPublishedGui('livedesk/scripts/js/test.js'))
 
 @ioc.entity   
 def subMenuAction():
@@ -47,6 +47,11 @@ def modulesConfigureAction():
     return Action('configure', Parent=modulesAction(), 
                   ScriptPath=getPublishedGui('livedesk/scripts/js/configure-blog.js'))
 
+@ioc.entity   
+def modulesArchiveAction():
+    return Action('archive', Parent=modulesAction(), 
+                  ScriptPath=getPublishedGui('livedesk/scripts/js/archive.js'))
+
 @ioc.start
 def registerActions():
     actionManagerService().add(menuAction())
@@ -55,5 +60,5 @@ def registerActions():
     actionManagerService().add(modulesAddAction())
     actionManagerService().add(modulesEditAction())
     actionManagerService().add(modulesConfigureAction())
+    actionManagerService().add(modulesArchiveAction())
     
-    actionManagerService().add(menuTestAction())

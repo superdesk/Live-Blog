@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>cdm.impl.local_filesystem &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for cdm.impl.local_filesystem</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jan 5, 2012</span>
+
+<span class="sd">@package support - cdm</span>
+<span class="sd">@copyright 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license http: // www.gnu.org / licenses / gpl - 3.0.txt</span>
+<span class="sd">@author: Mugur Rus</span>
+
+<span class="sd">Contains the Content Delivery Manager implementation for local file system</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.zip.util_zip</span> <span class="kn">import</span> <span class="n">ZIPSEP</span><span class="p">,</span> <span class="n">normOSPath</span><span class="p">,</span> <span class="n">normZipPath</span><span class="p">,</span> <span class="n">getZipFilePath</span><span class="p">,</span> <span class="n">validateInZipPath</span>
+<span class="kn">from</span> <span class="nn">cdm.spec</span> <span class="kn">import</span> <span class="n">ICDM</span><span class="p">,</span> <span class="n">UnsupportedProtocol</span><span class="p">,</span> <span class="n">PathNotFound</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">normpath</span><span class="p">,</span> <span class="n">relpath</span><span class="p">,</span> <span class="n">abspath</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copyfile</span><span class="p">,</span> <span class="n">copyfileobj</span><span class="p">,</span> <span class="n">move</span><span class="p">,</span> <span class="n">rmtree</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZipFile</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="IDelivery"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.IDelivery">[docs]</a><span class="k">class</span> <span class="nc">IDelivery</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Delivery protocol interface</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IDelivery.getRepositoryPath"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.IDelivery.getRepositoryPath">[docs]</a>    <span class="k">def</span> <span class="nf">getRepositoryPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the absolute path of the file repository.</span>
+
+<span class="sd">        @return: The file repository path</span>
+<span class="sd">        @rtype: string</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IDelivery.getURI"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.IDelivery.getURI">[docs]</a>    <span class="k">def</span> <span class="nf">getURI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repoFilePath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the URI of a certain content identified by the repository path.</span>
+
+<span class="sd">        @param repoFilePath: string</span>
+<span class="sd">            The path of the content item. This is a unique identifier of the item.</span>
+<span class="sd">        @return: string</span>
+<span class="sd">            The URI of the content</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+</div></div>
+<span class="nd">@injected</span>
+<div class="viewcode-block" id="HTTPDelivery"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.HTTPDelivery">[docs]</a><span class="k">class</span> <span class="nc">HTTPDelivery</span><span class="p">(</span><span class="n">IDelivery</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    @ivar serverURI: string</span>
+<span class="sd">        The server root URI for the static content</span>
+<span class="sd">    @ivar repositoryPath: string</span>
+<span class="sd">        The directory where the file repository is</span>
+<span class="sd">    @see IDelivery</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">serverURI</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="c"># The server root URI for the static content</span>
+
+    <span class="n">repositoryPath</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="c"># The directory where the file repository is</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serverURI</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid server URI value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">serverURI</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid repository directory value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span> <span class="o">=</span> <span class="n">normOSPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span><span class="p">):</span> <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">),</span> \
+        <span class="s">&#39;Unable to access the repository directory </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span>
+
+<div class="viewcode-block" id="HTTPDelivery.getRepositoryPath"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.HTTPDelivery.getRepositoryPath">[docs]</a>    <span class="k">def</span> <span class="nf">getRepositoryPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see IDelivery.getRepositoryPath</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repositoryPath</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="HTTPDelivery.getURI"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.HTTPDelivery.getURI">[docs]</a>    <span class="k">def</span> <span class="nf">getURI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repoFilePath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see IDelivery.getURI</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">repoFilePath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid repository file path value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">repoFilePath</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">serverURI</span> <span class="o">+</span> <span class="n">repoFilePath</span>
+
+</div></div>
+<span class="nd">@injected</span>
+<div class="viewcode-block" id="LocalFileSystemCDM"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemCDM">[docs]</a><span class="k">class</span> <span class="nc">LocalFileSystemCDM</span><span class="p">(</span><span class="n">ICDM</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Local file system implementation for the @see: ICDM (Content Delivery Manager interface)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">delivery</span> <span class="o">=</span> <span class="n">IDelivery</span>
+    <span class="c"># The delivery protocol</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delivery</span><span class="p">,</span> <span class="n">IDelivery</span><span class="p">),</span> <span class="s">&#39;Invalid delivery protocol </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">delivery</span>
+
+<div class="viewcode-block" id="LocalFileSystemCDM.publishFromFile"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemCDM.publishFromFile">[docs]</a>    <span class="k">def</span> <span class="nf">publishFromFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.publishFromFile</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="s">&#39;read&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishFromFileObj</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid file path value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">filePath</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">dstFilePath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">dstDir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dstDir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dstDir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isfile</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+            <span class="c"># not a file, see if it&#39;s a entry in a zip file</span>
+            <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inFilePath</span> <span class="o">=</span> <span class="n">getZipFilePath</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delivery</span><span class="o">.</span><span class="n">getRepositoryPath</span><span class="p">())</span>
+            <span class="n">zipFile</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+            <span class="n">fileInfo</span> <span class="o">=</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">getinfo</span><span class="p">(</span><span class="n">inFilePath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fileInfo</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ZIPSEP</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&#39;Trying to publish a file from a ZIP directory path: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fileInfo</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isSyncFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">,</span> <span class="n">dstFilePath</span><span class="p">):</span>
+                <span class="n">copyfileobj</span><span class="p">(</span><span class="n">zipFile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">inFilePath</span><span class="p">),</span> <span class="nb">open</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">,</span> <span class="s">&#39;w+b&#39;</span><span class="p">))</span>
+                <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success publishing ZIP file </span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">) to path </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">inFilePath</span><span class="p">,</span> <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+            <span class="k">return</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">),</span> <span class="s">&#39;Unable to read the file path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">filePath</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isSyncFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">dstFilePath</span><span class="p">):</span>
+            <span class="n">copyfile</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">dstFilePath</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success publishing file </span><span class="si">%s</span><span class="s"> to path </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemCDM.publishFromDir"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemCDM.publishFromDir">[docs]</a>    <span class="k">def</span> <span class="nf">publishFromDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dirPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.publishFromDir</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dirPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid directory path value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">dirPath</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">fullPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirPath</span><span class="p">):</span>
+            <span class="c"># not a directory, see if it&#39;s a entry in a zip file</span>
+            <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inDirPath</span> <span class="o">=</span> <span class="n">getZipFilePath</span><span class="p">(</span><span class="n">dirPath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delivery</span><span class="o">.</span><span class="n">getRepositoryPath</span><span class="p">())</span>
+            <span class="n">zipFile</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">inDirPath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ZIPSEP</span><span class="p">):</span>
+                <span class="n">inDirPath</span> <span class="o">=</span> <span class="n">inDirPath</span> <span class="o">+</span> <span class="n">ZIPSEP</span>
+            <span class="n">fileInfo</span> <span class="o">=</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">getinfo</span><span class="p">(</span><span class="n">inDirPath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fileInfo</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ZIPSEP</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&#39;Trying to publish a file from a ZIP directory path: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fileInfo</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_copyZipDir</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inDirPath</span><span class="p">,</span> <span class="n">fullPath</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success publishing ZIP dir </span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">) to path </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">inDirPath</span><span class="p">,</span> <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+            <span class="k">return</span>
+        <span class="n">dirPath</span> <span class="o">=</span> <span class="n">normpath</span><span class="p">(</span><span class="n">dirPath</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">dirPath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">),</span> <span class="s">&#39;Unable to read the directory path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">dirPath</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">_dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">dirPath</span><span class="p">):</span>
+            <span class="n">relPath</span> <span class="o">=</span> <span class="n">relpath</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dirPath</span><span class="p">)</span>
+            <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">publishPath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">normOSPath</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">relPath</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">),</span> <span class="nb">file</span><span class="p">)</span>
+                <span class="n">filePath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="nb">file</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">publishFromFile</span><span class="p">(</span><span class="n">publishPath</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success publishing directory </span><span class="si">%s</span><span class="s"> to path </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">dirPath</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemCDM.publishContent"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemCDM.publishContent">[docs]</a>    <span class="k">def</span> <span class="nf">publishContent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.publishContent</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="c">#assert isinstance(content, ) or , &#39;Invalid binary content for path %s&#39; % path</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">dstFilePath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">dstDir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dstDir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dstDir</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">,</span> <span class="s">&#39;w+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dstFile</span><span class="p">:</span>
+            <span class="n">copyfileobj</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">dstFile</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success publishing content to path </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+
+</div>
+<div class="viewcode-block" id="LocalFileSystemCDM.republish"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemCDM.republish">[docs]</a>    <span class="k">def</span> <span class="nf">republish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldPath</span><span class="p">,</span> <span class="n">newPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.republish</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">oldPath</span><span class="p">,</span> <span class="n">oldFullPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">oldPath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">oldFullPath</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">oldPath</span><span class="p">)</span>
+        <span class="n">newPath</span><span class="p">,</span> <span class="n">newFullPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">newPath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">newFullPath</span><span class="p">)</span> <span class="ow">or</span> <span class="n">isfile</span><span class="p">(</span><span class="n">newFullPath</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;New path </span><span class="si">%s</span><span class="s"> is already in use&#39;</span> <span class="o">%</span> <span class="n">newPath</span><span class="p">)</span>
+        <span class="n">dstDir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">newFullPath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dstDir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dstDir</span><span class="p">)</span>
+        <span class="n">move</span><span class="p">(</span><span class="n">oldFullPath</span><span class="p">,</span> <span class="n">newFullPath</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemCDM.remove"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemCDM.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.remove</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">itemPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">itemPath</span><span class="p">):</span>
+            <span class="n">rmtree</span><span class="p">(</span><span class="n">itemPath</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">isfile</span><span class="p">(</span><span class="n">itemPath</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">itemPath</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success removing path </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemCDM.getSupportedProtocols"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemCDM.getSupportedProtocols">[docs]</a>    <span class="k">def</span> <span class="nf">getSupportedProtocols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.getSupportedProtocols</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s">&#39;http&#39;</span><span class="p">,)</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemCDM.getURI"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemCDM.getURI">[docs]</a>    <span class="k">def</span> <span class="nf">getURI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="s">&#39;http&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.getURI</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid protocol </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">protocol</span>
+        <span class="k">if</span> <span class="n">protocol</span> <span class="o">==</span> <span class="s">&#39;http&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delivery</span><span class="o">.</span><span class="n">getURI</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">protocol</span> <span class="o">==</span> <span class="s">&#39;file&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_getItemPath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="n">UnsupportedProtocol</span><span class="p">(</span><span class="n">protocol</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemCDM.getTimestamp"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemCDM.getTimestamp">[docs]</a>    <span class="k">def</span> <span class="nf">getTimestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.getTimestamp</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">itemPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">itemPath</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isfile</span><span class="p">(</span><span class="n">itemPath</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">itemPath</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_publishFromFileObj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">fileObj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Publish content from a file object</span>
+
+<span class="sd">        @param path: string</span>
+<span class="sd">                The path of the content item. This is a unique</span>
+<span class="sd">                     identifier of the item.</span>
+<span class="sd">        @param ioStream: io.IOBase</span>
+<span class="sd">                The IO stream object</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fileObj</span><span class="p">,</span> <span class="s">&#39;read&#39;</span><span class="p">),</span> <span class="s">&#39;Invalid file object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fileObj</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">dstFilePath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">dstDir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dstDir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dstDir</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">,</span> <span class="s">&#39;w+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dstFile</span><span class="p">:</span>
+            <span class="n">copyfileobj</span><span class="p">(</span><span class="n">fileObj</span><span class="p">,</span> <span class="n">dstFile</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;Success publishing stream to path </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">_getItemPath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delivery</span><span class="o">.</span><span class="n">getRepositoryPath</span><span class="p">(),</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">),</span> <span class="bp">True</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_validatePath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">normZipPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">fullPath</span> <span class="o">=</span> <span class="n">normOSPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_getItemPath</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fullPath</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delivery</span><span class="o">.</span><span class="n">getRepositoryPath</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">fullPath</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_isSyncFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">srcFilePath</span><span class="p">,</span> <span class="n">dstFilePath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return true if the destination file exists and was newer than</span>
+<span class="sd">        the source file.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">isfile</span><span class="p">(</span><span class="n">srcFilePath</span><span class="p">)</span> <span class="ow">or</span> <span class="n">isdir</span><span class="p">(</span><span class="n">srcFilePath</span><span class="p">))</span> \
+            <span class="ow">and</span> <span class="p">(</span><span class="n">isfile</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">)</span> <span class="ow">or</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">))</span> \
+            <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">srcFilePath</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span> <span class="o">&lt;</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span>
+
+    <span class="k">def</span> <span class="nf">_copyZipDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inDirPath</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Copy a directory from a ZIP archive to a filesystem directory</span>
+
+<span class="sd">        @param zipFilePath: string</span>
+<span class="sd">            The path of the ZIP archive</span>
+<span class="sd">        @param inDirPath: string</span>
+<span class="sd">            The path to the file in the ZIP archive</span>
+<span class="sd">        @param path: string</span>
+<span class="sd">            Destination path where the ZIP directory is copied</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c"># make sure the ZIP file path is normalized and uses the OS separator</span>
+        <span class="n">zipFilePath</span> <span class="o">=</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+        <span class="c"># make sure the ZIP file path is normalized and uses the ZIP separator</span>
+        <span class="n">inDirPath</span> <span class="o">=</span> <span class="n">normZipPath</span><span class="p">(</span><span class="n">inDirPath</span><span class="p">)</span>
+        <span class="n">zipFile</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isSyncFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+                <span class="k">return</span>
+            <span class="n">rmtree</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">ent</span> <span class="k">for</span> <span class="n">ent</span> <span class="ow">in</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span> <span class="k">if</span> <span class="n">ent</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">inDirPath</span><span class="p">)]</span>
+        <span class="n">tmpDir</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="n">zipFile</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">tmpDir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">entries</span><span class="p">)</span>
+        <span class="n">tmpDirPath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">tmpDir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">inDirPath</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">tmpDirPath</span><span class="p">):</span>
+            <span class="n">move</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">tmpDirPath</span><span class="p">,</span> <span class="n">entry</span><span class="p">),</span> <span class="n">path</span><span class="p">)</span>
+
+</div>
+<span class="nd">@injected</span>
+<div class="viewcode-block" id="LocalFileSystemLinkCDM"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemLinkCDM">[docs]</a><span class="k">class</span> <span class="nc">LocalFileSystemLinkCDM</span><span class="p">(</span><span class="n">LocalFileSystemCDM</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    @see ICDM (Content Delivery Manager interface)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">_linkExt</span> <span class="o">=</span> <span class="s">&#39;.link&#39;</span>
+
+    <span class="n">_zipHeader</span> <span class="o">=</span> <span class="s">&#39;ZIP&#39;</span>
+
+    <span class="n">_fsHeader</span> <span class="o">=</span> <span class="s">&#39;FS&#39;</span>
+
+    <span class="n">_deletedExt</span> <span class="o">=</span> <span class="s">&#39;.deleted&#39;</span>
+
+<div class="viewcode-block" id="LocalFileSystemLinkCDM.publishFromFile"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemLinkCDM.publishFromFile">[docs]</a>    <span class="k">def</span> <span class="nf">publishFromFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.publishFromFile</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">_fullPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="s">&#39;read&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishFromFileObj</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_publishFromFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemLinkCDM.publishFromDir"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemLinkCDM.publishFromDir">[docs]</a>    <span class="k">def</span> <span class="nf">publishFromDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dirPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.publishFromDir</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dirPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid directory path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">dirPath</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">_fullPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">dirPath</span> <span class="o">=</span> <span class="n">dirPath</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_publishFromFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dirPath</span> <span class="k">if</span> <span class="n">dirPath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ZIPSEP</span><span class="p">)</span> <span class="k">else</span> <span class="n">dirPath</span> <span class="o">+</span> <span class="n">ZIPSEP</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemLinkCDM.republish"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemLinkCDM.republish">[docs]</a>    <span class="k">def</span> <span class="nf">republish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldPath</span><span class="p">,</span> <span class="n">newPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.republish</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Republish operation not available&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemLinkCDM.remove"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemLinkCDM.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.remove</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">entryPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">entryPath</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">entryPath</span><span class="p">)</span>
+
+        <span class="n">linkPath</span> <span class="o">=</span> <span class="n">entryPath</span>
+        <span class="n">repPathLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delivery</span><span class="o">.</span><span class="n">getRepositoryPath</span><span class="p">())</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">linkPath</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">repPathLen</span><span class="p">:</span>
+            <span class="n">linkFile</span> <span class="o">=</span> <span class="n">linkPath</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linkExt</span>
+            <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">linkFile</span><span class="p">):</span>
+                <span class="n">subPath</span> <span class="o">=</span> <span class="n">entryPath</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">linkPath</span><span class="p">):]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">linkFile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">links</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fsHeader</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isValidFSLink</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">subPath</span><span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_removeFSLink</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">entryPath</span><span class="p">,</span> <span class="n">subPath</span><span class="p">);</span> <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">break</span>
+                        <span class="k">elif</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zipHeader</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isValidZIPLink</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">subPath</span><span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_removeZiplink</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">entryPath</span><span class="p">,</span> <span class="n">subPath</span><span class="p">);</span> <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">break</span>
+                    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="n">nextLinkPath</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">linkPath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nextLinkPath</span> <span class="o">==</span> <span class="n">linkPath</span><span class="p">:</span> <span class="k">break</span>
+            <span class="n">linkPath</span> <span class="o">=</span> <span class="n">nextLinkPath</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subPath</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">isdir</span><span class="p">(</span><span class="n">linkPath</span><span class="p">):</span>
+            <span class="n">rmtree</span><span class="p">(</span><span class="n">linkPath</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemLinkCDM.getURI"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemLinkCDM.getURI">[docs]</a>    <span class="k">def</span> <span class="nf">getURI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="s">&#39;http&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.getURI</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid protocol </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">protocol</span>
+        <span class="k">if</span> <span class="n">protocol</span> <span class="o">==</span> <span class="s">&#39;http&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getURI</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">protocol</span> <span class="o">==</span> <span class="s">&#39;file&#39;</span><span class="p">:</span>
+            <span class="n">path</span><span class="p">,</span> <span class="n">dstFilePath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">abspath</span><span class="p">(</span><span class="n">dstFilePath</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">UnsupportedProtocol</span><span class="p">(</span><span class="n">protocol</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LocalFileSystemLinkCDM.getTimestamp"><a class="viewcode-back" href="../../../cdm.impl.html#cdm.impl.local_filesystem.LocalFileSystemLinkCDM.getTimestamp">[docs]</a>    <span class="k">def</span> <span class="nf">getTimestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see ICDM.getTimestamp</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">entryPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validatePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">entryPath</span><span class="p">)</span> <span class="ow">or</span> <span class="n">isfile</span><span class="p">(</span><span class="n">entryPath</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">entryPath</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+
+        <span class="n">linkPath</span> <span class="o">=</span> <span class="n">entryPath</span>
+        <span class="n">repPathLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delivery</span><span class="o">.</span><span class="n">getRepositoryPath</span><span class="p">())</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">linkPath</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">repPathLen</span><span class="p">:</span>
+            <span class="n">linkFile</span> <span class="o">=</span> <span class="n">linkPath</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linkExt</span>
+            <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">linkFile</span><span class="p">):</span>
+                <span class="n">subPath</span> <span class="o">=</span> <span class="n">entryPath</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">linkPath</span><span class="p">):]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">linkFile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">links</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fsHeader</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isValidFSLink</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">subPath</span><span class="p">):</span>
+                            <span class="n">fullPath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">subPath</span><span class="p">)</span> <span class="k">if</span> <span class="n">subPath</span> <span class="k">else</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">fullPath</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zipHeader</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isValidZIPLink</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">subPath</span><span class="p">):</span>
+                            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">nextLinkPath</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">linkPath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nextLinkPath</span> <span class="o">==</span> <span class="n">linkPath</span><span class="p">:</span> <span class="k">break</span>
+            <span class="n">linkPath</span> <span class="o">=</span> <span class="n">nextLinkPath</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_createDelMark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Creates a mark file for a deleted path inside a linked directory</span>
+<span class="sd">        or ZIP file.</span>
+
+<span class="sd">        @param path: string</span>
+<span class="sd">            The path for which to create the delete mark.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deletedExt</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">_d</span><span class="p">:</span> <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">rmtree</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_isValidFSLink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">subPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns true if the file identified by subpath exists in</span>
+<span class="sd">        the given link to a file / directory, false otherwise.</span>
+
+<span class="sd">        @param link: list</span>
+<span class="sd">            Link description in JSON format.</span>
+<span class="sd">        @param subPath: string</span>
+<span class="sd">            The path inside the linked directory (if needed)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">filePath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">subPath</span><span class="p">)</span> <span class="k">if</span> <span class="n">subPath</span> <span class="k">else</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="ow">not</span> <span class="n">subPath</span> <span class="ow">or</span> <span class="n">isdir</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">isfile</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span> <span class="ow">or</span> <span class="n">isdir</span><span class="p">(</span><span class="n">filePath</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_isValidZIPLink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">subPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns true if the file identified by subpath exists in</span>
+<span class="sd">        the given link to a ZIP archive, false otherwise.</span>
+
+<span class="sd">        @param link: list</span>
+<span class="sd">            Link description in JSON format.</span>
+<span class="sd">        @param subPath: string</span>
+<span class="sd">            The path inside the linked directory (if needed)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">zipFilePath</span> <span class="o">=</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">inFilePath</span> <span class="o">=</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">zipFile</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+        <span class="n">inZipFile</span> <span class="o">=</span> <span class="n">normZipPath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">inFilePath</span><span class="p">,</span> <span class="n">subPath</span><span class="p">))</span> <span class="k">if</span> <span class="n">subPath</span> <span class="k">else</span> <span class="n">normZipPath</span><span class="p">(</span><span class="n">inFilePath</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inZipFile</span> <span class="ow">in</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">NameToInfo</span>
+
+    <span class="k">def</span> <span class="nf">_removeFSLink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">entryPath</span><span class="p">,</span> <span class="n">subPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Removes a link to a file or directory on the file system.</span>
+
+<span class="sd">        @param link: list</span>
+<span class="sd">            Link description in JSON format.</span>
+<span class="sd">        @param path: string</span>
+<span class="sd">            The repository path to remove.</span>
+<span class="sd">        @param entryPath: string</span>
+<span class="sd">            The full path for which to create the deletion mark.</span>
+<span class="sd">        @param subPath: string</span>
+<span class="sd">            The path inside the linked directory (if needed)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">filePath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">subPath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span> <span class="ow">or</span> <span class="n">isdir</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_createDelMark</span><span class="p">(</span><span class="n">entryPath</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">subPath</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_removeZiplink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">entryPath</span><span class="p">,</span> <span class="n">subPath</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Removes a link to a file or directory in a ZIP archive.</span>
+
+<span class="sd">        @param link: list</span>
+<span class="sd">            Link description in JSON format.</span>
+<span class="sd">        @param path: string</span>
+<span class="sd">            The repository path to remove.</span>
+<span class="sd">        @param entryPath: string</span>
+<span class="sd">            The full path for which to create the deletion mark.</span>
+<span class="sd">        @param subPath: string</span>
+<span class="sd">            The path inside the linked ZIP archive.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">zipFilePath</span> <span class="o">=</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">inFilePath</span> <span class="o">=</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">zipFile</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+        <span class="n">inZipFile</span> <span class="o">=</span> <span class="n">normZipPath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">inFilePath</span><span class="p">,</span> <span class="n">subPath</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inZipFile</span> <span class="ow">in</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">NameToInfo</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PathNotFound</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_createDelMark</span><span class="p">(</span><span class="n">entryPath</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_createLinkToZipFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inFilePath</span><span class="p">):</span>
+        <span class="n">repFilePath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getItemPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linkExt</span>
+        <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">repFilePath</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">repFilePath</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span> <span class="n">links</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">links</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">inFilePath</span> <span class="o">=</span> <span class="n">normZipPath</span><span class="p">(</span><span class="n">inFilePath</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">links</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">entry</span> <span class="ow">and</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zipHeader</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">zipFilePath</span> <span class="ow">and</span> <span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">inFilePath</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="n">links</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">links</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+                    <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">links</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zipHeader</span><span class="p">,</span> <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inFilePath</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">repFilePath</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_createLinkToFileOrDir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">):</span>
+        <span class="n">repFilePath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getItemPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linkExt</span>
+        <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">repFilePath</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">repFilePath</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span> <span class="n">links</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">links</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">links</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">entry</span> <span class="ow">and</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fsHeader</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">filePath</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="n">links</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">links</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+                    <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">links</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fsHeader</span><span class="p">,</span> <span class="n">filePath</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">repFilePath</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_publishFromFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid file path value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">filePath</span>
+        <span class="n">dstDir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_getItemPath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dstDir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dstDir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span> <span class="ow">or</span> <span class="n">isdir</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+            <span class="n">filePath</span> <span class="o">=</span> <span class="n">normpath</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">),</span> <span class="s">&#39;Unable to read file path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">filePath</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_createLinkToFileOrDir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c"># not a file, see if it&#39;s a entry in a zip file</span>
+        <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inFilePath</span> <span class="o">=</span> <span class="n">getZipFilePath</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delivery</span><span class="o">.</span><span class="n">getRepositoryPath</span><span class="p">())</span>
+        <span class="k">assert</span> <span class="n">isfile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">),</span> \
+            <span class="s">&#39;Unable to read file path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">filePath</span>
+        <span class="n">zipFile</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+        <span class="n">validateInZipPath</span><span class="p">(</span><span class="n">zipFile</span><span class="p">,</span> <span class="n">inFilePath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_createLinkToZipFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inFilePath</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+processor Package
+=================
+
+:mod:`processor` Package
+------------------------
+
+.. automodule:: ally.core.impl.processor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`arguments` Module
+-----------------------
+
+.. automodule:: ally.core.impl.processor.arguments
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`content` Module
+---------------------
+
+.. automodule:: ally.core.impl.processor.content
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`decoder` Module
+---------------------
+
+.. automodule:: ally.core.impl.processor.decoder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`deliver_ok` Module
+------------------------
+
+.. automodule:: ally.core.impl.processor.deliver_ok
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`encoder` Module
+---------------------
+
+.. automodule:: ally.core.impl.processor.encoder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`explain_error` Module
+---------------------------
+
+.. automodule:: ally.core.impl.processor.explain_error
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`invoking` Module
+----------------------
+
+.. automodule:: ally.core.impl.processor.invoking
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`method_invoker` Module
+----------------------------
+
+.. automodule:: ally.core.impl.processor.method_invoker
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`parsing` Module
+---------------------
+
+.. automodule:: ally.core.impl.processor.parsing
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`render_encoder` Module
+----------------------------
+
+.. automodule:: ally.core.impl.processor.render_encoder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`rendering` Module
+-----------------------
+
+.. automodule:: ally.core.impl.processor.rendering
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`text_conversion` Module
+-----------------------------
+
+.. automodule:: ally.core.impl.processor.text_conversion
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ally.core.impl.processor.parser
+    ally.core.impl.processor.render
+
