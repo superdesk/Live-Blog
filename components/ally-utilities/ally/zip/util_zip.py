@@ -60,13 +60,13 @@ def getZipFilePath(filePath, stopPath=''):
     assert isinstance(stopPath, str), 'Invalid stop path %s' % stopPath
     # make sure the file path is normalized and uses the OS separator
     filePath = normOSPath(filePath, True)
-    if is_zipfile(filePath):
-        return (filePath, '')
+    if is_zipfile(filePath): return filePath, ''
+    
     parentPath = filePath
     stopPathLen = len(stopPath)
     while len(parentPath) > stopPathLen:
         if is_zipfile(parentPath):
-            return (parentPath, normZipPath(filePath[len(parentPath):]))
+            return parentPath, normZipPath(filePath[len(parentPath):])
         nextSubPath = dirname(parentPath)
         if nextSubPath == parentPath: break
         parentPath = nextSubPath

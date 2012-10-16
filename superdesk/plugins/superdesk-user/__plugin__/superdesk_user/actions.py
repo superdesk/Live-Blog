@@ -18,7 +18,7 @@ from ally.internationalization import NC_
 
 @ioc.entity   
 def menuAction():
-    return Action('user', Parent=defaults.menuAction(), Label=NC_('Menu', 'Users'),
+    return Action('user', Parent=defaults.menuAction(), Label=NC_('Menu', 'Users'), Href='/users',
                   ScriptPath=getPublishedGui('superdesk/user/scripts/js/menu.js'))
 
 @ioc.entity   
@@ -37,7 +37,7 @@ def modulesListAction():
 def modulesAddAction():
     return Action('add', Parent=modulesAction(), ScriptPath=getPublishedGui('superdesk/user/scripts/js/modules-add.js'))
 
-#@ioc.start
+@ioc.start
 def registerActions():
     actionManagerService().add(menuAction())
     actionManagerService().add(modulesAction())

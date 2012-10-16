@@ -1,0 +1,51 @@
+impl Package
+============
+
+:mod:`impl` Package
+-------------------
+
+.. automodule:: internationalization.impl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`file` Module
+------------------
+
+.. automodule:: internationalization.impl.file
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`json_locale` Module
+-------------------------
+
+.. automodule:: internationalization.impl.json_locale
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`message` Module
+---------------------
+
+.. automodule:: internationalization.impl.message
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`po_file` Module
+---------------------
+
+.. automodule:: internationalization.impl.po_file
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`source` Module
+--------------------
+
+.. automodule:: internationalization.impl.source
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -1,0 +1,436 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.support.util_io &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.support.util_io</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jan 17, 2012</span>
+
+<span class="sd">@package: ally utilities</span>
+<span class="sd">@copyright: 2011 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides utility functions for handling I/O operations.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">ally.zip.util_zip</span> <span class="kn">import</span> <span class="n">normOSPath</span><span class="p">,</span> <span class="n">getZipFilePath</span><span class="p">,</span> <span class="n">ZIPSEP</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">genericpath</span> <span class="kn">import</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">exists</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">stat</span><span class="p">,</span> <span class="n">makedirs</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">normpath</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">dirname</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">move</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZipFile</span><span class="p">,</span> <span class="n">ZipInfo</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+<span class="kn">from</span> <span class="nn">stat</span> <span class="kn">import</span> <span class="n">S_IEXEC</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="IInputStream"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.IInputStream">[docs]</a><span class="k">class</span> <span class="nc">IInputStream</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The specification for an input stream.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IInputStream.read"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.IInputStream.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbytes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        To read a file&#39;s contents, call f.read(size), which reads some quantity of data and returns it as a string.</span>
+<span class="sd">        @param nbytes: integer</span>
+<span class="sd">            Is an optional numeric argument. When size is omitted or negative, the entire contents of the file will be</span>
+<span class="sd">            read and returned; it&#39;s your problem if the file is twice as large as your machine&#39;s memory.</span>
+<span class="sd">            Otherwise, at most size bytes are read and returned. If the end of the file has been reached, f.read()</span>
+<span class="sd">            will return an empty string (&#39;&#39;).</span>
+<span class="sd">        @return: bytes</span>
+<span class="sd">            The content.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">IInputStream</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s">&#39;read&#39;</span> <span class="ow">in</span> <span class="n">B</span><span class="o">.</span><span class="n">__dict__</span> <span class="k">for</span> <span class="n">B</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">__mro__</span><span class="p">):</span> <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
+</div>
+<div class="viewcode-block" id="IOutputStream"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.IOutputStream">[docs]</a><span class="k">class</span> <span class="nc">IOutputStream</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The specification for an output stream.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IOutputStream.write"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.IOutputStream.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Write the bytes or bytearray object, b and return the number of bytes written. When in non-blocking mode,</span>
+<span class="sd">        a BlockingIOError is raised if the buffer needs to be written out but the raw stream blocks.</span>
+
+<span class="sd">        @param bytes: bytearray</span>
+<span class="sd">            The bytes to write.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">IOutputStream</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s">&#39;write&#39;</span> <span class="ow">in</span> <span class="n">B</span><span class="o">.</span><span class="n">__dict__</span> <span class="k">for</span> <span class="n">B</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">__mro__</span><span class="p">):</span> <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
+</div>
+<div class="viewcode-block" id="IClosable"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.IClosable">[docs]</a><span class="k">class</span> <span class="nc">IClosable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Used for the streams that provide a close method.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="IClosable.close"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.IClosable.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Close the stream and block any other operations to the stream.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__subclasshook__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">IClosable</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s">&#39;close&#39;</span> <span class="ow">in</span> <span class="n">B</span><span class="o">.</span><span class="n">__dict__</span> <span class="k">for</span> <span class="n">B</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">__mro__</span><span class="p">):</span> <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="replaceInFile"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.replaceInFile">[docs]</a><span class="k">class</span> <span class="nc">replaceInFile</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the file read replacing.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;_fileObj&#39;</span><span class="p">,</span> <span class="s">&#39;_replacements&#39;</span><span class="p">,</span> <span class="s">&#39;_maxKey&#39;</span><span class="p">,</span> <span class="s">&#39;_leftOver&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileObj</span><span class="p">,</span> <span class="n">replacements</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Creates a proxy for the provided file object that will replace in the provided file content based on the data</span>
+<span class="sd">        provided in the replacements map.</span>
+
+<span class="sd">        @param fileObj: a file like object with a &#39;read&#39; method</span>
+<span class="sd">            The file object to wrap and have the content changed.</span>
+<span class="sd">        @param replacements: dictionary{string|bytes, string|bytes}</span>
+<span class="sd">            A dictionary containing as a key the data that needs to be changed and as a value the data to change with.</span>
+<span class="sd">        @return: Proxy</span>
+<span class="sd">            The proxy created for the file that will handle the data replacing.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="n">fileObj</span><span class="p">,</span> <span class="s">&#39;A file object is required </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fileObj</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fileObj</span><span class="p">,</span> <span class="n">IInputStream</span><span class="p">),</span> <span class="s">&#39;Invalid file object </span><span class="si">%s</span><span class="s"> does not have a read method&#39;</span> <span class="o">%</span> <span class="n">fileObj</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">replacements</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid replacements </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">replacements</span>
+        <span class="k">if</span> <span class="n">__debug__</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">replacements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)),</span> <span class="s">&#39;Invalid key </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">key</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)),</span> <span class="s">&#39;Invalid value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fileObj</span> <span class="o">=</span> <span class="n">fileObj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_replacements</span> <span class="o">=</span> <span class="n">replacements</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_maxKey</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">replacements</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_leftOver</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="replaceInFile.read"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.replaceInFile.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Perform the data read.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileObj</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leftOver</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leftOver</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_leftOver</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">else</span><span class="p">:</span> <span class="k">return</span> <span class="n">data</span>
+
+        <span class="n">toIndex</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leftOver</span><span class="p">:</span>
+            <span class="n">toIndex</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leftOver</span> <span class="o">+</span> <span class="n">data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileObj</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_maxKey</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
+                <span class="n">toIndex</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="o">+</span> <span class="n">extra</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replacements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">toIndex</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_leftOver</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">toIndex</span><span class="p">:]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="n">toIndex</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">data</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span> <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fileObj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="pipe"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.pipe">[docs]</a><span class="k">def</span> <span class="nf">pipe</span><span class="p">(</span><span class="n">srcFileObj</span><span class="p">,</span> <span class="n">dstFileObj</span><span class="p">,</span> <span class="n">bufferSize</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Copy the content from a source file to a destination file</span>
+
+<span class="sd">    @param srcFileObj: a file like object with a &#39;read&#39; method</span>
+<span class="sd">        The file object to copy from</span>
+<span class="sd">    @param dstFileObj: a file like object with a &#39;write&#39; method</span>
+<span class="sd">        The file object to copy to</span>
+<span class="sd">    @param bufferSize: integer</span>
+<span class="sd">        The buffer size used for copying data chunks.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">srcFileObj</span><span class="p">,</span> <span class="n">IInputStream</span><span class="p">),</span> <span class="s">&#39;Invalid source file object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">srcFileObj</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dstFileObj</span><span class="p">,</span> <span class="n">IOutputStream</span><span class="p">),</span> <span class="s">&#39;Invalid destination file object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">dstFileObj</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;Invalid buffer size </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">bufferSize</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="nb">buffer</span> <span class="o">=</span> <span class="n">srcFileObj</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">buffer</span><span class="p">:</span> <span class="k">break</span>
+        <span class="n">dstFileObj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">buffer</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="readGenerator"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.readGenerator">[docs]</a><span class="k">def</span> <span class="nf">readGenerator</span><span class="p">(</span><span class="n">fileObj</span><span class="p">,</span> <span class="n">bufferSize</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides a generator that read data from the provided file object.</span>
+
+<span class="sd">    @param fileObj: a file like object with a &#39;read&#39; method</span>
+<span class="sd">        The file object to have the generator read data from.</span>
+<span class="sd">    @param bufferSize: integer</span>
+<span class="sd">        The buffer size used for returning data chunks.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fileObj</span><span class="p">,</span> <span class="n">IInputStream</span><span class="p">),</span> <span class="s">&#39;Invalid file object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fileObj</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fileObj</span><span class="p">,</span> <span class="n">IClosable</span><span class="p">),</span> <span class="s">&#39;Invalid file object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fileObj</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s">&#39;Invalid buffer size </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">bufferSize</span>
+
+    <span class="k">with</span> <span class="n">fileObj</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="nb">buffer</span> <span class="o">=</span> <span class="n">fileObj</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">buffer</span><span class="p">:</span>
+                <span class="n">fileObj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">break</span>
+            <span class="k">yield</span> <span class="nb">buffer</span>
+</div>
+<div class="viewcode-block" id="writeGenerator"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.writeGenerator">[docs]</a><span class="k">def</span> <span class="nf">writeGenerator</span><span class="p">(</span><span class="n">generator</span><span class="p">,</span> <span class="n">fileObj</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides a generator that read data from the provided file object.</span>
+
+<span class="sd">    @param generator: Iterable</span>
+<span class="sd">        The generator to get the content to be writen.</span>
+<span class="sd">    @param fileObj: a file like object with a &#39;write&#39; method</span>
+<span class="sd">        The file object to have the generator write data from.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">generator</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">),</span> <span class="s">&#39;Invalid generator </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">generator</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fileObj</span><span class="p">,</span> <span class="n">IOutputStream</span><span class="p">),</span> <span class="s">&#39;Invalid file object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fileObj</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fileObj</span><span class="p">,</span> <span class="n">IClosable</span><span class="p">),</span> <span class="s">&#39;Invalid file object </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fileObj</span>
+
+    <span class="k">for</span> <span class="nb">bytes</span> <span class="ow">in</span> <span class="n">generator</span><span class="p">:</span> <span class="n">fileObj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">)</span>
+    <span class="n">fileObj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="convertToBytes"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.convertToBytes">[docs]</a><span class="k">def</span> <span class="nf">convertToBytes</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">charSet</span><span class="p">,</span> <span class="n">encodingError</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides a generator that converts from string to bytes based on string data from another Iterable.</span>
+
+<span class="sd">    @param iterable: Iterable</span>
+<span class="sd">        The iterable providing the strings to convert.</span>
+<span class="sd">    @param charSet: string</span>
+<span class="sd">        The character set to encode based on.</span>
+<span class="sd">    @param encodingError: string</span>
+<span class="sd">        The encoding error resolving.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">),</span> <span class="s">&#39;Invalid iterable </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">iterable</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">charSet</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid character set </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">charSet</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">encodingError</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid encoding error set </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">encodingError</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid value </span><span class="si">%s</span><span class="s"> received&#39;</span> <span class="o">%</span> <span class="n">value</span>
+        <span class="k">yield</span> <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">charSet</span><span class="p">,</span> <span class="n">encodingError</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="openURI"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.openURI">[docs]</a><span class="k">def</span> <span class="nf">openURI</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns a read file object for the given path.</span>
+
+<span class="sd">    @param path: string</span>
+<span class="sd">        The path to a resource: a file system path, a ZIP path</span>
+<span class="sd">    @return: byte file</span>
+<span class="sd">        A file like object that delivers bytes.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+    <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inZipPath</span> <span class="o">=</span> <span class="n">getZipFilePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">zipFile</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">inZipPath</span> <span class="ow">in</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">NameToInfo</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">inZipPath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ZIPSEP</span><span class="p">)</span> <span class="ow">and</span> <span class="n">inZipPath</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">inZipPath</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&#39;Invalid file path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="timestampURI"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.timestampURI">[docs]</a><span class="k">def</span> <span class="nf">timestampURI</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns the last modified time stamp for the given path.</span>
+
+<span class="sd">    @param path: string</span>
+<span class="sd">        The path to a resource: a file system path, a ZIP path</span>
+<span class="sd">    @return: datetime</span>
+<span class="sd">        The last modified time stamp.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+    <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">_inZipPath</span> <span class="o">=</span> <span class="n">getZipFilePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="synchronizeURIToDir"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.synchronizeURIToDir">[docs]</a><span class="k">def</span> <span class="nf">synchronizeURIToDir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dirPath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Publishes the entire contents from the URI path to the provided directory path.</span>
+
+<span class="sd">    @param path: string</span>
+<span class="sd">        The path to a resource: a file system path, a ZIP path</span>
+<span class="sd">    @param dirPath: string</span>
+<span class="sd">        The directory path to synchronize with.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path</span><span class="p">,</span> <span class="s">&#39;Invalid content path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dirPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid directory path value </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">dirPath</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="c"># not a directory, see if it&#39;s a entry in a zip file</span>
+        <span class="n">zipFilePath</span><span class="p">,</span> <span class="n">inDirPath</span> <span class="o">=</span> <span class="n">getZipFilePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">zipFile</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inDirPath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ZIPSEP</span><span class="p">):</span> <span class="n">inDirPath</span> <span class="o">=</span> <span class="n">inDirPath</span> <span class="o">+</span> <span class="n">ZIPSEP</span>
+
+        <span class="n">tmpDir</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>
+
+        <span class="n">lenPath</span><span class="p">,</span> <span class="n">zipTime</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inDirPath</span><span class="p">),</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">zipInfo</span> <span class="ow">in</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">filelist</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">zipInfo</span><span class="p">,</span> <span class="n">ZipInfo</span><span class="p">),</span> <span class="s">&#39;Invalid zip info </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">zipInfo</span>
+            <span class="k">if</span> <span class="n">zipInfo</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">inDirPath</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">zipInfo</span><span class="o">.</span><span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span><span class="p">:</span> <span class="n">dest</span> <span class="o">=</span> <span class="n">zipInfo</span><span class="o">.</span><span class="n">filename</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="k">else</span><span class="p">:</span> <span class="n">dest</span> <span class="o">=</span> <span class="n">zipInfo</span><span class="o">.</span><span class="n">filename</span>
+
+                <span class="n">dest</span> <span class="o">=</span> <span class="n">normpath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dirPath</span><span class="p">,</span> <span class="n">dest</span><span class="p">[</span><span class="n">lenPath</span><span class="p">:]))</span>
+
+                <span class="k">if</span> <span class="n">exists</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">and</span> <span class="n">zipTime</span> <span class="o">&lt;=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">):</span> <span class="k">continue</span>
+                <span class="n">destDir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">destDir</span><span class="p">):</span> <span class="n">makedirs</span><span class="p">(</span><span class="n">destDir</span><span class="p">)</span>
+
+                <span class="c">#TODO: fix: why it used a temp file and why the .exec is hard coded.</span>
+                <span class="n">zipFile</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">zipInfo</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">tmpDir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">move</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">tmpDir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">normOSPath</span><span class="p">(</span><span class="n">zipInfo</span><span class="o">.</span><span class="n">filename</span><span class="p">)),</span> <span class="n">dest</span><span class="p">)</span>
+                <span class="c">#TODO: check for future python versions if the own flag is set.</span>
+                <span class="c"># The chmod is done because in linux the execute flag is lost.</span>
+                <span class="k">if</span> <span class="n">zipInfo</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.exe&#39;</span><span class="p">):</span> <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">stat</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span><span class="o">.</span><span class="n">st_mode</span> <span class="o">|</span> <span class="n">S_IEXEC</span><span class="p">)</span>
+
+        <span class="k">return</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">normpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">),</span> <span class="s">&#39;Unable to read the directory path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span>
+    <span class="n">lenPath</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">_dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">src</span><span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="nb">file</span><span class="p">),</span> <span class="n">join</span><span class="p">(</span><span class="n">dirPath</span><span class="p">,</span> <span class="n">root</span><span class="p">[</span><span class="n">lenPath</span><span class="p">:],</span> <span class="nb">file</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">exists</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">):</span> <span class="k">continue</span>
+
+            <span class="n">destDir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">destDir</span><span class="p">):</span> <span class="n">makedirs</span><span class="p">(</span><span class="n">destDir</span><span class="p">)</span>
+            <span class="n">copy</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="keepOpen"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.keepOpen">[docs]</a><span class="k">class</span> <span class="nc">keepOpen</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Keeps opened a file object, basically blocks the close calls.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;_fileObj&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileObj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the keep open file object proxy.</span>
+
+<span class="sd">        @param fileObj: file</span>
+<span class="sd">            A file type object to keep open.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="n">fileObj</span><span class="p">,</span> <span class="s">&#39;A file object is required </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">fileObj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fileObj</span> <span class="o">=</span> <span class="n">fileObj</span>
+
+<div class="viewcode-block" id="keepOpen.close"><a class="viewcode-back" href="../../../ally.support.html#ally.support.util_io.keepOpen.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Block the close action.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span> <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fileObj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

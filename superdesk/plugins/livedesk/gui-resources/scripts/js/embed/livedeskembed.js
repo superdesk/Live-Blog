@@ -6,27 +6,43 @@ function isOnly(data,key) {
 	};
 	return (data !== undefined) && (data[key] !== undefined) && (count == 1);
 }
+
 window.livedesk.init = function() {
-		var self = this,
-			contentPath = self.contentPath === undefined? '': self.contentPath;		
-		if (typeof jQuery == 'undefined') {
-			self.loadScript('http://code.jquery.com/jquery-1.7.2.min.js', function(){
-				if (typeof $.gizmo == 'undefined') {
-					self.loadScript(contentPath+'gizmo.js', function(){
-						self.startLoading();
-					})
-				}
-			})
-		} else {
-			if (typeof $.gizmo == 'undefined') {			
-				self.loadScript(contentPath+'gizmo.js', function(){
-					self.startLoading();
-				})
-			} else {
-				self.startLoading();
-			}
-		}
-	};
+    var self = this;
+    var loadJQ = false;
+    var giveBack$ = false;
+    contentPath = self.contentPath === undefined? '': self.contentPath;
+    
+    if (typeof jQuery == 'undefined') {
+        loadJQ = true;
+    } else {
+        if(parseFloat($().jquery) < 1.7) {
+            loadJQ = true;
+            //relinquish control of $ variable
+            giveBack$ = true;
+        }
+    }
+    
+    if (loadJQ) {
+        self.loadScript('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function(){
+            if (typeof $.gizmo == 'undefined') {
+                self.loadScript(contentPath+'gizmo.js', function(){
+                    self.preLoad(giveBack$);
+                });
+            } else {
+                self.preLoad(giveBack$);
+            }
+        })
+    } else {
+        if (typeof $.gizmo == 'undefined') {			
+            self.loadScript(contentPath+'gizmo.js', function(){
+                self.preLoad(giveBack$);
+            })
+        } else {
+            self.preLoad(giveBack$);
+        }
+    }
+};
 	
 window.livedesk.loadScript = function (src, callback) {
 		var script = document.createElement("script")
@@ -46,7 +62,15 @@ window.livedesk.loadScript = function (src, callback) {
 		script.src = src;
 		document.getElementsByTagName("head")[0].appendChild(script);
 	};
-window.livedesk.startLoading = function() {
+window.livedesk.preLoad = function (giveBack$) {
+    if (giveBack$) {
+        var jq_17 = $.noConflict(true);
+        this.startLoading(jq_17);
+    } else {
+        this.startLoading(jQuery);
+    }
+};
+window.livedesk.startLoading = function($) {
 		var 
 		User = $.gizmo.Model.extend({}),
 /*		PostType = $.gizmo.Model.extend({}),
@@ -157,6 +181,7 @@ window.livedesk.startLoading = function() {
 			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
+                        
 			setIdInterval: function(fn){
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
@@ -247,7 +272,7 @@ window.livedesk.startLoading = function() {
                                 var itemClass = item.getClass();
                                 
                                 if(Avatar.length > 0) {
-                                    returned += '<figure><img src="' + Avatar + ' alt="Gravatar" /></figure>';
+                                    returned += '<figure><img src="' + Avatar + '" ></figure>';
                                 }                                
                                 switch (itemClass) {
                                     case 'tw':
@@ -277,9 +302,23 @@ window.livedesk.startLoading = function() {
                                 }
                                return returned;
 			},
+                        toggleWrap: function(e) {
+                            //e.preventDefault();
+                            this._toggleWrap($(e).closest('li').first());
+                        },
+                        _toggleWrap: function(item) {
+                            if (item.hasClass('open')) {
+                                item.removeClass('open').addClass('closed');
+                                item.nextUntil('.wrapup').hide();
+                            } else {
+                                item.removeClass('closed').addClass('open');
+                                item.nextUntil('.wrapup').show();
+                            }
+                        },
+
 			render: function()
 			{			
-                countLoaded++;
+                                countLoaded++;
 				var self = this, order = parseFloat(self.model.get('Order')), Avatar='';
 				if(this.model.get('AuthorPerson') && this.model.get('AuthorPerson').EMail) {
 					Avatar = $.avatar.get(self.model.get('AuthorPerson').EMail);
@@ -328,7 +367,8 @@ window.livedesk.startLoading = function() {
 						var jqo = $(paddedContent);
 						jqo.find('img').attr('src', jqo.find('a').attr('href'));
 						content = jqo.html();
-					} else if (self.model.get('AuthorName') == 'twitter') {        
+					} else if (self.model.get('AuthorName') == 'twitter') {
+                                                Avatar = meta.profile_image_url;
 						content = self.model.twitter.link.all(content);
 					} else if (self.model.get('AuthorName') == 'google') {
                                             if (meta.tbUrl) {
@@ -356,6 +396,12 @@ window.livedesk.startLoading = function() {
                                 var permalink = '<a rel="bookmark" href="#'+ hash +'">#</a>';
 				var template ='<li class="'+ style + itemClass +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
                                 self.setElement( template );
+                                self.model.triggerHandler('rendered');
+                                
+                                $(self.el).off('click.view').on('click.view', '.big-toggle', function(){
+                                    self.toggleWrap(this);
+                                });
+
 			}
 		}),
                 totalLoad = 0,
@@ -430,6 +476,7 @@ window.livedesk.startLoading = function() {
 				if( this._latest !== undefined )
 					this._latest.prev = current;
 				this._latest = current;
+                                return current;
 			},
 			addAll: function(evt, data)
 			{
@@ -472,15 +519,36 @@ window.livedesk.startLoading = function() {
 				var next = this._latest, current, model, i = data.length;
                                 
                                 totalLoad = data.length;
-                                var self = this;
+                                var self = this, auxView;
                                 iidLoadTrace = setInterval(function(){
                                     self.loadTrace();
                                 }, 900)
+                                this.views=[];
+                                this.renderedTotal = i;
+
 				while(i--) {
-					this.addOne(data[i]);
+					auxView = this.addOne(data[i]);
+                                        auxView.model.on('rendered', this.renderedOn, this);
+					this.views.push(auxView);
 				}
                                 
-			}
+			},
+                        renderedOn: function(){
+                           this.renderedTotal--;
+                           if(!this.renderedTotal) {
+                                this.closeAllButFirstWrapup();
+                           }
+                        },
+                        closeAllButFirstWrapup: function(views) {
+                            var first = true, views= this.views;
+                            views.reverse();
+                            for (var i = 0; i < views.length; i++) {
+                                 if ($(views[i].el).hasClass('wrapup')) {
+                                      views[i]._toggleWrap($(views[i].el));
+                                 }
+                            }
+                        }
+
 			
 		});
 		window.livedesk.TimelineView = TimelineView;

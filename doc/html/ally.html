@@ -1,0 +1,542 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="next" title="api Package" href="ally.api.html" />
+    <link rel="prev" title="impl Package" href="admin.introspection.impl.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.api.html" title="api Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="admin.introspection.impl.html" title="impl Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ally-package">
+<h1>ally Package<a class="headerlink" href="#ally-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-ally.exception">
+<span id="exception-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">exception</span></tt> Module<a class="headerlink" href="#module-ally.exception" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 31, 2011</p>
+<p>&#64;package: ally api
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the exceptions that are used in communicating issues in the API.
+The internal errors (the ones that are made by the implementation and not data) are AssertionError.</p>
+<dl class="exception">
+<dt id="ally.exception.DevelError">
+<em class="property">exception </em><tt class="descclassname">ally.exception.</tt><tt class="descname">DevelError</tt><big>(</big><em>message</em><big>)</big><a class="reference internal" href="_modules/ally/exception.html#DevelError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.exception.DevelError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<p>Wraps exceptions that are related to wrong development usage from the client.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="ally.exception.InputError">
+<em class="property">exception </em><tt class="descclassname">ally.exception.</tt><tt class="descname">InputError</tt><big>(</big><em>*message</em><big>)</big><a class="reference internal" href="_modules/ally/exception.html#InputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.exception.InputError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+<p>Wraps exceptions that are related to input data.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.exception.Ref">
+<em class="property">class </em><tt class="descclassname">ally.exception.</tt><tt class="descname">Ref</tt><big>(</big><em>message</em>, <em>model=None</em>, <em>property=None</em>, <em>ref=None</em><big>)</big><a class="reference internal" href="_modules/ally/exception.html#Ref"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.exception.Ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Maps a reference for an exception message.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.internationalization">
+<span id="internationalization-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">internationalization</span></tt> Module<a class="headerlink" href="#module-ally.internationalization" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 26, 2011</p>
+<p>&#64;package: ally api
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides internationalization support.</p>
+<dl class="function">
+<dt id="ally.internationalization.C_">
+<tt class="descclassname">ally.internationalization.</tt><tt class="descname">C_</tt><big>(</big><em>ctxt</em>, <em>msg</em><big>)</big><a class="reference internal" href="_modules/ally/internationalization.html#C_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.internationalization.C_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias method for &#64;see: pgettext.</p>
+<dl class="docutils">
+<dt>&#64;param ctxt: string</dt>
+<dd>The context of the key message.</dd>
+<dt>&#64;param msg: string</dt>
+<dd>The key message.</dd>
+<dt>&#64;return: string</dt>
+<dd>The translated message.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.internationalization.NC_">
+<tt class="descclassname">ally.internationalization.</tt><tt class="descname">NC_</tt><big>(</big><em>ctxt</em>, <em>msg</em><big>)</big><a class="reference internal" href="_modules/ally/internationalization.html#NC_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.internationalization.NC_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like &#64;see: <a href="#id1"><span class="problematic" id="id2">N_</span></a>, but use the provided context for the message.</p>
+<dl class="docutils">
+<dt>&#64;param ctxt: string</dt>
+<dd>The context of the key message.</dd>
+<dt>&#64;param msg: string</dt>
+<dd>The key message.</dd>
+<dt>&#64;return: string</dt>
+<dd>The provided message key.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.internationalization.N_">
+<tt class="descclassname">ally.internationalization.</tt><tt class="descname">N_</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/ally/internationalization.html#N_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.internationalization.N_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marking method that doesn&#8217;t actually perform any translation it will just return the provided message key, it used
+in order to mark translatable message keys.</p>
+<dl class="docutils">
+<dt>&#64;param msg: string</dt>
+<dd>The key message.</dd>
+<dt>&#64;return: string</dt>
+<dd>The provided message key.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.internationalization.gettext">
+<tt class="descclassname">ally.internationalization.</tt><tt class="descname">gettext</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/ally/internationalization.html#gettext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.internationalization.gettext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the localized translation of message, based on the current global domain, language, and locale directory.
+This function is usually aliased as _() in the local namespace.</p>
+<dl class="docutils">
+<dt>&#64;param msg: string</dt>
+<dd>The key message.</dd>
+<dt>&#64;return: string</dt>
+<dd>The translated message.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.internationalization.ngettext">
+<tt class="descclassname">ally.internationalization.</tt><tt class="descname">ngettext</tt><big>(</big><em>msg</em>, <em>msgp</em>, <em>count</em><big>)</big><a class="reference internal" href="_modules/ally/internationalization.html#ngettext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.internationalization.ngettext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like &#64;see: gettext, but consider plural forms. If a translation is found, apply the plural formula to n, and return
+the resulting message (some languages have more than two plural forms). If no translation is found, return singular
+if n is 1; return plural otherwise. The Plural formula is taken from the catalog header. It is a C or Python
+expression that has a free variable n; the expression evaluates to the index of the plural in the catalog.
+See the GNU gettext documentation for the precise syntax to be used in .po files and the formulas for a variety of
+languages.</p>
+<dl class="docutils">
+<dt>&#64;param msg: string</dt>
+<dd>The key message.</dd>
+<dt>&#64;param msgp: string</dt>
+<dd>The plural key message.</dd>
+<dt>&#64;return: string</dt>
+<dd>The translated message.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.internationalization.npgettext">
+<tt class="descclassname">ally.internationalization.</tt><tt class="descname">npgettext</tt><big>(</big><em>ctxt</em>, <em>msg</em>, <em>msgp</em>, <em>count</em><big>)</big><a class="reference internal" href="_modules/ally/internationalization.html#npgettext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.internationalization.npgettext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like &#64;see: ngettext, but use the provided context for the message.</p>
+<dl class="docutils">
+<dt>&#64;param ctxt: string</dt>
+<dd>The context of the key message.</dd>
+<dt>&#64;param msg: string</dt>
+<dd>The key message.</dd>
+<dt>&#64;param msgp: string</dt>
+<dd>The plural key message.</dd>
+<dt>&#64;return: string</dt>
+<dd>The translated message.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.internationalization.pgettext">
+<tt class="descclassname">ally.internationalization.</tt><tt class="descname">pgettext</tt><big>(</big><em>ctxt</em>, <em>msg</em><big>)</big><a class="reference internal" href="_modules/ally/internationalization.html#pgettext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.internationalization.pgettext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like &#64;see: gettext, but use the provided context for the message.</p>
+<dl class="docutils">
+<dt>&#64;param ctxt: string</dt>
+<dd>The context of the key message.</dd>
+<dt>&#64;param msg: string</dt>
+<dd>The key message.</dd>
+<dt>&#64;return: string</dt>
+<dd>The translated message.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.type_legacy">
+<span id="type-legacy-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">type_legacy</span></tt> Module<a class="headerlink" href="#module-ally.type_legacy" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 17, 2011</p>
+<p>&#64;package: ally api
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides base python types for python 3 and python 2.6 legacy.</p>
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ally.api.html">api Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.html#module-ally.api.authentication"><tt class="docutils literal"><span class="pre">authentication</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.html#module-ally.api.config"><tt class="docutils literal"><span class="pre">config</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.html#module-ally.api.criteria"><tt class="docutils literal"><span class="pre">criteria</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.html#module-ally.api.extension"><tt class="docutils literal"><span class="pre">extension</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.html#module-ally.api.model"><tt class="docutils literal"><span class="pre">model</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.html#module-ally.api.type"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ally.api.operator.html">operator Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.api.operator.html#module-ally.api.operator.container"><tt class="docutils literal"><span class="pre">container</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.api.operator.html#module-ally.api.operator.descriptor"><tt class="docutils literal"><span class="pre">descriptor</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.api.operator.html#module-ally.api.operator.extract"><tt class="docutils literal"><span class="pre">extract</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.api.operator.html#module-ally.api.operator.type"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.api.operator.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="ally.api.operator.authentication.html">authentication Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="ally.api.operator.authentication.html#module-ally.api.operator.authentication.service"><tt class="docutils literal"><span class="pre">service</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.api.operator.authentication.html#module-ally.api.operator.authentication.type"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ally.container.html">container Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.container.html#module-ally.container.aop"><tt class="docutils literal"><span class="pre">aop</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.container.html#module-ally.container.binder"><tt class="docutils literal"><span class="pre">binder</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.container.html#module-ally.container.binder_op"><tt class="docutils literal"><span class="pre">binder_op</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.container.html#module-ally.container.config"><tt class="docutils literal"><span class="pre">config</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.container.html#module-ally.container.ioc"><tt class="docutils literal"><span class="pre">ioc</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.container.html#module-ally.container.proxy"><tt class="docutils literal"><span class="pre">proxy</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.container.html#module-ally.container.support"><tt class="docutils literal"><span class="pre">support</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.container.html#module-ally.container.wire"><tt class="docutils literal"><span class="pre">wire</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ally.core.html">core Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ally.core.authentication.html">authentication Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.authentication.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="ally.core.authentication.impl.html">impl Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.authentication.impl.html#module-ally.core.authentication.impl.assembler"><tt class="docutils literal"><span class="pre">assembler</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.authentication.impl.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="ally.core.authentication.impl.processor.html">processor Package</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.authentication.impl.processor.html#module-ally.core.authentication.impl.processor.authentication"><tt class="docutils literal"><span class="pre">authentication</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ally.core.cdm.html">cdm Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.cdm.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="ally.core.cdm.processor.html">processor Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.cdm.processor.html#module-ally.core.cdm.processor.content_delivery"><tt class="docutils literal"><span class="pre">content_delivery</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ally.core.http.html">http Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.http.html#id1"><tt class="docutils literal"><span class="pre">http</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.http.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="ally.core.http.impl.html">impl Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.impl.html#id1"><tt class="docutils literal"><span class="pre">impl</span></tt> Package</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.impl.html#module-ally.core.http.impl.url_encoded"><tt class="docutils literal"><span class="pre">url_encoded</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.impl.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="ally.core.http.impl.processor.html">processor Package</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#id1"><tt class="docutils literal"><span class="pre">processor</span></tt> Package</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.encoder"><tt class="docutils literal"><span class="pre">encoder</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.fetcher"><tt class="docutils literal"><span class="pre">fetcher</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.header"><tt class="docutils literal"><span class="pre">header</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.internal_error"><tt class="docutils literal"><span class="pre">internal_error</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.parameter"><tt class="docutils literal"><span class="pre">parameter</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.parsing_multipart"><tt class="docutils literal"><span class="pre">parsing_multipart</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.redirect"><tt class="docutils literal"><span class="pre">redirect</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.text_conversion"><tt class="docutils literal"><span class="pre">text_conversion</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.time_zone"><tt class="docutils literal"><span class="pre">time_zone</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#module-ally.core.http.impl.processor.uri"><tt class="docutils literal"><span class="pre">uri</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.impl.processor.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="ally.core.http.impl.processor.headers.html">headers Package</a><ul>
+<li class="toctree-l10"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.accept"><tt class="docutils literal"><span class="pre">accept</span></tt> Module</a></li>
+<li class="toctree-l10"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.allow"><tt class="docutils literal"><span class="pre">allow</span></tt> Module</a></li>
+<li class="toctree-l10"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.content_disposition"><tt class="docutils literal"><span class="pre">content_disposition</span></tt> Module</a></li>
+<li class="toctree-l10"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.content_language"><tt class="docutils literal"><span class="pre">content_language</span></tt> Module</a></li>
+<li class="toctree-l10"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.content_length"><tt class="docutils literal"><span class="pre">content_length</span></tt> Module</a></li>
+<li class="toctree-l10"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.content_type"><tt class="docutils literal"><span class="pre">content_type</span></tt> Module</a></li>
+<li class="toctree-l10"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.override_method"><tt class="docutils literal"><span class="pre">override_method</span></tt> Module</a></li>
+<li class="toctree-l10"><a class="reference internal" href="ally.core.http.impl.processor.headers.html#module-ally.core.http.impl.processor.headers.set_fixed"><tt class="docutils literal"><span class="pre">set_fixed</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l9"><a class="reference internal" href="ally.core.http.impl.processor.parser.html">parser Package</a><ul>
+<li class="toctree-l10"><a class="reference internal" href="ally.core.http.impl.processor.parser.html#module-ally.core.http.impl.processor.parser.formdata"><tt class="docutils literal"><span class="pre">formdata</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ally.core.http.server.html">server Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.server.html#id1"><tt class="docutils literal"><span class="pre">server</span></tt> Package</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.server.html#module-ally.core.http.server.server_basic"><tt class="docutils literal"><span class="pre">server_basic</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.server.html#module-ally.core.http.server.server_cherrypy"><tt class="docutils literal"><span class="pre">server_cherrypy</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="ally.core.http.spec.html">spec Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.spec.html#id1"><tt class="docutils literal"><span class="pre">spec</span></tt> Package</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.spec.html#module-ally.core.http.spec.codes"><tt class="docutils literal"><span class="pre">codes</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.spec.html#module-ally.core.http.spec.server"><tt class="docutils literal"><span class="pre">server</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.http.spec.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="ally.core.http.spec.transform.html">transform Package</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.spec.transform.html#id1"><tt class="docutils literal"><span class="pre">transform</span></tt> Package</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.http.spec.transform.html#module-ally.core.http.spec.transform.support_model"><tt class="docutils literal"><span class="pre">support_model</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ally.core.impl.html">impl Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.html#id1"><tt class="docutils literal"><span class="pre">impl</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.html#module-ally.core.impl.assembler"><tt class="docutils literal"><span class="pre">assembler</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.html#module-ally.core.impl.invoker"><tt class="docutils literal"><span class="pre">invoker</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.html#module-ally.core.impl.node"><tt class="docutils literal"><span class="pre">node</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.html#module-ally.core.impl.resources_management"><tt class="docutils literal"><span class="pre">resources_management</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.impl.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="ally.core.impl.processor.html">processor Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#id1"><tt class="docutils literal"><span class="pre">processor</span></tt> Package</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.arguments"><tt class="docutils literal"><span class="pre">arguments</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.content"><tt class="docutils literal"><span class="pre">content</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.decoder"><tt class="docutils literal"><span class="pre">decoder</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.deliver_ok"><tt class="docutils literal"><span class="pre">deliver_ok</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.encoder"><tt class="docutils literal"><span class="pre">encoder</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.explain_error"><tt class="docutils literal"><span class="pre">explain_error</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.invoking"><tt class="docutils literal"><span class="pre">invoking</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.method_invoker"><tt class="docutils literal"><span class="pre">method_invoker</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.parsing"><tt class="docutils literal"><span class="pre">parsing</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.render_encoder"><tt class="docutils literal"><span class="pre">render_encoder</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.rendering"><tt class="docutils literal"><span class="pre">rendering</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#module-ally.core.impl.processor.text_conversion"><tt class="docutils literal"><span class="pre">text_conversion</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.impl.processor.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="ally.core.impl.processor.parser.html">parser Package</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.impl.processor.parser.html#module-ally.core.impl.processor.parser.base"><tt class="docutils literal"><span class="pre">base</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.impl.processor.parser.html#module-ally.core.impl.processor.parser.text"><tt class="docutils literal"><span class="pre">text</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.impl.processor.parser.html#module-ally.core.impl.processor.parser.xml"><tt class="docutils literal"><span class="pre">xml</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="ally.core.impl.processor.render.html">render Package</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.impl.processor.render.html#module-ally.core.impl.processor.render.base"><tt class="docutils literal"><span class="pre">base</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.impl.processor.render.html#module-ally.core.impl.processor.render.json"><tt class="docutils literal"><span class="pre">json</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.impl.processor.render.html#module-ally.core.impl.processor.render.text"><tt class="docutils literal"><span class="pre">text</span></tt> Module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="ally.core.impl.processor.render.html#module-ally.core.impl.processor.render.xml"><tt class="docutils literal"><span class="pre">xml</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ally.core.spec.html">spec Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.spec.html#id1"><tt class="docutils literal"><span class="pre">spec</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.spec.html#module-ally.core.spec.codes"><tt class="docutils literal"><span class="pre">codes</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.spec.html#module-ally.core.spec.resources"><tt class="docutils literal"><span class="pre">resources</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.spec.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="ally.core.spec.transform.html">transform Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.spec.transform.html#id1"><tt class="docutils literal"><span class="pre">transform</span></tt> Package</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.spec.transform.html#module-ally.core.spec.transform.exploit"><tt class="docutils literal"><span class="pre">exploit</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.spec.transform.html#module-ally.core.spec.transform.render"><tt class="docutils literal"><span class="pre">render</span></tt> Module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.spec.transform.html#module-ally.core.spec.transform.support"><tt class="docutils literal"><span class="pre">support</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ally.core.sqlalchemy.html">sqlalchemy Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.sqlalchemy.html#id1"><tt class="docutils literal"><span class="pre">sqlalchemy</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.core.sqlalchemy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="ally.core.sqlalchemy.processor.html">processor Package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="ally.core.sqlalchemy.processor.html#module-ally.core.sqlalchemy.processor.transactional_wrapping"><tt class="docutils literal"><span class="pre">transactional_wrapping</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ally.design.html">design Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.design.html#module-ally.design.bean"><tt class="docutils literal"><span class="pre">bean</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.design.html#module-ally.design.context"><tt class="docutils literal"><span class="pre">context</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.design.html#module-ally.design.processor"><tt class="docutils literal"><span class="pre">processor</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ally.support.html">support Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.support.html#module-ally.support.util"><tt class="docutils literal"><span class="pre">util</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.support.html#module-ally.support.util_deploy"><tt class="docutils literal"><span class="pre">util_deploy</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.support.html#module-ally.support.util_io"><tt class="docutils literal"><span class="pre">util_io</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.support.html#module-ally.support.util_spec"><tt class="docutils literal"><span class="pre">util_spec</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.support.html#module-ally.support.util_sys"><tt class="docutils literal"><span class="pre">util_sys</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.support.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ally.support.api.html">api Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.support.api.html#module-ally.support.api.entity"><tt class="docutils literal"><span class="pre">entity</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.support.api.html#module-ally.support.api.keyed"><tt class="docutils literal"><span class="pre">keyed</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.support.api.html#module-ally.support.api.util_service"><tt class="docutils literal"><span class="pre">util_service</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ally.support.core.html">core Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.support.core.html#module-ally.support.core.util_resources"><tt class="docutils literal"><span class="pre">util_resources</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ally.support.sqlalchemy.html">sqlalchemy Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.support.sqlalchemy.html#id1"><tt class="docutils literal"><span class="pre">sqlalchemy</span></tt> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.support.sqlalchemy.html#module-ally.support.sqlalchemy.descriptor"><tt class="docutils literal"><span class="pre">descriptor</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.support.sqlalchemy.html#module-ally.support.sqlalchemy.mapper"><tt class="docutils literal"><span class="pre">mapper</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.support.sqlalchemy.html#module-ally.support.sqlalchemy.session"><tt class="docutils literal"><span class="pre">session</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.support.sqlalchemy.html#module-ally.support.sqlalchemy.util_service"><tt class="docutils literal"><span class="pre">util_service</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ally.xml.html">xml Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.xml.html#module-ally.xml.digester"><tt class="docutils literal"><span class="pre">digester</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.xml.html#module-ally.xml.digester_rules"><tt class="docutils literal"><span class="pre">digester_rules</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ally.zip.html">zip Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.zip.html#module-ally.zip.util_zip"><tt class="docutils literal"><span class="pre">util_zip</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ally Package</a><ul>
+<li><a class="reference internal" href="#module-ally.exception"><tt class="docutils literal"><span class="pre">exception</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.internationalization"><tt class="docutils literal"><span class="pre">internationalization</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.type_legacy"><tt class="docutils literal"><span class="pre">type_legacy</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="admin.introspection.impl.html"
+                        title="previous chapter">impl Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.api.html"
+                        title="next chapter">api Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.api.html" title="api Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="admin.introspection.impl.html" title="impl Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
