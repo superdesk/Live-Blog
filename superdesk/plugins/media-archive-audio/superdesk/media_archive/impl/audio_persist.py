@@ -95,9 +95,12 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
         #extract metadata operation to a file in order to have an output parameter for ffmpeg; if no output parameter -> get error code 1
         #the generated metadata file will be deleted
-        if exists(self.ffmpeg_tmp_path): remove(self.ffmpeg_tmp_path)       
-        p = Popen((self.ffmpeg_path, '-i', contentPath, '-f', 'ffmetadata',  self.ffmpeg_tmp_path), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        tmpFile = self.ffmpeg_tmp_path + str(metaDataMapped.Id)
+        
+        if exists(tmpFile): remove(tmpFile)       
+        p = Popen((self.ffmpeg_path, '-i', contentPath, '-f', 'ffmetadata',  tmpFile), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         result = p.wait() 
+        if exists(tmpFile): remove(tmpFile)  
         if result != 0: return False
 
         audioDataEntry = AudioDataEntry()
