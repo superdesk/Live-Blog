@@ -45,6 +45,8 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the audio thumbnails in the media archive''')
     ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
     The path where the ffmpeg is found''')
+    ffmpeg_tmp_path = join('workspace', 'tools', 'ffmpeg', 'tmp');wire.config('ffmpeg_tmp_path', doc='''
+    The path where ffmpeg writes temp data''')
     
     audio_supported_files = '3gp, act, AIFF, ALAC, Au, flac, gsm, m4a, m4p, mp3, ogg, ram, raw, vox, wav, wma'
     
@@ -57,6 +59,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.audio_supported_files, str), 'Invalid supported files %s' % self.audio_supported_files
         assert isinstance(self.ffmpeg_path, str), 'Invalid ffmpeg path %s' % self.ffmpeg_path
+        assert isinstance(self.ffmpeg_tmp_path, str), 'Invalid ffmpeg tmp path %s' % self.ffmpeg_tmp_path
         SessionSupport.__init__(self)
 
         self.audioSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.audio_supported_files))
@@ -92,13 +95,9 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
         #extract metadata operation to a file in order to have an output parameter for ffmpeg; if no output parameter -> get error code 1
         #the generated metadata file will be deleted
-        
-        if exists('metadata.txt'):
-            remove('metadata.txt')       
-               
-        p = Popen((self.ffmpeg_path, '-i', contentPath, '-f', 'ffmetadata',  'metadata.txt'), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        if exists(self.ffmpeg_tmp_path): remove(self.ffmpeg_tmp_path)       
+        p = Popen((self.ffmpeg_path, '-i', contentPath, '-f', 'ffmetadata',  self.ffmpeg_tmp_path), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         result = p.wait() 
-        
         if result != 0: return False
 
         audioDataEntry = AudioDataEntry()
