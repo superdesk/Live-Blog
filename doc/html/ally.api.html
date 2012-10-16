@@ -1,0 +1,1160 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="ally Package" href="ally.html" />
+    <link rel="next" title="operator Package" href="ally.api.operator.html" />
+    <link rel="prev" title="ally Package" href="ally.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.api.operator.html" title="operator Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.html" title="ally Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" accesskey="U">ally Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-package">
+<h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-ally.api.authentication">
+<span id="authentication-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">authentication</span></tt> Module<a class="headerlink" href="#module-ally.api.authentication" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 9, 2012</p>
+<p>&#64;package: ally authentication
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides authentication support.</p>
+<dl class="function">
+<dt id="ally.api.authentication.auth">
+<tt class="descclassname">ally.api.authentication.</tt><tt class="descname">auth</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/ally/api/authentication.html#auth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.authentication.auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the provided type to a authentication type.</p>
+<dl class="docutils">
+<dt>&#64;param obj: object|class</dt>
+<dd>The class or object to extract the type to authenticate.</dd>
+<dt>&#64;return: TypeModelAuth|TypeModelPropertyAuth</dt>
+<dd>The authenticated type.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.api.config">
+<span id="config-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">config</span></tt> Module<a class="headerlink" href="#module-ally.api.config" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jan 19, 2012</p>
+<p>&#64;package: ally api
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the decorators used for APIs in a much easier to use form.</p>
+<dl class="function">
+<dt id="ally.api.config.call">
+<tt class="descclassname">ally.api.config.</tt><tt class="descname">call</tt><big>(</big><em>method</em>, <em>*args</em>, <em>**hints</em><big>)</big><a class="reference internal" href="_modules/ally/api/config.html#call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.config.call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for decorating service methods that are used as APIs.</p>
+<dl class="docutils">
+<dt>ex:</dt>
+<dd><dl class="first last docutils">
+<dt>Using the annotations:</dt>
+<dd><p class="first">&#64;call
+def updateX(self, x:int)-&gt;None:</p>
+<blockquote class="last">
+<div>doc string
+&lt;no method body required&gt;</div></blockquote>
+</dd>
+<dt>Using specified types:</dt>
+<dd><p class="first">&#64;call(Entity, Entity.x, String, webName=&#8217;unassigned&#8217;)
+def findBy(self, x, name):</p>
+<blockquote>
+<div>doc string
+&lt;no method body required&gt;</div></blockquote>
+<p>&#64;call(Entity, Entity, OtherEntity, method=UPDATE)
+def assign(self, entity, toEntity):</p>
+<blockquote class="last">
+<div>doc string
+&lt;no method body required&gt;</div></blockquote>
+</dd>
+</dl>
+</dd>
+<dt>&#64;param method: integer</dt>
+<dd>One of the config module constants GET, INSERT, UPDATE, DELETE.</dd>
+<dt>&#64;param hints: key arguments</dt>
+<dd><dl class="first last docutils">
+<dt>Provides hints for the call, the hints are used for assembly.</dt>
+<dd><dl class="first last docutils">
+<dt>&#64;keyword exposed: boolean</dt>
+<dd>Indicates that the call is exposed for external interactions, usually all defined methods in a service
+that are not decorated with call are considered unexposed calls.</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.api.config.criteria">
+<tt class="descclassname">ally.api.config.</tt><tt class="descname">criteria</tt><big>(</big><em>main</em>, <em>*args</em><big>)</big><a class="reference internal" href="_modules/ally/api/config.html#criteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.config.criteria" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for decorating classes that are API criteria&#8217;s.</p>
+<dl class="docutils">
+<dt>ex:</dt>
+<dd><p class="first">&#64;criteria(main=&#8217;order&#8217;)
+class OrderBy:</p>
+<blockquote class="last">
+<div>order = bool</div></blockquote>
+</dd>
+<dt>&#64;param main: string|tuple(string)|list[string]|None</dt>
+<dd>Provide the name of the property/properties that is to be considered the main property for the criteria. 
+The main property/properties is the property/properties used whenever the criteria is used without a property. 
+If the main property is None then it will be inherited if is the case from super criteria&#8217;s otherwise is left
+unset.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.api.config.extension">
+<tt class="descclassname">ally.api.config.</tt><tt class="descname">extension</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/ally/api/config.html#extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.config.extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for decorating classes that are API extensions. The extension is used as a model but only with primitive
+properties that is rendered in the response in different manners. Also the extension is not specified in the API
+and can be returned by the implementation in a dynamic manner.</p>
+<dl class="docutils">
+<dt>ex:</dt>
+<dd><p class="first">&#64;extension
+class CollectionWithTotal(Iterable):</p>
+<blockquote class="last">
+<div><p>total = int</p>
+<dl class="docutils">
+<dt>def __init__(self, iter):</dt>
+<dd>self.iter = iter</dd>
+</dl>
+<p>def __iter__(self): return self.iter()</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.api.config.model">
+<tt class="descclassname">ally.api.config.</tt><tt class="descname">model</tt><big>(</big><em>name</em>, <em>*args</em>, <em>**hints</em><big>)</big><a class="reference internal" href="_modules/ally/api/config.html#model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.config.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for decorating classes that are API models.</p>
+<dl class="docutils">
+<dt>ex:</dt>
+<dd><p class="first">&#64;model
+class Entity:</p>
+<blockquote>
+<div>Name = String</div></blockquote>
+<p>&#64;model(name=Entity)
+class Entity2(Entity):</p>
+<blockquote class="last">
+<div>NewProperty = Integer</div></blockquote>
+</dd>
+<dt>&#64;param name: string|None</dt>
+<dd>Provide a name under which the model will be known. If not provided the name of the model is the class name.</dd>
+<dt>&#64;param hints: key word arguments</dt>
+<dd><p class="first">Provides hints for the model.
+&#64;keyword id: string</p>
+<blockquote>
+<div>The name of the property to be considered the model id.</div></blockquote>
+<dl class="last docutils">
+<dt>&#64;keyword replace: class</dt>
+<dd>The model class to be replaced by this model class, should only be used whenever you need to prototype a
+model in order to be fully defined latter.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.api.config.query">
+<tt class="descclassname">ally.api.config.</tt><tt class="descname">query</tt><big>(</big><em>owner</em><big>)</big><a class="reference internal" href="_modules/ally/api/config.html#query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.config.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for decorating classes that are API queries.</p>
+<dl class="docutils">
+<dt>&#64;param owner: TypeModel container</dt>
+<dd>The model that is the target of this query.</dd>
+<dt>ex:</dt>
+<dd><p class="first">&#64;query(Theme)
+class ThemeQuery:</p>
+<blockquote class="last">
+<div>name = OrderBy</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.api.config.service">
+<tt class="descclassname">ally.api.config.</tt><tt class="descname">service</tt><big>(</big><em>generic</em>, <em>*args</em><big>)</big><a class="reference internal" href="_modules/ally/api/config.html#service"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.config.service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for decorating classes that are API services.</p>
+<dl class="docutils">
+<dt>ex:</dt>
+<dd><p class="first">&#64;service
+class IEntityService:</p>
+<blockquote>
+<div>&#64;call(Number, Entity.x)
+def multipy(self, x):</div></blockquote>
+<p>&#64;service((Entity, Issue))
+class IInheritingService(IEntityService):</p>
+<blockquote class="last">
+<div>&#64;call(Number, Issue.x)
+def multipy(self, x):</div></blockquote>
+</dd>
+<dt>&#64;param generic: tuple|list((genericClass, replaceClass)|[...(genericClass, replaceClass)])</dt>
+<dd>The classes of that will be generically replaced. Can also be provided as arguments.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.api.criteria">
+<span id="criteria-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">criteria</span></tt> Module<a class="headerlink" href="#module-ally.api.criteria" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 10, 2011</p>
+<p>&#64;package: ally api
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Nistor Gabriel</p>
+<p>Provides general used criteria for APIs.</p>
+<dl class="class">
+<dt id="ally.api.criteria.AsBoolean">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsBoolean</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsBoolean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsBoolean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides query for properties that can be managed as booleans.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsBoolean.value">
+<tt class="descname">value</tt><em class="property"> = AsBoolean.value(bool)</em><a class="headerlink" href="#ally.api.criteria.AsBoolean.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsBooleanOrdered">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsBooleanOrdered</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsBooleanOrdered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsBooleanOrdered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.criteria.AsBoolean" title="ally.api.criteria.AsBoolean"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsBoolean</span></tt></a>, <a class="reference internal" href="#ally.api.criteria.AsOrdered" title="ally.api.criteria.AsOrdered"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsOrdered</span></tt></a></p>
+<p>Provides the booleans search and also the ordering.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsBooleanOrdered.ascending">
+<tt class="descname">ascending</tt><em class="property"> = AsBooleanOrdered.ascending(bool)</em><a class="headerlink" href="#ally.api.criteria.AsBooleanOrdered.ascending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsBooleanOrdered.priority">
+<tt class="descname">priority</tt><em class="property"> = AsBooleanOrdered.priority(int)</em><a class="headerlink" href="#ally.api.criteria.AsBooleanOrdered.priority" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsBooleanOrdered.value">
+<tt class="descname">value</tt><em class="property"> = AsBooleanOrdered.value(bool)</em><a class="headerlink" href="#ally.api.criteria.AsBooleanOrdered.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsDate">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsDate</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsDate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsDate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides query for properties that can be managed as date.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDate.end">
+<tt class="descname">end</tt><em class="property"> = AsDate.end(date)</em><a class="headerlink" href="#ally.api.criteria.AsDate.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDate.since">
+<tt class="descname">since</tt><em class="property"> = AsDate.since(date)</em><a class="headerlink" href="#ally.api.criteria.AsDate.since" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDate.start">
+<tt class="descname">start</tt><em class="property"> = AsDate.start(date)</em><a class="headerlink" href="#ally.api.criteria.AsDate.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDate.until">
+<tt class="descname">until</tt><em class="property"> = AsDate.until(date)</em><a class="headerlink" href="#ally.api.criteria.AsDate.until" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsDateOrdered">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsDateOrdered</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsDateOrdered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsDateOrdered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.criteria.AsDate" title="ally.api.criteria.AsDate"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsDate</span></tt></a>, <a class="reference internal" href="#ally.api.criteria.AsOrdered" title="ally.api.criteria.AsOrdered"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsOrdered</span></tt></a></p>
+<p>Provides the date search and also the ordering.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateOrdered.ascending">
+<tt class="descname">ascending</tt><em class="property"> = AsDateOrdered.ascending(bool)</em><a class="headerlink" href="#ally.api.criteria.AsDateOrdered.ascending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateOrdered.end">
+<tt class="descname">end</tt><em class="property"> = AsDateOrdered.end(date)</em><a class="headerlink" href="#ally.api.criteria.AsDateOrdered.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateOrdered.priority">
+<tt class="descname">priority</tt><em class="property"> = AsDateOrdered.priority(int)</em><a class="headerlink" href="#ally.api.criteria.AsDateOrdered.priority" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateOrdered.since">
+<tt class="descname">since</tt><em class="property"> = AsDateOrdered.since(date)</em><a class="headerlink" href="#ally.api.criteria.AsDateOrdered.since" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateOrdered.start">
+<tt class="descname">start</tt><em class="property"> = AsDateOrdered.start(date)</em><a class="headerlink" href="#ally.api.criteria.AsDateOrdered.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateOrdered.until">
+<tt class="descname">until</tt><em class="property"> = AsDateOrdered.until(date)</em><a class="headerlink" href="#ally.api.criteria.AsDateOrdered.until" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsDateTime">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsDateTime</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsDateTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsDateTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides query for properties that can be managed as date time.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTime.end">
+<tt class="descname">end</tt><em class="property"> = AsDateTime.end(datetime)</em><a class="headerlink" href="#ally.api.criteria.AsDateTime.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTime.since">
+<tt class="descname">since</tt><em class="property"> = AsDateTime.since(datetime)</em><a class="headerlink" href="#ally.api.criteria.AsDateTime.since" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTime.start">
+<tt class="descname">start</tt><em class="property"> = AsDateTime.start(datetime)</em><a class="headerlink" href="#ally.api.criteria.AsDateTime.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTime.until">
+<tt class="descname">until</tt><em class="property"> = AsDateTime.until(datetime)</em><a class="headerlink" href="#ally.api.criteria.AsDateTime.until" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsDateTimeOrdered">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsDateTimeOrdered</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsDateTimeOrdered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsDateTimeOrdered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.criteria.AsDateTime" title="ally.api.criteria.AsDateTime"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsDateTime</span></tt></a>, <a class="reference internal" href="#ally.api.criteria.AsOrdered" title="ally.api.criteria.AsOrdered"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsOrdered</span></tt></a></p>
+<p>Provides the date time search and also the ordering.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTimeOrdered.ascending">
+<tt class="descname">ascending</tt><em class="property"> = AsDateTimeOrdered.ascending(bool)</em><a class="headerlink" href="#ally.api.criteria.AsDateTimeOrdered.ascending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTimeOrdered.end">
+<tt class="descname">end</tt><em class="property"> = AsDateTimeOrdered.end(datetime)</em><a class="headerlink" href="#ally.api.criteria.AsDateTimeOrdered.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTimeOrdered.priority">
+<tt class="descname">priority</tt><em class="property"> = AsDateTimeOrdered.priority(int)</em><a class="headerlink" href="#ally.api.criteria.AsDateTimeOrdered.priority" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTimeOrdered.since">
+<tt class="descname">since</tt><em class="property"> = AsDateTimeOrdered.since(datetime)</em><a class="headerlink" href="#ally.api.criteria.AsDateTimeOrdered.since" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTimeOrdered.start">
+<tt class="descname">start</tt><em class="property"> = AsDateTimeOrdered.start(datetime)</em><a class="headerlink" href="#ally.api.criteria.AsDateTimeOrdered.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsDateTimeOrdered.until">
+<tt class="descname">until</tt><em class="property"> = AsDateTimeOrdered.until(datetime)</em><a class="headerlink" href="#ally.api.criteria.AsDateTimeOrdered.until" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsEqual">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsEqual</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsEqual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsEqual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides query for properties that can be managed by a equal function, this will only handle string types.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsEqual.equal">
+<tt class="descname">equal</tt><em class="property"> = AsEqual.equal(str)</em><a class="headerlink" href="#ally.api.criteria.AsEqual.equal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsEqualOrdered">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsEqualOrdered</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsEqualOrdered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsEqualOrdered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.criteria.AsEqual" title="ally.api.criteria.AsEqual"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsEqual</span></tt></a>, <a class="reference internal" href="#ally.api.criteria.AsOrdered" title="ally.api.criteria.AsOrdered"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsOrdered</span></tt></a></p>
+<p>Provides the equal search and also the ordering.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsEqualOrdered.ascending">
+<tt class="descname">ascending</tt><em class="property"> = AsEqualOrdered.ascending(bool)</em><a class="headerlink" href="#ally.api.criteria.AsEqualOrdered.ascending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsEqualOrdered.equal">
+<tt class="descname">equal</tt><em class="property"> = AsEqualOrdered.equal(str)</em><a class="headerlink" href="#ally.api.criteria.AsEqualOrdered.equal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsEqualOrdered.priority">
+<tt class="descname">priority</tt><em class="property"> = AsEqualOrdered.priority(int)</em><a class="headerlink" href="#ally.api.criteria.AsEqualOrdered.priority" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsLike">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsLike</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsLike"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsLike" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides query for properties that can be managed by a like function, this will only handle string types</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsLike.ilike">
+<tt class="descname">ilike</tt><em class="property"> = AsLike.ilike(str)</em><a class="headerlink" href="#ally.api.criteria.AsLike.ilike" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsLike.like">
+<tt class="descname">like</tt><em class="property"> = AsLike.like(str)</em><a class="headerlink" href="#ally.api.criteria.AsLike.like" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsLikeOrdered">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsLikeOrdered</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsLikeOrdered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsLikeOrdered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.criteria.AsLike" title="ally.api.criteria.AsLike"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsLike</span></tt></a>, <a class="reference internal" href="#ally.api.criteria.AsOrdered" title="ally.api.criteria.AsOrdered"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsOrdered</span></tt></a></p>
+<p>Provides the like search and also the ordering.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsLikeOrdered.ascending">
+<tt class="descname">ascending</tt><em class="property"> = AsLikeOrdered.ascending(bool)</em><a class="headerlink" href="#ally.api.criteria.AsLikeOrdered.ascending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsLikeOrdered.ilike">
+<tt class="descname">ilike</tt><em class="property"> = AsLikeOrdered.ilike(str)</em><a class="headerlink" href="#ally.api.criteria.AsLikeOrdered.ilike" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsLikeOrdered.like">
+<tt class="descname">like</tt><em class="property"> = AsLikeOrdered.like(str)</em><a class="headerlink" href="#ally.api.criteria.AsLikeOrdered.like" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsLikeOrdered.priority">
+<tt class="descname">priority</tt><em class="property"> = AsLikeOrdered.priority(int)</em><a class="headerlink" href="#ally.api.criteria.AsLikeOrdered.priority" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsOrdered">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsOrdered</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsOrdered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsOrdered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides query for properties that can be ordered.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsOrdered.ascending">
+<tt class="descname">ascending</tt><em class="property"> = AsOrdered.ascending(bool)</em><a class="headerlink" href="#ally.api.criteria.AsOrdered.ascending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.api.criteria.AsOrdered.orderAsc">
+<tt class="descname">orderAsc</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/api/criteria.html#AsOrdered.orderAsc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsOrdered.orderAsc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.api.criteria.AsOrdered.orderDesc">
+<tt class="descname">orderDesc</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/api/criteria.html#AsOrdered.orderDesc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsOrdered.orderDesc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsOrdered.priority">
+<tt class="descname">priority</tt><em class="property"> = AsOrdered.priority(int)</em><a class="headerlink" href="#ally.api.criteria.AsOrdered.priority" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsRange">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsRange</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsRange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides a query for properties that need to be handled as a range.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRange.end">
+<tt class="descname">end</tt><em class="property"> = AsRange.end(str)</em><a class="headerlink" href="#ally.api.criteria.AsRange.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRange.since">
+<tt class="descname">since</tt><em class="property"> = AsRange.since(str)</em><a class="headerlink" href="#ally.api.criteria.AsRange.since" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRange.start">
+<tt class="descname">start</tt><em class="property"> = AsRange.start(str)</em><a class="headerlink" href="#ally.api.criteria.AsRange.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRange.until">
+<tt class="descname">until</tt><em class="property"> = AsRange.until(str)</em><a class="headerlink" href="#ally.api.criteria.AsRange.until" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsRangeOrdered">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsRangeOrdered</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsRangeOrdered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsRangeOrdered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.criteria.AsRange" title="ally.api.criteria.AsRange"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsRange</span></tt></a>, <a class="reference internal" href="#ally.api.criteria.AsOrdered" title="ally.api.criteria.AsOrdered"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsOrdered</span></tt></a></p>
+<p>Provides the equal search and also the ordering.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRangeOrdered.ascending">
+<tt class="descname">ascending</tt><em class="property"> = AsRangeOrdered.ascending(bool)</em><a class="headerlink" href="#ally.api.criteria.AsRangeOrdered.ascending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRangeOrdered.end">
+<tt class="descname">end</tt><em class="property"> = AsRangeOrdered.end(str)</em><a class="headerlink" href="#ally.api.criteria.AsRangeOrdered.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRangeOrdered.priority">
+<tt class="descname">priority</tt><em class="property"> = AsRangeOrdered.priority(int)</em><a class="headerlink" href="#ally.api.criteria.AsRangeOrdered.priority" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRangeOrdered.since">
+<tt class="descname">since</tt><em class="property"> = AsRangeOrdered.since(str)</em><a class="headerlink" href="#ally.api.criteria.AsRangeOrdered.since" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRangeOrdered.start">
+<tt class="descname">start</tt><em class="property"> = AsRangeOrdered.start(str)</em><a class="headerlink" href="#ally.api.criteria.AsRangeOrdered.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsRangeOrdered.until">
+<tt class="descname">until</tt><em class="property"> = AsRangeOrdered.until(str)</em><a class="headerlink" href="#ally.api.criteria.AsRangeOrdered.until" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsTime">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsTime</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides query for properties that can be managed as time.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTime.end">
+<tt class="descname">end</tt><em class="property"> = AsTime.end(time)</em><a class="headerlink" href="#ally.api.criteria.AsTime.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTime.since">
+<tt class="descname">since</tt><em class="property"> = AsTime.since(time)</em><a class="headerlink" href="#ally.api.criteria.AsTime.since" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTime.start">
+<tt class="descname">start</tt><em class="property"> = AsTime.start(time)</em><a class="headerlink" href="#ally.api.criteria.AsTime.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTime.until">
+<tt class="descname">until</tt><em class="property"> = AsTime.until(time)</em><a class="headerlink" href="#ally.api.criteria.AsTime.until" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.criteria.AsTimeOrdered">
+<em class="property">class </em><tt class="descclassname">ally.api.criteria.</tt><tt class="descname">AsTimeOrdered</tt><a class="reference internal" href="_modules/ally/api/criteria.html#AsTimeOrdered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.criteria.AsTimeOrdered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.criteria.AsTime" title="ally.api.criteria.AsTime"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsTime</span></tt></a>, <a class="reference internal" href="#ally.api.criteria.AsOrdered" title="ally.api.criteria.AsOrdered"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.criteria.AsOrdered</span></tt></a></p>
+<p>Provides the time search and also the ordering.</p>
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTimeOrdered.ascending">
+<tt class="descname">ascending</tt><em class="property"> = AsTimeOrdered.ascending(bool)</em><a class="headerlink" href="#ally.api.criteria.AsTimeOrdered.ascending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTimeOrdered.end">
+<tt class="descname">end</tt><em class="property"> = AsTimeOrdered.end(time)</em><a class="headerlink" href="#ally.api.criteria.AsTimeOrdered.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTimeOrdered.priority">
+<tt class="descname">priority</tt><em class="property"> = AsTimeOrdered.priority(int)</em><a class="headerlink" href="#ally.api.criteria.AsTimeOrdered.priority" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTimeOrdered.since">
+<tt class="descname">since</tt><em class="property"> = AsTimeOrdered.since(time)</em><a class="headerlink" href="#ally.api.criteria.AsTimeOrdered.since" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTimeOrdered.start">
+<tt class="descname">start</tt><em class="property"> = AsTimeOrdered.start(time)</em><a class="headerlink" href="#ally.api.criteria.AsTimeOrdered.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.criteria.AsTimeOrdered.until">
+<tt class="descname">until</tt><em class="property"> = AsTimeOrdered.until(time)</em><a class="headerlink" href="#ally.api.criteria.AsTimeOrdered.until" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.api.extension">
+<span id="extension-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">extension</span></tt> Module<a class="headerlink" href="#module-ally.api.extension" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 2, 2012</p>
+<p>&#64;package: ally api
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides standard extended objects.</p>
+<dl class="class">
+<dt id="ally.api.extension.IterPart">
+<em class="property">class </em><tt class="descclassname">ally.api.extension.</tt><tt class="descname">IterPart</tt><big>(</big><em>wrapped</em>, <em>total</em>, <em>offset=None</em>, <em>limit=None</em><big>)</big><a class="reference internal" href="_modules/ally/api/extension.html#IterPart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.extension.IterPart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.Iterable</span></tt></p>
+<p>Provides a wrapping for iterable objects that represent a part of a bigger collection. Basically beside the actual
+items this class objects also contain a total count of the big item collection that this iterable is part of.</p>
+<dl class="attribute">
+<dt id="ally.api.extension.IterPart.limit">
+<tt class="descname">limit</tt><em class="property"> = IterPart.limit(int)</em><a class="headerlink" href="#ally.api.extension.IterPart.limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.extension.IterPart.offset">
+<tt class="descname">offset</tt><em class="property"> = IterPart.offset(int)</em><a class="headerlink" href="#ally.api.extension.IterPart.offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.extension.IterPart.total">
+<tt class="descname">total</tt><em class="property"> = IterPart.total(int)</em><a class="headerlink" href="#ally.api.extension.IterPart.total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.api.model">
+<span id="model-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">model</span></tt> Module<a class="headerlink" href="#module-ally.api.model" title="Permalink to this headline">¶</a></h2>
+<p>Created on Feb 29, 2012</p>
+<p>&#64;package: ally api
+&#64;copyright: 2011 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides standard model objects.</p>
+<dl class="class">
+<dt id="ally.api.model.Content">
+<em class="property">class </em><tt class="descclassname">ally.api.model.</tt><tt class="descname">Content</tt><big>(</big><em>name=None</em>, <em>type=None</em>, <em>charSet=None</em>, <em>length=None</em><big>)</big><a class="reference internal" href="_modules/ally/api/model.html#Content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.model.Content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util_io.IInputStream" title="ally.support.util_io.IInputStream"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util_io.IInputStream</span></tt></a></p>
+<p>Class that provides a bytes content, usually the raw content provided in a request.</p>
+<dl class="attribute">
+<dt id="ally.api.model.Content.charSet">
+<tt class="descname">charSet</tt><a class="headerlink" href="#ally.api.model.Content.charSet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.model.Content.length">
+<tt class="descname">length</tt><a class="headerlink" href="#ally.api.model.Content.length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.model.Content.name">
+<tt class="descname">name</tt><a class="headerlink" href="#ally.api.model.Content.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.api.model.Content.next">
+<tt class="descname">next</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/ally/api/model.html#Content.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.model.Content.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only call this method after the content has been properly processed, it will act also as a close method. If
+there is additional content available this method will return the next Content object otherwise it will return
+None.</p>
+<dl class="docutils">
+<dt>&#64;return: Content|None</dt>
+<dd>The next content or None, if there is no more available.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.model.Content.type">
+<tt class="descname">type</tt><a class="headerlink" href="#ally.api.model.Content.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ally.api.type">
+<span id="type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">type</span></tt> Module<a class="headerlink" href="#module-ally.api.type" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 8, 2011</p>
+<p>&#64;package: ally api
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides the types used for APIs.</p>
+<dl class="class">
+<dt id="ally.api.type.Boolean">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Boolean</tt><a class="reference internal" href="_modules/ally/api/type.html#Boolean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Boolean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a></p>
+<p>Maps the boolean values.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Date">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Date</tt><a class="reference internal" href="_modules/ally/api/type.html#Date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">datetime.date</span></tt></p>
+<p>Maps the date time values.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.DateTime">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">DateTime</tt><a class="reference internal" href="_modules/ally/api/type.html#DateTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.DateTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">datetime.datetime</span></tt></p>
+<p>Maps the date time values.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Input">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Input</tt><big>(</big><em>name</em>, <em>type</em>, <em>hasDefault=False</em>, <em>default=None</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#Input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides an input entry for a call, this is used for keeping the name and also the type of a call parameter.</p>
+<dl class="attribute">
+<dt id="ally.api.type.Input.default">
+<tt class="descname">default</tt><a class="headerlink" href="#ally.api.type.Input.default" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.type.Input.hasDefault">
+<tt class="descname">hasDefault</tt><a class="headerlink" href="#ally.api.type.Input.hasDefault" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.type.Input.name">
+<tt class="descname">name</tt><a class="headerlink" href="#ally.api.type.Input.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.type.Input.type">
+<tt class="descname">type</tt><a class="headerlink" href="#ally.api.type.Input.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Integer">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Integer</tt><a class="reference internal" href="_modules/ally/api/type.html#Integer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Integer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">builtins.int</span></tt></p>
+<p>Maps the integer values.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Iter">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Iter</tt><big>(</big><em>itemType</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#Iter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.type.TypeClass" title="ally.api.type.TypeClass"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.type.TypeClass</span></tt></a></p>
+<p>Maps an iterator of values.
+You need also to specify in the constructor what elements this iterator will contain.
+Since the values in an iterator can only be retrieved once than this type when validating the iterator it will
+not be able to validate also the elements.</p>
+<dl class="method">
+<dt id="ally.api.type.Iter.isOf">
+<tt class="descname">isOf</tt><big>(</big><em>type</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#Iter.isOf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Iter.isOf" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Type.isOf</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.type.Iter.itemType">
+<tt class="descname">itemType</tt><a class="headerlink" href="#ally.api.type.Iter.itemType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.List">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">List</tt><big>(</big><em>itemType</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#List"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.List" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.type.Iter" title="ally.api.type.Iter"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.type.Iter</span></tt></a></p>
+<p>Maps lists of values.
+You need also to specify in the constructor what elements this list will contain.
+Unlike the iterator type the list type also validates the contained elements.</p>
+<dl class="method">
+<dt id="ally.api.type.List.isValid">
+<tt class="descname">isValid</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#List.isValid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.List.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Type.isValid</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Locale">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Locale</tt><a class="reference internal" href="_modules/ally/api/type.html#Locale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Locale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">builtins.str</span></tt></p>
+<p>Maps the type representing the user requested locale for presentation.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Non">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Non</tt><a class="reference internal" href="_modules/ally/api/type.html#Non"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Non" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a></p>
+<p>Maps the None type.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Number">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Number</tt><a class="reference internal" href="_modules/ally/api/type.html#Number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">builtins.float</span></tt></p>
+<p>Maps the numbers, this includes integer and float.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Percentage">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Percentage</tt><a class="reference internal" href="_modules/ally/api/type.html#Percentage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Percentage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">builtins.float</span></tt></p>
+<p>Maps the percentage numbers.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Reference">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Reference</tt><a class="reference internal" href="_modules/ally/api/type.html#Reference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">builtins.str</span></tt></p>
+<p>Maps the type representing the reference path.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Scheme">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Scheme</tt><a class="reference internal" href="_modules/ally/api/type.html#Scheme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Scheme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">builtins.str</span></tt></p>
+<p>Maps the type representing the scheme.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.String">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">String</tt><a class="reference internal" href="_modules/ally/api/type.html#String"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.String" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">builtins.str</span></tt></p>
+<p>Maps the string values.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Time">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Time</tt><a class="reference internal" href="_modules/ally/api/type.html#Time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">datetime.time</span></tt></p>
+<p>Maps the date time values.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Translated">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Translated</tt><a class="reference internal" href="_modules/ally/api/type.html#Translated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Translated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Uninstantiable" title="ally.support.util.Uninstantiable"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Uninstantiable</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">builtins.str</span></tt></p>
+<p>Maps the type representing the translated messages.
+Only used as a class, do not create an instance.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.Type">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">Type</tt><big>(</big><em>isPrimitive=False</em>, <em>isContainable=True</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#Type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The class that represents the API types used for mapping data.</p>
+<dl class="attribute">
+<dt id="ally.api.type.Type.isContainable">
+<tt class="descname">isContainable</tt><a class="headerlink" href="#ally.api.type.Type.isContainable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.api.type.Type.isOf">
+<tt class="descname">isOf</tt><big>(</big><em>type</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#Type.isOf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Type.isOf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the provided type is compatible with this type.</p>
+<dl class="docutils">
+<dt>&#64;param typ: Type|class </dt>
+<dd>The type to check.</dd>
+<dt>&#64;return: boolean</dt>
+<dd>True if the type is of this type, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.api.type.Type.isPrimitive">
+<tt class="descname">isPrimitive</tt><a class="headerlink" href="#ally.api.type.Type.isPrimitive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.api.type.Type.isValid">
+<tt class="descname">isValid</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#Type.isValid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.Type.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the provided object instance is represented by this API type.</p>
+<dl class="docutils">
+<dt>&#64;param obj: object</dt>
+<dd>The object instance to check.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.TypeClass">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">TypeClass</tt><big>(</big><em>clazz</em>, <em>isPrimitive=False</em>, <em>isContainable=True</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#TypeClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ally.api.type.Type" title="ally.api.type.Type"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.type.Type</span></tt></a></p>
+<p>The class that represents the API types used for mapping data.</p>
+<dl class="attribute">
+<dt id="ally.api.type.TypeClass.clazz">
+<tt class="descname">clazz</tt><a class="headerlink" href="#ally.api.type.TypeClass.clazz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ally.api.type.TypeClass.isOf">
+<tt class="descname">isOf</tt><big>(</big><em>type</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#TypeClass.isOf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeClass.isOf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the provided type is compatible with this type.</p>
+<dl class="docutils">
+<dt>&#64;param type: Type|class </dt>
+<dd>The type to check.</dd>
+<dt>&#64;return: boolean</dt>
+<dd>True if the type is of this type, False otherwise.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.api.type.TypeClass.isValid">
+<tt class="descname">isValid</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#TypeClass.isValid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeClass.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the provided object instance is represented by this API type.</p>
+<dl class="docutils">
+<dt>&#64;param obj: object</dt>
+<dd>The object instance to check.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.TypeLocale">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">TypeLocale</tt><a class="reference internal" href="_modules/ally/api/type.html#TypeLocale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeLocale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Singletone" title="ally.support.util.Singletone"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Singletone</span></tt></a>, <a class="reference internal" href="#ally.api.type.TypeClass" title="ally.api.type.TypeClass"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.type.TypeClass</span></tt></a></p>
+<p>Provides the type representing the user requested language for presentation.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.TypeNone">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">TypeNone</tt><a class="reference internal" href="_modules/ally/api/type.html#TypeNone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeNone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Singletone" title="ally.support.util.Singletone"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Singletone</span></tt></a>, <a class="reference internal" href="#ally.api.type.Type" title="ally.api.type.Type"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.type.Type</span></tt></a></p>
+<p>Provides the type that matches None.</p>
+<dl class="method">
+<dt id="ally.api.type.TypeNone.isOf">
+<tt class="descname">isOf</tt><big>(</big><em>type</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#TypeNone.isOf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeNone.isOf" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Type.isOf</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.api.type.TypeNone.isValid">
+<tt class="descname">isValid</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#TypeNone.isValid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeNone.isValid" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: Type.isValid</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.TypePercentage">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">TypePercentage</tt><a class="reference internal" href="_modules/ally/api/type.html#TypePercentage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypePercentage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Singletone" title="ally.support.util.Singletone"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Singletone</span></tt></a>, <a class="reference internal" href="#ally.api.type.TypeClass" title="ally.api.type.TypeClass"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.type.TypeClass</span></tt></a></p>
+<p>Provides the type for percentage values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.TypeReference">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">TypeReference</tt><a class="reference internal" href="_modules/ally/api/type.html#TypeReference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeReference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Singletone" title="ally.support.util.Singletone"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Singletone</span></tt></a>, <a class="reference internal" href="#ally.api.type.TypeClass" title="ally.api.type.TypeClass"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.type.TypeClass</span></tt></a></p>
+<p>Provides the type representing a reference path.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.TypeScheme">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">TypeScheme</tt><a class="reference internal" href="_modules/ally/api/type.html#TypeScheme"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeScheme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Singletone" title="ally.support.util.Singletone"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Singletone</span></tt></a>, <a class="reference internal" href="#ally.api.type.TypeClass" title="ally.api.type.TypeClass"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.type.TypeClass</span></tt></a></p>
+<p>Provides the type representing the used scheme.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.TypeSupport">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">TypeSupport</tt><big>(</big><em>type</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#TypeSupport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeSupport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Class that provides the support for containing types.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.TypeSupportMeta">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">TypeSupportMeta</tt><a class="reference internal" href="_modules/ally/api/type.html#TypeSupportMeta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeSupportMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">abc.ABCMeta</span></tt></p>
+<p>Meta class for type support that allows for instance check base on the &#8216;_ally_type&#8217; attribute.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.api.type.TypeTranslated">
+<em class="property">class </em><tt class="descclassname">ally.api.type.</tt><tt class="descname">TypeTranslated</tt><a class="reference internal" href="_modules/ally/api/type.html#TypeTranslated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.TypeTranslated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.html#ally.support.util.Singletone" title="ally.support.util.Singletone"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.util.Singletone</span></tt></a>, <a class="reference internal" href="#ally.api.type.TypeClass" title="ally.api.type.TypeClass"><tt class="xref py py-class docutils literal"><span class="pre">ally.api.type.TypeClass</span></tt></a></p>
+<p>Provides the string type that contains as a value a message that should be translated.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ally.api.type.typeFor">
+<tt class="descclassname">ally.api.type.</tt><tt class="descname">typeFor</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/ally/api/type.html#typeFor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.api.type.typeFor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Provides the type of the object. The type extraction is performed as follow:</dt>
+<dd><ul class="first last simple">
+<li>if the object is a class then search in the _classType for the associated type, return None if not found.</li>
+<li>in case is not a class then check if the _ally_type attribute exists and provide the type, None otherwise.</li>
+</ul>
+</dd>
+<dt>&#64;param obj: object|class</dt>
+<dd>The class or object to extract the type.</dd>
+<dt>&#64;return: Type|None</dt>
+<dd>The obtained type or None if there is not type.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ally.api.operator.html">operator Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.operator.html#module-ally.api.operator.container"><tt class="docutils literal"><span class="pre">container</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.operator.html#module-ally.api.operator.descriptor"><tt class="docutils literal"><span class="pre">descriptor</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.operator.html#module-ally.api.operator.extract"><tt class="docutils literal"><span class="pre">extract</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.operator.html#module-ally.api.operator.type"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.api.operator.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ally.api.operator.authentication.html">authentication Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ally.api.operator.authentication.html#module-ally.api.operator.authentication.service"><tt class="docutils literal"><span class="pre">service</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ally.api.operator.authentication.html#module-ally.api.operator.authentication.type"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">api Package</a><ul>
+<li><a class="reference internal" href="#module-ally.api.authentication"><tt class="docutils literal"><span class="pre">authentication</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.api.config"><tt class="docutils literal"><span class="pre">config</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.api.criteria"><tt class="docutils literal"><span class="pre">criteria</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.api.extension"><tt class="docutils literal"><span class="pre">extension</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.api.model"><tt class="docutils literal"><span class="pre">model</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.api.type"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.html"
+                        title="previous chapter">ally Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.api.operator.html"
+                        title="next chapter">operator Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.api.operator.html" title="operator Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.html" title="ally Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

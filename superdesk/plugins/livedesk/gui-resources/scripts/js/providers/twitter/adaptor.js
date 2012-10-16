@@ -77,7 +77,7 @@ define('providers/twitter/adaptor', [
             }
         }
     });
-	return providers;
+    return providers;
 });
 
 

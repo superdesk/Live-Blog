@@ -26,7 +26,6 @@ from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
-from ally.support.util_sys import pythonPath
 from ally.support.util_deploy import deploy as deployTool
 
 # --------------------------------------------------------------------
@@ -157,13 +156,13 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
                 return int(s)
 
     def extractString(self, line, separator):
-        str = line.partition(separator)[2].strip()
+        str = line.partition('-')[2].strip('\n').strip()
         return str
 
     def extractDateTime(self, line, separator):
-        #example:' 2010:11:08 18:33:13'
+        #example:'2010:11:08 18:33:13'
         dateTimeFormat = '%Y:%m:%d %H:%M:%S'
-        str = line.partition(separator)[2].strip()
+        str = line.partition('-')[2].strip('\n').strip()
         return datetime.strptime(str, dateTimeFormat)
 
     def extractSize(self, line, separator):
@@ -171,6 +170,8 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         str = str.partition('x')
         return (str[0], str[2])
 
+    def extractSize(self, line):
+        str = line.partition('-')[2].strip('\n').strip()
     # ----------------------------------------------------------------
 
     def generateIdPath (self, id):

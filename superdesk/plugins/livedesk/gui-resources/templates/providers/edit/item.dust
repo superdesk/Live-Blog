@@ -3,7 +3,7 @@
 <li class="wrapup open {?PublishedOn}published{:else}draggable{/PublishedOn}">
    <div class="drag-bar"></div>
    <div class="arrow"></div>
-   <div class="wrapup-content">{Content}</div>
+   <div class="wrapup-content">{Content|s}</div>
   <div class="clear"></div>
 </li>
 {:else}

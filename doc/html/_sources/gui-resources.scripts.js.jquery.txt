@@ -1,0 +1,11 @@
+jquery Package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    gui-resources.scripts.js.jquery.bootstrap
+    gui-resources.scripts.js.jquery.ui
+
