@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spec Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="http Package" href="ally.core.http.html" />
+    <link rel="next" title="transform Package" href="ally.core.http.spec.transform.html" />
+    <link rel="prev" title="server Package" href="ally.core.http.server.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.spec.transform.html" title="transform Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.server.html" title="server Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.http.html" accesskey="U">http Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="spec-package">
+<h1>spec Package<a class="headerlink" href="#spec-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">spec</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-ally.core.http.spec"></span><p>Created on Jun 28, 2011</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains modules describing model classes and specification classes for the server implementation.</p>
+</div>
+<div class="section" id="module-ally.core.http.spec.codes">
+<span id="codes-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">codes</span></tt> Module<a class="headerlink" href="#module-ally.core.http.spec.codes" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 1, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the codes to be used for the HTTP server responses.</p>
+</div>
+<div class="section" id="module-ally.core.http.spec.server">
+<span id="server-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">server</span></tt> Module<a class="headerlink" href="#module-ally.core.http.spec.server" title="Permalink to this headline">¶</a></h2>
+<p>Created on Jun 1, 2012</p>
+<p>&#64;package: ally core http
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Provides HTTP server specification.</p>
+<dl class="class">
+<dt id="ally.core.http.spec.server.IDecoderHeader">
+<em class="property">class </em><tt class="descclassname">ally.core.http.spec.server.</tt><tt class="descname">IDecoderHeader</tt><a class="reference internal" href="_modules/ally/core/http/spec/server.html#IDecoderHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.IDecoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the header retrieve, parsing and decoding.</p>
+<dl class="method">
+<dt id="ally.core.http.spec.server.IDecoderHeader.decode">
+<tt class="descname">decode</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/spec/server.html#IDecoderHeader.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.IDecoderHeader.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the decoded the header value.</p>
+<dl class="docutils">
+<dt>&#64;param name: string</dt>
+<dd>The name of the header to decode.</dd>
+<dt>&#64;return: list[tuple(string, dictionary{string:string})]</dt>
+<dd>A list of tuples having as the first entry the header value and the second entry a dictionary 
+with the value attribute.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ally.core.http.spec.server.IDecoderHeader.retrieve">
+<tt class="descname">retrieve</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/spec/server.html#IDecoderHeader.retrieve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.IDecoderHeader.retrieve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the raw header value.</p>
+<dl class="docutils">
+<dt>&#64;param name: string</dt>
+<dd>The name of the header to retrieve.</dd>
+<dt>&#64;return: string|None</dt>
+<dd>The raw header value or None if there is no such header.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.spec.server.IEncoderHeader">
+<em class="property">class </em><tt class="descclassname">ally.core.http.spec.server.</tt><tt class="descname">IEncoderHeader</tt><a class="reference internal" href="_modules/ally/core/http/spec/server.html#IEncoderHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.IEncoderHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the header encoding.</p>
+<dl class="method">
+<dt id="ally.core.http.spec.server.IEncoderHeader.encode">
+<tt class="descname">encode</tt><big>(</big><em>name</em>, <em>*value</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/spec/server.html#IEncoderHeader.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.IEncoderHeader.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes the header values.
+ex:</p>
+<blockquote>
+<div><p>convert(&#8216;multipart/formdata&#8217;, &#8216;mixed&#8217;) == &#8216;multipart/formdata, mixed&#8217;</p>
+<p>convert((&#8216;multipart/formdata&#8217;, (&#8216;charset&#8217;, &#8216;utf-8&#8217;), (&#8216;boundry&#8217;, &#8216;12))) ==
+&#8216;multipart/formdata; charset=utf-8; boundry=12&#8217;</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>&#64;param name: string</dt>
+<dd>The name of the header to set.</dd>
+<dt>&#64;param value: arguments[tuple(string, tuple(string, string))|string]</dt>
+<dd>Tuples containing as first value found in the header and as the second value a tuple with the
+values attribute.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.spec.server.IEncoderPath">
+<em class="property">class </em><tt class="descclassname">ally.core.http.spec.server.</tt><tt class="descname">IEncoderPath</tt><a class="reference internal" href="_modules/ally/core/http/spec/server.html#IEncoderPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.IEncoderPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the path encoding.</p>
+<dl class="method">
+<dt id="ally.core.http.spec.server.IEncoderPath.encode">
+<tt class="descname">encode</tt><big>(</big><em>path</em>, <em>parameters=None</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/spec/server.html#IEncoderPath.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.IEncoderPath.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes the provided path to a full request path.</p>
+<dl class="docutils">
+<dt>&#64;param path: Path|string</dt>
+<dd>The path to be encoded, for a local REST resource it will be a Path object, also it can be a string that will
+be interpreted as a path.</dd>
+<dt>&#64;param parameters: list</dt>
+<dd>A list of tuples containing on the first position the parameter string name and on the second the string
+parameter value as to be represented in the request path.</dd>
+<dt>&#64;return: object</dt>
+<dd>The full compiled request path, the type depends on the implementation.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.spec.server.RequestContentHTTP">
+<em class="property">class </em><tt class="descclassname">ally.core.http.spec.server.</tt><tt class="descname">RequestContentHTTP</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/spec/server.html#RequestContentHTTP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.RequestContentHTTP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>Context for HTTP request content data.</p>
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.RequestContentHTTP.source">
+<tt class="descname">source</tt><a class="headerlink" href="#ally.core.http.spec.server.RequestContentHTTP.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.spec.server.RequestHTTP">
+<em class="property">class </em><tt class="descclassname">ally.core.http.spec.server.</tt><tt class="descname">RequestHTTP</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/spec/server.html#RequestHTTP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.RequestHTTP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>Context for HTTP request data.</p>
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.RequestHTTP.headers">
+<tt class="descname">headers</tt><a class="headerlink" href="#ally.core.http.spec.server.RequestHTTP.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.RequestHTTP.method">
+<tt class="descname">method</tt><a class="headerlink" href="#ally.core.http.spec.server.RequestHTTP.method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.RequestHTTP.parameters">
+<tt class="descname">parameters</tt><a class="headerlink" href="#ally.core.http.spec.server.RequestHTTP.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.RequestHTTP.scheme">
+<tt class="descname">scheme</tt><a class="headerlink" href="#ally.core.http.spec.server.RequestHTTP.scheme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.RequestHTTP.uri">
+<tt class="descname">uri</tt><a class="headerlink" href="#ally.core.http.spec.server.RequestHTTP.uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.RequestHTTP.uriRoot">
+<tt class="descname">uriRoot</tt><a class="headerlink" href="#ally.core.http.spec.server.RequestHTTP.uriRoot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.spec.server.ResponseContentHTTP">
+<em class="property">class </em><tt class="descclassname">ally.core.http.spec.server.</tt><tt class="descname">ResponseContentHTTP</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/spec/server.html#ResponseContentHTTP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.ResponseContentHTTP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>Context for HTTP response content data.</p>
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.ResponseContentHTTP.source">
+<tt class="descname">source</tt><a class="headerlink" href="#ally.core.http.spec.server.ResponseContentHTTP.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="ally.core.http.spec.server.ResponseHTTP">
+<em class="property">class </em><tt class="descclassname">ally.core.http.spec.server.</tt><tt class="descname">ResponseHTTP</tt><big>(</big><em>**keyargs</em><big>)</big><a class="reference internal" href="_modules/ally/core/http/spec/server.html#ResponseHTTP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ally.core.http.spec.server.ResponseHTTP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.design.html#ally.design.context.Context" title="ally.design.context.Context"><tt class="xref py py-class docutils literal"><span class="pre">ally.design.context.Context</span></tt></a></p>
+<p>Context for HTTP response data.</p>
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.ResponseHTTP.code">
+<tt class="descname">code</tt><a class="headerlink" href="#ally.core.http.spec.server.ResponseHTTP.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.ResponseHTTP.headers">
+<tt class="descname">headers</tt><a class="headerlink" href="#ally.core.http.spec.server.ResponseHTTP.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ally.core.http.spec.server.ResponseHTTP.text">
+<tt class="descname">text</tt><a class="headerlink" href="#ally.core.http.spec.server.ResponseHTTP.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a context attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ally.core.http.spec.transform.html">transform Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.spec.transform.html#id1"><tt class="docutils literal"><span class="pre">transform</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ally.core.http.spec.transform.html#module-ally.core.http.spec.transform.support_model"><tt class="docutils literal"><span class="pre">support_model</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">spec Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">spec</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.spec.codes"><tt class="docutils literal"><span class="pre">codes</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-ally.core.http.spec.server"><tt class="docutils literal"><span class="pre">server</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ally.core.http.server.html"
+                        title="previous chapter">server Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ally.core.http.spec.transform.html"
+                        title="next chapter">transform Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ally.core.http.spec.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.spec.transform.html" title="transform Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ally.core.http.server.html" title="server Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="ally.html" >ally Package</a> &raquo;</li>
+          <li><a href="ally.core.html" >core Package</a> &raquo;</li>
+          <li><a href="ally.core.http.html" >http Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

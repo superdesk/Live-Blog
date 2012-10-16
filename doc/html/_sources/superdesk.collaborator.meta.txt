@@ -1,0 +1,11 @@
+meta Package
+============
+
+:mod:`collaborator` Module
+--------------------------
+
+.. automodule:: superdesk.collaborator.meta.collaborator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

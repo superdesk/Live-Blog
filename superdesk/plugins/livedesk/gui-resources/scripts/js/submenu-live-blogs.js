@@ -29,6 +29,22 @@ define
         },
         render: function()
         {
+            $(this.menu).on('click', '#submenu-liveblogs-archive', function(event)
+            {
+                var self = this;
+                superdesk.showLoader();
+                superdesk.getAction('modules.livedesk.archive')
+                .done(function(action)
+                {
+                    var callback = function()
+                    { 
+                        require([superdesk.apiUrl+action.ScriptPath], function(app){ new app(); });
+                    };
+                    action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                }); 
+                event.preventDefault();
+            });
+            
             $(this.menu).on('click', '#submenu-liveblogs-create', function(event)
             {
                 superdesk.showLoader();

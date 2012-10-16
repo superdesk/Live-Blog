@@ -106,6 +106,7 @@ function(providers, Gizmo, $)
 						links.append(providerLinkView.render().el);
 						contents.append(providerContentView.render().el);
 					}
+                                        $("[rel='tooltip']").tooltip();
 				});
 			}
 		}),
@@ -477,6 +478,7 @@ function(providers, Gizmo, $)
 			 */
 			insert: function(data, view)
 			{
+				/*
 			    var self = this,
 			        post = Gizmo.Auth(new this.collection.model(data)),
 			        syncAction = this.collection.insert(post);
@@ -487,6 +489,15 @@ function(providers, Gizmo, $)
 			        newView.el.insertAfter(view.el);
 			        view.el.remove();
 			    });
+				*/
+				var self = this,
+					post = Gizmo.Auth(new this.collection.model(data))
+				this.collection.insert(post).done(function(){
+					self.addOne(post);				
+				});
+				if(view) {
+					view.el.remove();
+				}				
 			},
 			
 			publish: function(post)
@@ -634,19 +645,23 @@ function(providers, Gizmo, $)
 			    })
 			    .putLive();
 			},
+			textToggleStatus: function()
+			{
+				newText = this.model.get('ClosedOn')? _('Reopen blog'): _('Close blog');
+				$(this.el).find('#toggle-status').text(newText+'');
+			},
 			/*!
              * Toggle ClosedOn field for the blog
              */			
 			toggleStatus: function(e)
 			{
-				var now = new Date(),
+				var self = this, now = new Date(),
 					data = { ClosedOn:  (this.model.get('ClosedOn')? null: now.format('yyyy-mm-dd HH:MM:ss'))},
-					newText = this.model.get('ClosedOn')? _('Close blog'):_('Reopen blog'),
 					content = $(this.el).find('[is-content]');
 				this.model.set(data).sync().done(function() {
-					content.find('.tool-box-top .update-success').removeClass('hide')
+					content.find('.tool-box-top .update-success').removeClass('hide');
 					setTimeout(function(){ content.find('.tool-box-top .update-success').addClass('hide'); }, 5000);
-					$(e.target).html(newText.toString());
+					self.textToggleStatus();
 				})
 				.fail(function() {
 					content.find('.tool-box-top .update-error').removeClass('hide')
@@ -820,7 +835,8 @@ function(providers, Gizmo, $)
 					var intro = $('article#blog-intro', content);
 					!intro.is(':hidden') && intro.fadeOut('fast') && $(this).text('Expand');
 					intro.is(':hidden') && intro.fadeIn('fast') && $(this).text('Collapse');
-				});				
+				});
+				self.textToggleStatus();
 			}
 		});	
 	var editView = new EditView({el: '#area-main'});

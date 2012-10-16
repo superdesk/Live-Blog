@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>internationalization.scanner &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for internationalization.scanner</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Mar 5, 2012</span>
+
+<span class="sd">@package: internationalization</span>
+<span class="sd">@copyright: 2011 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Nistor Gabriel</span>
+
+<span class="sd">The scanner used for extracting the localized text messages.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">admin.introspection.api.component</span> <span class="kn">import</span> <span class="n">IComponentService</span><span class="p">,</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">admin.introspection.api.plugin</span> <span class="kn">import</span> <span class="n">IPluginService</span><span class="p">,</span> <span class="n">Plugin</span>
+<span class="kn">from</span> <span class="nn">ally.container</span> <span class="kn">import</span> <span class="n">wire</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">babel.messages.extract</span> <span class="kn">import</span> <span class="n">extract_nothing</span><span class="p">,</span> <span class="n">extract_python</span><span class="p">,</span> \
+    <span class="n">_strip_comment_tags</span><span class="p">,</span> <span class="n">empty_msgid_warning</span><span class="p">,</span> <span class="n">extract_javascript</span>
+<span class="kn">from</span> <span class="nn">babel.util</span> <span class="kn">import</span> <span class="n">pathmatch</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">internationalization.api.file</span> <span class="kn">import</span> <span class="n">IFileService</span><span class="p">,</span> <span class="n">QFile</span><span class="p">,</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">internationalization.api.message</span> <span class="kn">import</span> <span class="n">IMessageService</span><span class="p">,</span> <span class="n">Message</span>
+<span class="kn">from</span> <span class="nn">internationalization.api.source</span> <span class="kn">import</span> <span class="n">ISourceService</span><span class="p">,</span> <span class="n">TYPES</span><span class="p">,</span> <span class="n">Source</span><span class="p">,</span> \
+    <span class="n">QSource</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span><span class="p">,</span> <span class="n">TextIOWrapper</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZipFile</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">METHOD_MAP</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;**.py&#39;</span><span class="p">,</span> <span class="s">&#39;python&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;**.js&#39;</span><span class="p">,</span> <span class="s">&#39;javascript&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;**.html&#39;</span><span class="p">,</span> <span class="s">&#39;javascript&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;**.dust&#39;</span><span class="p">,</span> <span class="s">&#39;javascript&#39;</span><span class="p">)]</span>
+<span class="c"># A list of ``(pattern, method)`` tuples that maps of extraction method names to extended global patterns</span>
+<span class="n">METHOD_EXTRACTOR</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;ignore&#39;</span><span class="p">:</span> <span class="n">extract_nothing</span><span class="p">,</span> <span class="s">&#39;python&#39;</span><span class="p">:</span> <span class="n">extract_python</span><span class="p">,</span> <span class="s">&#39;javascript&#39;</span><span class="p">:</span> <span class="n">extract_javascript</span><span class="p">}</span>
+<span class="c"># The modethod extractors to be used.</span>
+
+<span class="n">KEYWORDS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;gettext&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&#39;_&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&#39;ngettext&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s">&#39;pgettext&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s">&#39;C_&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s">&#39;npgettext&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="s">&#39;N_&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&#39;NC_&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">}</span>
+<span class="c"># A dictionary mapping keywords (i.e. names of functions that should be recognized as translation functions) to tuples</span>
+<span class="c"># that specify which of their arguments contain localizable strings</span>
+
+<span class="n">COMMENT_TAGS</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;NOTE&#39;</span><span class="p">)</span>
+<span class="c"># A list of tags of translator comments to search for and include in the results</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="nd">@injected</span>
+<div class="viewcode-block" id="Scanner"><a class="viewcode-back" href="../../internationalization.html#internationalization.scanner.Scanner">[docs]</a><span class="k">class</span> <span class="nc">Scanner</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The class that provides the scanner.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">componentService</span> <span class="o">=</span> <span class="n">IComponentService</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;componentService&#39;</span><span class="p">)</span>
+    <span class="n">pluginService</span> <span class="o">=</span> <span class="n">IPluginService</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;pluginService&#39;</span><span class="p">)</span>
+    <span class="n">fileService</span> <span class="o">=</span> <span class="n">IFileService</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;fileService&#39;</span><span class="p">)</span>
+    <span class="n">sourceService</span> <span class="o">=</span> <span class="n">ISourceService</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;sourceService&#39;</span><span class="p">)</span>
+    <span class="n">messageService</span> <span class="o">=</span> <span class="n">IMessageService</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;messageService&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the scanner.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">componentService</span><span class="p">,</span> <span class="n">IComponentService</span><span class="p">),</span> \
+        <span class="s">&#39;Invalid component service </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">componentService</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pluginService</span><span class="p">,</span> <span class="n">IPluginService</span><span class="p">),</span> <span class="s">&#39;Invalid plugin service </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">pluginService</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="p">,</span> <span class="n">IFileService</span><span class="p">),</span> <span class="s">&#39;Invalid file service </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sourceService</span><span class="p">,</span> <span class="n">ISourceService</span><span class="p">),</span> <span class="s">&#39;Invalid source service </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">sourceService</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">messageService</span><span class="p">,</span> <span class="n">IMessageService</span><span class="p">),</span> <span class="s">&#39;Invalid message service </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">messageService</span>
+
+<div class="viewcode-block" id="Scanner.scanComponents"><a class="viewcode-back" href="../../internationalization.html#internationalization.scanner.Scanner.scanComponents">[docs]</a>    <span class="k">def</span> <span class="nf">scanComponents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Scan the current application components for the localized text messages.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">componentService</span><span class="o">.</span><span class="n">getComponents</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">Component</span><span class="p">)</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="p">{</span><span class="nb">file</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span> <span class="nb">file</span> <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="o">.</span><span class="n">getAll</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">QFile</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="o">.</span><span class="n">Id</span><span class="p">))}</span>
+            <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">InEgg</span><span class="p">:</span>
+                <span class="n">lastModified</span> <span class="o">=</span> <span class="n">modificationTimeFor</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+                <span class="nb">file</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">file</span> <span class="ow">and</span> <span class="n">lastModified</span> <span class="o">&lt;=</span> <span class="nb">file</span><span class="o">.</span><span class="n">LastModified</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;No modifications for component zip file &quot;</span><span class="si">%s</span><span class="s">&quot; in </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">file</span><span class="p">:</span>
+                    <span class="nb">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">()</span>
+                    <span class="nb">file</span><span class="o">.</span><span class="n">Component</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">Id</span>
+                    <span class="nb">file</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">Path</span>
+                    <span class="nb">file</span><span class="o">.</span><span class="n">LastModified</span> <span class="o">=</span> <span class="n">lastModified</span>
+                    <span class="n">files</span><span class="p">[</span><span class="n">component</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="nb">file</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">file</span><span class="o">.</span><span class="n">LastModified</span> <span class="o">=</span> <span class="n">lastModified</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+                <span class="n">scanner</span> <span class="o">=</span> <span class="n">scanZip</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lastModified</span><span class="p">,</span> <span class="n">scanner</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">scanFolder</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+
+            <span class="n">files</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">source</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span> <span class="n">source</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sourceService</span><span class="o">.</span><span class="n">getAll</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">QSource</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="o">.</span><span class="n">Id</span><span class="p">))})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_persist</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">scanner</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">lastModified</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">Id</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Scanner.scanPlugins"><a class="viewcode-back" href="../../internationalization.html#internationalization.scanner.Scanner.scanPlugins">[docs]</a>    <span class="k">def</span> <span class="nf">scanPlugins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Scan the current application plugins for the localized text messages.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pluginService</span><span class="o">.</span><span class="n">getPlugins</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="n">Plugin</span><span class="p">)</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="p">{</span><span class="nb">file</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span> <span class="nb">file</span> <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="o">.</span><span class="n">getAll</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">QFile</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span><span class="n">plugin</span><span class="o">.</span><span class="n">Id</span><span class="p">))}</span>
+            <span class="k">if</span> <span class="n">plugin</span><span class="o">.</span><span class="n">InEgg</span><span class="p">:</span>
+                <span class="n">lastModified</span> <span class="o">=</span> <span class="n">modificationTimeFor</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+                <span class="nb">file</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">file</span> <span class="ow">and</span> <span class="n">lastModified</span> <span class="o">&lt;=</span> <span class="nb">file</span><span class="o">.</span><span class="n">LastModified</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;No modifications for plugin zip file &quot;</span><span class="si">%s</span><span class="s">&quot; in </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">plugin</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">plugin</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">file</span><span class="p">:</span>
+                    <span class="nb">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">()</span>
+                    <span class="nb">file</span><span class="o">.</span><span class="n">Plugin</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">Id</span>
+                    <span class="nb">file</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">Path</span>
+                    <span class="nb">file</span><span class="o">.</span><span class="n">LastModified</span> <span class="o">=</span> <span class="n">lastModified</span>
+                    <span class="n">files</span><span class="p">[</span><span class="n">plugin</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="nb">file</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">file</span><span class="o">.</span><span class="n">LastModified</span> <span class="o">=</span> <span class="n">lastModified</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+                <span class="n">scanner</span> <span class="o">=</span> <span class="n">scanZip</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lastModified</span><span class="p">,</span> <span class="n">scanner</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">scanFolder</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">Path</span><span class="p">)</span>
+
+
+            <span class="n">files</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">source</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span> <span class="n">source</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sourceService</span><span class="o">.</span><span class="n">getAll</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">QSource</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span><span class="n">plugin</span><span class="o">.</span><span class="n">Id</span><span class="p">))})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_persist</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">scanner</span><span class="p">,</span> <span class="n">plugin</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">lastModified</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">plugin</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+    <span class="k">def</span> <span class="nf">_persist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">,</span> <span class="n">scanner</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">lastModified</span><span class="p">,</span> <span class="n">componentId</span><span class="p">,</span> <span class="n">pluginId</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Persist the sources and messages. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s">&#39;Invalid files </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">files</span>
+        <span class="n">processModified</span> <span class="o">=</span> <span class="n">lastModified</span> <span class="ow">is</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">extractor</span> <span class="ow">in</span> <span class="n">scanner</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">TYPES</span><span class="p">,</span> <span class="s">&#39;Invalid method </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">method</span>
+
+            <span class="nb">file</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">processModified</span><span class="p">:</span>
+                <span class="n">lastModified</span> <span class="o">=</span> <span class="n">modificationTimeFor</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">file</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">File</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">lastModified</span> <span class="o">&lt;=</span> <span class="nb">file</span><span class="o">.</span><span class="n">LastModified</span><span class="p">:</span>
+                        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;No modifications for file &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span><span class="p">,</span> <span class="n">filePath</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="nb">file</span><span class="o">.</span><span class="n">LastModified</span> <span class="o">=</span> <span class="n">lastModified</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">Source</span><span class="p">):</span> <span class="n">source</span> <span class="o">=</span> <span class="nb">file</span>
+            <span class="k">else</span><span class="p">:</span> <span class="n">source</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">messages</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">comments</span> <span class="ow">in</span> <span class="n">extractor</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">file</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+                        <span class="n">source</span> <span class="o">=</span> <span class="n">Source</span><span class="p">()</span>
+                        <span class="n">source</span><span class="o">.</span><span class="n">Component</span> <span class="o">=</span> <span class="n">componentId</span>
+                        <span class="n">source</span><span class="o">.</span><span class="n">Plugin</span> <span class="o">=</span> <span class="n">pluginId</span>
+                        <span class="n">source</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">filePath</span>
+                        <span class="n">source</span><span class="o">.</span><span class="n">Type</span> <span class="o">=</span> <span class="n">method</span>
+                        <span class="n">source</span><span class="o">.</span><span class="n">LastModified</span> <span class="o">=</span> <span class="n">lastModified</span>
+                        <span class="n">files</span><span class="p">[</span><span class="n">filePath</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sourceService</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">messages</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">messages</span> <span class="o">=</span> <span class="p">{</span><span class="n">msg</span><span class="o">.</span><span class="n">Singular</span><span class="p">:</span><span class="n">msg</span> <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">messageService</span><span class="o">.</span><span class="n">getMessages</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">Id</span><span class="p">)}</span>
+
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span> <span class="n">singular</span><span class="p">,</span> <span class="n">plurals</span> <span class="o">=</span> <span class="n">text</span><span class="p">,</span> <span class="bp">None</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">singular</span><span class="p">,</span> <span class="n">plurals</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">None</span>
+                    <span class="k">else</span><span class="p">:</span> <span class="n">singular</span><span class="p">,</span> <span class="n">plurals</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+                    <span class="n">msg</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">singular</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">msg</span><span class="p">:</span>
+                        <span class="n">msg</span> <span class="o">=</span> <span class="n">Message</span><span class="p">()</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">Source</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">Id</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">Singular</span> <span class="o">=</span> <span class="n">singular</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">Plural</span> <span class="o">=</span> <span class="n">plurals</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">context</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">LineNumber</span> <span class="o">=</span> <span class="n">lineno</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">Comments</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">comments</span><span class="p">)</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">messageService</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                        <span class="n">messages</span><span class="p">[</span><span class="n">singular</span><span class="p">]</span> <span class="o">=</span> <span class="n">msg</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">Plural</span> <span class="o">=</span> <span class="n">plurals</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">context</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">LineNumber</span> <span class="o">=</span> <span class="n">lineno</span>
+                        <span class="n">msg</span><span class="o">.</span><span class="n">Comments</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">comments</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">messageService</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">UnicodeDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+            <span class="k">if</span> <span class="n">processModified</span> <span class="ow">and</span> <span class="n">filePath</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="nb">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">()</span>
+                <span class="nb">file</span><span class="o">.</span><span class="n">Component</span> <span class="o">=</span> <span class="n">componentId</span>
+                <span class="nb">file</span><span class="o">.</span><span class="n">Plugin</span> <span class="o">=</span> <span class="n">pluginId</span>
+                <span class="nb">file</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">filePath</span>
+                <span class="nb">file</span><span class="o">.</span><span class="n">LastModified</span> <span class="o">=</span> <span class="n">lastModified</span>
+                <span class="n">files</span><span class="p">[</span><span class="n">filePath</span><span class="p">]</span> <span class="o">=</span> <span class="nb">file</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fileService</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="n">modificationTimeFor</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">path</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">microsecond</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c"># Provides the last update time for the provided full path.</span>
+
+<div class="viewcode-block" id="scanZip"><a class="viewcode-back" href="../../internationalization.html#internationalization.scanner.scanZip">[docs]</a><span class="k">def</span> <span class="nf">scanZip</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Scan a zip that is found on the provided path.</span>
+<span class="sd">    </span>
+<span class="sd">    @param zipFilePath: string</span>
+<span class="sd">        The zip path.</span>
+<span class="sd">    @return: tuple(string, string, generator)</span>
+<span class="sd">        Returns a tuple containing: (filePath, method, generator(@see: process))</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">zipFile</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">zipFilePath</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
+    <span class="n">names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">METHOD_MAP</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pathmatch</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+                <span class="n">filePath</span> <span class="o">=</span> <span class="n">zipFilePath</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span>
+                <span class="k">def</span> <span class="nf">openZip</span><span class="p">():</span>
+                    <span class="k">with</span> <span class="n">zipFile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                <span class="k">yield</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">process</span><span class="p">(</span><span class="n">openZip</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="scanFolder"><a class="viewcode-back" href="../../internationalization.html#internationalization.scanner.scanFolder">[docs]</a><span class="k">def</span> <span class="nf">scanFolder</span><span class="p">(</span><span class="n">folderPath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Scan a folder that is found on the provided path.</span>
+<span class="sd">    </span>
+<span class="sd">    @param folderPath: string</span>
+<span class="sd">        The folder path.</span>
+<span class="sd">    @return: tuple(string, string, generator)</span>
+<span class="sd">        Returns a tuple containing: (filePath, method, generator(@see: process))</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">folderPath</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid folder path </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">folderPath</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">_dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">folderPath</span><span class="p">):</span>
+        <span class="n">filenames</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">METHOD_MAP</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pathmatch</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+                    <span class="n">filePath</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">process</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="nb">open</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">),</span> <span class="n">method</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="process"><a class="viewcode-back" href="../../internationalization.html#internationalization.scanner.process">[docs]</a><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">openFile</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Process the content of the file generated by the openFile.</span>
+<span class="sd">    </span>
+<span class="sd">    @param openFile: callable</span>
+<span class="sd">        The open file function.</span>
+<span class="sd">    @param method: string</span>
+<span class="sd">        The method used for processing the file.</span>
+<span class="sd">    @param message: string|list[string]|tuple(string)</span>
+<span class="sd">        The message to be processed.</span>
+<span class="sd">    @return: tuple(string|tuple(string), string, integer, string)</span>
+<span class="sd">        Returns a tuple containing: (message, context, lineno, comments)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">openFile</span><span class="p">),</span> <span class="s">&#39;Invalid open file function </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">openFile</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid method </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">method</span>
+
+    <span class="k">with</span> <span class="n">openFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">fileObj</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">comments</span> <span class="ow">in</span> <span class="n">extract</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">TextIOWrapper</span><span class="p">(</span><span class="n">fileObj</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;UTF-8&#39;</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">fname</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;pgettext&#39;</span><span class="p">,</span> <span class="s">&#39;C_&#39;</span><span class="p">,</span> <span class="s">&#39;NC_&#39;</span><span class="p">):</span> <span class="n">cntxt</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+            <span class="k">elif</span> <span class="n">fname</span> <span class="o">==</span> <span class="s">&#39;npgettext&#39;</span><span class="p">:</span> <span class="n">cntxt</span><span class="p">,</span> <span class="o">*</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+            <span class="k">else</span><span class="p">:</span> <span class="n">cntxt</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="k">assert</span> <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">) #</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">cntxt</span><span class="p">,</span> <span class="n">comments</span><span class="p">))</span> <span class="ow">or</span> <span class="bp">True</span>
+            <span class="k">yield</span> <span class="n">message</span><span class="p">,</span> <span class="n">cntxt</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">comments</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="extract"><a class="viewcode-back" href="../../internationalization.html#internationalization.scanner.extract">[docs]</a><span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">fileobj</span><span class="p">,</span> <span class="n">keywords</span><span class="o">=</span><span class="n">KEYWORDS</span><span class="p">,</span> <span class="n">comment_tags</span><span class="o">=</span><span class="n">COMMENT_TAGS</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">strip_comment_tags</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Extracted from @see: babel.messages.extract in order to get also the function name and additional messages.</span>
+<span class="sd">    Extract messages from the given file-like object using the specified</span>
+<span class="sd">    extraction method.</span>
+
+<span class="sd">    This function returns a list of tuples of the form:</span>
+
+<span class="sd">        ``(funcname, lineno, messages, comments)``</span>
+
+<span class="sd">    @see: babel.messages.extract.extract</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="s">&#39;:&#39;</span> <span class="ow">in</span> <span class="n">method</span> <span class="ow">or</span> <span class="s">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">method</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&#39;:&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">method</span><span class="p">:</span>
+            <span class="n">lastdot</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+            <span class="n">module</span><span class="p">,</span> <span class="n">attrname</span> <span class="o">=</span> <span class="n">method</span><span class="p">[:</span><span class="n">lastdot</span><span class="p">],</span> <span class="n">method</span><span class="p">[</span><span class="n">lastdot</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">module</span><span class="p">,</span> <span class="n">attrname</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">__import__</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">[</span><span class="n">attrname</span><span class="p">]),</span> <span class="n">attrname</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">METHOD_EXTRACTOR</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Unknown extraction method </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">method</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">keywords</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">comment_tags</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span> <span class="ow">or</span> <span class="p">{})</span>
+
+    <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">funcname</span><span class="p">,</span> <span class="n">messages</span><span class="p">,</span> <span class="n">comments</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">funcname</span><span class="p">:</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">keywords</span><span class="p">[</span><span class="n">funcname</span><span class="p">]</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span> <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">messages</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">messages</span><span class="p">:</span> <span class="k">continue</span>
+
+        <span class="c"># Validate the messages against the keyword&#39;s specification</span>
+        <span class="n">msgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">invalid</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="c"># last_index is 1 based like the keyword spec</span>
+        <span class="n">last_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">last_index</span> <span class="o">&lt;</span> <span class="n">index</span><span class="p">:</span>
+                <span class="c"># Not enough arguments</span>
+                <span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">invalid</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+            <span class="n">msgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">first_msg_index</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">messages</span><span class="p">[</span><span class="n">first_msg_index</span><span class="p">]:</span>
+            <span class="c"># An empty string msgid isn&#39;t valid, emit a warning</span>
+            <span class="n">where</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">:</span><span class="si">%i</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fileobj</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s">&#39;(unknown)&#39;</span><span class="p">,</span> <span class="n">lineno</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">empty_msgid_warning</span> <span class="o">%</span> <span class="n">where</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">messages</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">msgs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">strip_comment_tags</span><span class="p">:</span> <span class="n">_strip_comment_tags</span><span class="p">(</span><span class="n">comments</span><span class="p">,</span> <span class="n">comment_tags</span><span class="p">)</span>
+
+        <span class="k">yield</span> <span class="n">funcname</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">messages</span><span class="p">,</span> <span class="n">comments</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
