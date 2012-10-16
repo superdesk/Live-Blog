@@ -25,10 +25,9 @@ class ICDM(metaclass=abc.ABCMeta):
         Publish content from a file.
 
         @param path: string
-                The path of the content item. This is a unique
-                     identifier of the item.
+            The path of the content item. This is a unique identifier of the item.
         @param filePath: string or file object
-                The path of the file on the file system or a readable file object
+            The path of the file on the file system or a readable file object
         '''
 
     @abc.abstractmethod
@@ -37,10 +36,9 @@ class ICDM(metaclass=abc.ABCMeta):
         Publish content from a file.
 
         @param path: string
-                The path of the content item. This is a unique
-                     identifier of the item.
+            The path of the content item. This is a unique identifier of the item.
         @param dirPath: string
-                The path of the directory on the file system
+            The path of the directory on the file system.
         '''
 
     @abc.abstractmethod
@@ -49,10 +47,9 @@ class ICDM(metaclass=abc.ABCMeta):
         Publish content from a string.
 
         @param path: string
-                The path of the content item. This is a unique
-                     identifier of the item.
+            The path of the content item. This is a unique identifier of the item.
         @param content: input stream
-                The content as input stream
+            The content as input stream
         '''
 
     @abc.abstractmethod
@@ -61,10 +58,9 @@ class ICDM(metaclass=abc.ABCMeta):
         Re-publish an existing path under a new path.
 
         @param oldPath: string
-                The path of the existing item. This is a unique
-                     identifier of the item.
+            The path of the existing item. This is a unique identifier of the item.
         @param newPath: string
-                The new path under which the item will be published.
+            The new path under which the item will be published.
         '''
 
     @abc.abstractmethod
@@ -73,8 +69,7 @@ class ICDM(metaclass=abc.ABCMeta):
         Remove the given path from the repository.
 
         @param path: string
-                The path of the content item. This is a unique
-                     identifier of the item.
+            The path of the content item. This is a unique identifier of the item.
         '''
 
     @abc.abstractmethod
