@@ -4,6 +4,7 @@
 		{Id}
 	</td>
 	<td>{FirstName}</td>
+	<td>{LastName}</td>
 	<td>{Name}</td>
 	<td>{EMail}</td>
 	<td>    

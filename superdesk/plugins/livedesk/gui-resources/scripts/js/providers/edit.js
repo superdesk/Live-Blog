@@ -9,6 +9,7 @@ define('providers/edit', [
 	'gizmo/superdesk',	
 	config.guiJs('livedesk', 'models/posttype'),
 	config.guiJs('livedesk', 'models/post'),
+    config.guiJs('media-archive', 'upload'),
     'jquery/utils',
     'jquery/rest',
     'jquery/superdesk',
@@ -18,7 +19,7 @@ define('providers/edit', [
     'jqueryui/texteditor',
     'tmpl!livedesk>providers/edit',
     'tmpl!livedesk>providers/edit/item',
-], function( providers, $, Gizmo, PostType, Post ) {
+], function( providers, $, Gizmo, PostType, Post, uploadCom ) {
 	var OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
 			this.desynced = false;
@@ -191,12 +192,18 @@ define('providers/edit', [
 						});
 					}
 				};
-				self.el.find('.edit-block article.editable').texteditor({ plugins: 
-				{
-					floatingToolbar: null, 
-					draggableToolbar: null, 
-					fixedToolbar: fixedToolbar
-				}});
+				var editControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, { image : uploadCom.texteditor });
+				self.el.find('.edit-block article.editable').texteditor
+				({ 
+				    imageDefaultWidth: null,
+				    plugins: 
+    				{
+    				    controls: editControls,
+    					floatingToolbar: null, 
+    					draggableToolbar: null, 
+    					fixedToolbar: fixedToolbar
+    				}
+				});
 				var posts = Gizmo.Auth(new OwnCollection(
 						self.theBlog+ '/Post/Owned?asc=createdOn', 
 						Gizmo.Register.Post,
