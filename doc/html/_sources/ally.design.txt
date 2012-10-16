@@ -1,0 +1,27 @@
+design Package
+==============
+
+:mod:`bean` Module
+------------------
+
+.. automodule:: ally.design.bean
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`context` Module
+---------------------
+
+.. automodule:: ally.design.context
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`processor` Module
+-----------------------
+
+.. automodule:: ally.design.processor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

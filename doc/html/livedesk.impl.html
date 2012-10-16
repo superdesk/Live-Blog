@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>impl Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="livedesk Package" href="livedesk.html" />
+    <link rel="next" title="meta Package" href="livedesk.meta.html" />
+    <link rel="prev" title="api Package" href="livedesk.api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="livedesk.meta.html" title="meta Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="livedesk.api.html" title="api Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="livedesk.html" accesskey="U">livedesk Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="impl-package">
+<h1>impl Package<a class="headerlink" href="#impl-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-livedesk.impl.blog">
+<span id="blog-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog</span></tt> Module<a class="headerlink" href="#module-livedesk.impl.blog" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy meta for blog API.</p>
+<dl class="class">
+<dt id="livedesk.impl.blog.BlogServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">livedesk.impl.blog.</tt><tt class="descname">BlogServiceAlchemy</tt><a class="reference internal" href="_modules/livedesk/impl/blog.html#BlogServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog.BlogServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.entity.EntityCRUDServiceAlchemy" title="sql_alchemy.impl.entity.EntityCRUDServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityCRUDServiceAlchemy</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog.IBlogService" title="livedesk.api.blog.IBlogService"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog.IBlogService</span></tt></a></p>
+<p>Implementation for &#64;see: IBlogService</p>
+<dl class="method">
+<dt id="livedesk.impl.blog.BlogServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>languageId=None</em>, <em>adminId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog.html#BlogServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog.BlogServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogService.getAll</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog.BlogServiceAlchemy.getBlog">
+<tt class="descname">getBlog</tt><big>(</big><em>blogId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog.html#BlogServiceAlchemy.getBlog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog.BlogServiceAlchemy.getBlog" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogService.getBlog</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog.BlogServiceAlchemy.getLive">
+<tt class="descname">getLive</tt><big>(</big><em>languageId=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog.html#BlogServiceAlchemy.getLive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog.BlogServiceAlchemy.getLive" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogService.getLive</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog.BlogServiceAlchemy.getLiveWhereAdmin">
+<tt class="descname">getLiveWhereAdmin</tt><big>(</big><em>adminId</em>, <em>languageId=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog.html#BlogServiceAlchemy.getLiveWhereAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog.BlogServiceAlchemy.getLiveWhereAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogService.getLiveWhereAdmin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog.BlogServiceAlchemy.insert">
+<tt class="descname">insert</tt><big>(</big><em>blog</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog.html#BlogServiceAlchemy.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog.BlogServiceAlchemy.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogService.insert</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.impl.blog_admin">
+<span id="blog-admin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_admin</span></tt> Module<a class="headerlink" href="#module-livedesk.impl.blog_admin" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy meta for blog administrators API.</p>
+<dl class="class">
+<dt id="livedesk.impl.blog_admin.BlogAdminServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">livedesk.impl.blog_admin.</tt><tt class="descname">BlogAdminServiceAlchemy</tt><a class="reference internal" href="_modules/livedesk/impl/blog_admin.html#BlogAdminServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_admin.BlogAdminServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.sqlalchemy.html#ally.support.sqlalchemy.session.SessionSupport" title="ally.support.sqlalchemy.session.SessionSupport"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.session.SessionSupport</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_admin.IBlogAdminService" title="livedesk.api.blog_admin.IBlogAdminService"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_admin.IBlogAdminService</span></tt></a></p>
+<p>Implementation for &#64;see: IBlogAdminService</p>
+<dl class="method">
+<dt id="livedesk.impl.blog_admin.BlogAdminServiceAlchemy.addAdmin">
+<tt class="descname">addAdmin</tt><big>(</big><em>blogId</em>, <em>userId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_admin.html#BlogAdminServiceAlchemy.addAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_admin.BlogAdminServiceAlchemy.addAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogAdminService.addAdmin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_admin.BlogAdminServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>blogId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_admin.html#BlogAdminServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_admin.BlogAdminServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogAdminService.getAll</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_admin.BlogAdminServiceAlchemy.getById">
+<tt class="descname">getById</tt><big>(</big><em>blogId</em>, <em>userId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_admin.html#BlogAdminServiceAlchemy.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_admin.BlogAdminServiceAlchemy.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogAdminService.getById</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_admin.BlogAdminServiceAlchemy.removeAdmin">
+<tt class="descname">removeAdmin</tt><big>(</big><em>blogId</em>, <em>userId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_admin.html#BlogAdminServiceAlchemy.removeAdmin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_admin.BlogAdminServiceAlchemy.removeAdmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogAdminService.removeAdmin</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.impl.blog_collaborator">
+<span id="blog-collaborator-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_collaborator</span></tt> Module<a class="headerlink" href="#module-livedesk.impl.blog_collaborator" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy meta for blog collaborator API.</p>
+<dl class="class">
+<dt id="livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">livedesk.impl.blog_collaborator.</tt><tt class="descname">BlogCollaboratorServiceAlchemy</tt><a class="reference internal" href="_modules/livedesk/impl/blog_collaborator.html#BlogCollaboratorServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.sqlalchemy.html#ally.support.sqlalchemy.session.SessionSupport" title="ally.support.sqlalchemy.session.SessionSupport"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.session.SessionSupport</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_collaborator.IBlogCollaboratorService" title="livedesk.api.blog_collaborator.IBlogCollaboratorService"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_collaborator.IBlogCollaboratorService</span></tt></a></p>
+<p>Implementation for &#64;see: IBlogCollaboratorService</p>
+<dl class="method">
+<dt id="livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy.addCollaborator">
+<tt class="descname">addCollaborator</tt><big>(</big><em>blogId</em>, <em>collaboratorId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_collaborator.html#BlogCollaboratorServiceAlchemy.addCollaborator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy.addCollaborator" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogCollaboratorService.addCollaborator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>blogId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_collaborator.html#BlogCollaboratorServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogCollaboratorService.getAll</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy.getById">
+<tt class="descname">getById</tt><big>(</big><em>blogId</em>, <em>collaboratorId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_collaborator.html#BlogCollaboratorServiceAlchemy.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogCollaboratorService.getById</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy.removeCollaborator">
+<tt class="descname">removeCollaborator</tt><big>(</big><em>blogId</em>, <em>collaboratorId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_collaborator.html#BlogCollaboratorServiceAlchemy.removeCollaborator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_collaborator.BlogCollaboratorServiceAlchemy.removeCollaborator" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogCollaboratorService.removeCollaborator</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.impl.blog_post">
+<span id="blog-post-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_post</span></tt> Module<a class="headerlink" href="#module-livedesk.impl.blog_post" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy meta for livedesk blog posts API.</p>
+<dl class="class">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">livedesk.impl.blog_post.</tt><tt class="descname">BlogPostServiceAlchemy</tt><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.sqlalchemy.html#ally.support.sqlalchemy.session.SessionSupport" title="ally.support.sqlalchemy.session.SessionSupport"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.session.SessionSupport</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_post.IBlogPostService" title="livedesk.api.blog_post.IBlogPostService"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_post.IBlogPostService</span></tt></a></p>
+<p>Implementation for &#64;see: IBlogPostService</p>
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.delete">
+<tt class="descname">delete</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.delete</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>blogId</em>, <em>typeId=None</em>, <em>creatorId=None</em>, <em>authorId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.getAll</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.getById">
+<tt class="descname">getById</tt><big>(</big><em>blogId</em>, <em>postId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.getById</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.getOwned">
+<tt class="descname">getOwned</tt><big>(</big><em>blogId</em>, <em>creatorId</em>, <em>typeId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.getOwned"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.getOwned" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.getOwned</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.getPublished">
+<tt class="descname">getPublished</tt><big>(</big><em>blogId</em>, <em>typeId=None</em>, <em>creatorId=None</em>, <em>authorId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.getPublished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.getPublished" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.getPublished</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.getUnpublished">
+<tt class="descname">getUnpublished</tt><big>(</big><em>blogId</em>, <em>typeId=None</em>, <em>creatorId=None</em>, <em>authorId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.getUnpublished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.getUnpublished" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.getUnpublished</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.insert">
+<tt class="descname">insert</tt><big>(</big><em>blogId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.insert</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.insertAndPublish">
+<tt class="descname">insertAndPublish</tt><big>(</big><em>blogId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.insertAndPublish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.insertAndPublish" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.insertAndPublish</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.postService">
+<tt class="descname">postService</tt><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.postService" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IPostService</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.publish">
+<tt class="descname">publish</tt><big>(</big><em>blogId</em>, <em>postId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.publish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.publish</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.reorder">
+<tt class="descname">reorder</tt><big>(</big><em>blogId</em>, <em>postId</em>, <em>refPostId</em>, <em>before=True</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.reorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.reorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.reorder</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_post.BlogPostServiceAlchemy.update">
+<tt class="descname">update</tt><big>(</big><em>blogId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_post.html#BlogPostServiceAlchemy.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_post.BlogPostServiceAlchemy.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.update</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.impl.blog_type">
+<span id="blog-type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_type</span></tt> Module<a class="headerlink" href="#module-livedesk.impl.blog_type" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 30, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mugur Rus</p>
+<p>Contains the implementation of the blog type API.</p>
+<dl class="class">
+<dt id="livedesk.impl.blog_type.BlogTypeServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">livedesk.impl.blog_type.</tt><tt class="descname">BlogTypeServiceAlchemy</tt><a class="reference internal" href="_modules/livedesk/impl/blog_type.html#BlogTypeServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_type.BlogTypeServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.entity.EntityServiceAlchemy" title="sql_alchemy.impl.entity.EntityServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityServiceAlchemy</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_type.IBlogTypeService" title="livedesk.api.blog_type.IBlogTypeService"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_type.IBlogTypeService</span></tt></a></p>
+<p>Implementation for &#64;see: IBlogTypeService</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.impl.blog_type_post">
+<span id="blog-type-post-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_type_post</span></tt> Module<a class="headerlink" href="#module-livedesk.impl.blog_type_post" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 30, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mugur Rus</p>
+<p>Contains the implementation of the blog type post API.</p>
+<dl class="class">
+<dt id="livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy">
+<em class="property">class </em><tt class="descclassname">livedesk.impl.blog_type_post.</tt><tt class="descname">BlogTypePostServiceAlchemy</tt><a class="reference internal" href="_modules/livedesk/impl/blog_type_post.html#BlogTypePostServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ally.support.sqlalchemy.html#ally.support.sqlalchemy.session.SessionSupport" title="ally.support.sqlalchemy.session.SessionSupport"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.session.SessionSupport</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_type_post.IBlogTypePostService" title="livedesk.api.blog_type_post.IBlogTypePostService"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_type_post.IBlogTypePostService</span></tt></a></p>
+<p>Implementation for &#64;see: IBlogPostService</p>
+<dl class="method">
+<dt id="livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.delete">
+<tt class="descname">delete</tt><big>(</big><em>id</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_type_post.html#BlogTypePostServiceAlchemy.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.delete</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.getAll">
+<tt class="descname">getAll</tt><big>(</big><em>blogTypeId</em>, <em>typeId=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_type_post.html#BlogTypePostServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.getAll</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.getById">
+<tt class="descname">getById</tt><big>(</big><em>blogTypeId</em>, <em>postId</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_type_post.html#BlogTypePostServiceAlchemy.getById"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.getById" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.getById</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.insert">
+<tt class="descname">insert</tt><big>(</big><em>blogTypeId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_type_post.html#BlogTypePostServiceAlchemy.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.insert</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.postService">
+<tt class="descname">postService</tt><a class="headerlink" href="#livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.postService" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">IPostService</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.reorder">
+<tt class="descname">reorder</tt><big>(</big><em>blogTypeId</em>, <em>postId</em>, <em>refPostId</em>, <em>before=True</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_type_post.html#BlogTypePostServiceAlchemy.reorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.reorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.reorder</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.update">
+<tt class="descname">update</tt><big>(</big><em>blogTypeId</em>, <em>post</em><big>)</big><a class="reference internal" href="_modules/livedesk/impl/blog_type_post.html#BlogTypePostServiceAlchemy.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.impl.blog_type_post.BlogTypePostServiceAlchemy.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;see: IBlogPostService.update</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">impl Package</a><ul>
+<li><a class="reference internal" href="#module-livedesk.impl.blog"><tt class="docutils literal"><span class="pre">blog</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.impl.blog_admin"><tt class="docutils literal"><span class="pre">blog_admin</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.impl.blog_collaborator"><tt class="docutils literal"><span class="pre">blog_collaborator</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.impl.blog_post"><tt class="docutils literal"><span class="pre">blog_post</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.impl.blog_type"><tt class="docutils literal"><span class="pre">blog_type</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.impl.blog_type_post"><tt class="docutils literal"><span class="pre">blog_type_post</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="livedesk.api.html"
+                        title="previous chapter">api Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="livedesk.meta.html"
+                        title="next chapter">meta Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/livedesk.impl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="livedesk.meta.html" title="meta Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="livedesk.api.html" title="api Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="livedesk.html" >livedesk Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+api Package
+===========
+
+:mod:`api` Package
+------------------
+
+.. automodule:: internationalization.api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`file` Module
+------------------
+
+.. automodule:: internationalization.api.file
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`json_locale` Module
+-------------------------
+
+.. automodule:: internationalization.api.json_locale
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`message` Module
+---------------------
+
+.. automodule:: internationalization.api.message
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`po_file` Module
+---------------------
+
+.. automodule:: internationalization.api.po_file
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`source` Module
+--------------------
+
+.. automodule:: internationalization.api.source
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
