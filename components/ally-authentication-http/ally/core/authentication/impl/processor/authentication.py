@@ -76,10 +76,11 @@ class AuthenticationHandler(HandlerProcessorProceed):
         '''
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
-        assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid decoder header %s' % request.decoderHeader
-        assert isinstance(request.invoker, Invoker), 'Invalid invoker %s' % request.invoker
 
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
+        
+        assert isinstance(request.decoderHeader, IDecoderHeader), 'Invalid decoder header %s' % request.decoderHeader
+        assert isinstance(request.invoker, Invoker), 'Invalid invoker %s' % request.invoker
 
         arguments, typesNames = {}, {}
         for inp in request.invoker.inputs:

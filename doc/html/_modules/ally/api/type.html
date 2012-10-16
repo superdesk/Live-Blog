@@ -1,0 +1,626 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ally.api.type &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for ally.api.type</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Jun 8, 2011</span>
+
+<span class="sd">@package: ally api</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides the types used for APIs.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">type_legacy</span> <span class="k">as</span> <span class="n">numbers</span>
+<span class="kn">from</span> <span class="nn">..support.util</span> <span class="kn">import</span> <span class="n">Uninstantiable</span><span class="p">,</span> <span class="n">Singletone</span>
+<span class="kn">from</span> <span class="nn">..type_legacy</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="n">Content</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isclass</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">_classType</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="c"># Dictionary having as a key the class and as a value the type of that class.</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Type"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Type">[docs]</a><span class="k">class</span> <span class="nc">Type</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The class that represents the API types used for mapping data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;__weakref__&#39;</span><span class="p">,</span> <span class="s">&#39;isPrimitive&#39;</span><span class="p">,</span> <span class="s">&#39;isContainable&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isPrimitive</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">isContainable</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initializes the type setting the primitive aspect of the type.</span>
+<span class="sd">        </span>
+<span class="sd">        @param isPrimitive: boolean</span>
+<span class="sd">            If true than this type is considered of a primitive nature, meaning that is an boolean, integer,</span>
+<span class="sd">            string, float ... .</span>
+<span class="sd">        @param isContainable: boolean</span>
+<span class="sd">            If true than this type is containable in types like List and Count.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">isPrimitive</span><span class="p">,</span> <span class="nb">bool</span><span class="p">),</span> <span class="s">&#39;Invalid is primitive flag </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">isPrimitive</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">isContainable</span><span class="p">,</span> <span class="nb">bool</span><span class="p">),</span> <span class="s">&#39;Invalid is containable flag </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">isContainable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isPrimitive</span> <span class="o">=</span> <span class="n">isPrimitive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isContainable</span> <span class="o">=</span> <span class="n">isContainable</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="Type.isOf"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Type.isOf">[docs]</a>    <span class="k">def</span> <span class="nf">isOf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if the provided type is compatible with this type.</span>
+<span class="sd">        </span>
+<span class="sd">        @param typ: Type|class </span>
+<span class="sd">            The type to check.</span>
+<span class="sd">        @return: boolean</span>
+<span class="sd">            True if the type is of this type, False otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="Type.isValid"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Type.isValid">[docs]</a>    <span class="k">def</span> <span class="nf">isValid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if the provided object instance is represented by this API type.</span>
+<span class="sd">        </span>
+<span class="sd">        @param obj: object</span>
+<span class="sd">            The object instance to check.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the hash code for the type.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Equality check.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The string representation.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+<div class="viewcode-block" id="TypeNone"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeNone">[docs]</a><span class="k">class</span> <span class="nc">TypeNone</span><span class="p">(</span><span class="n">Singletone</span><span class="p">,</span> <span class="n">Type</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the type that matches None.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__init__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">Type</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TypeNone.isOf"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeNone.isOf">[docs]</a>    <span class="k">def</span> <span class="nf">isOf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.isOf</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="ow">is</span> <span class="nb">type</span> <span class="ow">or</span> <span class="nb">type</span> <span class="o">==</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="TypeNone.isValid"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeNone.isValid">[docs]</a>    <span class="k">def</span> <span class="nf">isValid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.isValid</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">obj</span> <span class="ow">is</span> <span class="bp">None</span>
+</div>
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__hash__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__eq__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__str__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s">&#39;None&#39;</span>
+</div>
+<div class="viewcode-block" id="TypeClass"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeClass">[docs]</a><span class="k">class</span> <span class="nc">TypeClass</span><span class="p">(</span><span class="n">Type</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The class that represents the API types used for mapping data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;clazz&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clazz</span><span class="p">,</span> <span class="n">isPrimitive</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">isContainable</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initializes the type setting the primitive aspect of the type.</span>
+<span class="sd">        @see: Type.__init__</span>
+<span class="sd">        </span>
+<span class="sd">        @param clazz: class</span>
+<span class="sd">            The class represented by the type.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="n">isclass</span><span class="p">(</span><span class="n">clazz</span><span class="p">),</span> <span class="s">&#39;Invalid class </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">clazz</span>
+        <span class="n">Type</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isPrimitive</span><span class="p">,</span> <span class="n">isContainable</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clazz</span> <span class="o">=</span> <span class="n">clazz</span>
+
+<div class="viewcode-block" id="TypeClass.isOf"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeClass.isOf">[docs]</a>    <span class="k">def</span> <span class="nf">isOf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if the provided type is compatible with this type.</span>
+<span class="sd">        </span>
+<span class="sd">        @param type: Type|class </span>
+<span class="sd">            The type to check.</span>
+<span class="sd">        @return: boolean</span>
+<span class="sd">            True if the type is of this type, False otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">isclass</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clazz</span><span class="p">):</span> <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">typeFor</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span> <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="TypeClass.isValid"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeClass.isValid">[docs]</a>    <span class="k">def</span> <span class="nf">isValid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Checks if the provided object instance is represented by this API type.</span>
+<span class="sd">        </span>
+<span class="sd">        @param obj: object</span>
+<span class="sd">                The object instance to check.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clazz</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__hash__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clazz</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__eq__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clazz</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">clazz</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__str__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">clazz</span><span class="o">.</span><span class="n">__name__</span>
+</div>
+<div class="viewcode-block" id="TypePercentage"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypePercentage">[docs]</a><span class="k">class</span> <span class="nc">TypePercentage</span><span class="p">(</span><span class="n">Singletone</span><span class="p">,</span> <span class="n">TypeClass</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the type for percentage values.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructs the percentage type.</span>
+<span class="sd">        @see: TypeClass.__init__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">TypeClass</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+<span class="c"># Specific types tagging creating known value that extend normal types</span>
+
+<span class="c">#TODO: check if needed for automatic translation or not.</span></div>
+<div class="viewcode-block" id="TypeTranslated"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeTranslated">[docs]</a><span class="k">class</span> <span class="nc">TypeTranslated</span><span class="p">(</span><span class="n">Singletone</span><span class="p">,</span> <span class="n">TypeClass</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the string type that contains as a value a message that should be translated.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructs the translated type.</span>
+<span class="sd">        @see: TypeClass.__init__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">TypeClass</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TypeReference"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeReference">[docs]</a><span class="k">class</span> <span class="nc">TypeReference</span><span class="p">(</span><span class="n">Singletone</span><span class="p">,</span> <span class="n">TypeClass</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the type representing a reference path.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructs the reference path type.</span>
+<span class="sd">        @see: TypeClass.__init__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">TypeClass</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TypeLocale"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeLocale">[docs]</a><span class="k">class</span> <span class="nc">TypeLocale</span><span class="p">(</span><span class="n">Singletone</span><span class="p">,</span> <span class="n">TypeClass</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the type representing the user requested language for presentation.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructs the front language type.</span>
+<span class="sd">        @see: TypeClass.__init__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">TypeClass</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TypeScheme"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeScheme">[docs]</a><span class="k">class</span> <span class="nc">TypeScheme</span><span class="p">(</span><span class="n">Singletone</span><span class="p">,</span> <span class="n">TypeClass</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the type representing the used scheme.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructs the schema type.</span>
+<span class="sd">        @see: TypeClass.__init__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">TypeClass</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="Iter"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Iter">[docs]</a><span class="k">class</span> <span class="nc">Iter</span><span class="p">(</span><span class="n">TypeClass</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps an iterator of values.</span>
+<span class="sd">    You need also to specify in the constructor what elements this iterator will contain.</span>
+<span class="sd">    Since the values in an iterator can only be retrieved once than this type when validating the iterator it will</span>
+<span class="sd">    not be able to validate also the elements.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;itemType&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">itemType</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructs the iterator type for the provided item type.</span>
+<span class="sd">        @see: TypeClass.__init__</span>
+<span class="sd">        </span>
+<span class="sd">        @param itemType: Type|class</span>
+<span class="sd">            The item type of the iterator.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">itemType</span> <span class="o">=</span> <span class="n">typeFor</span><span class="p">(</span><span class="n">itemType</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">itemType</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid item type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">itemType</span>
+        <span class="k">assert</span> <span class="n">itemType</span><span class="o">.</span><span class="n">isContainable</span><span class="p">,</span> <span class="s">&#39;Invalid item type </span><span class="si">%s</span><span class="s"> because is not containable&#39;</span> <span class="o">%</span> <span class="n">itemType</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">itemType</span> <span class="o">=</span> <span class="n">itemType</span>
+        <span class="n">TypeClass</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Iter.isOf"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Iter.isOf">[docs]</a>    <span class="k">def</span> <span class="nf">isOf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.isOf</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">isOf</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span> <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemType</span><span class="o">.</span><span class="n">isOf</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__hash__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemType</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__eq__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemType</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">itemType</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.__str__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">[</span><span class="si">%s</span><span class="s">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemType</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="List"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.List">[docs]</a><span class="k">class</span> <span class="nc">List</span><span class="p">(</span><span class="n">Iter</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps lists of values.</span>
+<span class="sd">    You need also to specify in the constructor what elements this list will contain.</span>
+<span class="sd">    Unlike the iterator type the list type also validates the contained elements.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">itemType</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Constructs the list type for the provided type.</span>
+<span class="sd">        @see: Iter.__init__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">Iter</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">itemType</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clazz</span> <span class="o">=</span> <span class="nb">list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isPrimitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemType</span><span class="o">.</span><span class="n">isPrimitive</span>
+
+<div class="viewcode-block" id="List.isValid"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.List.isValid">[docs]</a>    <span class="k">def</span> <span class="nf">isValid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: Type.isValid</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span> <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemType</span><span class="o">.</span><span class="n">isValid</span><span class="p">,</span> <span class="n">obj</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div></div>
+<div class="viewcode-block" id="Input"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Input">[docs]</a><span class="k">class</span> <span class="nc">Input</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides an input entry for a call, this is used for keeping the name and also the type of a call parameter.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">,</span> <span class="s">&#39;hasDefault&#39;</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">hasDefault</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the input.</span>
+<span class="sd">        </span>
+<span class="sd">        @param name: string</span>
+<span class="sd">            The name of the input.</span>
+<span class="sd">        @param type: Type</span>
+<span class="sd">            The type of the input.</span>
+<span class="sd">        @param hasDefault: boolean</span>
+<span class="sd">            A flag indicating that this input has a default value.</span>
+<span class="sd">        @param default: object</span>
+<span class="sd">            The default value.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s">&#39;Invalid name </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hasDefault</span> <span class="o">=</span> <span class="n">hasDefault</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">[</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasDefault</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<div class="viewcode-block" id="Non"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Non">[docs]</a><span class="k">class</span> <span class="nc">Non</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the None type.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Non</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeNone</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Boolean"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Boolean">[docs]</a><span class="k">class</span> <span class="nc">Boolean</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the boolean values.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Boolean</span><span class="p">]</span> <span class="o">=</span> <span class="n">_classType</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeClass</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Integer"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Integer">[docs]</a><span class="k">class</span> <span class="nc">Integer</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the integer values.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Integer</span><span class="p">]</span> <span class="o">=</span> <span class="n">_classType</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeClass</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Number"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Number">[docs]</a><span class="k">class</span> <span class="nc">Number</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the numbers, this includes integer and float.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Number</span><span class="p">]</span> <span class="o">=</span> <span class="n">_classType</span><span class="p">[</span><span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">]</span> <span class="o">=</span> <span class="n">_classType</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeClass</span><span class="p">(</span><span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Percentage"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Percentage">[docs]</a><span class="k">class</span> <span class="nc">Percentage</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the percentage numbers.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Percentage</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypePercentage</span><span class="p">()</span>
+
+<div class="viewcode-block" id="String"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.String">[docs]</a><span class="k">class</span> <span class="nc">String</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the string values.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">String</span><span class="p">]</span> <span class="o">=</span> <span class="n">_classType</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Date"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Date">[docs]</a><span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the date time values.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Date</span><span class="p">]</span> <span class="o">=</span> <span class="n">_classType</span><span class="p">[</span><span class="n">date</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeClass</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Time"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Time">[docs]</a><span class="k">class</span> <span class="nc">Time</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the date time values.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Time</span><span class="p">]</span> <span class="o">=</span> <span class="n">_classType</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeClass</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DateTime"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.DateTime">[docs]</a><span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the date time values.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">DateTime</span><span class="p">]</span> <span class="o">=</span> <span class="n">_classType</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeClass</span><span class="p">(</span><span class="n">datetime</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+<span class="c"># Specific types tagging creating known value that extend normal types</span>
+
+<span class="c">#TODO: check if needed for automatic translation or not.</span>
+<div class="viewcode-block" id="Translated"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Translated">[docs]</a><span class="k">class</span> <span class="nc">Translated</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the type representing the translated messages.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Translated</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeTranslated</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Reference"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Reference">[docs]</a><span class="k">class</span> <span class="nc">Reference</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the type representing the reference path.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Reference</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeReference</span><span class="p">()</span>
+
+<span class="c"># Provides the request raw content type.</span>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Content</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeClass</span><span class="p">(</span><span class="n">Content</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Locale"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Locale">[docs]</a><span class="k">class</span> <span class="nc">Locale</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the type representing the user requested locale for presentation.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Locale</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeLocale</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Scheme"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.Scheme">[docs]</a><span class="k">class</span> <span class="nc">Scheme</span><span class="p">(</span><span class="n">Uninstantiable</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps the type representing the scheme.</span>
+<span class="sd">    Only used as a class, do not create an instance.</span>
+<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="n">_classType</span><span class="p">[</span><span class="n">Scheme</span><span class="p">]</span> <span class="o">=</span> <span class="n">TypeScheme</span><span class="p">()</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="TypeSupportMeta"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeSupportMeta">[docs]</a><span class="k">class</span> <span class="nc">TypeSupportMeta</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Meta class for type support that allows for instance check base on the &#39;_ally_type&#39; attribute.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__instancecheck__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: ABCMeta.__instancecheck__</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">ABCMeta</span><span class="o">.</span><span class="n">__instancecheck__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span> <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">TypeSupport</span><span class="p">:</span> <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s">&#39;_ally_type&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">Type</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TypeSupport"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.TypeSupport">[docs]</a><span class="k">class</span> <span class="nc">TypeSupport</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">TypeSupportMeta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class that provides the support for containing types.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;_ally_type&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the type support with the provided type.</span>
+<span class="sd">        </span>
+<span class="sd">        @param type: Type</span>
+<span class="sd">            The type of the support.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">Type</span><span class="p">),</span> <span class="s">&#39;Invalid type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ally_type</span> <span class="o">=</span> <span class="nb">type</span> <span class="c"># This specified the detected type by using &#39;typeFor&#39;</span>
+</div>
+<div class="viewcode-block" id="typeFor"><a class="viewcode-back" href="../../../ally.api.html#ally.api.type.typeFor">[docs]</a><span class="k">def</span> <span class="nf">typeFor</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the type of the object. The type extraction is performed as follow:</span>
+<span class="sd">        - if the object is a class then search in the _classType for the associated type, return None if not found.</span>
+<span class="sd">        - in case is not a class then check if the _ally_type attribute exists and provide the type, None otherwise.</span>
+<span class="sd">    </span>
+<span class="sd">    @param obj: object|class</span>
+<span class="sd">        The class or object to extract the type.</span>
+<span class="sd">    @return: Type|None</span>
+<span class="sd">        The obtained type or None if there is not type.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Type</span><span class="p">):</span> <span class="k">return</span> <span class="n">obj</span>
+    <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span> <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">_ally_type</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_classType</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

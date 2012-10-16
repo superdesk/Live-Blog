@@ -1,0 +1,778 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>meta Package &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="index.html" />
+    <link rel="up" title="livedesk Package" href="livedesk.html" />
+    <link rel="next" title="package_extender Module" href="package_extender.html" />
+    <link rel="prev" title="impl Package" href="livedesk.impl.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="package_extender.html" title="package_extender Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="livedesk.impl.html" title="impl Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="livedesk.html" accesskey="U">livedesk Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="meta-package">
+<h1>meta Package<a class="headerlink" href="#meta-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-livedesk.meta.blog">
+<span id="blog-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog</span></tt> Module<a class="headerlink" href="#module-livedesk.meta.blog" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy meta for blog API.</p>
+<dl class="class">
+<dt id="livedesk.meta.blog.BlogMapped">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog.</tt><tt class="descname">BlogMapped</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog.html#BlogMapped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog.BlogMapped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.mapper.Base</span></tt>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog.Blog" title="livedesk.api.blog.Blog"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog.Blog</span></tt></a></p>
+<p>Provides the mapping for Blog.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.ClosedOn">
+<tt class="descname">ClosedOn</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.ClosedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.CreatedOn">
+<tt class="descname">CreatedOn</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.Creator">
+<tt class="descname">Creator</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.Creator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.Description">
+<tt class="descname">Description</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.Description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.Id">
+<tt class="descname">Id</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.Language">
+<tt class="descname">Language</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.Language" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.LiveOn">
+<tt class="descname">LiveOn</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.LiveOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.OutputLink">
+<tt class="descname">OutputLink</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.OutputLink" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.Title">
+<tt class="descname">Title</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.Title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.Type">
+<tt class="descname">Type</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.Type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog.BlogMapped.UpdatedOn">
+<tt class="descname">UpdatedOn</tt><a class="headerlink" href="#livedesk.meta.blog.BlogMapped.UpdatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.meta.blog_admin">
+<span id="blog-admin-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_admin</span></tt> Module<a class="headerlink" href="#module-livedesk.meta.blog_admin" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy meta for blog admin API.</p>
+<dl class="class">
+<dt id="livedesk.meta.blog_admin.AdminDefinition">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_admin.</tt><tt class="descname">AdminDefinition</tt><a class="reference internal" href="_modules/livedesk/meta/blog_admin.html#AdminDefinition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_admin.AdminDefinition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the mapping for a BlogAdmin definition.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminDefinition.Blog">
+<tt class="descname">Blog</tt><em class="property"> = Column('fk_blog_id', NullType(), ForeignKey('livedesk_blog.id'), , primary_key=True, nullable=False)</em><a class="headerlink" href="#livedesk.meta.blog_admin.AdminDefinition.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminDefinition.adminId">
+<tt class="descname">adminId</tt><em class="property"> = Column('fk_user_id', NullType(), ForeignKey('user.fk_person_id'), , primary_key=True, nullable=False)</em><a class="headerlink" href="#livedesk.meta.blog_admin.AdminDefinition.adminId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.meta.blog_admin.AdminEntry">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_admin.</tt><tt class="descname">AdminEntry</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog_admin.html#AdminEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_admin.AdminEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.mapper.Base</span></tt>, <a class="reference internal" href="#livedesk.meta.blog_admin.AdminDefinition" title="livedesk.meta.blog_admin.AdminDefinition"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.meta.blog_admin.AdminDefinition</span></tt></a></p>
+<p>Provides the mapping for a blog Admin entry.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminEntry.Blog">
+<tt class="descname">Blog</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminEntry.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminEntry.adminId">
+<tt class="descname">adminId</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminEntry.adminId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.meta.blog_admin.AdminMapped">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_admin.</tt><tt class="descname">AdminMapped</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog_admin.html#AdminMapped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#livedesk.meta.blog_admin.AdminDefinition" title="livedesk.meta.blog_admin.AdminDefinition"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.meta.blog_admin.AdminDefinition</span></tt></a>, <a class="reference internal" href="superdesk.user.meta.html#superdesk.user.meta.user.UserMapped" title="superdesk.user.meta.user.UserMapped"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.user.meta.user.UserMapped</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_admin.Admin" title="livedesk.api.blog_admin.Admin"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_admin.Admin</span></tt></a></p>
+<p>Provides the mapping for blog Admin.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.Address">
+<tt class="descname">Address</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.Address" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.Blog">
+<tt class="descname">Blog</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.CreatedOn">
+<tt class="descname">CreatedOn</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.DeletedOn">
+<tt class="descname">DeletedOn</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.DeletedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.EMail">
+<tt class="descname">EMail</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.EMail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.FirstName">
+<tt class="descname">FirstName</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.FirstName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.FullName">
+<tt class="descname">FullName</tt><em class="property"> = &lt;sqlalchemy.sql.expression._BinaryExpression object at 0x96c8ad0&gt;</em><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.FullName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.Id">
+<tt class="descname">Id</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.LastName">
+<tt class="descname">LastName</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.LastName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.Name">
+<tt class="descname">Name</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.adminId">
+<tt class="descname">adminId</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.adminId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.password">
+<tt class="descname">password</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.password" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_admin.AdminMapped.userId">
+<tt class="descname">userId</tt><a class="headerlink" href="#livedesk.meta.blog_admin.AdminMapped.userId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.meta.blog_collaborator">
+<span id="blog-collaborator-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_collaborator</span></tt> Module<a class="headerlink" href="#module-livedesk.meta.blog_collaborator" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy meta for blog collaborator API.</p>
+<dl class="class">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorDefinition">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_collaborator.</tt><tt class="descname">BlogCollaboratorDefinition</tt><a class="reference internal" href="_modules/livedesk/meta/blog_collaborator.html#BlogCollaboratorDefinition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorDefinition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the mapping for BlogCollaborator definition.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorDefinition.Blog">
+<tt class="descname">Blog</tt><em class="property"> = Column('fk_blog_id', NullType(), ForeignKey('livedesk_blog.id'), , primary_key=True, nullable=False)</em><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorDefinition.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorDefinition.blogCollaboratorId">
+<tt class="descname">blogCollaboratorId</tt><em class="property"> = Column('fk_collaborator_id', NullType(), ForeignKey('collaborator.id'), , primary_key=True, nullable=False)</em><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorDefinition.blogCollaboratorId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorEntry">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_collaborator.</tt><tt class="descname">BlogCollaboratorEntry</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog_collaborator.html#BlogCollaboratorEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.mapper.Base</span></tt>, <a class="reference internal" href="#livedesk.meta.blog_collaborator.BlogCollaboratorDefinition" title="livedesk.meta.blog_collaborator.BlogCollaboratorDefinition"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.meta.blog_collaborator.BlogCollaboratorDefinition</span></tt></a></p>
+<p>Provides the mapping for BlogCollaborator entry.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorEntry.Blog">
+<tt class="descname">Blog</tt><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorEntry.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorEntry.blogCollaboratorId">
+<tt class="descname">blogCollaboratorId</tt><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorEntry.blogCollaboratorId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorMapped">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_collaborator.</tt><tt class="descname">BlogCollaboratorMapped</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog_collaborator.html#BlogCollaboratorMapped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorMapped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#livedesk.meta.blog_collaborator.BlogCollaboratorDefinition" title="livedesk.meta.blog_collaborator.BlogCollaboratorDefinition"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.meta.blog_collaborator.BlogCollaboratorDefinition</span></tt></a>, <a class="reference internal" href="superdesk.collaborator.meta.html#superdesk.collaborator.meta.collaborator.CollaboratorMapped" title="superdesk.collaborator.meta.collaborator.CollaboratorMapped"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.collaborator.meta.collaborator.CollaboratorMapped</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_collaborator.BlogCollaborator" title="livedesk.api.blog_collaborator.BlogCollaborator"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_collaborator.BlogCollaborator</span></tt></a></p>
+<p>Provides the mapping for BlogCollaborator.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Blog">
+<tt class="descname">Blog</tt><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Id">
+<tt class="descname">Id</tt><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Name">
+<tt class="descname">Name</tt><em class="property"> = &lt;sqlalchemy.sql.expression._Case object at 0x91a9750&gt;</em><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Person">
+<tt class="descname">Person</tt><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Person" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Source">
+<tt class="descname">Source</tt><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorMapped.Source" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorMapped.blogCollaboratorId">
+<tt class="descname">blogCollaboratorId</tt><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorMapped.blogCollaboratorId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorMapped.person">
+<tt class="descname">person</tt><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorMapped.person" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_collaborator.BlogCollaboratorMapped.source">
+<tt class="descname">source</tt><a class="headerlink" href="#livedesk.meta.blog_collaborator.BlogCollaboratorMapped.source" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.meta.blog_post">
+<span id="blog-post-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_post</span></tt> Module<a class="headerlink" href="#module-livedesk.meta.blog_post" title="Permalink to this headline">¶</a></h2>
+<p>Created on May 4, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Gabriel Nistor</p>
+<p>Contains the SQL alchemy meta for blog post API.</p>
+<dl class="class">
+<dt id="livedesk.meta.blog_post.BlogPostDefinition">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_post.</tt><tt class="descname">BlogPostDefinition</tt><a class="reference internal" href="_modules/livedesk/meta/blog_post.html#BlogPostDefinition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostDefinition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the mapping for BlogCollaborator definition.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostDefinition.Blog">
+<tt class="descname">Blog</tt><em class="property"> = Column('fk_blog_id', NullType(), ForeignKey('livedesk_blog.id'), , nullable=False)</em><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostDefinition.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostDefinition.CId">
+<tt class="descname">CId</tt><em class="property"> = Column('id_change', INTEGER(display_width=None), )</em><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostDefinition.CId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostDefinition.Order">
+<tt class="descname">Order</tt><em class="property"> = Column('ordering', REAL(precision=None, asdecimal=False), )</em><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostDefinition.Order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostDefinition.blogPostId">
+<tt class="descname">blogPostId</tt><em class="property"> = Column('fk_post_id', NullType(), ForeignKey('post.id'), , primary_key=True, nullable=False)</em><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostDefinition.blogPostId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.meta.blog_post.BlogPostEntry">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_post.</tt><tt class="descname">BlogPostEntry</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog_post.html#BlogPostEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.mapper.Base</span></tt>, <a class="reference internal" href="#livedesk.meta.blog_post.BlogPostDefinition" title="livedesk.meta.blog_post.BlogPostDefinition"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.meta.blog_post.BlogPostDefinition</span></tt></a></p>
+<p>Provides the mapping for BlogPost table where it keeps the connection between the post and the blog.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostEntry.Blog">
+<tt class="descname">Blog</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostEntry.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostEntry.CId">
+<tt class="descname">CId</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostEntry.CId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostEntry.Order">
+<tt class="descname">Order</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostEntry.Order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostEntry.blogPostId">
+<tt class="descname">blogPostId</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostEntry.blogPostId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.meta.blog_post.BlogPostMapped">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_post.</tt><tt class="descname">BlogPostMapped</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog_post.html#BlogPostMapped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#livedesk.meta.blog_post.BlogPostDefinition" title="livedesk.meta.blog_post.BlogPostDefinition"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.meta.blog_post.BlogPostDefinition</span></tt></a>, <a class="reference internal" href="superdesk.post.meta.html#superdesk.post.meta.post.PostMapped" title="superdesk.post.meta.post.PostMapped"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.meta.post.PostMapped</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_post.BlogPost" title="livedesk.api.blog_post.BlogPost"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_post.BlogPost</span></tt></a></p>
+<p>Provides the mapping for BlogPost in the form of extending the Post.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.Author">
+<tt class="descname">Author</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.Author" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.AuthorName">
+<tt class="descname">AuthorName</tt><em class="property"> = &lt;sqlalchemy.sql.expression._Case object at 0x82c54d0&gt;</em><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.AuthorName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.AuthorPerson">
+<tt class="descname">AuthorPerson</tt><em class="property"> = &lt;sqlalchemy.sql.expression._Case object at 0x82c5a50&gt;</em><a class="reference internal" href="_modules/livedesk/meta/blog_post.html#BlogPostMapped.AuthorPerson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.AuthorPerson" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.Blog">
+<tt class="descname">Blog</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.Blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.CId">
+<tt class="descname">CId</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.CId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.Content">
+<tt class="descname">Content</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.Content" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.ContentPlain">
+<tt class="descname">ContentPlain</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.ContentPlain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.CreatedOn">
+<tt class="descname">CreatedOn</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.Creator">
+<tt class="descname">Creator</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.Creator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.DeletedOn">
+<tt class="descname">DeletedOn</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.DeletedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.Id">
+<tt class="descname">Id</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.IsModified">
+<tt class="descname">IsModified</tt><em class="property"> = &lt;sqlalchemy.sql.expression._Case object at 0x82c55d0&gt;</em><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.IsModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.Meta">
+<tt class="descname">Meta</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.Meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.Order">
+<tt class="descname">Order</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.Order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.PublishedOn">
+<tt class="descname">PublishedOn</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.PublishedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.Type">
+<tt class="descname">Type</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.Type" title="Permalink to this definition">¶</a></dt>
+<dd><p>A descriptor that presents a read/write view of an object attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.UpdatedOn">
+<tt class="descname">UpdatedOn</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.UpdatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.author">
+<tt class="descname">author</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.author" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.blogPostId">
+<tt class="descname">blogPostId</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.blogPostId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.creator">
+<tt class="descname">creator</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.creator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.type">
+<tt class="descname">type</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_post.BlogPostMapped.typeId">
+<tt class="descname">typeId</tt><a class="headerlink" href="#livedesk.meta.blog_post.BlogPostMapped.typeId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.meta.blog_type">
+<span id="blog-type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_type</span></tt> Module<a class="headerlink" href="#module-livedesk.meta.blog_type" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 30, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mugur Rus</p>
+<p>Contains the SQL alchemy meta for blog type API.</p>
+<dl class="class">
+<dt id="livedesk.meta.blog_type.BlogTypeMapped">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_type.</tt><tt class="descname">BlogTypeMapped</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog_type.html#BlogTypeMapped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_type.BlogTypeMapped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.mapper.Base</span></tt>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_type.BlogType" title="livedesk.api.blog_type.BlogType"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_type.BlogType</span></tt></a></p>
+<p>Provides the mapping for Blog.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type.BlogTypeMapped.Id">
+<tt class="descname">Id</tt><a class="headerlink" href="#livedesk.meta.blog_type.BlogTypeMapped.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type.BlogTypeMapped.Name">
+<tt class="descname">Name</tt><a class="headerlink" href="#livedesk.meta.blog_type.BlogTypeMapped.Name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-livedesk.meta.blog_type_post">
+<span id="blog-type-post-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">blog_type_post</span></tt> Module<a class="headerlink" href="#module-livedesk.meta.blog_type_post" title="Permalink to this headline">¶</a></h2>
+<p>Created on Aug 30, 2012</p>
+<p>&#64;package: livedesk
+&#64;copyright: 2012 Sourcefabric o.p.s.
+&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
+&#64;author: Mugur Rus</p>
+<p>Contains the SQL alchemy meta for blog type post API.</p>
+<dl class="class">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostDefinition">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_type_post.</tt><tt class="descname">BlogTypePostDefinition</tt><a class="reference internal" href="_modules/livedesk/meta/blog_type_post.html#BlogTypePostDefinition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostDefinition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Provides the mapping for BlogCollaborator definition.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostDefinition.BlogType">
+<tt class="descname">BlogType</tt><em class="property"> = Column('fk_blog_type_id', NullType(), ForeignKey('livedesk_blog.id'), , nullable=False)</em><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostDefinition.BlogType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostDefinition.blogPostId">
+<tt class="descname">blogPostId</tt><em class="property"> = Column('fk_post_id', NullType(), ForeignKey('post.id'), , primary_key=True, nullable=False)</em><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostDefinition.blogPostId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostDefinition.ordering">
+<tt class="descname">ordering</tt><em class="property"> = Column('ordering', REAL(precision=None, asdecimal=False), )</em><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostDefinition.ordering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostEntry">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_type_post.</tt><tt class="descname">BlogTypePostEntry</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog_type_post.html#BlogTypePostEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">ally.support.sqlalchemy.mapper.Base</span></tt>, <a class="reference internal" href="#livedesk.meta.blog_type_post.BlogTypePostDefinition" title="livedesk.meta.blog_type_post.BlogTypePostDefinition"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.meta.blog_type_post.BlogTypePostDefinition</span></tt></a></p>
+<p>Provides the mapping for BlogPost table where it keeps the connection between the post and the blog.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostEntry.BlogType">
+<tt class="descname">BlogType</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostEntry.BlogType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostEntry.blogPostId">
+<tt class="descname">blogPostId</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostEntry.blogPostId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostEntry.ordering">
+<tt class="descname">ordering</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostEntry.ordering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped">
+<em class="property">class </em><tt class="descclassname">livedesk.meta.blog_type_post.</tt><tt class="descname">BlogTypePostMapped</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/livedesk/meta/blog_type_post.html#BlogTypePostMapped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#livedesk.meta.blog_type_post.BlogTypePostDefinition" title="livedesk.meta.blog_type_post.BlogTypePostDefinition"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.meta.blog_type_post.BlogTypePostDefinition</span></tt></a>, <a class="reference internal" href="superdesk.post.meta.html#superdesk.post.meta.post.PostMapped" title="superdesk.post.meta.post.PostMapped"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.post.meta.post.PostMapped</span></tt></a>, <a class="reference internal" href="livedesk.api.html#livedesk.api.blog_post.BlogPost" title="livedesk.api.blog_post.BlogPost"><tt class="xref py py-class docutils literal"><span class="pre">livedesk.api.blog_post.BlogPost</span></tt></a></p>
+<p>Provides the mapping for BlogPost in the form of extending the Post.</p>
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.Author">
+<tt class="descname">Author</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.Author" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.AuthorName">
+<tt class="descname">AuthorName</tt><em class="property"> = &lt;sqlalchemy.sql.expression._Case object at 0x91a8bd0&gt;</em><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.AuthorName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.BlogType">
+<tt class="descname">BlogType</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.BlogType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.Content">
+<tt class="descname">Content</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.Content" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.ContentPlain">
+<tt class="descname">ContentPlain</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.ContentPlain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.CreatedOn">
+<tt class="descname">CreatedOn</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.CreatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.Creator">
+<tt class="descname">Creator</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.Creator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.DeletedOn">
+<tt class="descname">DeletedOn</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.DeletedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.Id">
+<tt class="descname">Id</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.Id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.IsModified">
+<tt class="descname">IsModified</tt><em class="property"> = &lt;sqlalchemy.sql.expression._Case object at 0x91a8750&gt;</em><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.IsModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.Meta">
+<tt class="descname">Meta</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.Meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.PublishedOn">
+<tt class="descname">PublishedOn</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.PublishedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.Type">
+<tt class="descname">Type</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.Type" title="Permalink to this definition">¶</a></dt>
+<dd><p>A descriptor that presents a read/write view of an object attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.UpdatedOn">
+<tt class="descname">UpdatedOn</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.UpdatedOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.author">
+<tt class="descname">author</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.author" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.blogPostId">
+<tt class="descname">blogPostId</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.blogPostId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.creator">
+<tt class="descname">creator</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.creator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.ordering">
+<tt class="descname">ordering</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.ordering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.type">
+<tt class="descname">type</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="livedesk.meta.blog_type_post.BlogTypePostMapped.typeId">
+<tt class="descname">typeId</tt><a class="headerlink" href="#livedesk.meta.blog_type_post.BlogTypePostMapped.typeId" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">meta Package</a><ul>
+<li><a class="reference internal" href="#module-livedesk.meta.blog"><tt class="docutils literal"><span class="pre">blog</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.meta.blog_admin"><tt class="docutils literal"><span class="pre">blog_admin</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.meta.blog_collaborator"><tt class="docutils literal"><span class="pre">blog_collaborator</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.meta.blog_post"><tt class="docutils literal"><span class="pre">blog_post</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.meta.blog_type"><tt class="docutils literal"><span class="pre">blog_type</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-livedesk.meta.blog_type_post"><tt class="docutils literal"><span class="pre">blog_type_post</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="livedesk.impl.html"
+                        title="previous chapter">impl Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="package_extender.html"
+                        title="next chapter">package_extender Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/livedesk.meta.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="package_extender.html" title="package_extender Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="livedesk.impl.html" title="impl Package"
+             >previous</a> |</li>
+        <li><a href="index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="livedesk.html" >livedesk Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

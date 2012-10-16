@@ -26,7 +26,7 @@ from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
-from ally.support.util_sys import pythonPath
+from ally.support.util_deploy import deploy as deployTool
 from ally.support.util_deploy import deploy as deployTool
 
 # --------------------------------------------------------------------
@@ -98,7 +98,6 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
             
         p = subprocess.Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        
         result = p.wait()
         
         #253 is the exiv2 code for error: No Exif data found in the file
@@ -161,7 +160,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return str
 
     def extractDateTime(self, line, separator):
-        #example:' 2010:11:08 18:33:13'
+        #example:'2010:11:08 18:33:13'
         dateTimeFormat = '%Y:%m:%d %H:%M:%S'
         str = line.partition(separator)[2].strip()
         return datetime.strptime(str, dateTimeFormat)
@@ -171,6 +170,8 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         str = str.partition('x')
         return (str[0], str[2])
 
+    def extractSize(self, line):
+        str = line.partition('-')[2].strip('\n').strip()
     # ----------------------------------------------------------------
 
     def generateIdPath (self, id):
