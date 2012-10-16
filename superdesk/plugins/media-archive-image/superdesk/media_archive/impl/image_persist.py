@@ -95,9 +95,13 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
             
-        p = subprocess.Popen([join(self.metadata_extractor_path, 'exiv2.exe'), contentPath],
+        p = subprocess.Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        if p.wait() != 0: return False
+        
+        result = p.wait()
+        
+        #253 is the exiv2 code for error: No Exif data found in the file
+        if result != 0 and result != 253: return False
 
         imageDataEntry = ImageDataEntry()
         imageDataEntry.Id = metaDataMapped.Id
@@ -162,7 +166,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return datetime.strptime(str, dateTimeFormat)
 
     def extractSize(self, line, separator):
-        str = line.partition(separator)[2].strip('\n')
+        str = line.partition(separator)[2].strip()
         str = str.partition('x')
         return (str[0], str[2])
 
