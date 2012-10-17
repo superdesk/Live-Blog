@@ -23,7 +23,7 @@ function(providers,str, $, Gizmo)
                 self.data.Meta = JSON.stringify(self.data.Meta);
                 self.data.Meta.annotation = [$('.youtube-full-content .annotation:eq(0)', self.el).html(), 
                     $('.youtube-full-content .annotation:eq(1)', self.el).html()];                
-                self.parent.insert(self.data);
+                self.parent.insert(self.data, self);
                 $('.actions', self.el).remove();
             });
             $(self.el).on('click', '.btn.cancel', function()
