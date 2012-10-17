@@ -11,5 +11,5 @@
 	<a id="submenu-liveblogs-create"><i class="icon-plus-sign" href="#"></i> Create Blog</a>
 </li>
 <li>
-	<a id="submenu-liveblogs-archive">Archive</a>
+	<a id="submenu-liveblogs-archive" href="livedesk-archive">Archive</a>
 </li>
