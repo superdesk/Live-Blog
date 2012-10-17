@@ -330,8 +330,21 @@ window.livedesk.startLoading = function($) {
                         },
                         _toggleWrap: function(item) {
                             if (item.hasClass('open')) {
-                                item.removeClass('open').addClass('closed');
-                                item.nextUntil('.wrapup').hide();
+                                var collapse = true;
+                                var hash = window.location.hash;
+                                if ( hash.length > 0) {
+                                    item.nextUntil('.wrapup').each(function(){
+                                        if ('#' + $(this).find('a').attr('name') == hash) {
+                                            collapse = false;
+                                        }
+                                    });
+                                }
+                                if ( collapse ) {
+                                    item.removeClass('open').addClass('closed');
+                                    item.nextUntil('.wrapup').hide();
+                                } else {
+                                    //don't collapse wrap'
+                                }
                             } else {
                                 item.removeClass('closed').addClass('open');
                                 item.nextUntil('.wrapup').show();
