@@ -21,6 +21,7 @@ gui-resources/scripts/js/providers/google/__init__.py
 gui-resources/scripts/js/providers/twitter/__init__.py
 gui-resources/scripts/js/providers/youtube/__init__.py
 gui-resources/templates/__init__.py
+gui-resources/templates/archive/__init__.py
 gui-resources/templates/configure/__init__.py
 gui-resources/templates/layouts/__init__.py
 gui-resources/templates/list/__init__.py
