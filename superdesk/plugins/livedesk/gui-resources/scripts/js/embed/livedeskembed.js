@@ -270,22 +270,44 @@ window.livedesk.startLoading = function($) {
 				// Tw------------------------------------------------------------------------------------------------
 				var returned = '';
                                 var itemClass = item.getClass();
-                                
+                                var author = item.get('AuthorName');
+                                var annotBefore = '';
+                                var annotAfter = '';
+                                if (item.data.hasOwnProperty('Meta')) {
+                                    var Meta = item.data.Meta;
+                                    if ( typeof Meta == 'string') {
+                                        Meta = JSON.parse(Meta);
+                                    }
+                                    if ( Meta.hasOwnProperty('annotation') ) {
+                                        if( typeof Meta.annotation === 'string' ) {
+                                            annotAfter = '<div class="editable annotation">' + Meta.annotation + '</div>';   
+                                        } else {
+                                            annotBefore = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
+                                            annotAfter = '<div class="editable annotation">' + Meta.annotation[1] + '</div>';
+                                        }
+                                    }
+                                }
+								avatarString = '';
                                 if(Avatar.length > 0) {
-                                    returned += '<figure><img src="' + Avatar + '" ></figure>';
+                                    avatarString = '<figure><img src="' + Avatar + '" ></figure>';
                                 }                                
                                 switch (itemClass) {
                                     case 'tw':
                                     case 'service':
+                                        returned += annotBefore;
+										returned += avatarString;
                                         returned +=  '<div class="result-content">';
                                         returned +=     '<div class="result-text">' + content + '</div>';
                                         returned +=     '<p class="attributes"><i class="source-icon"></i> by ' + item.get('AuthorName');
                                         returned +=         '<time>' + time + '</time>';
-                                         returned +=     '</p>';
+                                        returned +=     '</p>';
                                         returned += '</div>';
+                                        returned += annotAfter;
+                                        
                                         break;
                                     case 'quotation':
-                                        returned +=  '<div class="result-content">';
+                                        returned += avatarString;
+										returned +=  '<div class="result-content">';
                                         returned +=     '<div class="result-text">' + content + '</div>';
                                         returned +=     '<p class="attributes">by ' + item.get('AuthorName');
                                         returned +=         '<time>' + time + '</time>';
@@ -349,14 +371,6 @@ window.livedesk.startLoading = function($) {
 					style += self.model.get('AuthorName');
                                         
                                         var meta = JSON.parse(self.model.get('Meta'));
-                                        var annotation = '';
-                                        if( meta.annotation) {
-                                            for (var i=0; i < meta.annotation.length; i++ ) {
-                                                if(meta.annotation[i]) {
-                                                    annotation += meta.annotation[i];
-                                                }
-                                            }
-                                        }
                                         
                                         var publishedon = self.model.get('PublishedOn');
                                         var datan = new Date(publishedon);
@@ -375,7 +389,6 @@ window.livedesk.startLoading = function($) {
                                                 content += '<p><a href="' + meta.url + '"><img src="' + meta.tbUrl + '" height="' + meta.tbHeight + '" width="' + meta.tbWidth + '"></a></p>';
                                             }
                                         }
-                                        content = annotation + content;                                        
 				}
                                 
                                 
