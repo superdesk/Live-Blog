@@ -160,6 +160,7 @@ function($, superdesk, giz, User, Person)
         {
             $('#user-delete-modal', this.el).prop('view').remove();
             $('#user-delete-modal', this.el).modal('hide'); 
+            this.activate();
         },
         checkPass: function(modal)
         {
@@ -282,7 +283,15 @@ function($, superdesk, giz, User, Person)
             this.users._list = [];
             this.syncing = true;
             this.users.xfilter('*').sync({data: {limit: this.page.limit, offset: this.page.offset},
-                done: function(data){ self.syncing = false; self.page.total = data.total; self.render(); }});
+                done: function(data)
+                { 
+                    self.syncing = false; 
+                    self.page.total = data.total; 
+                    self.render(function()
+                    {
+                        $(superdesk.layoutPlaceholder).html(self.el); 
+                    }); 
+                }});
         },
         
         addItem: function(model)
@@ -309,17 +318,19 @@ function($, superdesk, giz, User, Person)
             var self = this;
             this.users.each(function(){ self.addItem(this); });
         },
-        
-        render: function()
+        tagName: 'span',
+        render: function(cb)
         {
             this.paginate();
             var data = {pagination: this.page},
                 self = this;
-            superdesk.applyLayout('superdesk/user>list', data, function()
+            $.tmpl('superdesk/user>list', data, function(e, o)
             {
+                self.el.html(o);
                 $.tmpl('superdesk/user>add', {}, function(e, o){ $(self.el).append(o); });
                 $.tmpl('superdesk/user>update', {}, function(e, o){ $(self.el).append(o); });
-                // new ItemView for each models 
+                $.isFunction(cb) && cb.apply(self);
+                // new ItemView for each models
                 self.renderList();
                 self.users.on('read update', self.renderList, self);
             });
@@ -328,7 +339,7 @@ function($, superdesk, giz, User, Person)
         
     }),
     
-    listView = new ListView({ el: '#area-main' }); 
+    listView = new ListView(); 
     
     return function(){ listView.activate(); };
 });
