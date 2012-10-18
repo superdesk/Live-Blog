@@ -111,8 +111,6 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
             line = p.stdout.readline()
             if not line: break
             line = str(line, "utf-8")
-            
-            print(line)
 
             property = self.extractProperty(line)
 
