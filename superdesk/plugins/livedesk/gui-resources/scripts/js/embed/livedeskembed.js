@@ -287,13 +287,15 @@ window.livedesk.startLoading = function($) {
                                         }
                                     }
                                 }
+								avatarString = '';
                                 if(Avatar.length > 0) {
-                                    returned += '<figure><img src="' + Avatar + '" ></figure>';
+                                    avatarString = '<figure><img src="' + Avatar + '" ></figure>';
                                 }                                
                                 switch (itemClass) {
                                     case 'tw':
                                     case 'service':
                                         returned += annotBefore;
+										returned += avatarString;
                                         returned +=  '<div class="result-content">';
                                         returned +=     '<div class="result-text">' + content + '</div>';
                                         returned +=     '<p class="attributes"><i class="source-icon"></i> by ' + item.get('AuthorName');
@@ -304,7 +306,8 @@ window.livedesk.startLoading = function($) {
                                         
                                         break;
                                     case 'quotation':
-                                        returned +=  '<div class="result-content">';
+                                        returned += avatarString;
+										returned +=  '<div class="result-content">';
                                         returned +=     '<div class="result-text">' + content + '</div>';
                                         returned +=     '<p class="attributes">by ' + item.get('AuthorName');
                                         returned +=         '<time>' + time + '</time>';
