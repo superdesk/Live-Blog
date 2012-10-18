@@ -35,7 +35,6 @@ function(providers)
 	            {
 	                eval('feed.Meta = '+feed.Meta);
 	            }
-	            feed.Meta.annotation = feed.Meta.annotation[0];
 	            
 	            $.tmpl('livedesk>providers/flickr/post', feed, function(e, o)
                 {
@@ -47,8 +46,7 @@ function(providers)
                             Content: $('.flickr-full-content .result-text', self.el).html(),
                             Meta: JSON.stringify( $.extend( feed.Meta, 
                             {
-                                annotation: [$('.flickr-full-content .annotation:eq(0)', self.el).html(),
-                                             $('.flickr-full-content .annotation:eq(1)', self.el).html()]
+                                annotation: $('.flickr-full-content .annotation:eq(0)', self.el).html(),
                             }))
                         };    
                         self.model.set(data).sync();
