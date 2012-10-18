@@ -20,8 +20,7 @@ function(providers,str, $, Gizmo)
             $(self.el).on('click', '.btn.publish', function()
             {
                 self.data.Content = $('.flickr-full-content .result-text', self.el).html();
-                self.data.Meta.annotation = [$('.flickr-full-content .annotation:eq(0)', self.el).html(), 
-                    $('.flickr-full-content .annotation:eq(1)', self.el).html()];
+                self.data.Meta.annotation = $('.flickr-full-content .annotation:eq(0)', self.el).html();
                 self.data.Meta = JSON.stringify(self.data.Meta);
                 self.parent.insert(self.data, self);
                 $('.actions', self.el).remove();
