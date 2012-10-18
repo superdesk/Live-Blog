@@ -110,6 +110,8 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
             line = p.stdout.readline()
             if not line: break
             line = str(line, "utf-8")
+            
+            print(line)
 
             property = self.extractProperty(line)
 
@@ -163,6 +165,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         #example:'2010:11:08 18:33:13'
         dateTimeFormat = '%Y:%m:%d %H:%M:%S'
         str = line.partition(separator)[2].strip()
+        if str is None or str is '' : return None
         return datetime.strptime(str, dateTimeFormat)
 
     def extractSize(self, line):
