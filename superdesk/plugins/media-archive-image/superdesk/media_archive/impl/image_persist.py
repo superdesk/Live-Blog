@@ -27,7 +27,6 @@ from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
 from ally.support.util_deploy import deploy as deployTool
-from ally.support.util_deploy import deploy as deployTool
 from ally.support.util_sys import pythonPath
 
 # --------------------------------------------------------------------
