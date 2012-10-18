@@ -163,6 +163,8 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     audioDataEntry.Length = values[0]
                     audioDataEntry.AudioBitrate = values[1]
                 except: pass
+            elif line.find('Output #0') != -1:
+                break    
 
         path = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
