@@ -18,8 +18,7 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from datetime import datetime
-from os.path import join, splitext, dirname, abspath
-from ally.support.util_sys import pythonPath
+from os.path import join, splitext, abspath
 from sqlalchemy.exc import SQLAlchemyError
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
@@ -27,7 +26,9 @@ from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
-from ally.support.util_io import synchronizeURIToDir
+from ally.support.util_deploy import deploy as deployTool
+from ally.support.util_deploy import deploy as deployTool
+from ally.support.util_sys import pythonPath
 
 # --------------------------------------------------------------------
 
@@ -44,11 +45,11 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the images thumbnails in the media archive''')
     format_thumbnail = '%(size)s/%(id)s.%(name)s.jpg'; wire.config('format_thumbnail', doc='''
     The format for the images thumbnails in the media archive''')
-    metadata_extractor_path = join('workspace', 'tools', 'media-archive-image', 'metadata_extractor.jar')
+    metadata_extractor_path = join('workspace', 'tools', 'exiv2')
     wire.config('metadata_extractor_path', doc='''The path to the metadata extractor file.''')
 
     image_supported_files = 'gif, png, bmp, jpg'
-    
+
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
     # Provides the thumbnail referencer
 
@@ -66,13 +67,16 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         @see: IMetaDataHandler.deploy
         '''
-        
+
         self._defaultThumbnailFormat = thumbnailFormatFor(self.session(), self.default_format_thumbnail)
         self.thumbnailManager.putThumbnail(self._defaultThumbnailFormat.id, abspath(join(pythonPath(), 'resources', 'image.jpg')))
-        
+
         self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
         self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
-        synchronizeURIToDir(join(pythonPath(), 'resources'), dirname(self.metadata_extractor_path))
+
+        deployTool(join(pythonPath(), 'resources', 'exiv2'), self.metadata_extractor_path)
+
+# --------------------------------------------------------------------
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
         '''
@@ -92,30 +96,39 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
-        p = subprocess.Popen(['java', '-jar', self.metadata_extractor_path, contentPath],
+
+        p = subprocess.Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        if p.wait() != 0: return False
+        result = p.wait()
+
+        #253 is the exiv2 code for error: No Exif data found in the file
+        if result != 0 and result != 253: return False
 
         imageDataEntry = ImageDataEntry()
         imageDataEntry.Id = metaDataMapped.Id
+
         while True:
             line = p.stdout.readline()
             if not line: break
             line = str(line, "utf-8")
-            
 
-            if line.find('] Image Width -') != -1:
-                imageDataEntry.Width = self.extractNumber(line)
-            elif line.find('] Image Height -') != -1:
-                imageDataEntry.Height = self.extractNumber(line)
-            elif line.find('] Date/Time Original -') != -1:
+            property = self.extractProperty(line)
+
+            if property is None:
+                continue
+
+            if property == 'Image size':
+                size = self.extractSize(line)
+                imageDataEntry.Width = size[0]
+                imageDataEntry.Height = size[1]
+            elif property == 'Image timestamp':
                 imageDataEntry.CreationDate = self.extractDateTime(line)
-            elif line.find('] Make -') != -1:
+            elif property == 'Camera make':
                 imageDataEntry.CameraMake = self.extractString(line)
-            elif line.find('] Model -') != -1:
+            elif property == 'Camera model':
                 imageDataEntry.CameraModel = self.extractString(line)
-                    
-                    
+
+
         path = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
 
@@ -135,23 +148,22 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     # ----------------------------------------------------------------
 
-    def extractNumber(self, line):
-        for s in line.split():
-            if s.isdigit():
-                return int(s)
+    def extractProperty(self, line):
+        return line.partition(':')[0].strip()
 
     def extractString(self, line):
-        str = line.partition('-')[2].strip('\n').strip()
+        str = line.partition(':')[2].strip()
         return str
 
     def extractDateTime(self, line):
         #example:'2010:11:08 18:33:13'
         dateTimeFormat = '%Y:%m:%d %H:%M:%S'
-        str = line.partition('-')[2].strip('\n').strip()
+        str = line.partition(':')[2].strip()
+        if str is None or str is '' : return None
         return datetime.strptime(str, dateTimeFormat)
 
     def extractSize(self, line):
-        str = line.partition('-')[2].strip('\n').strip()
+        str = line.partition(':')[2].strip()
         str = str.partition('x')
         return (str[0], str[2])
 
