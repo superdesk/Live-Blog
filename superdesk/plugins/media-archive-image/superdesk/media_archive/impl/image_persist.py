@@ -28,6 +28,7 @@ import re
 import subprocess
 from ally.support.util_deploy import deploy as deployTool
 from ally.support.util_deploy import deploy as deployTool
+from ally.support.util_sys import pythonPath
 
 # --------------------------------------------------------------------
 
@@ -151,13 +152,13 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return line.partition(':')[0].strip()
 
     def extractString(self, line):
-        str = line.partition(separator)[2].strip()
+        str = line.partition(':')[2].strip()
         return str
 
     def extractDateTime(self, line):
         #example:'2010:11:08 18:33:13'
         dateTimeFormat = '%Y:%m:%d %H:%M:%S'
-        str = line.partition(separator)[2].strip()
+        str = line.partition(':')[2].strip()
         if str is None or str is '' : return None
         return datetime.strptime(str, dateTimeFormat)
 
