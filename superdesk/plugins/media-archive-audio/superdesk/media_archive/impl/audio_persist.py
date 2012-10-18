@@ -18,7 +18,8 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
-from os.path import splitext, abspath, join
+from os import remove
+from os.path import splitext, abspath, join, exists
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
@@ -44,6 +45,8 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the audio thumbnails in the media archive''')
     ffmpeg_path = join('workspace', 'tools', 'ffmpeg', 'bin', 'ffmpeg.exe'); wire.config('ffmpeg_path', doc='''
     The path where the ffmpeg is found''')
+    ffmpeg_tmp_path = join('workspace', 'tools', 'ffmpeg', 'tmp');wire.config('ffmpeg_tmp_path', doc='''
+    The path where ffmpeg writes temp data''')
     
     audio_supported_files = '3gp, act, AIFF, ALAC, Au, flac, gsm, m4a, m4p, mp3, ogg, ram, raw, vox, wav, wma'
     
@@ -56,6 +59,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.audio_supported_files, str), 'Invalid supported files %s' % self.audio_supported_files
         assert isinstance(self.ffmpeg_path, str), 'Invalid ffmpeg path %s' % self.ffmpeg_path
+        assert isinstance(self.ffmpeg_tmp_path, str), 'Invalid ffmpeg tmp path %s' % self.ffmpeg_tmp_path
         SessionSupport.__init__(self)
 
         self.audioSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.audio_supported_files))
@@ -89,13 +93,15 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
-        p = Popen((self.ffmpeg_path, '-i', contentPath), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-        if p.wait() != 0:
-            pass
-            #TODO: ffmpeg requires an out parameter; the out parameter is not provide because it generates a file
-            # if out parameter not provided the error code != 0 
-            # have to found a trick, maybe a metadata operation, for example to add the generated id to the file? 
-            #return False
+        #extract metadata operation to a file in order to have an output parameter for ffmpeg; if no output parameter -> get error code 1
+        #the generated metadata file will be deleted
+        tmpFile = self.ffmpeg_tmp_path + str(metaDataMapped.Id)
+        
+        if exists(tmpFile): remove(tmpFile)       
+        p = Popen((self.ffmpeg_path, '-i', contentPath, '-f', 'ffmetadata',  tmpFile), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+        result = p.wait() 
+        if exists(tmpFile): remove(tmpFile)  
+        if result != 0: return False
 
         audioDataEntry = AudioDataEntry()
         audioDataEntry.Id = metaDataMapped.Id
@@ -157,6 +163,8 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
                     audioDataEntry.Length = values[0]
                     audioDataEntry.AudioBitrate = values[1]
                 except: pass
+            elif line.find('Output #0') != -1:
+                break    
 
         path = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
         path = ''.join((META_TYPE_KEY, '/', self.generateIdPath(metaDataMapped.Id), '/', path))
