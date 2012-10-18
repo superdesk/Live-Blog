@@ -150,11 +150,6 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     def extractProperty(self, line):
         return line.partition(':')[0].strip()
 
-    def extractNumber(self, line):
-        for s in line.split():
-            if s.isdigit():
-                return int(s)
-
     def extractString(self, line):
         str = line.partition(separator)[2].strip()
         return str
