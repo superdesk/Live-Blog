@@ -151,19 +151,14 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     def extractProperty(self, line):
         return line.partition(':')[0].strip()
 
-    def extractNumber(self, line):
-        for s in line.split():
-            if s.isdigit():
-                return int(s)
-
     def extractString(self, line):
-        str = line.partition('-')[2].strip()
+        str = line.partition(':')[2].strip()
         return str
 
     def extractDateTime(self, line):
         #example:'2010:11:08 18:33:13'
         dateTimeFormat = '%Y:%m:%d %H:%M:%S'
-        str = line.partition('-')[2].strip()
+        str = line.partition(':')[2].strip()
         if str is None or str is '' : return None
         return datetime.strptime(str, dateTimeFormat)
 
