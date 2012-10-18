@@ -111,21 +111,21 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
             if not line: break
             line = str(line, "utf-8")
             
-            property = self.extractProperty(line, ':')
+            property = self.extractProperty(line)
             
             if property is None:
                 continue
 
             if property == 'Image size':
-                size = self.extractSize(line, ':')
+                size = self.extractSize(line)
                 imageDataEntry.Width = size[0]
                 imageDataEntry.Height = size[1]
             elif property == 'Image timestamp':
-                imageDataEntry.CreationDate = self.extractDateTime(line, ':')
+                imageDataEntry.CreationDate = self.extractDateTime(line)
             elif property == 'Camera make':
-                imageDataEntry.CameraMake = self.extractString(line, ':')
+                imageDataEntry.CameraMake = self.extractString(line)
             elif property == 'Camera model':
-                imageDataEntry.CameraModel = self.extractString(line, ':')
+                imageDataEntry.CameraModel = self.extractString(line)
                     
                     
         path = self.format_file_name % {'id': metaDataMapped.Id, 'file': metaDataMapped.Name}
@@ -147,31 +147,29 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     # ----------------------------------------------------------------
 
-    def extractProperty(self, line, separator):
-        return line.partition(separator)[0].strip()
+    def extractProperty(self, line):
+        return line.partition(':')[0].strip()
 
     def extractNumber(self, line):
         for s in line.split():
             if s.isdigit():
                 return int(s)
 
-    def extractString(self, line, separator):
+    def extractString(self, line):
         str = line.partition(separator)[2].strip()
         return str
 
-    def extractDateTime(self, line, separator):
+    def extractDateTime(self, line):
         #example:'2010:11:08 18:33:13'
         dateTimeFormat = '%Y:%m:%d %H:%M:%S'
         str = line.partition(separator)[2].strip()
         return datetime.strptime(str, dateTimeFormat)
 
-    def extractSize(self, line, separator):
-        str = line.partition(separator)[2].strip()
+    def extractSize(self, line):
+        str = line.partition(':')[2].strip()
         str = str.partition('x')
         return (str[0], str[2])
 
-    def extractSize(self, line):
-        str = line.partition('-')[2].strip('\n').strip()
     # ----------------------------------------------------------------
 
     def generateIdPath (self, id):
