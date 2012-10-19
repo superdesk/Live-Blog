@@ -124,17 +124,17 @@ function($, superdesk, giz, User, Person)
             if( $(evt.target).attr('data-pagination') == 'currentpages' )
             {
                 this.page.offset = $(evt.target).attr('data-offset');
-                this.activate();
+                this.refresh();
             }
             if( $(evt.target).attr('data-pagination') == 'prev' )
             {
                 var o = parseInt(this.page.offset) - parseInt(this.page.limit);
-                if( o >= 0 ) { this.page.offset = o; this.activate(); } 
+                if( o >= 0 ) { this.page.offset = o; this.refresh(); } 
             }
             if( $(evt.target).attr('data-pagination') == 'next' )
             {
                 var o = parseInt(this.page.offset) + parseInt(this.page.limit);
-                if( o < this.page.total ) { this.page.offset = o; this.activate(); } 
+                if( o < this.page.total ) { this.page.offset = o; this.refresh(); } 
             }
         },
         /*!
@@ -147,7 +147,7 @@ function($, superdesk, giz, User, Person)
             if( src.length <= 1 )
             {
                 //$('tr', self.el).each(function(){ $(this).prop('view') && $(this).prop('view').show(); });
-                this.activate();
+                this.refresh();
                 $('[data-action="cancel-search"]', self.el).addClass('hide');
                 return;
             }
@@ -163,6 +163,7 @@ function($, superdesk, giz, User, Person)
         {
             $('#user-delete-modal', this.el).prop('view').remove();
             $('#user-delete-modal', this.el).modal('hide'); 
+            this.refresh();
         },
         checkPass: function(modal)
         {
@@ -274,18 +275,31 @@ function($, superdesk, giz, User, Person)
         init: function()
         {
             var self = this;
-            
             this.page = { limit: 25, offset: 0, total: null, pagecount: 5 };
-            
             this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') })));
+            this._resetEvents = false;
         },
-        activate: function()
+        refresh: function(opts)
         {
             var self = this;
             this.users._list = [];
             this.syncing = true;
-            this.users.xfilter('*').sync({data: {limit: this.page.limit, offset: this.page.offset},
-                done: function(data){ self.syncing = false; self.page.total = data.total; self.render(); }});
+            var options = {data: {limit: this.page.limit, offset: this.page.offset}, done: function(data)
+            { 
+                self.syncing = false; 
+                self.page.total = data.total;
+            }};
+            return this.users.xfilter('*').sync(options).done(function(){ self.render(); });
+        },
+        activate: function()
+        {
+            if( this._resetEvents ) this.resetEvents();
+            this._resetEvents = true;
+            var self = this;
+            return this.refresh().done(function()
+            {
+                $(superdesk.layoutPlaceholder).html(self.el);
+            });
         },
         
         addItem: function(model)
@@ -312,17 +326,19 @@ function($, superdesk, giz, User, Person)
             var self = this;
             this.users.each(function(){ self.addItem(this); });
         },
-        
-        render: function()
+        tagName: 'span',
+        render: function(cb)
         {
             this.paginate();
             var data = {pagination: this.page},
                 self = this;
-            superdesk.applyLayout('superdesk/user>list', data, function()
+            $.tmpl('superdesk/user>list', data, function(e, o)
             {
+                self.el.html(o);
                 $.tmpl('superdesk/user>add', {}, function(e, o){ $(self.el).append(o); });
                 $.tmpl('superdesk/user>update', {}, function(e, o){ $(self.el).append(o); });
-                // new ItemView for each models 
+                $.isFunction(cb) && cb.apply(self);
+                // new ItemView for each models
                 self.renderList();
                 self.users.on('read update', self.renderList, self);
             });
@@ -331,7 +347,7 @@ function($, superdesk, giz, User, Person)
         
     }),
     
-    listView = new ListView({ el: '#area-main' }); 
+    listView = new ListView(); 
     
     return function(){ listView.activate(); };
 });
