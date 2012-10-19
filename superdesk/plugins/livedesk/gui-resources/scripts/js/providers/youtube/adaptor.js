@@ -26,12 +26,20 @@ function(providers,str, $, Gizmo)
                 self.data.Meta = JSON.stringify(self.data.Meta);
                 self.parent.insert(self.data, self);
                 $('.actions', self.el).remove();
-            });
-            $(self.el).on('click', '.btn.cancel', function()
+            })
+            .on('click', '.btn.cancel', function()
             {
                 self.parent = null;
                 self.el.remove();
-            });
+            })
+			.on('click', 'a.close', function(){
+				$('#delete-post .yes')
+					.off(self.getEvent('click'))
+					.on(self.getEvent('click'), function(){
+						self.parent = null;
+						self.el.remove();
+					});				
+			});			
         },
         render: function()
         {
