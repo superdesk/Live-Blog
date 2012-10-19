@@ -26,12 +26,21 @@ function(providers,str, $, Gizmo)
                 self.parent.insert(self.data, self);
                 
                 $('.actions', self.el).addClass('hide');
-            });
-            $(self.el).on('click', '.btn.cancel', function()
+            })
+			.on('click', '.btn.cancel', function()
             {
                 self.parent = null;
                 self.el.remove();
-            });
+            })
+			.on('click', 'a.close', function(){
+				$('#delete-post .yes')
+					.off(self.getEvent('click'))
+					.on(self.getEvent('click'), function(){
+						self.parent = null;
+						self.el.remove();
+					});				
+			});
+
         },
         render: function()
         {
