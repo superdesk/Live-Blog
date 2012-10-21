@@ -58,7 +58,6 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.image_supported_files, str), 'Invalid supported files %s' % self.image_supported_files
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
-        SessionSupport.__init__(self)
 
         self.imageSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.image_supported_files))
 
