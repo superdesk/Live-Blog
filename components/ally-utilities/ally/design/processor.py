@@ -439,7 +439,7 @@ class Assembly:
             if missing is None: missing = assContext.required()
             missing.difference_update(assContext.defined())
             if missing:
-                raise AssemblyError('Cannot resolve any definers for attributes:\n%s' %
+                raise AssemblyError('Cannot resolve any definers for attributes:\n%s' % 
                                     '\n'.join('\t%s.%s' % key for key in missing))
 
         self._validateOrder(processors)
@@ -465,7 +465,7 @@ class Assembly:
 
             definedOnly = assContext.definedOnly()
             if definedOnly:
-                report.append('\nThe following attributes are not used by any processor:\n\t%s' %
+                report.append('\nThe following attributes are not used by any processor:\n\t%s' % 
                               ', '.join('%s.%s' % key for key in sorted(definedOnly)))
 
             if not report: report.append('Nothing to report, everything fits nicely')
@@ -625,7 +625,7 @@ class Assembly:
                         # The other index defines stuff for index we need to check if doesn't apply reversed
                         raise AssemblyError('First processor defines attributes %s required by the second processor'
                         ', but also the second processor defines attributes %s required by the first processor:'
-                        '\nFirst processor at:%s\nSecond processor at:%s' %
+                        '\nFirst processor at:%s\nSecond processor at:%s' % 
                         (['%s.%s' % attr for attr in definesRequired], ['%s.%s' % attr for attr in otherDefinesRequired],
                         location(processors[index]), location(processors[indexOther])))
 
@@ -744,13 +744,13 @@ class AssemblyContext:
             name, nameAttribute = key
 
             attributes = contexts.get(name)
-            if attributes is None: attributes = contexts[name] = dict()
+            if attributes is None: attributes = contexts[name] = dict(__module__=__name__)
 
             try: attributes[nameAttribute] = assAttr.create()
             except AssemblyError:
                 raise AssemblyError('Cannot create attribute \'%s\' from context \'%s\'' % (nameAttribute, name))
 
-        return {name: ContextMetaClass(name[0].upper() + name[1:], (Context,), attributes)
+        return {name: ContextMetaClass('Generated$%s%s' % (name[0].upper(), name[1:]), (Context,), attributes)
                             for name, attributes in contexts.items()}
 
     # ----------------------------------------------------------------
@@ -841,7 +841,7 @@ class AssemblyAttribute:
         if self.defined and self.required:
             types = self.defined.intersection(self.required)
             if not types:
-                raise AssemblyError('Invalid defined %s and required %s assembly types' %
+                raise AssemblyError('Invalid defined %s and required %s assembly types' % 
                                     ([typ.__name__ for typ in self.defined], [typ.__name__ for typ in self.required]))
         elif self.defined: types = self.defined
         elif self.required: types = self.required
@@ -879,7 +879,7 @@ class AssemblyAttribute:
                     self.required.intersection_update(attribute.types)
 
         if self.required and self.defined and self.required != self.defined and self.defined.issuperset(self.required):
-                raise AssemblyError('The defined attributes types %s are not compatible with the required types %s' %
+                raise AssemblyError('The defined attributes types %s are not compatible with the required types %s' % 
                 ([typ.__name__ for typ in self.defined], [typ.__name__ for typ in self.required]))
 
         self.status |= attribute.status

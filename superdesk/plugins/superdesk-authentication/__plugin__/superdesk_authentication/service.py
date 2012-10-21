@@ -46,4 +46,6 @@ def cleanup():
         schedule.enter(timeout, 1, executeCleanup, ())
 
     schedule.enter(timeout, 1, executeCleanup, ())
-    Thread(target=schedule.run, name='Cleanup authentications/sessions thread').start()
+    scheduleRunner = Thread(target=schedule.run, name='Cleanup authentications/sessions thread')
+    scheduleRunner.daemon = True
+    scheduleRunner.start()

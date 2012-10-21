@@ -11,13 +11,12 @@ thread serving requests one at a time).
 '''
 
 from ally.api.config import GET, INSERT, UPDATE, DELETE
-from ally.support.util_io import IOutputStream
 from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
     RequestContentHTTP, ResponseContentHTTP
 from ally.core.spec.codes import Code
 from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
     CREATE_REPORT
-from ally.support.util_io import readGenerator
+from ally.support.util_io import IOutputStream, readGenerator
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qsl
 import logging
@@ -113,19 +112,23 @@ class RequestHandler(BaseHTTPRequestHandler):
     # ----------------------------------------------------------------
 
     def log_message(self, format, *args):
-        #TODO: see for a better solution for this, check for next python release
+        # TODO: see for a better solution for this, check for next python release
         # This is a fix: whenever a message is logged there is an attempt to find some sort of host name which
         # creates a big delay whenever the request is made from a non localhost client.
         assert log.debug(format, *args) or True
 
 # --------------------------------------------------------------------
 
-pathAssemblies = list
-# A list that contains tuples having on the first position a string pattern for matching a path, and as a value 
-# the assembly to be used for creating the context for handling the request for the path.
-
-def run(port=80):
+def run(pathAssemblies, server_version, host='', port=80):
+    '''
+    Run the basic server.
+    
+    @param pathAssemblies: list[(regex, Assembly)]
+        A list that contains tuples having on the first position a string pattern for matching a path, and as a value 
+        the assembly to be used for creating the context for handling the request for the path.
+    '''
     assert isinstance(pathAssemblies, list), 'Invalid path assemblies %s' % pathAssemblies
+    RequestHandler.server_version = server_version
     RequestHandler.pathProcessing = []
     for pattern, assembly in pathAssemblies:
         assert isinstance(pattern, str), 'Invalid pattern %s' % pattern
@@ -137,9 +140,9 @@ def run(port=80):
 
         log.info('Assembly report for pattern \'%s\':\n%s', pattern, report)
         RequestHandler.pathProcessing.append((re.compile(pattern), processing))
-
+    
     try:
-        server = HTTPServer(('', port), RequestHandler)
+        server = HTTPServer((host, port), RequestHandler)
         print('=' * 50, 'Started HTTP REST API server...')
         server.serve_forever()
     except KeyboardInterrupt:
