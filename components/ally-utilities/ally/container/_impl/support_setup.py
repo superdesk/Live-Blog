@@ -133,14 +133,14 @@ class SetupEntityListen(Setup):
         '''
         Creates a setup that will listen for entities that inherit or are in the provided classes.
         
-        @param group: string
+        @param group: string|None
             The name group of the call entities to be listened.
         @param classes: list[class]|tuple(class)
             The classes to listen for.
         @param listeners: list[Callable]|tuple(Callable)
            The listeners to be invoked. The listeners Callable's will take one argument that is the instance.
         '''
-        assert isinstance(group, str), 'Invalid group %s' % group
+        assert group is None or isinstance(group, str), 'Invalid group %s' % group
         assert isinstance(classes, (list, tuple)), 'Invalid classes %s' % classes
         assert isinstance(listeners, (list, tuple)), 'Invalid listeners %s' % listeners
         if __debug__:
@@ -155,13 +155,15 @@ class SetupEntityListen(Setup):
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        prefix = self.group + '.'
+        if self.group: prefix = self.group + '.'
+        else: prefix = None
         for name, call in assembly.calls.items():
-            if name.startswith(prefix) and isinstance(call, CallEntity):
+            if isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
-                if call.marks.count(self) == 0:
-                    call.addInterceptor(self._intercept)
-                    call.marks.append(self)
+                if prefix is None or name.startswith(prefix):
+                    if call.marks.count(self) == 0:
+                        call.addInterceptor(self._intercept)
+                        call.marks.append(self)
 
     def _intercept(self, value, followUp):
         '''
@@ -236,7 +238,7 @@ class SetupEntityProxy(Setup):
                     proxies = [clazz for clazz in proxies
                                if all(not issubclass(cls, clazz) for cls in proxies if cls != clazz)]
                 if len(proxies) > 1:
-                    raise SetupError('Cannot create proxy for %s, because to many proxy classes matched %s' %
+                    raise SetupError('Cannot create proxy for %s, because to many proxy classes matched %s' % 
                                      (value, proxies))
 
                 value = proxyWrapFor(value)

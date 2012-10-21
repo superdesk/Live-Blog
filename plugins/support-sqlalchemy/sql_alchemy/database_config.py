@@ -37,8 +37,7 @@ def alchemySessionCreator(): return sessionmaker(bind=alchemyEngine())
 
 @ioc.entity
 def alchemyEngine() -> Engine:
-    engine = create_engine(database_url(), pool_recycle=alchemy_pool_recycle())
-    return engine
+    return create_engine(database_url(), pool_recycle=alchemy_pool_recycle())
 
 @ioc.entity
 def metas(): return []
