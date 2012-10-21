@@ -10,7 +10,7 @@ Provides support for SQL alchemy a processor for automatic session handling.
 '''
 
 from ally.design.processor import Chain, HandlerProcessor
-from ally.support.sqlalchemy.session import rollback, commit, ATTR_KEEP_ALIVE, \
+from ally.support.sqlalchemy.session import rollback, commit, setKeepAlive, \
     endSessions
 from ally.design.context import Context, optional
 from ally.core.spec.codes import Code
@@ -40,7 +40,7 @@ class TransactionWrappingHandler(HandlerProcessor):
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(response, Response), 'Invalid response %s' % response
 
-        ATTR_KEEP_ALIVE.set(True)
+        setKeepAlive(True)
         try:
             chain.process(response=response, **keyargs)
             # We process the chain inside the try because we need control over the processing.
