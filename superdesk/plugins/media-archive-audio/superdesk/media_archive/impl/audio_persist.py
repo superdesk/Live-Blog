@@ -18,8 +18,14 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
+>>>>>>>>>>>>>>>>>>>> File 1
 from os import remove
 from os.path import splitext, abspath, join, exists
+>>>>>>>>>>>>>>>>>>>> File 2
+from os.path import splitext, abspath, join
+>>>>>>>>>>>>>>>>>>>> File 3
+from os.path import splitext, abspath, join
+<<<<<<<<<<<<<<<<<<<<
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
