@@ -47,7 +47,6 @@ class MetaDataServiceBaseAlchemy(SessionSupport, IMetaDataService):
         assert isclass(QMetaDataClass) and issubclass(QMetaDataClass, QMetaData), \
         'Invalid meta data query class %s' % QMetaDataClass
         assert isinstance(referencer, IMetaDataReferencer), 'Invalid referencer %s' % referencer
-        SessionSupport.__init__(self)
 
         self.MetaData = MetaDataClass
         self.QMetaData = QMetaDataClass
