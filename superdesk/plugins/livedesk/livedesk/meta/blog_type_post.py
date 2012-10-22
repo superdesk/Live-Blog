@@ -8,15 +8,13 @@ Created on Aug 30, 2012
 
 Contains the SQL alchemy meta for blog type post API.
 '''
-
+from ..api.blog_post import BlogPost
+from livedesk.meta.blog import BlogMapped
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.schema import Column, ForeignKey
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.post import PostMapped
 from sqlalchemy.types import REAL
-from livedesk.meta.blog_type import BlogTypeMapped
-from livedesk.meta.blog_post import BlogPostMapped
-from livedesk.api.blog_type_post import BlogTypePost
 
 # --------------------------------------------------------------------
 
@@ -27,10 +25,10 @@ class BlogTypePostDefinition:
     __tablename__ = 'livedesk_blog_type_post'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    BlogType = declared_attr(lambda cls: Column('fk_blog_type_id', ForeignKey(BlogTypeMapped.Id), nullable=False))
-    Order = declared_attr(lambda cls: Column('ordering', REAL))
+    BlogType = declared_attr(lambda cls: Column('fk_blog_type_id', ForeignKey(BlogMapped.Id), nullable=False))
     # Non REST model attribute --------------------------------------
-    blogTypePostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(BlogPostMapped.Id), primary_key=True))
+    ordering = declared_attr(lambda cls: Column('ordering', REAL))
+    blogPostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
     # Never map over the inherited id
 
 class BlogTypePostEntry(Base, BlogTypePostDefinition):
@@ -38,7 +36,7 @@ class BlogTypePostEntry(Base, BlogTypePostDefinition):
     Provides the mapping for BlogPost table where it keeps the connection between the post and the blog.
     '''
 
-class BlogTypePostMapped(BlogTypePostDefinition, PostMapped, BlogTypePost):
+class BlogTypePostMapped(BlogTypePostDefinition, PostMapped, BlogPost):
     '''
     Provides the mapping for BlogPost in the form of extending the Post.
     '''
