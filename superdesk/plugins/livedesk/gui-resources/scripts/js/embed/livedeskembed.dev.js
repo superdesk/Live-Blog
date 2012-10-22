@@ -1,4 +1,3 @@
-
 window.livedesk.loadGizmo = function(giveBack$) {    
     var self = this;
     (function($)
@@ -1963,7 +1962,10 @@ window.livedesk.startLoading = function($) {
                                 var hash = postId;
                                 var itemClass = self.model.getClass();
                                 var fullLink = window.livedesk.location + '#' + hash;
-                                var permalink = '<a rel="bookmark" href="#'+ hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';
+                                var permalink = '';
+								if(itemClass !== 'advertisement' && itemClass !== 'wrapup')
+									permalink = '<a rel="bookmark" href="#'+ hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';
+								
 				var template ='<li class="'+ style + itemClass +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
                                 self.setElement( template );
                                 self.model.triggerHandler('rendered');
