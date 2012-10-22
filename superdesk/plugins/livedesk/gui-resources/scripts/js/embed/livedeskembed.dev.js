@@ -1,4 +1,3 @@
-
 window.livedesk.loadGizmo = function(giveBack$) {    
     var self = this;
     (function($)
@@ -1540,7 +1539,11 @@ function isOnly(data,key) {
 	return (data !== undefined) && (data[key] !== undefined) && (count == 1);
 }
 
+
 window.livedesk.init = function() {
+    
+    window.livedesk.location = window.location.href.split('#')[0];
+    
     var self = this;
     var loadJQ = false;
     var giveBack$ = false;
@@ -1599,6 +1602,7 @@ window.livedesk.preLoad = function (giveBack$) {
         this.startLoading(jQuery);
     }
 };
+
 window.livedesk.startLoading = function($) {
 		var 
 		User = $.gizmo.Model.extend({}),
@@ -1879,7 +1883,16 @@ window.livedesk.startLoading = function($) {
                                 item.nextUntil('.wrapup').show();
                             }
                         },
-
+                        togglePermalink: function(e) {
+                            this._togglePermalink($(e).next('input[data-type="permalink"]'));
+                        },
+                        _togglePermalink: function(item) {
+                            if (item.css('visibility') == 'visible') {
+                               item.css('visibility','hidden');
+                            } else {
+                               item.css('visibility', 'visible');
+                            }
+                        },
 			render: function()
 			{			
                                 countLoaded++;
@@ -1948,13 +1961,23 @@ window.livedesk.startLoading = function($) {
                                 var hash = postId + '-' +  encodeURI (blogTitle);
                                 var hash = postId;
                                 var itemClass = self.model.getClass();
-                                var permalink = '<a rel="bookmark" href="#'+ hash +'">#</a>';
+                                var fullLink = window.livedesk.location + '#' + hash;
+                                var permalink = '';
+								if(itemClass !== 'advertisement' && itemClass !== 'wrapup')
+									permalink = '<a rel="bookmark" href="#'+ hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';
+								
 				var template ='<li class="'+ style + itemClass +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
                                 self.setElement( template );
                                 self.model.triggerHandler('rendered');
                                 
-                                $(self.el).off('click.view').on('click.view', '.big-toggle', function(){
+                                $(self.el).off('click.view', '.big-toggle').on('click.view', '.big-toggle', function(){
                                     self.toggleWrap(this);
+                                });
+                                $(self.el).off('click', 'a[rel="bookmark"]').on('click', 'a[rel="bookmark"]', function() {
+                                   self.togglePermalink(this);
+                                });
+                                $(self.el).off('click', 'input[data-type="permalink"]').on('focus', 'input[data-type="permalink"]', function() {
+                                    this.select();
                                 });
 
 			}
