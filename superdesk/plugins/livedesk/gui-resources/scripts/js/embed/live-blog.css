@@ -2,7 +2,12 @@
     font-size: 14px;
     font-family: 'ff-meta-serif-web-pro-1', 'ff-meta-serif-web-pro-2', Georgia, 'Times New Roman', Times, serif;
 }
-
+#livedesk-root li {
+    list-style-type: none;
+    font-size: 16px;
+    color: #788d34;
+    margin: 0;
+}
     #livedesk-root .live-blog p.update-time {
         border: 1px solid #e0ded7;
         border-width:1px 0;
@@ -26,10 +31,11 @@
 
         #livedesk-root ol.liveblog-post-list li, 
         #livedesk-root ul.liveblog-post-list li {
-            margin: 0;
+            margin: 0 0 0 30px;
             padding: 10px 0 0 0;
             border-top: 1px solid #e0ded7;
             color: #444228;
+            position: relative;
         }
 
         #livedesk-root ol.liveblog-post-list li:first-child, 
@@ -53,6 +59,13 @@
             .liveblog-post-list li figure + .result-content {
                 padding-left: 55px;
             }
+            .liveblog-post-list li .annotation  {
+                font-size: 16px;
+                color:#788d34;
+                margin-bottom: 5px;
+                clear: both;
+                font-family: "Helvetica Neue";
+            }
             .liveblog-post-list li .result-text  {
                 font-size: 16px;
             }
@@ -75,13 +88,13 @@
                 .twitterservice .attributes .source-icon {
                     background-image: url("img/twitter-16px.png");
                 }
-                .flickr .attributes .source-icon {
+                .flickrservice .attributes .source-icon {
                     background-image: url("img/flickr-16px.png");
                 }
                 .facebook .attributes .source-icon {
                     background-image: url("img/facebook-16px.png");
                 }
-                .youtube .attributes .source-icon {
+                .youtubeservice .attributes .source-icon {
                     background-image: url("img/youtube-16px.png");
                 }
                 .quotation .attributes .source-icon {
@@ -99,16 +112,39 @@
                 padding-left:55px;
                 background: url("img/quotes.png") no-repeat 0 5px; 
             }
-
+            
             .liveblog-post-list li a[rel="bookmark"] {
-                display: none;
+                width: 24px;
+                height: 25px;
+                text-indent: -9999px;
+                background: #e0ded7 url("img/bookmark.png") no-repeat 4px 4px;
+                position: absolute;
+                bottom: -1px;
+                right:0;
+                display: block;
             }
+
+            
+            input[data-type="permalink"] {
+                margin: 0;
+                padding: 0 10px;
+                position: absolute;
+                bottom: -1px;
+                right: 24px;
+                height: 23px;
+                border: 1px solid #E0DED7;
+                border-width: 1px 0px 1px 1px;
+                width: 300px;
+                color: #666;
+            }
+
+
 
 #livedesk-root ol.liveblog-post-list li.wrapup {
 
     background-color: #f4f3f0;
     border-top: 3px solid #e0ded7;
-    margin: 40px 0 18px;
+    margin: 40px 0 18px 0;
     padding: 5px 10px 10px 50px;
     position: relative;
     }
@@ -138,6 +174,7 @@
     .wrapup.open span.big-toggle {
         background-position: 0 -25px;
     }
+
 
 .wrapup + li:first-child {
     border: 0;
@@ -173,9 +210,7 @@ ul.liveblog-post-list li.advertisement a {
 }
 
 ol.liveblog-post-list li.advertisement a:first-child,
-ul.liveblog-post-list li.advertisement a:first-child,
-ol.liveblog-post-list li.advertisement a:last-child,
-ul.liveblog-post-list li.advertisement a:last-child  {
+ul.liveblog-post-list li.advertisement a:first-child  {
     display: none;
 }
 
