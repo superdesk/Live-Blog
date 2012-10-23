@@ -4,18 +4,13 @@ define
 ],
 function($, superdesk)
 {
-    return {
-        init: function()
+    return { init: function() 
+    {
+        superdesk.getAction('modules.user.list')
+        .done(function(action)
         {
-            superdesk.getAction('modules.user.list')
-            .done(function(action)
-            {
-                var callback = function()
-                { 
-                    require([superdesk.apiUrl+action.ScriptPath], function(app){ app(); }); 
-                };
-                action.ScriptPath && superdesk.navigation.bind( $(self).attr('href')||'users', callback, $(self).text()||'Users' );
-            });
-        }
-    };
+            if(action.Path == 'modules.user.list' && action.ScriptPath)
+                require([superdesk.apiUrl+action.ScriptPath], function(app){ app(); });
+        });
+    }};
 });
