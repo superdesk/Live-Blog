@@ -61,7 +61,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     def _process(self, method):
         url = urlparse(self.path)
         path = url.path.lstrip('/')
-
         for regex, processing in self.pathProcessing:
             match = regex.match(path)
             if match:
