@@ -26,8 +26,8 @@ class BlogTypePostDefinition:
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     BlogType = declared_attr(lambda cls: Column('fk_blog_type_id', ForeignKey(BlogMapped.Id), nullable=False))
+    Order = declared_attr(lambda cls: Column('ordering', REAL))
     # Non REST model attribute --------------------------------------
-    ordering = declared_attr(lambda cls: Column('ordering', REAL))
     blogPostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
     # Never map over the inherited id
 
