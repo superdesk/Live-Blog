@@ -675,8 +675,6 @@ Model.prototype =
 	{
 		this._clientId = uniqueIdCounter++;
 		this.data = {};
-		//this.exTime = new Date
-		//this.exTime.setMinutes(this.exTime.getMinutes() + 5);
 		this.parseHash(data);
 		this._new = true;
 		var self = this.pushUnique ? this.pushUnique() : this;
@@ -686,6 +684,7 @@ Model.prototype =
 		if( options && typeof options == 'object' ) $.extend(self, options);
 		if( typeof data == 'object' ) {
 			self.parse(data);
+			self._setExpiration();			
 		}
 		if(!$.isEmptyObject(self.changeset)) {
 			//console.log('_constructor update', self.changeset);
@@ -755,7 +754,13 @@ Model.prototype =
 				}));
 			}
 		}
-		else
+		else {
+			if( !(arguments[0] && arguments[0].force) && this.exTime && (  this.exTime > new Date) ) {
+				if(!self.isDeleted()){
+					self.triggerHandler('update');
+				}
+			}
+			else 
 			// simply read data from server
 			ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
 			{
@@ -778,8 +783,14 @@ Model.prototype =
 					self.clearChangeset().triggerHandler('read');
 				}
 			}));
-
+		}
+		this._setExpiration();
 		return ret;
+	},
+	_setExpiration: function()
+	{
+		this.exTime = new Date;
+		this.exTime.setSeconds(this.exTime.getSeconds() + 5);
 	},
 	_remove: function()
 	{
@@ -868,8 +879,10 @@ Model.prototype =
 	{
 		if( typeof data == 'string' )
 			this.href = data;
-		else if( data && data.href !== undefined)
+		else if( data && data.href !== undefined) {
 			this.href = data.href;
+			delete data.href;
+		}
 		else if(data && ( data.id !== undefined) && (this.url !== undefined))
 			this.href = this.url + data.id;
 		return this;
@@ -1430,8 +1443,10 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     {
         try
         { 
-            delete this.options.headers['X-Filter'];
-            delete this.options.data['startEx.CId'];
+            if(this.options.headers && this.options.headers['X-Filter'])
+				delete this.options.headers['X-Filter'];
+            if(this.options && this.options.data && this.options.data['startEx.CId'])
+				delete this.options.data['startEx.CId'];
         }
         catch(e){}
     }, 
@@ -1523,5 +1538,4 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
 		Url: giz.Url,
 		Register: giz.Register		
     };
-    
 })(jQuery);
