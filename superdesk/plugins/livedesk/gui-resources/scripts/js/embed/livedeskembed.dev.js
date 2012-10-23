@@ -2139,6 +2139,7 @@ window.livedesk.startLoading = function($) {
 			   this.renderedTotal--;
 			   if(!this.renderedTotal) {
 					this.closeAllButFirstWrapup();
+                                        this.addClassToHashItem();
 			   }
 			},
 			closeAllButFirstWrapup: function(views) {
@@ -2149,9 +2150,15 @@ window.livedesk.startLoading = function($) {
 						  views[i]._toggleWrap($(views[i].el));
 					 }
 				}
-			}
-
-			
+			},
+                        addClassToHashItem: function() {
+                            var hash = window.location.hash;
+                            var hashArray = hash.split('#');                            
+                            if ( hashArray.length > 1) {
+                                var name = hashArray[1];
+                                $('a[name="' + name + '"]').addClass('hash-open');
+                            }
+                        }
 		});
 		window.livedesk.TimelineView = TimelineView;
 		window.livedesk.callback();
