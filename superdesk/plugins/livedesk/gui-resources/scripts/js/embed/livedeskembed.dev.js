@@ -1,6 +1,6 @@
 window.livedesk.loadGizmo = function(giveBack$) {    
     var self = this;
-    (function($)
+(function($)
     {
 str = function(str){
 	this.init(str);
@@ -677,8 +677,6 @@ Model.prototype =
 	{
 		this._clientId = uniqueIdCounter++;
 		this.data = {};
-		//this.exTime = new Date
-		//this.exTime.setMinutes(this.exTime.getMinutes() + 5);
 		this.parseHash(data);
 		this._new = true;
 		var self = this.pushUnique ? this.pushUnique() : this;
@@ -688,6 +686,7 @@ Model.prototype =
 		if( options && typeof options == 'object' ) $.extend(self, options);
 		if( typeof data == 'object' ) {
 			self.parse(data);
+			self._setExpiration();			
 		}
 		if(!$.isEmptyObject(self.changeset)) {
 			//console.log('_constructor update', self.changeset);
@@ -757,7 +756,13 @@ Model.prototype =
 				}));
 			}
 		}
-		else
+		else {
+			if( !(arguments[0] && arguments[0].force) && this.exTime && (  this.exTime > new Date) ) {
+				if(!self.isDeleted()){
+					self.triggerHandler('update');
+				}
+			}
+			else 
 			// simply read data from server
 			ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
 			{
@@ -780,8 +785,14 @@ Model.prototype =
 					self.clearChangeset().triggerHandler('read');
 				}
 			}));
-
+		}
+		this._setExpiration();
 		return ret;
+	},
+	_setExpiration: function()
+	{
+		this.exTime = new Date;
+		this.exTime.setSeconds(this.exTime.getSeconds() + 5);
 	},
 	_remove: function()
 	{
@@ -870,8 +881,10 @@ Model.prototype =
 	{
 		if( typeof data == 'string' )
 			this.href = data;
-		else if( data && data.href !== undefined)
+		else if( data && data.href !== undefined) {
 			this.href = data.href;
+			delete data.href;
+		}
 		else if(data && ( data.id !== undefined) && (this.url !== undefined))
 			this.href = this.url + data.id;
 		return this;
@@ -1432,8 +1445,10 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     {
         try
         { 
-            delete this.options.headers['X-Filter'];
-            delete this.options.data['startEx.CId'];
+            if(this.options.headers && this.options.headers['X-Filter'])
+				delete this.options.headers['X-Filter'];
+            if(this.options && this.options.data && this.options.data['startEx.CId'])
+				delete this.options.data['startEx.CId'];
         }
         catch(e){}
     }, 
@@ -1525,7 +1540,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
 		Url: giz.Url,
 		Register: giz.Register		
     };
-    self.preLoad(giveBack$);
+    self.preLoad(giveBack$);    
 })(jQuery);
     
 }
@@ -1726,8 +1741,12 @@ window.livedesk.startLoading = function($) {
 						this._latestCId = CId;
 				}
 			},
+			xfilter: function(xfilter){
+				this.xfilter =  xfilter;
+				return this;
+			},
 			auto: function(){                                
-				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': 'CId'}};
+				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': self.xfilter}};
 				if(this._latestCId === 0) delete requestOptions.data;
 				this.triggerHandler('beforeUpdate');
 				$.gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){
@@ -1768,10 +1787,9 @@ window.livedesk.startLoading = function($) {
                         self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
                                                            'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';				
                         self.model
-                                .on('read', self.render, self)
-                                .on('update', function(evt, data){
-                                        if(isOnly(data, 'CId')) {
-                                                self.model.xfilter(self.xfilter).sync(); //
+                                .on('read update', function(evt, data){
+										if(isOnly(this.data, 'CId') || isOnly(data, 'CId')) {
+                                                self.model.xfilter(self.xfilter).sync({force: true});
                                         }
                                         else
                                                 self.render(evt, data);
@@ -2005,31 +2023,33 @@ window.livedesk.startLoading = function($) {
 				this.auto().pause().setIdInterval(function(){self.auto();});
 			},			
 			auto: function(){
-				this.model.sync();
+				this.model.xfilter().sync({force: true});
 				return this;
 			},
 			ensureStatus: function(){
 				if(this.model.get('ClosedOn')) {
 					var closedOn = new Date(this.model.get('ClosedOn'));
-					//this.pause();
+					this.pause();
 					this.model.get('PostPublished').pause();					
 					this.el.find('#liveblog-status').html('The liveblog coverage was stopped '+closedOn.format('mm/dd/yyyy HH:MM:ss'));
 				}
+			},                       
+			gotoHash : function() {
+				if (location.hash.length > 0) {
+					var topHash = location.hash;
+					location.hash = '';
+					location.hash = topHash;
+				}
 			},
-                        
-                        gotoHash : function() {
-                            if (location.hash.length > 0) {
-                                var topHash = location.hash;
-                                location.hash = '';
-                                location.hash = topHash;
-                            }
-                        },
 			init: function()
 			{
 				var self = this;
 				self.rendered = false;
 				if($.type(self.url) === 'string')
 					self.model = new Blog(self.url.replace('my/',''));				
+				var xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
+				//xfilter = 'CId';								   
 				self.model.on('read', function()
 				{ 
 					if(!self.rendered) {
@@ -2037,7 +2057,7 @@ window.livedesk.startLoading = function($) {
 							.on('read', self.render, self)
 							.on('update', self.addAll, self)
 							.on('beforeUpdate', self.updateingStatus, self)
-							.xfilter('CId').sync();
+							.xfilter(xfilter).sync();
 					}
 					self.rendered = true;
 				}).on('update', function(e, data){
@@ -2089,7 +2109,7 @@ window.livedesk.startLoading = function($) {
                             }
                         },
 			render: function(evt)
-			{				
+			{
 				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div>');
 				this.renderBlog();
 				this.ensureStatus();
@@ -2103,29 +2123,28 @@ window.livedesk.startLoading = function($) {
                                 }, 900)
                                 this.views=[];
                                 this.renderedTotal = i;
-
 				while(i--) {
+					data[i].on('rendered', this.renderedOn, this);
 					auxView = this.addOne(data[i]);
-                                        auxView.model.on('rendered', this.renderedOn, this);
 					this.views.push(auxView);
 				}
                                 
 			},
-                        renderedOn: function(){
-                           this.renderedTotal--;
-                           if(!this.renderedTotal) {
-                                this.closeAllButFirstWrapup();
-                           }
-                        },
-                        closeAllButFirstWrapup: function(views) {
-                            var first = true, views= this.views;
-                            views.reverse();
-                            for (var i = 0; i < views.length; i++) {
-                                 if ($(views[i].el).hasClass('wrapup')) {
-                                      views[i]._toggleWrap($(views[i].el));
-                                 }
-                            }
-                        }
+			renderedOn: function(){
+			   this.renderedTotal--;
+			   if(!this.renderedTotal) {
+					this.closeAllButFirstWrapup();
+			   }
+			},
+			closeAllButFirstWrapup: function(views) {
+				var first = true, views= this.views;
+				views.reverse();
+				for (var i = 0; i < views.length; i++) {
+					 if ($(views[i].el).hasClass('wrapup')) {
+						  views[i]._toggleWrap($(views[i].el));
+					 }
+				}
+			}
 
 			
 		});
