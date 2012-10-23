@@ -1857,15 +1857,20 @@ window.livedesk.startLoading = function($) {
                                 }
                                return returned;
 			},
-                        toggleWrap: function(e) {
-                            //e.preventDefault();
-                            this._toggleWrap($(e).closest('li').first());
+                        toggleWrap: function(e, forceToggle) {
+                            if (typeof forceToggle != 'boolean' ) {
+                                forceToggle = false;
+                            }
+                            this._toggleWrap($(e).closest('li').first(), forceToggle);
                         },
-                        _toggleWrap: function(item) {
+                        _toggleWrap: function(item, forceToggle) {
+                            if (typeof forceToggle != 'boolean' ) {
+                                forceToggle = false;
+                            }
                             if (item.hasClass('open')) {
                                 var collapse = true;
                                 var hash = window.location.hash;
-                                if ( hash.length > 0) {
+                                if ( hash.length > 0 && forceToggle == false ) {
                                     item.nextUntil('.wrapup').each(function(){
                                         if ('#' + $(this).find('a').attr('name') == hash) {
                                             collapse = false;
@@ -1971,7 +1976,7 @@ window.livedesk.startLoading = function($) {
                                 self.model.triggerHandler('rendered');
                                 
                                 $(self.el).off('click.view', '.big-toggle').on('click.view', '.big-toggle', function(){
-                                    self.toggleWrap(this);
+                                    self.toggleWrap(this, true);
                                 });
                                 $(self.el).off('click', 'a[rel="bookmark"]').on('click', 'a[rel="bookmark"]', function() {
                                    self.togglePermalink(this);
