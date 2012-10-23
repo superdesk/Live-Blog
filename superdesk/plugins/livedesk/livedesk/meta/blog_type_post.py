@@ -28,7 +28,7 @@ class BlogTypePostDefinition:
     BlogType = declared_attr(lambda cls: Column('fk_blog_type_id', ForeignKey(BlogMapped.Id), nullable=False))
     Order = declared_attr(lambda cls: Column('ordering', REAL))
     # Non REST model attribute --------------------------------------
-    blogPostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
+    blogTypePostId = declared_attr(lambda cls: Column('fk_post_id', ForeignKey(PostMapped.Id), primary_key=True))
     # Never map over the inherited id
 
 class BlogTypePostEntry(Base, BlogTypePostDefinition):
