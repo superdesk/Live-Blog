@@ -75,12 +75,12 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
 
-        postEntry = BlogTypePostEntry(BlogType=blogTypeId, blogPostId=self.postService.insert(post))
-        postEntry.ordering = self._nextOrdering(blogTypeId)
+        postEntry = BlogTypePostEntry(BlogType=blogTypeId, blogTypePostId=self.postService.insert(post))
+        postEntry.Order = self._nextOrdering(blogTypeId)
         self.session().add(postEntry)
         self.session().flush((postEntry,))
 
-        return postEntry.blogPostId
+        return postEntry.blogTypePostId
 
     def update(self, blogTypeId, post):
         '''
@@ -90,7 +90,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
 
         self.postService.update(post)
 
-        postEntry = BlogTypePostEntry(BlogType=blogTypeId, blogPostId=post.Id)
+        postEntry = BlogTypePostEntry(BlogType=blogTypeId, blogTypePostId=post.Id)
         self.session().merge(postEntry)
         self.session().flush((postEntry,))
 
@@ -98,22 +98,22 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         '''
         @see: IBlogPostService.reorder
         '''
-        sql = self.session().query(BlogTypePostMapped.ordering)
+        sql = self.session().query(BlogTypePostMapped.Order)
         sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
         sql = sql.filter(BlogTypePostMapped.Id == refPostId)
         order = sql.scalar()
 
         if order is None: raise InputError(Ref(_('Invalid before post')))
 
-        sql = self.session().query(BlogTypePostMapped.ordering)
+        sql = self.session().query(BlogTypePostMapped.Order)
         sql = sql.filter(BlogTypePostMapped.BlogType == blogTypeId)
         sql = sql.filter(BlogTypePostMapped.Id != postId)
         if before:
-            sql = sql.filter(BlogTypePostMapped.ordering < order)
-            sql = sql.order_by(desc_op(BlogTypePostMapped.ordering))
+            sql = sql.filter(BlogTypePostMapped.Order < order)
+            sql = sql.order_by(desc_op(BlogTypePostMapped.Order))
         else:
-            sql = sql.filter(BlogTypePostMapped.ordering > order)
-            sql = sql.order_by(BlogTypePostMapped.ordering)
+            sql = sql.filter(BlogTypePostMapped.Order > order)
+            sql = sql.order_by(BlogTypePostMapped.Order)
         sql = sql.limit(1)
         orderPrev = sql.scalar()
 
@@ -123,7 +123,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         post = self.getById(blogTypeId, postId)
         assert isinstance(post, BlogTypePostMapped)
 
-        post.ordering = order
+        post.Order = order
         self.session().merge(post)
         self.session().flush((post,))
 
@@ -171,6 +171,6 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         '''
         Provides the next ordering.
         '''
-        max = self.session().query(fn.max(BlogTypePostMapped.ordering)).filter(BlogTypePostMapped.BlogType == blogTypeId).scalar()
+        max = self.session().query(fn.max(BlogTypePostMapped.Order)).filter(BlogTypePostMapped.BlogType == blogTypeId).scalar()
         if max: return max + 1
         return 1
