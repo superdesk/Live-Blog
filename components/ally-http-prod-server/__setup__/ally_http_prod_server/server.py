@@ -26,10 +26,18 @@ def processes_pool_size():
     '''
     return 'auto'
 
+@ioc.config
+def processes_thread_size():
+    '''
+    The number of threads per processes to use.
+    '''
+    return 20
+
 # --------------------------------------------------------------------
 
 @ioc.start
 def runServer():
     if server_type() == 'production':
-        args = (pathAssemblies(), server_version(), server_host(), server_port(), processes_pool_size())
+        args = (pathAssemblies(), server_version(), server_host(), server_port(), processes_pool_size(),
+                processes_thread_size())
         Thread(name='HTTP server thread', target=server_production.run, args=args).start()

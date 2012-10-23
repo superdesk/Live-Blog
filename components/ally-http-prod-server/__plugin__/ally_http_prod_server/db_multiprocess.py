@@ -9,7 +9,9 @@ Created on Oct 18, 2012
 Configuration to add multiprocessing abilities to the database.
 '''
 
-from ally.container import support
+from __setup__.ally_core_http import server_type
+from ally.container import support, ioc
+import ally_deploy_application
 
 # --------------------------------------------------------------------
 
@@ -28,4 +30,7 @@ else:
         if not isinstance(engine.pool, SingletonProcessWrapper):
             engine.pool = SingletonProcessWrapper(engine.pool)
     
-    support.listenToEntities(Engine, listeners=present, module=support.ALL)
+    ioc.activate(ally_deploy_application.assembly)
+    if server_type() == 'production':
+        support.listenToEntities(Engine, listeners=present, module=support.ALL)
+    ioc.deactivate()
