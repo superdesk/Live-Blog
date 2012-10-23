@@ -21,7 +21,11 @@ resources/exiv2/Linux/x86_64/__init__.py
 resources/exiv2/Linux/x86_64/bin/__init__.py
 resources/exiv2/Linux/x86_64/lib/__init__.py
 resources/exiv2/Windows/__init__.py
+resources/exiv2/Windows/AMD64/__init__.py
+resources/exiv2/Windows/AMD64/bin/__init__.py
 resources/exiv2/Windows/all/__init__.py
+resources/exiv2/Windows/x86/__init__.py
+resources/exiv2/Windows/x86/bin/__init__.py
 resources/exiv2/Windows/x86_64/__init__.py
 resources/exiv2/Windows/x86_64/bin/__init__.py
 resources/exiv2/all/__init__.py
