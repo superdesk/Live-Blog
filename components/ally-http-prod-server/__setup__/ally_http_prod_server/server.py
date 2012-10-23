@@ -38,6 +38,6 @@ def processes_thread_size():
 @ioc.start
 def runServer():
     if server_type() == 'production':
-        args = (pathAssemblies(), server_version(), server_host(), server_port(), processes_pool_size(),
-                processes_thread_size())
+        args = pathAssemblies(), server_version(), server_host(), server_port(), processes_pool_size(), \
+        processes_thread_size()
         Thread(name='HTTP server thread', target=server_production.run, args=args).start()

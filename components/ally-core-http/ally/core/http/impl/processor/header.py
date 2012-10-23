@@ -113,7 +113,7 @@ class DecoderHeader(IDecoderHeader):
         assert parameters is None or isinstance(parameters, list), 'Invalid parameters %s' % parameters
 
         self.handler = handler
-        self.headers = headers
+        self.headers = {hname.lower():hvalue for hname, hvalue in headers.items()}
         self.parameters = parameters
         if parameters: self.parametersUsed = {}
 
@@ -122,11 +122,10 @@ class DecoderHeader(IDecoderHeader):
         @see: IDecoderHeader.retrieve
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
-        handler = self.handler
-        assert isinstance(handler, HeaderHandler)
 
+        name = name.lower()
         value = self.readParameters(name)
-        if value: return handler.separatorMain.join(value)
+        if value: return self.handler.separatorMain.join(value)
 
         return self.headers.get(name)
 
@@ -135,7 +134,8 @@ class DecoderHeader(IDecoderHeader):
         @see: IDecoderHeader.decode
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
-
+        
+        name = name.lower()
         value = self.readParameters(name)
         if value:
             parsed = []
@@ -177,21 +177,20 @@ class DecoderHeader(IDecoderHeader):
         Read the parameters for the provided name.
         
         @param name: string
-            The name to read the parameters for.
+            The name (lower case) to read the parameters for.
         @return: deque[string]
             The list of found values, might be empty.
         '''
         if not self.parameters: return
 
         assert isinstance(name, str), 'Invalid name %s' % name
-        handler = self.handler
-        assert isinstance(handler, HeaderHandler)
+        assert name == name.lower(), 'Invalid name %s, needs to be lower case only' % name
 
         value = self.parametersUsed.get(name)
         if value is None:
             value, k = deque(), 0
             while k < len(self.parameters):
-                if self.parameters[k][0] == name:
+                if self.parameters[k][0].lower() == name:
                     value.append(self.parameters[k][1])
                     del self.parameters[k]
                     k -= 1
