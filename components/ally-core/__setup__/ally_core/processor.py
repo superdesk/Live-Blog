@@ -44,6 +44,16 @@ def explain_detailed_error():
     '''If True will provide as an error response a detailed response containing info about where the problem originated'''
     return True
 
+@ioc.config
+def allow_chuncked_response():
+    '''Flag indicating that a chuncked transfer is allowed, more or less if this is false a length is a must'''
+    return False
+
+@ioc.config
+def chunck_size():
+    '''The buffer size used in the generator returned chuncks'''
+    return 1024
+
 # --------------------------------------------------------------------
 
 @ioc.entity
@@ -97,7 +107,11 @@ def argumentsBuild() -> Handler: return ArgumentsBuildHandler()
 def invoking() -> Handler: return InvokingHandler()
 
 @ioc.entity
-def renderEncoder() -> Handler: return RenderEncoderHandler()
+def renderEncoder() -> Handler:
+    b = RenderEncoderHandler()
+    b.allowChunked = allow_chuncked_response()
+    b.bufferSize = chunck_size()
+    return b
 
 @ioc.entity
 def explainError(): return ExplainErrorHandler()
