@@ -9,5 +9,4 @@ del superdesk\distribution\components\*.egg
 del superdesk\distribution\plugins\*.egg
 copy distribution\plugins\*.egg superdesk\distribution\plugins\
 copy distribution\components\*.egg superdesk\distribution\components\
-rmdir superdesk\distribution\workspace /S /q
 python.exe superdesk\plugins\build_egg.py
