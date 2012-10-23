@@ -8,7 +8,6 @@ Created on Aug 30, 2012
 
 Contains the SQL alchemy meta for blog type post API.
 '''
-
 from ..api.blog_post import BlogPost
 from livedesk.meta.blog import BlogMapped
 from sqlalchemy.ext.declarative import declared_attr
