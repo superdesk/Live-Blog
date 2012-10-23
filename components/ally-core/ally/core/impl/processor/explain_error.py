@@ -48,6 +48,7 @@ class ResponseContent(Context):
     '''
     # ---------------------------------------------------------------- Defined
     source = defines(Iterable)
+    length = defines(int)
 
 # --------------------------------------------------------------------
 
@@ -82,4 +83,6 @@ class ExplainErrorHandler(HandlerProcessorProceed):
             render = response.renderFactory(output)
             renderObject(Object('error', *errors), render)
 
+            content = output.getvalue()
+            responseCnt.length = len(content)
             responseCnt.source = (output.getvalue(),)
