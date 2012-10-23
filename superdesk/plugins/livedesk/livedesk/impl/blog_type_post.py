@@ -65,7 +65,7 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         assert q is None or isinstance(q, QBlogTypePost), 'Invalid query %s' % q
         sql = self._buildQuery(blogTypeId, typeId, q)
 
-        sql = sql.order_by(desc_op(BlogTypePostMapped.ordering))
+        sql = sql.order_by(desc_op(BlogTypePostMapped.Order))
         sql = buildLimits(sql, offset, limit)
         return self._trimmDeleted(sql.all())
 
