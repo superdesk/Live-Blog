@@ -14,6 +14,7 @@ from ally.api.operator.authentication.service import IAuthenticationSupport
 from ally.api.type import typeFor, Type
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref, DevelError
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport, commitNow
@@ -31,7 +32,6 @@ from superdesk.user.meta.user import UserMapped
 import hashlib
 import hmac
 import logging
-from ally.container.support import setup
 
 # --------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationCompoundServic
     authentication_token_size = 5; wire.config('authentication_token_size', doc='''
     The number of characters that the authentication token should have.
     ''')
-    session_token_size = 10; wire.config('session_token_size', doc='''
+    session_token_size = 5; wire.config('session_token_size', doc='''
     The number of characters that the authentication token should have.
     ''')
     authentication_timeout = 10; wire.config('authentication_timeout', doc='''
@@ -73,7 +73,6 @@ class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationCompoundServic
         assert isinstance(self.authentication_timeout, int), \
         'Invalid authentication timeout %s' % self.authentication_timeout
         assert isinstance(self.session_timeout, int), 'Invalid session timeout %s' % self.session_timeout
-        SessionSupport.__init__(self)
 
         self.authenticationTimeOut = timedelta(seconds=self.authentication_timeout)
         self.sessionTimeOut = timedelta(seconds=self.session_timeout)

@@ -10,8 +10,6 @@ Provides implementations that provide general behavior or functionality.
 '''
 
 from collections import Iterator
-from inspect import isclass
-from threading import currentThread
 import sys
 
 # --------------------------------------------------------------------
@@ -115,89 +113,3 @@ def lastCheck(iterator):
             if stop: raise
             stop = True
             yield True, item
-
-# --------------------------------------------------------------------
-
-_attrNameIds = {}
-# Used by the attribute to assign a unique id to a name.
-
-attrIdForName = lambda name: str(_attrNameIds.setdefault(name, len(_attrNameIds)))
-# Provides the name id.
-
-class AttributeOnThread:
-    '''
-    Class used for creating attributes for python threads.
-    '''
-
-    def __init__(self, group, name, valueType=None):
-        '''
-        Creates a new attribute.
-        
-        @param group: string
-            The group name for the attribute, this is usually the module name where is created, it helps to distinguish
-            between same names but with other purposes.
-        @param name: string
-            The name of the attribute.
-        @param valueType: type
-            The type to check for the set and get values.
-        '''
-        assert isinstance(group, str), 'Invalid group name %s' % group
-        assert isinstance(name, str), 'Invalid name %s' % name
-        assert not valueType or isclass(valueType), 'Invalid value type %s' % valueType
-        self.__group = group
-        self.__name = name
-        self.__type = valueType
-        if __debug__: self.__id = group + '.' + name
-        else:
-            self.__id = attrIdForName(group) + '_' + attrIdForName(name)
-
-    def has(self):
-        '''
-        Checks if there is a value for the current thread.
-        
-        @return: boolean
-            True if there is a value, False otherwise.
-        '''
-        return hasattr(currentThread(), self.__id)
-
-    def get(self, *default):
-        '''
-        Get the value from the current thread.
-        
-        @param default: argument
-            If provided will return the default if no argument value is available.
-        @return: object
-            The value.
-        '''
-        value = getattr(currentThread(), self.__id, *default)
-        assert not(self.__type and value is not None) or isinstance(value, self.__type), 'Invalid value %s to get for ' \
-        'required type %s, for attribute %s.%s' % (value, self.__type, self.__group, self.__name)
-        return value
-
-    def set(self, value):
-        '''
-        Sets the value to the current thread.
-        
-        @param value: object
-            The value to set.
-        @return: object
-            The provided value.
-        '''
-        assert not(self.__type and value is not None) or isinstance(value, self.__type), 'Invalid value %s to set for ' \
-        'required type %s, for attribute %s.%s' % (value, self.__type, self.__group, self.__name)
-        setattr(currentThread(), self.__id, value)
-        return value
-
-    def delete(self):
-        '''
-        Deletes the value from the provided object.
-        '''
-        delattr(currentThread(), self.__id)
-
-    def clear(self):
-        '''
-        Deletes the value from the current thread if is present.
-        '''
-        thread = currentThread()
-        if hasattr(thread, self.__id): delattr(thread, self.__id)
-
