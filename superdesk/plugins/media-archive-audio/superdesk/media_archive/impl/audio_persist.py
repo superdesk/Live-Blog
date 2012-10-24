@@ -65,8 +65,11 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.audio_supported_files, str), 'Invalid supported files %s' % self.audio_supported_files
         assert isinstance(self.ffmpeg_path, str), 'Invalid ffmpeg path %s' % self.ffmpeg_path
+<<<<<<< HEAD
         assert isinstance(self.ffmpeg_tmp_path, str), 'Invalid ffmpeg tmp path %s' % self.ffmpeg_tmp_path
         SessionSupport.__init__(self)
+=======
+>>>>>>> 6b9861b915fc200fe64155eebcee23f71e426c56
 
         self.audioSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.audio_supported_files))
 
