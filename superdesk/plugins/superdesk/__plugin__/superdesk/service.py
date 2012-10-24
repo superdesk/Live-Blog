@@ -9,7 +9,6 @@ Created on Jan 9, 2012
 Contains the services for superdesk.
 '''
 
-from ..ally_authentication_http.authentication import registerAuthentication
 from ..plugin.registry import addService
 from .db_superdesk import bindSuperdeskSession, bindSuperdeskValidations
 from ally.api.operator.authentication.service import IAuthenticationSupport
@@ -22,7 +21,9 @@ SERVICES = 'superdesk.*.api.**.I*Service'
 support.createEntitySetup('superdesk.*.impl.**.*')
 support.bindToEntities('superdesk.*.impl.**.*Alchemy', binders=bindSuperdeskSession)
 support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskSession, bindSuperdeskValidations))
-support.listenToEntities(IAuthenticationSupport, listeners=registerAuthentication, beforeBinding=False)
+try: from ..ally_authentication_http.authentication import registerAuthentication
+except ImportError: pass
+else: support.listenToEntities(IAuthenticationSupport, listeners=registerAuthentication, beforeBinding=False)
 support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------
