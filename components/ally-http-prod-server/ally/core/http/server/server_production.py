@@ -58,9 +58,8 @@ class HTTPProductionServer(HTTPServer):
         for k in range(0, counts):
             receiver, sender = Pipe(False)
             
-            args = (RequestHandlerClass, receiver, threads, 2 * timeout)
+            args = RequestHandlerClass, receiver, threads, 2 * timeout
             process = Process(name='Process %s' % k, target=prepareServer, args=args)
-            process.daemon = True
             processes.append(process)
             pipes.append(sender)
             
@@ -115,7 +114,7 @@ def prepareServer(RequestHandlerClass, pipe, threads, timeout):
 
 # --------------------------------------------------------------------
 
-def run(pathAssemblies, server_version, host='', port=80, processes='auto', threads=20):
+def run(pathAssemblies, server_version, host='0.0.0.0', port=80, processes='auto', threads=20, timeout=1):
     '''
     Run the basic server.
     
@@ -140,13 +139,12 @@ def run(pathAssemblies, server_version, host='', port=80, processes='auto', thre
     if processes == 'auto': processes = cpu_count()
     
     try:
-        server = HTTPProductionServer((host, port), RequestHandler, counts=processes, threads=threads, timeout=1)
+        server = HTTPProductionServer((host, port), RequestHandler, counts=processes, threads=threads, timeout=timeout)
         print('=' * 50, 'Started HTTP REST API server...')
         server.serve_forever()
     except KeyboardInterrupt:
         print('=' * 50, '^C received, shutting down server')
         server.server_close()
-        return
     except:
         log.exception('=' * 50 + ' The server has stooped')
         try: server.server_close()

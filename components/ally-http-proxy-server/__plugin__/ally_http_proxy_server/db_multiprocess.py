@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 ioc.activate(ally_deploy_application.assembly)
-if server_type() == 'production':
+if server_type() == 'proxy':
     try:
         from sql_alchemy.multiprocess_config import enableMultiProcessPool
     except ImportError:

@@ -52,7 +52,7 @@ def allow_chuncked_response():
 @ioc.config
 def chunck_size():
     '''The buffer size used in the generator returned chuncks'''
-    return 1024
+    return 4096
 
 # --------------------------------------------------------------------
 

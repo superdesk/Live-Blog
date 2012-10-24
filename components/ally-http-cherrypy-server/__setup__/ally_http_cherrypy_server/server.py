@@ -9,9 +9,8 @@ Created on Nov 23, 2011
 Runs the cherry py web server.
 '''
 
-from ..ally_core_http import server_type, server_version, server_port, \
-    server_host
-from ..ally_core_http.processor import pathAssemblies
+from ..ally_core_http import server_type, server_port, server_host
+from ..ally_core_http.server_wsgiref import requestHandlerWSGI
 from ally.container import ioc
 from threading import Thread
 
@@ -29,19 +28,19 @@ def request_queue_size() -> int:
 
 # --------------------------------------------------------------------
 
-@ioc.entity
-def requestHandler():
-    from ally.core.http.server.server_wsgi import RequestHandler
-    b = RequestHandler(); yield b
-    b.pathAssemblies = pathAssemblies()
-    b.serverVersion = server_version()
-
-# --------------------------------------------------------------------
+try:
+    from ally.core.http.server import server_cherrypy
+    from ..ally_http_proxy_server.server import proxiedServers
+except ImportError: pass  # The proxy server is not available
+else:
+    @ioc.before(proxiedServers)
+    def placeToProxy():
+        args = requestHandlerWSGI(), server_host()
+        kargs = dict(requestQueueSize=request_queue_size(), serverName=server_name())
+        proxiedServers()['cherrypy'] = lambda port: server_cherrypy.run(*args, port=port, **kargs)
 
 @ioc.start
 def runServer():
     if server_type() == 'cherrypy':
-        from ally.core.http.server import server_cherrypy
-
-        args = requestHandler(), server_host(), server_port(), request_queue_size(), server_name()
+        args = requestHandlerWSGI(), server_host(), server_port(), request_queue_size(), server_name()
         Thread(target=server_cherrypy.run, args=args).start()

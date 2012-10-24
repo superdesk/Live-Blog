@@ -185,7 +185,7 @@ def _extendPackagePaths(package):
 # --------------------------------------------------------------------
 
 PACKAGE_EXTENDER = PackageExtender()
-del PackageExtender # We remove the class so no other instance can be created.
+del PackageExtender  # We remove the class so no other instance can be created.
 
 # Registers into the python sys._meta_path the package extender.
 if not sys.meta_path or not sys.meta_path[0] == PACKAGE_EXTENDER:
