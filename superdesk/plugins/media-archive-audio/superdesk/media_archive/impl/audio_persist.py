@@ -18,14 +18,8 @@ from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from ally.support.util_sys import pythonPath
->>>>>>>>>>>>>>>>>>>> File 1
 from os import remove
 from os.path import splitext, abspath, join, exists
->>>>>>>>>>>>>>>>>>>> File 2
-from os.path import splitext, abspath, join
->>>>>>>>>>>>>>>>>>>> File 3
-from os.path import splitext, abspath, join
-<<<<<<<<<<<<<<<<<<<<
 from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
@@ -65,11 +59,7 @@ class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.audio_supported_files, str), 'Invalid supported files %s' % self.audio_supported_files
         assert isinstance(self.ffmpeg_path, str), 'Invalid ffmpeg path %s' % self.ffmpeg_path
-<<<<<<< HEAD
         assert isinstance(self.ffmpeg_tmp_path, str), 'Invalid ffmpeg tmp path %s' % self.ffmpeg_tmp_path
-        SessionSupport.__init__(self)
-=======
->>>>>>> 6b9861b915fc200fe64155eebcee23f71e426c56
 
         self.audioSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.audio_supported_files))
 
