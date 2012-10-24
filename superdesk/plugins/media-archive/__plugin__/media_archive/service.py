@@ -42,7 +42,7 @@ def addMetaDataHandler(handler):
 
 support.createEntitySetup('superdesk.media_archive.core.impl.**.*')
 support.bindToEntities('superdesk.media_archive.core.impl.**.*Alchemy', binders=bindSuperdeskSession)
-support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, setupModule=service, beforeBinding=False)
+support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, beforeBinding=False, module=service)
 
 # --------------------------------------------------------------------
 

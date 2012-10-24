@@ -14,8 +14,8 @@ from setuptools import setup, find_packages
 # --------------------------------------------------------------------
 
 setup(
-    name="ally_utilities",
-    version="1.0",
+    name='ally_utilities',
+    version='1.0',
     packages=find_packages(),
     platforms=['all'],
     test_suite='test',
@@ -23,11 +23,11 @@ setup(
     zip_safe=True,
 
     # metadata for upload to PyPI
-    author="Gabriel Nistor",
-    author_email="gabriel.nistor@sourcefabric.org",
-    description="Ally framework - utilities component",
+    author='Gabriel Nistor',
+    author_email='gabriel.nistor@sourcefabric.org',
+    description='Ally framework - utilities component',
     long_description='The utilities component of the Ally framework',
-    license="GPL v3",
-    keywords="Ally REST framework",
-    url="http://www.sourcefabric.org/en/superdesk/", # project home page
+    license='GPL v3',
+    keywords='Ally REST framework',
+    url='http://www.sourcefabric.org/en/superdesk/', # project home page
 )

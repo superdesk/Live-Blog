@@ -45,7 +45,6 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         Construct the blog post service.
         '''
         assert isinstance(self.postService, IPostService), 'Invalid post service %s' % self.postService
-        SessionSupport.__init__(self)
 
     def getById(self, blogTypeId, postId):
         '''
