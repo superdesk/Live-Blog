@@ -48,7 +48,6 @@ class EntitySupportAlchemy(SessionSupport):
         assert isinstance(Entity, MappedSupport), 'Invalid mapped class %s' % Entity
         self.modelType = typeFor(Entity)
         assert isinstance(self.modelType, TypeModel), 'Invalid model class %s' % Entity
-        SessionSupport.__init__(self)
 
         self.model = self.modelType.container
         self.Entity = Entity
