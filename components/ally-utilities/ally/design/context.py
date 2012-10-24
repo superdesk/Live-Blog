@@ -127,7 +127,7 @@ class Attribute:
         return ''.join((self.__class__.__name__, '(', ':'.join(status), '=' , self.name or '', ':',
                         ','.join(type.__name__ for type in self.types), ')'))
 
-ALLOWED = {'__module__', '__doc__'}
+ALLOWED = {'__module__', '__doc__', '__locals__'}
 # The allowed attributes in a context class.
 class ContextMetaClass(ABCMeta):
     '''
@@ -175,19 +175,7 @@ class Context(metaclass=ContextMetaClass):
     '''
     The base context class, this class needs to be inherited by all classes that need to behave like a data context.
     '''
-
-    def __init__(self, **keyargs):
-        for name, value in keyargs.items(): setattr(self, name, value)
-
-    def __contains__(self, attribute):
-        if not isinstance(attribute, Attribute): return False
-        assert isinstance(attribute, Attribute)
-        owned = self.__attributes__.get(attribute.name)
-        if owned is None: return False
-
-        try: return isinstance(owned.descriptor.__get__(self), attribute.types)
-        except AttributeError: return False
-
+    
     @classmethod
     def __subclasshook__(cls, C):
         if cls is Context: return Context in C.__mro__
@@ -212,6 +200,18 @@ class Context(metaclass=ContextMetaClass):
             return True
 
         return NotImplemented
+
+    def __init__(self, **keyargs):
+        for name, value in keyargs.items(): setattr(self, name, value)
+
+    def __contains__(self, attribute):
+        if not isinstance(attribute, Attribute): return False
+        assert isinstance(attribute, Attribute)
+        owned = self.__attributes__.get(attribute.name)
+        if owned is None: return False
+
+        try: return isinstance(owned.descriptor.__get__(self), attribute.types)
+        except AttributeError: return False
 
 # --------------------------------------------------------------------
 

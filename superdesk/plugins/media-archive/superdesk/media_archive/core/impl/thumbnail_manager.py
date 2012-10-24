@@ -53,7 +53,6 @@ class ThumbnailManagerAlchemy(SessionSupport, IThumbnailManager):
         assert isinstance(self.thumbnailProcessor, IThumbnailProcessor), \
         'Invalid thumbnail processor %s' % self.thumbnailProcessor
         assert isinstance(self.cdm, ICDM), 'Invalid thumbnail CDM %s' % self.cdm
-        SessionSupport.__init__(self)
 
         # We order the thumbnail sizes in descending order
         thumbnailSizes = [(key, sizes) for key, sizes in self.thumbnail_sizes.items()]

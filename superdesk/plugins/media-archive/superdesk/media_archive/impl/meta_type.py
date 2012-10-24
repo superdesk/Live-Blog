@@ -28,7 +28,9 @@ class MetaTypeServiceAlchemy(SessionSupport, IMetaTypeService):
     '''
 
     def __init__(self):
-        SessionSupport.__init__(self)
+        '''
+        Construct the service.
+        '''
 
     def getById(self, id):
         '''

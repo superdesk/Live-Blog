@@ -12,6 +12,7 @@ ally/support/__init__.py
 ally/support/sqlalchemy/__init__.py
 ally/support/sqlalchemy/descriptor.py
 ally/support/sqlalchemy/mapper.py
+ally/support/sqlalchemy/pool.py
 ally/support/sqlalchemy/session.py
 ally/support/sqlalchemy/util_service.py
 ally_core_sqlalchemy.egg-info/PKG-INFO
