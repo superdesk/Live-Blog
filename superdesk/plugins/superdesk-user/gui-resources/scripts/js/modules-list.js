@@ -75,6 +75,17 @@ function($, superdesk, giz, User, Person, sha)
             
             delete this.model.__collaborator;
             delete data.Collaborator;
+            
+            // hash password
+            if( data.Password )
+                data.Password = (new sha(data.Password, 'ASCII')).getHash('SHA-512', 'HEX');
+            
+            var chPassModel = giz.Auth(new giz.Model(this.model.href+'/ChangePassword'));
+            chPassModel.set('Id', this.model.get('Id'));
+            chPassModel.set('Password', data.Password);
+            chPassModel.sync();
+            
+            delete data.Password;
             this.model.set(data);
             
             // TODO add this fnc in gizmo

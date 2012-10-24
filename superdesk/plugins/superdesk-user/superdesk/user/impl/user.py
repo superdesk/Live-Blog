@@ -123,5 +123,17 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         userDb.DeletedOn = current_timestamp()
         self.session().merge(userDb)
         return True
-
+    
+    def changePassword(self, adminId, user):
+        '''
+        @see: IUserService.changePassword
+        '''
+        userDb = self.session().query(UserMapped).get(user.Id)
+        if not userDb or userDb.DeletedOn is not None:
+            assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
+            raise InputError(Ref(_('Unknown user id'), ref=User.Id))
+        try:
+            userDb.password = user.Password
+            self.session().flush((userDb, ))
+        except SQLAlchemyError as e: handle(e, userDb)  
 
