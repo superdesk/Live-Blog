@@ -33,7 +33,7 @@ def modulesListAction():
     return Action('list', N_('Request'), Parent=modulesAction(),
                ScriptPath=getPublishedGui('superdesk/request/scripts/js/list.js'))
 
-@ioc.start
+#@ioc.start
 def actionRegister():
     if publish_development():
         actionManagerService().add(menuAction())

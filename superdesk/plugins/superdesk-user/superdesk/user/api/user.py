@@ -9,12 +9,13 @@ Created on Mar 6, 2012
 The API specifications for the user.
 '''
 
-from ally.api.config import service, query
+from ally.api.config import service, query, UPDATE, call
 from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered, AsLike
 from ally.support.api.entity import Entity, IEntityService, QEntity
 from superdesk.api.domain_superdesk import modelSuperDesk
 from superdesk.person.api.person import Person, QPerson
 from datetime import datetime
+from ally.api.authentication import auth
 
 # --------------------------------------------------------------------
 
@@ -26,6 +27,13 @@ class User(Person):
     Name = str
     CreatedOn = datetime
     DeletedOn = datetime
+    Password = str
+
+@modelSuperDesk(name=User)
+class UserPassword(Entity):
+    '''
+    Separate model for password actions, just in case
+    '''
     Password = str
 
 # --------------------------------------------------------------------
@@ -46,3 +54,9 @@ class IUserService(IEntityService):
     '''
     User model service interface
     '''
+    
+    @call(method=UPDATE, webName='ChangePassword')
+    def changePassword(self, adminId:auth(User.Id), user:UserPassword):
+        '''
+        Changes user password by user id
+        '''

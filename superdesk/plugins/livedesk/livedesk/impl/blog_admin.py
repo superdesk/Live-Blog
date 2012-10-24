@@ -32,7 +32,6 @@ class BlogAdminServiceAlchemy(SessionSupport, IBlogAdminService):
         '''
         Construct the blog administrator service.
         '''
-        SessionSupport.__init__(self)
 
     def getById(self, blogId, userId):
         '''
