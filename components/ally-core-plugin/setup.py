@@ -14,19 +14,19 @@ from setuptools import setup, find_packages
 # --------------------------------------------------------------------
 
 setup(
-    name="ally_core_plugin",
-    version="1.0",
+    name='ally_core_plugin',
+    version='1.0',
     packages=find_packages(),
     install_requires=['ally_utilities >= 1.0', 'support_cdm >= 1.0'],
     platforms=['all'],
     zip_safe=True,
 
     # metadata for upload to PyPI
-    author="Gabriel Nistor",
-    author_email="gabriel.nistor@sourcefabric.org",
-    description="Ally framework - core plugin component",
+    author='Gabriel Nistor',
+    author_email='gabriel.nistor@sourcefabric.org',
+    description='Ally framework - core plugin component',
     long_description='The core plugin component of the Ally framework',
-    license="GPL v3",
-    keywords="Ally REST framework",
-    url="http://www.sourcefabric.org/en/superdesk/", # project home page
+    license='GPL v3',
+    keywords='Ally REST framework',
+    url='http://www.sourcefabric.org/en/superdesk/', # project home page
 )

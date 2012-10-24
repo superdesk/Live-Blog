@@ -56,9 +56,9 @@ class RequestDecode(Context):
     decoderHeader = requires(IDecoderHeader)
     # ---------------------------------------------------------------- Optional
     language = optional(str)
-    accLanguages = optional(list)
     argumentsOfType = optional(dict)
     # ---------------------------------------------------------------- Defined
+    accLanguages = defines(list)
     normalizer = defines(Normalizer, doc='''
     @rtype: Normalizer
     The normalizer to use for decoding request content.
@@ -188,6 +188,7 @@ class BabelConversionDecodeHandler(HandlerProcessorProceed):
             if locale is None:
                 locale = Locale.parse(self.languageDefault)
                 if RequestDecode.accLanguages in request: request.accLanguages.insert(0, self.languageDefault)
+                else: request.accLanguages = [self.languageDefault]
                 if RequestDecode.argumentsOfType in request: request.argumentsOfType[LIST_LOCALE] = request.accLanguages
                 assert log.debug('No language specified for the response, set default %s', locale) or True
 
@@ -249,7 +250,7 @@ class ConverterBabel(Converter):
         @see: Converter.asString
         '''
         assert isinstance(objType, Type), 'Invalid object type %s' % objType
-        if isinstance(objType, TypeModel): # If type model is provided we consider the model property type
+        if isinstance(objType, TypeModel):  # If type model is provided we consider the model property type
             assert isinstance(objType, TypeModel)
             container = objType.container
             assert isinstance(container, Model)
@@ -279,7 +280,7 @@ class ConverterBabel(Converter):
         '''
         assert isinstance(objType, Type), 'Invalid object type %s' % objType
         if strValue is None: return None
-        if isinstance(objType, TypeModel): # If type model is provided we consider the model property type 
+        if isinstance(objType, TypeModel):  # If type model is provided we consider the model property type 
             assert isinstance(objType, TypeModel)
             container = objType.container
             assert isinstance(container, Model)

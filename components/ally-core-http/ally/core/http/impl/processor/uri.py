@@ -20,6 +20,7 @@ from ally.design.processor import HandlerProcessorProceed
 from urllib.parse import urlencode, urlunsplit, urlsplit
 import logging
 from collections import deque
+from ally.core.http.spec.codes import MISSING_HEADER
 
 # --------------------------------------------------------------------
 
@@ -121,7 +122,7 @@ class URIHandler(HandlerProcessorProceed):
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
         assert isinstance(request.uri, str), 'Invalid request URI %s' % request.uri
-        if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
+        if Response.code in response and not response.code.isSuccess: return  # Skip in case the response is in error
 
         paths = request.uri.split('/')
         i = paths[-1].rfind('.') if len(paths) > 0 else -1
@@ -147,30 +148,19 @@ class URIHandler(HandlerProcessorProceed):
 
         if Request.argumentsOfType in request: request.argumentsOfType[Scheme] = request.scheme
 
-        response.code = RESOURCE_FOUND
-        response.encoderPath = self.createEncoderPath(request, extension)
-        response.converterId = self.converterPath
-        if extension: responseCnt.type = extension
-
-    # ----------------------------------------------------------------
-
-    def createEncoderPath(self, request, extension=None):
-        '''
-        Creates the path encoder for the provided request.
-        
-        @param request: Request
-            The request to create the path encoder for.
-        @param extension: string
-            The extension to use on the encoded paths.
-        '''
-        assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(request.decoderHeader, IDecoderHeader), \
         'Invalid request decoder header %s' % request.decoderHeader
         assert isinstance(request.uriRoot, str), 'Invalid request root URI %s' % request.uriRoot
-        assert extension is None or isinstance(extension, str), 'Invalid extension %s' % extension
-
         host = request.decoderHeader.retrieve(self.headerHost)
-        return EncoderPathURI(request.scheme, host, request.uriRoot, self.converterPath, extension)
+        if host is None:
+            response.code, response.text = MISSING_HEADER, 'Missing the %s header' % self.headerHost
+            assert log.debug('No host header available for URI %s', request.uri) or True
+            return
+        response.encoderPath = EncoderPathURI(request.scheme, host, request.uriRoot, self.converterPath, extension)
+
+        response.code = RESOURCE_FOUND
+        response.converterId = self.converterPath
+        if extension: responseCnt.type = extension
 
 # --------------------------------------------------------------------
 
@@ -228,7 +218,7 @@ class EncoderPathURI(IEncoderPath):
         else:
             assert isinstance(path, str), 'Invalid path %s' % path
             if not path.strip().startswith('/'):
-                #TODO: improve the relative path detection
+                # TODO: improve the relative path detection
                 # This is an absolute path so we will return it as it is.
                 return path
             # The path is relative to this server so we will convert it in an absolute path
