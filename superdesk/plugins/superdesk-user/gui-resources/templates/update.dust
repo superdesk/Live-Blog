@@ -37,6 +37,12 @@
 				</div>
 			</div>
 			<div class="control-group">
+				<label class="control-label" for="inputCollaborator">_('Set as collaborator')</label>
+				<div class="controls">
+					<input type="checkbox" name="Collaborator" id="inputCollaborator" value="1" />
+				</div>
+			</div>
+			<div class="control-group">
 				<label class="control-label" for="inputPass">_('New Password')</label>
 				<div class="controls">
 					<input type="password" name="Password" id="inputPass" />

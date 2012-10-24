@@ -16,6 +16,17 @@ define
 function($, superdesk, giz, User, Person)
 {
     var 
+    // TODO place in appropriate plugins
+    Source = giz.Model.extend({url: new giz.Url('Superdesk/Source')}),
+    Sources = new (giz.Collection.extend({ model: Source, href: new giz.Url('Superdesk/Source') })),
+    Collaborator = giz.Model.extend
+    ({
+        url: new giz.Url('Superdesk/Collaborator'),
+        sources: Sources
+    }),
+    PersonCollaborators = giz.Collection.extend({model: Collaborator});
+    // ---
+        
     ItemView = giz.View.extend
     ({
         tagName: 'tr',
@@ -24,7 +35,7 @@ function($, superdesk, giz, User, Person)
         {
             var self = this;
             this.model.on('read update', this.render, this);
-            this.model.on('delete', function(){ self.el.remove(); })
+            this.model.on('delete', function(){ self.el.remove(); });
         },
         render: function()
         {
@@ -40,8 +51,35 @@ function($, superdesk, giz, User, Person)
             /*!
              * Set all the data at once, caz a nasty bug in set model in gizmojs.
              */
+            if( this.model.__collaborator && !data.Collaborator )
+                this.model.__collaborator.remove().sync();
+            
+            if( !this.model.__collaborator && data.Collaborator )
+            {
+                var newCollaborator = new Collaborator;
+                newCollaborator.set('Person', this.model.get('Id'))
+                    .sources.xfilter('*').sync().done(function()
+                    {
+                        newCollaborator.sources.each(function()
+                        {
+                            if(this.get('Name') == 'internal')
+                            {
+                                newCollaborator.set('Source', this.get('Id'));
+                                return false;
+                            }
+                        });
+                        newCollaborator.sync(newCollaborator.url.get()); 
+                    });
+            }
+            
+            delete this.model.__collaborator;
+            delete data.Collaborator;
             this.model.set(data);
-            return this.model.sync();
+            
+            // TODO add this fnc in gizmo
+            var s = this.model.sync();
+            $.isEmptyObject(this.model.changeset) && s.resolve();
+            return s;
         },
         remove: function()
         {
@@ -152,7 +190,7 @@ function($, superdesk, giz, User, Person)
                 return;
             }
             
-            this.users._list = []
+            this.users._list = [];
             this.syncing = true;
             this.users.xfilter('*').sync({data: {'all.ilike': '%'+src+'%'}, done: function(data){ self.syncing = false; }});
             
@@ -190,22 +228,49 @@ function($, superdesk, giz, User, Person)
             {
                 var val = $(this).val(),
                     name = $(this).attr('name');
-                if( name && val != '' ) newModel.set(name, val);
+                if( name && !$(this).attr('data-ignore') && val != '' ) newModel.set(name, val);
             });
-            
+
             newModel.on('insert', function()
             {
                 $('#user-add-modal', self.el).modal('hide');
                 self.addItem(newModel);
                 delete newModel.data['Password'];
-                // scroll to last page
-                var e = new $.Event;
-                e.target = $('<a data-offset="'+String(Math.floor(self.page.total/self.page.limit)*self.page.limit)+'" data-pagination="currentpages" />');
-                self.switchPage(e);
+
+                var h = function()
+                {
+                    // scroll to last page
+                    var e = new $.Event;
+                    e.target = $('<a data-offset="'+String(Math.floor(self.page.total/self.page.limit)*self.page.limit)+'" data-pagination="currentpages" />');
+                    self.switchPage(e);
+                };
+                
+                // TODO very uncool
+                if( $('#user-add-modal form input#inputCollaborator:checked').length )
+                {
+                    var newCollaborator = new Collaborator;
+                    newCollaborator.set('Person', newModel.get('Id'))
+                        .on('insert', h, this)
+                        .sources.xfilter('*').sync().done(function()
+                        {
+                            newCollaborator.sources.each(function()
+                            {
+                                if(this.get('Name') == 'internal')
+                                {
+                                    newCollaborator.set('Source', this.get('Id'));
+                                    return false;
+                                }
+                            });
+                            newCollaborator.sync(newCollaborator.url.get()); 
+                        });
+                }
+                else h.call(this);
+                // ---   
+                
             });
             
             // sync on collection href for insert
-            newModel.sync(self.users.href.get())
+            newModel.xfilter('Id').sync(self.users.href.get())
             // some fail handler
             .fail(function(data)
             {
@@ -226,13 +291,40 @@ function($, superdesk, giz, User, Person)
                 model = $this.prop('model');
 
             var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
-            personModel.sync();
+            personModel.sync().done(function()
+            {
+                var p = personModel.get('Id'),
+                    c = new PersonCollaborators({ href: new giz.Url('Superdesk/Person/'+p+'/Collaborator')});
+                
+                // check collaborator status
+                c.xfilter('Id,Source.Id,Source.Name').sync().done(function()
+                {  
+                    c.each(function()
+                    { 
+                        if( this.get('Source').Name == 'internal' )
+                        {
+                            model.__collaborator = this;
+                            $('#user-edit-modal form input#inputCollaborator', self.el).attr('checked', true);
+                        }
+                    });
+                });
+                
+                $('#user-edit-modal form input', self.el).each(function()
+                {
+                    var val = model.get( $(this).attr('name') ) || personModel.get( $(this).attr('name') );
+                    !$.isObject(val) && $(this).val( val );
+                });
+
+            })
+            .fail(function()
+            {
+                $('#user-edit-modal form input', self.el).each(function()
+                {
+                    $(this).val( model.get( $(this).attr('name') ) );
+                });
+            });
             
             // fill in values with bound model props
-            $('#user-edit-modal form input', self.el).each(function()
-            {
-                $(this).val( model.get( $(this).attr('name') ) || personModel.get( $(this).attr('name') ) );
-            });
             $('#user-edit-modal .alert', this.el).addClass('hide');
             $('#user-edit-modal', self.el).modal();
             $('#user-edit-modal', this.el).on('shown', function(){ $('#user-add-modal form input:eq(0)', this.el).focus(); });
@@ -255,8 +347,11 @@ function($, superdesk, giz, User, Person)
             {
                 var val = $(this).val(),
                     name = $(this).attr('name');
+                if( $(this).is(':checkbox') && $(this).is(':not(:checked)') ) return true;
                 if( name && val != '' ) data[name] = val;
+                
             });
+            
             $('#user-edit-modal', self.el).prop('view').update(data)
             .fail(function(data)
             {
