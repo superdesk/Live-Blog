@@ -17,8 +17,16 @@ from threading import Thread
 
 # --------------------------------------------------------------------
 
+try: from ..ally_http_proxy_server.server import proxiedServers
+except ImportError: pass  # The proxy server is not available
+else:
+    @ioc.before(proxiedServers)
+    def placeToProxy():
+        args = pathAssemblies(), server_version(), server_host()
+        proxiedServers()['basic'] = lambda port: server_basic.run(*args, port=port)
+
 @ioc.start
 def runServer():
     if server_type() == 'basic':
-        args = (pathAssemblies(), server_version(), server_host(), server_port())
+        args = pathAssemblies(), server_version(), server_host(), server_port()
         Thread(name='HTTP server thread', target=server_basic.run, args=args).start()

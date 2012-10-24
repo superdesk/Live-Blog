@@ -27,7 +27,6 @@ def run(requestHandler, host='127.0.0.1', port=80):
     except KeyboardInterrupt:
         print('=' * 50, '^C received, shutting down server')
         server.server_close()
-        return
     except:
         log.exception('=' * 50 + ' The server has stooped')
         try: server.server_close()

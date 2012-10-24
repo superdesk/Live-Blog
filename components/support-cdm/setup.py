@@ -14,8 +14,8 @@ from setuptools import setup, find_packages
 # --------------------------------------------------------------------
 
 setup(
-    name="support_cdm",
-    version="1.0",
+    name='support_cdm',
+    version='1.0',
     packages=find_packages(),
     install_requires=['ally_core_http >= 1.0'],
     platforms=['all'],
@@ -26,11 +26,11 @@ setup(
     },
 
     # metadata for upload to PyPI
-    author="Mugur Rus, Gabriel Nistor",
-    author_email="mugur.rus@sourcefabric.org, gabriel.nistor@sourcefabric.org",
-    description="Ally framework - Content Delivery Manager component",
+    author='Mugur Rus, Gabriel Nistor',
+    author_email='mugur.rus@sourcefabric.org, gabriel.nistor@sourcefabric.org',
+    description='Ally framework - Content Delivery Manager component',
     long_description='The Content Delivery Manager component of the Ally framework',
-    license="GPL v3",
-    keywords="Ally REST framework",
-    url="http://www.sourcefabric.org/en/superdesk/", # project home page
+    license='GPL v3',
+    keywords='Ally REST framework',
+    url='http://www.sourcefabric.org/en/superdesk/', # project home page
 )
