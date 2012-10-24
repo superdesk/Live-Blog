@@ -1,9 +1,9 @@
 '''
 Created on Jan 8, 2012
 
-@package support sqlalchemy
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: support sqlalchemy
+@copyright: 2011 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Contains sql alchemy database setup.
