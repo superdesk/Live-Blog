@@ -1,3 +1,9 @@
+window.livedesk._ = function(key){
+	if(window.livedesk.i18n && window.livedesk.i18n[key] !== undefined) {
+		return window.livedesk.i18n[key];
+	}
+	return key;
+};
 window.livedesk.loadGizmo = function(giveBack$) {    
     var self = this;
 (function($)
@@ -428,6 +434,12 @@ dateFormat.i18n = {
 		"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
 	]
 };
+if(window.livedesk.i18n && window.livedesk.i18n['day_names'] !== undefined) {
+	dateFormat.i18n.dayNames = window.livedesk.i18n.day_names;
+}
+if(window.livedesk.i18n && window.livedesk.i18n['month_names'] !== undefined) {
+	dateFormat.i18n.monthNames = window.livedesk.i18n.month_names;
+}
 
 // For convenience...
 Date.prototype.format = function (mask, utc) {
@@ -717,7 +729,7 @@ Model.prototype =
 	 */
 	sync: function()
 	{
-		//console.log('sync');
+		//console.log('Model: sync');
 		var self = this, ret = $.Deferred(), dataAdapter = function(){return self.syncAdapter.request.apply(self.syncAdapter, arguments);};
 		this.hash();
 		// trigger an event before sync
@@ -1161,7 +1173,7 @@ Collection.prototype =
 			this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
 			{
 				var data = self.parse(data), changeset = [], count = self._list.length;
-				 // important or it will infiloop
+				 // important or it will infiloop				 
 				for( var i=0; i < data.list.length; i++ )
 				{
 					var model = false;
@@ -1235,7 +1247,8 @@ Collection.prototype =
 		theData = extractListData(data);
 		list = [];
 		for( var i in theData ) {
-			list.push( this.modelDataBuild(new this.model(theData[i])) );
+			if(theData.hasOwnProperty(i))
+				list.push( this.modelDataBuild(new this.model(theData[i])) );
 		}
 		data.parsed = {list: list, total: data.total};
 		return data.parsed;
@@ -1612,13 +1625,13 @@ window.livedesk.loadScript = function (src, callback) {
 window.livedesk.preLoad = function (giveBack$) {
     if (giveBack$) {
         var jq_17 = $.noConflict(true);
-        this.startLoading(jq_17);
+        this.startLoading(jq_17, window.livedesk._);
     } else {
-        this.startLoading(jQuery);
+        this.startLoading(jQuery, window.livedesk._);
     }
 };
 
-window.livedesk.startLoading = function($) {
+window.livedesk.startLoading = function($, _) {
 		var 
 		User = $.gizmo.Model.extend({}),
 /*		PostType = $.gizmo.Model.extend({}),
@@ -1746,7 +1759,7 @@ window.livedesk.startLoading = function($) {
 				return this;
 			},
 			auto: function(){                                
-				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': self.xfilter}};
+				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': self.xfilter, 'X-Format-DateTime': 'M/dd/yyyy hh:mm:ss'}};
 				if(this._latestCId === 0) delete requestOptions.data;
 				this.triggerHandler('beforeUpdate');
 				$.gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){
@@ -1778,8 +1791,8 @@ window.livedesk.startLoading = function($) {
             }
         });
         
-        var i=0,
-        PostItemView = $.gizmo.View.extend
+        var i=0, LivedeskClass = {};
+        LivedeskClass.PostItemView = $.gizmo.View.extend
         ({
             init: function()
             {
@@ -1839,7 +1852,7 @@ window.livedesk.startLoading = function($) {
                                     }
                                 }
 								avatarString = '';
-                                if(Avatar.length > 0) {
+                                if(Avatar.length > 0 && author != 'twitter') {
                                     avatarString = '<figure><img src="' + Avatar + '" ></figure>';
                                 }                                
                                 switch (itemClass) {
@@ -1848,8 +1861,16 @@ window.livedesk.startLoading = function($) {
                                         returned += annotBefore;
 										returned += avatarString;
                                         returned +=  '<div class="result-content">';
-                                        returned +=     '<div class="result-text">' + content + '</div>';
-                                        returned +=     '<p class="attributes"><i class="source-icon"></i> by ' + item.get('AuthorName');
+                                        if ( author == 'twitter') {
+                                            returned += '<blockquote class="twitter-tweet"><p>' + content + '</p>&mdash; ' + Meta.from_user_name + ' (@' + Meta.from_user_name + ') <a href="https://twitter.com/' + Meta.from_user + '/status/' + Meta.id_str + '" data-datetime="'+Meta.created_at+'"></a></blockquote>';
+                                            
+                                            if ( !window.livedesk.loadedTweeterScript ) {
+                                                window.livedesk.loadScript('//platform.twitter.com/widgets.js', function(){});
+                                                window.livedesk.loadedTweeterScript = true;
+                                            }
+                                        } else {
+                                            returned +=     '<div class="result-text">' + content + '</div>';
+                                        }                                        returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');
                                         returned +=         '<time>' + time + '</time>';
                                         returned +=     '</p>';
                                         returned += '</div>';
@@ -1857,10 +1878,18 @@ window.livedesk.startLoading = function($) {
                                         
                                         break;
                                     case 'quotation':
-                                        returned += avatarString;
+                                        var authorName = item.get('AuthorName'), auxDiv = content.split('<div><br></div>'), auxBr = content.split('<br><br>');
+										if(auxDiv.length == 2) {
+											content = auxDiv[0];
+											authorName = auxDiv[1];
+										} else if (auxBr.length == 2) {
+											content = auxBr[0];
+											authorName = auxBr[1];
+										}
+										//returned += avatarString;
 										returned +=  '<div class="result-content">';
                                         returned +=     '<div class="result-text">' + content + '</div>';
-                                        returned +=     '<p class="attributes">by ' + item.get('AuthorName');
+                                        returned +=     '<p class="attributes">'+_('by')+' ' + authorName;
                                         returned +=         '<time>' + time + '</time>';
                                         returned +=     '</p>';
                                         returned += '</div>';
@@ -1948,11 +1977,11 @@ window.livedesk.startLoading = function($) {
 				if (self.model.isService()) {
 					style += self.model.get('AuthorName');
                                         
-                                        var meta = JSON.parse(self.model.get('Meta'));
-                                        
-                                        var publishedon = self.model.get('PublishedOn');
-                                        var datan = new Date(publishedon);
-                                        var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
+					var meta = JSON.parse(self.model.get('Meta'));
+					
+					var publishedon = self.model.get('PublishedOn');
+					var datan = new Date(publishedon);
+					var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
                                         
 					if (self.model.get('AuthorName') == 'flickr') {
 						var paddedContent = '<span>' + content + '</span>';
@@ -1968,15 +1997,19 @@ window.livedesk.startLoading = function($) {
                                             }
                                         }
 				}
-                                
-                                
-                                
-                                var publishedon = self.model.get('PublishedOn');
-                                var datan = new Date(publishedon);
-                                var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
-                                var author = self.model.get('AuthorName');
-                                
-                                content = self.itemTemplate(self.model, content, time, Avatar);
+                                                                                             
+				var publishedon = self.model.get('PublishedOn');
+				var datan = new Date(publishedon);
+				var time = datan.format(_('ddd mmm dd yyyy HH:MM:ss TT'));
+				if(_('show_current_date') === 'true')
+				{
+					var currentDate = new Date();
+					if(currentDate.format('mm dd yyyy') == datan.format('mm dd yyyy'))
+						time = datan.format(_('HH:MM:ss TT'));
+				}
+				var author = self.model.get('AuthorName');
+				
+				content = self.itemTemplate(self.model, content, time, Avatar);
                                 
 				var postId = self.model.get('Id');
 				var blogTitle = self._parent.model.get('Title');
@@ -2008,7 +2041,7 @@ window.livedesk.startLoading = function($) {
                 totalLoad = 0,
                 iidLoadTrace = 0,
                 countLoaded = 0,
-		TimelineView = $.gizmo.View.extend
+		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
 			el: '#livedesk-root',
 			timeInterval: 10000,
@@ -2047,13 +2080,13 @@ window.livedesk.startLoading = function($) {
 				}
 			},
 			init: function()
-			{
+			{		
 				var self = this;
 				self.rendered = false;
 				if($.type(self.url) === 'string')
 					self.model = new Blog(self.url.replace('my/',''));				
 				var xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
 				//xfilter = 'CId';								   
 				self.model.on('read', function()
 				{ 
@@ -2073,7 +2106,7 @@ window.livedesk.startLoading = function($) {
 			},
 			addOne: function(model)
 			{
-				current = new PostItemView({model: model, _parent: this});
+				current = new LivedeskClass.PostItemView({model: model, _parent: this});
 				this.el.find('#liveblog-post-list').prepend(current.el);
 				current.next = this._latest;
 				if( this._latest !== undefined )
@@ -2091,13 +2124,13 @@ window.livedesk.startLoading = function($) {
 			},
 			updateingStatus: function()
 			{
-				this.el.find('#liveblog-status').html('updating...');
+				this.el.find('#liveblog-status').html(_('updating...'));
 			},
 			updateStatus: function()
 			{
 				var now = new Date();
 				this.el.find('#liveblog-status').fadeOut(function(){
-					$(this).text('updated on '+now.format('HH:MM:ss')).fadeIn();
+					$(this).text(_('updated on ')+now.format(_('HH:MM:ss'))).fadeIn();
 				});
 			},
 			renderBlog: function()
@@ -2160,7 +2193,7 @@ window.livedesk.startLoading = function($) {
                             }
                         }
 		});
-		window.livedesk.TimelineView = TimelineView;
+		window.livedesk.TimelineView = LivedeskClass.TimelineView;
 		window.livedesk.callback();
 	};
 window.livedesk.init();

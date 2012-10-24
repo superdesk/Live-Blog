@@ -59,7 +59,6 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.video_supported_files, str), 'Invalid supported files %s' % self.video_supported_files
         assert isinstance(self.ffmpeg_path, str), 'Invalid ffmpeg path %s' % self.ffmpeg_path
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
-        SessionSupport.__init__(self)
 
         self.videoSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.video_supported_files))
 
