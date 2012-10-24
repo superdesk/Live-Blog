@@ -1,3 +1,9 @@
+window.livedesk._ = function(key){
+	if(window.livedesk.i18n && window.livedesk.i18n[key] !== undefined) {
+		return window.livedesk.i18n[key];
+	}
+	return key;
+};
 window.livedesk.loadGizmo = function(giveBack$) {    
     var self = this;
 (function($)
@@ -428,6 +434,12 @@ dateFormat.i18n = {
 		"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
 	]
 };
+if(window.livedesk.i18n && window.livedesk.i18n['day_names'] !== undefined) {
+	dateFormat.i18n.dayNames = window.livedesk.i18n.day_names;
+}
+if(window.livedesk.i18n && window.livedesk.i18n['month_names'] !== undefined) {
+	dateFormat.i18n.monthNames = window.livedesk.i18n.month_names;
+}
 
 // For convenience...
 Date.prototype.format = function (mask, utc) {
@@ -1613,13 +1625,13 @@ window.livedesk.loadScript = function (src, callback) {
 window.livedesk.preLoad = function (giveBack$) {
     if (giveBack$) {
         var jq_17 = $.noConflict(true);
-        this.startLoading(jq_17);
+        this.startLoading(jq_17, window.livedesk._);
     } else {
-        this.startLoading(jQuery);
+        this.startLoading(jQuery, window.livedesk._);
     }
 };
 
-window.livedesk.startLoading = function($) {
+window.livedesk.startLoading = function($, _) {
 		var 
 		User = $.gizmo.Model.extend({}),
 /*		PostType = $.gizmo.Model.extend({}),
@@ -1747,7 +1759,7 @@ window.livedesk.startLoading = function($) {
 				return this;
 			},
 			auto: function(){                                
-				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': self.xfilter}};
+				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': self.xfilter, 'X-Format-DateTime': 'M/dd/yyyy hh:mm:ss'}};
 				if(this._latestCId === 0) delete requestOptions.data;
 				this.triggerHandler('beforeUpdate');
 				$.gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){
@@ -1850,7 +1862,7 @@ window.livedesk.startLoading = function($) {
 										returned += avatarString;
                                         returned +=  '<div class="result-content">';
                                         if ( author == 'twitter') {
-                                            returned += '<blockquote class="twitter-tweet"><p>' + content + '</p>&mdash; ' + Meta.from_user_name + ' (@vlad_1902) <a href="https://twitter.com/' + Meta.from_user + '/status/' + Meta.id_str + '" data-datetime="'+Meta.created_at+'"></a></blockquote>';
+                                            returned += '<blockquote class="twitter-tweet"><p>' + content + '</p>&mdash; ' + Meta.from_user_name + ' (@' + Meta.from_user_name + ') <a href="https://twitter.com/' + Meta.from_user + '/status/' + Meta.id_str + '" data-datetime="'+Meta.created_at+'"></a></blockquote>';
                                             
                                             if ( !window.livedesk.loadedTweeterScript ) {
                                                 window.livedesk.loadScript('//platform.twitter.com/widgets.js', function(){});
@@ -1858,7 +1870,7 @@ window.livedesk.startLoading = function($) {
                                             }
                                         } else {
                                             returned +=     '<div class="result-text">' + content + '</div>';
-                                        }                                        returned +=     '<p class="attributes"><i class="source-icon"></i> by ' + item.get('AuthorName');
+                                        }                                        returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');
                                         returned +=         '<time>' + time + '</time>';
                                         returned +=     '</p>';
                                         returned += '</div>';
@@ -1869,7 +1881,7 @@ window.livedesk.startLoading = function($) {
                                         returned += avatarString;
 										returned +=  '<div class="result-content">';
                                         returned +=     '<div class="result-text">' + content + '</div>';
-                                        returned +=     '<p class="attributes">by ' + item.get('AuthorName');
+                                        returned +=     '<p class="attributes">'+_('by')+' ' + item.get('AuthorName');
                                         returned +=         '<time>' + time + '</time>';
                                         returned +=     '</p>';
                                         returned += '</div>';
@@ -1982,7 +1994,13 @@ window.livedesk.startLoading = function($) {
                                 
                                 var publishedon = self.model.get('PublishedOn');
                                 var datan = new Date(publishedon);
-                                var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
+                                var time = datan.format(_('ddd mmm dd yyyy HH:MM:ss TT'));
+                                if(_('show_current_date') === 'true')
+                                {
+                                    var currentDate = new Date();
+                                    if(currentDate.format('mm dd yyyy') == datan.format('mm dd yyyy'))
+                                        time = datan.format(_('HH:MM:ss TT'));
+                                }
                                 var author = self.model.get('AuthorName');
                                 
                                 content = self.itemTemplate(self.model, content, time, Avatar);
@@ -2100,13 +2118,13 @@ window.livedesk.startLoading = function($) {
 			},
 			updateingStatus: function()
 			{
-				this.el.find('#liveblog-status').html('updating...');
+				this.el.find('#liveblog-status').html(_('updating...'));
 			},
 			updateStatus: function()
 			{
 				var now = new Date();
 				this.el.find('#liveblog-status').fadeOut(function(){
-					$(this).text('updated on '+now.format('HH:MM:ss')).fadeIn();
+					$(this).text(_('updated on ')+now.format(_('HH:MM:ss'))).fadeIn();
 				});
 			},
 			renderBlog: function()
