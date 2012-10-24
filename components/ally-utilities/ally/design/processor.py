@@ -276,6 +276,7 @@ class Handler(metaclass=abc.ABCMeta):
         @param processor: Processor
             The processor for the container.
         '''
+        assert isinstance(processor, Processor), 'Invalid processor %s' % processor
         self.processor = processor
 
 class HandlerProcessor(Handler):
