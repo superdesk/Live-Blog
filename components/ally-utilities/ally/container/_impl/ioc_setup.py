@@ -737,8 +737,10 @@ class Assembly:
         @ivar calls: dictionary{string, Callable}
             A dictionary containing as a key the name of the call to be resolved and as a value the Callable that will
             resolve the name. The Callable will not take any argument.
-        @ivar callsStart: list[Callable]
+        @ivar callsStart: deque[Callable]
             A list of Callable that are used as IoC start calls.
+        @ivar callsFinalize: deque[Callable]
+            A list of Callable that are used as IoC finalize calls.
         @ivar called: set[string]
             A set of the called calls in this assembly.
         @ivar started: boolean
@@ -753,7 +755,7 @@ class Assembly:
         self.configurations = {}
         self.calls = {}
         self.value_calls = {}
-        self.callsStart = []
+        self.callsStart = deque()
         self.called = set()
         self.started = False
 
@@ -781,8 +783,8 @@ class Assembly:
         configs = {}
         for name, config in self.configurations.items():
             assert isinstance(config, Config)
-            #TODO: mark the configurations if their are not active
-            #if self.started and config.name not in self.called: continue
+            # TODO: mark the configurations if their are not active
+            # if self.started and config.name not in self.called: continue
             sname = name[len(config.group) + 1:]
             other = configs.pop(sname, None)
             while other:
@@ -806,7 +808,7 @@ class Assembly:
         if not call: raise SetupError('No IoC resource for name %r' % name)
         if not callable(call): raise SetupError('Invalid call %s for name %r' % (call, name))
         try: value = call()
-        except: raise SetupError('Exception occurred for %r in processing chain %r' %
+        except: raise SetupError('Exception occurred for %r in processing chain %r' % 
                                  (name, ', '.join(self._processing)))
         self._processing.pop()
         return value
@@ -849,17 +851,7 @@ class Context:
         '''
         Construct the context.
         '''
-        self._setups = []
-
-    def addSetup(self, setup):
-        '''
-        Adds a new setup to the context.
-        
-        @param setup: Setup
-            The setup to add to the context.
-        '''
-        assert isinstance(setup, Setup), 'Invalid setup %s' % setup
-        self._setups.append(setup)
+        self._modules = []
 
     def addSetupModule(self, module):
         '''
@@ -869,10 +861,11 @@ class Context:
             The setup module.
         '''
         assert ismodule(module), 'Invalid module setup %s' % module
-        try:
-            self._setups.extend(module.__ally_setups__)
-        except AttributeError:
-            log.info('No setup found in %s', module)
+        try: module.__ally_setups__
+        except AttributeError: log.info('No setup found in %s', module)
+        else:
+            self._modules.append(module)
+            self._modules.sort(key=lambda module: module.__name__)
 
     def assemble(self, configurations=None):
         '''
@@ -882,12 +875,15 @@ class Context:
             The external configurations values to be used for the assembly.
         '''
         assembly = Assembly(configurations or {})
-
-        for setup in sorted(self._setups, key=lambda setup: setup.priority_index):
+        
+        setups = deque()
+        for module in self._modules: setups.extend(module.__ally_setups__) 
+        
+        for setup in sorted(setups, key=lambda setup: setup.priority_index):
             assert isinstance(setup, Setup), 'Invalid setup %s' % setup
             setup.index(assembly)
 
-        for setup in sorted(self._setups, key=lambda setup: setup.priority_assemble):
+        for setup in sorted(setups, key=lambda setup: setup.priority_assemble):
             setup.assemble(assembly)
 
         return assembly
