@@ -14,19 +14,14 @@ from ._impl.aop_container import AOPClasses, AOPResources
 from ._impl.entity_handler import Wiring, WireConfig
 from ._impl.ioc_setup import ConfigError, register, SetupConfig, setupsOf, \
     setupFirstOf, SetupStart
-from ._impl.support_setup import SetupError, SetupEntityProxy, \
-    SetupEntityWire, Assembly, CallEntity, SetupEntityCreate
+from ._impl.support_setup import SetupError, SetupEntityProxy, SetupEntityWire, \
+    Assembly, CallEntity, SetupEntityCreate
 from .aop import classesIn
 from ally.container._impl.support_setup import SetupEntityListen, \
     SetupEntityListenAfterBinding
 from copy import deepcopy
 from functools import partial
 from inspect import isclass, ismodule, getsource
-
-# --------------------------------------------------------------------
-
-ALL = object()
-# Used to mark all modules that will be part of an assembly.
 
 # --------------------------------------------------------------------
 # Functions available in setup modules.
@@ -137,7 +132,7 @@ def wireEntities(*classes, module=None):
             wire.update(wirings)
         else: register(SetupEntityWire(group, wirings), registry)
 
-def listenToEntities(*classes, listeners=None, beforeBinding=True, module=None):
+def listenToEntities(*classes, listeners=None, beforeBinding=True, module=None, all=False):
     '''
     Listens for entities defined in the provided module that are of the provided classes. The listening is done at the 
     moment of the entity creation so the listen is not dependent of the declared entity return type.
@@ -147,8 +142,10 @@ def listenToEntities(*classes, listeners=None, beforeBinding=True, module=None):
         by the entity setup functions.
     @param listeners: None|Callable|list[Callable]|tuple(Callable)
         The listeners to be invoked. The listeners Callable's will take one argument that is the instance.
-    @param module: module|ALL|None
-        If the setup module is not provided than the calling module will be considered.
+    @param module: module|dictionary{string:object}|None
+        If the setup module is not provided than the calling module will be considered as the registry for the setup.
+    @param all: boolean
+        Flag indicating that the listening should be performed on all assembly.
     @param beforeBinding: boolean
         Flag indicating that the listening should be performed before any binding occurs (True) or after the
         bindings (False).
@@ -157,16 +154,24 @@ def listenToEntities(*classes, listeners=None, beforeBinding=True, module=None):
     elif not isinstance(listeners, (list, tuple)): listeners = [listeners]
     assert isinstance(listeners, (list, tuple)), 'Invalid listeners %s' % listeners
     assert isinstance(beforeBinding, bool), 'Invalid before binding flag %s' % beforeBinding
-    if module is ALL or not module:
+    assert isinstance(all, bool), 'Invalid all flag %s' % all
+    if not module:
         registry = callerLocals()
         if '__name__' not in registry:
             raise SetupError('The create proxy call needs to be made directly from the module')
-        if module is ALL: group = None
+        if all: group = None
         else: group = registry['__name__']
-    else:
-        assert ismodule(module), 'Invalid setup module %s' % module
+    elif ismodule(module):
         registry = module.__dict__
-        group = module.__name__
+        if all: group = None
+        else: group = module.__name__
+    else:
+        assert isinstance(module, dict), 'Invalid setup module %s' % module
+        if '__name__' not in module:
+            raise SetupError('The provided registry dictionary has no __name__')
+        registry = module
+        if all: group = None
+        else: group = module['__name__']
 
     if beforeBinding: setup = SetupEntityListen(group, _classes(classes), listeners)
     else: setup = SetupEntityListenAfterBinding(group, _classes(classes), listeners)
