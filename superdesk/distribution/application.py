@@ -11,8 +11,9 @@ Provides the deployment of the distribution that contains this deploy.
 
 import os
 import sys
-import traceback
 import timeit
+import traceback
+import warnings
 
 # --------------------------------------------------------------------
 
@@ -36,6 +37,9 @@ if __name__ == '__main__':
     for path in findLibraries('components'):
         if path not in sys.path: sys.path.append(path)
 
+    warnings.filterwarnings('ignore', '.*already imported.*ally*')
+    # To remove the warnings of pkg utils from setup tools
+
     try: import ally_deploy_application
     except ImportError:
         print('=' * 50, 'Application cannot be started, no application deploy available')
@@ -43,7 +47,7 @@ if __name__ == '__main__':
     else:
         try:
             startedIn = timeit.timeit(ally_deploy_application.deploy, number=1)
-            #ally_deploy_application.deploy()
+            # ally_deploy_application.deploy()
             print('=' * 50, 'Application started in %.2f seconds' % startedIn)
         except:
             print('=' * 50, 'Problems while deploying application')

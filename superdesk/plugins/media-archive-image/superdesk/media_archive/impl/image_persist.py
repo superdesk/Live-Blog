@@ -17,6 +17,8 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
+from ally.support.util_deploy import deploy as deployTool
+from ally.support.util_sys import pythonPath
 from datetime import datetime
 from os.path import join, splitext, abspath
 from sqlalchemy.exc import SQLAlchemyError
@@ -26,8 +28,6 @@ from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
 import subprocess
-from ally.support.util_deploy import deploy as deployTool
-from ally.support.util_sys import pythonPath
 
 # --------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
     The format for the images thumbnails in the media archive''')
     metadata_extractor_path = join('workspace', 'tools', 'exiv2')
     wire.config('metadata_extractor_path', doc='''The path to the metadata extractor file.''')
-
+    
     image_supported_files = 'gif, png, bmp, jpg'
 
     thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
@@ -58,7 +58,6 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(self.format_thumbnail, str), 'Invalid format thumbnail %s' % self.format_thumbnail
         assert isinstance(self.image_supported_files, str), 'Invalid supported files %s' % self.image_supported_files
         assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
-        SessionSupport.__init__(self)
 
         self.imageSupportedFiles = set(re.split('[\\s]*\\,[\\s]*', self.image_supported_files))
 
@@ -100,7 +99,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
                              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         result = p.wait()
 
-        #253 is the exiv2 code for error: No Exif data found in the file
+        # 253 is the exiv2 code for error: No Exif data found in the file
         if result != 0 and result != 253: return False
 
         imageDataEntry = ImageDataEntry()
@@ -155,7 +154,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         return str
 
     def extractDateTime(self, line):
-        #example:'2010:11:08 18:33:13'
+        # example:'2010:11:08 18:33:13'
         dateTimeFormat = '%Y:%m:%d %H:%M:%S'
         str = line.partition(':')[2].strip()
         if str is None or str is '' : return None
@@ -170,5 +169,3 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
     def generateIdPath (self, id):
         return "{0:03d}".format((id // 1000) % 1000)
-
-
