@@ -5,6 +5,7 @@ define
     'gizmo/superdesk',
     config.guiJs('superdesk/user', 'models/user'),
     config.guiJs('superdesk/user', 'models/person'),
+    'utils/sha512',
     'tmpl!superdesk/user>list',
     'tmpl!superdesk/user>item',
     'tmpl!superdesk/user>add',
@@ -13,7 +14,7 @@ define
 
 // TODO remove cleanup duplicate code
 
-function($, superdesk, giz, User, Person)
+function($, superdesk, giz, User, Person, sha)
 {
     var 
     // TODO place in appropriate plugins
@@ -74,6 +75,17 @@ function($, superdesk, giz, User, Person)
             
             delete this.model.__collaborator;
             delete data.Collaborator;
+            
+            // hash password
+            if( data.Password )
+                data.Password = (new sha(data.Password, 'ASCII')).getHash('SHA-512', 'HEX');
+            
+            var chPassModel = giz.Auth(new giz.Model(this.model.href+'/ChangePassword'));
+            chPassModel.set('Id', this.model.get('Id'));
+            chPassModel.set('Password', data.Password);
+            chPassModel.sync();
+            
+            delete data.Password;
             this.model.set(data);
             
             // TODO add this fnc in gizmo
@@ -230,6 +242,9 @@ function($, superdesk, giz, User, Person)
                     name = $(this).attr('name');
                 if( name && !$(this).attr('data-ignore') && val != '' ) newModel.set(name, val);
             });
+
+            // hashing password
+            newModel.set('Password', (new sha(newModel.get('Password'), 'ASCII')).getHash('SHA-512', 'HEX'));
 
             newModel.on('insert', function()
             {

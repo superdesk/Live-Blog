@@ -27,7 +27,7 @@ from ally.container.proxy import createProxy, ProxyWrapper
 from ally.exception import InputError
 from ally.support.sqlalchemy.mapper import mappingsOf
 from ally.support.sqlalchemy.session import bindSession, endSessions, commit, \
-    ATTR_KEEP_ALIVE
+    setKeepAlive
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm.session import sessionmaker
 import unittest
@@ -48,7 +48,7 @@ class TestMapping(unittest.TestCase):
         bindSession(articleTypeService, self.sessionCreate)
         bindValidations(articleTypeService, mappingsOf(meta))
 
-        ATTR_KEEP_ALIVE.set(True)
+        setKeepAlive(True)
 
         at = ArticleType()
         at.Name = 'Test Type 1'

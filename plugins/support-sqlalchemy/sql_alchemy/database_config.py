@@ -1,9 +1,9 @@
 '''
 Created on Jan 8, 2012
 
-@package support sqlalchemy
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: support sqlalchemy
+@copyright: 2011 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Contains sql alchemy database setup.
@@ -37,8 +37,7 @@ def alchemySessionCreator(): return sessionmaker(bind=alchemyEngine())
 
 @ioc.entity
 def alchemyEngine() -> Engine:
-    engine = create_engine(database_url(), pool_recycle=alchemy_pool_recycle())
-    return engine
+    return create_engine(database_url(), pool_recycle=alchemy_pool_recycle())
 
 @ioc.entity
 def metas(): return []
