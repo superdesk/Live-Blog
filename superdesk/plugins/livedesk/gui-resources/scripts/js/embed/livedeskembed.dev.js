@@ -1878,10 +1878,18 @@ window.livedesk.startLoading = function($, _) {
                                         
                                         break;
                                     case 'quotation':
-                                        returned += avatarString;
+                                        var authorName = item.get('AuthorName'), auxDiv = content.split('<div><br></div>'), auxBr = content.split('<br><br>');
+										if(auxDiv.length == 2) {
+											content = auxDiv[0];
+											authorName = auxDiv[1];
+										} else if (auxBr.length == 2) {
+											content = auxBr[0];
+											authorName = auxBr[1];
+										}
+										//returned += avatarString;
 										returned +=  '<div class="result-content">';
                                         returned +=     '<div class="result-text">' + content + '</div>';
-                                        returned +=     '<p class="attributes">'+_('by')+' ' + item.get('AuthorName');
+                                        returned +=     '<p class="attributes">'+_('by')+' ' + authorName;
                                         returned +=         '<time>' + time + '</time>';
                                         returned +=     '</p>';
                                         returned += '</div>';
@@ -1969,11 +1977,11 @@ window.livedesk.startLoading = function($, _) {
 				if (self.model.isService()) {
 					style += self.model.get('AuthorName');
                                         
-                                        var meta = JSON.parse(self.model.get('Meta'));
-                                        
-                                        var publishedon = self.model.get('PublishedOn');
-                                        var datan = new Date(publishedon);
-                                        var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
+					var meta = JSON.parse(self.model.get('Meta'));
+					
+					var publishedon = self.model.get('PublishedOn');
+					var datan = new Date(publishedon);
+					var time = datan.format('ddd mmm dd yyyy HH:MM:ss TT');
                                         
 					if (self.model.get('AuthorName') == 'flickr') {
 						var paddedContent = '<span>' + content + '</span>';
@@ -1989,21 +1997,19 @@ window.livedesk.startLoading = function($, _) {
                                             }
                                         }
 				}
-                                
-                                
-                                
-                                var publishedon = self.model.get('PublishedOn');
-                                var datan = new Date(publishedon);
-                                var time = datan.format(_('ddd mmm dd yyyy HH:MM:ss TT'));
-                                if(_('show_current_date') === 'true')
-                                {
-                                    var currentDate = new Date();
-                                    if(currentDate.format('mm dd yyyy') == datan.format('mm dd yyyy'))
-                                        time = datan.format(_('HH:MM:ss TT'));
-                                }
-                                var author = self.model.get('AuthorName');
-                                
-                                content = self.itemTemplate(self.model, content, time, Avatar);
+                                                                                             
+				var publishedon = self.model.get('PublishedOn');
+				var datan = new Date(publishedon);
+				var time = datan.format(_('ddd mmm dd yyyy HH:MM:ss TT'));
+				if(_('show_current_date') === 'true')
+				{
+					var currentDate = new Date();
+					if(currentDate.format('mm dd yyyy') == datan.format('mm dd yyyy'))
+						time = datan.format(_('HH:MM:ss TT'));
+				}
+				var author = self.model.get('AuthorName');
+				
+				content = self.itemTemplate(self.model, content, time, Avatar);
                                 
 				var postId = self.model.get('Id');
 				var blogTitle = self._parent.model.get('Title');
