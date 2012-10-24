@@ -717,7 +717,7 @@ Model.prototype =
 	 */
 	sync: function()
 	{
-		//console.log('sync');
+		//console.log('Model: sync');
 		var self = this, ret = $.Deferred(), dataAdapter = function(){return self.syncAdapter.request.apply(self.syncAdapter, arguments);};
 		this.hash();
 		// trigger an event before sync
@@ -1161,7 +1161,7 @@ Collection.prototype =
 			this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
 			{
 				var data = self.parse(data), changeset = [], count = self._list.length;
-				 // important or it will infiloop
+				 // important or it will infiloop				 
 				for( var i=0; i < data.list.length; i++ )
 				{
 					var model = false;
@@ -1235,7 +1235,8 @@ Collection.prototype =
 		theData = extractListData(data);
 		list = [];
 		for( var i in theData ) {
-			list.push( this.modelDataBuild(new this.model(theData[i])) );
+			if(theData.hasOwnProperty(i))
+				list.push( this.modelDataBuild(new this.model(theData[i])) );
 		}
 		data.parsed = {list: list, total: data.total};
 		return data.parsed;
@@ -1778,8 +1779,8 @@ window.livedesk.startLoading = function($) {
             }
         });
         
-        var i=0,
-        PostItemView = $.gizmo.View.extend
+        var i=0, LivedeskClass = {};
+        LivedeskClass.PostItemView = $.gizmo.View.extend
         ({
             init: function()
             {
@@ -1839,7 +1840,7 @@ window.livedesk.startLoading = function($) {
                                     }
                                 }
 								avatarString = '';
-                                if(Avatar.length > 0) {
+                                if(Avatar.length > 0 && author != 'twitter') {
                                     avatarString = '<figure><img src="' + Avatar + '" ></figure>';
                                 }                                
                                 switch (itemClass) {
@@ -1848,8 +1849,16 @@ window.livedesk.startLoading = function($) {
                                         returned += annotBefore;
 										returned += avatarString;
                                         returned +=  '<div class="result-content">';
-                                        returned +=     '<div class="result-text">' + content + '</div>';
-                                        returned +=     '<p class="attributes"><i class="source-icon"></i> by ' + item.get('AuthorName');
+                                        if ( author == 'twitter') {
+                                            returned += '<blockquote class="twitter-tweet"><p>' + content + '</p>&mdash; ' + Meta.from_user_name + ' (@vlad_1902) <a href="https://twitter.com/' + Meta.from_user + '/status/' + Meta.id_str + '" data-datetime="'+Meta.created_at+'"></a></blockquote>';
+                                            
+                                            if ( !window.livedesk.loadedTweeterScript ) {
+                                                window.livedesk.loadScript('//platform.twitter.com/widgets.js', function(){});
+                                                window.livedesk.loadedTweeterScript = true;
+                                            }
+                                        } else {
+                                            returned +=     '<div class="result-text">' + content + '</div>';
+                                        }                                        returned +=     '<p class="attributes"><i class="source-icon"></i> by ' + item.get('AuthorName');
                                         returned +=         '<time>' + time + '</time>';
                                         returned +=     '</p>';
                                         returned += '</div>';
@@ -2008,7 +2017,7 @@ window.livedesk.startLoading = function($) {
                 totalLoad = 0,
                 iidLoadTrace = 0,
                 countLoaded = 0,
-		TimelineView = $.gizmo.View.extend
+		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
 			el: '#livedesk-root',
 			timeInterval: 10000,
@@ -2047,13 +2056,13 @@ window.livedesk.startLoading = function($) {
 				}
 			},
 			init: function()
-			{
+			{		
 				var self = this;
 				self.rendered = false;
 				if($.type(self.url) === 'string')
 					self.model = new Blog(self.url.replace('my/',''));				
 				var xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
 				//xfilter = 'CId';								   
 				self.model.on('read', function()
 				{ 
@@ -2073,7 +2082,7 @@ window.livedesk.startLoading = function($) {
 			},
 			addOne: function(model)
 			{
-				current = new PostItemView({model: model, _parent: this});
+				current = new LivedeskClass.PostItemView({model: model, _parent: this});
 				this.el.find('#liveblog-post-list').prepend(current.el);
 				current.next = this._latest;
 				if( this._latest !== undefined )
@@ -2160,7 +2169,7 @@ window.livedesk.startLoading = function($) {
                             }
                         }
 		});
-		window.livedesk.TimelineView = TimelineView;
+		window.livedesk.TimelineView = LivedeskClass.TimelineView;
 		window.livedesk.callback();
 	};
 window.livedesk.init();
