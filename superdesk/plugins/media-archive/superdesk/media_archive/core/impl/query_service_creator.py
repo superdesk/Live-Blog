@@ -64,7 +64,6 @@ class QueryServiceAlchemy(SessionSupport):
         assert isinstance(queryIndexer, QueryIndexer), 'Invalid query indexer %s' % queryIndexer
         assert isclass(QMetaInfoClass), 'Invalid meta info class %s' % QMetaInfoClass
         assert isclass(QMetaDataClass), 'Invalid meta data class %s' % QMetaDataClass
-        SessionSupport.__init__(self)
 
         self.queryIndexer = queryIndexer
         self.QMetaInfo = QMetaInfoClass
