@@ -37,7 +37,7 @@ if __name__ == '__main__':
     for path in findLibraries('components'):
         if path not in sys.path: sys.path.append(path)
 
-    warnings.filterwarnings('ignore', '.*already imported.*ally-api.*')
+    warnings.filterwarnings('ignore', '.*already imported.*ally*')
     # To remove the warnings of pkg utils from setup tools
 
     try: import ally_deploy_application
