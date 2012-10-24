@@ -10,12 +10,13 @@ Provides the configurations for the processors encoders and decoders.
 '''
 
 from ally.container import ioc
+from ally.core.impl.processor.parser.text import ParseTextHandler
+from ally.core.impl.processor.parser.xml import ParseXMLHandler
+from ally.core.impl.processor.render.json import RenderJSONHandler
 from ally.core.impl.processor.render.text import RenderTextHandler
 from ally.core.impl.processor.render.xml import RenderXMLHandler
 from ally.design.processor import Handler, Assembly
-from ally.core.impl.processor.render.json import RenderJSONHandler
-from ally.core.impl.processor.parser.xml import ParseXMLHandler
-from ally.core.impl.processor.parser.text import ParseTextHandler
+import codecs
 
 # --------------------------------------------------------------------
 # Creating the encoding processors
@@ -72,8 +73,8 @@ def renderJSON() -> Handler:
     b.contentTypes = content_types_json()
 
 # JSON encode by using the text renderer.
-#@ioc.entity
-#def renderJSON() -> Handler:
+# @ioc.entity
+# def renderJSON() -> Handler:
 #    import json
 #    def rendererJSON(obj, charSet, out): json.dump(obj, out)
 #
@@ -101,7 +102,6 @@ def renderYAML() -> Handler:
 @ioc.entity
 def parseJSON() -> Handler:
     import json
-    import codecs
     def parserJSON(content, charSet): return json.load(codecs.getreader(charSet)(content))
 
     b = ParseTextHandler(); yield b
@@ -117,7 +117,6 @@ def parseXML() -> Handler:
 @ioc.entity
 def parseYAML() -> Handler:
     import yaml
-    import codecs
     def parserYAML(content, charSet): return yaml.load(codecs.getreader(charSet)(content))
 
     b = ParseTextHandler(); yield b
