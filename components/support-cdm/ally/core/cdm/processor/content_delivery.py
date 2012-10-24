@@ -14,7 +14,8 @@ from ally.container.ioc import injected
 from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
     RESOURCE_NOT_FOUND, Code
 from ally.design.context import Context, requires, defines
-from ally.design.processor import Chain, HandlerProcessor
+from ally.design.processor import Chain, Processor, Assembly, NO_VALIDATION, \
+    Processing, Handler
 from ally.support.util_io import readGenerator
 from ally.zip.util_zip import normOSPath, normZipPath
 from collections import Iterable
@@ -25,6 +26,7 @@ from zipfile import ZipFile
 import json
 import logging
 import os
+from functools import partial
 
 # --------------------------------------------------------------------
 
@@ -76,7 +78,7 @@ class ResponseContent(Context):
 # --------------------------------------------------------------------
 
 @injected
-class ContentDeliveryHandler(HandlerProcessor):
+class ContentDeliveryHandler(Handler):
     '''
     Implementation for a processor that delivers the content based on the URL.
     '''
@@ -91,6 +93,8 @@ class ContentDeliveryHandler(HandlerProcessor):
     # Marker used in the link file to indicate that a link is inside a zip file.
     _fsHeader = 'FS'
     # Marker used in the link file to indicate that a link is file system
+    errorAssembly = Assembly
+    # The error processors, this are used when the content is not available.
 
     def __init__(self):
         assert isinstance(self.repositoryPath, str), 'Invalid repository path value %s' % self.repositoryPath
@@ -99,16 +103,23 @@ class ContentDeliveryHandler(HandlerProcessor):
         if not os.path.exists(self.repositoryPath): os.makedirs(self.repositoryPath)
         assert isdir(self.repositoryPath) and os.access(self.repositoryPath, os.R_OK), \
             'Unable to access the repository directory %s' % self.repositoryPath
-        super().__init__()
+        assert isinstance(self.errorAssembly, Assembly), 'Invalid error assembly %s' % self.errorAssembly
+        errorProcessing = self.errorAssembly.create(NO_VALIDATION, request=Request, response=Response,
+                                                    responseCnt=ResponseContent)
+        assert isinstance(errorProcessing, Processing), 'Invalid processing %s' % errorProcessing
+
+        super().__init__(Processor(errorProcessing.contexts, partial(self.process, errorProcessing),
+                                   'process', self.process.__code__.co_filename, self.process.__code__.co_firstlineno))
 
         self._linkTypes = {self._fsHeader:self._processLink, self._zipHeader:self._processZiplink}
 
-    def process(self, chain, request:Request, response:Response, responseCnt:ResponseContent, **keyargs):
+    def process(self, errorProcessing, chain, request, response, responseCnt, **keyargs):
         '''
         @see: HandlerProcessor.process
         
         Provide the file content as a response.
         '''
+        assert isinstance(errorProcessing, Processing), 'Invalid processing %s' % errorProcessing
         assert isinstance(chain, Chain), 'Invalid processors chain %s' % chain
         assert isinstance(request, Request), 'Invalid request %s' % request
         assert isinstance(response, Response), 'Invalid response %s' % response
@@ -117,48 +128,49 @@ class ContentDeliveryHandler(HandlerProcessor):
         if request.method != GET:
             response.allows = GET
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Path only available for GET'
-            chain.proceed()
-            return
-
-        # Make sure the given path points inside the repository
-        entryPath = normOSPath(join(self.repositoryPath, normZipPath(unquote(request.uri))))
-        if not entryPath.startswith(self.repositoryPath):
-            response.code, response.text = RESOURCE_NOT_FOUND, 'Out of repository path'
-            chain.proceed()
-            return
-
-        # Initialize the read file handler with None value
-        # This will be set upon successful file open
-        rf = None
-        if isfile(entryPath):
-            rf = open(entryPath, 'rb')
         else:
-            linkPath = entryPath
-            while len(linkPath) > len(self.repositoryPath):
-                if isfile(linkPath + self._linkExt):
-                    with open(linkPath + self._linkExt) as f: links = json.load(f)
-                    subPath = normOSPath(entryPath[len(linkPath):]).lstrip(sep)
-                    for linkType, *data in links:
-                        if linkType in self._linkTypes:
-                            # make sure the subpath is normalized and uses the OS separator
-                            if not self._isPathDeleted(join(linkPath, subPath)):
-                                rf = self._linkTypes[linkType](subPath, *data)
-                                if rf is not None: break
-                    break
-                subLinkPath = dirname(linkPath)
-                if subLinkPath == linkPath:
-                    break
-                linkPath = subLinkPath
+            # Make sure the given path points inside the repository
+            entryPath = normOSPath(join(self.repositoryPath, normZipPath(unquote(request.uri))))
+            if not entryPath.startswith(self.repositoryPath):
+                response.code, response.text = RESOURCE_NOT_FOUND, 'Out of repository path'
+            else:
+                # Initialize the read file handler with None value
+                # This will be set upon successful file open
+                rf = None
+                if isfile(entryPath):
+                    rf = open(entryPath, 'rb')
+                else:
+                    linkPath = entryPath
+                    while len(linkPath) > len(self.repositoryPath):
+                        if isfile(linkPath + self._linkExt):
+                            with open(linkPath + self._linkExt) as f: links = json.load(f)
+                            subPath = normOSPath(entryPath[len(linkPath):]).lstrip(sep)
+                            for linkType, *data in links:
+                                if linkType in self._linkTypes:
+                                    # make sure the subpath is normalized and uses the OS separator
+                                    if not self._isPathDeleted(join(linkPath, subPath)):
+                                        rf = self._linkTypes[linkType](subPath, *data)
+                                        if rf is not None: break
+                            break
+                        subLinkPath = dirname(linkPath)
+                        if subLinkPath == linkPath:
+                            break
+                        linkPath = subLinkPath
+        
+                if rf is None:
+                    response.code, response.text = METHOD_NOT_AVAILABLE, 'Invalid content resource'
+                else:
+                    response.code, response.text = RESOURCE_FOUND, 'Resource found'
+                    responseCnt.source = readGenerator(rf)
+                    responseCnt.type, _encoding = guess_type(entryPath)
+                    if not responseCnt.type: responseCnt.type = self.defaultContentType
+                    chain.proceed()
+                    return
+            
+        errorChain = errorProcessing.newChain()
+        assert isinstance(errorChain, Chain), 'Invalid chain %s' % errorChain
 
-        if rf is None:
-            response.code, response.text = METHOD_NOT_AVAILABLE, 'Invalid content resource'
-            chain.proceed()
-            return
-
-        response.code, response.text = RESOURCE_FOUND, 'Resource found'
-        responseCnt.source = readGenerator(rf)
-        responseCnt.type, _encoding = guess_type(entryPath)
-        if not responseCnt.type: responseCnt.type = self.defaultContentType
+        errorChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
 
     # ----------------------------------------------------------------
 
