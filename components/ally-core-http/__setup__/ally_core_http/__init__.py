@@ -27,7 +27,7 @@ def server_type() -> str:
     '''
     The type of the server to use, the options are:
         "basic"- single threaded server, the safest but slowest server to use.
-        "wsgiref"- multiple threaded WSGI server that uses the built in python wsgiref.
+        "wsgiref"- multiple threaded WSGI server that uses the built in python wsgiref single threaded also.
     '''
     return 'basic'
 
