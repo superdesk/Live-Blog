@@ -35,7 +35,6 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         Construct the blog collaborator service.
         '''
-        SessionSupport.__init__(self)
 
     def getById(self, blogId, collaboratorId):
         '''
