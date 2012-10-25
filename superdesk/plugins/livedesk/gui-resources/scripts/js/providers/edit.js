@@ -75,7 +75,12 @@ define('providers/edit', [
 			var self = this;
 			if(!(this.model instanceof Gizmo.Register.Post))
 				this.model = Gizmo.Auth(new Gizmo.Register.Post(this.model));
-			$.tmpl('livedesk>providers/edit/item', { Post: this.model.feed(),Avatar: avatar} , function(err, out){
+			
+			var post = this.model.feed();
+			if ( typeof post.Meta === 'string') {
+				post.Meta = JSON.parse(post.Meta);
+			}
+			$.tmpl('livedesk>providers/edit/item', { Post: post, Avatar: avatar} , function(err, out){
 				self.setElement( out );
 				if(!self.model.get('PublishedOn')) {
 							self.el.draggable({
@@ -209,7 +214,7 @@ define('providers/edit', [
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));
-				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name';
+				posts._xfilter = 'Id,AuthorName,Content,Type.Key,PublishedOn,CreatedOn,Author.Source.Name, Meta';
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
