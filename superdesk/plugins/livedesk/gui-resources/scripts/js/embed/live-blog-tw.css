@@ -16,14 +16,18 @@ ol.liveblog-post-list, ul.liveblog-post-list {
 	ol.liveblog-post-list li, ul.liveblog-post-list li {
 		margin-bottom: 36px !important;
 		overflow:hidden;
+		background-image:none !important; 
+		padding-left: 0 !important;
 		}
 	ol.liveblog-post-list li.wrapup, ul.liveblog-post-list li.wrapup {
 		margin:40px 0 18px 0 !important;
 		}
-		ol.liveblog-post-list li.wrapup:first-child, ul.liveblog-post-list li.wrapup:first-child {
+		ol.liveblog-post-list li.wrapup:first-child, 
+		ul.liveblog-post-list li.wrapup:first-child {
 			margin-top: 0 !important;
 			}
-	ol.liveblog-post-list li.advertisement, ul.liveblog-post-list li.advertisement {
+	ol.liveblog-post-list li.advertisement, 
+	ul.liveblog-post-list li.advertisement {
 		border: 1px solid #dcdcdc;
 		border-width:1px 0;
 		font-family:Arial, Helvetica, sans-serif;
@@ -32,10 +36,13 @@ ol.liveblog-post-list, ul.liveblog-post-list {
 		position:relative;
 		overflow:visible !important;
 		}
-	ol.liveblog-post-list li + li.advertisement, ul.liveblog-post-list li + li.advertisement {
+	ol.liveblog-post-list li + li.advertisement, 
+	ul.liveblog-post-list li + li.advertisement {
 		margin-top: 46px !important;
 		}
-		ol.liveblog-post-list li.advertisement:before, ul.liveblog-post-list li.advertisement:before {
+
+		ol.liveblog-post-list li.advertisement:before, 
+		ul.liveblog-post-list li.advertisement:before {
 			content:"ADVERTISEMENT";
 			font-size:9px;
 			color:#5c5c5c;
@@ -43,47 +50,73 @@ ol.liveblog-post-list, ul.liveblog-post-list {
 			position:absolute;
 			top:-18px;
 			left:0px;
-			}
-		ol.liveblog-post-list li.advertisement a, ul.liveblog-post-list li.advertisement a {
+		}
+
+		ol.liveblog-post-list li.advertisement a, 
+		ul.liveblog-post-list li.advertisement a {
 			padding:12px 8px 12px 8px;
 			text-decoration:none;
 			display:block;
-			}
-			ol.liveblog-post-list li.advertisement a:hover, ul.liveblog-post-list li.advertisement a:hover {
+		}
+
+			ol.liveblog-post-list li.advertisement a:hover, 
+			ul.liveblog-post-list li.advertisement a:hover {
 				background-color:#f6f6f6;
-				}
-		ol.liveblog-post-list li.advertisement a p, ul.liveblog-post-list li.advertisement a p {
-			margin:0 !important;
-			font-size:14px;
 			}
 
-.result-content h4, .article-single article .result-content h4, .article-single article .google .result-content h3 {
+		ol.liveblog-post-list li.advertisement a p, 
+		ul.liveblog-post-list li.advertisement a p {
+			margin:0 !important;
+			font-size:14px;
+		}
+
+		ol.liveblog-post-list li.advertisement a:first-child, 
+		ul.liveblog-post-list li.advertisement a:first-child {
+			display: none;
+		}
+
+.result-content h4, 
+.article-single article .result-content h4, 
+.article-single article .google .result-content h3 {
     font-size: 16px;
     line-height: 24px;
     margin: 0;
 	font-family:'GeorgiaProW01-SemiBold', Georgia, 'Times New Roman', Times, serif;
 	}
-	.result-content h4 a, .article-single article .result-content h4 a, .article-single article .google .result-content h3 a {
+	.result-content h4 a, 
+	.article-single article .result-content h4 a, 
+	.article-single article .google .result-content h3 a {
 		color:#000;
 		text-decoration:none;
 		}
-		.result-content h4 a:hover, .article-single article .result-content h4 a:hover, .article-single article .google .result-content h3 a:hover {
+		.result-content h4 a:hover, 
+		.article-single article .result-content h4 a:hover, 
+		.article-single article .google .result-content h3 a:hover {
 			color:#000;
 			text-decoration:underline;
 			}
-.result-content p, .article-single article .result-content p {
+.result-content p, 
+.article-single article .result-content p {
     margin: 0;
 	}
-	.result-content p.attributes, .article-single article .result-content p.attributes, .result-content time  {
+	.result-content p.attributes, 
+	.article-single article .result-content p.attributes, 
+	.result-content time  {
 		color: #999999;
     	font-size: 13px;
 		font-family:Arial, Helvetica, sans-serif;
+
 		}
+	.result-content p.attributes {
+		clear: both;
+	}
 		
 	.result-content .author-name  {
     	font-size: 13px;
 		font-family:Arial, Helvetica, sans-serif;
 	}
+
+
 .result-content .source-icon {
 	display: inline-block;
 	height: 16px;
@@ -94,29 +127,41 @@ ol.liveblog-post-list, ul.liveblog-post-list {
 	.attributes time {
 		margin-left: 10px;
 		}
-	.twitter .attributes .source-icon {
+	.twitterservice .attributes .source-icon {
 		background-image: url(img/twitter-16px.png);
 		}
-	.flickr .attributes .source-icon {
+	.flickrservice .attributes .source-icon {
 		background-image: url(img/flickr-16px.png);
 		}
 	.facebook .attributes .source-icon {
 		background-image: url(img/facebook-16px.png);
 		}
-	.youtube .attributes .source-icon {
+	.youtubeservice .attributes .source-icon {
 		background-image: url(img/youtube-16px.png);
 		}
 	.tw .attributes .source-icon {
 		background-image: url(img/tw-16px.png);
 		}
-	.quotation .attributes .source-icon {
-		background-image: url(img/quote-16px.png);
-		}
-	.google .attributes .source-icon {
+	
+	.googleservice .attributes .source-icon {
 		background-image: url(img/google-16px.png);
 		}
 
+	.quotation .result-content {
+		background: url(img/quotes-16px.png) no-repeat 0 0;
+		padding-left: 55px;
+	}
 		
+.youtube-content {
+	width: 640px;
+	height: 480px;
+}
+
+.youtubeservice h3 {
+	font-size: 16px !important;
+	line-height: 24px !important;
+	margin: 5px 0 !important;
+}
 .live-blog p.update-time {
 	padding:6px 0 7px 0;
 	border: 1px solid #DCDCDC;
@@ -158,8 +203,8 @@ ol.liveblog-post-list > li > figure {
 		}
 .wrapup {
 	margin:40px 0 18px 0;
-	padding:3px 8px 12px 50px;
-	background-color:#f8f8f8;
+	padding:3px 8px 12px 50px !important;
+	background-color:#f8f8f8 !important;
 	border-top:3px solid #E1E1E1;
 	position:relative;
 	}
