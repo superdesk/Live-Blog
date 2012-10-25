@@ -22,7 +22,7 @@ define('providers/youtube', [
             
             data: [],
             init: function(){
-                if(!this.initialized) {
+                if(!this.initialized || !this.el.children(":first").length) {
                     this.adaptor.init();
                     this.render();
                 }
