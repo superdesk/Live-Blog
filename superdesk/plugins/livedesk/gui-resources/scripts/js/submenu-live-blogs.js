@@ -15,7 +15,7 @@ define
 {
     var Blogs = Gizmo.Collection.extend({model: Blog, href: new Gizmo.Url('LiveDesk/Blog') }), 
         b = Gizmo.Auth(new Blogs());
-    b.href.decorate('%s/Administered');
+    //b.href.decorate('%s/Administered');
     
     var SubmenuView = Gizmo.View.extend
     ({
