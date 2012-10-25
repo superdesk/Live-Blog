@@ -55,6 +55,22 @@ class IUserService(IEntityService):
     User model service interface
     '''
     
+    @call
+    def insert(self, adminId:auth(User.Id), user:User) -> User.Id:
+        '''
+        '''
+        
+    @call
+    def delete(self, adminId:auth(User.Id), user:User):
+        '''
+        '''
+        
+    @call
+    def update(self, adminId:auth(User.Id), user:User):
+        '''
+        '''
+        
+    
     @call(method=UPDATE, webName='ChangePassword')
     def changePassword(self, adminId:auth(User.Id), user:UserPassword):
         '''
