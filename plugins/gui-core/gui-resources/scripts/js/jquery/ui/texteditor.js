@@ -76,6 +76,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         return !(this.nodeType == 3 && $(this).text().trim() == '');
                     });
                 },
+                selectionText : function()
+                {
+                    if( window.getSelection )
+                        return window.getSelection().getRangeAt(0).toString();
+                    return '';
+                },
                 selectionHas : function(nodeName)
                 {
                     if( window.getSelection )
@@ -342,10 +348,10 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     var dialog = this.dialog.attr('title', 'Add a link')
                         .append($('<p />')
                             .append( $('<label />').attr('for', 'editor-link-text').text('Link text:'))
-                            .append( $('<input />').attr('id', 'editor-link-text')))
+                            .append( $('<input />').attr('id', 'editor-link-text').addClass('input-xlarge') ))
                         .append($('<p />')
                             .append( $('<label />').attr('for', 'editor-link-value').text('Link href:'))
-                            .append( $('<input />').attr('id', 'editor-link-value')));
+                            .append( $('<input />').attr('id', 'editor-link-value').addClass('input-xlarge') ));
                     var self = this;
                     
                     $(thisPlugin).on('plugins-remove', function()
@@ -373,6 +379,9 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             click : function()
                             {
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
+                                var ap = $($(self.lib.selectionParent()).eq(0)),
+                                    a = ap.is('a') ? ap : $(this.lib.selectionHas('a')).eq(0);
+                                a.replaceWith(a.text());
                                 document.execCommand("unlink", false, null);
                                 $(self).trigger('link-removed.text-editor');
                                 $(calledFor).data('linkCommandActive', false);
@@ -401,7 +410,13 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                 }
                                 else 
                                 {
-                                    document.execCommand("createLink", false, url);
+                                    if( window.getSelection )
+                                    {
+                                        var rng= window.getSelection().getRangeAt(0);
+                                        rng.deleteContents()
+                                        rng.insertNode( $('<a href="'+url+'" />').text(text).get(0) );
+                                    }
+                                    //document.execCommand("createLink", false, url);
                                     $(self).trigger('link-inserted.text-editor');   
                                 }
                                 $(calledFor).data('linkCommandActive', false);
@@ -417,9 +432,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         
                         $(calledFor).data('linkCommandActive', true);
                         
-                        var a = $( $(self.lib.selectionContents() ).eq(0)),
-                            aText = $(a).text(),
+                        var ap = $($(self.lib.selectionParent()).eq(0)),
+                            a = ap.is('a') ? ap : $(this.lib.selectionHas('a')).eq(0),
+                            selText = self.lib.selectionText(),
+                            aText = $.trim(selText) != '' ? selText : a.text(),
                             urlRe = new RegExp();
+                        
                         urlRe.compile("^[A-Za-z]+://[A-Za-z0-9-_]+\\.[A-Za-z0-9-_%&\?\/.=]+$");
                         var isA = a.is('a'),
                             isUrl = urlRe.test(aText),
@@ -434,7 +452,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     };
                     this.queryState = function() 
                     {
-                        return $($(self.lib.selectionContents()).eq(0)).is('a');
+                        return this.lib.selectionHas('a') || $($(self.lib.selectionParent()).eq(0)).is('a');
                     };
                 },
                 
