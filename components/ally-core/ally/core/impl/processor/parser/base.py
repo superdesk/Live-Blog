@@ -91,7 +91,7 @@ class ParseBaseHandler(HandlerProcessor):
             except InputError as e:
                 response.code, response.text = BAD_CONTENT, 'Bad content'
                 response.errorDetails = self.processInputError(e)
-            return # We need to stop the chain if we have been able to provide the parsing
+            return  # We need to stop the chain if we have been able to provide the parsing
         else:
             assert log.debug('The content type \'%s\' is not for this %s parser', requestCnt.type, self) or True
 

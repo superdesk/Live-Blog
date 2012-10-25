@@ -10,7 +10,7 @@ Runs the cherry py web server.
 '''
 
 from ..ally_core_http import server_type, server_port, server_host
-from ..ally_core_http.server_wsgiref import requestHandlerWSGI
+from ..ally_core_http.server_basic import requestHandlerWSGI
 from ally.container import ioc
 from threading import Thread
 
