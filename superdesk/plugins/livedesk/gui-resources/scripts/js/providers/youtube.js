@@ -58,7 +58,12 @@ define('providers/youtube', [
                             //check what search it is
                             self.startSearch(true);
                         }
-                    });
+                    })
+                    .off('change' ,'#ytb-order-by')
+                    .on('change' ,'#ytb-order-by', function(){
+                        self.startSearch(true);
+                    })
+                    ;
                 });	  
             },
             startSearch: function(fresh) {
