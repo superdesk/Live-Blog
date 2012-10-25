@@ -1,16 +1,16 @@
 {#results}
-<li class="youtube draggable" idx="{@idx}{.}{/idx}" startx="{startx}">
+<li class="youtube draggable" idx="{@idx}{.}{/idx}" startx="{startx}" style="min-height:90px">
 	<div class="drag-bar"></div>
 	<div class="result-content">
-		<h3><a href="{video.player.default}" target="_blank">{video.title|s}</a></h3>
+                <img src="{video.thumbnail.sqDefault}" style="float: right; max-width: 80px; max-height: 64px;">
                 <div style="display:block; width: 100%">
-                    <p class="result-text">
-                            <div style="float:left; text-align: left; width:85%;">{video.description|s}</div>
-                            <img src="{video.thumbnail.sqDefault}" style="float: right; max-width: 80px; max-height: 64px;">
+                    <h3><a href="{video.player.default}" target="_blank">{video.title|s}</a></h3>
+                    <p class="result-text" style="float:left; text-align: left; width:85%; height:51px;">
+                            {video.description|s}&nbsp;
                     </p>
-                </div>
+                <div>
                 <div style="display:block; width: 100%; float:left">
-                    <p class="attributes" >
+                    <p class="attributes" style="display:block; float:left">
                             <i class="source-icon">
                                     <img src="http://g.etfv.co/http://www.youtube.com" style="max-width: 16px" border="0">
                             </i>

@@ -13,7 +13,16 @@ from . import server_type, server_version, server_host, server_port
 from .processor import pathAssemblies
 from ally.container import ioc
 from ally.core.http.server import server_basic
+from ally.core.http.server.wsgi import RequestHandler
 from threading import Thread
+
+# --------------------------------------------------------------------
+
+@ioc.entity
+def requestHandlerWSGI():
+    b = RequestHandler(); yield b
+    b.pathAssemblies = pathAssemblies()
+    b.serverVersion = server_version()
 
 # --------------------------------------------------------------------
 
