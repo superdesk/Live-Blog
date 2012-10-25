@@ -74,7 +74,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             if detailed: return IterPart(entities, sql.count(), offset, limit)
         return entities
 
-    def insert(self, user):
+    def insert(self, adminId, user):
         '''
         @see: IUserService.insert
         '''
@@ -95,7 +95,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         user.Id = userDb.Id
         return user.Id
 
-    def update(self, user):
+    def update(self, adminId, user):
         '''
         @see: IUserService.update
         '''
@@ -115,7 +115,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             self.session().flush((copy(user, userDb),))
         except SQLAlchemyError as e: handle(e, userDb)
 
-    def delete(self, id):
+    def delete(self, adminId, id):
         '''
         @see: IUserService.delete
         '''
