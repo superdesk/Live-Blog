@@ -40,6 +40,8 @@ class RequestHandler:
     # The server version name
     headerPrefix = 'HTTP_'
     # The prefix used in the WSGI context for the headers.
+    headers = {'CONTENT_TYPE'}
+    # The headers to be extracted from environment, this are the exception headers, the ones that do not start with HTTP_
 
     methods = {
                'DELETE' : DELETE,
@@ -123,6 +125,10 @@ class RequestHandler:
         assert isinstance(self.pathAssemblies, list), 'Invalid path assemblies %s' % self.pathAssemblies
         assert isinstance(self.serverVersion, str), 'Invalid server version %s' % self.serverVersion
         assert isinstance(self.headerPrefix, str), 'Invalid header prefix %s' % self.headerPrefix
+        assert isinstance(self.headers, set), 'Invalid headers %s' % self.headers
+        assert isinstance(self.methods, dict), 'Invalid methods %s' % self.methods
+        assert isinstance(self.methodUnknown, int), 'Invalid unknwon method %s' % self.methodUnknown
+        assert isinstance(self.responses, dict), 'Invalid responses %s' % self.responses
         
         pathProcessing = []
         for pattern, assembly in self.pathAssemblies:
@@ -175,7 +181,10 @@ class RequestHandler:
         req.method = self.methods.get(context['REQUEST_METHOD'], self.methodUnknown)
         req.parameters = parse_qsl(context['QUERY_STRING'], True, False)
         prefix, prefixLen = self.headerPrefix, len(self.headerPrefix,)
-        req.headers = {hname[prefixLen:]:hvalue for hname, hvalue in context.items() if hname.startswith(prefix)}
+        req.headers = {hname[prefixLen:].replace('_', '-'):hvalue
+                       for hname, hvalue in context.items() if hname.startswith(prefix)}
+        req.headers.update({hname.replace('_', '-'):hvalue
+                            for hname, hvalue in context.items() if hname in self.headers})
         reqCnt.source = context.get('wsgi.input')
 
         chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)

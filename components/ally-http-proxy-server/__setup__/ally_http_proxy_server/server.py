@@ -10,7 +10,6 @@ Runs the production web server.
 '''
 
 from ..ally_core_http import server_type, server_host, server_port
-from ..ally_core_plugin.deploy_plugin import deploy
 from ally.container import ioc
 from ally.container.ioc import ConfigError
 from ally.core.http.server import server_proxy
@@ -47,7 +46,7 @@ def proxiedServers():
 
 # --------------------------------------------------------------------
 
-@ioc.after(deploy)  # It is imperative that the server is started after all plugins have been published
+@ioc.start
 def runServer():
     if server_type() == 'proxy':
         proxiedServer = proxiedServers().get(proxied_server())
