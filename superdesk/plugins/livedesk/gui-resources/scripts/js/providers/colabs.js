@@ -113,9 +113,9 @@ function(providers, $, giz, Blog, Collaborator)
             
             self.colabsList = [];
             
-            blog.on('read', function()
+            blog.sync().done(function()
             {
-                var collaborators = this.get('Collaborator');
+                var collaborators = blog.get('Collaborator');
                 collaborators.on('read', function()
                 {
                     self.colabsList = this;
@@ -124,7 +124,6 @@ function(providers, $, giz, Blog, Collaborator)
                 });
                 collaborators.xfilter('Person.Id', 'Person.FullName', 'Person.EMail', 'Post').sync();
             });
-            blog.sync();
             
             $('.'+providers.colabs.className)
                 .parents('li:eq(0)').find('.config-notif').off('click').on('click', self.configNotif);
@@ -209,15 +208,16 @@ function(providers, $, giz, Blog, Collaborator)
                 var colab = this;
                 colab._latestPost = 0;
                 colab._viewModels = [];
-                colab.on('read update', function()
+                colab.sync().done(function()
                 { 
                     // get posts for each collaborator
-                    colab.get('Post').xfilter('*')
-                        .on('read', function(){ self.readPostsHandle.call(this, colab, initColabHandle, self); })
-                        .sync();
+                    var post = colab.get('Post');
+                    post.xfilter('*')
+                        .sync()
+                        .done(function(){ self.readPostsHandle.call(post, colab, initColabHandle, self); });
                     // start the auto update timers
                     self.startAutoUpdate();
-                }).sync();
+                });
                 
             });
         },
@@ -264,11 +264,11 @@ function(providers, $, giz, Blog, Collaborator)
     var colabView = null;
     $.extend( providers.colabs, { init: function(blogUrl)
     { 
-        colabView = new ColabView({ el: this.el, blogUrl: blogUrl });
-        this.init = function()
+        if( !colabView || (this.el.get(0) != colabView.el.get(0)) )
         {
-            return colabView.startAutoUpdate(); 
-        }; 
+            colabView = new ColabView({ el: this.el, blogUrl: blogUrl });
+            return colabView.startAutoUpdate();
+        }
     }});
     
     return providers;
