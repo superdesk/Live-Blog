@@ -69,7 +69,6 @@ function(providers,str, $, Gizmo)
             universal: function(obj) 
             {
                 var meta =  jQuery.extend(true, {}, obj);
-				console.log(obj);
                 var returner = new AnnotateView
                 ({
                     data: 
