@@ -88,11 +88,6 @@ class HeaderHandler(HandlerProcessorProceed):
                                               if Request.parameters in request and self.useParameters else None)
         response.encoderHeader = EncoderHeader(self)
         
-        #TODO: HOTFIX for headers getting reset on corssdomain calls
-        #        this gets called 2 times and resets on the latter 
-        #        for some reason I don't know
-        #response.headers = response.encoderHeader.headers
-        
         if response.headers is None or len(response.headers) == 0: 
             response.headers = response.encoderHeader.headers
         else: 

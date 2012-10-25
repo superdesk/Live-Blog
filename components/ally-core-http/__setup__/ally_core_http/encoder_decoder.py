@@ -15,6 +15,7 @@ from ally.core.http.impl.url_encoded import parseStr
 from ally.core.impl.processor.parser.text import ParseTextHandler
 from ally.design.processor import Handler
 from ally.core.http.impl.processor.parser.formdata import ParseFormDataHandler
+import codecs
 
 # --------------------------------------------------------------------
 
@@ -29,13 +30,12 @@ def content_types_urlencoded() -> dict:
 # Creating the parsers
 
 @ioc.entity
-def parseUrlencoded() -> Handler:
-    import codecs
-    def parserUrlencoded(content, charSet): return parseStr(codecs.getreader(charSet)(content).read())
-
+def parseURLEncoded() -> Handler:
+    def parseURLEncoded(content, charSet): return parseStr(codecs.getreader(charSet)(content).read())
+    
     b = ParseTextHandler(); yield b
     b.contentTypes = set(content_types_urlencoded())
-    b.parser = parserUrlencoded
+    b.parser = parseURLEncoded
     b.parserName = 'urlencoded'
 
 @ioc.entity
@@ -48,4 +48,4 @@ def parseFormData() -> Handler:
 @ioc.before(updateParsingAssembly)
 def updateParsingHTTPAssembly():
     parsingAssembly().add(parseFormData())
-    parsingAssembly().add(parseUrlencoded())
+    parsingAssembly().add(parseURLEncoded())
