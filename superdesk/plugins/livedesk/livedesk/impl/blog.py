@@ -19,7 +19,7 @@ from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from ally.container.support import setup
 from sql_alchemy.impl.entity import EntityCRUDServiceAlchemy
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import exists, or_
+from sqlalchemy.sql.expression import exists
 from ally.api.extension import IterPart
 from sqlalchemy.sql.functions import current_timestamp
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
