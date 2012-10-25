@@ -1,2 +1,1 @@
 ally_core_http >= 1.0
-ally_core_plugin >= 1.0
