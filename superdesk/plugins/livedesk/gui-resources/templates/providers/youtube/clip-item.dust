@@ -1,12 +1,12 @@
 {#results}
-<li class="youtube draggable" idx="{@idx}{.}{/idx}" startx="{startx}">
+<li class="youtube draggable" idx="{@idx}{.}{/idx}" startx="{startx}" style="min-height:90px">
 	<div class="drag-bar"></div>
 	<div class="result-content">
-		<h3><a href="{player.default}" target="_blank">{title|s}</a></h3>
+		<img src="{thumbnail.sqDefault}" style="float: right; max-width: 80px; max-height: 64px;">
                 <div style="display:block; width: 100%">
-                    <p class="result-text">
-                            <div style="float:left; text-align: left; width:85%;">{description|s}</div>
-                            <img src="{thumbnail.sqDefault}" style="float: right; max-width: 80px; max-height: 64px;">
+                    <h3><a href="{player.default}" target="_blank">{title|s}</a></h3>
+                    <p class="result-text" style="float:left; text-align: left; width:85%; height:51px;">
+                            {description|s}&nbsp;
                     </p>
                 </div>
                 <div style="display:block; width: 100%; float:left">

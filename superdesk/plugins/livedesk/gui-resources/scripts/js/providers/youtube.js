@@ -103,7 +103,7 @@ define('providers/youtube', [
             
             trimDesc : function(desc) {
                 if (desc.length > 200) {
-                    return desc.substring(0, 199) + ' ...;'
+                    return desc.substring(0, 200) + ' ...;'
                 } else {
                     return desc;
                 }
