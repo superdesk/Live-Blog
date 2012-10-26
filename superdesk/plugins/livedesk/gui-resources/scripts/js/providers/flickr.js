@@ -27,7 +27,7 @@ $.extend(providers.flickr, {
 	data: [],
 	init: function(){
                 //console.log('flickr main init');
-		if(!this.initialized) {
+		if(!this.initialized || !this.el.children(":first").length) {
 			this.render();
                         this.adaptor.init();
 		}
