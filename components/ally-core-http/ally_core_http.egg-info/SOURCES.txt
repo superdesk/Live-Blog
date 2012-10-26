@@ -8,7 +8,6 @@ __setup__/ally_core_http/processor_babel.py
 __setup__/ally_core_http/processor_time_zone.py
 __setup__/ally_core_http/resources.py
 __setup__/ally_core_http/server_basic.py
-__setup__/ally_core_http/server_wsgiref.py
 __setup__/ally_core_http/support_ajax.py
 __setup__/ally_core_http/support_nocache.py
 __setup__/ally_core_http/support_php.py
@@ -41,7 +40,6 @@ ally/core/http/impl/processor/parser/__init__.py
 ally/core/http/impl/processor/parser/formdata.py
 ally/core/http/server/__init__.py
 ally/core/http/server/server_basic.py
-ally/core/http/server/server_wsgiref.py
 ally/core/http/server/wsgi.py
 ally/core/http/spec/__init__.py
 ally/core/http/spec/codes.py

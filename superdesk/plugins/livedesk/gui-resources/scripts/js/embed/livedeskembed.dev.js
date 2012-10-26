@@ -1868,30 +1868,41 @@ window.livedesk.startLoading = function($, _) {
                                                 window.livedesk.loadScript('//platform.twitter.com/widgets.js', function(){});
                                                 window.livedesk.loadedTweeterScript = true;
                                             }
-                                        } else {
+                                        } else if ( author == 'youtube') {
+											
                                             returned +=     '<div class="result-text">' + content + '</div>';
-                                        }                                        returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');
-                                        returned +=         '<time>' + time + '</time>';
+                                            returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ';										
+											returned +=     '<a class="author-name" href="http://youtube.com/'+Meta.uploader+'" target="_blank">'+Meta.uploader+'</a>';
+										} else if (( author == 'google' ) || (author == 'flickr')) {
+                                            returned +=     '<div class="result-text">' + content + '</div>';
+                                            returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');
+										}
+										else {
+                                            returned +=     '<div class="result-text">' + content + '</div>';
+                                            returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');
+											returned +=         '<time>' + time + '</time>';
+										}
                                         returned +=     '</p>';
                                         returned += '</div>';
                                         returned += annotAfter;
                                         
                                         break;
                                     case 'quotation':
-                                        var authorName = item.get('AuthorName'), auxDiv = content.split('<div><br></div>'), auxBr = content.split('<br><br>');
+                                        var adition, authorName = item.get('AuthorName'), auxDiv = content.split('<div><br><br></div>'), auxBr = content.split('<br><br><br>');
 										if(auxDiv.length == 2) {
 											content = auxDiv[0];
-											authorName = auxDiv[1];
+											adition = '<div class="quotation-author">'+auxDiv[1]+'</div>';
 										} else if (auxBr.length == 2) {
 											content = auxBr[0];
-											authorName = auxBr[1];
+											adition = '<div class="quotation-author">'+auxBr[1]+'</div>';
 										}
 										//returned += avatarString;
 										returned +=  '<div class="result-content">';
                                         returned +=     '<div class="result-text">' + content + '</div>';
-                                        returned +=     '<p class="attributes">'+_('by')+' ' + authorName;
-                                        returned +=         '<time>' + time + '</time>';
-                                        returned +=     '</p>';
+										if(adition)
+											returned += adition;
+										else
+											returned +=     '<div class="attributes">'+_('by')+' ' + authorName + '</div>';
                                         returned += '</div>';
                                         break;
                                     case 'wrapup':
