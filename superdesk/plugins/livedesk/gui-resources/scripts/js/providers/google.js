@@ -165,6 +165,19 @@ $.extend(providers.google, {
 			
                 });
             },
+        trimTo : function(content, amount) {
+            if (typeof content == 'undefined') {
+                content = '';
+            }
+            if ( typeof amount != 'number' ) {
+                amount = 200;
+            }
+            if ( content.length > 200) {
+                return content.substr(0, amount) + ' ...'
+            } else {
+                return content;
+            }
+        },
 	doNews: function (start) {
                 var self = this;
                 var text = $('#google-search-text').val();		
@@ -187,6 +200,9 @@ $.extend(providers.google, {
                     self.data = self.data.concat(data.responseData.results);
                     data.responseData.date = currentDate;
                     if ( data.responseData.results.length > 0 ) {
+                        for (var i = 0; i < data.responseData.results.length; i++) {
+                            data.responseData.results[i].trimContent = self.trimTo(data.responseData.results[i].content, 200);
+                        }
                         $.tmpl('livedesk>providers/google/news-item', {
                             results: data.responseData.results, 
                             startx: start
