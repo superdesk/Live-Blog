@@ -228,7 +228,7 @@ function($, superdesk, giz, User, Person, sha)
         {
             // new model
             var self = this,
-                newModel = new self.users.model();
+                newModel = giz.Auth(new self.users.model());
             
             if( !self.checkPass('#user-add-modal') ) 
             {
