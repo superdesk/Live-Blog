@@ -194,7 +194,7 @@ def getUsersIds():
     if not _cache_users:
         users = _cache_users
         for name in USERS:
-            usrs = userService.getAll(q=QUser(name=name))
+            usrs = userService.getAll(adminId=None, q=QUser(name=name))
             if usrs: users[name] = next(iter(usrs)).Id
             else:
                 usr = User()
