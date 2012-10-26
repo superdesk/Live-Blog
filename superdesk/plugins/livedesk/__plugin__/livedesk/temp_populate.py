@@ -201,7 +201,7 @@ def getUsersIds():
                 usr.Name = name
                 usr.Password = hashlib.sha512(b'a').hexdigest()
                 usr.FirstName, usr.LastName, usr.EMail = USERS[name]
-                users[name] = userService.insert(usr)
+                users[name] = userService.insert(usr, adminId=None)
     return _cache_users
 
 
