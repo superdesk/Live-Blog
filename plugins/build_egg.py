@@ -111,8 +111,8 @@ if __name__ == '__main__':
         eggs = glob(join(distDir, packageName + '*'))
         packageDirMTime = dirMTime(packageDir)
         if len(eggs) == 1 and packageDirMTime <= stat(eggs[0]).st_mtime:
-            print('*** UP TO DATE %s' % packageName)
-            print("\n".rjust(79, '-'))
+#            print('*** UP TO DATE %s' % packageName)
+#            print("\n".rjust(79, '-'))
             continue
 
         print('*** BUILD %s' % packageName)
