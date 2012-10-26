@@ -1880,7 +1880,7 @@ window.livedesk.startLoading = function($, _) {
 										} else if ( author == 'google'){
 											console.log(Meta);
 											//titleNoFormatting
-											returned +=     '<h3><a href="'+Meta.url+'">'+Meta.title+'</a></h3>'
+											returned +=     '<h3><a target="_blank" href="'+Meta.url+'">'+Meta.title+'</a></h3>'
 											returned +=     '<div class="result-text">' + content + '</div>';
                                             //returned +=     '<p class="attributes"><i class="source-icon"><img src="http://g.etfv.co/'+Meta.url+'" style="max-width: 16px" border="0"></i><a class="author-name" href="'+Meta.url+'">'+Meta.visibleUrl+'</a>'
 											returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');
