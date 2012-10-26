@@ -1846,8 +1846,12 @@ window.livedesk.startLoading = function($, _) {
                                         if( typeof Meta.annotation === 'string' ) {
                                             annotAfter = '<div class="editable annotation">' + Meta.annotation + '</div>';   
                                         } else {
-                                            annotBefore = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
-                                            annotAfter = '<div class="editable annotation">' + Meta.annotation[1] + '</div>';
+											if( Meta.annotation[1] !== null) {
+												annotBefore = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
+												annotAfter = '<div class="editable annotation">' + Meta.annotation[1] + '</div>';
+											} else {
+												annotAfter = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
+											}											
                                         }
                                     }
                                 }
@@ -1873,9 +1877,16 @@ window.livedesk.startLoading = function($, _) {
                                             returned +=     '<div class="result-text">' + content + '</div>';
                                             returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ';										
 											returned +=     '<a class="author-name" href="http://youtube.com/'+Meta.uploader+'" target="_blank">'+Meta.uploader+'</a>';
-										} else if (( author == 'google' ) || (author == 'flickr')) {
+										} else if ( author == 'google'){
+											console.log(Meta);
+											//titleNoFormatting
+											returned +=     '<h3><a href="'+Meta.url+'">'+Meta.title+'</a></h3>'
+											returned +=     '<div class="result-text">' + content + '</div>';
+                                            //returned +=     '<p class="attributes"><i class="source-icon"><img src="http://g.etfv.co/'+Meta.url+'" style="max-width: 16px" border="0"></i><a class="author-name" href="'+Meta.url+'">'+Meta.visibleUrl+'</a>'
+											returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');
+										} else if (author == 'flickr') {
                                             returned +=     '<div class="result-text">' + content + '</div>';
-                                            returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');
+                                            returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');										
 										}
 										else {
                                             returned +=     '<div class="result-text">' + content + '</div>';
