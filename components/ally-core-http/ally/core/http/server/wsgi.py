@@ -40,7 +40,7 @@ class RequestHandler:
     # The server version name
     headerPrefix = 'HTTP_'
     # The prefix used in the WSGI context for the headers.
-    headers = {'CONTENT_TYPE'}
+    headers = {'CONTENT_TYPE', 'CONTENT_LENGTH'}
     # The headers to be extracted from environment, this are the exception headers, the ones that do not start with HTTP_
 
     methods = {
@@ -51,7 +51,7 @@ class RequestHandler:
                'OPTIONS' : METHOD_OPTIONS
                }
     methodUnknown = -1
-    
+
     # Table mapping response codes to messages; entries have the
     # form {code: (shortmessage, longmessage)}.
     # See RFC 2616.
@@ -129,7 +129,7 @@ class RequestHandler:
         assert isinstance(self.methods, dict), 'Invalid methods %s' % self.methods
         assert isinstance(self.methodUnknown, int), 'Invalid unknwon method %s' % self.methodUnknown
         assert isinstance(self.responses, dict), 'Invalid responses %s' % self.responses
-        
+
         pathProcessing = []
         for pattern, assembly in self.pathAssemblies:
             assert isinstance(pattern, str), 'Invalid pattern %s' % pattern
@@ -150,7 +150,7 @@ class RequestHandler:
         '''
         assert isinstance(context, dict), 'Invalid context %s' % context
         assert callable(respond), 'Invalid respond callable %s' % respond
-        
+
         responseHeaders = dict(self.defaultHeaders)
         path, scheme = context['PATH_INFO'], context['wsgi.url_scheme']
         if path.startswith('/'): path = path[1:]
@@ -197,9 +197,9 @@ class RequestHandler:
             text = self.responses.get(rsp.code.code)
             if text is not None: status = '%s %s' % (rsp.code.code, text[0])
             else: status = str(rsp.code.code)
-            
+
         respond(status, list(responseHeaders.items()))
-        
+
         if rspCnt.source is not None:
             if isinstance(rspCnt.source, IOutputStream): return readGenerator(rspCnt.source)
             return rspCnt.source
