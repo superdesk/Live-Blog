@@ -221,6 +221,10 @@ function($, superdesk, giz, User, Person, sha)
             if( pass.length > 0 && $(modal+' form input#inputPassConfirm', self.el).val() !== pass ) return false;
             return true;
         },
+        checkEmail: function(email)
+        {
+            return /^([_a-zA-Z0-9-]+)(\.[_a-zA-Z0-9-]+)*@([a-zA-Z0-9-]+\.)+([a-zA-Z]+)$/.test(email);
+        },
         /*!
          * add user handler
          */
@@ -243,6 +247,13 @@ function($, superdesk, giz, User, Person, sha)
                 if( name && !$(this).attr('data-ignore') && val != '' ) newModel.set(name, val);
             });
 
+            // checking email
+            if( newModel.get('EMail') && !self.checkEmail(newModel.get('EMail')) )
+            {
+                $('#user-add-modal form input#inputEmail', self.el).focus().parents('.control-group:eq(0)').addClass('error');
+                return false;
+            }
+            
             // hashing password
             newModel.set('Password', (new sha(newModel.get('Password'), 'ASCII')).getHash('SHA-512', 'HEX'));
 
@@ -367,6 +378,13 @@ function($, superdesk, giz, User, Person, sha)
                 
             });
             
+            // checking email
+            if( data.EMail && !self.checkEmail(data.EMail) )
+            {
+                $('#user-edit-modal form input#inputEmail', self.el).focus().parents('.control-group:eq(0)').addClass('error');
+                return false;
+            }
+            
             $('#user-edit-modal', self.el).prop('view').update(data)
             .fail(function(data)
             {
@@ -403,12 +421,14 @@ function($, superdesk, giz, User, Person, sha)
         },
         activate: function()
         {
-            if( this._resetEvents ) this.resetEvents();
-            this._resetEvents = true;
+            $(this.el).on( 'click', 'table tbody .edit', this.showUpdateUser);
+            
             var self = this;
             return this.refresh().done(function()
             {
                 $(superdesk.layoutPlaceholder).html(self.el);
+                if( self._resetEvents ) self.resetEvents();
+                self._resetEvents = true;
             });
         },
         
