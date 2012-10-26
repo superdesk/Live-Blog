@@ -22,7 +22,7 @@ define('providers/youtube', [
             
             data: [],
             init: function(){
-                if(!this.initialized) {
+                if(!this.initialized || !this.el.children(":first").length) {
                     this.adaptor.init();
                     this.render();
                 }
@@ -58,7 +58,12 @@ define('providers/youtube', [
                             //check what search it is
                             self.startSearch(true);
                         }
-                    });
+                    })
+                    .off('change' ,'#ytb-order-by')
+                    .on('change' ,'#ytb-order-by', function(){
+                        self.startSearch(true);
+                    })
+                    ;
                 });	  
             },
             startSearch: function(fresh) {
@@ -103,7 +108,7 @@ define('providers/youtube', [
             
             trimDesc : function(desc) {
                 if (desc.length > 200) {
-                    return desc.substring(0, 199) + ' ...;'
+                    return desc.substring(0, 200) + ' ...;'
                 } else {
                     return desc;
                 }

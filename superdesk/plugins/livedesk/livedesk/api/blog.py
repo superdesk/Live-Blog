@@ -69,7 +69,7 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call
-    def getAll(self, languageId:LanguageEntity=None, adminId:auth(User)=None, offset:int=None, limit:int=None,
+    def getAll(self, languageId:LanguageEntity=None, userId:auth(User)=None, offset:int=None, limit:int=None,
                detailed:bool=True, q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs.
@@ -86,7 +86,7 @@ class IBlogService(IEntityCRUDService):
         '''
         Provides all the blogs that are live at this moment.
         '''
-        
+
     @call(webName='PutLive', method=UPDATE)
     def putLive(self, adminId:auth(User.Id), blogId:Blog.Id):
         '''
