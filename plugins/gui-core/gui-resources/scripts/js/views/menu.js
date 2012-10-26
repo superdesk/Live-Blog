@@ -70,6 +70,9 @@ function($, superdesk, Gizmo, AuthApp)
             .html('')
             .tmpl('navbar', navData, function()
             {
+                /*!
+                 * for submenus, we get their corresponding build scripts
+                 */
                 self.el.find('[data-submenu]').each(function()
                 {
                     var submenuElement = this;
@@ -97,21 +100,27 @@ function($, superdesk, Gizmo, AuthApp)
                 
                 var callback = function()
                 { 
-                    require
-                    ([config.api_url + $(self).attr('script-path')], 
-                    function(x)
-                    { 
-                        x && x.init && x.init(); 
-                    });
+                    require([config.api_url + $(self).attr('script-path')], function(x){ x && x.init && x.init(); });
                 };
-                    
-                if( $.trim($(self).attr('href').replace('#', '')) != '' )
-                    superdesk.navigation.bind( $(self).attr('href'), callback );
+                  
+                var href = $(self).attr('href').replace(/^\/+|\/+$/g, '');
+                if( $.trim(href) != '' )
+                    superdesk.navigation.bind( href, callback, $(self).text() || null );
                 else
                     callback();
                 
                 event.preventDefault(); 
             });
+            
+            /*!
+             * redirect to current page on reload
+             */
+            if( superdesk.navigation.getStartPathname() != '')
+                self.el.find('li > a[href]').each(function()
+                {
+                    if( $(this).attr('href').replace(/^\/+|\/+$/g, '') == superdesk.navigation.getStartPathname()) 
+                        $(this).trigger('click'); 
+                });
             
             $('#navbar-logout', self.el) // TODO param.
             .off('click.superdesk')

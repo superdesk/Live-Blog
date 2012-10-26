@@ -194,14 +194,14 @@ def getUsersIds():
     if not _cache_users:
         users = _cache_users
         for name in USERS:
-            usrs = userService.getAll(q=QUser(name=name))
+            usrs = userService.getAll(adminId=None, q=QUser(name=name))
             if usrs: users[name] = next(iter(usrs)).Id
             else:
                 usr = User()
                 usr.Name = name
                 usr.Password = hashlib.sha512(b'a').hexdigest()
                 usr.FirstName, usr.LastName, usr.EMail = USERS[name]
-                users[name] = userService.insert(usr)
+                users[name] = userService.insert(adminId=None, user=usr)
     return _cache_users
 
 
