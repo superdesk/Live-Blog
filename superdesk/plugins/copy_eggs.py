@@ -25,7 +25,7 @@ if __name__ == '__main__':
         for egg in glob(join(sourceDist, dir, '*.egg')):
             eggCur = join(dstDir, basename(egg))
             if exists(eggCur) and stat(egg).st_mtime <= stat(eggCur).st_mtime:
-                print('Egg is up to date: %s' % egg)
+#                print('Egg is up to date: %s' % egg)
                 continue
             print('Copying %s\n     to %s' % (egg, dstDir))
             copy(egg, dstDir)
