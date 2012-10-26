@@ -43,7 +43,11 @@ $.extend(providers.flickr, {
 					//check what search it is
 					self.doFlickerImage(1);
 				}
-			});
+			})
+                        .off('change', '#flickr-license')
+                        .on('change', '#flickr-license', function(e){
+                            self.doFlickerImage(1);
+                        });
 		});	  
                 
                 //get license options

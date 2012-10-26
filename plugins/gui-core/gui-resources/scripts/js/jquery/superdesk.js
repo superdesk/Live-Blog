@@ -155,11 +155,11 @@ var superdesk =
             var History = window.History,
                 State = History.getState();
             
-            if( $.trim(State.data.href) != '' && this._repository[State.data.href]  )
-            {
-                callback.call();
-                return;
-            }
+//            if( $.trim(State.data.href) != '' && this._repository[State.data.href]  )
+//            {
+//                callback.call();
+//                return;
+//            }
             
             this._repository[href] = callback;
             
