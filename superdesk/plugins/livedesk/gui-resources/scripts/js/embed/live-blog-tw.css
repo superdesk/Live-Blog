@@ -14,7 +14,7 @@ ol.liveblog-post-list, ul.liveblog-post-list {
 	padding:0 !important;
 	}
 	ol.liveblog-post-list li, ul.liveblog-post-list li {
-		margin-bottom: 36px !important;
+		margin-bottom: 10px !important;
 		overflow:hidden;
 		background-image:none !important; 
 		padding-left: 0 !important;
@@ -251,6 +251,20 @@ ol.liveblog-post-list > li > figure {
 	margin-left: 0;
 }
 
+a[rel="bookmark"] {
+	width: 648px;
+	border-bottom: 1px solid #dcdcdc;
+	display: block;
+	background: url("img/link.png") no-repeat 0 0;
+	text-indent: -9999px;
+}
+
+input[data-type="permalink"] {
+	margin: -58px 0 0 30px;
+	border: 0;
+	width: 600px;
+	font-size: 12px;
+}
 
 /*
 = Size adjustments
