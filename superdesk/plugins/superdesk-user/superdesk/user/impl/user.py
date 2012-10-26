@@ -38,7 +38,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         Construct the service
         '''
 
-    def getById(self, id):
+    def getById(self, adminId, id):
         '''
         @see: IUserService.getById
         '''
@@ -48,7 +48,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         return user
 
-    def getAll(self, offset=None, limit=None, detailed=False, q=None):
+    def getAll(self, adminId, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IUserService.getAll
         '''
@@ -74,7 +74,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             if detailed: return IterPart(entities, sql.count(), offset, limit)
         return entities
 
-    def insert(self, user):
+    def insert(self, adminId, user):
         '''
         @see: IUserService.insert
         '''
@@ -95,7 +95,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         user.Id = userDb.Id
         return user.Id
 
-    def update(self, user):
+    def update(self, adminId, user):
         '''
         @see: IUserService.update
         '''
@@ -115,7 +115,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             self.session().flush((copy(user, userDb),))
         except SQLAlchemyError as e: handle(e, userDb)
 
-    def delete(self, id):
+    def delete(self, adminId, id):
         '''
         @see: IUserService.delete
         '''

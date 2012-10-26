@@ -66,10 +66,9 @@ function($, superdesk, Gizmo, jsSHA)
         {
 			if(AuthApp.showed) return;
             var self = this; // rest
-			AuthApp.showed = true;			
+			AuthApp.showed = true;	
             $.tmpl('auth', null, function(e, o)
             { 
-                
                 var dialog = $(o).eq(0).dialog
                     ({ 
                         draggable: false,
@@ -80,7 +79,8 @@ function($, superdesk, Gizmo, jsSHA)
                         [
                              { text: "Login", click: function(){ $(form).trigger('submit'); }, class: "btn btn-primary"},
                              { text: "Close", click: function(){ $(this).dialog('close'); }, class: "btn"}
-                        ]
+                        ],
+                        close: function(){ AuthApp.showed = false; }
                     }),
                     form = dialog.find('form');
                 

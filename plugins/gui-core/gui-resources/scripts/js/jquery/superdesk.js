@@ -147,10 +147,19 @@ var superdesk =
         {
             return this._startPathname;
         },
+        /*!
+         * bind a callback on history state or execute if already bound
+         */
         bind: function(href, callback, title)
         {
-            var History = window.History;
+            var History = window.History,
+                State = History.getState();
+            
             this._repository[href] = callback;
+            
+            if( this._repository[State.data.href] )
+                callback.call();
+            
             History.pushState({href: href}, 
                     title ? this._titlePrefix + title : null, 
                     this._base + (!config.server_tech ? '?'+href : href));
