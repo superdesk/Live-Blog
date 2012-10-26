@@ -148,8 +148,8 @@ ol.liveblog-post-list, ul.liveblog-post-list {
 		}
 
 	.quotation .result-content {
-		background: url(img/quotes-16px.png) no-repeat 0 0;
-		padding-left: 55px;
+		background: url(img/quotes.png) no-repeat 0 0;
+		padding-left: 50px;
 	}
 		
 .youtube-content {
@@ -186,10 +186,10 @@ ol.liveblog-post-list > li > figure {
 		}
 
 .article-single article .quotation .result-content .result-text {	
-    border-left: 2px solid #DCDCDC;
+   /*border-left: 2px solid #DCDCDC;*/
     font-style: italic;
 	font-family:Georgia, "Times New Roman", Times, serif;
-    padding: 0 0 0 10px;
+    /*padding: 0 0 0 10px;*/
 }
 .article-single article .image-post .result-content figure {	
     margin:0 0 10px 0;
@@ -210,6 +210,7 @@ ol.liveblog-post-list > li > figure {
 	}
 	.wrapup h3, .wrapup p {
 		margin:0 !important;
+		padding-left: 50px;
 		}
 	.wrapup h3  {
 		font-family:'GeorgiaProW01-SemiBold', Georgia, 'Times New Roman', Times, serif;
