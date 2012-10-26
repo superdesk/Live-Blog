@@ -38,7 +38,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         Construct the service
         '''
 
-    def getById(self, id):
+    def getById(self, adminId, id):
         '''
         @see: IUserService.getById
         '''
@@ -48,7 +48,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             raise InputError(Ref(_('Unknown user id'), ref=User.Id))
         return user
 
-    def getAll(self, offset=None, limit=None, detailed=False, q=None):
+    def getAll(self, adminId, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IUserService.getAll
         '''

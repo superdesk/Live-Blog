@@ -9,13 +9,14 @@ Created on Mar 6, 2012
 The API specifications for the user.
 '''
 
-from ally.api.config import service, query, UPDATE, call
+from ally.api.config import service, query, UPDATE, call, LIMIT_DEFAULT
 from ally.api.criteria import AsLikeOrdered, AsDateTimeOrdered, AsLike
 from ally.support.api.entity import Entity, IEntityService, QEntity
 from superdesk.api.domain_superdesk import modelSuperDesk
 from superdesk.person.api.person import Person, QPerson
 from datetime import datetime
 from ally.api.authentication import auth
+from ally.api.type import Iter
 
 # --------------------------------------------------------------------
 
@@ -56,17 +57,27 @@ class IUserService(IEntityService):
     '''
     
     @call
+    def getById(self, adminId:auth(User.Id), id:User.Id) -> User:
+        '''
+        '''       
+        
+    @call
+    def getAll(self, adminId:auth(User.Id), offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True, q:QUser=None) -> Iter(User):
+        '''
+        '''
+    
+    @call
     def insert(self, adminId:auth(User.Id), user:User) -> User.Id:
         '''
         '''
         
     @call
-    def delete(self, adminId:auth(User.Id), user:User):
+    def delete(self, adminId:auth(User.Id), user:User) -> bool:
         '''
         '''
         
     @call
-    def update(self, adminId:auth(User.Id), user:User):
+    def update(self, adminId:auth(User.Id), user:User) -> bool:
         '''
         '''
         
