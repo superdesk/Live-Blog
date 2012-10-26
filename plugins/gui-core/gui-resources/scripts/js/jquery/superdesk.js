@@ -155,10 +155,13 @@ var superdesk =
             var History = window.History,
                 State = History.getState();
             
-            this._repository[href] = callback;
-            
-            if( this._repository[State.data.href] )
+            if( $.trim(State.data.href) != '' && this._repository[State.data.href]  )
+            {
                 callback.call();
+                return;
+            }
+            
+            this._repository[href] = callback;
             
             History.pushState({href: href}, 
                     title ? this._titlePrefix + title : null, 
