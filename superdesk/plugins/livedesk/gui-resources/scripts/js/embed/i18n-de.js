@@ -3,7 +3,7 @@ window.livedesk.i18n = {
 	'show_current_date': 'true',
 	'HH:MM:ss': 'HH:MM',
 	'HH:MM:ss TT': 'HH:MM',
-	'ddd mmm dd yyyy HH:MM:ss TT': 'dddd, dd. mmmm yyyy HH:MM',
+	'ddd mmm dd yyyy HH:MM:ss TT': 'dd. mmmm yyyy, HH:MM',
 	'day_names': [
 		"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa",
 		"Sonnabend", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"
