@@ -30,6 +30,12 @@
 				</div>
 			</div>
 			<div class="control-group">
+				<label class="control-label" for="inputAddress">_('Address')</label>
+				<div class="controls">
+					<input type="text" name="Address" id="inputAddress" placeholder="_('Address')" />
+				</div>
+			</div>
+			<div class="control-group">
 				<label class="control-label" for="inputCollaborator">_('Add as collaborator')</label>
 				<div class="controls">
 					<input type="checkbox" name="Collaborator" id="inputCollaborator" data-ignore="true" />
