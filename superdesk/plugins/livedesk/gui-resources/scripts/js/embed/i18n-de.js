@@ -1,8 +1,9 @@
 window.livedesk.i18n = {
+	'no_avatar': 'true',
 	'show_current_date': 'true',
 	'HH:MM:ss': 'HH:MM',
-	'HH:MM:ss TT': 'HH:MM TT',
-	'ddd mmm dd yyyy HH:MM:ss TT': 'ddd mmm dd yyyy HH:MM TT',
+	'HH:MM:ss TT': 'HH:MM',
+	'ddd mmm dd yyyy HH:MM:ss TT': 'dddd, dd. mmmm yyyy HH:MM',
 	'day_names': [
 		"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa",
 		"Sonnabend", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"
