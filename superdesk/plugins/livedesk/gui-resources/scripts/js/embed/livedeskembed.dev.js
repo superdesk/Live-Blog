@@ -1856,7 +1856,7 @@ window.livedesk.startLoading = function($, _) {
                                     }
                                 }
 								avatarString = '';
-                                if(Avatar.length > 0 && author != 'twitter') {
+                                if(_('no_avatar') != 'true' && Avatar.length > 0 && author != 'twitter') {
                                     avatarString = '<figure><img src="' + Avatar + '" ></figure>';
                                 }                                
                                 switch (itemClass) {
@@ -1878,7 +1878,6 @@ window.livedesk.startLoading = function($, _) {
                                             returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ';										
 											returned +=     '<a class="author-name" href="http://youtube.com/'+Meta.uploader+'" target="_blank">'+Meta.uploader+'</a>';
 										} else if ( author == 'google'){
-											console.log(Meta);
 											//titleNoFormatting
 											returned +=     '<h3><a target="_blank" href="'+Meta.url+'">'+Meta.title+'</a></h3>'
 											returned +=     '<div class="result-text">' + content + '</div>';
