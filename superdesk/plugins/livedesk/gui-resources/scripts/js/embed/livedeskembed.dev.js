@@ -2157,9 +2157,9 @@ window.livedesk.startLoading = function($, _) {
 			},
 			renderBlog: function()
 			{
-				$(this.el).find('article')
-					//.find('h2').text(this.model.get('Title')).end()
-					.find('p').text(this.model.get('Description'));
+				//$(this.el).find('article')
+					//.find('h2').html(this.model.get('Title')).end()
+					//.find('p').html(this.model.get('Description'));
 			},
                         
                         loadTrace: function() {
