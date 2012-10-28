@@ -1739,7 +1739,7 @@ window.livedesk.startLoading = function($, _) {
 			}
 		}),
 		AutoCollection = $.gizmo.Collection.extend({
-			timeInterval: 10000,
+			timeInterval: 25000,
 			idInterval: 0,
 			_latestCId: 0,
                         
@@ -2065,7 +2065,7 @@ window.livedesk.startLoading = function($, _) {
 		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
 			el: '#livedesk-root',
-			timeInterval: 10000,
+			timeInterval: 25000,
 			idInterval: 0,
 			_latestCId: 0,
 			setIdInterval: function(fn){
@@ -2179,7 +2179,7 @@ window.livedesk.startLoading = function($, _) {
                                 var self = this, auxView;
                                 iidLoadTrace = setInterval(function(){
                                     self.loadTrace();
-                                }, 900)
+                                }, 25000)
                                 this.views=[];
                                 this.renderedTotal = i;
 				while(i--) {
