@@ -1480,7 +1480,8 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     xfilter = function() // x-filter implementation
     {
         if( !this.syncAdapter.options.headers ) this.syncAdapter.options.headers = {};
-        this.syncAdapter.options.headers['X-Filter']
+        this.syncAdapter.options.headers['X-Format-DateTime'] = 'M/dd/yyyy HH:mm:ss';
+		this.syncAdapter.options.headers['X-Filter']
             = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];
         return this;
     },
@@ -2090,7 +2091,7 @@ window.livedesk.startLoading = function($, _) {
 					var closedOn = new Date(this.model.get('ClosedOn'));
 					this.pause();
 					this.model.get('PostPublished').pause();					
-					this.el.find('#liveblog-status').html('The liveblog coverage was stopped '+closedOn.format('mm/dd/yyyy HH:MM:ss'));
+					this.el.find('#liveblog-status').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM:ss')));
 				}
 			},                       
 			gotoHash : function() {
