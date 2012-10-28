@@ -81,7 +81,7 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         
         self.request_version = 'HTTP/1.1'
         self.requestline = 0
-tre rescrisa mai simplu partea cu asynchat din cauza ca ii bugy la fisiere mari
+
     def collect_incoming_data(self, data):
         '''
         @see: async_chat.collect_incoming_data

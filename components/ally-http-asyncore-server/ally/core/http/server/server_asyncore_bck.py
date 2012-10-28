@@ -16,6 +16,7 @@ from ally.core.spec.codes import Code
 from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
     CREATE_REPORT
 from ally.support.util_io import IOutputStream, readGenerator
+from .asynchat import async_chat
 from asyncore import dispatcher, poll
 from collections import deque
 from http.server import BaseHTTPRequestHandler
@@ -33,7 +34,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-class RequestHandler(dispatcher, BaseHTTPRequestHandler):
+class RequestHandler(async_chat, BaseHTTPRequestHandler):
     '''
     Request handler implementation based on @see: async_chat and @see: BaseHTTPRequestHandler.
     The async chat request handler. It relays for the HTTP processing on the @see: BaseHTTPRequestHandler,
@@ -70,7 +71,7 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         assert isinstance(address, tuple), 'Invalid address %s' % address
         assert isinstance(self.pathProcessing, list), 'Invalid path processing %s' % self.pathProcessing
         
-        dispatcher.__init__(self, request, map=server.map)
+        async_chat.__init__(self, request, map=server.map)
         self.server = server
         self.client_address = address
         self.connection = request
@@ -81,7 +82,7 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         
         self.request_version = 'HTTP/1.1'
         self.requestline = 0
-tre rescrisa mai simplu partea cu asynchat din cauza ca ii bugy la fisiere mari
+
     def collect_incoming_data(self, data):
         '''
         @see: async_chat.collect_incoming_data
@@ -114,6 +115,7 @@ tre rescrisa mai simplu partea cu asynchat din cauza ca ii bugy la fisiere mari
 
     def handle_error(self):
         # TODO: cehck it 
+        print('=================------------------------------------')
         traceback.print_exc(file=sys.stderr)
         self.close()
 
@@ -181,10 +183,13 @@ tre rescrisa mai simplu partea cu asynchat din cauza ca ii bugy la fisiere mari
 #        for bytes in source: self.push(bytes)
 #        self.finish()
     
+    kkk = 0
     def _send(self, source, data=None):
         count = 0
         if data is not None:
             count += len(data)
+            self.kkk += len(data)
+            print('>>>', self.kkk)
             self.push(data)
         while True:
             try: data = next(source)
@@ -195,6 +200,7 @@ tre rescrisa mai simplu partea cu asynchat din cauza ca ii bugy la fisiere mari
             if count >= self.ac_out_buffer_size:
                 self.server.calls.append((self._send, source, data))
                 return
+            self.kkk += len(data)
             self.push(data)
         
     # ----------------------------------------------------------------

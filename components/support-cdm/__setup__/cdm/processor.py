@@ -10,8 +10,8 @@ Provides the configurations for delivering files from the local file system.
 '''
 
 from ..ally_core.processor import explainError, renderer
-from ..ally_core_http.processor import contentTypeEncode, header, internalError, \
-    allowEncode, acceptDecode, pathAssemblies
+from ..ally_core_http.processor import contentLengthEncode, contentTypeEncode, \
+    header, internalError, allowEncode, acceptDecode, pathAssemblies
 from ally.container import ioc
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
 from ally.design.processor import Handler, Assembly
@@ -64,8 +64,8 @@ def assemblyContentError() -> Assembly:
 
 @ioc.before(assemblyContent)
 def updateAssemblyContent():
-    assemblyContent().add(internalError(), header(), contentDelivery(), contentTypeEncode())
-
+    assemblyContent().add(internalError(), header(), contentDelivery(), contentTypeEncode(), contentLengthEncode())
+#TODO: add also caching headers
 @ioc.before(assemblyContentError)
 def updateAssemblyContentError():
     assemblyContentError().add(acceptDecode(), renderer(), explainError(), allowEncode(), contentTypeEncode())
