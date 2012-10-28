@@ -21,6 +21,7 @@ from collections import deque
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 from urllib.parse import urlparse, parse_qsl
+import abc
 import logging
 import re
 import socket
@@ -31,6 +32,11 @@ import traceback
 
 log = logging.getLogger(__name__)
 
+# Constants used in indicating the write option. 
+WRITE_IS = 1
+WRITE_DATA = 2
+WRITE_SENT = 3
+
 # --------------------------------------------------------------------
 
 class RequestHandler(dispatcher, BaseHTTPRequestHandler):
@@ -40,6 +46,13 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
     and uses the async_chat to asynchronous communication.
     '''
     
+    bufferSize = 10 * 1024
+    # The buffer size used for reading and writing.
+    maximumRequestSize = 100 * 1024
+    # The maximum request size, 100 kilobytes
+    requestTerminator = b'\r\n\r\n'
+    # Terminator that signals the http request is complete 
+
     methods = {
                'DELETE' : DELETE,
                'GET' : GET,
@@ -49,8 +62,6 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
                }
     methodUnknown = -1
     # The available method for processing.
-    maximumRequestSize = 100 * 1024
-    # The maximum request size, 100 kilobytes
     pathProcessing = list
     # A list that contains tuples having on the first position a regex for matching a path, and the second value 
     # the processing for handling the path.
@@ -75,57 +86,141 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         self.client_address = address
         self.connection = request
         
-        self.set_terminator(b'\r\n\r\n')  # Terminator that signals the http request is complete 
-        self.rfile = BytesIO()
-        self.wfile = BytesIO()
-        
         self.request_version = 'HTTP/1.1'
         self.requestline = 0
-tre rescrisa mai simplu partea cu asynchat din cauza ca ii bugy la fisiere mari
-    def collect_incoming_data(self, data):
-        '''
-        @see: async_chat.collect_incoming_data
-        Collect the data arriving on the connection, if the request is to long we will abort.
-        '''
-        self.rfile.write(data)
-        if self.rfile.tell() > self.maximumRequestSize:
-            self.send_response(400, 'Request to long')
-            self.end_headers()
-            self.finish()
-
-    def found_terminator(self):
-        '''
-        @see: async_chat.collect_incoming_data
-        Called when the http request line and headers have been received
-        '''
-        self.rfile.seek(0)
-        self.raw_requestline = self.rfile.readline()
-        self.parse_request()
         
-        self._process(self.methods.get(self.command, self.methodUnknown))
+        self.rfile = BytesIO()
+        self._readCarry = None
 
-    def end_headers(self):
-        '''
-        @see: BaseHTTPRequestHandler.end_headers
-        '''
-        super().end_headers()
-        self.push(self.wfile.getvalue())
-        self.wfile = None
+        self.wfile = BytesIO()
+        self._writePosition = 0
+        self._writeFinalized = False
+        self._writeContent = None
 
-    def handle_error(self):
-        # TODO: cehck it 
-        traceback.print_exc(file=sys.stderr)
-        self.close()
+    def readable (self):
+        '''
+        Always able to read.
+        @see: dispatcher.readable
+        '''
+        return True
 
-    def finish(self):
+    def handle_read(self):
         '''
-        Send data, then close
+        @see: dispatcher.handle_read
         '''
-        if self.wfile is not None: self.push(self.wfile.getvalue())
-        self.close()
+        try: data = self.recv(self.bufferSize)
+        except socket.error:
+            log.exception('Exception occurred while reading the connection \'%s\'' % self.connection)
+            self.close()
+            return
+        self._handleReadData(data)
+
+    # ----------------------------------------------------------------
+    
+    def writable(self):
+        '''
+        @see: dispatcher.writable
+        '''
+        return self._handleWriteData(WRITE_IS)
+    
+    def handle_write(self):
+        '''
+        @see: dispatcher.handle_write
+        '''
+        data = self._handleWriteData(WRITE_DATA)
+        if data is not None:
+            try: sent = self.send(data)
+            except socket.error:
+                log.exception('Exception occurred while writing to the connection \'%s\'' % self.connection)
+                self.close()
+                return
+            self._handleWriteData(WRITE_SENT, sent)
         
     # ----------------------------------------------------------------
+    
+    def _handleReadData(self, data):
+        '''
+        Handle the data as being part of the request.
+        '''
+        if self._readCarry is not None: data = self._readCarry + data
+        index = data.find(self.requestTerminator)
+        requestTerminatorLen = len(self.requestTerminator)
+        
+        if index >= 0:
+            self._handleReadData = self._handleReadDataForContent  # Now the read content is considered as content
+            self.rfile.write(data[:index + requestTerminatorLen:])
+            self.rfile.seek(0)
+            self.raw_requestline = self.rfile.readline()
+            self.parse_request()
+            
+            self.rfile.seek(0)
+            self.rfile.truncate()
+            self.rfile.write(data[index + requestTerminatorLen:])
+            self._readCarry = None
+            
+            self._process(self.methods.get(self.command, self.methodUnknown))
+        else:
+            self._readCarry = data[-requestTerminatorLen:]
+            self.rfile.write(data[:-requestTerminatorLen])
+            
+            if self.rfile.tell() > self.maximumRequestSize:
+                self.send_response(400, 'Request to long')
+                self.end_headers()
+                self.close()
 
+    def _handleReadDataForContent(self, data):
+        '''
+        Handle the data as being part of the request content.
+        '''
+        self.rfile.write(data)
+    
+    # ----------------------------------------------------------------
+
+    def _handleWriteData(self, do, sent=None):
+        '''
+        Handle the data that forms the response.
+        '''
+        if do == WRITE_IS: return self.wfile.tell() - self._writePosition > 0
+        elif do == WRITE_DATA:
+            self.wfile.seek(self._writePosition)
+            data = self.wfile.read(self.bufferSize)
+            self.wfile.seek(0, 2)  # Go back to the end of the stream
+            return data
+        elif do == WRITE_SENT:
+            if sent: self._writePosition += sent
+            if self._writeFinalized and self._writePosition >= self.wfile.tell():
+                self._handleWriteData = self._handleWriteDataForContent
+                self._writePosition = 0
+                self.wfile.seek(0)
+                self.wfile.truncate()
+                
+    def _handleWriteDataForContent(self, do, sent=None):
+        '''
+        Handle the data that for the response content.
+        '''
+        if do == WRITE_IS: return self._writeContent is not None or self.wfile.tell() - self._writePosition > 0
+        elif do == WRITE_DATA:
+            if self._writePosition >= self.wfile.tell():
+                self._writePosition = 0
+                self.wfile.seek(0)
+                self.wfile.truncate()
+                try: data = next(self._writeContent)
+                except StopIteration:
+                    self._writeContent = None
+                    self.close()
+                    return
+                self.wfile.write(data)
+            else:
+                self.wfile.seek(self._writePosition)
+                data = self.wfile.read(self.bufferSize)
+                self.wfile.seek(0, 2)  # Go back to the end of the stream
+                return data
+        elif do == WRITE_SENT:
+            if sent: self._writePosition += sent
+            if self._writeContent is None and self._writePosition >= self.wfile.tell(): self.close()
+
+    # ----------------------------------------------------------------
+    
     def _process(self, method):
         url = urlparse(self.path)
         path = url.path.lstrip('/')
@@ -153,7 +248,7 @@ tre rescrisa mai simplu partea cu asynchat din cauza ca ii bugy la fisiere mari
         else:
             self.send_response(404)
             self.end_headers()
-            self.finish()
+            self.close()
             return
 
         req.method = method
@@ -171,31 +266,13 @@ tre rescrisa mai simplu partea cu asynchat din cauza ca ii bugy la fisiere mari
         else: self.send_response(rsp.code.code)
 
         self.end_headers()
+        self._writeFinalized = True
 
         if rspCnt.source is not None:
-            if isinstance(rspCnt.source, IOutputStream): source = readGenerator(rspCnt.source, self.ac_out_buffer_size)
+            if isinstance(rspCnt.source, IOutputStream): source = readGenerator(rspCnt.source, self.bufferSize)
             else: source = rspCnt.source
 
-        self._send(iter(source))
-        # TODO: remove
-#        for bytes in source: self.push(bytes)
-#        self.finish()
-    
-    def _send(self, source, data=None):
-        count = 0
-        if data is not None:
-            count += len(data)
-            self.push(data)
-        while True:
-            try: data = next(source)
-            except StopIteration:
-                self.finish()
-                return
-            count += len(data)
-            if count >= self.ac_out_buffer_size:
-                self.server.calls.append((self._send, source, data))
-                return
-            self.push(data)
+            self._writeContent = iter(source)
         
     # ----------------------------------------------------------------
 
