@@ -102,12 +102,12 @@ def publishQueryCriteriaService() -> IQueryCriteriaService:
 
 # --------------------------------------------------------------------
 
-@ioc.after(createTables)
+@ioc.after(loadAllMetaDataHandlers, createTables)
 def publishQueryService():
     b = createService(queryIndexer())
     registerService(b, (bindSuperdeskSession,))
 
-@ioc.after(loadAllMetaDataHandlers)
+@ioc.after(loadAllMetaDataHandlers, createTables)
 def deploy():
     metaDataService().deploy()
 

@@ -425,15 +425,19 @@ class SetupEvent(SetupFunction):
         '''
         @see: SetupFunction.__init__
         
-        @param target: string
+        @param target: string|tuple(string)
             The target name of the event call.
         @param event: string
             On of the defined EVENTS.
         '''
         SetupFunction.__init__(self, function, **keyargs)
-        assert isinstance(target, str), 'Invalid target %s' % target
+        if isinstance(target, str): targets = (target,)
+        else: targets = target
+        assert isinstance(targets, tuple), 'Invalid targets %s' % targets
+        if __debug__:
+            for target in targets: assert isinstance(target, str), 'Invalid target %s' % target
         assert event in self.EVENTS, 'Invalid event %s' % event
-        self._target = target
+        self._targets = targets
         self._event = event
 
     def index(self, assembly):
@@ -443,21 +447,24 @@ class SetupEvent(SetupFunction):
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         if self.name in assembly.calls:
             raise SetupError('There is already a setup call for name %r' % self.name)
-        assembly.calls[self.name] = CallEvent(assembly, self.name, self._function)
+        if self._event == self.BEFORE or len(self._targets) == 1:
+            assembly.calls[self.name] = CallEvent(assembly, self.name, self._function)
+        else: assembly.calls[self.name] = CallEventOnCount(assembly, self.name, self._function, len(self._targets))
 
     def assemble(self, assembly):
         '''
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._target not in assembly.calls:
-            raise SetupError('There is no setup call for target %r to add the event on' % self._target)
-        call = assembly.calls[self._target]
-        if not isinstance(call, WithListeners):
-            raise SetupError('Cannot find any listener support for target %r to add the event' % self._target)
-        assert isinstance(call, WithListeners)
-        if self._event == self.BEFORE: call.addBefore(partial(assembly.processForName, self.name))
-        elif self._event == self.AFTER: call.addAfter(partial(assembly.processForName, self.name))
+        for target in self._targets:
+            if target not in assembly.calls:
+                raise SetupError('There is no setup call for target \'%s\' to add the event on' % target)
+            call = assembly.calls[target]
+            if not isinstance(call, WithListeners):
+                raise SetupError('Cannot find any listener support for target %r to add the event' % target)
+            assert isinstance(call, WithListeners)
+            if self._event == self.BEFORE: call.addBefore(partial(assembly.processForName, self.name))
+            else: call.addAfter(partial(assembly.processForName, self.name))
 
     def __call__(self):
         '''
@@ -525,7 +532,7 @@ class CallEvent(WithCall, WithListeners):
         '''
         Provides the call for the source.
         '''
-        if self._processed: raise SetupError('The event call %r cannot be dispatched twice' % self.name)
+        if self._processed: return
         self._processed = True
         self._assembly.called.add(self.name)
 
@@ -533,6 +540,32 @@ class CallEvent(WithCall, WithListeners):
         ret = self.call()
         if ret is not None: raise SetupError('The event call %r cannot return any value' % self.name)
         for listener in self._listenersAfter: listener()
+        
+class CallEventOnCount(CallEvent):
+    '''
+    Event call that triggers only after being called count times.
+    @see: CallEvent
+    '''
+
+    def __init__(self, assembly, name, call, count):
+        '''
+        Construct the call on count event.
+        @see: CallEvent.__init__
+        
+        @param count: integer
+            The number of calls that the event needs to be called in order to actually trigger.
+        '''
+        assert isinstance(count, int) and count > 0, 'Invalid count %s' % count
+        super().__init__(assembly, name, call)
+        
+        self._count = count
+
+    def __call__(self):
+        '''
+        Provides the call for the source.
+        '''
+        if self._count > 0: self._count -= 1
+        if self._count <= 0: super().__call__()
 
 class CallEntity(WithCall, WithType, WithListeners):
     '''
