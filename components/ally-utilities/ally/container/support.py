@@ -212,6 +212,8 @@ def loadAllEntities(*classes, module=None):
         The classes to have the entities loaded for.
     @param module: module|None
         If the setup module is not provided than the calling module will be considered.
+    @return: Setup
+        The setup start that loads all the entities, the return value can be used for after and before events.
     '''
     def loadAll(prefix, classes):
         for clazz in classes:
@@ -230,7 +232,7 @@ def loadAllEntities(*classes, module=None):
         group = registry['__name__']
 
     loader = partial(loadAll, group + '.', _classes(classes))
-    register(SetupStart(loader, name='loader_%s' % id(loader)), registry)
+    return register(SetupStart(loader, name='loader_%s' % id(loader)), registry)
 
 def include(module, inModule=None):
     '''
