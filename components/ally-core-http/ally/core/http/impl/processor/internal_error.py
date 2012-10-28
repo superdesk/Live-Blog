@@ -13,7 +13,7 @@ from ally.container.ioc import injected
 from ally.core.spec.codes import Code, INTERNAL_ERROR, BAD_CONTENT
 from ally.design.context import defines, Context
 from ally.design.processor import HandlerProcessor, Chain
-from ally.support.util_io import IOutputStream, readGenerator, convertToBytes
+from ally.support.util_io import IOutputStream, convertToBytes
 from collections import Iterable
 from io import BytesIO, StringIO
 import logging
@@ -98,7 +98,7 @@ class InternalErrorHandler(HandlerProcessor):
                     traceback.print_exc(file=error)
                 else:
                     content.seek(0)
-                    responseCnt.source = readGenerator(content)
+                    responseCnt.source = content
 
         if error is not None:
             response.code = INTERNAL_ERROR
