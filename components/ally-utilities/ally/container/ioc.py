@@ -75,33 +75,38 @@ def config(*args):
         raise SetupError('Invalid name %r for configuration, needs to be lower case only' % function.__name__)
     return update_wrapper(register(SetupConfig(function, type=type), callerLocals()), function)
 
-def before(setup):
+def before(*setups):
     '''
-    Decorator for setup functions that need to be called before other setup functions.
+    Decorator for setup functions that need to be called before the other setup functions. If multiple before setup
+    functions are provided then the before function will be invoked only for the first setup functions that occurs.
     
-    @param setup: SetupFunction
+    @param setup: arguments[SetupFunction]
         The setup function to listen to.
     '''
-    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    if __debug__:
+        for setup in setups: assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.BEFORE), callerLocals()), function)
+        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.BEFORE),
+                                       callerLocals()), function)
 
     return decorator
 
-def after(setup):
+def after(*setups):
     '''
-    Decorator for setup functions that need to be called after other setup functions.
+    Decorator for setup functions that need to be called after the other setup functions. If multiple after setup
+    functions are provided then the after function will be invoked only after all the setup functions will occur.
     
-    @param setup: SetupFunction
-        The setup function to listen to.
+    @param setups: arguments[SetupFunction]
+        The setup function(s) to listen to.
     '''
-    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    if __debug__:
+        for setup in setups: assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.AFTER),
+        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.AFTER),
                                        callerLocals()), function)
 
     return decorator
