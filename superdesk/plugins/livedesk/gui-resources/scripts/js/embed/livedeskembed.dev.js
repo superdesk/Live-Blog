@@ -1739,7 +1739,7 @@ window.livedesk.startLoading = function($, _) {
 			}
 		}),
 		AutoCollection = $.gizmo.Collection.extend({
-			timeInterval: 25000,
+			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
                         
@@ -1879,7 +1879,7 @@ window.livedesk.startLoading = function($, _) {
 											returned +=     '<a class="author-name" href="http://youtube.com/'+Meta.uploader+'" target="_blank">'+Meta.uploader+'</a>';
 										} else if ( author == 'google'){
 											//titleNoFormatting
-											returned +=     '<h3><a target="_blank" href="'+Meta.url+'">'+Meta.title+'</a></h3>'
+											returned +=     '<h3><a target="_blank" href="'+Meta.unescapedUrl+'">'+Meta.title+'</a></h3>'
 											returned +=     '<div class="result-text">' + content + '</div>';
                                             //returned +=     '<p class="attributes"><i class="source-icon"><img src="http://g.etfv.co/'+Meta.url+'" style="max-width: 16px" border="0"></i><a class="author-name" href="'+Meta.url+'">'+Meta.visibleUrl+'</a>'
 											returned +=     '<p class="attributes"><i class="source-icon"></i> '+_('by')+' ' + item.get('AuthorName');
@@ -2065,7 +2065,7 @@ window.livedesk.startLoading = function($, _) {
 		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
 			el: '#livedesk-root',
-			timeInterval: 25000,
+			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
 			setIdInterval: function(fn){
@@ -2179,7 +2179,7 @@ window.livedesk.startLoading = function($, _) {
                                 var self = this, auxView;
                                 iidLoadTrace = setInterval(function(){
                                     self.loadTrace();
-                                }, 25000)
+                                }, 900)
                                 this.views=[];
                                 this.renderedTotal = i;
 				while(i--) {
