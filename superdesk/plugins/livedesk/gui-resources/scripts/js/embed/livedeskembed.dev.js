@@ -1759,7 +1759,7 @@ window.livedesk.startLoading = function($, _) {
 				return this;
 			},
 			auto: function(){                                
-				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': self.xfilter, 'X-Format-DateTime': 'M/dd/yyyy hh:mm:ss'}};
+				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': self.xfilter, 'X-Format-DateTime': 'M/dd/yyyy HH:mm:ss'}};
 				if(this._latestCId === 0) delete requestOptions.data;
 				this.triggerHandler('beforeUpdate');
 				$.gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){

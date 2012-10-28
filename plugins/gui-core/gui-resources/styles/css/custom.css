@@ -959,7 +959,7 @@ section.main-section {
 	.with-avatar .result-content time {
 		display:inline;
 		}
-li.image, li.image:hover {		
+li.image {		
 	display: inline-block;
 	vertical-align: top;
 	margin: 10px 0 0 10px;
