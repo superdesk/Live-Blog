@@ -29,8 +29,8 @@ def ajax_cross_domain() -> bool:
 def headers_ajax() -> dict:
     '''The ajax specific headers required by browser for cross domain calls'''
     return {
-            'Access-Control-Allow-Origin':'*',
-            'Access-Control-Allow-Headers':'X-Filter, X-HTTP-Method-Override, X-Format-DateTime',
+            'Access-Control-Allow-Origin':['*'],
+            'Access-Control-Allow-Headers':['X-Filter', 'X-HTTP-Method-Override', 'X-Format-DateTime'],
             }
 
 # --------------------------------------------------------------------
