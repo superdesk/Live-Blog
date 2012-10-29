@@ -1,6 +1,6 @@
 <!-- ... -->
 <style>
-	.table .btn-group{ visibility: hidden; }
+	.table .btn-group{ visibility: hidden; display: inline; }
 	.table tr:hover .btn-group{ visibility: visible; }
 	#area-main{ height: 100%; -moz-box-sizing: border-box; padding-top: 40px; }  
 </style>
