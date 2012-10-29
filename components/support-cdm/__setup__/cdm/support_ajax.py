@@ -23,7 +23,7 @@ from ally.design.processor import Handler
 def headers_ajax_cdm() -> dict:
     '''The ajax specific headers required by browser for cross domain calls'''
     return {
-            'Access-Control-Allow-Origin':'*',
+            'Access-Control-Allow-Origin': ['*'],
             }
 
 # --------------------------------------------------------------------

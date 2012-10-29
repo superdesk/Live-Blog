@@ -27,8 +27,8 @@ def no_cache() -> bool:
 def headers_no_cache() -> dict:
     '''The headers required by browsers like IE so it will not use caching'''
     return {
-            'Cache-Control':'no-cache',
-            'Pragma':'no-cache',
+            'Cache-Control':['no-cache'],
+            'Pragma':['no-cache'],
             }
 
 # --------------------------------------------------------------------
