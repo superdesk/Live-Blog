@@ -152,7 +152,7 @@ var superdesk =
          */
         bind: function(href, callback, title)
         {
-            var History = window.History,
+            var History = window.History;
 
             if( $.trim(href) != '' && this._repository[href]  )
             {
