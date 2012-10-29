@@ -4,6 +4,7 @@ window.livedesk.i18n = {
 	'HH:MM:ss': 'HH:MM',
 	'HH:MM:ss TT': 'HH:MM',
 	'ddd mmm dd yyyy HH:MM:ss TT': 'dd. mmmm yyyy, H:MM',
+	'mm/dd/yyyy HH:MM:ss': 'dd. mmmm yyyy, H:MM',
 	'day_names': [
 		"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa",
 		"Sonnabend", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"
@@ -14,5 +15,6 @@ window.livedesk.i18n = {
 	],
 	'updating...': 'Wird aktualisiert...',
 	'by': 'von',
-	'updated on ': 'Zuletzt aktualisiert um '	
+	'updated on ': 'Zuletzt aktualisiert um ',
+	'The liveblog coverage was stopped ': 'Die LiveBlog Abdeckung wurde gestoppt ',
 };
