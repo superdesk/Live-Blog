@@ -91,9 +91,12 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             range.startContainer.nodeType == Node.COMMENT_NODE ||
                             range.startContainer.nodeType == Node.CDATA_SECTION_NODE ) return false;
                               
-                        for( var i = range.startOffset; i <= range.endOffset; i++ )
-                            if( $(range.startContainer.childNodes[i]).is(nodeName) ) return $(range.startContainer.childNodes[i]); 
-                        
+                        for( var i = range.startOffset-1; i <= range.endOffset; i++ )
+                            if( $(range.startContainer.childNodes[i]).is(nodeName) ) return $(range.startContainer.childNodes[i]);
+                        if( range.startContainer.innerHTML 
+                                && $(range.startContainer.innerHTML).is(nodeName) 
+                                && $(range.endContainer.innerHTML).is(nodeName) )
+                            return $(range.startContainer.innerHTML);
                         return false;
                     }
                 },
