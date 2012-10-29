@@ -44,7 +44,7 @@ class HeaderSetEncodeHandler(HandlerProcessorProceed):
         if __debug__:
             for name, value in self.headers.items():
                 assert isinstance(name, str), 'Invalid header name %s' % name
-                assert isinstance(value, str), 'Invalid header value %s' % value
+                assert isinstance(value, list), 'Invalid header value %s' % value
         super().__init__()
 
     def process(self, response:Response, **keyargs):
@@ -57,4 +57,4 @@ class HeaderSetEncodeHandler(HandlerProcessorProceed):
         assert isinstance(response.encoderHeader, IEncoderHeader), \
         'Invalid header encoder %s' % response.encoderHeader
 
-        for name, value in self.headers.items(): response.encoderHeader.encode(name, value)
+        for name, value in self.headers.items(): response.encoderHeader.encode(name, ','.join(value))
