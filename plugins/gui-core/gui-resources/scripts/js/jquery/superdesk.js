@@ -152,13 +152,15 @@ var superdesk =
          */
         bind: function(href, callback, title)
         {
-            var History = window.History,
-                State = History.getState();
-            
-            if( $.trim(State.data.href) != '' && this._repository[State.data.href]  )
+            var History = window.History;
+
+            if( $.trim(href) != '' && this._repository[href]  )
             {
+                History.replaceState({href: href}, 
+                        title ? this._titlePrefix + title : null, 
+                        this._base + (!config.server_tech ? '?'+href : href));
                 callback.call();
-                return;
+                return callback;
             }
             
             this._repository[href] = callback;
