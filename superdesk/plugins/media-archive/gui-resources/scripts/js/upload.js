@@ -13,9 +13,8 @@ function()
                 var fd = new FormData();
                 fd.append(filename || 'upload_file', file);
                 var xhr = new XMLHttpRequest();
-                // replace or add format we want as response in url
-                path = path.search(/(((\..+)?\?))/) != -1 ? path.replace(/(((\..+)?\?))/,'.xml?') : path+'.xml';
-                xhr.open('POST', path, true);
+                // replace or add format we want as response in url // path = path.search(/(((\..+)?\?))/) != -1 ? path.replace(/(((\..+)?\?))/,'.xml?') : path+'.xml';
+                xhr.open('POST', (path+' ').replace(/(((\..+)?\?)|(\s$))/,'.xml$1'), true);
                 xhr.setRequestHeader('X-Filter', 'Content');
                 startCb && startCb.apply(this);
                 xhr.send(fd);
