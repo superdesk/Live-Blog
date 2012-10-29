@@ -412,7 +412,7 @@ function($, superdesk, giz, User, Person, sha)
             var self = this;
             this.users._list = [];
             this.syncing = true;
-            var options = {data: {limit: this.page.limit, offset: this.page.offset}, done: function(data)
+            var options = {data: {limit: this.page.limit, offset: this.page.offset, asc: 'name'}, done: function(data)
             { 
                 self.syncing = false; 
                 self.page.total = data.total;
