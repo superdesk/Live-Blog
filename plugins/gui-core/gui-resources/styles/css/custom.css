@@ -959,30 +959,30 @@ section.main-section {
 	.with-avatar .result-content time {
 		display:inline;
 		}
-li.image {		
-	display: inline-block;
-	vertical-align: top;
-	margin: 10px 0 0 10px;
-	width: 110px;
-	height: 110px;
-	background: transparent;
-	border: 0;
-	padding:0;
-	}
-	li.image .result-content {		
-		margin:0;
-		padding:0;
-		}
-		li.image .result-content img {		
-			display: block;
-			max-height: 104px;
-			max-width: 104px;
-			padding:2px;
-			border:1px solid #ebebeb;
-			}
-			li.image.draggable:hover .result-content img {		
-				border:1px solid #c0c0c0;
-				}		
+        li.image {		
+            display: inline-block;
+            vertical-align: top;
+            margin: 10px 0 0 10px;
+            width: 110px;
+            height: 110px;
+            background: transparent;
+            border: 0;
+            padding:0;
+        }
+        li.image .result-content {		
+            margin:0;
+            padding:0;
+        }
+        li.image .result-content img {		
+            display: block;
+            max-height: 104px;
+            max-width: 104px;
+            padding:2px;
+            border:1px solid #ebebeb;
+        }
+        li.image.draggable:hover .result-content img {		
+            border:1px solid #c0c0c0;
+        }		
 		
 .attributes {
 	margin-top:3px !important;
@@ -1028,7 +1028,15 @@ li.image {
 	.search-result-list .btn.bottom-full {
 		margin-top:6px;
 		}
-		
+                
+.flickr-box {
+    -o-text-overflow: ellipsis;   /* Opera */
+    text-overflow:    ellipsis;   /* IE, Safari (WebKit) */
+    overflow:hidden;              /* don't show excess chars */
+}
+
+
+
 /*
 ====================================================
   Live Blog Content
@@ -1542,5 +1550,12 @@ bootstrap.css (line 1929)
 }
 
 li.google .config-notif, li.ads .config-notif, li.flickr .config-notif, li.youtube .config-notif  {
-    display: none ! important; 
+    display: none !important; 
+}
+
+#flickr-image-results > li .drag-bar {
+    visibility: hidden;
+}
+#flickr-image-results > li.draggable:hover .drag-bar {
+    visibility: visible;
 }
