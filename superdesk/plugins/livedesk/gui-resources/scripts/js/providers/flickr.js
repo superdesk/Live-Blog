@@ -88,6 +88,12 @@ $.extend(providers.flickr, {
                 })
             }
         },
+        trimTitle: function(photos) {
+            for( var i = 0; i < photos.length; i++ ) {
+                photos[i].trimmedTitle = photos[i].title.trunc(80, true);
+            }
+            return photos;
+        },
         doFlickerImage : function(start) {
             var self = this;
             var text = $('#flickr-search-text').val();
@@ -114,7 +120,7 @@ $.extend(providers.flickr, {
                     if ( parseInt(data.photos.total) > 1 ) {
                         $.tmpl('livedesk>providers/flickr/image-item', 
                         {
-                            photos : data.photos.photos,
+                            photos : self.trimTitle(data.photos.photos),
                             page : parseInt(start - 1)
                         }, function(e,o) {
                             $('#flickr-image-results').append(o).find('.flickr').draggable(
