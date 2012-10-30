@@ -78,7 +78,7 @@ class DataMultiPart:
     '''
     Contains the data required by the multi part stream.
     '''
-    charSet = 'ASCII'
+    charSet = 'UTF8'
     # The character set used in decoding the multi part header areas.
     formatMarkStart = '--%s\r\n'
     # The format used in constructing the separator marker between the multi part content.
