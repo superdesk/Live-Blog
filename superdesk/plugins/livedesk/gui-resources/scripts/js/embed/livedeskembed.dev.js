@@ -2045,6 +2045,12 @@ window.livedesk.startLoading = function($, _) {
 									permalink = '<a rel="bookmark" href="#'+ hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';
 								
 				var template ='<li class="'+ style + itemClass +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
+                                
+                                if ( typeof window.livedesk.productionServer != 'undefined' && typeof window.livedesk.frontendServer != 'undefined' ){
+                                   re = new RegExp(window.livedesk.productionServer, "g");
+                                   template = template.replace(re, window.livedesk.frontendServer );
+                                }
+                                
                                 self.setElement( template );
                                 self.model.triggerHandler('rendered');
                                 
@@ -2057,7 +2063,6 @@ window.livedesk.startLoading = function($, _) {
                                 $(self.el).off('click', 'input[data-type="permalink"]').on('focus', 'input[data-type="permalink"]', function() {
                                     this.select();
                                 });
-
 			}
 		}),
                 totalLoad = 0,
