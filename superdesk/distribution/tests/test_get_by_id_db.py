@@ -8,14 +8,14 @@ Created on Nov 24, 2011
 
 Test a get by id that it is known to hit the database.
 '''
-from ctypes import c_byte
-import json
 
 # Required in order to register the package extender whenever the unit test is run.
 if True:
     import package_extender
     package_extender.PACKAGE_EXTENDER.setForUnitTest(False)
-
+    import warnings
+    warnings.filterwarnings('ignore', '.*already imported.*ally*')
+    # To remove the warnings of pkg utils from setup tools
 # --------------------------------------------------------------------
 
 import profile
@@ -30,6 +30,8 @@ from multiprocessing import Process, Pool, Pipe, Lock, Condition, Array
 from multiprocessing import forking
 from ally.container import ioc, support, aop
 from ally.container._impl.ioc_setup import Assembly
+from ctypes import c_byte
+import json
 
 # --------------------------------------------------------------------
 
@@ -221,30 +223,30 @@ if __name__ == '__main__':
 
 # ----------------------------------------------------------------------------------------------------
 
-    def deploy(pathProcessing, pipe):
-        
-        while True:
-            data = pipe.recv()
-            if data is None: break
-            processGet(pathProcessing, data[0], data[1])
-
-    def testDispatch():
-        processes, pipes = [], []
-        for k in range(0, counts):
-            parent, child = Pipe()
-            process = Process(name='Process %s' % k, target=deploy, args=(pathProcessing, child))
-            processes.append(process)
-            pipes.append(parent)
-            process.start()
-            
-        for _k in range(0, int(number / counts)):
-            for k in range(0, counts):
-                pipes[k].send(({'Host': 'localhost'}, '/resources/Superdesk/User/1'))
-                # pipes[k].send(({'Host': 'localhost'}, '/resources/Superdesk/Language/en'))
-                
-        for k in range(0, counts): pipes[k].send(None)
-        
-        for process in processes: process.join()
-    
-    runTime = timeit.timeit(testDispatch, number=1)
-    print('Made %s requests in %s seconds, meaning %s requests/second' % (number, runTime, number / runTime))
+#    def deploy(pathProcessing, pipe):
+#        
+#        while True:
+#            data = pipe.recv()
+#            if data is None: break
+#            processGet(pathProcessing, data[0], data[1])
+#
+#    def testDispatch():
+#        processes, pipes = [], []
+#        for k in range(0, counts):
+#            parent, child = Pipe()
+#            process = Process(name='Process %s' % k, target=deploy, args=(pathProcessing, child))
+#            processes.append(process)
+#            pipes.append(parent)
+#            process.start()
+#            
+#        for _k in range(0, int(number / counts)):
+#            for k in range(0, counts):
+#                pipes[k].send(({'Host': 'localhost'}, '/resources/Superdesk/User/1'))
+#                # pipes[k].send(({'Host': 'localhost'}, '/resources/Superdesk/Language/en'))
+#                
+#        for k in range(0, counts): pipes[k].send(None)
+#        
+#        for process in processes: process.join()
+#    
+#    runTime = timeit.timeit(testDispatch, number=1)
+#    print('Made %s requests in %s seconds, meaning %s requests/second' % (number, runTime, number / runTime))
