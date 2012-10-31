@@ -37,7 +37,7 @@ class TestAsyncoreServer(unittest.TestCase):
                  b'\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: en-US,en;q=0.8\r\nAccept-Charset: ISO-',
                  b'8859-1,utf-8;q=0.7,*;q=0.3\r\n\r\n']
         
-        for data in datas: rh._handleData(data)
+        for data in datas: rh._handleReadData(data)
 
 # --------------------------------------------------------------------
 

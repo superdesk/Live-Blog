@@ -325,7 +325,6 @@ class SetupConfig(SetupSource):
         config = assembly.calls.get(self.name)
         assert isinstance(config, CallConfig), 'Invalid call configuration %s' % config
 
-        valueSet = False
         for name, val in assembly.configExtern.items():
             if name == self.name or self.name.endswith('.' + name):
                 if name in assembly.configUsed:
@@ -333,21 +332,19 @@ class SetupConfig(SetupSource):
                                      'again, provide a more detailed path for the configuration (ex: "ally_core.url" '
                                      'instead of "url")' % (name, self.name))
                 assembly.configUsed.add(name)
-                valueSet, config.value = True, val
+                config.external, config.value = True, val
 
         if not config.hasValue:
-            valueSet = True
             try: config.value = self._function()
             except ConfigError as e: config.value = e
 
-        if valueSet:
-            cfg = assembly.configurations.get(self.name)
-            if not cfg:
-                cfg = Config(self.name, config.value, self.group, getdoc(self._function))
-                assembly.configurations[self.name] = cfg
-            else:
-                assert isinstance(cfg, Config), 'Invalid config %s' % cfg
-                cfg.value = config.value
+        cfg = assembly.configurations.get(self.name)
+        if not cfg:
+            cfg = Config(self.name, config.value, self.group, getdoc(self._function))
+            assembly.configurations[self.name] = cfg
+        else:
+            assert isinstance(cfg, Config), 'Invalid config %s' % cfg
+            cfg.value = config.value
 
 class SetupReplaceConfig(SetupFunction):
     '''
@@ -682,6 +679,7 @@ class CallConfig(WithType, WithListeners):
 
         self._assembly = assembly
         self.name = name
+        self.external = False
         self._hasValue = False
         self._processed = False
 
@@ -716,8 +714,8 @@ class CallConfig(WithType, WithListeners):
         if not self._processed:
             self._processed = True
             self._assembly.called.add(self.name)
-
-            for listener in chain(self._listenersBefore, self._listenersAfter): listener()
+            if not self.external:  # We only call the listeners if the configuration was not provided externally
+                for listener in chain(self._listenersBefore, self._listenersAfter): listener()
         if isinstance(self._value, Exception): raise self._value
         if not self._hasValue: raise ConfigError('No value for configuration %s' % self.name)
         return self._value
