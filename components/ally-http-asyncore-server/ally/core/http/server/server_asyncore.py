@@ -16,26 +16,22 @@ from ally.core.spec.codes import Code
 from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
     CREATE_REPORT
 from ally.support.util_io import IOutputStream, readGenerator
-from asyncore import dispatcher, poll
+from asyncore import dispatcher, loop
 from collections import deque
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 from urllib.parse import urlparse, parse_qsl
-import abc
 import logging
 import re
 import socket
-import sys
-import traceback
 
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
 
 # Constants used in indicating the write option. 
-WRITE_IS = 1
-WRITE_DATA = 2
-WRITE_SENT = 3
+WRITE_BYTES = 1
+WRITE_ITER = 2
 
 # --------------------------------------------------------------------
 
@@ -93,9 +89,7 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         self._readCarry = None
 
         self.wfile = BytesIO()
-        self._writePosition = 0
-        self._writeFinalized = False
-        self._writeContent = None
+        self._writeq = deque()
 
     def readable (self):
         '''
@@ -121,21 +115,37 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         '''
         @see: dispatcher.writable
         '''
-        return self._handleWriteData(WRITE_IS)
+        return bool(self._writeq)
     
     def handle_write(self):
         '''
         @see: dispatcher.handle_write
         '''
-        data = self._handleWriteData(WRITE_DATA)
-        if data is not None:
-            try: sent = self.send(data)
-            except socket.error:
-                log.exception('Exception occurred while writing to the connection \'%s\'' % self.connection)
-                self.close()
-                return
-            self._handleWriteData(WRITE_SENT, sent)
+        assert self._writeq, 'Nothing to write anymore'
         
+        what, content = self._writeq[0]
+        assert what in (WRITE_ITER, WRITE_BYTES), 'Invalid what %s' % what
+        if what == WRITE_ITER:
+            try: data = memoryview(next(content))
+            except StopIteration:
+                del self._writeq[0]
+                return
+        elif what == WRITE_BYTES: data = content
+        
+        dataLen = len(data)
+        try:
+            if dataLen > self.bufferSize: sent = self.send(data[:self.bufferSize])
+            else: sent = self.send(data)
+        except socket.error:
+            log.exception('Exception occurred while writing to the connection \'%s\'' % self.connection)
+            self.close()
+            return
+        if sent < dataLen:
+            if what == WRITE_ITER: self._writeq.appendleft((WRITE_BYTES, data[sent:]))
+            elif what == WRITE_BYTES: self._writeq[0] = (WRITE_BYTES, data[sent:])
+        else:
+            if what == WRITE_BYTES: del self._writeq[0]
+            
     # ----------------------------------------------------------------
     
     def _handleReadData(self, data):
@@ -172,52 +182,7 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         '''
         Handle the data as being part of the request content.
         '''
-        self.rfile.write(data)
-    
-    # ----------------------------------------------------------------
-
-    def _handleWriteData(self, do, sent=None):
-        '''
-        Handle the data that forms the response.
-        '''
-        if do == WRITE_IS: return self.wfile.tell() - self._writePosition > 0
-        elif do == WRITE_DATA:
-            self.wfile.seek(self._writePosition)
-            data = self.wfile.read(self.bufferSize)
-            self.wfile.seek(0, 2)  # Go back to the end of the stream
-            return data
-        elif do == WRITE_SENT:
-            if sent: self._writePosition += sent
-            if self._writeFinalized and self._writePosition >= self.wfile.tell():
-                self._handleWriteData = self._handleWriteDataForContent
-                self._writePosition = 0
-                self.wfile.seek(0)
-                self.wfile.truncate()
-                
-    def _handleWriteDataForContent(self, do, sent=None):
-        '''
-        Handle the data that for the response content.
-        '''
-        if do == WRITE_IS: return self._writeContent is not None or self.wfile.tell() - self._writePosition > 0
-        elif do == WRITE_DATA:
-            if self._writePosition >= self.wfile.tell():
-                self._writePosition = 0
-                self.wfile.seek(0)
-                self.wfile.truncate()
-                try: data = next(self._writeContent)
-                except StopIteration:
-                    self._writeContent = None
-                    self.close()
-                    return
-                self.wfile.write(data)
-            else:
-                self.wfile.seek(self._writePosition)
-                data = self.wfile.read(self.bufferSize)
-                self.wfile.seek(0, 2)  # Go back to the end of the stream
-                return data
-        elif do == WRITE_SENT:
-            if sent: self._writePosition += sent
-            if self._writeContent is None and self._writePosition >= self.wfile.tell(): self.close()
+        if data: self.rfile.write(data)
 
     # ----------------------------------------------------------------
     
@@ -233,10 +198,7 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
                 assert isinstance(processing, Processing), 'Invalid processing %s' % processing
                 req, reqCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
                 rsp, rspCnt = processing.contexts['response'](), processing.contexts['responseCnt']()
-                chain = processing.newChain()
-                # TODO: make the chain be splited for processing calls
-
-                assert isinstance(chain, Chain), 'Invalid chain %s' % chain
+                chain = Chain(processing)
                 assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
                 assert isinstance(reqCnt, RequestContentHTTP), 'Invalid request content %s' % reqCnt
                 assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
@@ -256,7 +218,6 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         reqCnt.source = self.rfile
 
         chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)
-
         assert isinstance(rsp.code, Code), 'Invalid response code %s' % rsp.code
 
         if ResponseHTTP.headers in rsp:
@@ -266,17 +227,28 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         else: self.send_response(rsp.code.code)
 
         self.end_headers()
-        self._writeFinalized = True
 
         if rspCnt.source is not None:
             if isinstance(rspCnt.source, IOutputStream): source = readGenerator(rspCnt.source, self.bufferSize)
             else: source = rspCnt.source
 
-            self._writeContent = iter(source)
-        
+            self._writeq.append((WRITE_ITER, iter(source)))
+
     # ----------------------------------------------------------------
+    
+    def end_headers(self):
+        '''
+        @see: BaseHTTPRequestHandler.end_headers
+        '''
+        super().end_headers()
+        self._writeq.append((WRITE_BYTES, memoryview(self.wfile.getvalue())))
+        self.wfile = None
+
 
     def log_message(self, format, *args):
+        '''
+        @see: BaseHTTPRequestHandler.log_message
+        '''
         # TODO: see for a better solution for this, check for next python release
         # This is a fix: whenever a message is logged there is an attempt to find some sort of host name which
         # creates a big delay whenever the request is made from a non localhost client.
@@ -304,7 +276,6 @@ class AsyncServer(dispatcher):
         assert isinstance(serverAddress, tuple), 'Invalid server address %s' % serverAddress
         assert callable(requestHandlerFactory), 'Invalid request handler factory %s' % requestHandlerFactory
         
-        self.calls = deque()
         self.map = {}
         dispatcher.__init__(self, map=self.map)
         self.serverAddress = serverAddress
@@ -330,17 +301,19 @@ class AsyncServer(dispatcher):
         # creates an instance of the handler class to handle the request/response
         # on the incoming connection
         self.requestHandlerFactory(self, request, address)
-        
+    
     def serve_forever(self):
         '''
         Loops and servers the connections.
         '''
-        while self.map:
-            if self.calls:
-                call, *args = self.calls.popleft()
-                call(*args)
-                poll(map=self.map)
-            else: poll(self.timeout, map=self.map)
+        loop(self.timeout, True, self.map)
+            
+    def serve_limited(self, count):
+        '''
+        For profiling purposes.
+        Loops the provided amount of times and servers the connections.
+        '''
+        loop(self.timeout, True, self.map, count)
 
 # --------------------------------------------------------------------
 
@@ -369,6 +342,8 @@ def run(pathAssemblies, server_version, host='', port=80):
     try:
         server = AsyncServer((host, port), RequestHandler)
         print('=' * 50, 'Started Async REST API server...')
+        # import profile
+        # profile.runctx('server.serve_limited(1000)', globals(), locals(), 'profiler.data') # TODO: remove
         server.serve_forever()
     except KeyboardInterrupt:
         print('=' * 50, '^C received, shutting down server')
@@ -377,3 +352,4 @@ def run(pathAssemblies, server_version, host='', port=80):
         log.exception('=' * 50 + ' The server has stooped')
         try: server.close()
         except: pass
+        
