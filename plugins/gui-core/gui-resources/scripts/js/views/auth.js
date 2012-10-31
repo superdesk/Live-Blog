@@ -88,12 +88,15 @@ function($, superdesk, Gizmo, jsSHA)
                 .on('submit.superdesk', function(event)
                 {
                     var username = $(this).find('#username'), 
-                        password = $(this).find('#password');
+                        password = $(this).find('#password'),
+                        alertmsg = $(this).find('.alert');
                     
 					AuthToken(username.val(), password.val())
     					.on('failed', function(evt, type)
     					{ 
-    					    password.val(''); 
+    					    password.val('');
+    					    username.focus();
+    					    alertmsg.removeClass('hide');
     					})
     					.on('success', function(evt)
     					{ 
