@@ -1,6 +1,6 @@
 define( 'providers/youtube/tab', 
-        ['providers', 'tmpl!livedesk>providers/youtube/post'], 
-function(providers) 
+        ['providers', 'providers/_utils', 'tmpl!livedesk>providers/youtube/post'], 
+function(providers, utils) 
 {
 	providers.youtube = 
 	{
@@ -21,7 +21,7 @@ function(providers)
 	        save: $.noop,
 	        edit: function()
 	        {
-	            this.el.find('.actions').removeClass('hide');
+	            $('.actions', this.el).removeClass('hide');
 	        },
 	        render: function(callback)
 	        {
@@ -51,8 +51,8 @@ function(providers)
                                              $('.youtube-full-content .annotation:eq(1)', self.el).html()]
                             }))
                         };    
-                        self.model.set(data).sync();
-                        $('.actions', self.el).addClass('hide');
+                        utils.MetaCheck.call(self, data.Meta) && 
+                            (self.model.set(data).sync() && self.el.find('.actions').addClass('hide'));
                     });
                     
                     $(self.el).off('click', '.btn.cancel').on('click', '.btn.cancel', function()
