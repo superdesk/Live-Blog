@@ -29,7 +29,7 @@ def dump_requests_size():
 @ioc.config
 def dump_requests_path():
     '''The path where the requests are dumped when they are to big to keep in memory'''
-    return path.join('workspace', 'requests_buffer')
+    return path.join('workspace', 'requests_async')
 
 # --------------------------------------------------------------------
 
