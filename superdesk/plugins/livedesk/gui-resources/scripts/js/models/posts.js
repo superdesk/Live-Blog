@@ -12,6 +12,6 @@ function(giz, Post)
             model.hash();
             model.sync(this.href);
             return model;
-		}
+		}		
 	});
 });

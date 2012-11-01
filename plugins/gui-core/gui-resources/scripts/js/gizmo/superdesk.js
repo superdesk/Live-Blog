@@ -23,6 +23,8 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         { 
             delete this.options.headers['X-Filter'];
             delete this.options.data['CId.since'];
+			delete this.options.data['offset'];
+			delete this.options.data['limit'];
         }
         catch(e){}
     }, 
@@ -73,16 +75,32 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     },
     since = function(val) // change id implementation
     {
-        $.extend( this.syncAdapter.options, { data:{ 'CId.since': val }} );
+        if(!val)
+			delete this.syncAdapter.options.data['CId.since'];
+		else
+			$.extend( true, this.syncAdapter.options, { data:{ 'CId.since': val }} );			
+		return this;
     },
     asc = function(col)
     {
-        $.extend( this.syncAdapter.options, { data:{ asc: col }} );
+        $.extend( true, this.syncAdapter.options, { data:{ asc: col }} );
+		return this;
     },
     desc = function(col)
     {
-        $.extend( this.syncAdapter.options, { data:{ desc: col }} );
+        $.extend( true, this.syncAdapter.options, { data:{ desc: col }} );
+		return this;
     },
+	limit = function(limit)
+	{
+        $.extend( true, this.syncAdapter.options, { data:{ limit: limit }} );	
+		return this;
+	},
+	offset = function(offset)
+	{
+		$.extend( true, this.syncAdapter.options, { data:{ offset: offset }} );
+		return this;
+	},
     Model = giz.Model.extend // superdesk Model 
     ({
         isDeleted: function(){ return this._forDelete || this.data.DeletedOn; },
@@ -106,7 +124,7 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
     }),
     Collection = giz.Collection.extend
     ({
-        xfilter: xfilter, since: since, asc: asc, desc: desc, syncAdapter: newSync
+        xfilter: xfilter, since: since, asc: asc, desc: desc, limit: limit, offset: offset, syncAdapter: newSync
     }),
     AuthCollection = Collection.extend
     ({
