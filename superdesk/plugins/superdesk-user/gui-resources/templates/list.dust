@@ -2,7 +2,8 @@
 <style>
 	.table .btn-group{ visibility: hidden; display: inline; }
 	.table tr:hover .btn-group{ visibility: visible; }
-	#area-main{ height: 100%; -moz-box-sizing: border-box; padding-top: 40px; }  
+	#area-main{ height: 100%; -moz-box-sizing: border-box; padding-top: 40px; }
+	.pagination .ipp:after{ content: "_('items per page')"; float: left; line-height: 35px; margin: 0 8px; }   
 </style>
 <!-- ... -->
 
@@ -50,6 +51,11 @@
 						{/currentpages}
 						<li> <a href="javascript:void(0)" data-pagination="next" title="_('Next')">&rarr;</a> </li>
 						<li> <a href="javascript:void(0)" data-pagination="last" title="_('Last')">&#8677;</a> </li>
+					</ul>
+					<ul class="ipp" style="margin:0 8px">
+						{#ipp}
+						<li class="{isipp}"> <a href="javascript:void(0)" data-ipp="{.}">{.}</a> </li>
+						{/ipp}
 					</ul>
 					{/currentpages}
 					</td>
