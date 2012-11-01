@@ -63,5 +63,6 @@
             </div>
         </div>
     </section>
+	<button id="more">_("More");</button>
 </div>
 {/live}
