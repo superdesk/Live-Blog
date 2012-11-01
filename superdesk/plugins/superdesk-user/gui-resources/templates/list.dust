@@ -41,13 +41,15 @@
 					<td colspan="6" class="pagination">
 					{?currentpages}
 					<ul class="{className}">
-						<li> <a href="javascript:void(0)" data-pagination="prev">&larr;</a> </li> 
+						<li> <a href="javascript:void(0)" data-pagination="first" title="_('First')">&#8676;</a> </li>
+						<li> <a href="javascript:void(0)" data-pagination="prev" title="_('Previous')">&larr;</a> </li> 
 						{#currentpages}
 						<li class="{className}"> 
-							<a href="javascript:void(0)" data-pagination="currentpages" data-offset="{offset}">{page}</a> 
+							<a href="javascript:void(0)" data-pagination="currentpages" title="_('Page') {page}" data-offset="{offset}">{page}</a> 
 						</li>	
 						{/currentpages}
-						<li> <a href="javascript:void(0)" data-pagination="next">&rarr;</a> </li>
+						<li> <a href="javascript:void(0)" data-pagination="next" title="_('Next')">&rarr;</a> </li>
+						<li> <a href="javascript:void(0)" data-pagination="last" title="_('Last')">&#8677;</a> </li>
 					</ul>
 					{/currentpages}
 					</td>
