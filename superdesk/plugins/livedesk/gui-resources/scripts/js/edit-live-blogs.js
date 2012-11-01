@@ -403,6 +403,7 @@ function(providers, Gizmo, $)
 			edit: $.noop,
 			save: function(evt)
 			{
+			    console.log('save');
 				if($(evt.target).data('linkCommandActive'))
 					return;
 				this.model.updater = this;
