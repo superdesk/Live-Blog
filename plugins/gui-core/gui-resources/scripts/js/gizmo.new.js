@@ -108,6 +108,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             var self = this,
                 reqFnc = function(data, predefinedOptions, userOptions)
                 {
+									$.support.cors = true;
                     var a;
                     if( source instanceof Url ) 
                     {
@@ -162,8 +163,6 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         {
             this._clientId = uniqueIdCounter++;
             this.data = {};
-            //this.exTime = new Date
-            //this.exTime.setMinutes(this.exTime.getMinutes() + 5);
             this.parseHash(data);
 			this._new = true;
             var self = this.pushUnique ? this.pushUnique() : this;
@@ -173,8 +172,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             if( options && typeof options == 'object' ) $.extend(self, options);
             if( typeof data == 'object' ) {
                 self.parse(data);
+				self._setExpiration();			
             }
-			//console.log('Changes',self.changeset);
             if(!$.isEmptyObject(self.changeset)) {
                 //console.log('_constructor update', self.changeset);
                 self.triggerHandler('update', self.changeset).clearChangeset();
@@ -243,6 +242,12 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                     }));
                 }
             }
+			else {
+				if( !(arguments[0] && arguments[0].force) && this.exTime && (  this.exTime > new Date) ) {
+					if(!self.isDeleted()){
+						self.triggerHandler('update');
+					}
+				}
             else
                 // simply read data from server
                 ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
@@ -266,14 +271,20 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         self.clearChangeset().triggerHandler('read');
                     }
                 }));
-
+			}
+			this._setExpiration();
             return ret;
         },
+		_setExpiration: function()
+		{
+			this.exTime = new Date;
+			this.exTime.setSeconds(this.exTime.getSeconds() + 5);
+		},
         _remove: function()
         {
             this.triggerHandler('delete');
             this._uniq && this._uniq.remove(this.hash());
-            delete this;
+			//delete this;
         },
         remove: function()
         {
@@ -305,7 +316,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             {
                 if( this.defaults[i] ) switch(true)
                 {
-                    case typeof this.defaults[i] === 'function': // a model or collection constructor
+					case (typeof this.defaults[i] === 'function') && (this.data[i] === undefined): // a model or collection constructor
+						
                         var newModel = this.modelDataBuild(new this.defaults[i](data[i]));
                         if( !this._new && (newModel != this.data[i]) && !(newModel instanceof Collection) )
                             this.changeset[i] = newModel;
@@ -331,9 +343,8 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                         continue;
                         break;
                 }
-                if( !this._new ) 
+				else if( !this._new ) 
                 {
-					//console.log('Is not new');
                     if( $.type(data[i]) === 'object' )
                     {
                         if(compareObj(this.data[i], data[i]))
@@ -356,8 +367,10 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
         {
             if( typeof data == 'string' )
                 this.href = data;
-            else if( data && data.href !== undefined)
+			else if( data && data.href !== undefined) {
                 this.href = data.href;
+				delete data.href;
+			}
             else if(data && ( data.id !== undefined) && (this.url !== undefined))
                 this.href = this.url + data.id;
             return this;
@@ -435,11 +448,9 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 				$(this).on(evt, handler);
 			}
             else {			
-				var newhandler = function(){
+				$(this).on(evt, function(){
                     handler.apply(obj, arguments);
-                };
-				$(this).off(evt, newhandler );
-				$(this).on(evt, newhandler );
+				});
 			}
             return this;
         },
@@ -721,6 +732,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             theData = extractListData(data);
             list = [];
             for( var i in theData ) {
+				if(theData.hasOwnProperty(i))
                 list.push( this.modelDataBuild(new this.model(theData[i])) );
             }
             data.parsed = {list: list, total: data.total};
@@ -754,11 +766,9 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 				$(this).on(evt, handler);
 			}
             else {			
-				var newhandler = function(){
+				$(this).on(evt, function(){
                     handler.apply(obj, arguments);
-                };
-				$(this).off(evt, newhandler );
-				$(this).on(evt, newhandler );
+				});
 			}
             return this;
         },

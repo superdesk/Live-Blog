@@ -22,16 +22,20 @@ define
 function(providers, Gizmo, $) 
 {
     /*!
-     * Returns true if the data object is compose of only given key
+     * Returns true if the data object is compose of only given keys
      */
-	function isOnly(data, key) 
+	function isOnly(data, keys) 
 	{
-		var count = 0;
+		if ($.type(keys) === 'string')
+			keys = [keys];
+		var count = 0, checkCount = keys.length;		
 		for(i in data) {
-			count++;
-			if(count>1) return false;
+			if( -1 === $.inArray(i, keys))
+				return false;
+			count++;	
+			if( count>checkCount ) return false;
 		};
-		return (data !== undefined) && (data[key] !== undefined) && (count == 1);
+		return (count === checkCount);
 	}
 		
 		var h2ctrl = $.extend({}, $.ui.texteditor.prototype.plugins.controls),
@@ -123,12 +127,31 @@ function(providers, Gizmo, $)
 			 * for auto refresh
 			 */
 			keep: false,
-			init: function(){  },
+			init: function(){ 
+				var self = this;
+				self.model.on('publish reorder', function(evt, data){
+					self.getMaximumNearCid(self.parse([data]));
+				});
+				this.on('read update',function(evt, data)
+				{
+					if(!data)
+						data = self._list;
+					self.getMaximumCid(self.parse(data));
+				});
+			},
 			destroy: function(){ this.stop(); },
 			setIdInterval: function(fn)
 			{
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
+			},
+			getMaximumNearCid: function(data)
+			{
+				for(i=0, count=data.list.length; i<count; i++) {
+					var CId = parseInt(data.list[i].get('CId'))
+					if( !isNaN(CId) && (this._latestCId < CId) && ((this._latestCId + 1) == CId))
+						this._latestCId = CId;
+				}
 			},
 			getMaximumCid: function(data)
 			{
@@ -140,17 +163,14 @@ function(providers, Gizmo, $)
 			},
 			start: function()
 			{
-				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: { 'X-Filter': 'CId'}};
+				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: { 'X-Filter': 'CId, Order'}};
 				if(self._latestCId === 0) delete requestOptions.data;
 				if(!this.keep && self.view && !self.view.checkElement()) 
 				{
 					self.stop();
 					return;
-				}
-				Gizmo.Collection.prototype.sync.call(self,requestOptions).done(function(data)
-				{
-					self.getMaximumCid(self.parse(data));
-				});
+				}				
+				this.sync(requestOptions);
 				return this;
 			},
 			stop: function()
@@ -159,11 +179,12 @@ function(providers, Gizmo, $)
 				clearInterval(self.idInterval);
 				return this;
 			},
-			sync: function()
+			autosync: function()
 			{
 				var self = this;
 				this.stop().start().setIdInterval(function(){self.start();});
 			}
+		
 		}),
 		
 		/*!
@@ -171,6 +192,7 @@ function(providers, Gizmo, $)
 		 */
 		TimelineCollection = AutoCollection.extend
 		({
+			model: Gizmo.Register.Post,
 			href: new Gizmo.Url('/Post/Published')
 		}),
 		
@@ -245,11 +267,14 @@ function(providers, Gizmo, $)
 						if(self.model.updater === self) {
 							delete self.model.updater; return;
 						}
+						if(data['Order'])
+							self.order = parseFloat(data['Order']);
 						/*!
 						 * If the Change Id is received, then sync the hole model;
-						 */
-						if(isOnly(data, 'CId'))
+						 */						 
+						if(isOnly(data, ['CId','Order'])) {
 							self.model.xfilter(self.xfilter).sync();
+						}
 						else {
 							self.rerender();
 						}
@@ -281,7 +306,9 @@ function(providers, Gizmo, $)
 				self.next = newNext;
 				self.model.orderSync(id, order);
 				self.model.ordering = self;
-				self.model.xfilter(self.xfilter).sync();
+				self.model.xfilter(self.xfilter).sync().done(function(data){
+					self.model.Class.triggerHandler('reorder', self.model);
+				});
 			},
 			/**
 			 * Method used to remake connection in the post list ( dubled linked list )
@@ -403,21 +430,22 @@ function(providers, Gizmo, $)
 
 		TimelineView = Gizmo.View.extend
 		({
+			limit: 15,
+			offset: 0,
 			events: 
 			{
-				'ul.post-list': { sortstop: 'sortstop' }
-			},
-			sortstop: function(evnt, ui)
-			{
-				$(ui.item).triggerHandler('sortstop', ui);
+				'ul.post-list': { sortstop: 'sortstop' },
+				'#more': { click: 'more' }
 			},
 			init: function()
 			{
 				var self = this;
 				self._latest = undefined;
+				self._views = [];
 				self.collection.model.on('publish', function(evt, model){
 					self.addOne(model);
 				});
+				self.xfilter = 'CId, Order';
 				self.collection
 					.on('read', function()
 					{
@@ -427,7 +455,10 @@ function(providers, Gizmo, $)
 					{
 						self.addAll(data);
 					})
-					.sync();
+					.xfilter(self.xfilter)
+					.limit(self.limit)
+					.offset(self.offset)
+					.autosync();
 				self.collection.view = self;
 				
 				// default autorefresh on
@@ -438,25 +469,74 @@ function(providers, Gizmo, $)
 				    .tooltip({placement: 'bottom'});
 				
 			},
+			more: function(evnt, ui)
+			{
+				var self = this,
+					offset = $(evnt.target).data('offset');
+				offset = offset? offset: 1;
+				self.collection
+					.xfilter(self.xfilter)
+					.limit(self.limit)
+					.offset(offset*self.limit)
+					.sync().done(function(data){
+						self.total = parseInt(data.total);
+						if((offset+1)*self.limit >= self.total)
+							$(evnt.target).hide();
+					});
+				$(evnt.target).data('offset', offset+1);
+			},
+			sortstop: function(evnt, ui)
+			{
+				$(ui.item).triggerHandler('sortstop', ui);
+			},			
 			addOne: function(model)
 			{	
 				if(model.postview && model.postview.checkElement())
 					return;
-				var current = new PostView({model: model, _parent: this}),
-				    self = this;				
-				this.el.find('ul.post-list').prepend(current.el);
-				model.postview = current;				
-				// handle autorefresh case
+				var self = this,
+					current = new PostView({model: model, _parent: self}),				    
+					count = self._views.length;
+				model.postview = current;
+				current.order =  parseFloat(model.get('Order'));
+				if(!count) {
+					this.el.find('ul.post-list').append(current.el);
+					self._views = [current];
+				} else {
+					var next, prev;
+					for(i=0; i<count; i++) {
+						if(current.order>self._views[i].order) {
+							prev = self._views[i];
+							prevIndex = i;
+						} else if(current.order<self._views[i].order) {
+							next = self._views[i];
+							nextIndex = i;
+							break;
+						}						
+					}
+					if(next) {
+						current.el.insertAfter(next.el);
+						next.prev = current;
+						current.next = next;
+						self._views.splice(nextIndex, 0, current);
+						
+					} else if(prev) {
+						current.el.insertBefore(prev.el);
+						prev.next = current;
+						current.prev = prev;
+						self._views.splice(prevIndex+1, 0, current);
+					}
+					
+					/*current.next = this._latest;
+					if( this._latest !== undefined )
+						this._latest.prev = current;
+					this._latest = current;
+					*/					
+				}
 				$(current).on('render', function(){ self.autorefreshHandle.call(self, current.el.outerHeight(true)); });
-				
-				current.next = this._latest;
-				if( this._latest !== undefined )
-					this._latest.prev = current;
-				this._latest = current;
 			},
 			addAll: function(data)
 			{
-				var next = this._latest, current, model, i = data.length;
+				var i = data.length;
 				while(i--) {
 					this.addOne(data[i]);
 				}
@@ -492,8 +572,9 @@ function(providers, Gizmo, $)
 				*/
 				var self = this,
 					post = Gizmo.Auth(new this.collection.model(data))
-				this.collection.insert(post).done(function(){
-					self.addOne(post);				
+				this.collection.xfilter('CId,Order').insert(post).done(function(){
+					self.collection.model.triggerHandler('publish', post);
+					self.addOne(post);		
 				});
 				if(view) {
 					view.el.remove();
@@ -507,8 +588,9 @@ function(providers, Gizmo, $)
 				else 
 				{
 					var model = new this.collection.model({ Id: data});
+					
 					this.collection.insert({});
-					model.publish();
+					//model.publish();
 				}
 			},
 			
@@ -569,8 +651,13 @@ function(providers, Gizmo, $)
 				'[is-content] #blog-intro' : { focusout: 'save' },
 				'#toggle-status': { click: 'toggleStatus' },
 				//, '.live-blog-content': { drop: 'drop'}
-				'#put-live .btn-primary': { click : 'putLive' }
+				'#put-live .btn-primary': { click : 'putLive' },
+				'#more': { click: 'more'}
 			},
+			more: function(evnt)
+			{
+				this.timelineView.more(evnt);
+			},			
 			postInit: function()
 			{
 				var self = this;
@@ -601,9 +688,9 @@ function(providers, Gizmo, $)
 				    $('ul.post-list', self.timelineView.el).prepend(either.el.addClass('first'));
 				    $('.editable', either.el).texteditor({plugins: {controls: h2ctrl}, floatingToolbar: 'top'});
 				}
-				else if(data !== undefined) 
+				else if(data !== undefined) {
 					self.timelineView.insert(data);
-				
+				}
 				else if(post !== undefined)
 				{
 					self.timelineView.publish(post);
@@ -636,14 +723,26 @@ function(providers, Gizmo, $)
 			},
 			putLive: function()
 			{
-			    this.model
-			    .on('putlive', function()
-			    { 
-			        $('[data-status="live"]').removeClass('hide');
-			        $('[data-status="not-live"]').remove();
-			        
-			    })
-			    .putLive();
+			    var self = this;
+			    this.model.putLive().done(function()
+                { 
+                    var stsLive = $('[data-status="live"]', self.el);
+                        stsOffline = $('[data-status="offline"]', self.el),
+                        msgLive = $('#put-live-msg-live', self.el),
+                        msgOffline = $('#put-live-msg-offline', self.el);
+                    if( stsLive.hasClass('hide') )
+                    {
+                        stsLive.removeClass('hide');
+                        stsOffline.addClass('hide');
+                        msgLive.removeClass('hide');
+                        msgOffline.addClass('hide');
+                        return;
+                    }
+                    stsLive.addClass('hide');
+                    stsOffline.removeClass('hide');
+                    msgLive.addClass('hide');
+                    msgOffline.removeClass('hide');
+                });
 			},
 			textToggleStatus: function()
 			{
@@ -682,7 +781,9 @@ function(providers, Gizmo, $)
 						side: 'is-side=1',
 						submenu: 'is-submenu',
 						submenuActive1: 'active'
-					}
+					},
+				    islive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
+				    isoffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
 				});
 			    
 				$.superdesk.applyLayout('livedesk>edit', data, function()
@@ -690,7 +791,7 @@ function(providers, Gizmo, $)
 					// refresh twitter share button
 					//require(['//platform.twitter.com/widgets.js'], function(){ twttr.widgets.load(); });
 				    
-					var timelineCollection = Gizmo.Auth(new TimelineCollection( Gizmo.Register.Post ));
+					var timelineCollection = Gizmo.Auth(new TimelineCollection());
 					timelineCollection.href.root(self.theBlog);
 					
 					self.timelineView = new TimelineView
