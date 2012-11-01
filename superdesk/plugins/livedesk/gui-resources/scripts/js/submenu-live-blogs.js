@@ -25,6 +25,7 @@ define
         },
         refresh: function()
         {
+            this.model._list = [];
             this.model.xfilter('Title, Id').sync();
         },
         render: function()

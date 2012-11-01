@@ -186,6 +186,17 @@ function($, superdesk, giz, User, Person, sha)
                 var o = parseInt(this.page.offset) + parseInt(this.page.limit);
                 if( o < this.page.total ) { this.page.offset = o; this.refresh(); } 
             }
+            if( $(evt.target).attr('data-pagination') == 'first' )
+            {
+                this.page.offset = 0; 
+                this.refresh();
+            }
+            if( $(evt.target).attr('data-pagination') == 'last' )
+            {
+                this.page.offset = this.page.total - (this.page.total % this.page.limit); 
+                this.refresh(); 
+            }
+
         },
         /*!
          * search box handler

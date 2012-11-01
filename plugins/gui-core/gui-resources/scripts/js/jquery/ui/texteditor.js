@@ -280,11 +280,17 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                     return false;
                                 };
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId, true);
-                                if( url.replace(/^http:\/\//,'') !== "" )
-                                {
+                                console.log(url)
+
                                     // need to remark selection because apparently inserting images removes ranges
                                     self.restoreSelectionMarkerId = self.lib.markSelection(self.restoreSelectionMarkerId);
-                                    document.execCommand("insertImage", false, url);
+                                    //document.execCommand("insertImage", false, url);
+                                    if( window.getSelection )
+                                    {
+                                        var rng= window.getSelection().getRangeAt(0);
+                                        rng.deleteContents()
+                                        rng.insertNode( $('<img />').attr('src', url).get(0) );
+                                    }
                                     self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                     var newImg = $(self.lib.selectionHas('img'));
                                     align && newImg.attr('align', align.attr('data-value'));
@@ -292,7 +298,7 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                     height && newImg.css('height', height);
                                     newImg.attr('alt', text);
                                     $(self).trigger('image-inserted.text-editor');
-                                }
+
                                 $(this).dialog('close');
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
                             }
