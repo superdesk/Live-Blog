@@ -199,6 +199,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         orderPrev = sql.scalar()
 
         if orderPrev: order = (order + orderPrev) / 2
+        elif before: order += 1
         else: order -= 1
 
         sql = self.session().query(BlogPostMapped)
