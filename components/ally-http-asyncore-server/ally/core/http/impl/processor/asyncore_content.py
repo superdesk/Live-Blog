@@ -20,6 +20,7 @@ from collections import Callable
 from genericpath import isdir
 from io import BytesIO
 import os
+import time
 
 # --------------------------------------------------------------------
 
@@ -91,7 +92,24 @@ class AsyncoreContentHandler(HandlerProcessor):
         if request.method in self.contentMethods:
             if RequestContent.length in requestCnt:
                 if requestCnt.length == 0: return
-                requestCnt.contentReader = ReaderInMemory(chain, requestCnt)
+                
+                if requestCnt.length > self.dumpRequestsSize:
+                    requestCnt.contentReader = ReaderInFile(self._path(), chain, requestCnt)
+                else:
+                    requestCnt.contentReader = ReaderInMemory(chain, requestCnt)
+            else:
+                requestCnt.contentReader = ReaderInFile(self._path(), chain, requestCnt)
+
+    # ----------------------------------------------------------------
+    
+    def _path(self):
+        '''
+        Provide the path for the request file.
+        '''
+        tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec, *_rest = time.localtime()
+        path = 'request_%s_%s-%s-%s_%s-%s-%s' % (self._count, tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec)
+        self._count += 1
+        return path
 
 # --------------------------------------------------------------------
 
@@ -146,7 +164,7 @@ class ReaderInFile:
     '''
     Provides the reader in file.
     '''
-    __slots__ = ('_chain', '_requestCnt', '_stream', '_size')
+    __slots__ = ('_chain', '_path', '_requestCnt', '_file', '_size')
     
     def __init__(self, path, chain, requestCnt):
         '''
@@ -157,19 +175,21 @@ class ReaderInFile:
         @param requestCnt: RequestContent
             The request content to use the reader with.
         '''
+        assert isinstance(path, str), 'Invalid path %s' % path
         assert isinstance(chain, Chain), 'Invalid chain %s' % chain
         assert isinstance(requestCnt, RequestContent), 'Invalid request content %s' % requestCnt
+        self._path = path
         self._chain = chain
         self._requestCnt = requestCnt
 
-        self._file = open(path, mode='w+b')
+        self._file = open(path, mode='wb')
         self._size = 0
         
     def __call__(self, data):
         '''
         Push data into the reader.
         '''
-        assert self._stream is not None, 'Reader is finalized'
+        assert self._file is not None, 'Reader is finalized'
         if data != b'':
             self._size += len(data)
             length = self._requestCnt.length
@@ -178,13 +198,15 @@ class ReaderInFile:
                     dif = self._size - length
                     self._size = length
                     data = memoryview(data)[:dif]
-                self._stream.write(data)
+                self._file.write(data)
                 if self._size == length: data = b''
-            else: self._stream.write(data)
+            else: self._file.write(data)
             
         if data == b'':
-            self._stream.seek(0)
-            self._requestCnt.source = self._stream
+            self._file.close()
+            self._requestCnt.source = open(self._path, mode='rb')
             self._requestCnt.contentReader = None
-            self._stream = None
+            self._file = None
+            
+            self._chain.callBack(lambda: os.remove(self._path))
             return self._chain
