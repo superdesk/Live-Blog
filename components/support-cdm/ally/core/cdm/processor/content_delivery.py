@@ -132,6 +132,7 @@ class ContentDeliveryHandler(Handler):
             response.allows = GET
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Path only available for GET'
         else:
+            chain.proceed()
             # Make sure the given path points inside the repository
             entryPath = normOSPath(join(self.repositoryPath, normZipPath(unquote(request.uri))))
             if not entryPath.startswith(self.repositoryPath):
@@ -170,13 +171,9 @@ class ContentDeliveryHandler(Handler):
                     responseCnt.length = size
                     responseCnt.type, _encoding = guess_type(entryPath)
                     if not responseCnt.type: responseCnt.type = self.defaultContentType
-                    chain.proceed()
                     return
-            
-        errorChain = errorProcessing.newChain()
-        assert isinstance(errorChain, Chain), 'Invalid chain %s' % errorChain
-
-        errorChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
+        
+        chain.branch(errorProcessing)
 
     # ----------------------------------------------------------------
 
