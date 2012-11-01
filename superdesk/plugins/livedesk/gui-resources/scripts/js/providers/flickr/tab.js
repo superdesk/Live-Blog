@@ -1,6 +1,6 @@
 define( 'providers/flickr/tab', 
-        ['providers', 'tmpl!livedesk>providers/flickr/post'], 
-function(providers) 
+        ['providers', 'providers/_utils', 'tmpl!livedesk>providers/flickr/post'], 
+function(providers, utils) 
 {
 	providers.flickr = 
 	{
@@ -20,7 +20,7 @@ function(providers)
 	        save: $.noop,
 	        edit: function()
 	        {
-	            this.el.find('.actions').removeClass('hide');
+	            $('.actions', this.el).removeClass('hide');
 	        },
 	        render: function(callback)
 	        {
@@ -49,8 +49,8 @@ function(providers)
                                 annotation: $('.flickr-full-content .annotation:eq(0)', self.el).html(),
                             }))
                         };    
-                        self.model.set(data).sync();
-                        $('.actions', self.el).addClass('hide');
+                        utils.MetaCheck.call(self, data.Meta) && 
+                            (self.model.set(data).sync() && $('.actions', self.el).addClass('hide'));
                     });
                     
                     $(self.el).off('click', '.btn.cancel').on('click', '.btn.cancel', function()
