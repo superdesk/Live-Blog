@@ -426,6 +426,12 @@ dateFormat.i18n = {
 		"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
 	]
 };
+if(window.livedesk.i18n && window.livedesk.i18n['day_names'] !== undefined) {
+	dateFormat.i18n.dayNames = window.livedesk.i18n.day_names;
+}
+if(window.livedesk.i18n && window.livedesk.i18n['month_names'] !== undefined) {
+	dateFormat.i18n.monthNames = window.livedesk.i18n.month_names;
+}
 
 // For convenience...
 Date.prototype.format = function (mask, utc) {
@@ -1233,7 +1239,8 @@ Collection.prototype =
 		theData = extractListData(data);
 		list = [];
 		for( var i in theData ) {
-			list.push( this.modelDataBuild(new this.model(theData[i])) );
+			if(theData.hasOwnProperty(i))
+				list.push( this.modelDataBuild(new this.model(theData[i])) );
 		}
 		data.parsed = {list: list, total: data.total};
 		return data.parsed;
@@ -1443,10 +1450,10 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     {
         try
         { 
-            if(this.options.headers && this.options.headers['X-Filter'])
-				delete this.options.headers['X-Filter'];
-            if(this.options && this.options.data && this.options.data['startEx.CId'])
-				delete this.options.data['startEx.CId'];
+            delete this.options.headers['X-Filter'];
+            delete this.options.data['CId.since'];
+			delete this.options.data['offset'];
+			delete this.options.data['limit'];
         }
         catch(e){}
     }, 
@@ -1454,9 +1461,35 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     {
         reset: syncReset
     }),
+    
+    // display auth view
+    authLock = function()
+    {
+        var args = arguments,
+            self = this;
+
+        // reset headers on success
+        AuthApp.success = function()
+        { 
+            self.options.headers.Authorization = localStorage.getItem('superdesk.login.session');
+        };
+        AuthApp.require.apply(self, arguments); 
+    },
+    
     authSync = $.extend({}, newSync, 
     {
-        options: {headers: {'Authorization': localStorage.getItem('superdesk.login.session')}},
+        options: 
+        { 
+            // get login token from local storage
+            headers: { 'Authorization': localStorage.getItem('superdesk.login.session') },
+            // failuire function for non authenticated requests
+            fail: function(resp)
+            { 
+                // TODO 404? shouldn't be covered by auth
+                (resp.status == 401) && authLock.apply(authSync, arguments);
+                (resp.status == 404) && ErrorApp.require.apply(this, arguments);
+            } 
+        },
         href: function(source)
         {
             return source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
@@ -1471,21 +1504,35 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     },
     since = function(val) // change id implementation
     {
-        $.extend( this.options, {data:{'startEx.CId': val}} );
+        if(!val)
+			delete this.syncAdapter.options.data['CId.since'];
+		else
+			$.extend( true, this.syncAdapter.options, { data:{ 'CId.since': val }} );			
+		return this;
     },
     asc = function(col)
     {
-        $.extend( this.options, {data:{asc: col}} );
+        $.extend( true, this.syncAdapter.options, { data:{ asc: col }} );
+		return this;
     },
     desc = function(col)
     {
-        $.extend( this.options, {data:{desc: col}} );
+        $.extend( true, this.syncAdapter.options, { data:{ desc: col }} );
+		return this;
     },
+	limit = function(limit)
+	{
+        $.extend( true, this.syncAdapter.options, { data:{ limit: limit }} );	
+		return this;
+	},
+	offset = function(offset)
+	{
+		$.extend( true, this.syncAdapter.options, { data:{ offset: offset }} );
+		return this;
+	},
     Model = giz.Model.extend // superdesk Model 
     ({
-        isDeleted: function(){ 
-			return this._forDelete || this.data.DeletedOn; 
-		},
+        isDeleted: function(){ return this._forDelete || this.data.DeletedOn; },
         syncAdapter: newSync,
         xfilter: xfilter,
         since: since
@@ -1506,7 +1553,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     }),
     Collection = giz.Collection.extend
     ({
-        xfilter: xfilter, since: since, syncAdapter: newSync
+        xfilter: xfilter, since: since, asc: asc, desc: desc, limit: limit, offset: offset, syncAdapter: newSync
     }),
     AuthCollection = Collection.extend
     ({
