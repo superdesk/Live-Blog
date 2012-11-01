@@ -82,7 +82,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
 
         blog = sql.one()
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
-        blog.LiveOn = current_timestamp()
+        blog.LiveOn = current_timestamp() if blog.LiveOn is None else None
         return self.session().merge(blog)
 
 
