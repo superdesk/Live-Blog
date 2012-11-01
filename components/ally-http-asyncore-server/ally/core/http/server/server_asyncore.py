@@ -33,6 +33,7 @@ log = logging.getLogger(__name__)
 # Constants used in indicating the write option. 
 WRITE_BYTES = 1
 WRITE_ITER = 2
+WRITE_CLOSE = 3
 
 # --------------------------------------------------------------------
 
@@ -237,13 +238,16 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
         assert self._writeq, 'Nothing to write'
         
         what, content = self._writeq[0]
-        assert what in (WRITE_ITER, WRITE_BYTES), 'Invalid what %s' % what
+        assert what in (WRITE_ITER, WRITE_BYTES, WRITE_CLOSE), 'Invalid what %s' % what
         if what == WRITE_ITER:
             try: data = memoryview(next(content))
             except StopIteration:
                 del self._writeq[0]
                 return
         elif what == WRITE_BYTES: data = content
+        elif what == WRITE_CLOSE:
+            self.close()
+            return
         
         dataLen = len(data)
         try:
@@ -307,6 +311,7 @@ class RequestHandler(dispatcher, BaseHTTPRequestHandler):
                 else: source = rspCnt.source
     
                 self._writeq.append((WRITE_ITER, iter(source)))
+            self._writeq.append((WRITE_CLOSE, None))
             
         chain = Chain(processing)
         chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)
@@ -378,7 +383,7 @@ class AsyncServer(dispatcher):
         '''
         Loops and servers the connections.
         '''
-        loop(self.timeout, True, self.map)
+        loop(self.timeout, map=self.map)
             
     def serve_limited(self, count):
         '''
@@ -414,8 +419,8 @@ def run(pathAssemblies, server_version, host='', port=80):
     try:
         server = AsyncServer((host, port), pathProcessing, RequestHandler)
         print('=' * 50, 'Started Async REST API server...')
-        # import profile
-        # profile.runctx('server.serve_limited(1000)', globals(), locals(), 'profiler.data')
+#        import profile
+#        profile.runctx('server.serve_limited(1000)', globals(), locals(), 'profiler.data')
         server.serve_forever()
     except KeyboardInterrupt:
         print('=' * 50, '^C received, shutting down server')
