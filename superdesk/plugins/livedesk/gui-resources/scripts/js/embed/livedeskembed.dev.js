@@ -634,7 +634,7 @@ Sync =
 		var self = this,
 			reqFnc = function(data, predefinedOptions, userOptions)
 			{
-                                $.support.cors = true;
+								$.support.cors = true;
 				var a;
 				if( source instanceof Url ) 
 				{
@@ -729,7 +729,7 @@ Model.prototype =
 	 */
 	sync: function()
 	{
-		//console.log('Model: sync');
+		//console.log('sync');
 		var self = this, ret = $.Deferred(), dataAdapter = function(){return self.syncAdapter.request.apply(self.syncAdapter, arguments);};
 		this.hash();
 		// trigger an event before sync
@@ -891,6 +891,8 @@ Model.prototype =
 	},
 	parseHash: function(data)
 	{
+		if(data instanceof Model)
+			return this;
 		if( typeof data == 'string' )
 			this.href = data;
 		else if( data && data.href !== undefined) {
@@ -900,6 +902,10 @@ Model.prototype =
 		else if(data && ( data.id !== undefined) && (this.url !== undefined))
 			this.href = this.url + data.id;
 		return this;
+	},
+	isChanged: function()
+	{
+		return !$.isEmptyObject(this.changeset);
 	},
 	clearChangeset: function()
 	{
@@ -965,12 +971,15 @@ Model.prototype =
 	 */
 	on: function(evt, handler, obj)
 	{
-		if(obj === undefined)
+		if(obj === undefined) {
+			$(this).off(evt, handler);
 			$(this).on(evt, handler);
-		else
+		}
+		else {			
 			$(this).on(evt, function(){
 				handler.apply(obj, arguments);
 			});
+		}
 		return this;
 	},
 	/*!
@@ -1173,25 +1182,27 @@ Collection.prototype =
 			this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
 			{
 				var data = self.parse(data), changeset = [], count = self._list.length;
-				 // important or it will infiloop				 
+				 // important or it will infiloop
 				for( var i=0; i < data.list.length; i++ )
 				{
 					var model = false;
-					for( var j=0; j<count; j++ )
+					for( var j=0; j<count; j++ ) {
 						if( data.list[i].hash() == self._list[j].hash() )
 						{
 							model = data.list[i];
 							break;
 						}
-
+					}
 					if( !model ) {
 						self._list.push(data.list[i]);
 						changeset.push(data.list[i]);
 					}
 					else {
-						//self._list[j].parse(model.data);
+						self._list[j].parse(model.data);
 						if( model.isDeleted() ) {
 							model._remove();
+						} else if( model.isChanged() ){
+							changeset.push(data.list[i]);
 						}
 						else {
 							model.on('delete', function(){self.remove(this.hash());})
@@ -1205,13 +1216,15 @@ Collection.prototype =
 				 * else UPDATE with the changeset if there are some
 				 */
 				if( ( count === 0) ){
+					//console.log('read');
 					self.triggerHandler('read');
 				} else {                    
 					/**
 					 * Trigger handler with changeset extraparameter as a vector of vectors,
 					 * caz jquery will send extraparameters as arguments when calling handler
 					 */
-					$(self).triggerHandler('update', [changeset]);
+					//console.log('update');
+					self.triggerHandler('update', [changeset]);
 				}
 			}));
 	},
@@ -1256,7 +1269,7 @@ Collection.prototype =
 	insert: function(model)
 	{
 		this.desynced = false;
-		if( !(model instanceof Model) ) model = new this.model(model);
+		if( !(model instanceof Model) ) model = this.modelDataBuild(new this.model(model));
 		this._list.push(model);
 		model.hash();
 		var x = model.sync(this.href);
@@ -1276,12 +1289,15 @@ Collection.prototype =
 	 */
 	on: function(evt, handler, obj)
 	{
-		if(obj === undefined)
+		if(obj === undefined) {
+			$(this).off(evt, handler);
 			$(this).on(evt, handler);
-		else
+		}
+		else {			
 			$(this).on(evt, function(){
 				handler.apply(obj, arguments);
 			});
+		}
 		return this;
 	},
 	/*!
@@ -1315,7 +1331,8 @@ Collection.extend = cextendFnc = function(props)
 };
 // view
 
-var Render = Class.extend
+var uniqueIdView = 0,
+Render = Class.extend
 ({
 	getProperty: function(prop)
 	{
@@ -1331,10 +1348,11 @@ View = Render.extend
 	_constructor: function(data, options)
 	{
 		$.extend(this, data);
+		this._clientId = uniqueIdView++;
 		options = $.extend({}, {init: true, events: true, ensure: true}, options);
 		options.ensure && this._ensureElement();
 		options.init && this.init.apply(this, arguments);
-		options.events && this.delegateEvents();
+		options.events && this.resetEvents();
 	},
 	_ensureElement: function()
 	{
@@ -1378,6 +1396,7 @@ View = Render.extend
 				var other = one[evnt], sel = null, dat = {}, fn;
 				if(typeof other === 'string') {
 					fn  = other;
+					//console.log($.type(self[fn]), ', ', this.getEvent(evnt), ', ',selector, ', ',fn);
 					if($.isFunction(self[fn])) {
 						$(this.el).on(this.getEvent(evnt), selector, self[fn].bind(self));
 					}
@@ -1385,16 +1404,17 @@ View = Render.extend
 			}
 		}
 	},
+	undelegateEvents: function()
+	{
+		$(this.el).off(this.getNamespace());
+		return this;
+	},		
 	getEvent: function(evnt){
 		return evnt + this.getNamespace();
 	},
 	getNamespace: function()
 	{
 		return '.'+this.getProperty('namespace');
-	},
-	undelegateEvents: function()
-	{
-		$(this.el).off(this.getProperty('namespace'));
 	},
 	render: function(){
 
@@ -1427,6 +1447,10 @@ View = Render.extend
 		if((this.el.selector !== undefined) && (this.el.selector != ''))
 			return ($(this.el.selector).length === 1);			
 		
+		//console.log('Visible: ',$(this.el).is(':visible'));
+
+		return ($(this.el).is(':visible'));
+		
 		//console.log('Last: ',this.el, ' length: ',($(this.el).length === 1));
 		
 		return ($(this.el).length === 1);
@@ -1458,10 +1482,10 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     {
         try
         { 
-            if(this.options.headers && this.options.headers['X-Filter'])
-				delete this.options.headers['X-Filter'];
-            if(this.options && this.options.data && this.options.data['startEx.CId'])
-				delete this.options.data['startEx.CId'];
+            delete this.options.headers['X-Filter'];
+            delete this.options.data['CId.since'];
+			delete this.options.data['offset'];
+			delete this.options.data['limit'];
         }
         catch(e){}
     }, 
@@ -1469,9 +1493,35 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     {
         reset: syncReset
     }),
+    
+    // display auth view
+    authLock = function()
+    {
+        var args = arguments,
+            self = this;
+
+        // reset headers on success
+        AuthApp.success = function()
+        { 
+            self.options.headers.Authorization = localStorage.getItem('superdesk.login.session');
+        };
+        AuthApp.require.apply(self, arguments); 
+    },
+    
     authSync = $.extend({}, newSync, 
     {
-        options: {headers: {'Authorization': localStorage.getItem('superdesk.login.session')}},
+        options: 
+        { 
+            // get login token from local storage
+            headers: { 'Authorization': localStorage.getItem('superdesk.login.session') },
+            // failuire function for non authenticated requests
+            fail: function(resp)
+            { 
+                // TODO 404? shouldn't be covered by auth
+                (resp.status == 401) && authLock.apply(authSync, arguments);
+                (resp.status == 404) && ErrorApp.require.apply(this, arguments);
+            } 
+        },
         href: function(source)
         {
             return source.indexOf('my/') === -1 ? source.replace('resources/','resources/my/') : source;
@@ -1480,28 +1530,41 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     xfilter = function() // x-filter implementation
     {
         if( !this.syncAdapter.options.headers ) this.syncAdapter.options.headers = {};
-        this.syncAdapter.options.headers['X-Format-DateTime'] = 'M/dd/yyyy HH:mm:ss';
-		this.syncAdapter.options.headers['X-Filter']
-            = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];
+        this._xfilter = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];
+		this.syncAdapter.options.headers['X-Filter'] = this._xfilter;
         return this;
     },
     since = function(val) // change id implementation
     {
-        $.extend( this.options, {data:{'startEx.CId': val}} );
+        if(!val)
+			delete this.syncAdapter.options.data['CId.since'];
+		else
+			$.extend( true, this.syncAdapter.options, { data:{ 'CId.since': val }} );			
+		return this;
     },
     asc = function(col)
     {
-        $.extend( this.options, {data:{asc: col}} );
+        $.extend( true, this.syncAdapter.options, { data:{ asc: col }} );
+		return this;
     },
     desc = function(col)
     {
-        $.extend( this.options, {data:{desc: col}} );
+        $.extend( true, this.syncAdapter.options, { data:{ desc: col }} );
+		return this;
     },
+	limit = function(limit)
+	{
+        $.extend( true, this.syncAdapter.options, { data:{ limit: limit }} );	
+		return this;
+	},
+	offset = function(offset)
+	{
+		$.extend( true, this.syncAdapter.options, { data:{ offset: offset }} );
+		return this;
+	},
     Model = giz.Model.extend // superdesk Model 
     ({
-        isDeleted: function(){ 
-			return this._forDelete || this.data.DeletedOn; 
-		},
+        isDeleted: function(){ return this._forDelete || this.data.DeletedOn; },
         syncAdapter: newSync,
         xfilter: xfilter,
         since: since
@@ -1522,7 +1585,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     }),
     Collection = giz.Collection.extend
     ({
-        xfilter: xfilter, since: since, syncAdapter: newSync
+        xfilter: xfilter, since: since, asc: asc, desc: desc, limit: limit, offset: offset, syncAdapter: newSync
     }),
     AuthCollection = Collection.extend
     ({
@@ -1559,13 +1622,21 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     
 }
 
-function isOnly(data,key) {
-	var count = 0;
+/*!
+ * Returns true if the data object is compose of only given keys
+ */
+function isOnly(data, keys) 
+{
+	if ($.type(keys) === 'string')
+		keys = [keys];
+	var count = 0, checkCount = keys.length;		
 	for(i in data) {
-		count++;
-		if(count>1) return false;
+		if( -1 === $.inArray(i, keys))
+			return false;
+		count++;	
+		if( count>checkCount ) return false;
 	};
-	return (data !== undefined) && (data[key] !== undefined) && (count == 1);
+	return (count === checkCount);
 }
 
 
@@ -1739,44 +1810,73 @@ window.livedesk.startLoading = function($, _) {
 				}
 			}
 		}),
-		AutoCollection = $.gizmo.Collection.extend({
+		AutoCollection = $.gizmo.Collection.extend
+		({
 			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
-                        
-			setIdInterval: function(fn){
+			/*!
+			 * for auto refresh
+			 */
+			keep: false,
+			init: function(){ 
+				var self = this;
+				self.model.on('publish reorder', function(evt, data){
+					self.getMaximumNearCid(self.parse([data]));
+				});
+				this.on('read update',function(evt, data)
+				{
+					if(!data)
+						data = self._list;
+					self.getMaximumCid(self.parse(data));
+				});
+			},
+			destroy: function(){ this.stop(); },
+			setIdInterval: function(fn)
+			{
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
 			},
-			getMaximumCid: function(data){
+			getMaximumNearCid: function(data)
+			{
+				for(i=0, count=data.list.length; i<count; i++) {
+					var CId = parseInt(data.list[i].get('CId'))
+					if( !isNaN(CId) && (this._latestCId < CId) && ((this._latestCId + 1) == CId))
+						this._latestCId = CId;
+				}
+			},
+			getMaximumCid: function(data)
+			{
 				for(i=0, count=data.list.length; i<count; i++) {
 					var CId = parseInt(data.list[i].get('CId'))
 					if( !isNaN(CId) && (this._latestCId < CId) )
 						this._latestCId = CId;
 				}
 			},
-			xfilter: function(xfilter){
-				this.xfilter =  xfilter;
+			start: function()
+			{
+				var self = this, requestOptions = {data: {'cId.since': this._latestCId}}; //, headers: { 'X-Filter': self.xfilter}this.syncAdapter.options.headers
+				if(self._latestCId === 0) delete requestOptions.data;
+				if(!this.keep && self.view && !self.view.checkElement()) 
+				{
+					self.stop();
+					return;
+				}				
+				this.sync(requestOptions);
 				return this;
 			},
-			auto: function(){                                
-				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: {'X-Filter': self.xfilter, 'X-Format-DateTime': 'M/dd/yyyy HH:mm:ss'}};
-				if(this._latestCId === 0) delete requestOptions.data;
-				this.triggerHandler('beforeUpdate');
-				$.gizmo.Collection.prototype.sync.call(this,requestOptions).done(function(data){
-					self.getMaximumCid(self.parse(data));
-				});
-				return this;
-			},
-			pause: function(){
+			stop: function()
+			{
 				var self = this;
 				clearInterval(self.idInterval);
 				return this;
 			},
-			sync: function(){
+			autosync: function()
+			{
 				var self = this;
-				this.auto().pause().setIdInterval(function(){self.auto();});
+				this.stop().start().setIdInterval(function(){self.start();});
 			}
+		
 		});
         Posts = AutoCollection.extend({
             model: Post
@@ -1798,15 +1898,22 @@ window.livedesk.startLoading = function($, _) {
             init: function()
             {
                         var self = this;
-                        self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-                                                           'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';				
+                        self.xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
                         self.model
                                 .on('read update', function(evt, data){
-										if(isOnly(this.data, 'CId') || isOnly(data, 'CId')) {
-                                                self.model.xfilter(self.xfilter).sync({force: true});
+										var _parsed = undefined;
+										if(this.data._parsed) {
+											_parsed = this.data._parsed;
+											delete this.data._parsed;
+										}
+										if(isOnly(this.data, ['CId','Order']) || isOnly(data, ['CId','Order'])) {
+												self.model.xfilter(self.xfilter).sync({force: true});
                                         }
-                                        else
-                                                self.render(evt, data);
+                                        else {
+                                            self.render(evt, data);
+										}
+										this.data._parsed = _parsed;
                                 })
                                 .on('delete', self.remove, self)
                                 .xfilter(self.xfilter)
@@ -2065,10 +2172,30 @@ window.livedesk.startLoading = function($, _) {
                 countLoaded = 0,
 		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
+			limit: 2,
+			offset: 0,		
 			el: '#livedesk-root',
 			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
+			events: {
+				'#liveblog-more': { click: 'more'}
+			},
+			more: function(evt) {
+				var self = this,
+					offset = $(evt.target).data('offset');
+				offset = offset? offset: 1;
+				self.model.get('PostPublished')
+					.xfilter(self.xfilter)
+					.limit(self.limit)
+					.offset(offset*self.limit)
+					.sync().done(function(data){
+						self.total = parseInt(data.total);
+						if((offset+1)*self.limit >= self.total)
+							$(evt.target).hide();
+					});
+				$(evt.target).data('offset', offset+1);
+			},
 			setIdInterval: function(fn){
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
@@ -2104,12 +2231,13 @@ window.livedesk.startLoading = function($, _) {
 			init: function()
 			{		
 				var self = this;
+				self._views = [];
 				self.rendered = false;
 				if($.type(self.url) === 'string')
 					self.model = new Blog(self.url.replace('my/',''));				
-				var xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
+				self.xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
-				//xfilter = 'CId';								   
+				//self.xfilter = 'CId';								   
 				self.model.on('read', function()
 				{ 
 					if(!self.rendered) {
@@ -2117,7 +2245,9 @@ window.livedesk.startLoading = function($, _) {
 							.on('read', self.render, self)
 							.on('update', self.addAll, self)
 							.on('beforeUpdate', self.updateingStatus, self)
-							.xfilter(xfilter).sync();
+							.limit(self.limit)
+							.offset(self.offset)
+							.xfilter(self.xfilter).autosync();
 					}
 					self.rendered = true;
 				}).on('update', function(e, data){
@@ -2128,13 +2258,43 @@ window.livedesk.startLoading = function($, _) {
 			},
 			addOne: function(model)
 			{
-				current = new LivedeskClass.PostItemView({model: model, _parent: this});
-				this.el.find('#liveblog-post-list').prepend(current.el);
-				current.next = this._latest;
-				if( this._latest !== undefined )
-					this._latest.prev = current;
-				this._latest = current;
-                                return current;
+				var self = this,
+					current = new LivedeskClass.PostItemView({model: model, _parent: self}),				    
+					count = self._views.length;
+				model.postview = current;
+				current.order =  parseFloat(model.get('Order'));
+				if(!count) {
+					this.el.find('#liveblog-post-list').prepend(current.el);
+					self._views = [current];
+				} else {
+					var next, prev;
+					for(i=0; i<count; i++) {
+						if(current.order>self._views[i].order) {
+							prev = self._views[i];
+							prevIndex = i;
+						} else if(current.order<self._views[i].order) {
+							next = self._views[i];
+							nextIndex = i;
+							break;
+						}						
+					}
+					//console.log(prev && prev.order,'<<',current.order, '>>',next && next.order);
+					if(next) {
+						//console.log('next');
+						current.el.insertAfter(next.el);
+						next.prev = current;
+						current.next = next;
+						self._views.splice(nextIndex, 0, current);
+						
+					} else if(prev) {
+						//console.log('prev');
+						current.el.insertBefore(prev.el);
+						prev.next = current;
+						current.prev = prev;
+						self._views.splice(prevIndex+1, 0, current);
+					}
+				}
+				return current;
 			},
 			addAll: function(evt, data)
 			{
@@ -2162,27 +2322,26 @@ window.livedesk.startLoading = function($, _) {
 					//.find('p').html(this.model.get('Description'));
 			},
                         
-                        loadTrace: function() {
-                            if ( countLoaded >= totalLoad) { 
-                                this.gotoHash()
-                                clearInterval(iidLoadTrace);
-                            }
-                        },
+			loadTrace: function() {
+				if ( countLoaded >= totalLoad) { 
+					this.gotoHash()
+					clearInterval(iidLoadTrace);
+				}
+			},
 			render: function(evt)
 			{
-				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div>');
+				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div><a id="liveblog-more" href="javascript:void(0)">'+_('More')+'</a></div>');
 				this.renderBlog();
 				this.ensureStatus();
 				data = this.model.get('PostPublished')._list;
-				var next = this._latest, current, model, i = data.length;
-                                
-                                totalLoad = data.length;
-                                var self = this, auxView;
-                                iidLoadTrace = setInterval(function(){
-                                    self.loadTrace();
-                                }, 900)
-                                this.views=[];
-                                this.renderedTotal = i;
+				var next = this._latest, current, model, i = data.length;                               
+				totalLoad = data.length;
+				var self = this, auxView;
+				iidLoadTrace = setInterval(function(){
+					self.loadTrace();
+				}, 900)
+				this.views=[];
+				this.renderedTotal = i;
 				while(i--) {
 					data[i].on('rendered', this.renderedOn, this);
 					auxView = this.addOne(data[i]);
@@ -2194,7 +2353,7 @@ window.livedesk.startLoading = function($, _) {
 			   this.renderedTotal--;
 			   if(!this.renderedTotal) {
 					this.closeAllButFirstWrapup();
-                                        this.addClassToHashItem();
+                        this.addClassToHashItem();
 			   }
 			},
 			closeAllButFirstWrapup: function(views) {
@@ -2206,14 +2365,14 @@ window.livedesk.startLoading = function($, _) {
 					 }
 				}
 			},
-                        addClassToHashItem: function() {
-                            var hash = window.location.hash;
-                            var hashArray = hash.split('#');                            
-                            if ( hashArray.length > 1) {
-                                var name = hashArray[1];
-                                $('a[name="' + name + '"]').addClass('hash-open');
-                            }
-                        }
+			addClassToHashItem: function() {
+				var hash = window.location.hash;
+				var hashArray = hash.split('#');                            
+				if ( hashArray.length > 1) {
+					var name = hashArray[1];
+					$('a[name="' + name + '"]').addClass('hash-open');
+				}
+			}
 		});
 		window.livedesk.TimelineView = LivedeskClass.TimelineView;
 		window.livedesk.callback();
