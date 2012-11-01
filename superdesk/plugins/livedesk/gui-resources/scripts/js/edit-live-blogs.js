@@ -723,14 +723,26 @@ function(providers, Gizmo, $)
 			},
 			putLive: function()
 			{
-			    this.model
-			    .on('putlive', function()
-			    { 
-			        $('[data-status="live"]').removeClass('hide');
-			        $('[data-status="not-live"]').remove();
-			        
-			    })
-			    .putLive();
+			    var self = this;
+			    this.model.putLive().done(function()
+                { 
+                    var stsLive = $('[data-status="live"]', self.el);
+                        stsOffline = $('[data-status="offline"]', self.el),
+                        msgLive = $('#put-live-msg-live', self.el),
+                        msgOffline = $('#put-live-msg-offline', self.el);
+                    if( stsLive.hasClass('hide') )
+                    {
+                        stsLive.removeClass('hide');
+                        stsOffline.addClass('hide');
+                        msgLive.removeClass('hide');
+                        msgOffline.addClass('hide');
+                        return;
+                    }
+                    stsLive.addClass('hide');
+                    stsOffline.removeClass('hide');
+                    msgLive.addClass('hide');
+                    msgOffline.removeClass('hide');
+                });
 			},
 			textToggleStatus: function()
 			{
@@ -769,7 +781,9 @@ function(providers, Gizmo, $)
 						side: 'is-side=1',
 						submenu: 'is-submenu',
 						submenuActive1: 'active'
-					}
+					},
+				    islive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
+				    isoffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
 				});
 			    
 				$.superdesk.applyLayout('livedesk>edit', data, function()
