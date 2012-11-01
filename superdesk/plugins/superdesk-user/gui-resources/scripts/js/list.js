@@ -170,31 +170,33 @@ function($, superdesk, giz, User, Person, sha)
          */
         switchPage: function(evt)
         {
-            if( this.syncing ) return;
-            if( $(evt.target).attr('data-pagination') == 'currentpages' )
+            switch(true)
             {
-                this.page.offset = $(evt.target).attr('data-offset');
-                this.refresh();
-            }
-            if( $(evt.target).attr('data-pagination') == 'prev' )
-            {
-                var o = parseInt(this.page.offset) - parseInt(this.page.limit);
-                if( o >= 0 ) { this.page.offset = o; this.refresh(); } 
-            }
-            if( $(evt.target).attr('data-pagination') == 'next' )
-            {
-                var o = parseInt(this.page.offset) + parseInt(this.page.limit);
-                if( o < this.page.total ) { this.page.offset = o; this.refresh(); } 
-            }
-            if( $(evt.target).attr('data-pagination') == 'first' )
-            {
-                this.page.offset = 0; 
-                this.refresh();
-            }
-            if( $(evt.target).attr('data-pagination') == 'last' )
-            {
-                this.page.offset = this.page.total - (this.page.total % this.page.limit); 
-                this.refresh(); 
+                case this.syncing: return; 
+                case $(evt.target).attr('data-pagination') == 'currentpages':
+                    this.page.offset = $(evt.target).attr('data-offset');
+                    this.refresh();
+                    break;
+                case $(evt.target).attr('data-pagination') == 'prev':
+                    var o = parseInt(this.page.offset) - parseInt(this.page.limit);
+                    if( o >= 0 ) { this.page.offset = o; this.refresh(); } 
+                    break;
+                case $(evt.target).attr('data-pagination') == 'next':
+                    var o = parseInt(this.page.offset) + parseInt(this.page.limit);
+                    if( o < this.page.total ) { this.page.offset = o; this.refresh(); } 
+                    break;
+                case $(evt.target).attr('data-pagination') == 'first':
+                    this.page.offset = 0; 
+                    this.refresh();
+                    break;
+                case $(evt.target).attr('data-pagination') == 'last':
+                    this.page.offset = this.page.total - (this.page.total % this.page.limit); 
+                    this.refresh();
+                    break;
+                case $(evt.target).attr('data-ipp') > 0:
+                    this.page.limit = $(evt.target).attr('data-ipp');
+                    this.refresh();
+                    break;
             }
 
         },
@@ -414,7 +416,15 @@ function($, superdesk, giz, User, Person, sha)
         init: function()
         {
             var self = this;
-            this.page = { limit: 25, offset: 0, total: null, pagecount: 5 };
+            this.page = 
+            { 
+                limit: 25, 
+                offset: 0, 
+                total: null, 
+                pagecount: 5, 
+                ipp: [25, 50, 100], 
+                isipp: function(chk, ctx){ return ctx.current() == ctx.get('limit') ? "disabled" : ""; }
+            };
             this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') })));
             this._resetEvents = false;
         },
