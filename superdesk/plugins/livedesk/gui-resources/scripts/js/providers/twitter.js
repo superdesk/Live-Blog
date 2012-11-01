@@ -41,6 +41,8 @@ $.extend(providers.twitter, {
         lastWeb : null,
         iidWeb : -1,
         
+        lastSearchItem: '',
+        
 	data: [],
 	init: function(){
 		if(!this.initialized) {
@@ -122,11 +124,13 @@ $.extend(providers.twitter, {
 			  var myArr = $(this).attr('id').split('-');
 			  //hide all ggl result holders
 			  self.el.find('.scroller').css('visibility', 'hidden');
+                          self.el.find('.twitter-search-text').css('display', 'none');
 			  //show only the one we need
 			  $('#twt-'+myArr[1]+'-holder').css('visibility', 'visible');
+                          $('#twitter-search-'+myArr[1]).css('display', 'inline');
 			  self.startSearch(true);
 			})
-			.on('keyup','#twitter-search-text', function(e){
+			.on('keyup','.twitter-search-text', function(e){
 				if(e.keyCode == 13 && $(this).val().length > 0) {
 					//enter press on google search text
 					//check what search it is
@@ -199,9 +203,21 @@ $.extend(providers.twitter, {
             },
         doTimeline: function(page) {
                 var self = this;
-                var text = escape($('#twitter-search-text').val());
+                
+                if ( $('#twitter-search-timeline').val().length < 1) {
+                    $('#twitter-search-timeline').val(this.lastSearchItem);
+                }
+                
+                page = typeof page !== 'undefined' ? page : 1;
+                var text = $('#twitter-search-timeline').val();
                 if (text.length < 1) {
                     return;
+                } else {
+                    if (this.lastTimelineSearchItem == text && page == 1) {
+                        return;
+                    }
+                    this.lastSearchItem = text;
+                    this.lastTimelineSearchItem = text;
                 }
                 $('#twt-timeline-more').html('');
                 page = typeof page !== 'undefined' ? page : 1;
@@ -283,12 +299,22 @@ $.extend(providers.twitter, {
         },
         doUser : function(page) {
             var self = this;
-            var text = escape($('#twitter-search-text').val());
+            
+            if ( $('#twitter-search-user').val() < 1 ){
+                $('#twitter-search-user').val(this.lastSearchItem);
+            }
+            page = typeof page !== 'undefined' ? page : 1;
+            var text = $('#twitter-search-user').val();
             if (text.length < 1) {
                 return;
+            } else {
+                if ( this.lastUserSearchItem == text && page == 1) {
+                    return;
+                }
+                this.lastSearchItem = this.lastUserSearchItem = text;
             }
             
-            page = typeof page !== 'undefined' ? page : 1;
+            
             if (page == 1) {
                 $('#twt-user-results').html('');
                 self.data = [];
@@ -366,9 +392,18 @@ $.extend(providers.twitter, {
         },
         doFavorites : function(page) {
             var self = this;
-            var text = escape($('#twitter-search-text').val());
+            if ( $('#twitter-search-favorites').val() < 1 ){
+                $('#twitter-search-favorites').val(this.lastSearchItem);
+            }
+            page = typeof page !== 'undefined' ? page : 1;
+            var text = $('#twitter-search-favorites').val();
             if (text.length < 1) {
                 return;
+            } else {
+                if ( this.lastFavoritesSearchItem == text && page == 1) {
+                    return;
+                }
+                this.lastFavoritesSearchItem = this.lastSearchItem = text;
             }
             page = typeof page !== 'undefined' ? page : 1;
             if( page == 1 ) {
@@ -447,11 +482,29 @@ $.extend(providers.twitter, {
             })
         },
         doWeb : function(qstring) {
+            
+            var skip = false;
+            if ( typeof qstring == 'undefined' ) {
+                skip = true;
+            }
+            
             var self = this;
-            var text = escape($('#twitter-search-text').val());
+            
+            if ( $('#twitter-search-web').val() < 1  ) {
+                $('#twitter-search-web').val(this.lastSearchItem);
+            }
+            
+            
+            var text = $('#twitter-search-web').val();
             if (text.length < 1) {
                 return;
+            } else {
+                if ( this.lastWebSearchItem == text && skip ) {
+                    return;
+                }
+                this.lastWebSearchItem = this.lastSearchItem = text;
             }
+            
             $('#twt-web-more').html('');
 
             qstring = typeof qstring !== 'undefined' ? qstring : '?q='+ text +'&include_entities=true';
