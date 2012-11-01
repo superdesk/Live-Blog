@@ -23,6 +23,7 @@ from sqlalchemy.sql.expression import exists
 from ally.api.extension import IterPart
 from sqlalchemy.sql.functions import current_timestamp
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped
+from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 
 # --------------------------------------------------------------------
 
@@ -105,7 +106,9 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         if adminId:
             userFilter = (BlogMapped.Creator == adminId) | exists().where((AdminEntry.adminId == adminId) & (AdminEntry.Blog == BlogMapped.Id))
         if collaboratorId:
-            userFilter |= exists().where((BlogCollaboratorMapped.Person == adminId) & (BlogCollaboratorMapped.Blog == BlogMapped.Id))
+            userFilter |= exists().where((CollaboratorMapped.Person == collaboratorId) \
+                                         & (BlogCollaboratorMapped.blogCollaboratorId == CollaboratorMapped.Id) \
+                                         & (BlogCollaboratorMapped.Blog == BlogMapped.Id))
         if userFilter is not None: sql = sql.filter(userFilter)
         if q:
             assert isinstance(q, QBlog), 'Invalid query %s' % q

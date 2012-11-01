@@ -8,13 +8,13 @@ Created on Aug 30, 2012
 
 Contains the SQL alchemy meta for blog type post API.
 '''
-from ..api.blog_post import BlogPost
 from livedesk.meta.blog import BlogMapped
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.schema import Column, ForeignKey
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.post import PostMapped
 from sqlalchemy.types import REAL
+from livedesk.api.blog_type_post import BlogTypePost
 
 # --------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ class BlogTypePostEntry(Base, BlogTypePostDefinition):
     Provides the mapping for BlogPost table where it keeps the connection between the post and the blog.
     '''
 
-class BlogTypePostMapped(BlogTypePostDefinition, PostMapped, BlogPost):
+class BlogTypePostMapped(BlogTypePostDefinition, PostMapped, BlogTypePost):
     '''
     Provides the mapping for BlogPost in the form of extending the Post.
     '''
