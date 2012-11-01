@@ -430,7 +430,7 @@ function(providers, Gizmo, $)
 
 		TimelineView = Gizmo.View.extend
 		({
-			limit: 2,
+			limit: 15,
 			offset: 0,
 			events: 
 			{
@@ -478,7 +478,11 @@ function(providers, Gizmo, $)
 					.xfilter(self.xfilter)
 					.limit(self.limit)
 					.offset(offset*self.limit)
-					.sync();
+					.sync().done(function(data){
+						self.total = parseInt(data.total);
+						if((offset+1)*self.limit >= self.total)
+							$(evnt.target).hide();
+					});
 				$(evnt.target).data('offset', offset+1);
 			},
 			sortstop: function(evnt, ui)
