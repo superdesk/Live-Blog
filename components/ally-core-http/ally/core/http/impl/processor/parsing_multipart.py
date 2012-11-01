@@ -162,7 +162,7 @@ class ParsingMultiPartHandler(ParsingHandler, DataMultiPart):
                 return
 
         if Request.decoder not in request:
-            if isMultipart: chain.process(request=request, requestCnt=requestCnt, response=response, **keyargs)
+            if isMultipart: chain.update(requestCnt=requestCnt)
             return # Skip if there is no decoder.
 
         if self.processParsing(request=request, requestCnt=requestCnt, response=response, **keyargs):
@@ -171,10 +171,8 @@ class ParsingMultiPartHandler(ParsingHandler, DataMultiPart):
                 nextContent = requestCnt.fetchNextContent()
                 if nextContent is not None:
                     assert isinstance(nextContent, RequestContentMultiPart), 'Invalid request content %s' % nextContent
-                    keyargs.update(requestCnt=nextContent)
-        else: keyargs.update(requestCnt=requestCnt)
-
-        chain.process(request=request, response=response, **keyargs)
+                    chain.update(requestCnt=nextContent)
+        else: chain.update(requestCnt=requestCnt)
 
 # --------------------------------------------------------------------
 
@@ -401,12 +399,9 @@ class NextContent:
             req.headers = stream._pullHeaders()
             if stream._flag & FLAG_CLOSED: stream._flag ^= FLAG_CLOSED
 
-            chain = self._processing.newChain()
-            assert isinstance(chain, Chain), 'Invalid chain %s' % chain
-
             reqCnt.source = stream
             reqCnt.fetchNextContent = NextContent(reqCnt, self._response, self._processing, self._data, stream)
             reqCnt.previousContent = self._requestCnt
-            chain.process(request=req, requestCnt=reqCnt, response=self._response)
+            Chain(self._processing).process(request=req, requestCnt=reqCnt, response=self._response).doAll()
 
             return reqCnt
