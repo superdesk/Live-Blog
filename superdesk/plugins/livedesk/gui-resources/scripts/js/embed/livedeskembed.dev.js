@@ -697,7 +697,7 @@ Model.prototype =
 		self._clientHash = null;
 		if( options && typeof options == 'object' ) $.extend(self, options);
 		if( typeof data == 'object' ) {
-			self.parse(data);
+			self._parse(data);
 			self._setExpiration();			
 		}
 		if(!$.isEmptyObject(self.changeset)) {
@@ -749,7 +749,7 @@ Model.prototype =
 			return dataAdapter(href).insert(this.feed()).done(function(data)
 			{
 				self._changed = false;
-				self.parse(data);
+				self._parse(data);
 				self._uniq && self._uniq.replace(self._clientHash, self.hash(), self);
 				self._clientHash = null;
 				self.triggerHandler('insert')
@@ -779,7 +779,7 @@ Model.prototype =
 			ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
 			{
 				//console.log('Pull: ',$.extend({},data));
-				self.parse(data);
+				self._parse(data);
 				/**
 				 * delete should come first of everything
 				 * caz it can be some update data or read data that is telling is a deleted model.
@@ -828,14 +828,23 @@ Model.prototype =
 	{
 		return model
 	},
-	/*!
-	 * @param data the data to parse into the model
+	/**
+	 * should be override by implementation
 	 */
 	parse: function(data)
 	{
+		return data;
+	},
+	/*!
+	 * @param data the data to parse into the model
+	 */
+	_parse: function(data)
+	{
 		if(data instanceof Model) {
 			data = data.data;
-		}
+		} else {
+			data = this.parse(data);
+		}		
 		if(data._parsed)
 			return;
 		for( var i in data )
@@ -928,7 +937,7 @@ Model.prototype =
 			options = val;
 		}
 		options = $.extend({},{silent: false}, options);
-		this.clearChangeset().parse(data);
+		this.clearChangeset()._parse(data);
 		this._changed = true;
 		if(!$.isEmptyObject(this.changeset)) {
 			if(!options.silent)
@@ -1105,7 +1114,7 @@ Collection.prototype =
 					this.href = arguments[i];
 					break;
 				case 'array': // a list of models, a function we're going to call after setting options
-					buildData = (function(args){return function(){this._list = this.parse(args);}})(arguments[i]);
+					buildData = (function(args){return function(){this._list = this._parse(args);}})(arguments[i]);
 					break;
 				case 'object': // options, same technique as above
 					buildOptions = (function(args){return function(){this.options = args;if(args.href) this.href = args.href;}})(arguments[i]);
@@ -1181,7 +1190,7 @@ Collection.prototype =
 		return (this.href &&
 			this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
 			{
-				var data = self.parse(data), changeset = [], count = self._list.length;
+				var data = self._parse(data), changeset = [], count = self._list.length;
 				 // important or it will infiloop
 				for( var i=0; i < data.list.length; i++ )
 				{
@@ -1198,7 +1207,7 @@ Collection.prototype =
 						changeset.push(data.list[i]);
 					}
 					else {
-						self._list[j].parse(model.data);
+						self._list[j]._parse(model.data);
 						if( model.isDeleted() ) {
 							model._remove();
 						} else if( model.isChanged() ){
@@ -1235,14 +1244,23 @@ Collection.prototype =
 	{
 		return model;
 	},
-	/*!
-	 *
+	/**
+	 * should be override by implementation
 	 */
 	parse: function(data)
 	{
-		if(data.parsed) {
-			return data.parsed;
+		return data;
+	},
+	
+	/*!
+	 *
+	 */
+	_parse: function(data)
+	{
+		if(data._parsed) {
+			return data._parsed;
 		}
+		data = this.parse(data);
 		// get the important list data from request
 		var extractListData = function(data)
 		{
@@ -1263,8 +1281,8 @@ Collection.prototype =
 			if(theData.hasOwnProperty(i))
 				list.push( this.modelDataBuild(new this.model(theData[i])) );
 		}
-		data.parsed = {list: list, total: data.total};
-		return data.parsed;
+		data._parsed = {list: list, total: data.total};
+		return data._parsed;
 	},
 	insert: function(model)
 	{
@@ -1532,6 +1550,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
         if( !this.syncAdapter.options.headers ) this.syncAdapter.options.headers = {};
         this._xfilter = arguments.length > 1 ? $.makeArray(arguments).join(',') : $.isArray(arguments[0]) ? arguments[0].join(',') : arguments[0];
 		this.syncAdapter.options.headers['X-Filter'] = this._xfilter;
+		this.syncAdapter.options.headers['X-Format-DateTime'] = 'M/dd/yyyy HH:mm:ss';
         return this;
     },
     since = function(val) // change id implementation
@@ -1639,6 +1658,64 @@ function isOnly(data, keys)
 	return (count === checkCount);
 }
 
+var root = this;
+window.livedesk.loadXDRequest = function (jQuery) {
+    
+    (function( jQuery ) {
+        
+    if (root.XDomainRequest) {
+      jQuery.ajaxTransport("+*",function( s ) {
+        if ( s.crossDomain && s.async ) {
+          if ( s.timeout ) {
+            s.xdrTimeout = s.timeout;
+            delete s.timeout;
+          }
+          var xdr;
+          return {
+            send: function( _, complete ) {
+              function callback( status, statusText, responses, responseHeaders ) {
+                xdr.onload = xdr.onerror = xdr.ontimeout = jQuery.noop;
+                xdr = undefined;
+                complete( status, statusText, responses, responseHeaders );
+              }
+              xdr = new XDomainRequest();
+              if(s.dataType){
+                  var headerThroughUriParameters = "";//header_Accept=" + encodeURIComponent(s.dataType);
+                  for(i in s.headers) {
+                      headerThroughUriParameters += i +'='+encodeURIComponent(s.headers[i])+'&';
+                  }
+                  headerThroughUriParameters = headerThroughUriParameters.replace(/(\s+)?.$/, '');
+                  s.url = s.url + (s.url.indexOf("?") === -1 ? "?" : "&" ) + headerThroughUriParameters;
+              }
+              xdr.open( s.type, s.url );
+              xdr.onload = function(e1, e2) {
+                callback( 200, "OK", { text: xdr.responseText }, "Content-Type: " + xdr.contentType );
+              };
+              xdr.onerror = function(e) {
+                  //console.error(JSON.stringify(e));
+                  callback( 404, "Not Found" );
+              };
+              if ( s.xdrTimeout ) {
+                xdr.ontimeout = function() {
+                  callback( 0, "timeout" );
+                };
+                xdr.timeout = s.xdrTimeout;
+              }
+              xdr.send( ( s.hasContent && s.data ) || null );
+            },
+            abort: function() {
+              if ( xdr ) {
+                xdr.onerror = jQuery.noop();
+                xdr.abort();
+              }
+            }
+          };
+        }
+      });
+    }
+    })( jQuery );
+
+}
 
 window.livedesk.init = function() {
     
@@ -1661,13 +1738,15 @@ window.livedesk.init = function() {
     
     if (loadJQ) {
         self.loadScript('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function(){
-            if (typeof $.gizmo == 'undefined') {
+            self.loadXDRequest(jQuery);
+			if (typeof $.gizmo == 'undefined') {
                 self.loadGizmo(giveBack$);
             } else {
                 self.preLoad(giveBack$);
             }
         })
     } else {
+		self.loadXDRequest(jQuery);
         if (typeof $.gizmo == 'undefined') {
             self.loadGizmo(giveBack$);
         } else {
@@ -1822,13 +1901,13 @@ window.livedesk.startLoading = function($, _) {
 			init: function(){ 
 				var self = this;
 				self.model.on('publish reorder', function(evt, data){
-					self.getMaximumNearCid(self.parse([data]));
+					self.getMaximumNearCid(self._parse([data]));
 				});
 				this.on('read update',function(evt, data)
 				{
 					if(!data)
 						data = self._list;
-					self.getMaximumCid(self.parse(data));
+					self.getMaximumCid(self._parse(data));
 				});
 			},
 			destroy: function(){ this.stop(); },
@@ -1855,15 +1934,14 @@ window.livedesk.startLoading = function($, _) {
 			},
 			start: function()
 			{
-				var self = this, requestOptions = {data: {'cId.since': this._latestCId}}; //, headers: { 'X-Filter': self.xfilter}this.syncAdapter.options.headers
+				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: { 'X-Filter': self._xfilter, 'X-Format-DateTime': 'M/dd/yyyy HH:mm:ss'}}; 
 				if(self._latestCId === 0) delete requestOptions.data;
 				if(!this.keep && self.view && !self.view.checkElement()) 
 				{
 					self.stop();
 					return;
 				}				
-				this.sync(requestOptions);
-				return this;
+				return this.sync(requestOptions);
 			},
 			stop: function()
 			{
@@ -1874,12 +1952,32 @@ window.livedesk.startLoading = function($, _) {
 			autosync: function()
 			{
 				var self = this;
-				this.stop().start().setIdInterval(function(){self.start();});
+				ret = this.stop().start();
+				this.setIdInterval(function(){self.start();});
+				return ret;
 			}
 		
 		});
         Posts = AutoCollection.extend({
-            model: Post
+            parse: function(data){
+				if(data.total !== undefined) {
+					data.total = parseInt(data.total);
+					data.offset = parseInt(data.offset);
+					if(this.total === undefined) {
+						this.delta = 0;
+						this.total = data.total;
+					}
+					else if(data.offset === 0) {
+						this.delta += data.total;
+						this.total += data.total;
+					}
+					delete data.total;
+				}
+				if(data.PostList)
+					return data.PostList;
+				return data;
+			},
+			model: Post
         }),
        
         Blog = $.gizmo.Model.extend
@@ -2034,7 +2132,7 @@ window.livedesk.startLoading = function($, _) {
                                return returned;
 			},
                         toggleWrap: function(e, forceToggle) {
-                            if (typeof forceToggle != 'boolean' ) {
+							if (typeof forceToggle != 'boolean' ) {
                                 forceToggle = false;
                             }
                             this._toggleWrap($(e).closest('li').first(), forceToggle);
@@ -2160,15 +2258,14 @@ window.livedesk.startLoading = function($, _) {
                                 
                                 self.setElement( template );
                                 self.model.triggerHandler('rendered');
-                                
-                                $(self.el).off('click.view', '.big-toggle').on('click.view', '.big-toggle', function(){
-                                    self.toggleWrap(this, true);
+                                $(self.el).off('click.livedesk', '.big-toggle').on('click.livedesk', '.big-toggle', function(){
+									self.toggleWrap(this, true);
                                 });
-                                $(self.el).off('click', 'a[rel="bookmark"]').on('click', 'a[rel="bookmark"]', function() {
+                                $(self.el).off('click.livedesk', 'a[rel="bookmark"]').on('click.livedesk', 'a[rel="bookmark"]', function() {
                                    self.togglePermalink(this);
                                 });
-                                $(self.el).off('click', 'input[data-type="permalink"]').on('focus', 'input[data-type="permalink"]', function() {
-                                    this.select();
+                                $(self.el).off('click.livedesk', 'input[data-type="permalink"]').on('focus.livedesk click.livedesk', 'input[data-type="permalink"]', function() {
+                                    $(this).select();
                                 });
 			}
 		}),
@@ -2177,7 +2274,7 @@ window.livedesk.startLoading = function($, _) {
                 countLoaded = 0,
 		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
-			limit: 15,
+			limit: 5,
 			offset: 0,		
 			el: '#livedesk-root',
 			timeInterval: 10000,
@@ -2188,15 +2285,17 @@ window.livedesk.startLoading = function($, _) {
 			},
 			more: function(evt) {
 				var self = this,
-					offset = $(evt.target).data('offset');
+					offset = $(evt.target).data('offset'),
+					delta = self.model.get('PostPublished').delta;
 				offset = offset? offset: 1;
 				self.model.get('PostPublished')
 					.xfilter(self.xfilter)
 					.limit(self.limit)
-					.offset(offset*self.limit)
-					.sync().done(function(data){
-						self.total = parseInt(data.total);
-						if((offset+1)*self.limit >= self.total)
+					.offset(offset*self.limit+delta)
+					.sync().done(function(data){				
+						self.model.get('PostPublished').delta = 0;
+						var total = self.model.get('PostPublished').total;
+						if(((offset+1)*self.limit+delta) >= total)
 							$(evt.target).hide();
 					});
 				$(evt.target).data('offset', offset+1);
@@ -2334,8 +2433,11 @@ window.livedesk.startLoading = function($, _) {
 				}
 			},
 			render: function(evt)
-			{
-				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div><a id="liveblog-more" href="javascript:void(0)">'+_('More')+'</a></div>');
+			{				
+				var total = this.model.get('PostPublished').total;
+				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div><a id="liveblog-more" href="javascript:void(0)">'+_('More')+'</a></div>');				
+				if(this.limit >= total)
+						$('#liveblog-more',this.el).hide();
 				this.renderBlog();
 				this.ensureStatus();
 				data = this.model.get('PostPublished')._list;
