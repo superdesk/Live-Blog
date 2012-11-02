@@ -19,7 +19,7 @@
         min-height: 19px;
         max-height: 19px;
         background: url("img/genlivedesk.jpg") no-repeat right center;
-        font-family: 'Helvetica Neue';
+        font-family: 'Helvetica Neue',Helvetica,Arial;
     }
 
     #livedesk-root ol.liveblog-post-list, 
@@ -64,7 +64,7 @@
                 color:#788d34;
                 margin-bottom: 5px;
                 clear: both;
-                font-family: "Helvetica Neue";
+                font-family: "Helvetica Neue",Helvetica,Arial;
             }
             .liveblog-post-list li .result-text  {
                 font-size: 16px;
@@ -73,7 +73,7 @@
                 font-size: 12px;
                 color:#666;
                 text-transform: uppercase;
-                font-family: 'Helvetica Neue';
+                font-family: 'Helvetica Neue', Helvetica,Arial;
             }
                 .source-icon {
                     width: 16px;
