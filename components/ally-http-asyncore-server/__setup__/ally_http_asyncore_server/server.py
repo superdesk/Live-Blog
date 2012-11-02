@@ -18,13 +18,11 @@ from threading import Thread
 
 # --------------------------------------------------------------------
 
-try: from ..ally_http_proxy_server.server import proxiedServers
-except ImportError: pass  # The proxy server is not available
-else:
-    @ioc.before(proxiedServers)
-    def placeToProxy():
-        args = pathAssemblies(), server_version(), server_host()
-        proxiedServers()['asyncore'] = lambda port: server_asyncore.run(*args, port=port)
+ioc.doc(server_type, '''
+    "asyncore" - server made based on asyncore package, fast (runs on a single CPU) and reliable.
+''')
+
+# --------------------------------------------------------------------
 
 @ioc.start
 def runServer():

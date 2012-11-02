@@ -75,6 +75,21 @@ def config(*args):
         raise SetupError('Invalid name %r for configuration, needs to be lower case only' % function.__name__)
     return update_wrapper(register(SetupConfig(function, type=type), callerLocals()), function)
 
+def doc(setup, doc):
+    '''
+    Updates the documentation of the provided configuration setup.
+    
+    @param setup: SetupConfig
+        The configuration setup to update the documentation for.
+    @param doc: string
+        The documentation to update with, automatically the provided documentation will start on a new line.
+    '''
+    assert isinstance(setup, (SetupConfig, SetupReplaceConfig)), 'Invalid configuration setup %s' % setup
+    assert isinstance(doc, str), 'Invalid documentation %s' % doc
+    
+    if isinstance(setup, SetupReplaceConfig): setup = setup.target
+    if setup.documentation is not None: setup.documentation += '\n%s' % doc
+
 def before(setup):
     '''
     Decorator for setup functions that need to be called before other setup functions.
