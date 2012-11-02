@@ -305,6 +305,7 @@ class SetupConfig(SetupSource):
         '''
         SetupSource.__init__(self, function, **keyargs)
         self._type = normalizeConfigType(self._type) if self._type else None
+        self.documentation = getdoc(function)
 
     def index(self, assembly):
         '''
@@ -340,7 +341,7 @@ class SetupConfig(SetupSource):
 
         cfg = assembly.configurations.get(self.name)
         if not cfg:
-            cfg = Config(self.name, config.value, self.group, getdoc(self._function))
+            cfg = Config(self.name, config.value, self.group, self.documentation)
             assembly.configurations[self.name] = cfg
         else:
             assert isinstance(cfg, Config), 'Invalid config %s' % cfg
@@ -362,6 +363,11 @@ class SetupReplaceConfig(SetupFunction):
         '''
         assert isinstance(target, SetupConfig), 'Invalid target %s' % target
         SetupFunction.__init__(self, function, name=target.name, group=target.group, ** keyargs)
+        documentation = getdoc(function)
+        if documentation:
+            if target.documentation: target.documentation += '\n%s' % documentation
+            else: target.documentation = documentation
+        self.target = target
 
     def assemble(self, assembly):
         '''
@@ -375,7 +381,7 @@ class SetupReplaceConfig(SetupFunction):
         try: config.value = self._function()
         except ConfigError as e: config.value = e
 
-        assembly.configurations[self.name] = Config(self.name, config.value, self.group, getdoc(self._function))
+        assembly.configurations[self.name] = Config(self.name, config.value, self.group, self.target.documentation)
 
 class SetupReplace(SetupFunction):
     '''

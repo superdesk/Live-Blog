@@ -28,7 +28,7 @@ alchemySessionCreator = alchemySessionCreator
 
 @ioc.replace(database_url)
 def database_url():
-    '''The database URL for the Superdesk tables'''
+    '''This database URL is used for the Superdesk tables'''
     return 'sqlite:///workspace/superdesk.db'
 
 @ioc.replace(metas)
