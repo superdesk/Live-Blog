@@ -91,4 +91,5 @@ class IBlogService(IEntityCRUDService):
     def putLive(self, adminId:auth(User.Id), blogId:Blog.Id):
         '''
         Puts blog live
+        @raise InputError: on invalid credentials or blog id 
         '''
