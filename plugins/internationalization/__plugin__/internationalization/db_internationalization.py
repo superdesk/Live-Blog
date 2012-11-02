@@ -27,7 +27,7 @@ createTables = createTables
 
 @ioc.replace(database_url)
 def database_url():
-    '''The database URL for the internationalization tables'''
+    '''This database URL is used for the internationalization tables'''
     return 'sqlite:///workspace/internationalization.db'
 
 @ioc.replace(metas)
