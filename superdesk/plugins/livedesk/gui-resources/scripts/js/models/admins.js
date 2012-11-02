@@ -1,5 +1,5 @@
 define(['gizmo/superdesk', 
-        'gui/superdesk/livedesk/scripts/js/models/admin'], 
+        config.guiJs('livedesk', 'models/admin')], 
 function(giz, Admin)
 {
     // Blog Admin list
