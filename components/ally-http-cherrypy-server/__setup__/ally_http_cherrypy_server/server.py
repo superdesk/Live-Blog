@@ -26,21 +26,14 @@ def request_queue_size() -> int:
     '''The request queue size for the wsgi cherry py server'''
     return 500
 
+ioc.doc(server_type, '''
+    "cherrypy" - multiple threaded server, but slow because of python GIL issue
+''')
 # --------------------------------------------------------------------
-
-try:
-    from ally.core.http.server import server_cherrypy
-    from ..ally_http_proxy_server.server import proxiedServers
-except ImportError: pass  # The proxy server is not available
-else:
-    @ioc.before(proxiedServers)
-    def placeToProxy():
-        args = requestHandlerWSGI(), server_host()
-        kargs = dict(requestQueueSize=request_queue_size(), serverName=server_name())
-        proxiedServers()['cherrypy'] = lambda port: server_cherrypy.run(*args, port=port, **kargs)
 
 @ioc.start
 def runServer():
     if server_type() == 'cherrypy':
+        from ally.core.http.server import server_cherrypy
         args = requestHandlerWSGI(), server_host(), server_port(), request_queue_size(), server_name()
         Thread(target=server_cherrypy.run, args=args).start()
