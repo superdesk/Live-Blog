@@ -1905,6 +1905,8 @@ window.livedesk.startLoading = function($, _) {
 				});
 				this.on('read update',function(evt, data)
 				{
+					//console.log('evt: ',evt);
+					//console.log('data: ',$.extend({},data));
 					if(!data)
 						data = self._list;
 					self.getMaximumCid(self._parse(data));
@@ -2000,12 +2002,17 @@ window.livedesk.startLoading = function($, _) {
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
                         self.model
                                 .on('read update', function(evt, data){
+										//console.log('data',$.extend({},data));
 										var _parsed = undefined;
 										if(this.data._parsed) {
 											_parsed = this.data._parsed;
 											delete this.data._parsed;
 										}
+										//console.log('this.data: ',$.extend({},this.data), ' is only:' ,isOnly(this.data, ['CId','Order']));
+										//console.log('data: ',$.extend({},data),' is only:' ,isOnly(data, ['CId','Order']));
+										
 										if(isOnly(this.data, ['CId','Order']) || isOnly(data, ['CId','Order'])) {
+												//console.log('force');
 												self.model.xfilter(self.xfilter).sync({force: true});
                                         }
                                         else {
@@ -2174,7 +2181,7 @@ window.livedesk.startLoading = function($, _) {
                         },
 			render: function()
 			{			
-                                countLoaded++;
+                countLoaded++;
 				var self = this, order = parseFloat(self.model.get('Order')), Avatar='';
 				if(this.model.get('AuthorPerson') && this.model.get('AuthorPerson').EMail) {
 					Avatar = $.avatar.get(self.model.get('AuthorPerson').EMail);
@@ -2182,17 +2189,19 @@ window.livedesk.startLoading = function($, _) {
 				if ( !isNaN(self.order) && (order != self.order)) {
 					var actions = {prev: 'insertBefore', next: 'insertAfter'}, ways = {prev: 1, next: -1}, anti = {prev: 'next', next: 'prev'}
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
-						(cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
+						cursor && (cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
 						cursor = cursor[dir]
 					);
-					var other = cursor[dir];
-					if(other !== undefined)
-						other[anti[dir]] = self;
-					cursor[dir] = self;
-					self.tightkNots();
-					self[dir] = other;
-					self[anti[dir]] = cursor;
-					self.el[actions[dir]](cursor.el);
+					if(cursor) {
+						var other = cursor[dir];
+						if(other !== undefined)
+							other[anti[dir]] = self;
+						cursor[dir] = self;
+						self.tightkNots();
+						self[dir] = other;
+						self[anti[dir]] = cursor;
+						self.el[actions[dir]](cursor.el);
+					}
 				}
 				self.order = order;
 				var content = self.model.get('Content');
@@ -2241,37 +2250,36 @@ window.livedesk.startLoading = function($, _) {
 				var postId = self.model.get('Id');
 				var blogTitle = self._parent.model.get('Title');
 				blogTitle = blogTitle.replace(/ /g, '-');
-                                var hash = postId + '-' +  encodeURI (blogTitle);
-                                var hash = postId;
-                                var itemClass = self.model.getClass();
-                                var fullLink = window.livedesk.location + '#' + hash;
-                                var permalink = '';
-								if(itemClass !== 'advertisement' && itemClass !== 'wrapup')
-									permalink = '<a rel="bookmark" href="#'+ hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';
-								
+				var hash = postId + '-' +  encodeURI (blogTitle);
+				var hash = postId;
+				var itemClass = self.model.getClass();
+				var fullLink = window.livedesk.location + '#' + hash;
+				var permalink = '';
+				if(itemClass !== 'advertisement' && itemClass !== 'wrapup')
+					permalink = '<a rel="bookmark" href="#'+ hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';						
 				var template ='<li class="'+ style + itemClass +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
                                 
-                                if ( typeof window.livedesk.productionServer != 'undefined' && typeof window.livedesk.frontendServer != 'undefined' ){
-                                   re = new RegExp(window.livedesk.productionServer, "g");
-                                   template = template.replace(re, window.livedesk.frontendServer );
-                                }
-                                
-                                self.setElement( template );
-                                self.model.triggerHandler('rendered');
-                                $(self.el).off('click.livedesk', '.big-toggle').on('click.livedesk', '.big-toggle', function(){
-									self.toggleWrap(this, true);
-                                });
-                                $(self.el).off('click.livedesk', 'a[rel="bookmark"]').on('click.livedesk', 'a[rel="bookmark"]', function() {
-                                   self.togglePermalink(this);
-                                });
-                                $(self.el).off('click.livedesk', 'input[data-type="permalink"]').on('focus.livedesk click.livedesk', 'input[data-type="permalink"]', function() {
-                                    $(this).select();
-                                });
+				if ( typeof window.livedesk.productionServer != 'undefined' && typeof window.livedesk.frontendServer != 'undefined' ){
+					re = new RegExp(window.livedesk.productionServer, "g");
+					template = template.replace(re, window.livedesk.frontendServer );
+				}
+
+				self.setElement( template );
+				self.model.triggerHandler('rendered');
+				$(self.el).off('click.livedesk', '.big-toggle').on('click.livedesk', '.big-toggle', function(){
+					self.toggleWrap(this, true);
+				});
+				$(self.el).off('click.livedesk', 'a[rel="bookmark"]').on('click.livedesk', 'a[rel="bookmark"]', function() {
+					self.togglePermalink(this);
+				});
+				$(self.el).off('click.livedesk', 'input[data-type="permalink"]').on('focus.livedesk click.livedesk', 'input[data-type="permalink"]', function() {
+					$(this).select();
+				});
 			}
 		}),
-                totalLoad = 0,
-                iidLoadTrace = 0,
-                countLoaded = 0,
+		totalLoad = 0,
+		iidLoadTrace = 0,
+		countLoaded = 0,
 		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
 			limit: 5,
@@ -2374,28 +2382,29 @@ window.livedesk.startLoading = function($, _) {
 					var next, prev;
 					for(i=0; i<count; i++) {
 						if(current.order>self._views[i].order) {
-							prev = self._views[i];
-							prevIndex = i;
-						} else if(current.order<self._views[i].order) {
 							next = self._views[i];
 							nextIndex = i;
+						} else if(current.order<self._views[i].order) {
+							prev = self._views[i];
+							prevIndex = i;
 							break;
 						}						
 					}
 					//console.log(prev && prev.order,'<<',current.order, '>>',next && next.order);
-					if(next) {
+					if(prev) {
 						//console.log('next');
-						current.el.insertAfter(next.el);
-						next.prev = current;
-						current.next = next;
-						self._views.splice(nextIndex, 0, current);
-						
-					} else if(prev) {
-						//console.log('prev');
-						current.el.insertBefore(prev.el);
+						current.el.insertAfter(prev.el);
 						prev.next = current;
 						current.prev = prev;
-						self._views.splice(prevIndex+1, 0, current);
+						self._views.splice(prevIndex, 0, current);					
+					} else if(next) {
+						//console.log('prev');
+						current.el.insertBefore(next.el);
+						self._views.splice(nextIndex+1, 0, current);
+					}
+					if(next) {
+						next.prev = current;
+						current.next = next;					
 					}
 				}
 				return current;
