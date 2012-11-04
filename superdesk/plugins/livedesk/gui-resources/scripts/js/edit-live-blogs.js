@@ -163,7 +163,7 @@ function(providers, Gizmo, $)
 			},
 			start: function()
 			{
-			    console.log(this._latestCId);
+			    //console.log(this._latestCId);
 				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: { 'X-Filter': 'CId, Order'}};
 				if(self._latestCId === 0) delete requestOptions.data;
 				if(!this.keep && self.view && !self.view.checkElement()) 
@@ -795,7 +795,6 @@ function(providers, Gizmo, $)
 				        return false;
 				    })()
 				});
-				
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
 					// refresh twitter share button
