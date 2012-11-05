@@ -2072,12 +2072,12 @@ window.livedesk.startLoading = function($, _) {
                                         if( typeof Meta.annotation === 'string' ) {
                                             annotAfter = '<div class="editable annotation">' + Meta.annotation + '</div>';   
                                         } else {
-											if( Meta.annotation[1] !== null) {
-												annotBefore = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
-												annotAfter = '<div class="editable annotation">' + Meta.annotation[1] + '</div>';
-											} else {
-												annotAfter = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
-											}											
+                                            if( Meta.annotation[1] !== null) {
+                                                annotBefore = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
+                                                annotAfter = '<div class="editable annotation">' + Meta.annotation[1] + '</div>';
+                                            } else {
+                                                annotAfter = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
+                                            }											
                                         }
                                     }
                                 }
@@ -2094,7 +2094,7 @@ window.livedesk.startLoading = function($, _) {
                                         if ( author == 'twitter') {
                                             returned += '<blockquote class="twitter-tweet"><p>' + content + '</p>&mdash; ' + Meta.from_user_name + ' (@' + Meta.from_user_name + ') <a href="https://twitter.com/' + Meta.from_user + '/status/' + Meta.id_str + '" data-datetime="'+Meta.created_at+'"></a></blockquote>';
                                             
-                                            if ( !window.livedesk.loadedTweeterScript ) {
+                                            if ( !window.livedesk.loadedTweeterScript || 1) {
                                                 window.livedesk.loadScript('//platform.twitter.com/widgets.js', function(){});
                                                 window.livedesk.loadedTweeterScript = true;
                                             }

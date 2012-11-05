@@ -76,11 +76,14 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         return sql.all()
 
     def putLive(self, adminId, blogId):
-
+        '''
+        @see: IBlogService.putLive
+        '''
         sql = self._buildQuery(adminId=adminId)
         sql = sql.filter(BlogMapped.Id == blogId)
-
-        blog = sql.one()
+        
+        try: blog = sql.one()
+        except NoResultFound: raise InputError(_('Invalid blog or credentials')) 
         assert isinstance(blog, Blog), 'Invalid blog %s' % blog
         blog.LiveOn = current_timestamp() if blog.LiveOn is None else None
         return self.session().merge(blog)
