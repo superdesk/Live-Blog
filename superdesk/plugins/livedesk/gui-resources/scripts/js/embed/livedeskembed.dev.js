@@ -2286,7 +2286,7 @@ window.livedesk.startLoading = function($, _) {
 			limit: 5,
 			offset: 0,		
 			el: '#livedesk-root',
-			timeInterval: 4000,
+			timeInterval: 10000,
 			idInterval: 0,
 			_latestCId: 0,
 			events: {
