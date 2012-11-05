@@ -2,8 +2,9 @@ define([ 'gizmo/superdesk',
     config.guiJs('livedesk', 'models/user'),
     config.guiJs('livedesk', 'models/language'),
     config.guiJs('livedesk', 'models/posts'),
-    config.guiJs('livedesk', 'models/collaborators')],
-function(Gizmo, User, Language, Posts, Collaborators) 
+    config.guiJs('livedesk', 'models/collaborators'),
+    config.guiJs('livedesk', 'models/admins')],
+function(Gizmo, User, Language, Posts, Collaborators, Admins) 
 {
     // Blog
     return Gizmo.Model.extend
@@ -15,6 +16,7 @@ function(Gizmo, User, Language, Posts, Collaborators)
             Creator: User,
             Language: Language,
             Collaborator: Collaborators,
+            Admin: Admins,
             Post: Posts,
             PostPublished: Posts,
             PostUnpublished: Posts

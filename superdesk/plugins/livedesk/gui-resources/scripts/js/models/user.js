@@ -1,5 +1,6 @@
 define([ 'gizmo/superdesk',
-    config.guiJs('livedesk', 'models/blog') ],
+    config.guiJs('livedesk', 'models/blog'),
+    config.guiJs('livedesk', 'models/post')],
 function(Gizmo, Blog, Post)
 {
     // User
