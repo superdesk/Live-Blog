@@ -21,7 +21,7 @@ from os import remove
 from os.path import exists, splitext, abspath
 from ally.support.util_sys import pythonPath
 from sqlalchemy.exc import SQLAlchemyError
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
 from superdesk.media_archive.core.spec import IMetaDataHandler
@@ -93,7 +93,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
         thumbnailPath = contentPath + '.jpg'
         p = Popen((self.ffmpeg_path, '-i', contentPath, '-vframes', '1', '-an', '-ss', '2', thumbnailPath),
-                  stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
         if p.wait() != 0: return False
 
         if not exists(thumbnailPath): return False
