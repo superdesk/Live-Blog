@@ -664,7 +664,7 @@ function(providers, Gizmo, $)
 				var self = this;
 				this.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
 				
-				this.model.xfilter('*').sync()
+				this.model.xfilter('Creator.Name').sync()
 				    // once
 				    .done(function()
 				    {
@@ -771,7 +771,8 @@ function(providers, Gizmo, $)
 			render: function()
 			{
 				var self = this,
-			    // template data
+                                // template data
+                                //to do feed is not getting recursive read
 				data = $.extend({}, this.model.feed(), 
 				{
 					BlogHref: self.theBlog,
@@ -795,6 +796,8 @@ function(providers, Gizmo, $)
 				        return false;
 				    })()
 				});
+                                var creator = this.model.get('Creator').feed();
+                                $.extend(data, {'creatorName':creator.Name});
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
 					// refresh twitter share button
