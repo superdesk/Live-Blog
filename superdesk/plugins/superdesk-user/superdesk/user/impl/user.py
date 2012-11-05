@@ -111,9 +111,10 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             sql = sql.filter(UserMapped.Name == user.Name)
             sql = sql.filter(UserMapped.DeletedOn == None)
             if sql.count() > 0: raise InputError(Ref(_('There is already a user with this name'), ref=User.Name))
-
+            
             self.session().flush((copy(user, userDb),))
         except SQLAlchemyError as e: handle(e, userDb)
+        return True
 
     def delete(self, adminId, id):
         '''
