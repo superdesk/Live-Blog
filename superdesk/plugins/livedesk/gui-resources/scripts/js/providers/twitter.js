@@ -201,6 +201,14 @@ $.extend(providers.twitter, {
                 }
             
             },
+            adaptUserData : function(data) {
+                for ( var i = 0; i < data.length; i ++) {
+                    data[i].profile_image_url = data[i].user.profile_image_url;
+                    data[i].from_user_name = data[i].user.name;
+                    data[i].from_user = data[i].user.screen_name;
+                }
+                return data;
+            },
         doTimeline: function(page) {
                 var self = this;
                 
@@ -233,8 +241,10 @@ $.extend(providers.twitter, {
                     success : function(data){
                         self.stopLoading('#twt-timeline-more');
                         self.data = self.data.concat(data);
+                        
+                        
                         var res = {
-                            results : data,
+                            results : self.adaptUserData(data),
                             page : parseInt(page - 1),
                             ipp : 20
                         };
@@ -328,7 +338,7 @@ $.extend(providers.twitter, {
                     self.stopLoading('#twt-user-more');
                     self.data = self.data.concat(data);
                     var res = {
-                        results : data,
+                        results : self.adaptUserData(data),
                         page : parseInt(page - 1),
                         ipp : 20
                     };
@@ -419,7 +429,7 @@ $.extend(providers.twitter, {
                     self.stopLoading('#twt-favorites-more');
                     self.data = self.data.concat(data);
                     var res = {
-                        results : data,
+                        results : self.adaptUserData(data),
                         page : parseInt(page - 1),
                         ipp : 20
                     };
