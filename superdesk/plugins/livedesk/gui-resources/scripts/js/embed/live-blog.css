@@ -134,7 +134,7 @@
                 height: 23px;
                 border: 1px solid #E0DED7;
                 border-width: 1px 0px 1px 1px;
-                width: 300px;
+                width: 400px;
                 color: #666;
             }
 
@@ -226,5 +226,29 @@ ul.liveblog-post-list li.advertisement a p {
 li.advertisement:first-child {
     margin-top: 28px;
 }
+#liveblog-more {
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	cursor: pointer;
+	display: inline;
+	font-size: 14px;
+	font-weight: bold;
+	height: 22px;
+	line-height: 22px;
+	padding: 3px 15px 5px;
+	text-decoration: none;
+	background: url(http://icfj.atendesigngroup.com/sites/all/themes/icfj/images/buttons.png) -600px 100% no-repeat;
+	background-color: #DEB306;
+	border: 1px solid #B05601;
+	border-top: 1px solid #CD8E03;
+	color: white;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, .25);
+	margin:5px;
+    font-family: 'Helvetica Neue',Helvetica,Arial;
+}
 
-
+#liveblog-more:hover {
+	background-position: -800px 100%;
+	background-color: #EFD909;
+}
