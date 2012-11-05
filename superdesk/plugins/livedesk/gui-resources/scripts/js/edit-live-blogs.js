@@ -21,6 +21,17 @@ define
  ], 
 function(providers, Gizmo, $) 
 {
+    // TODO rethink cause this is very ugly
+    var AuthApp;
+    // force homepage
+    require([config.lib_js_urn + 'views/auth'], function(a)
+    {
+        AuthApp = a;
+        $(AuthApp).on('logout', function()
+        {
+            window.location.reload();
+        });
+    });
     /*!
      * Returns true if the data object is compose of only given keys
      */
@@ -163,7 +174,6 @@ function(providers, Gizmo, $)
 			},
 			start: function()
 			{
-			    //console.log(this._latestCId);
 				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: { 'X-Filter': 'CId, Order'}};
 				if(self._latestCId === 0) delete requestOptions.data;
 				if(!this.keep && self.view && !self.view.checkElement()) 
