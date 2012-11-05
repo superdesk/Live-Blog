@@ -794,7 +794,6 @@ function(providers, Gizmo, $)
 				        return false;
 				    })()
 				});
-				
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
 					// refresh twitter share button
