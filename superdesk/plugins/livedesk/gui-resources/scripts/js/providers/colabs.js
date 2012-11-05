@@ -140,10 +140,14 @@ function(providers, $, giz, Blog, Collaborator)
          */
         update: function()
         {
+            var self = this;
             this.colabsList.each(function()
             {
+                var colab = this,
+                    post = colab.get('Post');
                 // get post list and sync it with the server
-                this.get('Post').xfilter('*').sync({data: {'cId.since': this._latestPost}});
+                this.get('Post').xfilter('*').sync({data: {'cId.since': this._latestPost}})
+                    .done(function(){ self.readPostsHandle.call(post, colab, $.noop, self); });
             });
         },
         
@@ -269,6 +273,7 @@ function(providers, $, giz, Blog, Collaborator)
             colabView = new ColabView({ el: this.el, blogUrl: blogUrl });
             return colabView.startAutoUpdate();
         }
+        if( colabView ){  colabView.startAutoUpdate(); }
     }});
     
     return providers;
