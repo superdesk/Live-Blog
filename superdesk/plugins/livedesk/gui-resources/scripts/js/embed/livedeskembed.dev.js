@@ -2072,12 +2072,20 @@ window.livedesk.startLoading = function($, _) {
                                     }
                                     if ( Meta.hasOwnProperty('annotation') ) {
                                         if( typeof Meta.annotation === 'string' ) {
+											if((Meta.annotation === '<br>') || (Meta.annotation === '<br/>') || (Meta.annotation === '<br />'))
+												Meta.annotation = '';										
                                             annotAfter = '<div class="editable annotation">' + Meta.annotation + '</div>';   
                                         } else {
                                             if( Meta.annotation[1] !== null) {
+                                                if((Meta.annotation[0] === '<br>') || (Meta.annotation[0] === '<br/>')|| (Meta.annotation[0] === '<br />') )
+													Meta.annotation[0] = '';
+                                                if((Meta.annotation[1] === '<br>') || (Meta.annotation[1] === '<br/>') || (Meta.annotation[1] === '<br />'))
+													Meta.annotation[1] = '';											
                                                 annotBefore = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
                                                 annotAfter = '<div class="editable annotation">' + Meta.annotation[1] + '</div>';
                                             } else {
+                                                if((Meta.annotation[0] === '<br>') || (Meta.annotation[0] === '<br/>')|| (Meta.annotation[0] === '<br />') )
+													Meta.annotation[0] = '';											
                                                 annotAfter = '<div class="editable annotation">' + Meta.annotation[0] + '</div>';
                                             }											
                                         }
