@@ -163,6 +163,7 @@ function(providers, Gizmo, $)
 			},
 			start: function()
 			{
+			    //console.log(this._latestCId);
 				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: { 'X-Filter': 'CId, Order'}};
 				if(self._latestCId === 0) delete requestOptions.data;
 				if(!this.keep && self.view && !self.view.checkElement()) 
@@ -238,7 +239,7 @@ function(providers, Gizmo, $)
 					.on('set', function(evt, data)
 					{
 						/*!
-						 * If the set trrigering is the edit provider then don't update the view;
+						 * If the set triggering is the edit provider then don't update the view;
 						 */
 						if(self.model.updater !== self) {
 							self.rerender();
@@ -247,7 +248,7 @@ function(providers, Gizmo, $)
 					.on('update', function(evt, data)
 					{
 					    /*!
-                         * conditionally handing over save functionallity to provider if
+                         * conditionally handing over save functionality to provider if
                          * model has source name in providers 
                          */
 					    try
@@ -403,7 +404,6 @@ function(providers, Gizmo, $)
 			edit: $.noop,
 			save: function(evt)
 			{
-			    console.log('save');
 				if($(evt.target).data('linkCommandActive'))
 					return;
 				this.model.updater = this;
@@ -664,11 +664,11 @@ function(providers, Gizmo, $)
 				var self = this;
 				this.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
 				
-				this.model.xfilter('Creator.Name, Creator.Id').sync()
+				this.model.xfilter('*').sync()
 				    // once
 				    .done(function()
-				    { 
-				        self.render.call(self);
+				    {
+				        self.model.get('Admin').on('read', function(){ self.render.call(self); }).xfilter('*').sync();
 				    });
 			},
 			/*!
@@ -735,14 +735,14 @@ function(providers, Gizmo, $)
                     {
                         stsLive.removeClass('hide');
                         stsOffline.addClass('hide');
-                        msgLive.removeClass('hide');
-                        msgOffline.addClass('hide');
+                        msgLive.addClass('hide');
+                        msgOffline.removeClass('hide');
                         return;
                     }
                     stsLive.addClass('hide');
                     stsOffline.removeClass('hide');
-                    msgLive.addClass('hide');
-                    msgOffline.removeClass('hide');
+                    msgLive.removeClass('hide');
+                    msgOffline.addClass('hide');
                 });
 			},
 			textToggleStatus: function()
@@ -771,7 +771,6 @@ function(providers, Gizmo, $)
 			render: function()
 			{
 				var self = this,
-				
 			    // template data
 				data = $.extend({}, this.model.feed(), 
 				{
@@ -783,10 +782,19 @@ function(providers, Gizmo, $)
 						submenu: 'is-submenu',
 						submenuActive1: 'active'
 					},
-				    islive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
-				    isoffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; }
+				    isLive: function(chk, ctx){ return ctx.current().LiveOn ? "hide" : ""; },
+				    isOffline: function(chk, ctx){ return ctx.current().LiveOn ? "" : "hide"; },
+				    isCreatorOrAdmin: (function()
+				    { 
+				        var userId = localStorage.getItem('superdesk.login.id');
+				        if( self.model.get('Creator').get('Id') == userId) return true;
+				        self.model.get('Admin').each(function()
+				        { 
+				            if(this.get('Id') == userId) return true;
+				        });  
+				        return false;
+				    })()
 				});
-			    
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
 					// refresh twitter share button
