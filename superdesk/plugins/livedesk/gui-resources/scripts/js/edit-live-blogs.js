@@ -181,7 +181,7 @@ function(providers, Gizmo, $)
 					self.stop();
 					return;
 				}				
-				this.sync(requestOptions);
+				return this.sync(requestOptions);
 				return this;
 			},
 			stop: function()
@@ -192,8 +192,10 @@ function(providers, Gizmo, $)
 			},
 			autosync: function()
 			{
-				var self = this;
-				this.stop().start().setIdInterval(function(){self.start();});
+				var self = this,
+				ret = this.stop().start();
+				this.setIdInterval(function(){self.start();});
+				return ret;
 			}
 		
 		}),
@@ -441,7 +443,7 @@ function(providers, Gizmo, $)
 
 		TimelineView = Gizmo.View.extend
 		({
-			limit: 15,
+			limit: 25,
 			offset: 0,
 			events: 
 			{
@@ -469,7 +471,11 @@ function(providers, Gizmo, $)
 					.xfilter(self.xfilter)
 					.limit(self.limit)
 					.offset(self.offset)
-					.autosync();
+					.autosync().done(function(data){
+						if(parseInt(data.total)<= self.limit) {
+							$('#more').hide();
+						}
+					});
 				self.collection.view = self;
 				
 				// default autorefresh on
@@ -674,7 +680,7 @@ function(providers, Gizmo, $)
 				var self = this;
 				this.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
 				
-				this.model.xfilter('*').sync()
+				this.model.xfilter('Creator.Name').sync()
 				    // once
 				    .done(function()
 				    {
@@ -781,7 +787,8 @@ function(providers, Gizmo, $)
 			render: function()
 			{
 				var self = this,
-			    // template data
+                                // template data
+                                //to do feed is not getting recursive read
 				data = $.extend({}, this.model.feed(), 
 				{
 					BlogHref: self.theBlog,
@@ -805,6 +812,8 @@ function(providers, Gizmo, $)
 				        return false;
 				    })()
 				});
+                                var creator = this.model.get('Creator').feed();
+                                $.extend(data, {'creatorName':creator.Name});
 				$.superdesk.applyLayout('livedesk>edit', data, function()
 				{
 					// refresh twitter share button
