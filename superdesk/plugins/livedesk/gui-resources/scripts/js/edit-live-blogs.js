@@ -21,6 +21,17 @@ define
  ], 
 function(providers, Gizmo, $) 
 {
+    // TODO rethink cause this is very ugly
+    var AuthApp;
+    // force homepage
+    require([config.lib_js_urn + 'views/auth'], function(a)
+    {
+        AuthApp = a;
+        $(AuthApp).on('logout', function()
+        {
+            window.location.reload();
+        });
+    });
     /*!
      * Returns true if the data object is compose of only given keys
      */
