@@ -38,6 +38,9 @@
 					<!-- google or smth else -->
 				{/Author}
 			</h3>
+            {@if cond="'{Author.Source.Name}'=='google'"}
+                <h3><a href="{Meta.unescapedUrl}" target="_blank">{Meta.title|s}</a></h3>
+            {/if}
 			<div class="result-text">
 				{Content|s}
 			</div>
@@ -51,6 +54,12 @@
 						<time>{uploaded}</time>							
 				   {/Meta}
 				{:else}
+                    {@if cond="'{Author.Source.Name}'=='google'"}
+                        <i class="source-icon">
+                            <img src="http://g.etfv.co/{Meta.unescapedUrl}" style="max-width: 16px" border="0">
+                        </i>
+                        <a class="author-name" href="{Meta.unescapedUrl}" target="_blank">{Meta.visibleUrl}</a>
+                    {/if}
 					<i class="source-icon-{Author.Source.Name}"></i>
 					<time>{CreatedOn}</time>				
 				{/if}

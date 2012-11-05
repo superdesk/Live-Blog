@@ -65,9 +65,10 @@ function($, superdesk, Gizmo, jsSHA)
         require: function()
         {
 			if(AuthApp.showed) return;
-            var self = this; // rest
+            var self = this,
+                data = this.loginExpired ? {'expired': true} : {}; // rest
 			AuthApp.showed = true;	
-            $.tmpl('auth', null, function(e, o)
+            $.tmpl('auth', data, function(e, o)
             { 
                 var dialog = $(o).eq(0).dialog
                     ({ 
@@ -80,7 +81,7 @@ function($, superdesk, Gizmo, jsSHA)
                              { text: "Login", click: function(){ $(form).trigger('submit'); }, class: "btn btn-primary"},
                              { text: "Close", click: function(){ $(this).dialog('close'); }, class: "btn"}
                         ],
-                        close: function(){ AuthApp.showed = false; }
+                        close: function(){ $(this).remove(); AuthApp.showed = false; }
                     }),
                     form = dialog.find('form');
                 
