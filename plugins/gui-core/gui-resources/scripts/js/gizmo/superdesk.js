@@ -44,6 +44,10 @@ define(['gizmo', 'jquery', 'jquery/superdesk'], function(giz, $, superdesk)
         { 
             self.options.headers.Authorization = localStorage.getItem('superdesk.login.session');
         };
+        $(AuthApp).trigger('authlock');
+        if( localStorage.getItem('superdesk.login.session') != null )
+            self.loginExpired = true;
+        //Anonymous
         AuthApp.require.apply(self, arguments); 
     },
     

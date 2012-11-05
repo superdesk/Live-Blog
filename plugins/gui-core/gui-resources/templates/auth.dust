@@ -23,6 +23,9 @@
             	</div>
           	</div>
           	<p class="alert alert-error hide" style="margin-bottom:0">_('Login failed!')</p>
+          	{?expired}
+          		<p class="alert alert-warning" data-is="expired-warn" style="margin-bottom:0">_('Login session expired!')</p>
+          	{/expired}
 			<input type="submit" class="hide" />
 		</fieldset>
 	</form>
