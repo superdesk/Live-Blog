@@ -15,7 +15,7 @@ from ally.container.support import setup
 from genericpath import exists
 from os.path import join, abspath, dirname
 from os import makedirs
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE
 from superdesk.media_archive.core.spec import IThumbnailProcessor
 import logging
 import os
@@ -65,7 +65,7 @@ class ThumbnailProcessor(IThumbnailProcessor):
         destDir = dirname(destination)
         if not exists(destDir): makedirs(destDir)
         try:
-            p = Popen(shlex.split(command), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+            p = Popen(shlex.split(command), stdin=PIPE, stdout=PIPE, stderr=PIPE)
             error = p.wait() != 0
         except Exception as e:
             log.exception('Problems while executing command:\n%s \n%s' % (command, e))
