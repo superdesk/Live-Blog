@@ -53,6 +53,10 @@ function($, superdesk, Gizmo, AuthApp)
             this.el.on('refresh-menu', function(){ self.getMenu(self.render); });
             
             $(AuthApp).on('authenticated', function(){ self.getMenu(self.render); });
+            $(AuthApp).on('authlock', function()
+            { 
+                $('[data-username-display="true"]', self.el).text(_('Anonymous'));
+            });
             
             $.superdesk.applyLayout('layouts/dashboard');
         },
