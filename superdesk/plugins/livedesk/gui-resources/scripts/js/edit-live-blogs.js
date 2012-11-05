@@ -170,7 +170,7 @@ function(providers, Gizmo, $)
 					self.stop();
 					return;
 				}				
-				this.sync(requestOptions);
+				return this.sync(requestOptions);
 				return this;
 			},
 			stop: function()
@@ -181,8 +181,10 @@ function(providers, Gizmo, $)
 			},
 			autosync: function()
 			{
-				var self = this;
-				this.stop().start().setIdInterval(function(){self.start();});
+				var self = this,
+				ret = this.stop().start();
+				this.setIdInterval(function(){self.start();});
+				return ret;
 			}
 		
 		}),
@@ -430,7 +432,7 @@ function(providers, Gizmo, $)
 
 		TimelineView = Gizmo.View.extend
 		({
-			limit: 15,
+			limit: 25,
 			offset: 0,
 			events: 
 			{
@@ -458,7 +460,11 @@ function(providers, Gizmo, $)
 					.xfilter(self.xfilter)
 					.limit(self.limit)
 					.offset(self.offset)
-					.autosync();
+					.autosync().done(function(data){
+						if(parseInt(data.total)<= self.limit) {
+							$('#more').hide();
+						}
+					});
 				self.collection.view = self;
 				
 				// default autorefresh on
