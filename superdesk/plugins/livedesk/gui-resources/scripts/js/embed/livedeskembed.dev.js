@@ -698,13 +698,13 @@ Model.prototype =
 		if( options && typeof options == 'object' ) $.extend(self, options);
 		if( typeof data == 'object' ) {
 			self._parse(data);
-			self._setExpiration();			
+			self._setExpiration();
 		}
 		if(!$.isEmptyObject(self.changeset)) {
 			//console.log('_constructor update', self.changeset);
-			self.triggerHandler('update', self.changeset).clearChangeset();
+			self.triggerHandler('update', self.changeset);
+			self.clearChangeset();
 		}
-
 		return self;
 	},
 	/*!
@@ -845,8 +845,9 @@ Model.prototype =
 		} else {
 			data = this.parse(data);
 		}		
-		if(data._parsed)
+		if(data._parsed) {
 			return;
+		}
 		for( var i in data )
 		{
 			if( this.defaults[i] ) switch(true)
@@ -911,10 +912,6 @@ Model.prototype =
 		else if(data && ( data.id !== undefined) && (this.url !== undefined))
 			this.href = this.url + data.id;
 		return this;
-	},
-	isChanged: function()
-	{
-		return !$.isEmptyObject(this.changeset);
 	},
 	clearChangeset: function()
 	{
@@ -1190,30 +1187,31 @@ Collection.prototype =
 		return (this.href &&
 			this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
 			{
-				var data = self._parse(data), changeset = [], count = self._list.length;
+				var data = self._parse(data), addings = [], updates = [], count = self._list.length;
 				 // important or it will infiloop
-				for( var i=0; i < data.list.length; i++ )
+				for( var i=0; i < data.length; i++ )
 				{
 					var model = false;
 					for( var j=0; j<count; j++ ) {
-						if( data.list[i].hash() == self._list[j].hash() )
+						if( data[i].hash() == self._list[j].hash() )
 						{
-							model = data.list[i];
+							model = data[i];
 							break;
 						}
 					}
 					if( !model ) {
-						self._list.push(data.list[i]);
-						changeset.push(data.list[i]);
+						if( !data[i].isDeleted() ) {
+							self._list.push(data[i]);
+							addings.push(data[i]);
+						} else {
+							updates.push(data[i]);						
+						}
 					}
 					else {
-						self._list[j]._parse(model.data);
+						updates.push(model);
 						if( model.isDeleted() ) {
 							model._remove();
-						} else if( model.isChanged() ){
-							changeset.push(data.list[i]);
-						}
-						else {
+						} else {
 							model.on('delete', function(){self.remove(this.hash());})
 									.on('garbage', function(){this.desynced = true;});
 						}
@@ -1233,7 +1231,8 @@ Collection.prototype =
 					 * caz jquery will send extraparameters as arguments when calling handler
 					 */
 					//console.log('update');
-					self.triggerHandler('update', [changeset]);
+					self.triggerHandler('updates', [updates]);
+					self.triggerHandler('addings', [addings]);
 				}
 			}));
 	},
@@ -1249,7 +1248,16 @@ Collection.prototype =
 	 */
 	parse: function(data)
 	{
-		return data;
+		var ret = data;
+		if( !Array.isArray(data) ) for( i in data )
+		{
+			if( $.isArray(data[i]) )
+			{
+				ret = data[i];
+				break;
+			}
+		}
+		return ret;
 	},
 	
 	/*!
@@ -1261,27 +1269,15 @@ Collection.prototype =
 			return data._parsed;
 		}
 		data = this.parse(data);
-		// get the important list data from request
-		var extractListData = function(data)
-		{
-			var ret = data;
-			if( !Array.isArray(data) ) for( i in data )
-			{
-				if( $.isArray(data[i]) )
-				{
-					ret = data[i];
-					break;
-				}
+		var i,list = [], model;
+		for( i in data ) {
+			if(data.hasOwnProperty(i)) {
+				model = new this.model(data[i]);
+				model = this.modelDataBuild(model);
+				list.push( model );
 			}
-			return ret;
-		},
-		theData = extractListData(data);
-		list = [];
-		for( var i in theData ) {
-			if(theData.hasOwnProperty(i))
-				list.push( this.modelDataBuild(new this.model(theData[i])) );
 		}
-		data._parsed = {list: list, total: data.total};
+		data._parsed = list;
 		return data._parsed;
 	},
 	insert: function(model)
@@ -1900,36 +1896,27 @@ window.livedesk.startLoading = function($, _) {
 			keep: false,
 			init: function(){ 
 				var self = this;
-				self.model.on('publish reorder', function(evt, data){
-					self.getMaximumNearCid(self._parse([data]));
-				});
-				this.on('read update',function(evt, data)
+				this.on('readauto updates',function(evt, data)
 				{
-					//console.log('evt: ',evt);
-					//console.log('data: ',$.extend({},data));
-					if(!data)
+					//console.log('data: ', data && data.slice(0), 'length: ', data && data.length);
+					if(data === undefined)
 						data = self._list;
-					self.getMaximumCid(self._parse(data));
+					self.getMaximumCid(data);
 				});
 			},
 			destroy: function(){ this.stop(); },
-			setIdInterval: function(fn)
+			auto: function(fn)
 			{
-				this.idInterval = setInterval(fn, this.timeInterval);
-				return this;
-			},
-			getMaximumNearCid: function(data)
-			{
-				for(i=0, count=data.list.length; i<count; i++) {
-					var CId = parseInt(data.list[i].get('CId'))
-					if( !isNaN(CId) && (this._latestCId < CId) && ((this._latestCId + 1) == CId))
-						this._latestCId = CId;
-				}
+				var self = this;
+				ret = this.stop().start();
+				this.idInterval = setInterval(function(){self.start();}, this.timeInterval);
+				return ret;
 			},
 			getMaximumCid: function(data)
 			{
-				for(i=0, count=data.list.length; i<count; i++) {
-					var CId = parseInt(data.list[i].get('CId'))
+				for(i=0, count=data.length; i<count; i++) {					
+					var CId = parseInt(data[i].get('CId'))
+					//console.log('CId: ',CId);
 					if( !isNaN(CId) && (this._latestCId < CId) )
 						this._latestCId = CId;
 				}
@@ -1943,7 +1930,8 @@ window.livedesk.startLoading = function($, _) {
 					self.stop();
 					return;
 				}				
-				return this.sync(requestOptions);
+				this.triggerHandler('beforeUpdate');
+				return this.autosync(requestOptions);
 			},
 			stop: function()
 			{
@@ -1953,25 +1941,67 @@ window.livedesk.startLoading = function($, _) {
 			},
 			autosync: function()
 			{
-				var self = this;
-				ret = this.stop().start();
-				this.setIdInterval(function(){self.start();});
-				return ret;
+			var self = this;
+			return (this.href &&
+				this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
+				{
+					var data = self._parse(data), addings = [], updates = [], count = self._list.length;
+					 // important or it will infiloop
+					for( var i=0; i < data.length; i++ )
+					{
+						var model = false;
+						for( var j=0; j<count; j++ ) {
+							if( data[i].hash() == self._list[j].hash() )
+							{
+								model = data[i];
+								break;
+							}
+						}
+						if( !model ) {
+							if( !data[i].isDeleted() ) {
+								self._list.push(data[i]);
+								addings.push(data[i]);
+							} else {
+								updates.push(data[i]);						
+							}
+						}
+						else {
+							updates.push(model);
+							if( model.isDeleted() ) {
+								model._remove();
+							} else {
+								model.on('delete', function(){self.remove(this.hash());})
+										.on('garbage', function(){this.desynced = true;});
+							}
+						}
+					}
+					self.desynced = false;
+					/**
+					 * If the initial data is empty then trigger READ event
+					 * else UPDATE with the changeset if there are some
+					 */
+					if( ( count === 0) ){
+						//console.log('read');
+						self.triggerHandler('readauto');
+					} else {                    
+						/**
+						 * Trigger handler with changeset extraparameter as a vector of vectors,
+						 * caz jquery will send extraparameters as arguments when calling handler
+						 */
+						//console.log('update');
+						self.triggerHandler('updatesauto', [updates]);
+						self.triggerHandler('addingsauto', [addings]);
+					}
+				}));
 			}
 		
 		});
         Posts = AutoCollection.extend({
-            parse: function(data){
+			parse: function(data){
 				if(data.total !== undefined) {
 					data.total = parseInt(data.total);
-					data.offset = parseInt(data.offset);
 					if(this.total === undefined) {
-						this.delta = 0;
 						this.total = data.total;
-					}
-					else if(data.offset === 0) {
-						this.delta += data.total;
-						this.total += data.total;
 					}
 					delete data.total;
 				}
@@ -2002,23 +2032,17 @@ window.livedesk.startLoading = function($, _) {
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
                         self.model
                                 .on('read update', function(evt, data){
-										//console.log('data',$.extend({},data));
-										var _parsed = undefined;
-										if(this.data._parsed) {
-											_parsed = this.data._parsed;
-											delete this.data._parsed;
-										}
 										//console.log('this.data: ',$.extend({},this.data), ' is only:' ,isOnly(this.data, ['CId','Order']));
-										//console.log('data: ',$.extend({},data),' is only:' ,isOnly(data, ['CId','Order']));
-										
-										if(isOnly(this.data, ['CId','Order']) || isOnly(data, ['CId','Order'])) {
-												//console.log('force');
+										/*if(isOnly(this.data, ['CId','Order']) || isOnly(data, ['CId','Order'])) {
+												console.log('this.data: ',$.extend({},this.data));
+												console.log('data: ',$.extend({}, data));
+												console.log('force');
 												self.model.xfilter(self.xfilter).sync({force: true});
                                         }
-                                        else {
+                                        else*/
+										{
                                             self.render(evt, data);
 										}
-										this.data._parsed = _parsed;
                                 })
                                 .on('delete', self.remove, self)
                                 .xfilter(self.xfilter)
@@ -2027,22 +2051,11 @@ window.livedesk.startLoading = function($, _) {
 			remove: function()
 			{
 				var self = this;
-				self.tightkNots();
+				self._parent.removeOne(self);
 				self.el.remove();
 				return self;			
 			},
-			/**
-			 * Method used to remake connection in the post list ( dubled linked list )
-			 *   when the post is removed from that position
-			 */
-			tightkNots: function()
-			{
-				if(this.next !== undefined)
-					this.next.prev = this.prev;
-				if(this.prev !== undefined)
-					this.prev.next = this.next;				
-			},
-                        itemTemplate: function(item, content, time, Avatar)
+            itemTemplate: function(item, content, time, Avatar)
 			{
 				// Tw------------------------------------------------------------------------------------------------
 				var returned = '';
@@ -2187,23 +2200,9 @@ window.livedesk.startLoading = function($, _) {
 					Avatar = $.avatar.get(self.model.get('AuthorPerson').EMail);
 				}
 				if ( !isNaN(self.order) && (order != self.order)) {
-					var actions = {prev: 'insertBefore', next: 'insertAfter'}, ways = {prev: 1, next: -1}, anti = {prev: 'next', next: 'prev'}
-					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
-						cursor && (cursor[dir] !== undefined) && ( cursor[dir].order*ways[dir] < order*ways[dir] );
-						cursor = cursor[dir]
-					);
-					if(cursor) {
-						var other = cursor[dir];
-						if(other !== undefined)
-							other[anti[dir]] = self;
-						cursor[dir] = self;
-						self.tightkNots();
-						self[dir] = other;
-						self[anti[dir]] = cursor;
-						self.el[actions[dir]](cursor.el);
-					}
+					self.order = order;
+					self._parent.reorderOne(self);
 				}
-				self.order = order;
 				var content = self.model.get('Content');
 
 				var style= '';                
@@ -2293,20 +2292,18 @@ window.livedesk.startLoading = function($, _) {
 			},
 			more: function(evt) {
 				var self = this,
-					offset = $(evt.target).data('offset'),
 					delta = self.model.get('PostPublished').delta;
-				offset = offset? offset: 1;
 				self.model.get('PostPublished')
 					.xfilter(self.xfilter)
 					.limit(self.limit)
-					.offset(offset*self.limit+delta)
+					.offset(self._views.length)
 					.sync().done(function(data){				
-						self.model.get('PostPublished').delta = 0;
 						var total = self.model.get('PostPublished').total;
-						if(((offset+1)*self.limit+delta) >= total)
+						//console.log('total: ',total);
+						//console.log('self._views.length: ',self._views.length);
+						if(self._views.length >= total)
 							$(evt.target).hide();
 					});
-				$(evt.target).data('offset', offset+1);
 			},
 			setIdInterval: function(fn){
 				this.idInterval = setInterval(fn, this.timeInterval);
@@ -2354,12 +2351,14 @@ window.livedesk.startLoading = function($, _) {
 				{ 
 					if(!self.rendered) {
 						self.model.get('PostPublished')
-							.on('read', self.render, self)
-							.on('update', self.addAll, self)
+							.on('read readauto', self.render, self)
+							.on('addings addingsauto', self.addAll, self)
+							.on('addingsauto', self.updateTotal, self)
+							.on('updates updatesauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.limit(self.limit)
 							.offset(self.offset)
-							.xfilter(self.xfilter).autosync();
+							.xfilter(self.xfilter).auto();
 					}
 					self.rendered = true;
 				}).on('update', function(e, data){
@@ -2367,6 +2366,31 @@ window.livedesk.startLoading = function($, _) {
 					self.renderBlog();
 				});
 				self.sync();				
+			},
+			removeOne: function(view)
+			{
+				var 
+					self = this,
+					pos = self._views.indexOf(view);
+				//console.log(self.model.get('PostPublished').total);
+				self.model.get('PostPublished').total--;					
+				self._views.splice(pos,1);
+				return self;
+			},
+			reorderOne: function(view) {
+				var self = this;
+				self._views.sort(function(a,b){
+					return a.order - b.order;
+				});
+				pos = self._views.indexOf(view);
+				//console.log(pos, '===',(self._views.length-1));
+				if(pos === 0) {
+					//console.log(view.model.get('Content'), '.insertAfter('+self._views[1].model.get('Content')+');');
+					view.el.insertAfter(self._views[1].el);
+				} else {
+					//console.log(view.model.get('Content'), '.insertBefore('+self._views[pos>0? pos-1: 1].model.get('Content')+');');
+					view.el.insertBefore(self._views[pos>0? pos-1: 1].el);
+				}
 			},
 			addOne: function(model)
 			{
@@ -2394,28 +2418,29 @@ window.livedesk.startLoading = function($, _) {
 					if(prev) {
 						//console.log('next');
 						current.el.insertAfter(prev.el);
-						prev.next = current;
-						current.prev = prev;
 						self._views.splice(prevIndex, 0, current);					
 					} else if(next) {
 						//console.log('prev');
 						current.el.insertBefore(next.el);
 						self._views.splice(nextIndex+1, 0, current);
 					}
-					if(next) {
-						next.prev = current;
-						current.next = next;					
-					}
 				}
 				return current;
+			},
+			updateTotal: function(evt,data)
+			{
+				var i = data.length;
+				while(i--) {
+						this.model.get('PostPublished').total++;
+				}
+				//console.log('total: ',this.model.get('PostPublished').total);
 			},
 			addAll: function(evt, data)
 			{
 				var i = data.length;
 				while(i--) {
-					this.addOne(data[i]);
+						this.addOne(data[i]);
 				}
-				this.updateStatus();				
 			},
 			updateingStatus: function()
 			{
