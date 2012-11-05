@@ -11,7 +11,7 @@ function($)
     getColabs = function()
     {
         currentColabIds = [];
-        new $.rest('Superdesk/Collaborator')
+        new $.rest('Superdesk/Collaborator?limit=10000') // TODO huge hardcode
         .xfilter('Id,Name,Person.Id,Person.FullName,Person.EMail')
         .done(function(data)
         {
