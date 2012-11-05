@@ -1517,7 +1517,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
         // reset headers on success
         AuthApp.success = function()
         { 
-            self.options.headers.Authorization = localStorage.getItem('superdesk.login.session');
+            //self.options.headers.Authorization = localStorage.getItem('superdesk.login.session');
         };
         AuthApp.require.apply(self, arguments); 
     },
@@ -1525,9 +1525,11 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     authSync = $.extend({}, newSync, 
     {
         options: 
-        { 
+        {
+			
             // get login token from local storage
-            headers: { 'Authorization': localStorage.getItem('superdesk.login.session') },
+			//console.log('why');
+            //headers: { 'Authorization': localStorage.getItem('superdesk.login.session') },
             // failuire function for non authenticated requests
             fail: function(resp)
             { 
@@ -2284,7 +2286,7 @@ window.livedesk.startLoading = function($, _) {
 			limit: 5,
 			offset: 0,		
 			el: '#livedesk-root',
-			timeInterval: 10000,
+			timeInterval: 4000,
 			idInterval: 0,
 			_latestCId: 0,
 			events: {
@@ -2348,7 +2350,8 @@ window.livedesk.startLoading = function($, _) {
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
 				//self.xfilter = 'CId';								   
 				self.model.on('read', function()
-				{ 
+				{
+					//console.log('read');
 					if(!self.rendered) {
 						self.model.get('PostPublished')
 							.on('read readauto', self.render, self)
