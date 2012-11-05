@@ -537,6 +537,24 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                     return command;
                 }
             },
+            // TODO dirty, see https://developer.mozilla.org/en-US/docs/DOM/MutationObserver 
+            pasteCleanTypes: function()
+            {
+                this._create = function(elements)
+                {
+                    $(elements).on('paste.texteditor textInput.texteditor', function()
+                    {
+                        var self = this;
+                        setTimeout(function(){ $('[style]', self).each(function()
+                        {
+                            $(this).attr('style').indexOf('font-family') !== -1 && $(this).css
+                            ({
+                                fontFamily: function(index, value){ return ''; }
+                            });  
+                        });}, 100);
+                    });
+                };
+            },
             toolbar : function()
             {
                 this.element = $('<div />').addClass('edit-toolbar').addClass('btn-toolbar');
