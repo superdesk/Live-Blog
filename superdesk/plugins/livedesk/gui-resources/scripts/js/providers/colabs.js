@@ -37,7 +37,7 @@ function(providers, $, giz, Blog, Collaborator)
                     helper: 'clone',
                     appendTo: 'body',
                     zIndex: 2700,
-                    start: function(){ $(this).data('post', providers.colabs.adaptor.universal(this)); }
+                    start: function(){ $(this).data('post', self.model); }
                 });
             });
             return self;

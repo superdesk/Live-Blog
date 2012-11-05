@@ -63,6 +63,8 @@
             </div>
         </div>
     </section>
-	<button id="more">_("More");</button>
+	<div style="height: 50px;padding-top:10px;">
+		<button type="button" id="more" class="btn btn-medium btn-primary">_("More");</button>
+	</div>
 </div>
 {/live}
