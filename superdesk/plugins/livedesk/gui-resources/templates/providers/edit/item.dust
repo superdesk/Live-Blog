@@ -2,9 +2,6 @@
 {@if cond="'{Type.Key}'=='wrapup'"}
 <li class="wrapup open {?PublishedOn}published{:else}draggable{/PublishedOn}">
    <div class="drag-bar"></div>
-    <div class="tool-box-right">
-			<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
-		</div>
    <div class="arrow"></div>
    <div class="wrapup-content">{Content|s}</div>
   <div class="clear"></div>
