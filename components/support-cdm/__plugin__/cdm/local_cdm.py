@@ -34,6 +34,7 @@ def use_linked_cdm():
 
 # --------------------------------------------------------------------
 # Creating the content delivery managers
+
 @ioc.entity
 def delivery() -> IDelivery:
     d = HTTPDelivery()

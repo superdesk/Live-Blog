@@ -16,8 +16,8 @@ from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
 from ally.design.context import Context, requires, defines
 from ally.design.processor import Chain, Processor, Assembly, NO_VALIDATION, \
     Processing, Handler
+from ally.support.util_io import IOutputStream
 from ally.zip.util_zip import normOSPath, normZipPath
-from collections import Iterable
 from functools import partial
 from mimetypes import guess_type
 from os.path import isdir, isfile, join, dirname, normpath, sep
@@ -69,8 +69,8 @@ class ResponseContent(Context):
     The response context.
     '''
     # ---------------------------------------------------------------- Defined
-    source = defines(Iterable, doc='''
-    @rtype: GeneratorType
+    source = defines(IOutputStream, doc='''
+    @rtype: IOutputStream
     The generator that provides the response content in bytes.
     ''')
     type = defines(str, doc='''
