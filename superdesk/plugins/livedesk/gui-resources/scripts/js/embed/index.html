@@ -5,7 +5,8 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-<div id="livedesk-root"><li>Loading...</li></div><script>var link=document.createElement("link");link.rel="stylesheet";link.type="text/css";link.href="//localhost:8080/content/lib/livedesk/scripts/js/embed/live-blog.css";document.getElementsByTagName("head")[0].appendChild(link);window.livedesk = { callback: function(){ new this.TimelineView({ url: "http://localhost:8080/resources/my/LiveDesk/Blog/1" });}, contentPath: "//localhost:8080/content/lib/livedesk/scripts/js/embed/"};(function(d, s, id){var js, fjs = d.getElementsByTagName(s)[0];if (d.getElementById(id)) return;js = d.createElement(s); js.id = id;js.src = "//localhost:8080/content/lib/livedesk/scripts/js/embed/livedeskembed.dev.js";fjs.parentNode.insertBefore(js, fjs);}(document, "script", "livedesk-jssdk"));</script>
-
-    </body>
+		<div id="livedesk-root"><li>Loading...</li></div>
+		<script>window.livedesk = { productionServer: "//localhost:8080", frontendServer: function(){ return "//localhost:8080";}};</script>
+		<script src="http://localhost:8080/content/lib/livedesk/scripts/js/embed/livedesk-loader.js"></script>
+	</body>
 </html>

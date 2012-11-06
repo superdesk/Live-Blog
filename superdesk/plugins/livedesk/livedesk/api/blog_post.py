@@ -55,6 +55,7 @@ class QBlogPostPublished(QPost, QWithCId):
     '''
     Provides the blog post message query.
     '''
+    order = AsRangeOrdered
 
 @query(BlogPost)
 class QBlogPost(QPost, QWithCId):
