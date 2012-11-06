@@ -329,10 +329,12 @@ function(providers, Gizmo, $)
 			 */			
 			tightkNots: function()
 			{
-				if(this.next !== undefined)
+				if(this.next !== undefined) {
 					this.next.prev = this.prev;
-				if(this.prev !== undefined)
+				}
+				if(this.prev !== undefined) {
 					this.prev.next = this.next;				
+				}
 			},
 			
 			rerender: function()
@@ -424,6 +426,7 @@ function(providers, Gizmo, $)
 			remove: function()
 			{
 				var self = this;
+				self._parent.removeOne(self);
 				self.tightkNots();
 				$(this.el).fadeTo(500, '0.1', function(){
 					self.el.remove();
@@ -505,13 +508,24 @@ function(providers, Gizmo, $)
 			sortstop: function(evnt, ui)
 			{
 				$(ui.item).triggerHandler('sortstop', ui);
-			},			
+			},
+			removeOne: function(view)
+			{
+				var 
+					self = this,
+					pos = self._views.indexOf(view);
+				//console.log(self.model.get('PostPublished').total);
+				self.total--;
+				self._views.splice(pos,1);
+				return self;
+			},
 			addOne: function(model)
 			{	
-				if(model.postview && model.postview.checkElement())
+				if(model.postview && model.postview.checkElement()) {
 					return;
+				}
 				var self = this,
-					current = new PostView({model: model, _parent: self}),				    
+					current = new PostView({model: model, _parent: self}),
 					count = self._views.length;
 				model.postview = current;
 				current.order =  parseFloat(model.get('Order'));
