@@ -2291,7 +2291,7 @@ window.livedesk.startLoading = function($, _) {
 		countLoaded = 0,
 		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
-			limit: 5,
+			limit: 25,
 			offset: 0,		
 			el: '#livedesk-root',
 			timeInterval: 10000,
