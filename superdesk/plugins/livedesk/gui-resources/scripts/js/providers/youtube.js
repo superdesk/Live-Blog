@@ -119,6 +119,7 @@ define('providers/youtube', [
                         results[i].video.description = this.trimDesc(results[i].video.description);
                         var upDate = new Date(results[i].video.uploaded);
                         results[i].video.uploaded = upDate.toDateString();
+                        results[i].uploader = results[i].video.uploader;
                     } else {
                         results[i].description = this.trimDesc(results[i].description);
                         var upDate = new Date(results[i].uploaded);
