@@ -14,7 +14,7 @@ logging.basicConfig(format='%(asctime)s %(levelname)s (%(threadName)s %(module)s
 logging.basicConfig(format='%(module)s.%(funcName)s %(lineno)d: %(message)s')
 
 logging.getLogger('ally').setLevel(logging.WARN)
-logging.getLogger('ally.core.http.server').setLevel(logging.INFO)
+logging.getLogger('ally.core.http.server').setLevel(logging.DEBUG)
 #logging.getLogger('ally.design.processor').setLevel(logging.DEBUG)
 
 logging.getLogger('cherrypy').setLevel(logging.WARN)
