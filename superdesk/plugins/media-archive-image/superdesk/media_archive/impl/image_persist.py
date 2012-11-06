@@ -96,7 +96,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
 
         p = subprocess.Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
-                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result = p.wait()
 
         # 253 is the exiv2 code for error: No Exif data found in the file
