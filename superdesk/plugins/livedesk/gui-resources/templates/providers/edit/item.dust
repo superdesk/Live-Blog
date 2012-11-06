@@ -19,13 +19,18 @@
 		<div class="tool-box-right">
 			<a href="#delete-own-post" data-toggle="modal" class="close image">x</a>
 		</div>
-		<figure>
-			{?Avatar}
-				<img src="{Avatar}" />
-			{:else}
-				<img src="images/avatar_default_collaborator.png" />
-			{/Avatar}
-		</figure>
+		
+        {@if cond="'{Author.Source.Name}'=='twitter'"}
+            <figure><img src="{Meta.profile_image_url}" width="48" height="48" alt="1"></figure>
+        {:else}
+            <figure>
+                {?Avatar}
+                    <img src="{Avatar}" />
+                {:else}
+                    <img src="images/avatar_default_collaborator.png" />
+                {/Avatar}
+            </figure>
+        {/if}
 	{/if}
 		<div class="result-content">
 			<h3>
@@ -37,6 +42,9 @@
 			</h3>
             {@if cond="'{Author.Source.Name}'=='google'"}
                 <h3><a href="{Meta.unescapedUrl}" target="_blank">{Meta.title|s}</a></h3>
+            {/if}
+             {@if cond="'{Author.Source.Name}'=='twitter'"}
+                <h3><span class="author">{Meta.from_user_name}({Meta.from_user})</span></h3>
             {/if}
 			<div class="result-text">
 				{Content|s}
