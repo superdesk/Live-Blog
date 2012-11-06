@@ -9,9 +9,18 @@ Created on Jul 15, 2011
 Contains the GUI setup files.
 '''
 
+from ally.container import ioc
+
 # --------------------------------------------------------------------
 
 NAME = 'GUI core'
 GROUP = 'GUI'
 VERSION = '1.0'
 DESCRIPTION = 'Provides the core for the GUI (Graphical User Interface)'
+
+# --------------------------------------------------------------------
+
+@ioc.config
+def publish_gui_resources():
+    '''Allow for the publish of the gui resources'''
+    return True
