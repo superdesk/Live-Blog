@@ -20,7 +20,7 @@ define('providers/twitter/adaptor', [
                 //self.data.Content = $('.twitter-full-content .result-text', self.el).html();
                 self.data.Meta.annotation = [$('.twitter-full-content .annotation:eq(0)', self.el).html(), 
                     $('.twitter-full-content .annotation:eq(1)', self.el).html()];
-                self.data.Meta = JSON.stringify(self.data.Meta);
+					self.data.Meta = JSON.stringify(self.data.Meta);
                 self.parent.insert(self.data, self);
                 $('.actions', self.el).remove();
             })

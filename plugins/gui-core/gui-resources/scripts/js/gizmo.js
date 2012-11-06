@@ -642,7 +642,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
             return (this.href &&
                 this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
                 {					
-                    var data = self.parse(data), changeset = [], count = self._list.length;
+                    var data = self.parse(data), changeset = [], updates = [], count = self._list.length;
                      // important or it will infiloop
                     for( var i=0; i < data.list.length; i++ )
                     {
@@ -655,10 +655,15 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                             }
 						}
                         if( !model ) {
-                            self._list.push(data.list[i]);
-                            changeset.push(data.list[i]);
+                            if( !data.list[i].isDeleted() ) {
+								self._list.push(data.list[i]);
+								changeset.push(data.list[i]);
+							} else {
+								updates.push(data[i]);							
+							}
                         }
                         else {
+							updates.push(model);
                             self._list[j].parse(model.data);
                             if( model.isDeleted() ) {
                                 model._remove();
@@ -684,7 +689,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                          * Trigger handler with changeset extraparameter as a vector of vectors,
                          * caz jquery will send extraparameters as arguments when calling handler
                          */
-                        //console.log('update');
+                        self.triggerHandler('updates', [updates]);
 						self.triggerHandler('update', [changeset]);
 					}
                 }));
