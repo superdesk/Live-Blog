@@ -2,9 +2,6 @@
 	{@if cond="'{Type.Key}'=='wrapup'"}
     <li class="wrapup open timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
        <div class="drag-bar"></div>
-<div class="tool-box-right">
-	        	<a href="#delete-post" class="close image" data-toggle="modal">x</a>
-	        </div>
        <div class="arrow"></div>
        <div class="wrapup-content">
             {Content|s}
