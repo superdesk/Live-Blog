@@ -230,6 +230,9 @@ ul.liveblog-post-list li.advertisement a p {
 li.advertisement:first-child {
     margin-top: 28px !important;
 }
+.liveblog-more-container {
+	height: 50px !important;
+}
 #liveblog-more {
 	border-radius: 5px !important;
 	-webkit-border-radius: 5px !important;
