@@ -52,12 +52,13 @@ def excluded_plugins():
 
 @ioc.start
 def deploy():
-    for name in os.listdir(plugins_path()):
-        path = os.path.join(plugins_path(), name)
-        for exclude in excluded_plugins():
-            if name.startswith(exclude): break
-        else:
-            if path not in sys.path: sys.path.append(path)
+    if os.path.isdir(plugins_path()):
+        for name in os.listdir(plugins_path()):
+            path = os.path.join(plugins_path(), name)
+            for exclude in excluded_plugins():
+                if name.startswith(exclude): break
+            else:
+                if path not in sys.path: sys.path.append(path)
 
     isConfig, filePathConfig = os.path.isfile(configurations_file_path()), configurations_file_path()
     if isConfig:

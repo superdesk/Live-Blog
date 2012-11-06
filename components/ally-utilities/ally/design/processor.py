@@ -959,14 +959,7 @@ class AssemblyAttribute:
         '''
         assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
 
-        if attribute.status & DEFINED:
-            if not self.defined: self.defined.update(attribute.types)
-            else:
-                if self.defined.isdisjoint(attribute.types):
-                    raise AssemblyError('The defined assembly types %s are not compatible with the defined types %s '
-                                        'of attribute %s' % ([typ.__name__ for typ in self.defined],
-                                                             [typ.__name__ for typ in attribute.types], attribute))
-                self.defined.intersection_update(attribute.types)
+        if attribute.status & DEFINED: self.defined.update(attribute.types)
 
         if attribute.status & (REQUIRED | OPTIONAL):
             if not self.required: self.required.update(attribute.types)

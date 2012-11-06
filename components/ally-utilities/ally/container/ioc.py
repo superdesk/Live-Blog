@@ -90,33 +90,41 @@ def doc(setup, doc):
     if isinstance(setup, SetupReplaceConfig): setup = setup.target
     if setup.documentation is not None: setup.documentation += '\n%s' % doc
 
-def before(setup):
+def before(setup, auto=True):
     '''
     Decorator for setup functions that need to be called before other setup functions.
     
     @param setup: SetupFunction
         The setup function to listen to.
+    @param auto: boolean
+        In some cases the event is not called (for instance externally provided configurations) this means is auto managed
+        by the container, if placed on False the event is guaranteed to be called regardless of what the container option.
     '''
     assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.BEFORE), callerLocals()), function)
+        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.BEFORE, auto), callerLocals()), function)
 
     return decorator
 
-def after(setup):
+def after(setup, auto=True):
     '''
     Decorator for setup functions that need to be called after other setup functions.
     
     @param setup: SetupFunction
         The setup function to listen to.
+    @param auto: boolean
+        In some cases the event is not called (for instance externally provided configurations) this means is auto managed
+        by the container, if placed on False the event is guaranteed to be called regardless of what the container option.
     '''
     assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.AFTER),
+        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.AFTER, auto),
                                        callerLocals()), function)
 
     return decorator
