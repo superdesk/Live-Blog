@@ -60,7 +60,7 @@
                 padding-left: 55px;
             }
             .liveblog-post-list li .annotation  {
-                font-size: 16px;
+                font-size: 15px;
                 color:#788d34;
                 margin-bottom: 5px;
                 clear: both;
@@ -106,6 +106,10 @@
 
                 .attributes time {
                     margin-left: 10px;
+                }
+
+                .googleservice h3 a {
+                    color:#788d34;
                 }
 
             .liveblog-post-list li.quotation .result-content {

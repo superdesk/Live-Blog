@@ -143,7 +143,7 @@ function(providers, Gizmo, $)
 				self.model.on('publish reorder', function(evt, data){
 					self.getMaximumNearCid(self.parse([data]));
 				});
-				this.on('read update',function(evt, data)
+				this.on('read update updates',function(evt, data)
 				{
 					if(!data)
 						data = self._list;
