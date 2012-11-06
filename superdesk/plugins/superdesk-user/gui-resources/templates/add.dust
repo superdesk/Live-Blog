@@ -39,6 +39,7 @@
 				<label class="control-label" for="inputCollaborator">_('Add as collaborator')</label>
 				<div class="controls">
 					<input type="checkbox" name="Collaborator" id="inputCollaborator" data-ignore="true" />
+					<span class="help-inline">_('make available as potential a collaborator <br />in the live blog configure screen')</span>
 				</div>
 			</div>
 			<div class="control-group">
