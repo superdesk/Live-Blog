@@ -1724,7 +1724,7 @@ window.livedesk.init = function() {
     var giveBack$ = false;
     contentPath = self.contentPath === undefined? '': self.contentPath;
     
-    if (typeof jQuery == 'undefined') {
+    if ((typeof jQuery == 'undefined') || 1) {
         loadJQ = true;
     } else {
         if(parseFloat($().jquery) < 1.7) {
