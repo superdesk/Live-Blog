@@ -168,7 +168,7 @@ function(providers, $, giz, Blog, Collaborator)
                 self = this;
             this.each(function()
             {
-                if( $.inArray( this.get('Id'), colab._viewModels ) === -1 )
+                if( $.inArray( this.get('Id'), colab._viewModels ) === -1 && !this.get('DeletedOn'))
                 {
                     appendPosts.push(this);
                     colab._viewModels.push(this.get('Id'));
