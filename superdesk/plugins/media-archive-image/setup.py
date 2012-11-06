@@ -23,7 +23,7 @@ setup(
     zip_safe=True,
     package_data={
         '': ['*.gif', '*.png', '*.jpg', '*.jpeg', '*.js', '*.css', '*.less', '*.dust', '*.html',
-             '*.jar', '*.exe', '*.so*', '*.a*', '*.txt', 'AUTHORS', 'COPYING', 'README'],
+             '*.jar', '*.exe', '*.so*', '*.a*', '*.txt', 'AUTHORS', 'COPYING*', 'README*'],
     },
 
     # metadata for upload to PyPI
