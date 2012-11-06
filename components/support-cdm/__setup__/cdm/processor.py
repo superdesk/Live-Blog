@@ -65,7 +65,7 @@ def assemblyContentError() -> Assembly:
 @ioc.before(assemblyContent)
 def updateAssemblyContent():
     assemblyContent().add(internalError(), header(), contentDelivery(), contentTypeEncode(), contentLengthEncode())
-#TODO: add also caching headers
+# TODO: add also caching headers
 @ioc.before(assemblyContentError)
 def updateAssemblyContentError():
     assemblyContentError().add(acceptDecode(), renderer(), explainError(), allowEncode(), contentTypeEncode())

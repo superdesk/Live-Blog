@@ -90,38 +90,46 @@ def doc(setup, doc):
     if isinstance(setup, SetupReplaceConfig): setup = setup.target
     if setup.documentation is not None: setup.documentation += '\n%s' % doc
 
-def before(*setups):
+def before(*setups, auto=True):
     '''
     Decorator for setup functions that need to be called before the other setup functions. If multiple before setup
     functions are provided then the before function will be invoked only for the first setup functions that occurs.
     
     @param setup: arguments[SetupFunction]
         The setup function to listen to.
+    @param auto: boolean
+        In some cases the event is not called (for instance externally provided configurations) this means is auto managed
+        by the container, if placed on False the event is guaranteed to be called regardless of what the container option.
     '''
     if __debug__:
         for setup in setups: assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.BEFORE),
+        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.BEFORE, auto),
                                        callerLocals()), function)
 
     return decorator
 
-def after(*setups):
+def after(*setups, auto=True):
     '''
     Decorator for setup functions that need to be called after the other setup functions. If multiple after setup
     functions are provided then the after function will be invoked only after all the setup functions will occur.
     
     @param setups: arguments[SetupFunction]
         The setup function(s) to listen to.
+    @param auto: boolean
+        In some cases the event is not called (for instance externally provided configurations) this means is auto managed
+        by the container, if placed on False the event is guaranteed to be called regardless of what the container option.
     '''
     if __debug__:
         for setup in setups: assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.AFTER),
+        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.AFTER, auto),
                                        callerLocals()), function)
 
     return decorator
