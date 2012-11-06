@@ -55,7 +55,12 @@ function($, superdesk, Gizmo, AuthApp)
             $(AuthApp).on('authenticated', function(){ self.getMenu(self.render); });
             $(AuthApp).on('authlock', function()
             { 
-                $('[data-username-display="true"]', self.el).text(_('Anonymous'));
+                $('[data-username-display="true"]', self.el).text(_('Login'))
+                    .on('click', function(evt)
+                    {
+                        $('#navbar-logout', self.el).trigger('click');
+                        return false;
+                    });
             });
             
             $.superdesk.applyLayout('layouts/dashboard');
@@ -130,6 +135,11 @@ function($, superdesk, Gizmo, AuthApp)
             .off('click.superdesk')
             .on('click.superdesk', function()
             {
+                if(!localStorage.getItem('superdesk.login.session'))
+                {
+                    AuthApp.require.call();
+                    return;
+                }
                 delete superdesk.login;
                 localStorage.removeItem('superdesk.login.name');
                 localStorage.removeItem('superdesk.login.id');
