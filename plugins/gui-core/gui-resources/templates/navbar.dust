@@ -29,12 +29,11 @@
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#" data-username-display="true">
 						{?user}
-							{#user}{Name}{/user}
+							{#user}{Name}{/user} <b class="caret"></b>
 						{:else}
 							Anonymous
 						{/user}
 						{~s}
-						<b class="caret"></b>
 					</a>
 					<ul class="dropdown-menu">
 						<!--
