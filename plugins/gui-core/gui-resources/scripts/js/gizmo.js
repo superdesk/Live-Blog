@@ -655,9 +655,12 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
                             }
 						}
                         if( !model ) {
-                            self._list.push(data.list[i]);
-                            changeset.push(data.list[i]);
-							updates.push(data[i]);
+                            if( !data.list[i].isDeleted() ) {
+								self._list.push(data.list[i]);
+								changeset.push(data.list[i]);
+							} else {
+								updates.push(data[i]);							
+							}
                         }
                         else {
 							updates.push(model);
