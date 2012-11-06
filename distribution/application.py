@@ -17,8 +17,10 @@ import warnings
 
 # --------------------------------------------------------------------
 
-findLibraries = lambda folder: (os.path.join(folder, name) for name in os.listdir(folder))
-# Finds all the libraries (that have extension .egg) if the provided folder.
+def findLibraries(folder):
+    '''Finds all the libraries (that have extension .egg) if the provided folder'''
+    if os.path.isdir(folder): return (os.path.join(folder, name) for name in os.listdir(folder))
+    return ()
 
 # --------------------------------------------------------------------
 

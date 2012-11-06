@@ -17,11 +17,19 @@ from development.request.api.request import IRequestService
 @ioc.entity
 def requestService() -> IRequestService:
     import ally_deploy_application
-    return ally_deploy_application.assembly.processForPartialName('development.service.requestService')
+    ioc.activate(ally_deploy_application.assembly)
+    from __setup__.development.service import requestService
+    value = requestService()
+    ioc.deactivate()
+    return value
 
 def publish_development():
     '''
     If true the development services will be published.
     '''
     import ally_deploy_application
-    return ally_deploy_application.assembly.processForPartialName('development.service.publish_development')
+    ioc.activate(ally_deploy_application.assembly)
+    from __setup__.development.service import publish_development
+    value = publish_development()
+    ioc.deactivate()
+    return value
