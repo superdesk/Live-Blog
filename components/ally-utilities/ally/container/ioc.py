@@ -13,11 +13,11 @@ single thread at one time.
 from ..support.util_sys import callerLocals
 from ._impl.aop_container import AOPModules
 from ._impl.entity_handler import Initializer
-from ._impl.ioc_setup import SetupEntity, SetupSource, SetupConfig, SetupFunction, SetupEvent, \
-    Context, SetupReplace, SetupStart, SetupError, register, ConfigError, Assembly
-from ._impl.ioc_setup import SetupReplaceConfig, setupsOf
+from ._impl.ioc_setup import SetupEntity, SetupSource, SetupConfig, \
+    SetupFunction, SetupEvent, Context, SetupReplace, SetupStart, SetupError, \
+    register, ConfigError, Assembly, SetupReplaceConfig, setupsOf
 from functools import partial, update_wrapper
-from inspect import isclass, ismodule, getfullargspec, isfunction
+from inspect import isclass, ismodule, getfullargspec, isfunction, cleandoc
 import importlib
 import logging
 
@@ -88,7 +88,7 @@ def doc(setup, doc):
     assert isinstance(doc, str), 'Invalid documentation %s' % doc
     
     if isinstance(setup, SetupReplaceConfig): setup = setup.target
-    if setup.documentation is not None: setup.documentation += '\n%s' % doc
+    if setup.documentation is not None: setup.documentation += '\n%s' % cleandoc(doc)
 
 def before(*setups, auto=True):
     '''

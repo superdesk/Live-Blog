@@ -20,7 +20,7 @@ setup(
     install_requires=['ally_api >= 1.0'],
     platforms=['all'],
     test_suite='test',
-    py_modules=['ally_deploy_application'],
+    py_modules=[],
     zip_safe=True,
 
     # metadata for upload to PyPI

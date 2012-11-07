@@ -10,8 +10,8 @@ Special module that is targeted by the application loader in order to deploy the
 '''
 
 from ally.container import aop, ioc
-from ally.container.config import load, save
-from ally.container.ioc import ConfigError, SetupError
+from ally.container.config import load
+from ally.container.ioc import SetupError
 from ally.container.support import entityFor
 from ally.core.spec.resources import IResourcesRegister
 from ally.support.util_sys import isPackage
@@ -50,8 +50,8 @@ def excluded_plugins():
 
 # --------------------------------------------------------------------
 
-@ioc.start
-def deploy():
+def loadPlugins():
+    '''Add the plugins to the python path'''
     if os.path.isdir(plugins_path()):
         for name in os.listdir(plugins_path()):
             path = os.path.join(plugins_path(), name)
@@ -60,10 +60,16 @@ def deploy():
             else:
                 if path not in sys.path: sys.path.append(path)
 
-    isConfig, filePathConfig = os.path.isfile(configurations_file_path()), configurations_file_path()
-    if isConfig:
-        with open(filePathConfig, 'r') as f: config = load(f)
-    else: config = {}
+# --------------------------------------------------------------------
+
+@ioc.start
+def deploy():
+    loadPlugins()
+    if not os.path.isfile(configurations_file_path()):
+        print('The configuration file "%s" doesn\'t exist, create one by running the the application '
+              'with "-dump" option' % configurations_file_path())
+        sys.exit(1)
+    with open(configurations_file_path(), 'r') as f: config = load(f)
 
     PACKAGE_EXTENDER.addFreezedPackage('__plugin__.')
     pluginModules = aop.modulesIn('__plugin__.**')
@@ -77,18 +83,11 @@ def deploy():
         assembly.processStart()
         from __plugin__.plugin.registry import services
         services = services()
-    except (ConfigError, SetupError):
-        # We save the file in case there are missing configuration
-        with open(filePathConfig, 'w') as f: save(assembly.trimmedConfigurations(), f)
-        isConfig = True
-        raise
-    finally:
-        if not isConfig:
-            with open(filePathConfig, 'w') as f: save(assembly.trimmedConfigurations(), f)
-        ioc.deactivate()
+    finally: ioc.deactivate()
 
-    import ally_deploy_application
-    resourcesRegister = entityFor(IResourcesRegister, ally_deploy_application.assembly)
+    try: import application
+    except ImportError: raise SetupError('Cannot access the application module')
+    resourcesRegister = entityFor(IResourcesRegister, application.assembly)
     assert isinstance(resourcesRegister, IResourcesRegister), 'There is no resource register for the services'
 
     assert log.debug('Registered REST services:\n\t%s', '\n\t'.join(str(srv) for srv in services)) or True
