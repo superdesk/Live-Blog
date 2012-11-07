@@ -16,6 +16,21 @@ from threading import Thread
 
 # --------------------------------------------------------------------
 
+@ioc.config
+def sender_id():
+    '''The sender id to use in communication with Mongrel2, if not specified one will be created'''
+    return None
+
+@ioc.config
+def address_request():
+    '''The request address to use in communication with Mongrel2'''
+    return 'tcp://127.0.0.1:9997'
+
+@ioc.config
+def address_response():
+    '''The response address to use in communication with Mongrel2'''
+    return 'tcp://127.0.0.1:9996'
+
 ioc.doc(server_type, '''
     "mongrel2" - mongrel2 server integration, Attention!!! this is not a full server the content will be delivered
                  by Mongrel2 server, so when you set this option please check the README.txt in the component sources
@@ -47,5 +62,5 @@ def requestHandler():
 def runServer():
     if server_type() == 'mongrel2':
         from ally.core.http.server import server_mongrel2
-        args = (requestHandler(),)
+        args = (requestHandler(), sender_id(), address_request(), address_response())
         Thread(target=server_mongrel2.run, args=args).start()
