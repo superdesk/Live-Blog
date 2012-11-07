@@ -781,7 +781,7 @@ class Assembly:
             The external configurations values to be used in the context.
         @ivar configUsed: set{string}
             A set containing the used configurations names from the external configurations.
-        @ivar configurations: dictionary[string, Config]
+        @ivar configurations: dictionary{string:Config}
             A dictionary of the assembly configurations, the key is the configuration name and the value is a
             Config object.
         @ivar calls: dictionary{string, Callable}
@@ -866,7 +866,7 @@ class Assembly:
         assert isinstance(name, str), 'Invalid name %s' % name
         self._processing.append(name)
         try: value = self.fetchForName(name)()
-        except SetupError: raise
+        except (SetupError, SystemExit): raise
         except: raise SetupError('Exception occurred for %r in processing chain %r' % 
                                  (name, ', '.join(self._processing)))
         self._processing.pop()

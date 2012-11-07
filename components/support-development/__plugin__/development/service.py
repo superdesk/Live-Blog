@@ -9,16 +9,18 @@ Created on Jan 9, 2012
 Contains the services for the development support.
 '''
 
+from __setup__.development.service import publish_development, requestService
 from ally.container import ioc
+from ally.container.ioc import SetupError
 from development.request.api.request import IRequestService
 
 # --------------------------------------------------------------------
 
 @ioc.entity
 def requestService() -> IRequestService:
-    import ally_deploy_application
-    ioc.activate(ally_deploy_application.assembly)
-    from __setup__.development.service import requestService
+    try: import application
+    except ImportError: raise SetupError('Cannot access the application module')
+    ioc.activate(application.assembly)
     value = requestService()
     ioc.deactivate()
     return value
@@ -27,9 +29,9 @@ def publish_development():
     '''
     If true the development services will be published.
     '''
-    import ally_deploy_application
-    ioc.activate(ally_deploy_application.assembly)
-    from __setup__.development.service import publish_development
+    try: import application
+    except ImportError: raise SetupError('Cannot access the application module')
+    ioc.activate(application.assembly)
     value = publish_development()
     ioc.deactivate()
     return value
