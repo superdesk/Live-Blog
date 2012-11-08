@@ -21,9 +21,9 @@ ally_authentication_http.egg-info/requires.txt
 ally_authentication_http.egg-info/top_level.txt
 ally_authentication_http.egg-info/zip-safe
 test/__init__.py
-test/ally/__init__.py
-test/ally/core/__init__.py
-test/ally/core/authentication/__init__.py
-test/ally/core/authentication/impl/__init__.py
-test/ally/core/authentication/impl/processor/__init__.py
-test/ally/core/authentication/impl/processor/authenticator.py
+test/unit_test/__init__.py
+test/unit_test/ally/__init__.py
+test/unit_test/ally/core/__init__.py
+test/unit_test/ally/core/authentication/__init__.py
+test/unit_test/ally/core/authentication/impl/__init__.py
+test/unit_test/ally/core/authentication/impl/processor/__init__.py
