@@ -4,9 +4,9 @@
 		<label class="checkbox">
 	    	<input type="checkbox" value="{Id}" data-key="Id" />
 		</label>
-		<div class="tool-box-right">
-			<a href="javascript:void(0)" class="tool-box-button"><i class="icon-pencil"></i></a>
-		</div>
+		<!--div class="tool-box-right">
+			<a href="{Person.href}" class="tool-box-button"><i class="icon-pencil"></i></a>
+		</div-->
 		<figure>
 			{#Person}{?Avatar}
                 <img src="{Avatar}" />
@@ -14,7 +14,6 @@
 		</figure>
 		<div class="collaborators-content">
 			<h3>{Name}</h3>
-	  		<!--p class="attributes">Tageswoche</p-->
 		</div>
 		<div class="clear"></div>
 	</li>
