@@ -34,6 +34,7 @@ def __deploy__():
     try:
         # We create the parser to be prepared.
         application.parser = argparse.ArgumentParser(description='The ally distribution application deployer.')
+        application.Option = object # Prepare the option class
 
         # In the first stage we prepare the application deployment.
         assembly = ioc.open(aop.modulesIn('__deploy__.*.prepare'))
@@ -69,9 +70,6 @@ if __name__ == '__main__':
     # Loading the libraries
     for path in findLibraries('libraries'):
         if path not in sys.path: sys.path.append(path)
-
-    try: __import__('application_logging')
-    except Exception as e: print('=' * 50, 'No logging configuration available: %s' % e)
 
     # Loading the components.
     for path in findLibraries('components'):
