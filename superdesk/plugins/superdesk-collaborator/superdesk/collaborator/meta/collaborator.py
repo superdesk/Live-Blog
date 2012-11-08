@@ -14,7 +14,7 @@ from ally.support.sqlalchemy.mapper import validate
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
-from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from sqlalchemy.sql.expression import case
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.person.meta.person import PersonMapped
@@ -28,7 +28,7 @@ class CollaboratorMapped(Base, Collaborator):
     Provides the mapping for Collaborator.
     '''
     __tablename__ = 'collaborator'
-    __table_args__ = dict(mysql_engine='InnoDB')
+    __table_args__ = (UniqueConstraint('fk_person_id', 'fk_source_id', name='uix_1'), dict(mysql_engine='InnoDB'))
 
     Id = Column('id', INTEGER(unsigned=True), primary_key=True)
     Person = Column('fk_person_id', ForeignKey(PersonMapped.Id, ondelete='CASCADE'))
