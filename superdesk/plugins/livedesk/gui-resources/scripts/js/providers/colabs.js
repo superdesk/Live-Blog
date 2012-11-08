@@ -106,7 +106,7 @@ function(providers, $, giz, Blog, Collaborator)
 
             $(this.el).on('click', '.collaborators-header .feed-info .label', this.toggleHeader);
 
-            var blog = giz.Auth(new Blog(this.blogUrl)), // autheticated blog model
+            var blog = giz.Auth(new Blog(this.blogUrl)), // authenticated blog model
                 self = this;
             
             self.el.html('<p>'+_('Loading collaborators...')+'</p>');
@@ -181,7 +181,7 @@ function(providers, $, giz, Blog, Collaborator)
             appendPosts.length && 
             $('.new-results', view.el).trigger('update.livedesk', [updateItemCount, function()
             {
-                $(appendPosts).each(function()
+                $(appendPosts.reverse()).each(function()
                 { 
                     $('.search-result-list', view.el).prepend( (new PostView({ model: this })).render().el );
                 });
