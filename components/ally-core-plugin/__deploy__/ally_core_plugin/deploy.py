@@ -9,6 +9,7 @@ Created on Nov 7, 2012
 Special module that is used in deploying the application.
 '''
  
+from ..ally_core.prepare import OptionsCore
 from __setup__.ally_core_plugin.deploy_plugin import configurations_file_path, \
     loadPlugins
 from ally.container import ioc, aop
@@ -17,16 +18,18 @@ from ally.container.config import load, save
 import os
 import sys
 import traceback
+
+# --------------------------------------------------------------------
+
 try: import application
-except ImportError:
-    print('No application available to deploy', file=sys.stderr)
-    sys.exit(1)
-    
+except ImportError: raise
+
 # --------------------------------------------------------------------
 
 @ioc.start
 def dump():
-    if not application.options.write_configurations: return
+    assert isinstance(application.options, OptionsCore), 'Invalid application options %s' % application.options
+    if not application.options.writeConfigurations: return
     if not __debug__:
         print('Cannot dump configuration file if python is run with "-O" or "-OO" option', file=sys.stderr)
         sys.exit(1)
@@ -48,6 +51,7 @@ def dump():
             for config in assembly.configurations: assembly.processForName(config)
             # Forcing the processing of all configurations
             with open(configFile, 'w') as f: save(assembly.trimmedConfigurations(), f)
+            print('Created "%s" configuration file' % configFile)
         finally: ioc.deactivate()
     
     except SystemExit: raise

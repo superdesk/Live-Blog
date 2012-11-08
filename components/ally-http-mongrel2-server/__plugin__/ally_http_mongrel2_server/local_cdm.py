@@ -22,7 +22,7 @@ else:
     !!!Attention, if the mongrel2 server is selected this option will always be "false"
     ''')
     
-    @ioc.before(use_linked_cdm, False)
+    @ioc.before(use_linked_cdm, auto=False)
     def use_linked_cdm_force():
         try: import application
         except ImportError: raise SetupError('Cannot access the application module')

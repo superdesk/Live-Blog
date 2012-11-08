@@ -68,5 +68,20 @@ First we create the configuration (properties) files for superdesk:
 	python3 application.py -dump
 	
 We now have in the distribution folder two new files "application.properties" and "plugin.properties", we need to adjust some
-configurations here, we will start with "application.properties".
-	- server_type: mongrel2
+configurations here.
+
+Configuring "application.properties"
+-----------------------------------------------------------------------------------------------
+
+We will start with "application.properties"
+	server_type: mongrel2
+Here we indicating that the server should be mongrel2 
+	address_request: ipc:///tmp/request1
+	address_response: ipc:///tmp/response1
+This is the requests/response incoming addresses, this is used for in processes communications you can find out more about this
+at "http://nichol.as/zeromq-an-introduction" in "Choosing a transport" chapter.
+
+Configuring "plugin.properties"
+-----------------------------------------------------------------------------------------------
+
+Here you need to adjust the CDM location, since in Mongrel2 server mode the content is not delivered by ally-py anymore.

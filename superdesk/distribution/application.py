@@ -34,6 +34,7 @@ def __deploy__():
     try:
         # We create the parser to be prepared.
         application.parser = argparse.ArgumentParser(description='The ally distribution application deployer.')
+        application.Options = object  # Prepare the option class
 
         # In the first stage we prepare the application deployment.
         assembly = ioc.open(aop.modulesIn('__deploy__.*.prepare'))
@@ -41,7 +42,7 @@ def __deploy__():
         finally: ioc.deactivate()
         
         # In the second stage we parse the application arguments.
-        application.options = application.parser.parse_args()
+        application.options = application.parser.parse_args(namespace=application.Options())
         
         # In the final stage we deploy the application.
         assembly = ioc.open(aop.modulesIn('__deploy__.*.deploy'))

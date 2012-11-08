@@ -77,7 +77,7 @@ class RequestHandler:
             pathProcessing.append((re.compile(pattern), processing))
         self.pathProcessing = pathProcessing
         self.defaultHeaders = {'Server':self.serverVersion, 'Content-Type':'text'}
-        self.scheme = 'html'
+        self.scheme = 'http'
 
     def __call__(self, request):
         '''
@@ -145,7 +145,7 @@ class Mongrel2Server:
     Made based on the mongrel2.handler
     '''
     
-    def __init__(self, senderId, addressRequest, addressResponse, requestHandler):
+    def __init__(self, sendIdent, sendSpec, recvIdent, recvSpec, requestHandler):
         '''
         Your addresses should be the same as what you configured
         in the config.sqlite for Mongrel2 and are usually like 
@@ -154,11 +154,12 @@ class Mongrel2Server:
         assert callable(requestHandler), 'Invalid request handler %s' % requestHandler
         self.context = zmq.Context()
         self.reqs = self.context.socket(zmq.PULL)
-        self.reqs.connect(addressRequest)
+        if recvIdent: self.resp.setsockopt(zmq.IDENTITY, recvIdent)
+        self.reqs.connect(sendSpec)
 
         self.resp = self.context.socket(zmq.PUB)
-        if senderId: self.resp.setsockopt(zmq.IDENTITY, senderId)
-        self.resp.connect(addressResponse)
+        if sendIdent: self.resp.setsockopt(zmq.IDENTITY, sendIdent)
+        self.resp.connect(recvSpec)
         
         self.requestHandler = requestHandler
         
@@ -266,12 +267,14 @@ class Request:
 
 # --------------------------------------------------------------------
 
-def run(requestHandler, senderId=None, addrSub='tcp://127.0.0.1:9997', addrPub='tcp://127.0.0.1:9996'):
+def run(requestHandler, sendIdent, sendSpec, recvIdent, recvSpec):
     assert callable(requestHandler), 'Invalid request handler %s' % requestHandler
-    if senderId is None: senderId = uuid4().hex.encode('utf8')
-    elif isinstance(senderId, str): senderId = senderId.encode('utf8')
+    if sendIdent is None: sendIdent = uuid4().hex.encode('utf8')
+    elif isinstance(sendIdent, str): sendIdent = sendIdent.encode('utf8')
+    if recvIdent is None: recvIdent = uuid4().hex.encode('utf8')
+    elif isinstance(recvIdent, str): recvIdent = recvIdent.encode('utf8')
     
-    server = Mongrel2Server(senderId, addrSub, addrPub, requestHandler)
+    server = Mongrel2Server(sendIdent, sendSpec, recvIdent, recvSpec, requestHandler)
     try:
         print('=' * 50, 'Started Mongrel2 REST API server...')
         server.serve_forever()

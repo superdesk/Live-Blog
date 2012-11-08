@@ -127,7 +127,8 @@ class ReplaceInFile:
         '''
         Perform the data read.
         '''
-        data = self._fileObj.read(count)
+        if count is None: data = self._fileObj.read()
+        else: data = self._fileObj.read(count)
 
         if not data:
             if self._leftOver:
