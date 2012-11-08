@@ -1,10 +1,14 @@
-ally_deploy_application.py
 setup.cfg
 setup.py
+__deploy__/__init__.py
+__deploy__/ally_core/__init__.py
+__deploy__/ally_core/deploy.py
+__deploy__/ally_core/prepare.py
 __setup__/__init__.py
 __setup__/ally_core/__init__.py
 __setup__/ally_core/assembler.py
 __setup__/ally_core/encoder_decoder.py
+__setup__/ally_core/logging.py
 __setup__/ally_core/processor.py
 __setup__/ally_core/resources.py
 ally/__init__.py
