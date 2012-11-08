@@ -11,27 +11,57 @@ Special module that is used in preparing the application deploy.
 
 from ally.container import ioc
 from argparse import ArgumentParser
-import sys
+from inspect import isclass
 
 # --------------------------------------------------------------------
 
 try: import application
-except ImportError:
-    print('No application available to prepare', file=sys.stderr)
-    sys.exit(1)
-parser = application.parser
-assert isinstance(parser, ArgumentParser), 'Invalid parser %s' % parser
+except ImportError: raise
+
+# --------------------------------------------------------------------
+
+class OptionsCore:
+    '''
+    The prepared option class.
+    '''
+    
+    def __init__(self):
+        super().__init__()
+        self._start = True  # Flag indicating that the application should be started
+        self._writeConfigurations = False  # Indicates that the configurations should be written
+        
+        self.configurationPath = 'application.properties'
+    
+    def setStart(self, value):
+        '''Setter for the start'''
+        self._start = value
+        self._writeConfigurations = self._writeConfigurations and not value
+    
+    def setWriteConfigurations(self, value):
+        '''Setter for the configuration writing'''
+        self._writeConfigurations = value
+        self._start = self._start and not value
+    
+    start = property(lambda self: self._start, setStart)
+    writeConfigurations = property(lambda self: self._writeConfigurations, setWriteConfigurations)
 
 # --------------------------------------------------------------------
 
 @ioc.start
-def populateCoreActions():
-    parser.add_argument('-dump', dest='write_configurations', action='store_true', help='Provide this option in order to '
-                        'write all the configuration files and exit')
+def prepareCoreOptions():
+    assert isclass(application.Options), 'Invalid options class %s' % application.Options
+    class Options(OptionsCore, application.Options): pass
+    application.Options = Options
 
+@ioc.after(prepareCoreOptions)
+def prepareCoreActions():
+    assert isinstance(application.parser, ArgumentParser), 'Invalid application parser %s' % application.parser
+    application.parser.add_argument('-dump', dest='writeConfigurations', action='store_true',
+                                    help='Provide this option in order to write all the configuration files and exit')
 
-@ioc.after(populateCoreActions)
-def populateCoreOptions():
-    parser.add_argument('--ccfg', metavar='file', dest='components_configurations', default='application.properties',
-                        help='The path of the components properties file to be used in deploying the application, by default '
-                        'is used the "application.properties" in the application module folder')
+@ioc.after(prepareCoreActions)
+def prepareCorePreferences():
+    assert isinstance(application.parser, ArgumentParser), 'Invalid application parser %s' % application.parser
+    application.parser.add_argument('--ccfg', metavar='file', dest='configurationPath', help='The path of the components '
+                                    'properties file to be used in deploying the application, by default is used the '
+                                    '"application.properties" in the application module folder')
