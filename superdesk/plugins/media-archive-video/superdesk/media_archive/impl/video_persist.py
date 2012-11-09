@@ -95,7 +95,6 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
         p = Popen((self.ffmpeg_path, '-i', contentPath, '-vframes', '1', '-an', '-ss', '2', thumbnailPath),
                   stdin=PIPE, stdout=PIPE, stderr=PIPE)
         if p.wait() != 0: return False
-
         if not exists(thumbnailPath): return False
 
         videoDataEntry = VideoDataEntry()
