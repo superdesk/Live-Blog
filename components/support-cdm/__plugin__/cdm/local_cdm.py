@@ -25,7 +25,7 @@ def server_uri():
 @ioc.config
 def repository_path():
     ''' The repository absolute or relative (to the distribution folder) path '''
-    return path.join('workspace', 'cdm')
+    return path.join('workspace', 'shared', 'cdm')
 
 @ioc.config
 def use_linked_cdm():

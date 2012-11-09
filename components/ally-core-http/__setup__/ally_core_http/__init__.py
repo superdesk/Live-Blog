@@ -26,7 +26,7 @@ DESCRIPTION = 'Provides the HTTP communication support'
 def server_type() -> str:
     '''
     The type of the server to use, the options are:
-        "basic"- single threaded server, the safest but slowest server to use.
+    "basic"- single threaded server, the safest but slowest server to use.
     '''
     return 'basic'
 

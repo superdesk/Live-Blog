@@ -66,22 +66,30 @@ Let use the distribution as the root folder.
 
 First we create the configuration (properties) files for superdesk:
 	python3 application.py -dump
-	
 We now have in the distribution folder two new files "application.properties" and "plugin.properties", we need to adjust some
 configurations here.
 
-Configuring "application.properties"
+Now we tell ally-py to prepare the workspace for Mongrel2:
+	python3 application.py -cfg-mongrel2
+This will create the required folders and update the configurations accordingly
+
+Starting Mongrel2
 -----------------------------------------------------------------------------------------------
 
-We will start with "application.properties"
-	server_type: mongrel2
-Here we indicating that the server should be mongrel2 
-	address_request: ipc:///tmp/request1
-	address_response: ipc:///tmp/response1
-This is the requests/response incoming addresses, this is used for in processes communications you can find out more about this
-at "http://nichol.as/zeromq-an-introduction" in "Choosing a transport" chapter.
+Change the root directory to the distribution workspace:
+	cd workspace
 
-Configuring "plugin.properties"
+Now we configure Mongrel2:
+	m2sh load -config ally.conf
+
+And then start Mongrel2:
+	m2sh start -host localhost
+	
+Starting SuperDesk
 -----------------------------------------------------------------------------------------------
 
-Here you need to adjust the CDM location, since in Mongrel2 server mode the content is not delivered by ally-py anymore.
+Move to distribution:
+	cd ..
+
+And then start the application
+	python3 application.py

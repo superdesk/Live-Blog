@@ -28,7 +28,7 @@ createTables = createTables
 @ioc.replace(database_url)
 def database_url():
     '''This database URL is used for the internationalization tables'''
-    return 'sqlite:///workspace/internationalization.db'
+    return 'sqlite:///workspace/shared/internationalization.db'
 
 @ioc.replace(metas)
 def metas(): return [meta]

@@ -13,7 +13,6 @@ from ..ally_core.prepare import OptionsCore, prepareCoreOptions, prepareCoreActi
 from ally.container import ioc
 from argparse import ArgumentParser
 from inspect import isclass
-import os
 
 # --------------------------------------------------------------------
 
@@ -33,7 +32,7 @@ class OptionsMongrel2(OptionsCore):
     
     def setConfigMongrel2(self, value):
         '''Setter for the mongrel2 configure'''
-        if value is None: value = os.path.join('workspace', 'mongrel2')
+        if value is None: value = 'workspace'
         self._configMongrel2 = value
         self._start = self._start and not value
     
@@ -53,6 +52,6 @@ def prepareMongrel2Actions():
     assert isinstance(application.parser, ArgumentParser), 'Invalid parser %s' % application.parser
     application.parser.add_argument('-cfg-mongrel2', metavar='folder', dest='configMongrel2', nargs='?', default=False,
                                     help='Provide this option to create the mongrel2 workspace, by default the mongrel2 '
-                                    'workspace will be created by default in "%s" in the application folder, '
+                                    'workspace will be created by default in "workspace" in the application folder, '
                                     'just provide a new mongrel2 workspace if thats the case, the path can be relative to '
-                                    'the application folder or absolute' % os.path.join('workspace', 'mongrel2'))
+                                    'the application folder or absolute')

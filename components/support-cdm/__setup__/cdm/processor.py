@@ -31,8 +31,8 @@ def server_pattern_content():
 
 @ioc.config
 def repository_path():
-    ''' The repository absolute or relative (to the distribution folder) path '''
-    return path.join('workspace', 'cdm')
+    ''' The repository absolute or relative (to the distribution folder) path from where to serve the files '''
+    return path.join('workspace', 'shared', 'cdm')
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request

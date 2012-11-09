@@ -16,6 +16,11 @@ from threading import Thread
 
 # --------------------------------------------------------------------
 
+@ioc.config     
+def workspace_path():
+    '''The workspace path where the uploads can be located'''
+    return 'workspace'
+
 @ioc.config
 def send_ident():
     '''The send ident to use in communication with Mongrel2, if not specified one will be created'''
@@ -25,20 +30,20 @@ def send_ident():
 def send_spec():
     '''
     The send address to use in communication with Mongrel2, something like:
-       "tcp://127.0.0.1:9997" - for using sockets that allow communication between computers
-       "ipc:///tmp/request1" - for using inter processes that allow communication on the same computer processes
+    "tcp://127.0.0.1:9997" - for using sockets that allow communication between computers
+    "ipc:///tmp/request1" - for using in processes that allow communication on the same computer processes
     '''
-    return 'ipc:///request'
+    return 'ipc:///tmp/request'
 
 @ioc.config
 def recv_ident():
     '''The receive ident to use in communication with Mongrel2, if not specified one will be created'''
-    return None
+    return ''
 
 @ioc.config
 def recv_spec():
     '''The receive address to use in communication with Mongrel2, see more details at "address_request" configuration'''
-    return 'ipc:///response'
+    return 'ipc:///tmp/response'
 
 ioc.doc(server_type, '''
     "mongrel2" - mongrel2 server integration, Attention!!! this is not a full server the content will be delivered
@@ -79,5 +84,5 @@ def requestHandler():
 def runServer():
     if server_type() == 'mongrel2':
         from ally.core.http.server import server_mongrel2
-        args = (requestHandler(), send_ident(), send_spec(), recv_ident(), recv_spec())
+        args = (workspace_path(), requestHandler(), send_ident(), send_spec(), recv_ident(), recv_spec())
         Thread(target=server_mongrel2.run, args=args).start()
