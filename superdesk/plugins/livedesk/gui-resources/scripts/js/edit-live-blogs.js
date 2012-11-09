@@ -574,14 +574,17 @@ function(providers, Gizmo, $)
 			},
 			render: function()
 			{
+				
 				var self = this;
-				$.tmpl('livedesk>timeline-container', {}, function(e, o)
-				{
-					$(self.el).html(o)
-					    .find('ul.post-list')
-					    .sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
-					self.addAll(self.collection.getList());
-				});
+				if($(':first',self.el).length == 0) {
+					$.tmpl('livedesk>timeline-container', {}, function(e, o)
+					{
+						$(self.el).html(o)
+							.find('ul.post-list')
+							.sortable({ items: 'li',  axis: 'y', handle: '.drag-bar'} ); //:not([data-post-type="wrapup"])
+						self.addAll(self.collection.getList());
+					});
+				}
 			},
 			
 			/*!

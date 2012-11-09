@@ -698,12 +698,19 @@ Model.prototype =
 		if( options && typeof options == 'object' ) $.extend(self, options);
 		if( typeof data == 'object' ) {
 			self._parse(data);
-			self._setExpiration();
 		}
-		if(!$.isEmptyObject(self.changeset)) {
-			//console.log('_constructor update', self.changeset);
-			self.triggerHandler('update', self.changeset);
-			self.clearChangeset();
+		self._setExpiration();
+		if(self.isDeleted()){
+			//console.log('pull remove');
+			self._remove();
+		}
+		else if(!$.isEmptyObject(self.changeset)) {
+			//console.log('pull update: ',$.extend({},self.changeset));
+			self.triggerHandler('update', self.changeset).clearChangeset();
+		}
+		else {
+			//console.log('pull read');
+			self.clearChangeset().triggerHandler('read');
 		}
 		return self;
 	},
@@ -774,7 +781,7 @@ Model.prototype =
 					self.triggerHandler('update');
 				}
 			}
-			else 
+			else { 
 			// simply read data from server
 			ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
 			{
@@ -797,6 +804,7 @@ Model.prototype =
 					self.clearChangeset().triggerHandler('read');
 				}
 			}));
+			}
 		}
 		this._setExpiration();
 		return ret;
@@ -988,6 +996,20 @@ Model.prototype =
 		}
 		return this;
 	},
+	one: function(evt, handler, obj)
+	{
+		if(obj === undefined) {
+			$(this).off(evt, handler);
+			$(this).one(evt, handler);
+		}
+		else {			
+			$(this).one(evt, function(){
+				handler.apply(obj, arguments);
+			});
+		}
+		return this;
+	},
+	
 	/*!
 	 * used to trigger model events
 	 * this also calls the model method with the event name
@@ -1314,6 +1336,19 @@ Collection.prototype =
 		}
 		return this;
 	},
+	one: function(evt, handler, obj)
+	{
+		if(obj === undefined) {
+			$(this).off(evt, handler);
+			$(this).one(evt, handler);
+		}
+		else {			
+			$(this).one(evt, function(){
+				handler.apply(obj, arguments);
+			});
+		}
+		return this;
+	},	
 	/*!
 	 * used to trigger model events
 	 * this also calls the model method with the event name
@@ -1497,9 +1532,7 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
         try
         { 
             delete this.options.headers['X-Filter'];
-            delete this.options.data['CId.since'];
-			delete this.options.data['offset'];
-			delete this.options.data['limit'];
+            this.options.data = {};
         }
         catch(e){}
     }, 
@@ -1551,40 +1584,67 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
 		this.syncAdapter.options.headers['X-Format-DateTime'] = 'M/dd/yyyy HH:mm:ss';
         return this;
     },
-    since = function(val) // change id implementation
-    {
-        if(!val)
-			delete this.syncAdapter.options.data['CId.since'];
-		else
-			$.extend( true, this.syncAdapter.options, { data:{ 'CId.since': val }} );			
-		return this;
-    },
-    asc = function(col)
-    {
-        $.extend( true, this.syncAdapter.options, { data:{ asc: col }} );
-		return this;
-    },
-    desc = function(col)
-    {
-        $.extend( true, this.syncAdapter.options, { data:{ desc: col }} );
-		return this;
-    },
-	limit = function(limit)
+    param = function(value, key)
 	{
-        $.extend( true, this.syncAdapter.options, { data:{ limit: limit }} );	
+        if(value === undefined)
+			delete this.syncAdapter.options.data[key];
+		else {
+			if(this.syncAdapter.options.data === undefined)
+				this.syncAdapter.options.data = {};
+			this.syncAdapter.options.data[key] = value;
+		}
 		return this;
 	},
-	offset = function(offset)
+	since = function(value, key) // change id implementation
+    {
+		if(key === undefined)
+			key = 'CId';
+		return param.call(this, value, key+'.since');
+    },
+	until = function(value, key) // change id implementation
+    {
+		if(key === undefined)
+			key = 'CId';
+		return param.call(this, value, key+'.until');
+    },	
+	start = function(value, key) // change id implementation
+    {
+		if(key === undefined)
+			key = 'CId';
+		return param.call(this, value, key+'.start');
+    },	
+	end = function(value, key) // change id implementation
+    {
+		if(key === undefined)
+			key = 'CId';
+		return param.call(this, value, key+'.end');
+    },	
+
+    asc = function(value)
+    {
+		return param.call(this, value, 'asc');
+    },
+    desc = function(value)
+    {
+		return param.call(this, value, 'desc');
+    },
+	limit = function(value)
 	{
-		$.extend( true, this.syncAdapter.options, { data:{ offset: offset }} );
-		return this;
+        return param.call(this, value, 'limit');
+	},
+	offset = function(value)
+	{
+		return param.call(this, value, 'offset');
 	},
     Model = giz.Model.extend // superdesk Model 
     ({
         isDeleted: function(){ return this._forDelete || this.data.DeletedOn; },
         syncAdapter: newSync,
         xfilter: xfilter,
-        since: since
+        since: since,
+		until: until,
+		start: start,
+		end: end
     }),
     Auth = function(model)
     {
@@ -1598,15 +1658,15 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     },
     AuthModel = Model.extend // authenticated superdesk Model
     ({ 
-        syncAdapter: authSync, xfilter: xfilter, since: since
+        syncAdapter: authSync, xfilter: xfilter, since: since, until: until
     }),
     Collection = giz.Collection.extend
     ({
-        xfilter: xfilter, since: since, asc: asc, desc: desc, limit: limit, offset: offset, syncAdapter: newSync
+        xfilter: xfilter, since: since, until: until, start: start, end: end, asc: asc, desc: desc, limit: limit, offset: offset, syncAdapter: newSync
     }),
     AuthCollection = Collection.extend
     ({
-        xfilter: xfilter, since: since, syncAdapter: authSync
+        xfilter: xfilter, since: since, until: until, start: start, end: end, syncAdapter: authSync
     });
     
     // finally add unique container model
@@ -1716,9 +1776,9 @@ window.livedesk.loadXDRequest = function (jQuery) {
 }
 
 window.livedesk.init = function() {
-    
-    window.livedesk.location = window.location.href.split('#')[0];
-    
+	
+	window.livedesk.location = window.location.href.split('#')[0];
+	
     var self = this;
     var loadJQ = false;
     var giveBack$ = false;
@@ -1898,9 +1958,8 @@ window.livedesk.startLoading = function($, _) {
 			keep: false,
 			init: function(){ 
 				var self = this;
-				this.on('readauto updates',function(evt, data)
+				this.on('readauto updatesauto read updates addings addingsauto',function(evt, data)
 				{
-					//console.log('data: ', data && data.slice(0), 'length: ', data && data.length);
 					if(data === undefined)
 						data = self._list;
 					self.getMaximumCid(data);
@@ -1918,7 +1977,6 @@ window.livedesk.startLoading = function($, _) {
 			{
 				for(i=0, count=data.length; i<count; i++) {					
 					var CId = parseInt(data[i].get('CId'))
-					//console.log('CId: ',CId);
 					if( !isNaN(CId) && (this._latestCId < CId) )
 						this._latestCId = CId;
 				}
@@ -2002,9 +2060,7 @@ window.livedesk.startLoading = function($, _) {
 			parse: function(data){
 				if(data.total !== undefined) {
 					data.total = parseInt(data.total);
-					if(this.total === undefined) {
-						this.total = data.total;
-					}
+					this.listTotal = data.total;
 					delete data.total;
 				}
 				if(data.PostList)
@@ -2173,14 +2229,6 @@ window.livedesk.startLoading = function($, _) {
                             }
                             if (item.hasClass('open')) {
                                 var collapse = true;
-                                var hash = window.location.hash;
-                                if ( hash.length > 0 && forceToggle == false ) {
-                                    item.nextUntil('.wrapup').each(function(){
-                                        if ('#' + $(this).find('a').attr('name') == hash) {
-                                            collapse = false;
-                                        }
-                                    });
-                                }
                                 if ( collapse ) {
                                     item.removeClass('open').addClass('closed');
                                     item.nextUntil('.wrapup').hide();
@@ -2203,8 +2251,8 @@ window.livedesk.startLoading = function($, _) {
                             }
                         },
 			render: function()
-			{			
-                countLoaded++;
+			{
+			
 				var self = this, order = parseFloat(self.model.get('Order')), Avatar='';
 				if(this.model.get('AuthorPerson') && this.model.get('AuthorPerson').EMail) {
 					Avatar = $.avatar.get(self.model.get('AuthorPerson').EMail);
@@ -2256,16 +2304,17 @@ window.livedesk.startLoading = function($, _) {
 				
 				content = self.itemTemplate(self.model, content, time, Avatar);
                                 
-				var postId = self.model.get('Id');
+				/*var postId = self.model.get('Id');
 				var blogTitle = self._parent.model.get('Title');
 				blogTitle = blogTitle.replace(/ /g, '-');
 				var hash = postId + '-' +  encodeURI (blogTitle);
-				var hash = postId;
+				*/
+				var hash = self.model.get('Order');
 				var itemClass = self.model.getClass();
-				var fullLink = window.livedesk.location + '#' + hash;
+				var fullLink = window.livedesk.location + '#' + self._parent.hashIdentifier + hash;
 				var permalink = '';
 				if(itemClass !== 'advertisement' && itemClass !== 'wrapup')
-					permalink = '<a rel="bookmark" href="#'+ hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';						
+					permalink = '<a rel="bookmark" href="#'+ self._parent.hashIdentifier + hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';						
 				var template ='<li class="'+ style + itemClass +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
                                 
 				if ( typeof window.livedesk.productionServer != 'undefined' && typeof window.livedesk.frontendServer != 'undefined' ){
@@ -2287,12 +2336,11 @@ window.livedesk.startLoading = function($, _) {
 			}
 		}),
 		totalLoad = 0,
-		iidLoadTrace = 0,
-		countLoaded = 0,
 		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
-			limit: 25,
-			offset: 0,		
+			limit: 5,
+			offset: 0,
+			hashIdentifier: 'livedeskitem=',
 			el: '#livedesk-root',
 			timeInterval: 10000,
 			idInterval: 0,
@@ -2303,14 +2351,18 @@ window.livedesk.startLoading = function($, _) {
 			more: function(evt) {
 				var self = this,
 					delta = self.model.get('PostPublished').delta;
-				self.model.get('PostPublished')
+					postPublished = self.model.get('PostPublished')
+				if(self.filters) {
+					$.each(self.filters, function(method, args) {
+						postPublished[method].apply(postPublished, args);
+					});
+				}
+				postPublished
 					.xfilter(self.xfilter)
 					.limit(self.limit)
 					.offset(self._views.length)
 					.sync().done(function(data){				
 						var total = self.model.get('PostPublished').total;
-						//console.log('total: ',total);
-						//console.log('self._views.length: ',self._views.length);
 						if(self._views.length >= total)
 							$(evt.target).hide();
 					});
@@ -2361,15 +2413,27 @@ window.livedesk.startLoading = function($, _) {
 				{
 					//console.log('read');
 					if(!self.rendered) {
-						self.model.get('PostPublished')
-							.on('read readauto', self.render, self)
-							.on('addings addingsauto', self.addAll, self)
-							.on('addingsauto', self.updateTotal, self)
-							.on('updates updatesauto', self.updateStatus, self)
-							.on('beforeUpdate', self.updateingStatus, self)
-							.limit(self.limit)
-							.offset(self.offset)
-							.xfilter(self.xfilter).auto();
+						var hashIndex, 
+							orderhash = window.location.href.split('#'),
+							postPublished = self.model.get('PostPublished')
+								.on('read readauto', self.render, self)
+								.on('addings addingsauto', self.addAll, self)
+								.on('addingsauto', self.updateTotal, self)
+								.on('updates updatesauto', self.updateStatus, self)
+								.on('beforeUpdate', self.updateingStatus, self)
+								.xfilter(self.xfilter)
+								.limit(self.limit);
+						if(orderhash[1] && ( (hashIndex = orderhash[1].indexOf(self.hashIdentifier)) !== -1)) {
+							var order = parseFloat(orderhash[1].substr(hashIndex+self.hashIdentifier.length));
+							self.filters = {end: [order, 'order']};
+							postPublished
+								.one('rendered', self.showLiner, self)
+								.end(order, 'order')
+								.sync();
+						} else {
+								postPublished
+									.offset(self.offset).auto();
+						}
 					}
 					self.rendered = true;
 				}).on('update', function(e, data){
@@ -2377,6 +2441,27 @@ window.livedesk.startLoading = function($, _) {
 					self.renderBlog();
 				});
 				self.sync();				
+			},
+			showLiner: function()
+			{
+				var self = this;
+				$('#liveblog-firstmore')
+					.on('click', function(){
+						self.el.find('#liveblog-post-list').html('');
+						for(i=0, count = self._views.length; i<count; i++) {
+							self._views[i].rendered = false;
+						}
+						self._views = [];
+						delete self.filters;
+						var postPublished = self.model.get('PostPublished');
+						postPublished._list = [];						
+						postPublished._latestCId = 0;
+						postPublished
+							.limit(self.limit)
+							.offset(self.offset).auto();
+						$(this).hide();
+					})
+					.show();
 			},
 			removeOne: function(view)
 			{
@@ -2450,8 +2535,9 @@ window.livedesk.startLoading = function($, _) {
 			{
 				var i = data.length;
 				while(i--) {
-						this.addOne(data[i]);
+					this.addOne(data[i]);
 				}
+				this.toggleMoreVisibility();
 			},
 			updateingStatus: function()
 			{
@@ -2470,28 +2556,26 @@ window.livedesk.startLoading = function($, _) {
 					//.find('h2').html(this.model.get('Title')).end()
 					//.find('p').html(this.model.get('Description'));
 			},
-                        
-			loadTrace: function() {
-				if ( countLoaded >= totalLoad) { 
-					this.gotoHash()
-					clearInterval(iidLoadTrace);
-				}
+			toggleMoreVisibility: function()
+			{				
+				if(this.limit >= this.model.get('PostPublished').total ) {
+					$('#liveblog-more',this.el).hide();
+				} else {
+					$('#liveblog-more',this.el).show();
+				}			
 			},
 			render: function(evt)
 			{				
-				var total = this.model.get('PostPublished').total;
-				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div><a id="liveblog-more" href="javascript:void(0)">'+_('More')+'</a></div>');				
-				if(this.limit >= total)
-						$('#liveblog-more',this.el).hide();
+				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div class="liveblog-more-container"><a class="liveblog-more" id="liveblog-firstmore" href="javascript:void(0)" style="display:none !important;">'+_('Load more posts')+'</a></div><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div><a id="liveblog-more" class="liveblog-more" href="javascript:void(0)">'+_('More')+'</a></div>');
 				this.renderBlog();
 				this.ensureStatus();
-				data = this.model.get('PostPublished')._list;
+				var postPublished = this.model.get('PostPublished');
+				data = postPublished._list;
+				postPublished.total = postPublished.listTotal;
+				this.toggleMoreVisibility();
 				var next = this._latest, current, model, i = data.length;                               
 				totalLoad = data.length;
 				var self = this, auxView;
-				iidLoadTrace = setInterval(function(){
-					self.loadTrace();
-				}, 900)
 				this.views=[];
 				this.renderedTotal = i;
 				while(i--) {
@@ -2499,13 +2583,12 @@ window.livedesk.startLoading = function($, _) {
 					auxView = this.addOne(data[i]);
 					this.views.push(auxView);
 				}
-                                
+                this.model.get('PostPublished').triggerHandler('rendered');           
 			},
 			renderedOn: function(){
 			   this.renderedTotal--;
 			   if(!this.renderedTotal) {
 					this.closeAllButFirstWrapup();
-                        this.addClassToHashItem();
 			   }
 			},
 			closeAllButFirstWrapup: function(views) {
@@ -2515,14 +2598,6 @@ window.livedesk.startLoading = function($, _) {
 					 if ($(views[i].el).hasClass('wrapup')) {
 						  views[i]._toggleWrap($(views[i].el));
 					 }
-				}
-			},
-			addClassToHashItem: function() {
-				var hash = window.location.hash;
-				var hashArray = hash.split('#');                            
-				if ( hashArray.length > 1) {
-					var name = hashArray[1];
-					$('a[name="' + name + '"]').addClass('hash-open');
 				}
 			}
 		});
