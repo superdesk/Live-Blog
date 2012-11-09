@@ -235,7 +235,7 @@ $.extend(providers.twitter, {
                 }
                 this.showLoading('#twt-timeline-more');
                 self.resetAutoRefresh();
-                var fullUrl = str.format(this.urlTimeline,{text: text, page: page});
+                var fullUrl = str.format(this.urlTimeline,{text: encodeURIComponent(text), page: page});
                 $.jsonp({
                     url : fullUrl,
                     success : function(data){
@@ -331,7 +331,7 @@ $.extend(providers.twitter, {
             }
             this.showLoading('#twt-user-more');
             self.resetAutoRefresh();
-            var fullUrl = str.format(this.urlUser,{text: text, page: page});
+            var fullUrl = str.format(this.urlUser,{text: encodeURIComponent(text), page: page});
             $.jsonp({
                 url : fullUrl,
                 success : function(data){
@@ -421,7 +421,7 @@ $.extend(providers.twitter, {
                 self.data = [];
             }
             this.showLoading('#twt-favorites-more');
-            var fullUrl = str.format(this.urlFavorites,{text: text, page: page});
+            var fullUrl = str.format(this.urlFavorites,{text: encodeURIComponent(text), page: page});
             self.resetAutoRefresh();
             $.jsonp({
                 url: fullUrl,
@@ -517,7 +517,7 @@ $.extend(providers.twitter, {
             
             $('#twt-web-more').html('');
 
-            qstring = typeof qstring !== 'undefined' ? qstring : '?q='+ text +'&include_entities=true';
+            qstring = typeof qstring !== 'undefined' ? qstring : '?q='+ encodeURIComponent(text) +'&include_entities=true';
             if ( qstring == '?q='+ text +'&include_entities=true' ) {
                 $('#twt-web-results').html('');
                 self.data = [];
