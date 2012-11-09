@@ -698,12 +698,19 @@ Model.prototype =
 		if( options && typeof options == 'object' ) $.extend(self, options);
 		if( typeof data == 'object' ) {
 			self._parse(data);
-			self._setExpiration();
 		}
-		if(!$.isEmptyObject(self.changeset)) {
-			//console.log('_constructor update', self.changeset);
-			self.triggerHandler('update', self.changeset);
-			self.clearChangeset();
+		self._setExpiration();
+		if(self.isDeleted()){
+			//console.log('pull remove');
+			self._remove();
+		}
+		else if(!$.isEmptyObject(self.changeset)) {
+			//console.log('pull update: ',$.extend({},self.changeset));
+			self.triggerHandler('update', self.changeset).clearChangeset();
+		}
+		else {
+			//console.log('pull read');
+			self.clearChangeset().triggerHandler('read');
 		}
 		return self;
 	},
@@ -774,7 +781,7 @@ Model.prototype =
 					self.triggerHandler('update');
 				}
 			}
-			else 
+			else { 
 			// simply read data from server
 			ret = (this.href && dataAdapter(this.href).read(arguments[0]).done(function(data)
 			{
@@ -797,6 +804,7 @@ Model.prototype =
 					self.clearChangeset().triggerHandler('read');
 				}
 			}));
+			}
 		}
 		this._setExpiration();
 		return ret;
@@ -1593,6 +1601,25 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
 			key = 'CId';
 		return param.call(this, value, key+'.since');
     },
+	until = function(value, key) // change id implementation
+    {
+		if(key === undefined)
+			key = 'CId';
+		return param.call(this, value, key+'.until');
+    },	
+	start = function(value, key) // change id implementation
+    {
+		if(key === undefined)
+			key = 'CId';
+		return param.call(this, value, key+'.start');
+    },	
+	end = function(value, key) // change id implementation
+    {
+		if(key === undefined)
+			key = 'CId';
+		return param.call(this, value, key+'.end');
+    },	
+
     asc = function(value)
     {
 		return param.call(this, value, 'asc');
@@ -1614,7 +1641,10 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
         isDeleted: function(){ return this._forDelete || this.data.DeletedOn; },
         syncAdapter: newSync,
         xfilter: xfilter,
-        since: since
+        since: since,
+		until: until,
+		start: start,
+		end: end
     }),
     Auth = function(model)
     {
@@ -1628,15 +1658,15 @@ var giz = {Model: Model, Collection: Collection, Sync: Sync, UniqueContainer: Un
     },
     AuthModel = Model.extend // authenticated superdesk Model
     ({ 
-        syncAdapter: authSync, xfilter: xfilter, since: since
+        syncAdapter: authSync, xfilter: xfilter, since: since, until: until
     }),
     Collection = giz.Collection.extend
     ({
-        xfilter: xfilter, since: since, asc: asc, desc: desc, limit: limit, offset: offset, syncAdapter: newSync
+        xfilter: xfilter, since: since, until: until, start: start, end: end, asc: asc, desc: desc, limit: limit, offset: offset, syncAdapter: newSync
     }),
     AuthCollection = Collection.extend
     ({
-        xfilter: xfilter, since: since, syncAdapter: authSync
+        xfilter: xfilter, since: since, until: until, start: start, end: end, syncAdapter: authSync
     });
     
     // finally add unique container model
@@ -1746,7 +1776,9 @@ window.livedesk.loadXDRequest = function (jQuery) {
 }
 
 window.livedesk.init = function() {
-       
+	
+	window.livedesk.location = window.location.href.split('#')[0];
+	
     var self = this;
     var loadJQ = false;
     var giveBack$ = false;
@@ -1926,8 +1958,8 @@ window.livedesk.startLoading = function($, _) {
 			keep: false,
 			init: function(){ 
 				var self = this;
-				this.on('readsauto updatesauto reads updates',function(evt, data)
-				{					
+				this.on('readauto updatesauto read updates addings addingsauto',function(evt, data)
+				{
 					if(data === undefined)
 						data = self._list;
 					self.getMaximumCid(data);
@@ -1945,7 +1977,6 @@ window.livedesk.startLoading = function($, _) {
 			{
 				for(i=0, count=data.length; i<count; i++) {					
 					var CId = parseInt(data[i].get('CId'))
-					//console.log('CId: ',CId);
 					if( !isNaN(CId) && (this._latestCId < CId) )
 						this._latestCId = CId;
 				}
@@ -2222,8 +2253,7 @@ window.livedesk.startLoading = function($, _) {
                             }
                         },
 			render: function()
-			{			
-                countLoaded++;
+			{
 				var self = this, order = parseFloat(self.model.get('Order')), Avatar='';
 				if(this.model.get('AuthorPerson') && this.model.get('AuthorPerson').EMail) {
 					Avatar = $.avatar.get(self.model.get('AuthorPerson').EMail);
@@ -2275,16 +2305,17 @@ window.livedesk.startLoading = function($, _) {
 				
 				content = self.itemTemplate(self.model, content, time, Avatar);
                                 
-				var postId = self.model.get('Id');
+				/*var postId = self.model.get('Id');
 				var blogTitle = self._parent.model.get('Title');
 				blogTitle = blogTitle.replace(/ /g, '-');
 				var hash = postId + '-' +  encodeURI (blogTitle);
-				var hash = postId;
+				*/
+				var hash = self.model.get('Order');
 				var itemClass = self.model.getClass();
-				var fullLink = window.livedesk.location + '#' + hash;
+				var fullLink = window.livedesk.location + '#' + self._parent.hashIdentifier + hash;
 				var permalink = '';
 				if(itemClass !== 'advertisement' && itemClass !== 'wrapup')
-					permalink = '<a rel="bookmark" href="#'+ hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';						
+					permalink = '<a rel="bookmark" href="#'+ self._parent.hashIdentifier + hash +'">#</a><input type="text" value="' + fullLink + '" style="visibility:hidden" data-type="permalink" />';						
 				var template ='<li class="'+ style + itemClass +'"><a name="' + hash + '"></a>' + content + '&nbsp;'+ permalink +'</li>';
                                 
 				if ( typeof window.livedesk.productionServer != 'undefined' && typeof window.livedesk.frontendServer != 'undefined' ){
@@ -2306,11 +2337,9 @@ window.livedesk.startLoading = function($, _) {
 			}
 		}),
 		totalLoad = 0,
-		iidLoadTrace = 0,
-		countLoaded = 0,
 		LivedeskClass.TimelineView = $.gizmo.View.extend
 		({
-			limit: 25,
+			limit: 5,
 			offset: 0,
 			hashIdentifier: 'livedeskitem=',
 			el: '#livedesk-root',
@@ -2323,14 +2352,18 @@ window.livedesk.startLoading = function($, _) {
 			more: function(evt) {
 				var self = this,
 					delta = self.model.get('PostPublished').delta;
-				self.model.get('PostPublished')
+					postPublished = self.model.get('PostPublished')
+				if(self.filters) {
+					$.each(self.filters, function(method, args) {
+						postPublished[method].apply(postPublished, args);
+					});
+				}
+				postPublished
 					.xfilter(self.xfilter)
 					.limit(self.limit)
 					.offset(self._views.length)
 					.sync().done(function(data){				
 						var total = self.model.get('PostPublished').total;
-						//console.log('total: ',total);
-						//console.log('self._views.length: ',self._views.length);
 						if(self._views.length >= total)
 							$(evt.target).hide();
 					});
@@ -2392,10 +2425,11 @@ window.livedesk.startLoading = function($, _) {
 								.xfilter(self.xfilter)
 								.limit(self.limit);
 						if(orderhash[1] && ( (hashIndex = orderhash[1].indexOf(self.hashIdentifier)) !== -1)) {
-							var ordersince = parseInt(orderhash[1].substr(hashIndex+self.hashIdentifier.length));
+							var order = parseFloat(orderhash[1].substr(hashIndex+self.hashIdentifier.length));
+							self.filters = {end: [order, 'order']};
 							postPublished
 								.one('rendered', self.showLiner, self)
-								.since(ordersince, 'order')
+								.end(order, 'order')
 								.sync();
 						} else {
 								postPublished
@@ -2414,7 +2448,15 @@ window.livedesk.startLoading = function($, _) {
 				var self = this;
 				$('#liveblog-firstmore')
 					.on('click', function(){
-						self.model.get('PostPublished')
+						self.el.find('#liveblog-post-list').html('');
+						for(i=0, count = self._views.length; i<count; i++) {
+							self._views[i].rendered = false;
+						}
+						self._views = [];
+						var postPublished = self.model.get('PostPublished');
+						postPublished._list = [];						
+						postPublished._latestCId = 0;
+						postPublished
 							.limit(self.limit)
 							.offset(self.offset).auto();
 						$(this).hide();
@@ -2493,7 +2535,7 @@ window.livedesk.startLoading = function($, _) {
 			{
 				var i = data.length;
 				while(i--) {
-						this.addOne(data[i]);
+					this.addOne(data[i]);
 				}
 			},
 			updateingStatus: function()
@@ -2514,16 +2556,10 @@ window.livedesk.startLoading = function($, _) {
 					//.find('p').html(this.model.get('Description'));
 			},
                         
-			loadTrace: function() {
-				if ( countLoaded >= totalLoad) { 
-					this.gotoHash()
-					clearInterval(iidLoadTrace);
-				}
-			},
 			render: function(evt)
 			{				
 				var total = this.model.get('PostPublished').total;
-				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div class="liveblog-more-container"><a class="liveblog-more" id="liveblog-firstmore" href="javascript:void(0)" style="display:none;">'+_('More')+'</a></div><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div><a id="liveblog-more" class="liveblog-more" href="javascript:void(0)">'+_('More')+'</a></div>');
+				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div class="liveblog-more-container"><a class="liveblog-more" id="liveblog-firstmore" href="javascript:void(0)" style="display:none;">'+_('Load more posts')+'</a></div><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div><a id="liveblog-more" class="liveblog-more" href="javascript:void(0)">'+_('More')+'</a></div>');
 				if(this.limit >= total)
 						$('#liveblog-more',this.el).hide();
 				this.renderBlog();
@@ -2532,9 +2568,6 @@ window.livedesk.startLoading = function($, _) {
 				var next = this._latest, current, model, i = data.length;                               
 				totalLoad = data.length;
 				var self = this, auxView;
-				iidLoadTrace = setInterval(function(){
-					self.loadTrace();
-				}, 900)
 				this.views=[];
 				this.renderedTotal = i;
 				while(i--) {
