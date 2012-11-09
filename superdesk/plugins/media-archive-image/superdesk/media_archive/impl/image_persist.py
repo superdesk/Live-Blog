@@ -17,17 +17,16 @@ from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
-from ally.support.util_deploy import deploy as deployTool
 from ally.support.util_sys import pythonPath
 from datetime import datetime
 from os.path import join, splitext, abspath
 from sqlalchemy.exc import SQLAlchemyError
+from subprocess import Popen, PIPE
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
 from superdesk.media_archive.core.spec import IMetaDataHandler
 from superdesk.media_archive.meta.image_data import META_TYPE_KEY
 import re
-import subprocess
 
 # --------------------------------------------------------------------
 
@@ -72,8 +71,6 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         self._thumbnailFormat = thumbnailFormatFor(self.session(), self.format_thumbnail)
         self._metaTypeId = metaTypeFor(self.session(), META_TYPE_KEY).Id
 
-        deployTool(join(pythonPath(), 'resources', 'exiv2'), self.metadata_extractor_path)
-
 # --------------------------------------------------------------------
 
     def processByInfo(self, metaDataMapped, contentPath, contentType):
@@ -94,11 +91,9 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         '''
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
-
-        p = subprocess.Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
-                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
+                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
         result = p.wait()
-
         # 253 is the exiv2 code for error: No Exif data found in the file
         if result != 0 and result != 253: return False
 
