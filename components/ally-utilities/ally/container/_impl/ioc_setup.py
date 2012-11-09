@@ -462,7 +462,8 @@ class SetupEvent(SetupFunction):
             raise SetupError('There is already a setup call for name %r' % self.name)
         if self._event == self.BEFORE or len(self._targets) == 1:
             assembly.calls[self.name] = CallEvent(assembly, self.name, self._function)
-        else: assembly.calls[self.name] = CallEventOnCount(assembly, self.name, self._function, len(self._targets))
+        else:
+            assembly.calls[self.name] = CallEventOnCount(assembly, self.name, self._function, len(self._targets))
 
     def assemble(self, assembly):
         '''
@@ -476,8 +477,8 @@ class SetupEvent(SetupFunction):
             if not isinstance(call, WithListeners):
                 raise SetupError('Cannot find any listener support for target %r to add the event' % target)
             assert isinstance(call, WithListeners)
-        if self._event == self.BEFORE: call.addBefore(partial(assembly.processForName, self.name), self._auto)
-        elif self._event == self.AFTER: call.addAfter(partial(assembly.processForName, self.name), self._auto)
+            if self._event == self.BEFORE: call.addBefore(partial(assembly.processForName, self.name), self._auto)
+            elif self._event == self.AFTER: call.addAfter(partial(assembly.processForName, self.name), self._auto)
 
     def __call__(self):
         '''
