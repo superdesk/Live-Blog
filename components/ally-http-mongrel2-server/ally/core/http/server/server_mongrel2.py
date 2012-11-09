@@ -154,7 +154,8 @@ class Mongrel2Server:
         assert callable(requestHandler), 'Invalid request handler %s' % requestHandler
         self.context = zmq.Context()
         self.reqs = self.context.socket(zmq.PULL)
-        if recvIdent: self.resp.setsockopt(zmq.IDENTITY, recvIdent)
+
+        if recvIdent: self.reqs.setsockopt(zmq.IDENTITY, recvIdent)
         self.reqs.connect(sendSpec)
 
         self.resp = self.context.socket(zmq.PUB)

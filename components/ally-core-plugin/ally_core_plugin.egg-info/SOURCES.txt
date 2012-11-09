@@ -1,5 +1,8 @@
 setup.cfg
 setup.py
+__deploy__/__init__.py
+__deploy__/ally_core_plugin/__init__.py
+__deploy__/ally_core_plugin/deploy.py
 __plugin__/__init__.py
 __plugin__/plugin/__init__.py
 __plugin__/plugin/registry.py

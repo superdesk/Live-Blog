@@ -3,6 +3,7 @@ setup.py
 __setup__/__init__.py
 __setup__/ally_core_http/__init__.py
 __setup__/ally_core_http/encoder_decoder.py
+__setup__/ally_core_http/logging.py
 __setup__/ally_core_http/processor.py
 __setup__/ally_core_http/processor_babel.py
 __setup__/ally_core_http/processor_time_zone.py
