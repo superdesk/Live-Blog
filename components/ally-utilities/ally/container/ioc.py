@@ -131,7 +131,6 @@ def after(*setups, auto=True):
         if hasType: raise SetupError('No return type expected for function %s' % function)
         return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.AFTER, auto),
                                        callerLocals()), function)
-
     return decorator
 
 def replace(setup):

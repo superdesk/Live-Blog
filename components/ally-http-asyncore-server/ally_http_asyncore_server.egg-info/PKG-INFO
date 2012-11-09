@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: ally-http-asyncore-server
+Version: 1.0.dev
+Summary: Ally framework - Provides asyncore HTTP support for the framework
+Home-page: http://www.sourcefabric.org/en/superdesk/
+Author: Gabriel Nistor
+Author-email: gabriel.nistor@sourcefabric.org
+License: GPL v3
+Description: It provides asyncore HTTP server support
+Keywords: Ally REST framework
+Platform: all
