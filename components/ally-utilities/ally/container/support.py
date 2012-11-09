@@ -16,12 +16,13 @@ from ._impl.ioc_setup import ConfigError, register, SetupConfig, setupsOf, \
     setupFirstOf, SetupStart
 from ._impl.support_setup import SetupError, SetupEntityProxy, SetupEntityWire, \
     Assembly, CallEntity, SetupEntityCreate
+from ally.container._impl.ioc_setup import CallConfig
 from ally.container._impl.support_setup import SetupEntityListen, \
     SetupEntityListenAfterBinding, _classes
+from ally.container.config import Config
 from copy import deepcopy
 from functools import partial
 from inspect import isclass, ismodule, getsource
-from ally.container._impl.ioc_setup import CallConfig
 
 # --------------------------------------------------------------------
 # Functions available in setup modules.
@@ -347,7 +348,7 @@ def force(setup, value, assembly=None):
     @param value: object
         The value to be forced, needs to be compatible with the configuration setup.
     @param assembly: Assembly|None
-        The assembly to find the entity in, if None the current assembly will be considered.
+        The assembly to find the configuration in, if None the current assembly will be considered.
     '''
     assert isinstance(setup, SetupConfig), 'Invalid setup %s' % setup
     assembly = assembly or Assembly.current()
@@ -359,3 +360,24 @@ def force(setup, value, assembly=None):
         assert isinstance(call, CallConfig), 'Invalid call %s' % call
         call.value = value
     finally: Assembly.stack.pop()
+    
+def persist(setup, value, assembly=None):
+    '''
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
+    Persists a configuration setup to have the provided value but only in saving the configuration file, so this
+    method should be called before a the configurations are persisted.
+    
+    @param setup: SetupConfig
+        The setup to persist the value on.
+    @param value: object
+        The value to be forced, needs to be compatible with the configuration setup.
+    @param assembly: Assembly|None
+        The assembly to find the configuration in, if None the current assembly will be considered.
+    '''
+    assert isinstance(setup, SetupConfig), 'Invalid setup %s' % setup
+    assembly = assembly or Assembly.current()
+    assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+    
+    config = assembly.configurations.get(setup.name)
+    assert isinstance(config, Config), 'Invalid configuration %s for the assembly' % setup.name
+    config.value = value

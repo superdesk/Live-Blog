@@ -10,19 +10,19 @@ Special module that is used in deploying the application.
 '''
  
 from .prepare import OptionsMongrel2
-from __setup__.ally_core_http import server_port
+from __setup__.ally_core_http import server_port, server_type
 from __setup__.ally_http_mongrel2_server.server import send_spec, send_ident, \
     recv_spec, recv_ident
-from ally.container import aop, ioc
+from ally.container import aop, ioc, support
 from ally.container._impl.ioc_setup import Assembly
-from ally.container.config import load
-from ally.support.util_io import openURI, ReplaceInFile
+from ally.container.config import load, save
+from ally.support.util_io import openURI, ReplaceInFile, pipe
 from ally.support.util_sys import pythonPath
+from os import path, makedirs, renames
+from uuid import uuid4
 import codecs
-import os
 import sys
 import traceback
-from uuid import uuid4
 
 # --------------------------------------------------------------------
 
@@ -36,26 +36,51 @@ def config():
     assert isinstance(application.options, OptionsMongrel2), 'Invalid application options %s' % application.options
     if not application.options.configMongrel2: return
     workspace = application.options.configMongrel2
-    for name in ('cdm', 'logs', 'run', 'tmp', 'upload'):
-        path = os.path.join(workspace, name)
-        if not os.path.isdir(path): os.makedirs(path)
+    folders = [path.join('mongrel2', name) for name in ('logs', 'run', 'tmp')]
+    folders.append(path.join('shared', 'upload'))
+
+    for name in folders:
+        folder = path.join(workspace, name)
+        if not path.isdir(folder): makedirs(folder)
     
+    configFile = application.options.configurationPath
+    if path.isfile(configFile):
+        with open(configFile, 'r') as f: config = load(f)
+    else:
+        print('The configuration file "%s" doesn\'t exist, create one by running the the application '
+              'with "-dump" option, also change the application properties "server_type" configuration to "mongrel2" '
+              'and also adjust the "recv_spec", "send_spec" and "server_port" accordingly' % configFile, file=sys.stderr)
+        sys.exit(1)
+        
     try:
-        with open(application.options.configurationPath, 'r') as f: config = load(f)
         assembly = application.assembly = ioc.open(aop.modulesIn('__setup__.**'), config=config)
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+    
+        updateConfig = False
+        if server_type() != 'mongrel2':
+            updateConfig = True
+            support.persist(server_type, 'mongrel2')
         
-        sendIdent, recvIdent = send_ident(), recv_ident()
-        if sendIdent is None: sendIdent = str(uuid4())
-        if recvIdent is None: recvIdent = str(uuid4())
+        sendIdent = send_ident()
+        if sendIdent is None:
+            updateConfig = True
+            sendIdent = str(uuid4())
+            support.persist(send_ident, sendIdent)
         
         replace = {}
         try:
             replace['${send_spec}'] = send_spec()
             replace['${send_ident}'] = sendIdent
             replace['${recv_spec}'] = recv_spec()
-            replace['${recv_ident}'] = recvIdent
+            replace['${recv_ident}'] = recv_ident()
             replace['${server_port}'] = str(server_port())
+        
+            if updateConfig:
+                if path.isfile(configFile): renames(configFile, configFile + '.bak')
+                for config in assembly.configurations: assembly.processForName(config)
+                # Forcing the processing of all configurations
+                with open(configFile, 'w') as f: save(assembly.trimmedConfigurations(), f)
+                print('Updated the "%s" configuration file' % configFile)
         finally: ioc.deactivate()
     except SystemExit: raise
     except:
@@ -64,11 +89,12 @@ def config():
         traceback.print_exc(file=sys.stderr)
         print('-' * 150, file=sys.stderr)
     else:
-        conf = openURI(os.path.join(pythonPath(), 'ally.conf'))
+        conf = openURI(path.join(pythonPath(), 'ally.conf'))
         conf = codecs.getreader('utf8')(conf)
         conf = ReplaceInFile(conf, replace)
-        with open(os.path.join(workspace, 'ally.conf'), 'w') as f: f.write(conf.read())
+        with open(path.join(workspace, 'ally.conf'), 'w') as f: pipe(conf, f)
+        with open(path.join(workspace, 'README-Mongrel2.txt'), 'wb') as f:
+            pipe(openURI(path.join(pythonPath(), 'README-Mongrel2.txt')), f)
         
-        print('Created "%s" mongrel2 workspace' % workspace)
-        
+        print('Configured "%s" mongrel2 workspace' % workspace)
     

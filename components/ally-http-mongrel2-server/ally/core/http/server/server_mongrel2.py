@@ -20,11 +20,11 @@ from ally.design.processor import Processing, Assembly, ONLY_AVAILABLE, \
 from ally.support.util_io import IInputStream, IClosable
 from collections import Iterable
 from io import BytesIO
+from os import path, remove
 from urllib.parse import parse_qsl
 from uuid import uuid4
 import json
 import logging
-import os
 import re
 import zmq
 
@@ -145,13 +145,15 @@ class Mongrel2Server:
     Made based on the mongrel2.handler
     '''
     
-    def __init__(self, sendIdent, sendSpec, recvIdent, recvSpec, requestHandler):
+    def __init__(self, workspacePath, sendIdent, sendSpec, recvIdent, recvSpec, requestHandler):
         '''
         Your addresses should be the same as what you configured
         in the config.sqlite for Mongrel2 and are usually like 
         tcp://127.0.0.1:9998
         '''
+        assert isinstance(workspacePath, str), 'Invalid path workspace %s' % workspacePath
         assert callable(requestHandler), 'Invalid request handler %s' % requestHandler
+        self.workspacePath = workspacePath
         self.context = zmq.Context()
         self.reqs = self.context.socket(zmq.PULL)
 
@@ -196,8 +198,9 @@ class Mongrel2Server:
                     if started != done:
                         assert log.debug('Got the wrong target file \'%s\' expected \'%s\'' % (done, started)) or True
                         continue
-                    request.body = open(done, 'rb')
-                    upload = done, request.body
+                    pathUpload = path.join(self.workspacePath, done)
+                    request.body = open(pathUpload, 'rb')
+                    upload = pathUpload, request.body
                 elif started:
                     assert log.debug('Upload starting in file %s' % started) or True
                     continue
@@ -206,10 +209,10 @@ class Mongrel2Server:
             finally:
                 if upload is not None:
                     # Remove the uploaded file.
-                    path, stream = upload
+                    pathUpload, stream = upload
                     try: stream.close()
                     except: pass
-                    os.remove(path)
+                    remove(pathUpload)
 
 class Request:
     '''
@@ -268,14 +271,15 @@ class Request:
 
 # --------------------------------------------------------------------
 
-def run(requestHandler, sendIdent, sendSpec, recvIdent, recvSpec):
+def run(workspacePath, requestHandler, sendIdent, sendSpec, recvIdent, recvSpec):
+    assert isinstance(workspacePath, str), 'Invalid path workspace %s' % workspacePath
     assert callable(requestHandler), 'Invalid request handler %s' % requestHandler
     if sendIdent is None: sendIdent = uuid4().hex.encode('utf8')
     elif isinstance(sendIdent, str): sendIdent = sendIdent.encode('utf8')
     if recvIdent is None: recvIdent = uuid4().hex.encode('utf8')
     elif isinstance(recvIdent, str): recvIdent = recvIdent.encode('utf8')
     
-    server = Mongrel2Server(sendIdent, sendSpec, recvIdent, recvSpec, requestHandler)
+    server = Mongrel2Server(workspacePath, sendIdent, sendSpec, recvIdent, recvSpec, requestHandler)
     try:
         print('=' * 50, 'Started Mongrel2 REST API server...')
         server.serve_forever()

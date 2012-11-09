@@ -47,7 +47,7 @@ def dump():
         assembly = ioc.open(aop.modulesIn('__plugin__.**'), config=config)
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
         try:
-            if os.path.isfile(configFile): os.rename(configFile, configFile + '.bck')
+            if os.path.isfile(configFile): os.rename(configFile, configFile + '.bak')
             for config in assembly.configurations: assembly.processForName(config)
             # Forcing the processing of all configurations
             with open(configFile, 'w') as f: save(assembly.trimmedConfigurations(), f)
