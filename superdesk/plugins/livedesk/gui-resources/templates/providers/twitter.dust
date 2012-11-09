@@ -5,10 +5,10 @@
         <li id="twt-user-tab"><a href="#">User</a></li>
         <li id="twt-favorites-tab"><a href="#">Favorites</a></li>
     </ul>
-<input type="text" placeholder="Search" class="twitter-search-text" id="twitter-search-web">
-<input type="text" placeholder="Search" class="twitter-search-text" id="twitter-search-timeline" style="display: none">
-<input type="text" placeholder="Search" class="twitter-search-text" id="twitter-search-user" style="display: none">
-<input type="text" placeholder="Search" class="twitter-search-text" id="twitter-search-favorites" style="display: none">
+<input type="text" placeholder="_('Search')" class="twitter-search-text" id="twitter-search-web">
+<input type="text" placeholder="_('Enter a twitter username')" class="twitter-search-text" id="twitter-search-timeline" style="display: none">
+<input type="text" placeholder="_('Enter a twitter username')" class="twitter-search-text" id="twitter-search-user" style="display: none">
+<input type="text" placeholder="_('Enter a twitter username')" class="twitter-search-text" id="twitter-search-favorites" style="display: none">
 </div>
 
 <!-- search results for twitter web search -->
