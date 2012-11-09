@@ -1,7 +1,51 @@
 define('providers/ads/adaptor', [
-    'providers', 'jquery', 'providers/ads/tab'
-], function(providers, $)
+    'providers',
+    'utils/str',
+    'jquery',
+    'gizmo',
+    'jquery/rest',
+    'jquery/utils',
+    'providers/ads/tab',
+    'tmpl!livedesk>providers/ads/post'
+], function(providers,str, $, Gizmo)
 {
+    var AnnotateView = Gizmo.View.extend
+    ({
+        tagName: 'li',
+        init: function(data)
+        {
+            var self = this;
+            $(self.el).on('click', '.btn.publish', function()
+            {
+                self.parent.insert(self.data, self);
+                $('.actions', self.el).remove();
+            })
+			.on('click', '.btn.cancel', function()
+            {
+                self.parent = null;
+                self.el.remove();
+            })
+			.on('click', 'a.close', function(){
+				$('#delete-post .yes')
+					.off(self.getEvent('click'))
+					.on(self.getEvent('click'), function(){
+						self.parent = null;
+						self.el.remove();
+					});				
+			});
+        },
+        render: function()
+        {
+            var self = this;
+            $.tmpl('livedesk>providers/ads/post', this.data, function(e, o)
+            { 
+                self.el.addClass( $(o).attr('class') );
+                self.el.html( $(o).html() );
+                $('.actions', self.el).removeClass('hide');
+            });
+        }
+    });
+    
     $.extend(providers.ads, 
     {
         adaptor: {
@@ -19,12 +63,16 @@ define('providers/ads/adaptor', [
                     });
             },
             universal: function(obj)
-            {
-                return {
-                    Content: $(obj).html(),
-                    Type: 'advertisement',
-                    Author: this.author
-                };
+            {                 
+                return new AnnotateView
+                ({
+                    data: 
+                    {
+                        Content: $(obj).html(),
+                        Type: 'advertisement',
+                        Author: this.author
+                    }
+                });
             }
         }
     });
