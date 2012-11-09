@@ -918,7 +918,7 @@ define('gizmo', ['jquery', 'utils/class'], function($,Class)
 			
 			//console.log('Last: ',this.el, ' length: ',($(this.el).length === 1));
 			
-			return ($(this.el).length === 1);
+			//return ($(this.el).length === 1);
 			
 		},
         setElement: function(el)
