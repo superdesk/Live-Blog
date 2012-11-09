@@ -53,7 +53,7 @@ class POFileManager(IPOFileManager):
     Implementation for @see: IPOFileManager
     '''
 
-    locale_dir_path = join('workspace', 'locale'); wire.config('locale_dir_path', doc='''
+    locale_dir_path = join('workspace', 'shared', 'locale'); wire.config('locale_dir_path', doc='''
     The locale repository path''')
     catalog_config = {
                       'header_comment':'''\
