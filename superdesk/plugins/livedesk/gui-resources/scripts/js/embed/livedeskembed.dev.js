@@ -2060,9 +2060,7 @@ window.livedesk.startLoading = function($, _) {
 			parse: function(data){
 				if(data.total !== undefined) {
 					data.total = parseInt(data.total);
-					if(this.total === undefined) {
-						this.total = data.total;
-					}
+					this.listTotal = data.total;
 					delete data.total;
 				}
 				if(data.PostList)
@@ -2254,6 +2252,7 @@ window.livedesk.startLoading = function($, _) {
                         },
 			render: function()
 			{
+			
 				var self = this, order = parseFloat(self.model.get('Order')), Avatar='';
 				if(this.model.get('AuthorPerson') && this.model.get('AuthorPerson').EMail) {
 					Avatar = $.avatar.get(self.model.get('AuthorPerson').EMail);
@@ -2453,6 +2452,7 @@ window.livedesk.startLoading = function($, _) {
 							self._views[i].rendered = false;
 						}
 						self._views = [];
+						delete self.filters;
 						var postPublished = self.model.get('PostPublished');
 						postPublished._list = [];						
 						postPublished._latestCId = 0;
@@ -2537,6 +2537,7 @@ window.livedesk.startLoading = function($, _) {
 				while(i--) {
 					this.addOne(data[i]);
 				}
+				this.toggleMoreVisibility();
 			},
 			updateingStatus: function()
 			{
@@ -2555,16 +2556,23 @@ window.livedesk.startLoading = function($, _) {
 					//.find('h2').html(this.model.get('Title')).end()
 					//.find('p').html(this.model.get('Description'));
 			},
-                        
+			toggleMoreVisibility: function()
+			{				
+				if(this.limit >= this.model.get('PostPublished').total ) {
+					$('#liveblog-more',this.el).hide();
+				} else {
+					$('#liveblog-more',this.el).show();
+				}			
+			},
 			render: function(evt)
 			{				
-				var total = this.model.get('PostPublished').total;
-				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div class="liveblog-more-container"><a class="liveblog-more" id="liveblog-firstmore" href="javascript:void(0)" style="display:none;">'+_('Load more posts')+'</a></div><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div><a id="liveblog-more" class="liveblog-more" href="javascript:void(0)">'+_('More')+'</a></div>');
-				if(this.limit >= total)
-						$('#liveblog-more',this.el).hide();
+				this.el.html('<article><h2></h2><p></p></article><div class="live-blog"><p class="update-time" id="liveblog-status"></p><div class="liveblog-more-container"><a class="liveblog-more" id="liveblog-firstmore" href="javascript:void(0)" style="display:none !important;">'+_('Load more posts')+'</a></div><div id="liveblog-posts"><ol id="liveblog-post-list" class="liveblog-post-list"></ol></div><div><a id="liveblog-more" class="liveblog-more" href="javascript:void(0)">'+_('More')+'</a></div>');
 				this.renderBlog();
 				this.ensureStatus();
-				data = this.model.get('PostPublished')._list;
+				var postPublished = this.model.get('PostPublished');
+				data = postPublished._list;
+				postPublished.total = postPublished.listTotal;
+				this.toggleMoreVisibility();
 				var next = this._latest, current, model, i = data.length;                               
 				totalLoad = data.length;
 				var self = this, auxView;
