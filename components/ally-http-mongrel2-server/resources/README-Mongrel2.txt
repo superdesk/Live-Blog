@@ -88,8 +88,45 @@ And then start Mongrel2:
 Starting SuperDesk
 -----------------------------------------------------------------------------------------------
 
-Move to distribution:
-	cd ..
+Open a new terminal and move to distribution:
+	cd ../rest_api/superdesk/distribution
 
-And then start the application
-	python3 application.py
+And then start the application (-OO is for production mode):
+	python3 -OO application.py
+	
+If defaults are used this will start the ally py application using an in processor communication protocol, the application
+is single threaded and will only consume on processor from the machine, in order to add more instances that are load
+balanced by ZeromMQ you just need to start the application again, but before this we need to adjust some configurations
+in order to avoid unnecessary operations that are done by ally-py.
+So we will call the started application as being the main application and the next applications that we will start we call
+them as being support application.
+
+Creating support application configurations
+-----------------------------------------------------------------------------------------------
+
+So we already have the "application.properties" and "plugins.properties" from the main application:
+Open a new terminal and move to distribution:
+	cd ../rest_api/superdesk/distribution
+we just need to create copies for the support application:
+	cp application.properties application_support.properties
+	cp plugins.properties plugins_support.properties
+	
+Now we need to adjust the "application_support.properties", change the following configurations to:
+	configurations_file_path: plugins_support.properties
+
+And in "plugins_support.properties", change the following configurations to:
+	publish_gui_resources: false
+this is to prevent the unnecessary publication of client files again by the support applications
+	scan_localized_messages: false
+if this has been enabled for the main application, this will avoid unnecessary scanning for localized messages
+	perform_cleanup: false
+this prevents the superdesk authorization to clean the expired sessions and login tokens by the support applications
+
+Starting support SuperDesk
+-----------------------------------------------------------------------------------------------
+
+Now simply start the application (-OO is for production mode):
+	python3 -OO application.py --ccfg application_support.properties
+
+You can start now as many support applications as you need but you should keep this number less or equal with the number
+of CPUs that the computer has.
