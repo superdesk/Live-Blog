@@ -42,9 +42,9 @@ def deploy():
         
         import logging
         logging.basicConfig(format=format())
-        for name in debug_for(): logging.getLogger(name).setLevel(logging.DEBUG)
-        for name in info_for(): logging.getLogger(name).setLevel(logging.INFO)
         for name in warning_for(): logging.getLogger(name).setLevel(logging.WARN)
+        for name in info_for(): logging.getLogger(name).setLevel(logging.INFO)
+        for name in debug_for(): logging.getLogger(name).setLevel(logging.DEBUG)
         
         try: assembly.processStart()
         finally: ioc.deactivate()

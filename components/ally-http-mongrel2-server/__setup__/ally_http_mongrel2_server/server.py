@@ -31,9 +31,9 @@ def send_spec():
     '''
     The send address to use in communication with Mongrel2, something like:
     "tcp://127.0.0.1:9997" - for using sockets that allow communication between computers
-    "ipc:///tmp/request1" - for using in processes that allow communication on the same computer processes
+    "ipc:///tmp/send" - for using in processes that allow communication on the same computer processes
     '''
-    return 'ipc:///tmp/request'
+    return 'ipc:///tmp/send'
 
 @ioc.config
 def recv_ident():

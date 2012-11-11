@@ -71,7 +71,7 @@ def parse_dict(data):
     if len(data) == 0: return {}
 
     key, value, extra = parse_pair(data)
-    assert type(key) is str, 'Keys can only be strings.'
+    assert isinstance(key, (str, bytes)), 'Keys can only be strings.'
 
     result = {key: value}
 
