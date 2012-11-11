@@ -87,7 +87,6 @@ class RequestHandler:
             The request to process.
         '''
         assert isinstance(request, Request), 'Invalid request %s' % request
-        
         path = request.path
         responseHeaders = dict(self.defaultHeaders)
         if path.startswith('/'): path = path[1:]
@@ -111,7 +110,7 @@ class RequestHandler:
                 break
         else:
             self._respond(request, 404, 'Not Found', responseHeaders)
-            request.send(b'')  # Send an empty body to finalize the response
+            self._end(request)
             return
 
         req.method = self.methods.get(request.headers.pop('METHOD'), self.methodUnknown)
@@ -127,15 +126,26 @@ class RequestHandler:
         responseHeaders.update(rsp.headers)
         self._respond(request, rsp.code.code, rsp.text, responseHeaders)
         if rspCnt.source is not None: request.push(rspCnt.source)
+        self._end(request)
 
     # ----------------------------------------------------------------
 
     def _respond(self, request, code, status, headers):
+        '''
+        Respond with the HTTP response.
+        '''
         assert isinstance(request, Request), 'Invalid request %s' % request
         
         msg = {'code': code, 'status': status, 'headers':'\r\n'.join('%s: %s' % entry for entry in headers.items())}
         msg = self.httpFormat % msg
         request.send(msg.encode())
+        
+    def _end(self, request):
+        '''
+        End the request response.
+        '''
+        assert isinstance(request, Request), 'Invalid request %s' % request
+        request.send(b'')  # Send an empty body to finalize the response
 
 # --------------------------------------------------------------------
 
@@ -176,7 +186,8 @@ class Mongrel2Server:
         body, rest = tnetstrings.parse(rest)
 
         if type(headers) is bytes: headers = json.loads(str(headers, 'utf8'))
-
+        else: headers = {str(name, 'utf8'): str(value, 'utf8') for name, value in headers.items()}
+        
         return Request(self, sender, connId, str(path, 'utf8'), headers, body)
     
     def serve_forever(self):
@@ -213,6 +224,7 @@ class Mongrel2Server:
                     try: stream.close()
                     except: pass
                     remove(pathUpload)
+                    assert log.debug('Removed upload file %s' % pathUpload) or True
 
 class Request:
     '''
