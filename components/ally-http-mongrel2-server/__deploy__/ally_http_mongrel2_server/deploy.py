@@ -89,12 +89,12 @@ def config():
         traceback.print_exc(file=sys.stderr)
         print('-' * 150, file=sys.stderr)
     else:
-        conf = openURI(path.join(pythonPath(), 'ally.conf'))
+        conf = openURI(path.join(pythonPath(), 'resources', 'ally.conf'))
         conf = codecs.getreader('utf8')(conf)
         conf = ReplaceInFile(conf, replace)
         with open(path.join(workspace, 'ally.conf'), 'w') as f: pipe(conf, f)
         with open(path.join(workspace, 'README-Mongrel2.txt'), 'wb') as f:
-            pipe(openURI(path.join(pythonPath(), 'README-Mongrel2.txt')), f)
+            pipe(openURI(path.join(pythonPath(), 'resources', 'README-Mongrel2.txt')), f)
         
         print('Configured "%s" mongrel2 workspace' % workspace)
     

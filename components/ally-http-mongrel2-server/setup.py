@@ -21,6 +21,9 @@ setup(
     platforms=['all'],
     test_suite='test',
     zip_safe=True,
+    package_data={
+        '': ['*.txt', '*.conf'],
+    },
 
     # metadata for upload to PyPI
     author='Gabriel Nistor',
