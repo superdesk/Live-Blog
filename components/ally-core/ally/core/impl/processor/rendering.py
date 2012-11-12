@@ -89,6 +89,8 @@ class RenderingHandler(Handler):
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
+        chain.proceed()
+        
         # Resolving the character set
         if ResponseContent.charSet in responseCnt:
             try: codecs.lookup(responseCnt.charSet)
@@ -105,11 +107,9 @@ class RenderingHandler(Handler):
 
         resolved = False
         if ResponseContent.type in responseCnt:
-            renderChain = self.renderingProcessing.newChain()
-            assert isinstance(renderChain, Chain), 'Invalid chain %s' % renderChain
-
+            renderChain = Chain(self.renderingProcessing)
             renderChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
-            if renderChain.isConsumed():
+            if renderChain.doAll().isConsumed():
                 if Response.code not in response or response.code.isSuccess:
                     response.code = UNKNOWN_ENCODING
                     response.text = 'Content type \'%s\' not supported for rendering' % responseCnt.type
@@ -119,13 +119,9 @@ class RenderingHandler(Handler):
             # Adding None in case some encoder is configured as default.
             for contentType in itertools.chain(request.accTypes or (), self.contentTypeDefaults):
                 responseCnt.type = contentType
-
-                renderChain = self.renderingProcessing.newChain()
-                assert isinstance(renderChain, Chain), 'Invalid chain %s' % renderChain
-
+                renderChain = Chain(self.renderingProcessing)
                 renderChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
-                if not renderChain.isConsumed(): break
+                if not renderChain.doAll().isConsumed(): break
             else:
                 raise DevelError('There is no renderer available, this is more likely a setup issues since the '
                                  'default content types should have resolved the renderer')
-        chain.proceed()

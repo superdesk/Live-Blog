@@ -226,18 +226,20 @@ define('providers/edit', [
 			this.el.find('.edit-block article.editable').html('');
 		},
 		savepost: function(evt){
+            var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {
-				Content: $.styledNodeHtml(this.el.find('.edit-block article.editable')),
+				Content: originalContent.replace(/<br\s*\/?>\s*$/, ''),
 				Type: this.el.find('[name="type"]').val()
 			};
 			this.clear();
 			this.postsView.savepost(data);
 		},
 		save: function(evt){
+            var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
 			evt.preventDefault();
 			var data = {
-				Content: $.styledNodeHtml(this.el.find('.edit-block article.editable')),
+				Content:  originalContent.replace(/<br\s*\/?>\s*$/, ''),
 				Type: this.el.find('[name="type"]').val()
 			};
 			this.clear();

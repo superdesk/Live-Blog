@@ -8,6 +8,7 @@ Created on Jan 9, 2012
 
 Contains the services setup for internationalization.
 '''
+
 from sys import modules
 from ..cdm.local_cdm import contentDeliveryManager
 from ..plugin.registry import addService
@@ -17,8 +18,6 @@ from ally.container import support, ioc
 from cdm.spec import ICDM
 from cdm.support import ExtendPathCDM
 from internationalization.api.po_file import IPOFileService
-from internationalization.core.impl.po_file_manager import POFileManager
-from internationalization.core.spec import IPOFileManager
 from internationalization.impl.po_file import POFileService
 from internationalization.scanner import Scanner
 from internationalization.api.json_locale import IJSONLocaleFileService
@@ -29,7 +28,6 @@ from internationalization.impl.json_locale import JSONFileService
 SERVICES = 'internationalization.api.**.I*Service'
 
 support.createEntitySetup('internationalization.impl.**.*')
-#TODO: check why 'internationalization.impl.**.*' is required
 support.createEntitySetup('internationalization.*.impl.**.*')
 support.bindToEntities('internationalization.impl.**.*Alchemy', binders=bindInternationalizationSession)
 support.listenToEntities(SERVICES, listeners=addService(bindInternationalizationValidations), beforeBinding=False)

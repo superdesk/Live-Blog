@@ -1,0 +1,17 @@
+setup.cfg
+setup.py
+__setup__/__init__.py
+__setup__/ally_http_cherrypy_server/__init__.py
+__setup__/ally_http_cherrypy_server/logging.py
+__setup__/ally_http_cherrypy_server/server.py
+ally/__init__.py
+ally/core/__init__.py
+ally/core/http/__init__.py
+ally/core/http/server/__init__.py
+ally/core/http/server/server_cherrypy.py
+ally_http_cherrypy_server.egg-info/PKG-INFO
+ally_http_cherrypy_server.egg-info/SOURCES.txt
+ally_http_cherrypy_server.egg-info/dependency_links.txt
+ally_http_cherrypy_server.egg-info/requires.txt
+ally_http_cherrypy_server.egg-info/top_level.txt
+ally_http_cherrypy_server.egg-info/zip-safe

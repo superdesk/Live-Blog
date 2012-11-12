@@ -91,7 +91,7 @@ class IClosable(metaclass=abc.ABCMeta):
 
 # --------------------------------------------------------------------
 
-class replaceInFile:
+class ReplaceInFile:
     '''
     Provides the file read replacing.
     '''
@@ -127,7 +127,8 @@ class replaceInFile:
         '''
         Perform the data read.
         '''
-        data = self._fileObj.read(count)
+        if count is None: data = self._fileObj.read()
+        else: data = self._fileObj.read(count)
 
         if not data:
             if self._leftOver:
@@ -315,7 +316,7 @@ def synchronizeURIToDir(path, dirPath):
             if not exists(destDir): makedirs(destDir)
             copy(src, dest)
 
-class keepOpen:
+class KeepOpen:
     '''
     Keeps opened a file object, basically blocks the close calls.
     '''
