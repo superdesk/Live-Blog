@@ -13,11 +13,11 @@ single thread at one time.
 from ..support.util_sys import callerLocals
 from ._impl.aop_container import AOPModules
 from ._impl.entity_handler import Initializer
-from ._impl.ioc_setup import SetupEntity, SetupSource, SetupConfig, SetupFunction, SetupEvent, \
-    Context, SetupReplace, SetupStart, SetupError, register, ConfigError, Assembly
-from ._impl.ioc_setup import SetupReplaceConfig, setupsOf
+from ._impl.ioc_setup import SetupEntity, SetupSource, SetupConfig, \
+    SetupFunction, SetupEvent, Context, SetupReplace, SetupStart, SetupError, \
+    register, ConfigError, Assembly, SetupReplaceConfig, setupsOf
 from functools import partial, update_wrapper
-from inspect import isclass, ismodule, getfullargspec, isfunction
+from inspect import isclass, ismodule, getfullargspec, isfunction, cleandoc
 import importlib
 import logging
 
@@ -75,40 +75,62 @@ def config(*args):
         raise SetupError('Invalid name %r for configuration, needs to be lower case only' % function.__name__)
     return update_wrapper(register(SetupConfig(function, type=type), callerLocals()), function)
 
-def before(*setups):
+def doc(setup, doc):
+    '''
+    Updates the documentation of the provided configuration setup.
+    
+    @param setup: SetupConfig
+        The configuration setup to update the documentation for.
+    @param doc: string
+        The documentation to update with, automatically the provided documentation will start on a new line.
+    '''
+    assert isinstance(setup, (SetupConfig, SetupReplaceConfig)), 'Invalid configuration setup %s' % setup
+    assert isinstance(doc, str), 'Invalid documentation %s' % doc
+    
+    if isinstance(setup, SetupReplaceConfig): setup = setup.target
+    if setup.documentation is not None: setup.documentation += '\n%s' % cleandoc(doc)
+
+def before(*setups, auto=True):
     '''
     Decorator for setup functions that need to be called before the other setup functions. If multiple before setup
     functions are provided then the before function will be invoked only for the first setup functions that occurs.
     
     @param setup: arguments[SetupFunction]
         The setup function to listen to.
+    @param auto: boolean
+        In some cases the event is not called (for instance externally provided configurations) this means is auto managed
+        by the container, if placed on False the event is guaranteed to be called regardless of what the container option.
     '''
     if __debug__:
         for setup in setups: assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.BEFORE),
+        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.BEFORE, auto),
                                        callerLocals()), function)
 
     return decorator
 
-def after(*setups):
+def after(*setups, auto=True):
     '''
     Decorator for setup functions that need to be called after the other setup functions. If multiple after setup
     functions are provided then the after function will be invoked only after all the setup functions will occur.
     
     @param setups: arguments[SetupFunction]
         The setup function(s) to listen to.
+    @param auto: boolean
+        In some cases the event is not called (for instance externally provided configurations) this means is auto managed
+        by the container, if placed on False the event is guaranteed to be called regardless of what the container option.
     '''
     if __debug__:
         for setup in setups: assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.AFTER),
+        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.AFTER, auto),
                                        callerLocals()), function)
-
     return decorator
 
 def replace(setup):

@@ -1,4 +1,4 @@
 test
-ally_deploy_application
 __setup__
+__deploy__
 ally

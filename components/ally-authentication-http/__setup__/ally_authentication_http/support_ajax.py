@@ -16,5 +16,4 @@ from ally.container import ioc
 
 @ioc.after(headers_ajax)
 def updateHeadersAjaxAuthorization():
-    '''The ajax specific headers required by browser for cross domain calls, with the authorization added'''
     headers_ajax()['Access-Control-Allow-Headers'].append('Authorization')

@@ -9,10 +9,12 @@ Created on Apr 11, 2012
 Contains content delivery manager setup files.
 '''
 
+from __setup__ import cdm
+
 # --------------------------------------------------------------------
 
 NAME = 'Local content delivery manager (CDM) support'
-GROUP = 'CDM'
+GROUP = cdm.GROUP
 VERSION = '1.0'
 DESCRIPTION = 'Provides the local content delivery manager'
 

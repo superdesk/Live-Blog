@@ -14,8 +14,8 @@ from ally.container.ioc import injected
 from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
     RequestContentHTTP, ResponseContentHTTP
 from ally.core.spec.codes import Code
-from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
-    CREATE_REPORT
+from ally.design.processor import Processing, Assembly, ONLY_AVAILABLE, \
+    CREATE_REPORT, Chain
 from ally.support.util_io import IOutputStream, readGenerator
 from urllib.parse import parse_qsl
 import logging
@@ -164,9 +164,7 @@ class RequestHandler:
                 assert isinstance(processing, Processing), 'Invalid processing %s' % processing
                 req, reqCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
                 rsp, rspCnt = processing.contexts['response'](), processing.contexts['responseCnt']()
-                chain = processing.newChain()
 
-                assert isinstance(chain, Chain), 'Invalid chain %s' % chain
                 assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
                 assert isinstance(reqCnt, RequestContentHTTP), 'Invalid request content %s' % reqCnt
                 assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
@@ -187,7 +185,7 @@ class RequestHandler:
                             for hname, hvalue in context.items() if hname in self.headers})
         reqCnt.source = context.get('wsgi.input')
 
-        chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)
+        Chain(processing).process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt).doAll()
 
         assert isinstance(rsp.code, Code), 'Invalid response code %s' % rsp.code
 

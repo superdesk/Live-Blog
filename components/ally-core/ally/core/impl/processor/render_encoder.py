@@ -77,6 +77,7 @@ class RenderEncoderHandler(HandlerProcessorProceed):
 
         if Response.code in response and not response.code.isSuccess: return  # Skip in case the response is in error
         if Response.encoder not in response: return  # Skip in case there is no encoder to render
+        assert callable(response.renderFactory), 'Invalid response renderer factory %s' % response.renderFactory
 
         output = BytesIO()
         render = response.renderFactory(output)
