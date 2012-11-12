@@ -10,15 +10,16 @@ Provides support functions for the container.
 '''
 
 from ..support.util_sys import callerLocals, callerGlobals
-from ._impl.aop_container import AOPClasses, AOPResources
+from ._impl.aop_container import AOPResources
 from ._impl.entity_handler import Wiring, WireConfig
 from ._impl.ioc_setup import ConfigError, register, SetupConfig, setupsOf, \
     setupFirstOf, SetupStart
 from ._impl.support_setup import SetupError, SetupEntityProxy, SetupEntityWire, \
     Assembly, CallEntity, SetupEntityCreate
-from .aop import classesIn
+from ally.container._impl.ioc_setup import CallConfig
 from ally.container._impl.support_setup import SetupEntityListen, \
-    SetupEntityListenAfterBinding
+    SetupEntityListenAfterBinding, _classes
+from ally.container.config import Config
 from copy import deepcopy
 from functools import partial
 from inspect import isclass, ismodule, getsource
@@ -257,7 +258,7 @@ def include(module, inModule=None):
 
 def entities():
     '''
-    !Attention this function is only available in an open assembly @see: ioc.open!
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
     Provides all the entities references found in the current assembly wrapped in a AOP class.
     
     @return: AOP
@@ -267,7 +268,7 @@ def entities():
 
 def entitiesLocal():
     '''
-    !Attention this function is only available in an open assembly @see: ioc.open!
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
     Provides all the entities references for the module from where the call is made found in the current assembly.
     
     @return: AOP
@@ -282,7 +283,7 @@ def entitiesLocal():
 
 def entitiesFor(clazz, assembly=None):
     '''
-    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open! 
     Provides the entities for the provided class (only if the setup function exposes a return type that is either the
     provided class or a super class) found in the current assembly.
     
@@ -306,7 +307,7 @@ def entitiesFor(clazz, assembly=None):
 
 def entityFor(clazz, assembly=None):
     '''
-    !Attention this function is only available in an open assembly @see: ioc.open!
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
     Provides the entity for the provided class (only if the setup function exposes a return type that is either the
     provided class or a super class) found in the current assembly.
     
@@ -336,23 +337,47 @@ def entityFor(clazz, assembly=None):
 
 # --------------------------------------------------------------------
 
-def _classes(classes):
+def force(setup, value, assembly=None):
     '''
-    Provides the classes from the list of provided class references.
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
+    Forces a configuration setup to have the provided value. This method should be called in a @ioc.before event that
+    targets the forced value configuration.
     
-    @param classes: list(class|AOPClasses)|tuple(class|AOPClasses)
-        The classes or class reference to pull the classes from.
-    @return: list[class]
-        the list of classes obtained.
+    @param setup: SetupConfig
+        The setup to force the value on.
+    @param value: object
+        The value to be forced, needs to be compatible with the configuration setup.
+    @param assembly: Assembly|None
+        The assembly to find the configuration in, if None the current assembly will be considered.
     '''
-    assert isinstance(classes, (list, tuple)), 'Invalid classes %s' % classes
-    clazzes = []
-    for clazz in classes:
-        if isinstance(clazz, str):
-            clazzes.extend(classesIn(clazz).asList())
-        elif isclass(clazz): clazzes.append(clazz)
-        elif isinstance(clazz, AOPClasses):
-            assert isinstance(clazz, AOPClasses)
-            clazzes.extend(clazz.asList())
-        else: raise SetupError('Cannot use class %s' % clazz)
-    return clazzes
+    assert isinstance(setup, SetupConfig), 'Invalid setup %s' % setup
+    assembly = assembly or Assembly.current()
+    assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+    
+    Assembly.stack.append(assembly)
+    try:
+        call = assembly.fetchForName(setup.name)
+        assert isinstance(call, CallConfig), 'Invalid call %s' % call
+        call.value = value
+    finally: Assembly.stack.pop()
+    
+def persist(setup, value, assembly=None):
+    '''
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
+    Persists a configuration setup to have the provided value but only in saving the configuration file, so this
+    method should be called before a the configurations are persisted.
+    
+    @param setup: SetupConfig
+        The setup to persist the value on.
+    @param value: object
+        The value to be forced, needs to be compatible with the configuration setup.
+    @param assembly: Assembly|None
+        The assembly to find the configuration in, if None the current assembly will be considered.
+    '''
+    assert isinstance(setup, SetupConfig), 'Invalid setup %s' % setup
+    assembly = assembly or Assembly.current()
+    assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+    
+    config = assembly.configurations.get(setup.name)
+    assert isinstance(config, Config), 'Invalid configuration %s for the assembly' % setup.name
+    config.value = value
