@@ -81,7 +81,7 @@ def process(pathProcessing, method, headers, url, source):
     req.headers = headers
     reqCnt.source = source
 
-    chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)
+    chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt).doAll()
     
     return req, reqCnt, rsp, rspCnt
 

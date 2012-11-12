@@ -1100,6 +1100,9 @@ section.main-section {
 				padding-left:8px;
 				border-left:1px solid #CCC;
 				}
+.live-blog-content .blog-author{
+	font-weight: bold;
+}				
 .blog-section {
 	clear:both;
 	margin-top:0;
