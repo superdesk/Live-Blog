@@ -885,6 +885,11 @@ function(providers, Gizmo, $)
 						accessKey: 'I'  // Alt-Shift-I in FF/IE
 					});
 					
+					$('.main.splitter-pane .scroller', $(self.el)).on('scroll', function()
+					{
+					    $(this).find('[contenteditable]').trigger('blur');
+					});
+					
 					$.superdesk.hideLoader();
 					
 				});
