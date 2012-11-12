@@ -20,7 +20,7 @@
 			</p>
     	</div>
     	<div class="editable annotation">
-			{annotation|s}
+			{annotation|s}<br />
 		</div>
 		{/Meta}
 	</div> 
