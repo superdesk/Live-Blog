@@ -16,9 +16,9 @@ from ally.core.spec.codes import METHOD_NOT_AVAILABLE, RESOURCE_FOUND, \
 from ally.design.context import Context, requires, defines
 from ally.design.processor import Chain, Processor, Assembly, NO_VALIDATION, \
     Processing, Handler
-from ally.support.util_io import readGenerator
+from ally.support.util_io import IOutputStream
 from ally.zip.util_zip import normOSPath, normZipPath
-from collections import Iterable
+from functools import partial
 from mimetypes import guess_type
 from os.path import isdir, isfile, join, dirname, normpath, sep
 from urllib.parse import unquote
@@ -26,7 +26,6 @@ from zipfile import ZipFile
 import json
 import logging
 import os
-from functools import partial
 
 # --------------------------------------------------------------------
 
@@ -60,14 +59,18 @@ class Response(Context):
     @rtype: integer
     Contains the allow flags for the methods.
     ''')
+    length = defines(int, doc='''
+    @rtype: integer
+    Contains the length for the content.
+    ''')
 
 class ResponseContent(Context):
     '''
     The response context.
     '''
     # ---------------------------------------------------------------- Defined
-    source = defines(Iterable, doc='''
-    @rtype: GeneratorType
+    source = defines(IOutputStream, doc='''
+    @rtype: IOutputStream
     The generator that provides the response content in bytes.
     ''')
     type = defines(str, doc='''
@@ -129,6 +132,7 @@ class ContentDeliveryHandler(Handler):
             response.allows = GET
             response.code, response.text = METHOD_NOT_AVAILABLE, 'Path only available for GET'
         else:
+            chain.proceed()
             # Make sure the given path points inside the repository
             entryPath = normOSPath(join(self.repositoryPath, normZipPath(unquote(request.uri))))
             if not entryPath.startswith(self.repositoryPath):
@@ -138,7 +142,7 @@ class ContentDeliveryHandler(Handler):
                 # This will be set upon successful file open
                 rf = None
                 if isfile(entryPath):
-                    rf = open(entryPath, 'rb')
+                    rf, size = open(entryPath, 'rb'), os.path.getsize(entryPath)
                 else:
                     linkPath = entryPath
                     while len(linkPath) > len(self.repositoryPath):
@@ -149,8 +153,10 @@ class ContentDeliveryHandler(Handler):
                                 if linkType in self._linkTypes:
                                     # make sure the subpath is normalized and uses the OS separator
                                     if not self._isPathDeleted(join(linkPath, subPath)):
-                                        rf = self._linkTypes[linkType](subPath, *data)
-                                        if rf is not None: break
+                                        entry = self._linkTypes[linkType](subPath, *data)
+                                        if entry is not None:
+                                            rf, size = entry
+                                            break
                             break
                         subLinkPath = dirname(linkPath)
                         if subLinkPath == linkPath:
@@ -161,16 +167,13 @@ class ContentDeliveryHandler(Handler):
                     response.code, response.text = METHOD_NOT_AVAILABLE, 'Invalid content resource'
                 else:
                     response.code, response.text = RESOURCE_FOUND, 'Resource found'
-                    responseCnt.source = readGenerator(rf)
+                    responseCnt.source = rf
+                    responseCnt.length = size
                     responseCnt.type, _encoding = guess_type(entryPath)
                     if not responseCnt.type: responseCnt.type = self.defaultContentType
-                    chain.proceed()
                     return
-            
-        errorChain = errorProcessing.newChain()
-        assert isinstance(errorChain, Chain), 'Invalid chain %s' % errorChain
-
-        errorChain.process(request=request, response=response, responseCnt=responseCnt, **keyargs)
+        
+        chain.branch(errorProcessing)
 
     # ----------------------------------------------------------------
 
@@ -188,7 +191,7 @@ class ContentDeliveryHandler(Handler):
         else:
             return None
         if isfile(resPath):
-            return open(resPath, 'rb')
+            return open(resPath, 'rb'), os.path.getsize(resPath)
 
     def _processZiplink(self, subPath, zipFilePath, inFilePath):
         '''
@@ -203,7 +206,7 @@ class ContentDeliveryHandler(Handler):
         # resource internal ZIP path should be in ZIP format
         resPath = normZipPath(join(inFilePath, subPath))
         if resPath in zipFile.NameToInfo:
-            return zipFile.open(resPath, 'r')
+            return zipFile.open(resPath, 'r'), zipFile.getinfo(resPath).file_size
 
     def _isPathDeleted(self, path):
         '''

@@ -139,6 +139,7 @@ def pythonPath(level=1):
     '''
     gl = callerGlobals(level)
     moduleName, modulePath = gl['__name__'], gl['__file__']
+    if modulePath.endswith('__init__.py'): modulePath = dirname(modulePath)
     for _k in range(0, moduleName.count('.') + 1):
         modulePath = dirname(modulePath)
     return relpath(modulePath)
@@ -332,7 +333,7 @@ def validateTypeFor(clazz, name, vauleType, allowNone=True):
 
         get = getattr(descriptor, '__get__')
 
-        descriptor.__set__ # Just to raise AttributeError in case there is no __set__ on the descriptor
+        descriptor.__set__  # Just to raise AttributeError in case there is no __set__ on the descriptor
         def set(self, value):
             if not ((allowNone and value is None) or isinstance(value, vauleType)):
                 raise ValueError('Invalid value %s for class %s' % (value, vauleType))

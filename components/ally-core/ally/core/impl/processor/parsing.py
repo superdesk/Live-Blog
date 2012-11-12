@@ -89,7 +89,7 @@ class ParsingHandler(Handler):
 
         if self.processParsing(request=request, requestCnt=requestCnt, response=response, **keyargs):
             # We process the chain without the request content anymore
-            chain.process(request=request, response=response, **keyargs)
+            chain.update(requestCnt=None)
 
     def processParsing(self, request, requestCnt, response, responseCnt, **keyargs):
         '''
@@ -108,15 +108,11 @@ class ParsingHandler(Handler):
             try: codecs.lookup(requestCnt.charSet)
             except LookupError: requestCnt.charSet = self.charSetDefault
         else: requestCnt.charSet = self.charSetDefault
-
-        parsingChain = self.parsingProcessing.newChain()
-        assert isinstance(parsingChain, Chain), 'Invalid chain %s' % parsingChain
-
         if RequestContent.type not in requestCnt: requestCnt.type = responseCnt.type
 
-        parsingChain.process(request=request, requestCnt=requestCnt,
-                             response=response, responseCnt=responseCnt, **keyargs)
-        if not parsingChain.isConsumed(): return True
+        chain = Chain(self.parsingProcessing)
+        chain.process(request=request, requestCnt=requestCnt, response=response, responseCnt=responseCnt, **keyargs)
+        if not chain.doAll().isConsumed(): return True
         if Response.code not in response or response.code.isSuccess:
             response.code = UNKNOWN_ENCODING
             response.text = 'Content type \'%s\' not supported for parsing' % requestCnt.type

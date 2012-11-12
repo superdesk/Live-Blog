@@ -36,7 +36,7 @@ class TestTextConversion(unittest.TestCase):
         requestCnt, response = Content(), Content()
         def callProcess(chain, **keyargs): handler.process(**keyargs)
         chain = Chain([callProcess])
-        chain.process(requestCnt=requestCnt, response=response)
+        chain.process(requestCnt=requestCnt, response=response).doAll()
 
         self.assertEqual(handler.normalizer, requestCnt.normalizer)
         self.assertEqual(handler.normalizer, response.normalizer)

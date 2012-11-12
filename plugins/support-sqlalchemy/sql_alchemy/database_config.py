@@ -23,7 +23,11 @@ log = logging.getLogger(__name__)
 
 @ioc.config
 def database_url():
-    '''The database URL, something like sqlite:///rest.db'''
+    '''
+    The database URL, something like:
+        "sqlite:///{database}.db"
+        "mysql+mysqlconnector://{user}:{password}@localhost/{database}"
+    '''
     raise ioc.ConfigError('A database URL is required')
 
 @ioc.config

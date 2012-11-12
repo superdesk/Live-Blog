@@ -1,2 +1,3 @@
 __setup__
+__deploy__
 __plugin__
