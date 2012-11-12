@@ -13,7 +13,7 @@ import re
 
 # --------------------------------------------------------------------
 
-REGEX_SPLIT = re.compile('[\s]+')
+REGEX_SPLIT = re.compile('[\n]+')
 # Regex used in spliting the descriptions for wrapping
 
 # --------------------------------------------------------------------
@@ -35,7 +35,6 @@ def save(configurations, fwrite, maxwidth=60):
     assert isinstance(maxwidth, int), 'Invalid maximum width %s' % maxwidth
 
     import yaml
-    split = REGEX_SPLIT
     groups = {config.group for config in configurations.values()}
     for group in sorted(groups):
         fwrite.write('\n# %s %r\n' % ('-' * maxwidth, group))
@@ -45,15 +44,8 @@ def save(configurations, fwrite, maxwidth=60):
             config = configurations[name]
             assert isinstance(config, Config), 'Invalid configuration %s' % config
             if config.description:
-                # Wrapping description
-                text = split.split(config.description)
-                w = 0; line = []; matrix = [line]
-                for txt in text:
-                    if txt:
-                        w += len(txt) + 1
-                        if w > maxwidth: w = len(txt) + 1; line = [txt]; matrix.append(line)
-                        else: line.append(txt)
-                fwrite.write('\n# %s\n' % '\n# '.join(' '.join(line) for line in matrix))
+                fwrite.write('\n# %s\n' % '\n# '.join(line for line in REGEX_SPLIT.split(config.description)
+                                                      if line.strip()))
             yaml.dump({name: config.value}, fwrite, default_flow_style=False)
 
 def load(fread):

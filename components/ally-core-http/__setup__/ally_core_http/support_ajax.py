@@ -20,7 +20,7 @@ from ally.design.processor import Handler
 
 # --------------------------------------------------------------------
 
-@ioc.config
+@ioc.config()
 def ajax_cross_domain() -> bool:
     '''Indicates that the server should also be able to support cross domain ajax requests'''
     return True

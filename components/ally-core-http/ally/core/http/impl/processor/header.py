@@ -92,8 +92,6 @@ class HeaderHandler(HandlerProcessorProceed):
             response.headers = response.encoderHeader.headers
         else: 
             response.headers.update(response.encoderHeader.headers)
-        
-        #print(response.headers) 
 
 # --------------------------------------------------------------------
 

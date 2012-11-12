@@ -11,45 +11,26 @@ Special module that is targeted by the application loader in order to deploy the
 
 # --------------------------------------------------------------------
 
-import ally_deploy_application as app
+from types import ModuleType
 import os
 import package_extender
 import sys
-import traceback
 import timeit
+import traceback
 
 # --------------------------------------------------------------------
 
 def deploy(*tests):
     package_extender.PACKAGE_EXTENDER.addFreezedPackage('__setup__.')
     from ally.container import ioc, aop
-    from ally.container.ioc import ConfigError, SetupError
-    from ally.container.config import save, load
-
-    if app.assembly: raise ImportError('The application is already deployed')
 
     try:
-        isConfig = os.path.isfile(app.configurationsFilePath)
-        if isConfig:
-            with open(app.configurationsFilePath, 'r') as f: config = load(f)
-        else: config = {}
-        
         setups = aop.modulesIn('__setup__.**')
         # We need to remove the server configurations
         setups.exclude('**.server_*')
-
-        app.assembly = ioc.open(setups, *tests, config=config)
-        
-        try: app.assembly.processStart()
-        except (ConfigError, SetupError):
-            # We save the file in case there are missing configuration
-            with open(app.configurationsFilePath, 'w') as f: save(app.assembly.trimmedConfigurations(), f)
-            isConfig = True
-            raise
-        finally:
-            if not isConfig:
-                with open(app.configurationsFilePath, 'w') as f: save(app.assembly.trimmedConfigurations(), f)
-            ioc.deactivate()
+        application.assembly = ioc.open(setups, *tests)
+        try: application.assembly.processStart()
+        finally: ioc.deactivate()
     except:
         print('-' * 150, file=sys.stderr)
         print('A problem occurred while deploying', file=sys.stderr)
@@ -60,6 +41,8 @@ def deploy(*tests):
 
 findLibraries = lambda folder: (os.path.join(folder, name) for name in os.listdir(folder))
 # Finds all the libraries (that have extension .egg) if the provided folder.
+
+application = sys.modules['application'] = ModuleType('application')
 
 def start(*tests):
     # First we need to set the working directory relative to the application deployer just in case the application is
@@ -80,4 +63,4 @@ def start(*tests):
         print('=' * 50, 'Problems while deploying application')
         traceback.print_exc()
         
-    return app.assembly
+    return application.assembly

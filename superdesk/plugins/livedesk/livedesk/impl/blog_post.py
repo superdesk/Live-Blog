@@ -152,12 +152,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
 
-        post.PublishedOn = current_timestamp()
-
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
         postEntry.CId = self._nextCId()
         postEntry.Order = self._nextOrdering(blogId)
         self.session().add(postEntry)
+        self.session().query(BlogPostMapped).get(postEntry.blogPostId).PublishedOn = current_timestamp()
 
         return postEntry.blogPostId
 
@@ -238,8 +237,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
         if authorId:
-            sql = sql.filter((BlogPostMapped.Author == authorId) |
-                             ((CollaboratorMapped.Id == authorId) &
+            sql = sql.filter((BlogPostMapped.Author == authorId) | 
+                             ((CollaboratorMapped.Id == authorId) & 
                               (CollaboratorMapped.Person == BlogPostMapped.Creator)))
         addDeleted = False
         if q:
