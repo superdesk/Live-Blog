@@ -18,9 +18,12 @@ from threading import Thread
 
 # --------------------------------------------------------------------
 
-ioc.doc(server_type, '''
+@ioc.replace(server_type)
+def server_type_asyncore():
+    '''
     "asyncore" - server made based on asyncore package, fast (runs on a single CPU) and reliable.
-''')
+    '''
+    return 'asyncore'
 
 # --------------------------------------------------------------------
 
