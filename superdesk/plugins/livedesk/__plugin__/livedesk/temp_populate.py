@@ -9,29 +9,29 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
-from __plugin__.superdesk.db_superdesk import alchemySessionCreator, \
-    createTables
+from ..superdesk.db_superdesk import alchemySessionCreator, createTables
+from ally.api.extension import IterPart
 from ally.container import ioc
 from ally.container.support import entityFor
 from datetime import datetime
 from livedesk.api.blog import IBlogService, QBlog, Blog
-from livedesk.api.blog_collaborator import IBlogCollaboratorService
-from superdesk.language.api.language import ILanguageService, LanguageEntity
 from livedesk.api.blog_admin import IBlogAdminService
+from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from livedesk.api.blog_post import IBlogPostService
-from superdesk.post.api.post import Post
-from superdesk.user.api.user import IUserService, QUser, User
-from superdesk.source.api.source import ISourceService, QSource, Source
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm.session import Session
-from superdesk.source.meta.type import SourceTypeMapped
-from superdesk.person.api.person import QPerson
-from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
-from superdesk.post.meta.type import PostTypeMapped
-import hashlib
 from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
 from livedesk.api.blog_type_post import IBlogTypePostService
-from ally.api.extension import IterPart
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.session import Session
+from superdesk.collaborator.api.collaborator import ICollaboratorService, \
+    Collaborator
+from superdesk.language.api.language import ILanguageService, LanguageEntity
+from superdesk.person.api.person import QPerson
+from superdesk.post.api.post import Post
+from superdesk.post.meta.type import PostTypeMapped
+from superdesk.source.api.source import ISourceService, QSource, Source
+from superdesk.source.meta.type import SourceTypeMapped
+from superdesk.user.api.user import IUserService, QUser, User
+import hashlib
 
 # --------------------------------------------------------------------
 
