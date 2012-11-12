@@ -22,6 +22,7 @@ from ally.api.type import List, typeFor
 from ally.container import ioc
 from ally.core.impl.processor.decoder import CreateDecoderHandler
 from ally.core.spec.resources import ConverterPath
+from ally.exception import InputError
 from collections import deque
 import unittest
 
@@ -86,7 +87,8 @@ class TestModel(unittest.TestCase):
         self.assertIsInstance(m, ModelId)
         self.assertTrue(m.Flags == ['3', '1', '2'])
 
-        self.assertFalse(resolve(path=deque(('ModelKey', 'Name')), value='The name', target=args, **context))
+        self.assertRaises(InputError, resolve, path=deque(('ModelKey', 'Name')), value='The name',
+                          target=args, **context)
 
 # --------------------------------------------------------------------
 

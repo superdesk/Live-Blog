@@ -9,7 +9,9 @@ Created on Jan 13, 2012
 Provides the setup implementations for the IoC support module.
 '''
 
+from ..aop import classesIn
 from ..proxy import proxyWrapFor
+from .aop_container import AOPClasses
 from .entity_handler import Wiring, WireConfig, WireEntity
 from .ioc_setup import Setup, Assembly, SetupError, CallEntity, SetupSource
 from functools import partial
@@ -310,3 +312,23 @@ class CreateEntity:
 
 # --------------------------------------------------------------------
 
+def _classes(classes):
+    '''
+    Provides the classes from the list of provided class references.
+    
+    @param classes: list(class|AOPClasses)|tuple(class|AOPClasses)
+        The classes or class reference to pull the classes from.
+    @return: list[class]
+        the list of classes obtained.
+    '''
+    assert isinstance(classes, (list, tuple)), 'Invalid classes %s' % classes
+    clazzes = []
+    for clazz in classes:
+        if isinstance(clazz, str):
+            clazzes.extend(classesIn(clazz).asList())
+        elif isclass(clazz): clazzes.append(clazz)
+        elif isinstance(clazz, AOPClasses):
+            assert isinstance(clazz, AOPClasses)
+            clazzes.extend(clazz.asList())
+        else: raise SetupError('Cannot use class %s' % clazz)
+    return clazzes

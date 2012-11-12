@@ -41,12 +41,19 @@ class TransactionWrappingHandler(HandlerProcessor):
         assert isinstance(response, Response), 'Invalid response %s' % response
 
         setKeepAlive(True)
-        try:
-            chain.process(response=response, **keyargs)
-            # We process the chain inside the try because we need control over the processing.
-        except:
-            endSessions(rollback)
-            raise
+        
+        def onFinalize():
+            '''
+            Handle the finalization
+            '''
+            if Response.code in response and response.code.isSuccess: endSessions(commit)
+            else: endSessions(rollback)
 
-        if Response.code in response and response.code.isSuccess: endSessions(commit)
-        else: endSessions(rollback)
+        def onError():
+            '''
+            Handle the error.
+            '''
+            endSessions(rollback)
+        
+        chain.callBack(onFinalize)
+        chain.callBackError(onError)

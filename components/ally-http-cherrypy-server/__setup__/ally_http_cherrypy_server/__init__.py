@@ -14,10 +14,10 @@ from ally.container import ioc
 
 # --------------------------------------------------------------------
 
-NAME = 'ally HTTP production server'
+NAME = 'ally HTTP cherrypy server'
 GROUP = ally_api.GROUP
 VERSION = '1.0'
-DESCRIPTION = 'Provides the HTTP production server'
+DESCRIPTION = 'Provides the HTTP cherrypy server'
 
 # --------------------------------------------------------------------
 # The default configurations

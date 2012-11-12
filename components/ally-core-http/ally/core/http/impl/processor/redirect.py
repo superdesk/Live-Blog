@@ -89,10 +89,8 @@ class RedirectHandler(Handler):
             typ = request.invoker.output
             if isinstance(typ, TypeModelProperty): typ = typ.type
             if isinstance(typ, TypeReference):
-                redirectChain = redirectProcessing.newChain()
-                assert isinstance(redirectChain, Chain), 'Invalid chain %s' % redirectChain
-
-                redirectChain.process(request=request, response=response, **keyargs)
+                redirectChain = Chain(redirectProcessing)
+                redirectChain.process(request=request, response=response, **keyargs).doAll()
                 if Response.code not in response or response.code.isSuccess:
                     assert isinstance(response.encoderHeader, IEncoderHeader), \
                     'Invalid header encoder %s' % response.encoderHeader
