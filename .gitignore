@@ -1,2 +1,6 @@
+/distribution/test.py
+/superdesk/distribution/plugins.properties.bck
+/superdesk/distribution/application.properties.bck
 *.pyc
 *.egg
+/.metadata/

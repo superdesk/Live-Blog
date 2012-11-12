@@ -13,6 +13,7 @@ from ..type import Type
 from .container import Model, Container, Query, Criteria
 from ally.api.operator.container import Service
 from ally.api.type import typeFor, TypeClass
+from inspect import isclass
 
 # --------------------------------------------------------------------
 
@@ -258,6 +259,14 @@ class TypeCriteriaEntry(TypeClass):
         assert isinstance(self.criteriaType, TypeCriteria), 'Invalid criteria class %s' % self.criteriaClass
         self.criteria = self.criteriaType.container
         super().__init__(self.criteriaType.clazz, False, False)
+        
+    def isOf(self, type):
+        '''
+        @see: TypeClass.isOf
+        '''
+        if isclass(type) and (issubclass(type, self.clazz) or issubclass(self.clazz, type)): return True
+        if self == typeFor(type): return True
+        return False
 
     def childTypes(self):
         '''
