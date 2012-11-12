@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: ally-http-prod-server
+Version: 1.0.dev
+Summary: Ally framework - HTTP server that is suited for production environments
+Home-page: http://www.sourcefabric.org/en/superdesk/
+Author: Gabriel Nistor
+Author-email: gabriel.nistor@sourcefabric.org
+License: GPL v3
+Description: Provides a server extension that runs on multiple processors
+Keywords: Ally REST framework
+Platform: all
