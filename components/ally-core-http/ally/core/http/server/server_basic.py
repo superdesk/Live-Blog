@@ -14,8 +14,8 @@ from ally.api.config import GET, INSERT, UPDATE, DELETE
 from ally.core.http.spec.server import METHOD_OPTIONS, RequestHTTP, ResponseHTTP, \
     RequestContentHTTP, ResponseContentHTTP
 from ally.core.spec.codes import Code
-from ally.design.processor import Processing, Chain, Assembly, ONLY_AVAILABLE, \
-    CREATE_REPORT
+from ally.design.processor import Processing, Assembly, ONLY_AVAILABLE, \
+    CREATE_REPORT, Chain
 from ally.support.util_io import IOutputStream, readGenerator
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qsl
@@ -32,14 +32,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     '''
     The server class that handles the HTTP requests.
     '''
-
-    pathProcessing = list
-    # A list that contains tuples having on the first position a regex for matching a path, and the second value 
-    # the processing for handling the path.
-
-    def __init__(self, *args):
-        assert isinstance(self.pathProcessing, list), 'Invalid path processing %s' % self.pathProcessing
-        super().__init__(*args)
 
     def do_GET(self):
         self._process(GET)
@@ -61,7 +53,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def _process(self, method):
         url = urlparse(self.path)
         path = url.path.lstrip('/')
-        for regex, processing in self.pathProcessing:
+        for regex, processing in self.server.pathProcessing:
             match = regex.match(path)
             if match:
                 uriRoot = path[:match.end()]
@@ -70,9 +62,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 assert isinstance(processing, Processing), 'Invalid processing %s' % processing
                 req, reqCnt = processing.contexts['request'](), processing.contexts['requestCnt']()
                 rsp, rspCnt = processing.contexts['response'](), processing.contexts['responseCnt']()
-                chain = processing.newChain()
 
-                assert isinstance(chain, Chain), 'Invalid chain %s' % chain
                 assert isinstance(req, RequestHTTP), 'Invalid request %s' % req
                 assert isinstance(reqCnt, RequestContentHTTP), 'Invalid request content %s' % reqCnt
                 assert isinstance(rsp, ResponseHTTP), 'Invalid response %s' % rsp
@@ -90,10 +80,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         req.headers = dict(self.headers)
         reqCnt.source = self.rfile
 
-        chain.process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt)
+        Chain(processing).process(request=req, requestCnt=reqCnt, response=rsp, responseCnt=rspCnt).doAll()
 
         assert isinstance(rsp.code, Code), 'Invalid response code %s' % rsp.code
-
         if ResponseHTTP.headers in rsp:
             for name, value in rsp.headers.items(): self.send_header(name, value)
 
@@ -118,6 +107,33 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 # --------------------------------------------------------------------
 
+class BasicServer(HTTPServer):
+    '''
+    The basic server.
+    '''
+    
+    def __init__(self, serverAddress, pathProcessing, requestHandlerFactory):
+        '''
+        Construct the server.
+        
+        @param serverAddress: tuple(string, integer)
+            The server address host and port.
+        @param pathProcessing: list[tuple(regex, Processing)] 
+            A list that contains tuples having on the first position a regex for matching a path, and the second value 
+            the processing for handling the path.
+        @param requestHandlerFactory: callable(AsyncServer, socket, tuple(string, integer))
+            The factory that provides request handlers, takes as arguments the server, request socket
+            and client address.
+        '''
+        assert isinstance(serverAddress, tuple), 'Invalid server address %s' % serverAddress
+        assert isinstance(pathProcessing, list), 'Invalid path processing %s' % pathProcessing
+        assert callable(requestHandlerFactory), 'Invalid request handler factory %s' % requestHandlerFactory
+        super().__init__(serverAddress, requestHandlerFactory)
+        
+        self.pathProcessing = pathProcessing
+
+# --------------------------------------------------------------------
+
 def run(pathAssemblies, server_version, host='', port=80):
     '''
     Run the basic server.
@@ -128,7 +144,7 @@ def run(pathAssemblies, server_version, host='', port=80):
     '''
     assert isinstance(pathAssemblies, list), 'Invalid path assemblies %s' % pathAssemblies
     RequestHandler.server_version = server_version
-    RequestHandler.pathProcessing = []
+    pathProcessing = []
     for pattern, assembly in pathAssemblies:
         assert isinstance(pattern, str), 'Invalid pattern %s' % pattern
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
@@ -138,10 +154,10 @@ def run(pathAssemblies, server_version, host='', port=80):
                                              response=ResponseHTTP, responseCnt=ResponseContentHTTP)
 
         log.info('Assembly report for pattern \'%s\':\n%s', pattern, report)
-        RequestHandler.pathProcessing.append((re.compile(pattern), processing))
+        pathProcessing.append((re.compile(pattern), processing))
     
     try:
-        server = HTTPServer((host, port), RequestHandler)
+        server = BasicServer((host, port), pathProcessing, RequestHandler)
         print('=' * 50, 'Started HTTP REST API server...')
         server.serve_forever()
     except KeyboardInterrupt:

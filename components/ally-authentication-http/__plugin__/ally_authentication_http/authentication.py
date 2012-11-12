@@ -12,13 +12,14 @@ Provides authentication register function.
 from __setup__.ally_authentication_http.processor import authenticators
 from ally.api.operator.authentication.service import IAuthenticationSupport
 from ally.container.ioc import activate, deactivate
-import ally_deploy_application
+from ally.container._impl.ioc_setup import SetupError
 
 # --------------------------------------------------------------------
 
 def registerAuthentication(support):
     assert isinstance(support, IAuthenticationSupport), 'Invalid support %s' % support
-
-    activate(ally_deploy_application.assembly)
+    try: import application
+    except ImportError: raise SetupError('Cannot access the application module')
+    activate(application.assembly)
     authenticators().append(support)
     deactivate()

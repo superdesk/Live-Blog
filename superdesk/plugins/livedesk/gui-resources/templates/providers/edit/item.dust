@@ -48,6 +48,7 @@
             {/if}
 			<div class="result-text">
 				{Content|s}
+                {#Meta}{?tbUrl}<p><a href="{url}" target="_blank"><img src="{tbUrl|s}"/></a></p>{/tbUrl}{/Meta}
 			</div>
 			<p class="attributes">
 				{@if cond="'{Author.Source.Name}'=='youtube'"}
