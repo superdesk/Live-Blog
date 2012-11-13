@@ -259,7 +259,9 @@ $.extend(providers.twitter, {
                         if ( data.length > 0 || page > 1) {
                             $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
                                 $('#twt-timeline-results').append(o).find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
-                                    start: function() {
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
                                         $(this).data('data', self.adaptor.universal( $(this) ));
                                         var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
                                         var itemNo = parseInt( (page * ipp) + idx );
@@ -354,7 +356,9 @@ $.extend(providers.twitter, {
                     if (data.length > 0 || page > 1) {
                         $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
                             $('#twt-user-results').append(o).find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
-                                start: function() {
+                                start: function(evt, ui) {
+                                    item = $(evt.currentTarget);
+                                    $(ui.helper).css('width', item.width());
                                     var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
                                     var itemNo = parseInt( (page * ipp) + idx );
                                     self.data[itemNo].type = 'user';
@@ -445,7 +449,9 @@ $.extend(providers.twitter, {
                         //feed results to template
                         $.tmpl('livedesk>providers/twitter/user-item', res, function(e,o) {
                             $('#twt-favorites-results').append(o).find('.twitter').draggable({revert: 'invalid',helper: 'clone',appendTo: 'body',zIndex: 2700,clone: true,
-                                start: function() {
+                                start: function(evt, ui) {
+                                    item = $(evt.currentTarget);
+                                    $(ui.helper).css('width', item.width());
                                     var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
                                     var itemNo = parseInt( (page * ipp) + idx );
                                     self.data[itemNo].type = 'user';
@@ -554,7 +560,9 @@ $.extend(providers.twitter, {
                                     appendTo: 'body',
                                     zIndex: 2700,
                                     clone: true,
-                                    start: function() {
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
                                         var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10), ipp = parseInt($(this).attr('ipp'),10);
                                         var itemNo = parseInt( (page * ipp) + idx );
                                         self.data[itemNo].type = 'natural';
