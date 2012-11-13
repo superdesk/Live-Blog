@@ -125,8 +125,6 @@ class Property(IGet, IContained, ISet, IDelete):
         '''
         assert isinstance(obj, ContainerSupport), 'Invalid container object %s' % obj
         assert self.type.parent.isValid(obj), 'Invalid container object %s, expected %s' % (obj, self.type.parent)
-        if value is not None and not self.type.isValid(value):
-            raise ValueError('Invalid value "%s" for %s for %s' % (value, self, self.type.type))
         obj._ally_values[self.type.property] = value
         assert log.debug('Success on setting value (%s) for %s', value, self) or True
 
