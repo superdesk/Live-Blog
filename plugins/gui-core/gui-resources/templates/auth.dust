@@ -1,5 +1,5 @@
 <div title="_("Login required")">
-	<form class="form-horizontal" onsubmit="alert('x')">
+	<form class="form-horizontal">
 		<fieldset>
 			<div class="control-group">
             	<label for="input01" class="control-label">Username</label>
