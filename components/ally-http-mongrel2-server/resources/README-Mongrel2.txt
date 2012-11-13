@@ -27,8 +27,9 @@ already, attention you need also the dev version:
 	
 We install now the Mongrel2 web server, you can also check the steps at "http://mongrel2.org/wiki/quick_start.html":
 	wget https://github.com/zedshaw/mongrel2/tarball/v1.8.0
+	mv v1.8.0 mongrel2-1.8.0.tar.gz
 	tar -xzvf mongrel2-1.8.0.tar.gz
-	cd mongrel2-1.8.0/
+	cd zedshaw-mongrel2-bc721eb
 	make clean all
 	sudo make install
 We will continue with Mongrel2 latter on.
@@ -84,7 +85,7 @@ Now we configure Mongrel2:
 
 And then start Mongrel2:
 	m2sh start -host localhost
-	
+
 Starting SuperDesk
 -----------------------------------------------------------------------------------------------
 
@@ -110,7 +111,7 @@ Open a new terminal and move to distribution:
 we just need to create copies for the support application:
 	cp application.properties application_support.properties
 	cp plugins.properties plugins_support.properties
-	
+
 Now we need to adjust the "application_support.properties", change the following configurations to:
 	configurations_file_path: plugins_support.properties
 
