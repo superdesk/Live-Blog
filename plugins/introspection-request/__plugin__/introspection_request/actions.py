@@ -9,13 +9,13 @@ Created on Feb 2, 2012
 Registered actions for request plugin
 '''
 
-from ..gui_action.defaults import actionManagerService
+from ..development.service import publish_development
 from ..gui_action import defaults
+from ..gui_action.defaults import actionManagerService
 from ..gui_core.gui_core import getPublishedGui
 from ally.container import ioc
 from ally.internationalization import N_
 from gui.action.api.action import Action
-from __plugin__.development.service import publish_development
 
 # --------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ def modulesListAction():
     return Action('list', N_('Request'), Parent=modulesAction(),
                ScriptPath=getPublishedGui('superdesk/request/scripts/js/list.js'))
 
-@ioc.start
+#@ioc.start
 def actionRegister():
     if publish_development():
         actionManagerService().add(menuAction())

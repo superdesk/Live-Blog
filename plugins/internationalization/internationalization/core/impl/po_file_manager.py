@@ -11,6 +11,7 @@ Implementation for the PO file management.
 
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.support.util_io import IInputStream
 from babel import localedata, core
 from babel.core import Locale, UnknownLocaleError
@@ -46,12 +47,13 @@ FORMAT_MO = '%s_%s.mo'
 
 # TODO: add lock in order to avoid problems when a file is being updated an then read.
 @injected
+@setup(IPOFileManager)
 class POFileManager(IPOFileManager):
     '''
     Implementation for @see: IPOFileManager
     '''
 
-    locale_dir_path = join('workspace', 'locale'); wire.config('locale_dir_path', doc='''
+    locale_dir_path = join('workspace', 'shared', 'locale'); wire.config('locale_dir_path', doc='''
     The locale repository path''')
     catalog_config = {
                       'header_comment':'''\
@@ -70,13 +72,11 @@ class POFileManager(IPOFileManager):
                       }; wire.config('catalog_config', doc='''
     The global catalog default configuration for templates.
     
-    :param header_comment: the header comment as string, or `None` for the
-                               default header
+    :param header_comment: the header comment as string, or `None` for the default header
     :param project: the project's name
     :param version: the project's version
     :param copyright_holder: the copyright holder of the catalog
-    :param msgid_bugs_address: the email address or URL to submit bug
-                               reports to
+    :param msgid_bugs_address: the email address or URL to submit bug reports to
     :param creation_date: the date the catalog was created
     :param revision_date: the date the catalog was revised
     :param last_translator: the name and email of the last translator
@@ -94,19 +94,16 @@ class POFileManager(IPOFileManager):
                        }; wire.config('write_po_config', doc='''
     The configurations used when writing the PO files.
     
-    :param width: the maximum line width for the generated output; use `None`,
-                  0, or a negative number to completely disable line wrapping
+    :param width: the maximum line width for the generated output; use `None`, 0, or a negative number to
+                  completely disable line wrapping
     :param no_location: do not emit a location comment for every message
-    :param omit_header: do not include the ``msgid ""`` entry at the top of the
-                        output
+    :param omit_header: do not include the ``msgid ""`` entry at the top of the output
     :param sort_output: whether to sort the messages in the output by msgid
-    :param sort_by_file: whether to sort the messages in the output by their
-                         locations
-    :param ignore_obsolete: whether to ignore obsolete messages and not include
-                            them in the output; by default they are included as
-                            comments
-    :param include_previous: include the old msgid as a comment when
-                             updating the catalog''')
+    :param sort_by_file: whether to sort the messages in the output by their locations
+    :param ignore_obsolete: whether to ignore obsolete messages and not include them in the output; by default
+                            they are included as comments
+    :param include_previous: include the old msgid as a comment when updating the catalog
+    ''')
 
     messageService = IMessageService; wire.entity('messageService')
     sourceService = ISourceService; wire.entity('sourceService')

@@ -48,7 +48,6 @@ class EntitySupportAlchemy(SessionSupport):
         assert isinstance(Entity, MappedSupport), 'Invalid mapped class %s' % Entity
         self.modelType = typeFor(Entity)
         assert isinstance(self.modelType, TypeModel), 'Invalid model class %s' % Entity
-        SessionSupport.__init__(self)
 
         self.model = self.modelType.container
         self.Entity = Entity
@@ -144,7 +143,7 @@ class EntityFindServiceAlchemy(EntitySupportAlchemy):
         @see: IEntityQueryService.getAll
         '''
         if detailed:
-            total, entities = self._getAllWithCount(None, None, offset, limit)
+            entities, total = self._getAllWithCount(None, None, offset, limit)
             return IterPart(entities, total, offset, limit)
         return self._getAll(None, None, offset, limit)
 

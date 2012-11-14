@@ -1,0 +1,465 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cluster Management &mdash; py-postgresql 1.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="py-postgresql 1.0.4 documentation" href="index.html" />
+    <link rel="next" title="Categories and Libraries" href="lib.html" />
+    <link rel="prev" title="Advisory Locks" href="alock.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.html" title="Categories and Libraries"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="alock.html" title="Advisory Locks"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="cluster-management">
+<span id="id1"></span><h1>Cluster Management<a class="headerlink" href="#cluster-management" title="Permalink to this headline">¶</a></h1>
+<p>py-postgresql provides cluster management tools in order to give the user
+fine-grained control over a PostgreSQL cluster and access to information about an
+installation of PostgreSQL.</p>
+<div class="section" id="installations">
+<span id="installation"></span><h2>Installations<a class="headerlink" href="#installations" title="Permalink to this headline">¶</a></h2>
+<p><cite>postgresql.installation.Installation</cite> objects are primarily used to
+access PostgreSQL installation information. Normally, they are created using a
+dictionary constructed from the output of the <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-pgconfig.html">pg_config</a> executable:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">postgresql.installation</span> <span class="kn">import</span> <span class="n">Installation</span><span class="p">,</span> <span class="n">pg_config_dictionary</span>
+<span class="n">pg_install</span> <span class="o">=</span> <span class="n">Installation</span><span class="p">(</span><span class="n">pg_config_dictionary</span><span class="p">(</span><span class="s">&#39;/usr/local/pgsql/bin/pg_config&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The extraction of <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-pgconfig.html">pg_config</a> information is isolated from Installation
+instantiation in order to allow Installations to be created from arbitrary
+dictionaries. This can be useful in cases where the installation layout is
+inconsistent with the standard PostgreSQL installation layout, or if a faux
+Installation needs to be created for testing purposes.</p>
+<div class="section" id="installation-interface-points">
+<h3>Installation Interface Points<a class="headerlink" href="#installation-interface-points" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">Installation(info)</span></tt></dt>
+<dd><p class="first">Instantiate an Installation using the given information. Normally, this
+information is extracted from a <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-pgconfig.html">pg_config</a> executable using
+<cite>postgresql.installation.pg_config_dictionary</cite>:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">info</span> <span class="o">=</span> <span class="n">pg_config_dictionary</span><span class="p">(</span><span class="s">&#39;/usr/local/pgsql/bin/pg_config&#39;</span><span class="p">)</span>
+<span class="n">pg_install</span> <span class="o">=</span> <span class="n">Installation</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Installation.version</span></tt></dt>
+<dd><p class="first">The installation&#8217;s version string:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">pg_install</span><span class="o">.</span><span class="n">version</span>
+<span class="s">&#39;PostgreSQL 9.0devel&#39;</span>
+</pre></div>
+</div>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Installation.version_info</span></tt></dt>
+<dd><p class="first">A tuple containing the version&#8217;s <tt class="docutils literal"><span class="pre">(major,</span> <span class="pre">minor,</span> <span class="pre">patch,</span> <span class="pre">state,</span> <span class="pre">level)</span></tt>.
+Where <tt class="docutils literal"><span class="pre">major</span></tt>, <tt class="docutils literal"><span class="pre">minor</span></tt>, <tt class="docutils literal"><span class="pre">patch</span></tt>, and <tt class="docutils literal"><span class="pre">level</span></tt> are <cite>int</cite> objects, and
+<tt class="docutils literal"><span class="pre">state</span></tt> is a <cite>str</cite> object:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">pg_install</span><span class="o">.</span><span class="n">version_info</span>
+<span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;devel&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Installation.ssl</span></tt></dt>
+<dd>A <cite>bool</cite> indicating whether or not the installation has SSL support.</dd>
+<dt><tt class="docutils literal"><span class="pre">Installation.configure_options</span></tt></dt>
+<dd><p class="first">The options given to the <tt class="docutils literal"><span class="pre">configure</span></tt> script that built the installation. The
+options are represented using a dictionary object whose keys are normalized
+long option names, and whose values are the option&#8217;s argument. If the option
+takes no argument, <cite>True</cite> will be used as the value.</p>
+<p>The normalization of the long option names consists of removing the preceding
+dashes, lowering the string, and replacing any dashes with underscores. For
+instance, <tt class="docutils literal"><span class="pre">--enable-debug</span></tt> will be <tt class="docutils literal"><span class="pre">enable_debug</span></tt>:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">pg_install</span><span class="o">.</span><span class="n">configure_options</span>
+<span class="p">{</span><span class="s">&#39;enable_debug&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;with_libxml&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+ <span class="s">&#39;enable_cassert&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;with_libedit_preferred&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+ <span class="s">&#39;prefix&#39;</span><span class="p">:</span> <span class="s">&#39;/src/build/pg90&#39;</span><span class="p">,</span> <span class="s">&#39;with_openssl&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+ <span class="s">&#39;enable_integer_datetimes&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;enable_depend&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Installation.paths</span></tt></dt>
+<dd><p class="first">The paths of the installation as a dictionary where the keys are the path
+identifiers and the values are the absolute file system paths. For instance,
+<tt class="docutils literal"><span class="pre">'bindir'</span></tt> is associated with <tt class="docutils literal"><span class="pre">$PREFIX/bin</span></tt>, <tt class="docutils literal"><span class="pre">'libdir'</span></tt> is associated
+with <tt class="docutils literal"><span class="pre">$PREFIX/lib</span></tt>, etc. The paths included in this dictionary are
+listed on the class&#8217; attributes: <cite>Installation.pg_directories</cite> and
+<cite>Installation.pg_executables</cite>.</p>
+<p>The keys that point to installation directories are: <tt class="docutils literal"><span class="pre">bindir</span></tt>, <tt class="docutils literal"><span class="pre">docdir</span></tt>,
+<tt class="docutils literal"><span class="pre">includedir</span></tt>, <tt class="docutils literal"><span class="pre">pkgincludedir</span></tt>, <tt class="docutils literal"><span class="pre">includedir_server</span></tt>, <tt class="docutils literal"><span class="pre">libdir</span></tt>,
+<tt class="docutils literal"><span class="pre">pkglibdir</span></tt>, <tt class="docutils literal"><span class="pre">localedir</span></tt>, <tt class="docutils literal"><span class="pre">mandir</span></tt>, <tt class="docutils literal"><span class="pre">sharedir</span></tt>, and <tt class="docutils literal"><span class="pre">sysconfdir</span></tt>.</p>
+<p>The keys that point to installation executables are: <tt class="docutils literal"><span class="pre">pg_config</span></tt>, <tt class="docutils literal"><span class="pre">psql</span></tt>,
+<tt class="docutils literal"><span class="pre">initdb</span></tt>, <tt class="docutils literal"><span class="pre">pg_resetxlog</span></tt>, <tt class="docutils literal"><span class="pre">pg_controldata</span></tt>, <tt class="docutils literal"><span class="pre">clusterdb</span></tt>, <tt class="docutils literal"><span class="pre">pg_ctl</span></tt>,
+<tt class="docutils literal"><span class="pre">pg_dump</span></tt>, <tt class="docutils literal"><span class="pre">pg_dumpall</span></tt>, <tt class="docutils literal"><span class="pre">postgres</span></tt>, <tt class="docutils literal"><span class="pre">postmaster</span></tt>, <tt class="docutils literal"><span class="pre">reindexdb</span></tt>,
+<tt class="docutils literal"><span class="pre">vacuumdb</span></tt>, <tt class="docutils literal"><span class="pre">ipcclean</span></tt>, <tt class="docutils literal"><span class="pre">createdb</span></tt>, <tt class="docutils literal"><span class="pre">ecpg</span></tt>, <tt class="docutils literal"><span class="pre">createuser</span></tt>,
+<tt class="docutils literal"><span class="pre">createlang</span></tt>, <tt class="docutils literal"><span class="pre">droplang</span></tt>, <tt class="docutils literal"><span class="pre">dropuser</span></tt>, and <tt class="docutils literal"><span class="pre">pg_restore</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the executable does not exist, the value will be <cite>None</cite> instead
+of an absoluate path.</p>
+</div>
+<p>To get the path to the <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-psql.html">psql</a> executable:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">postgresql.installation</span> <span class="kn">import</span> <span class="n">Installation</span>
+<span class="n">pg_install</span> <span class="o">=</span> <span class="n">Installation</span><span class="p">(</span><span class="s">&#39;/usr/local/pgsql/bin/pg_config&#39;</span><span class="p">)</span>
+<span class="n">psql_path</span> <span class="o">=</span> <span class="n">pg_install</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&#39;psql&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="clusters">
+<h2>Clusters<a class="headerlink" href="#clusters" title="Permalink to this headline">¶</a></h2>
+<p><cite>postgresql.cluster.Cluster</cite> is the class used to manage a PostgreSQL
+cluster&#8211;a data directory created by <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-initdb.html">initdb</a>. A Cluster represents a data
+directory with respect to a given installation of PostgreSQL, so
+creating a <cite>postgresql.cluster.Cluster</cite> object requires a
+<cite>postgresql.installation.Installation</cite>, and a
+file system path to the data directory.</p>
+<p>In part, a <cite>postgresql.cluster.Cluster</cite> is the Python programmer&#8217;s variant of
+the <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-pg-ctl.html">pg_ctl</a> command. However, it goes beyond the basic process control
+functionality and extends into initialization and configuration as well.</p>
+<p>A Cluster manages the server process using the <cite>subprocess</cite> module and
+signals. The <cite>subprocess.Popen</cite> object, <tt class="docutils literal"><span class="pre">Cluster.daemon_process</span></tt>, is
+retained when the Cluster starts the server process itself. This gives
+the Cluster access to the result code of server process when it exits, and the
+ability to redirect stderr and stdout to a parameterized file object using
+subprocess features.</p>
+<p>Despite its use of <cite>subprocess</cite>, Clusters can control a server process
+that was <em>not</em> started by the Cluster&#8217;s <tt class="docutils literal"><span class="pre">start</span></tt> method.</p>
+<div class="section" id="initializing-clusters">
+<h3>Initializing Clusters<a class="headerlink" href="#initializing-clusters" title="Permalink to this headline">¶</a></h3>
+<p><cite>postgresql.cluster.Cluster</cite> provides a method for initializing a
+<cite>Cluster</cite>&#8216;s data directory, <tt class="docutils literal"><span class="pre">init</span></tt>. This method provides a Python interface to
+the PostgreSQL <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-initdb.html">initdb</a> command.</p>
+<p><tt class="docutils literal"><span class="pre">init</span></tt> is a regular method and accepts a few keyword parameters. Normally,
+parameters are directly mapped to <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-initdb.html">initdb</a> command options. However, <tt class="docutils literal"><span class="pre">password</span></tt>
+makes use of initdb&#8217;s capability to read the superuser&#8217;s password from a file.
+To do this, a temporary file is allocated internally by the method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">postgresql.installation</span> <span class="kn">import</span> <span class="n">Installation</span><span class="p">,</span> <span class="n">pg_config_dictionary</span>
+<span class="kn">from</span> <span class="nn">postgresql.cluster</span> <span class="kn">import</span> <span class="n">Cluster</span>
+<span class="n">pg_install</span> <span class="o">=</span> <span class="n">Installation</span><span class="p">(</span><span class="n">pg_config_dictionary</span><span class="p">(</span><span class="s">&#39;/usr/local/pgsql/bin/pg_config&#39;</span><span class="p">))</span>
+<span class="n">pg_cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="n">pg_install</span><span class="p">,</span> <span class="s">&#39;pg_data&#39;</span><span class="p">)</span>
+<span class="n">pg_cluster</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">user</span> <span class="o">=</span> <span class="s">&#39;pg&#39;</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="s">&#39;secret&#39;</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The init method will block until the initdb command is complete. Once
+initialized, the Cluster may be configured.</p>
+</div>
+<div class="section" id="configuring-clusters">
+<h3>Configuring Clusters<a class="headerlink" href="#configuring-clusters" title="Permalink to this headline">¶</a></h3>
+<p>A Cluster&#8217;s <a class="reference external" href="http://www.postgresql.org/docs/current/static/runtime-config.html">configuration file</a> can be manipulated using the
+<cite>Cluster.settings</cite> mapping. The mapping&#8217;s methods will always access the
+configuration file, so it may be desirable to cache repeat reads. Also, if
+multiple settings are being applied, using the <tt class="docutils literal"><span class="pre">update()</span></tt> method may be
+important to avoid writing the entire file multiple times:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pg_cluster</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;listen_addresses&#39;</span> <span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span> <span class="s">&#39;port&#39;</span> <span class="p">:</span> <span class="s">&#39;6543&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Similarly, to avoid opening and reading the entire file multiple times,
+<cite>Cluster.settings.getset</cite> should be used to retrieve multiple settings:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">d</span> <span class="o">=</span> <span class="n">pg_cluster</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">getset</span><span class="p">(</span><span class="nb">set</span><span class="p">((</span><span class="s">&#39;listen_addresses&#39;</span><span class="p">,</span> <span class="s">&#39;port&#39;</span><span class="p">)))</span>
+<span class="n">d</span>
+<span class="p">{</span><span class="s">&#39;listen_addresses&#39;</span> <span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span> <span class="s">&#39;port&#39;</span> <span class="p">:</span> <span class="s">&#39;6543&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Values contained in <tt class="docutils literal"><span class="pre">settings</span></tt> are always Python strings:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">assert</span> <span class="n">pg_cluster</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s">&#39;max_connections&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">__class__</span> <span class="ow">is</span> <span class="nb">str</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">postgresql.conf</span></tt> file is only one part of the server configuration.
+Structured access and manipulation of the <a class="reference external" href="http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html">pg_hba</a> file is not
+supported. Clusters only provide the file path to the <a class="reference external" href="http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html">pg_hba</a> file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">hba</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">pg_cluster</span><span class="o">.</span><span class="n">hba_file</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the configuration of the Cluster is altered while the server process is
+running, it may be necessary to signal the process that configuration changes
+have been made. This signal can be sent using the <tt class="docutils literal"><span class="pre">Cluster.reload()</span></tt> method.
+<tt class="docutils literal"><span class="pre">Cluster.reload()</span></tt> will send a SIGHUP signal to the server process. However,
+not all changes to configuration settings can go into effect after calling
+<tt class="docutils literal"><span class="pre">Cluster.reload()</span></tt>. In those cases, the server process will need to be
+shutdown and started again.</p>
+</div>
+<div class="section" id="controlling-clusters">
+<h3>Controlling Clusters<a class="headerlink" href="#controlling-clusters" title="Permalink to this headline">¶</a></h3>
+<p>The server process of a Cluster object can be controlled with the <tt class="docutils literal"><span class="pre">start()</span></tt>,
+<tt class="docutils literal"><span class="pre">stop()</span></tt>, <tt class="docutils literal"><span class="pre">shutdown()</span></tt>, <tt class="docutils literal"><span class="pre">kill()</span></tt>, and <tt class="docutils literal"><span class="pre">restart()</span></tt> methods.
+These methods start the server process, signal the server process, or, in the
+case of restart, a combination of the two.</p>
+<p>When a Cluster starts the server process, it&#8217;s ran as a subprocess. Therefore,
+if the current process exits, the server process will exit as well. <tt class="docutils literal"><span class="pre">start()</span></tt>
+does <em>not</em> automatically daemonize the server process.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Under Microsoft Windows, above does not hold true. The server process
+will continue running despite the exit of the parent process.</p>
+</div>
+<p>To terminate a server process, one of these three methods should be called:
+<tt class="docutils literal"><span class="pre">stop</span></tt>, <tt class="docutils literal"><span class="pre">shutdown</span></tt>, or <tt class="docutils literal"><span class="pre">kill</span></tt>. <tt class="docutils literal"><span class="pre">stop</span></tt> is a graceful shutdown and will
+<em>wait for all clients to disconnect</em> before shutting down. <tt class="docutils literal"><span class="pre">shutdown</span></tt> will
+close any open connections and safely shutdown the server process.
+<tt class="docutils literal"><span class="pre">kill</span></tt> will immediately terminate the server process leading to recovery upon
+starting the server process again.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Using <tt class="docutils literal"><span class="pre">kill</span></tt> may cause shared memory to be leaked.</p>
+</div>
+<p>Normally, <cite>Cluster.shutdown</cite> is the appropriate way to terminate a server
+process.</p>
+</div>
+<div class="section" id="cluster-interface-points">
+<h3>Cluster Interface Points<a class="headerlink" href="#cluster-interface-points" title="Permalink to this headline">¶</a></h3>
+<p>Methods and properties available on <cite>postgresql.cluster.Cluster</cite> instances:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">Cluster(installation,</span> <span class="pre">data_directory)</span></tt></dt>
+<dd><p class="first">Create a <cite>postgresql.cluster.Cluster</cite> object for the specified
+<cite>postgresql.installation.Installation</cite>, and <tt class="docutils literal"><span class="pre">data_directory</span></tt>.</p>
+<p class="last">The <tt class="docutils literal"><span class="pre">data_directory</span></tt> must be an absoluate file system path. The directory
+does <em>not</em> need to exist. The <tt class="docutils literal"><span class="pre">init()</span></tt> method may later be used to create
+the cluster.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.installation</span></tt></dt>
+<dd>The Cluster&#8217;s <cite>postgresql.installation.Installation</cite> instance.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.data_directory</span></tt></dt>
+<dd>The absolute path to the PostgreSQL data directory.
+This directory may not exist.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.init([encoding</span> <span class="pre">=</span> <span class="pre">None[,</span> <span class="pre">user</span> <span class="pre">=</span> <span class="pre">None[,</span> <span class="pre">password</span> <span class="pre">=</span> <span class="pre">None]]])</span></tt></dt>
+<dd><p class="first">Run the <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-initdb.html">initdb</a> executable of the configured installation to initialize the
+cluster at the configured data directory, <cite>Cluster.data_directory</cite>.</p>
+<p><tt class="docutils literal"><span class="pre">encoding</span></tt> is mapped to <tt class="docutils literal"><span class="pre">-E</span></tt>, the default database encoding. By default,
+the encoding is determined from the environment&#8217;s locale.</p>
+<p><tt class="docutils literal"><span class="pre">user</span></tt> is mapped to <tt class="docutils literal"><span class="pre">-U</span></tt>, the database superuser name. By default, the
+current user&#8217;s name.</p>
+<p><tt class="docutils literal"><span class="pre">password</span></tt> is ultimately mapped to <tt class="docutils literal"><span class="pre">--pwfile</span></tt>. The argument given to the
+long option is actually a path to the temporary file that holds the given
+password.</p>
+<p>Raises <cite>postgresql.cluster.InitDBError</cite> when <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-initdb.html">initdb</a> returns a non-zero result
+code.</p>
+<p class="last">Raises <cite>postgresql.cluster.ClusterInitializationError</cite> when there is no
+<a class="reference external" href="http://www.postgresql.org/docs/current/static/app-initdb.html">initdb</a> in the Installation.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.initialized()</span></tt></dt>
+<dd>Whether or not the data directory exists, <em>and</em> if it looks like a PostgreSQL
+data directory. Meaning, the directory must contain a <tt class="docutils literal"><span class="pre">postgresql.conf</span></tt> file
+and a <tt class="docutils literal"><span class="pre">base</span></tt> directory.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.drop()</span></tt></dt>
+<dd>Shutdown the Cluster&#8217;s server process and completely remove the
+<cite>Cluster.data_directory</cite> from the file system.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.pid()</span></tt></dt>
+<dd>The server&#8217;s process identifier as a Python <cite>int</cite>. <cite>None</cite> if there is no
+server process running.
+This is a method rather than a property as it may read the PID from a file
+in cases where the server process was not started by the Cluster.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.start([logfile</span> <span class="pre">=</span> <span class="pre">None[,</span> <span class="pre">settings</span> <span class="pre">=</span> <span class="pre">None]])</span></tt></dt>
+<dd><p class="first">Start the PostgreSQL server process for the Cluster if it is not
+already running. This will execute <a class="reference external" href="http://www.postgresql.org/docs/current/static/app-postgres.html">postgres</a> as a subprocess.</p>
+<p>If <tt class="docutils literal"><span class="pre">logfile</span></tt>, an opened and writable file object, is given, stderr and
+stdout will be redirected to that file. By default, both stderr and stdout are
+closed.</p>
+<p class="last">If <tt class="docutils literal"><span class="pre">settings</span></tt> is given, the mapping or sequence of pairs will be used as
+long options to the subprocess. For each item, <tt class="docutils literal"><span class="pre">--{key}={value}</span></tt> will be
+given as an argument to the subprocess.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.running()</span></tt></dt>
+<dd>Whether or not the cluster&#8217;s server process is running. Returns <cite>True</cite> or
+<cite>False</cite>. Even if <cite>True</cite> is returned, it does <em>not</em> mean that the server
+process is ready to accept connections.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.ready_for_connections()</span></tt></dt>
+<dd><p class="first">Whether or not the Cluster is ready to accept connections. Usually called
+after <cite>Cluster.start</cite>.</p>
+<p class="last">Returns <cite>True</cite> when the Cluster can accept connections, <cite>False</cite> when it
+cannot, and <cite>None</cite> if the Cluster&#8217;s server process is not running at all.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.wait_until_started([timeout</span> <span class="pre">=</span> <span class="pre">10[,</span> <span class="pre">delay</span> <span class="pre">=</span> <span class="pre">0.05]])</span></tt></dt>
+<dd><p class="first">Blocks the process until the cluster is identified as being ready for
+connections. Usually called after <tt class="docutils literal"><span class="pre">Cluster.start()</span></tt>.</p>
+<p>Raises <cite>postgresql.cluster.ClusterNotRunningError</cite> if the server process is
+not running at all.</p>
+<p>Raises <cite>postgresql.cluster.ClusterTimeoutError</cite> if
+<cite>Cluster.ready_for_connections()</cite> does not return <cite>True</cite> within the given
+<cite>timeout</cite> period.</p>
+<p>Raises <cite>postgresql.cluster.ClusterStartupError</cite> if the server process
+terminates while polling for readiness.</p>
+<p class="last"><tt class="docutils literal"><span class="pre">timeout</span></tt> and <tt class="docutils literal"><span class="pre">delay</span></tt> are both in seconds. Where <tt class="docutils literal"><span class="pre">timeout</span></tt> is the
+maximum time to wait for the Cluster to be ready for connections, and
+<tt class="docutils literal"><span class="pre">delay</span></tt> is the time to sleep between calls to
+<cite>Cluster.ready_for_connections()</cite>.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.stop()</span></tt></dt>
+<dd>Signal the cluster to shutdown when possible. The <em>server</em> will wait for all
+clients to disconnect before shutting down.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.shutdown()</span></tt></dt>
+<dd>Signal the cluster to shutdown immediately. Any open client connections will
+be closed.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.kill()</span></tt></dt>
+<dd>Signal the absolute destruction of the server process(SIGKILL).
+<em>This will require recovery when the cluster is started again.</em>
+<em>Shared memory may be leaked.</em></dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.wait_until_stopped([timeout</span> <span class="pre">=</span> <span class="pre">10[,</span> <span class="pre">delay</span> <span class="pre">=</span> <span class="pre">0.05]])</span></tt></dt>
+<dd><p class="first">Blocks the process until the cluster is identified as being shutdown. Usually
+called after <cite>Cluster.stop</cite> or <cite>Cluster.shutdown</cite>.</p>
+<p class="last">Raises <cite>postgresql.cluster.ClusterTimeoutError</cite> if
+<cite>Cluster.ready_for_connections</cite> does not return <cite>None</cite> within the given
+<cite>timeout</cite> period.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.reload()</span></tt></dt>
+<dd>Signal the server that it should reload its configuration files(SIGHUP).
+Usually called after manipulating <cite>Cluster.settings</cite> or modifying the
+contents of <cite>Cluster.hba_file</cite>.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.restart([logfile</span> <span class="pre">=</span> <span class="pre">None[,</span> <span class="pre">settings</span> <span class="pre">=</span> <span class="pre">None[,</span> <span class="pre">timeout</span> <span class="pre">=</span> <span class="pre">10]]])</span></tt></dt>
+<dd><p class="first">Stop the server process, wait until it is stopped, start the server
+process, and wait until it has started.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This calls <tt class="docutils literal"><span class="pre">Cluster.stop()</span></tt>, so it will wait until clients
+disconnect before starting up again.</p>
+</div>
+<p class="last">The <tt class="docutils literal"><span class="pre">logfile</span></tt> and <tt class="docutils literal"><span class="pre">settings</span></tt> parameters will be given to <cite>Cluster.start</cite>.
+<tt class="docutils literal"><span class="pre">timeout</span></tt> will be given to <cite>Cluster.wait_until_stopped</cite> and
+<cite>Cluster.wait_until_started</cite>.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.settings</span></tt></dt>
+<dd><p class="first">A <cite>collections.Mapping</cite> interface to the <tt class="docutils literal"><span class="pre">postgresql.conf</span></tt> file of the
+cluster.</p>
+<p class="last">A notable extension to the mapping interface is the <tt class="docutils literal"><span class="pre">getset</span></tt> method. This
+method will return a dictionary object containing the settings whose names
+were contained in the <cite>set</cite> object given to the method.
+This method should be used when multiple settings need to be retrieved from
+the configuration file.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.hba_file</span></tt></dt>
+<dd>The path to the cluster&#8217;s <a class="reference external" href="http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html">pg_hba</a> file. This property respects the HBA file
+location setting in <tt class="docutils literal"><span class="pre">postgresql.conf</span></tt>. Usually, <tt class="docutils literal"><span class="pre">$PGDATA/pg_hba.conf</span></tt>.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.daemon_path</span></tt></dt>
+<dd>The path to the executable to use to start the server process.</dd>
+<dt><tt class="docutils literal"><span class="pre">Cluster.daemon_process</span></tt></dt>
+<dd>The <cite>subprocess.Popen</cite> instance of the server process. <cite>None</cite> if the server
+process was not started or was not started using the Cluster object.</dd>
+</dl>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cluster Management</a><ul>
+<li><a class="reference internal" href="#installations">Installations</a><ul>
+<li><a class="reference internal" href="#installation-interface-points">Installation Interface Points</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#clusters">Clusters</a><ul>
+<li><a class="reference internal" href="#initializing-clusters">Initializing Clusters</a></li>
+<li><a class="reference internal" href="#configuring-clusters">Configuring Clusters</a></li>
+<li><a class="reference internal" href="#controlling-clusters">Controlling Clusters</a></li>
+<li><a class="reference internal" href="#cluster-interface-points">Cluster Interface Points</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="alock.html"
+                        title="previous chapter">Advisory Locks</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.html"
+                        title="next chapter">Categories and Libraries</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/cluster.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.html" title="Categories and Libraries"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="alock.html" title="Advisory Locks"
+             >previous</a> |</li>
+        <li><a href="index.html">py-postgresql 1.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, James William Pye &lt;x@jwp.name&gt;.
+      Last updated on Apr 30, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

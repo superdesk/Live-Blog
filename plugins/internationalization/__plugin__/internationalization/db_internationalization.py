@@ -1,12 +1,12 @@
 '''
 Created on Jan 17, 2012
 
-@package: Newscoop
+@package: internationalization
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
-Provides the database settings for the newscoop database.
+Provides the database settings for the application database.
 '''
 
 from ally.container import ioc, support
@@ -27,8 +27,8 @@ createTables = createTables
 
 @ioc.replace(database_url)
 def database_url():
-    '''The database URL for the internationalization tables'''
-    return 'sqlite:///workspace/internationalization.db'
+    '''This database URL is used for the internationalization tables'''
+    return 'sqlite:///workspace/shared/internationalization.db'
 
 @ioc.replace(metas)
 def metas(): return [meta]

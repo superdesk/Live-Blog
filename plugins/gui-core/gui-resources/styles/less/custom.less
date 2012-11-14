@@ -209,7 +209,8 @@
 }
 .edit-block article.editable
 {
-	min-height: 150px;
+	overflow: auto;
+	height: 150px;
 	margin-bottom: 9px;
 	padding: 4px 8px;
 }
@@ -283,9 +284,64 @@
 	color: @errorText;
 	#gradient > .horizontal-three-colors(@white, mix(@white, @errorBackground, 40%), 20%, @errorBackground);
 }
-#timeline-view .post-list li .editable
+
+/* timeline view */
+#timeline-view .post-list li
+{
+	margin-left: 26px;
+	padding: 5px 8px 8px 17px;		
+}
+#timeline-view .post-list li.first
+{
+	margin-left: 0;
+}
+#timeline-view .post-list li.wrapup
+{
+	margin-left: 0;
+	padding-left: 8px;
+}
+#timeline-view li.wrapup .arrow 
+{
+	width:20px;
+	height:20px;
+	background:url(../../images/wrapup-arrow.png) no-repeat 0 0;
+	overflow:hidden;
+	float:left;
+	margin: 2px 0 5px 5px;
+}
+#timeline-view li.wrapup.closed .arrow 
+{
+	background-position:0 0;
+}
+#timeline-view li.wrapup.open .arrow 
+{
+	background-position:-40px 0;
+}
+
+#timeline-view .post-list .editable
 {
 	cursor: text;
+}
+#timeline-view .post-list .editable.annotation
+{
+	border: 1px dotted #EBEBEB;
+	min-height: 18px;
+	.clearfix()
+}
+#timeline-view .post-list .actions
+{
+	margin-top: 5px;
+}
+#timeline-view .drag-bar 
+{
+	position: absolute;
+	left: 0;  
+	top: -1px;
+	bottom: -1px;
+	width:9px;
+	border: 3px solid #969696;
+	border-width: 2px 0;
+	background:#969696 url(../../images/drag_bg.png) repeat-y 3px 0;
 }
 #timeline-view li.update-success, #timeline-view.update-error
 {
@@ -302,9 +358,9 @@
 #timeline-view li .message-error, #timeline-view li .message-success
 {
 	position:absolute;
-	right:3px;
+	left: 15px;
 	bottom:3px; 
-	font-size: 10px;
+	font-size: 11px;
 	display: none;
 	background: @white;
 }
@@ -323,6 +379,40 @@
 #timeline-view li .message-success
 {
 	color: @successText
+}
+
+#timeline-view .twitter .btn-group
+{
+	margin-top: 10px;
+}
+#timeline-view .twitter .twitter-quote
+{
+	margin: 5px 0 5px 5px;
+	padding: 5px 8px 8px;
+	border: 1px solid #9AE4E8;
+	min-height: 50px;
+}
+#timeline-view .twitter .twitter-quote .result-content
+{
+	margin-left: 55px;
+}
+#timeline-view .twitter .twitter-quote figure
+{
+	float: left;
+	margin: 3px 0 0; 
+}
+#timeline-view .flickr .result-text
+{
+	float: left;
+	margin: 0 10px 10px 0;
+}
+#timeline-view .flickr .result-content
+{
+	.clearfix()
+}
+#timeline-view .google .result-content
+{
+	margin: 10px 0;
 }
 
 [contenteditable] .placeholder
@@ -384,4 +474,32 @@ section.configure-blog [data-value="OutputLink"].focus
 	.box-shadow(@shadow);
 	outline: 0;
 	outline: thin dotted \9; /* IE6-9 */
+}
+.tabs-left .nav-tabs > li, .tabs-right .nav-tabs > li
+{
+	position: relative;
+}
+.tabs-left .nav-tabs > li .badge, .tabs-right .nav-tabs > li .badge
+{
+	position:absolute; top: 30px; right: 5px; 
+}
+.tabs-left .nav-tabs > li.active .badge.config-notif, .tabs-right .nav-tabs > li.active .badge.config-notif
+{
+	display: block;
+}
+
+.tabs-left .nav-tabs > li.edit .config-notif
+{
+	display: none !important;
+}
+
+.timeline-controls
+{
+	margin-right: 5px;
+}
+
+.superdesk-alert
+{
+	width:300px;position:fixed;left:50%;top:40px;margin-left:-150px;z-index:9000;box-shadow:1px 1px 4px rgba(0,0,0, 0.3);
+	.close{ background: none; border: none; }
 }

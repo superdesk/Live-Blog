@@ -15,6 +15,7 @@ from ..meta.type import PostTypeMapped
 from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.api.util_service import copy
@@ -31,6 +32,7 @@ from sqlalchemy.sql.functions import current_timestamp
 COPY_EXCLUDE = ('Type', 'IsModified', 'AuthorName')
 
 @injected
+@setup(IPostService)
 class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
     '''
     Implementation for @see: IPostService

@@ -1,0 +1,10 @@
+ui Package
+==========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    gui-resources.scripts.js.jquery.ui.effects
+

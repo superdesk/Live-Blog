@@ -1,0 +1,40 @@
+ally Package
+============
+
+:mod:`exception` Module
+-----------------------
+
+.. automodule:: ally.exception
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`internationalization` Module
+----------------------------------
+
+.. automodule:: ally.internationalization
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`type_legacy` Module
+-------------------------
+
+.. automodule:: ally.type_legacy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ally.api
+    ally.container
+    ally.core
+    ally.design
+    ally.support
+    ally.xml
+    ally.zip
+

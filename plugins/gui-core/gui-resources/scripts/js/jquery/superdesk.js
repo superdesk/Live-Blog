@@ -2,7 +2,7 @@ define(['jquery','jquery/rest','history','history/adapter'], function ($) {
 
 var superdesk = 
 {
-    apiUrl: config.api_url, 
+    apiUrl: typeof config !== 'undefined' ? config.api_url : '', 
 	/*!
 	 * repository for templates
 	 */
@@ -137,22 +137,54 @@ var superdesk =
 	{
 	    _repository: {},
 	    _base: '',
+	    _startPathname: '',
 	    _titlePrefix: '',
+	    getBase: function()
+	    {
+	        return this._base;
+	    },
+	    getStartPathname: function()
+        {
+            return this._startPathname;
+        },
+        /*!
+         * bind a callback on history state or execute if already bound
+         */
         bind: function(href, callback, title)
         {
             var History = window.History;
+
+            if( $.trim(href) != '' && this._repository[href]  )
+            {
+                History.replaceState({href: href}, 
+                        title ? this._titlePrefix + title : null, 
+                        this._base + (!config.server_tech ? '?'+href : href));
+                callback.call();
+                return callback;
+            }
+            
             this._repository[href] = callback;
-            History.pushState({href: href, bing: 'bong'}, title ? this._titlePrefix + title : null, this._base + href);
+            
+            History.pushState({href: href}, 
+                    title ? this._titlePrefix + title : null, 
+                    this._base + (!config.server_tech ? '?'+href : href));
             return callback;
         },
+        /*!
+         * app base url:
+         *  check for standard base tag in html or just get the current url
+         */
         init: function(callback)
         {
             var History = window.History, 
                 State = History.getState(),
-                self = this;
+                self = this,
+                baseTag = $('base');
             
             History.options.debug = true;
-            this._base = History.getPageUrl().split('#')[0];
+            this._base = baseTag.length ? baseTag.attr('href') : History.getPageUrl().split('?')[0].split('#')[0];
+            this._startPathname = window.History.getPageUrl().replace(this._base, '')
+                                    .replace(/^\/+|\/+$/g, '').replace(/^\?+/g, '').replace(/#/g, '');
             var triggered;
             History.Adapter.bind( window, 'statechange', function()
             {
@@ -164,6 +196,7 @@ var superdesk =
             if( typeof callback === 'function' )
             {
                 this._repository[''] = callback;
+                this._base = this._base;
                 History.pushState( {href: ''}, $(document).prop('title'), this._base );
                 !triggered && History.Adapter.trigger( window, 'statechange' );
             }
