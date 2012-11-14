@@ -1,0 +1,67 @@
+container Package
+=================
+
+:mod:`aop` Module
+-----------------
+
+.. automodule:: ally.container.aop
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`binder` Module
+--------------------
+
+.. automodule:: ally.container.binder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`binder_op` Module
+-----------------------
+
+.. automodule:: ally.container.binder_op
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`config` Module
+--------------------
+
+.. automodule:: ally.container.config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`ioc` Module
+-----------------
+
+.. automodule:: ally.container.ioc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`proxy` Module
+-------------------
+
+.. automodule:: ally.container.proxy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`support` Module
+---------------------
+
+.. automodule:: ally.container.support
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`wire` Module
+------------------
+
+.. automodule:: ally.container.wire
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

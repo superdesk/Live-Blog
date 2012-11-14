@@ -380,8 +380,8 @@ def service(*args, generic=None):
 
     if type(clazz) != ABCMeta:
         attributes = dict(clazz.__dict__)
-        del attributes['__dict__'] # Removing __dict__ since is a reference to the old class dictionary.
-        del attributes['__weakref__']
+        attributes.pop('__dict__', None) # Removing __dict__ since is a reference to the old class dictionary.
+        attributes.pop('__weakref__', None)
         clazz = ABCMeta(clazz.__name__, clazz.__bases__, attributes)
     abstract = set(clazz.__abstractmethods__)
     abstract.update({call.name for call in calls})

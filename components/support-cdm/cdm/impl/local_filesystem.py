@@ -13,8 +13,7 @@ from ally.container.ioc import injected
 from ally.zip.util_zip import ZIPSEP, normOSPath, normZipPath, getZipFilePath, validateInZipPath
 from cdm.spec import ICDM, UnsupportedProtocol, PathNotFound
 from datetime import datetime
-from io import StringIO
-from os.path import isdir, isfile, join, dirname, normpath, relpath
+from os.path import isdir, isfile, join, dirname, normpath, relpath, abspath
 from shutil import copyfile, copyfileobj, move, rmtree
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
@@ -144,12 +143,7 @@ class LocalFileSystemCDM(ICDM):
         if not isdir(dirPath):
             # not a directory, see if it's a entry in a zip file
             zipFilePath, inDirPath = getZipFilePath(dirPath, self.delivery.getRepositoryPath())
-            zipFile = ZipFile(zipFilePath)
-            if not inDirPath.endswith(ZIPSEP):
-                inDirPath = inDirPath + ZIPSEP
-            fileInfo = zipFile.getinfo(inDirPath)
-            if not fileInfo.filename.endswith(ZIPSEP):
-                raise IOError('Trying to publish a file from a ZIP directory path: %s' % fileInfo.filename)
+            if not inDirPath.endswith(ZIPSEP): inDirPath = inDirPath + ZIPSEP
             self._copyZipDir(zipFilePath, inDirPath, fullPath)
             assert log.debug('Success publishing ZIP dir %s (%s) to path %s', inDirPath, zipFilePath, path) or True
             return
@@ -158,7 +152,7 @@ class LocalFileSystemCDM(ICDM):
         for root, _dirs, files in os.walk(dirPath):
             relPath = relpath(root, dirPath)
             for file in files:
-                publishPath = join(path, relPath.lstrip(os.sep), file)
+                publishPath = join(normOSPath(path), relPath.lstrip(os.sep), file)
                 filePath = join(root, file)
                 self.publishFromFile(publishPath, filePath)
             assert log.debug('Success publishing directory %s to path %s', dirPath, path) or True
@@ -168,18 +162,34 @@ class LocalFileSystemCDM(ICDM):
         @see ICDM.publishContent
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
-        assert isinstance(content, str), 'Invalid content string %s' % content
+        #assert isinstance(content, ) or , 'Invalid binary content for path %s' % path
         path, dstFilePath = self._validatePath(path)
         dstDir = dirname(dstFilePath)
         if not isdir(dstDir):
             os.makedirs(dstDir)
-        with open(dstFilePath, 'w') as dstFile:
-            copyfileobj(StringIO(content), dstFile)
+        with open(dstFilePath, 'w+b') as dstFile:
+            copyfileobj(content, dstFile)
             assert log.debug('Success publishing content to path %s', path) or True
 
-    def removePath(self, path):
+
+    def republish(self, oldPath, newPath):
         '''
-        @see ICDM.removePath
+        @see ICDM.republish
+        '''
+        oldPath, oldFullPath = self._validatePath(oldPath)
+        if isdir(oldFullPath):
+            raise PathNotFound(oldPath)
+        newPath, newFullPath = self._validatePath(newPath)
+        if isdir(newFullPath) or isfile(newFullPath):
+            raise ValueError('New path %s is already in use' % newPath)
+        dstDir = dirname(newFullPath)
+        if not isdir(dstDir):
+            os.makedirs(dstDir)
+        move(oldFullPath, newFullPath)
+
+    def remove(self, path):
+        '''
+        @see ICDM.remove
         '''
         path, itemPath = self._validatePath(path)
         if isdir(itemPath):
@@ -202,9 +212,11 @@ class LocalFileSystemCDM(ICDM):
         '''
         assert isinstance(path, str), 'Invalid content path %s' % path
         assert isinstance(protocol, str), 'Invalid protocol %s' % protocol
-        if protocol != 'http':
-            raise UnsupportedProtocol(protocol)
-        return self.delivery.getURI(path)
+        if protocol == 'http':
+            return self.delivery.getURI(path)
+        if protocol == 'file':
+            return abspath(self._getItemPath(path))
+        raise UnsupportedProtocol(protocol)
 
     def getTimestamp(self, path):
         '''
@@ -237,13 +249,13 @@ class LocalFileSystemCDM(ICDM):
             assert log.debug('Success publishing stream to path %s', path) or True
 
     def _getItemPath(self, path):
-        return join(self.delivery.getRepositoryPath(), path.lstrip(os.sep))
+        return join(self.delivery.getRepositoryPath(), normOSPath(path.lstrip(os.sep), True))
 
     def _validatePath(self, path):
-        path = normOSPath(path, True)
+        path = normZipPath(path)
         fullPath = normOSPath(self._getItemPath(path), True)
         if not fullPath.startswith(self.delivery.getRepositoryPath()):
-            raise PathNotFound('Path is outside the repository: %s' % path)
+            raise PathNotFound(path)
         return (path, fullPath)
 
     def _isSyncFile(self, srcFilePath, dstFilePath):
@@ -316,9 +328,15 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         dirPath = dirPath.strip()
         self._publishFromFile(path, dirPath if dirPath.endswith(ZIPSEP) else dirPath + ZIPSEP)
 
-    def removePath(self, path):
+    def republish(self, oldPath, newPath):
         '''
-        @see ICDM.removePath
+        @see ICDM.republish
+        '''
+        raise NotImplementedError('Republish operation not available')
+
+    def remove(self, path):
+        '''
+        @see ICDM.remove
         '''
         path, entryPath = self._validatePath(path)
         if isfile(entryPath.rstrip(os.sep)):
@@ -351,6 +369,19 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
         if len(subPath.strip(os.sep)) == 0 and isdir(linkPath):
             rmtree(linkPath)
 
+    def getURI(self, path, protocol='http'):
+        '''
+        @see ICDM.getURI
+        '''
+        assert isinstance(path, str), 'Invalid content path %s' % path
+        assert isinstance(protocol, str), 'Invalid protocol %s' % protocol
+        if protocol == 'http':
+            return super().getURI(path)
+        elif protocol == 'file':
+            path, dstFilePath = self._validatePath(path)
+            return abspath(dstFilePath)
+        raise UnsupportedProtocol(protocol)
+
     def getTimestamp(self, path):
         '''
         @see ICDM.getTimestamp
@@ -371,9 +402,9 @@ class LocalFileSystemLinkCDM(LocalFileSystemCDM):
                     for link in links:
                         if link[0] == self._fsHeader and self._isValidFSLink(link, subPath):
                             fullPath = join(link[1], subPath) if subPath else link[1]
-                            return os.stat(fullPath).st_mtime
+                            return datetime.fromtimestamp(os.stat(fullPath).st_mtime)
                         elif link[0] == self._zipHeader and self._isValidZIPLink(link, subPath):
-                            return os.stat(link[1]).st_mtime
+                            return datetime.fromtimestamp(os.stat(link[1]).st_mtime)
                     raise PathNotFound(path)
             nextLinkPath = dirname(linkPath)
             if nextLinkPath == linkPath: break

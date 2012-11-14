@@ -27,7 +27,7 @@ $.extend(providers.flickr, {
 	data: [],
 	init: function(){
                 //console.log('flickr main init');
-		if(!this.initialized) {
+		if(!this.initialized || !this.el.children(":first").length) {
 			this.render();
                         this.adaptor.init();
 		}
@@ -43,7 +43,11 @@ $.extend(providers.flickr, {
 					//check what search it is
 					self.doFlickerImage(1);
 				}
-			});
+			})
+                        .off('change', '#flickr-license')
+                        .on('change', '#flickr-license', function(e){
+                            self.doFlickerImage(1);
+                        });
 		});	  
                 
                 //get license options
@@ -84,6 +88,12 @@ $.extend(providers.flickr, {
                 })
             }
         },
+        trimTitle: function(photos) {
+            for( var i = 0; i < photos.length; i++ ) {
+                photos[i].trimmedTitle = photos[i].title.trunc(80, true);
+            }
+            return photos;
+        },
         doFlickerImage : function(start) {
             var self = this;
             var text = $('#flickr-search-text').val();
@@ -110,7 +120,7 @@ $.extend(providers.flickr, {
                     if ( parseInt(data.photos.total) > 1 ) {
                         $.tmpl('livedesk>providers/flickr/image-item', 
                         {
-                            photos : data.photos.photos,
+                            photos : self.trimTitle(data.photos.photos),
                             page : parseInt(start - 1)
                         }, function(e,o) {
                             $('#flickr-image-results').append(o).find('.flickr').draggable(
@@ -121,7 +131,9 @@ $.extend(providers.flickr, {
                                 appendTo: 'body',
                                 zIndex: 2700,
                                 clone: true,
-                                start: function() {
+                                start: function(evt, ui) {
+                                    item = $(evt.currentTarget);
+                                    $(ui.helper).css('width', item.width());
                                     var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10);
                                     var originalUrl = $(this).attr('data-url');
                                     var itemNo = parseInt( (page * self.per_page) + idx );

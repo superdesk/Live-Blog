@@ -1,7 +1,7 @@
 '''
 Created on Sep 23, 2011
 
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -13,11 +13,11 @@ single thread at one time.
 from ..support.util_sys import callerLocals
 from ._impl.aop_container import AOPModules
 from ._impl.entity_handler import Initializer
-from ._impl.ioc_setup import SetupEntity, SetupConfig, SetupFunction, SetupEvent, \
-    Context, SetupReplace, SetupStart, SetupError, register, ConfigError, Assembly
-from ally.container._impl.ioc_setup import SetupReplaceConfig
+from ._impl.ioc_setup import SetupEntity, SetupSource, SetupConfig, \
+    SetupFunction, SetupEvent, Context, SetupReplace, SetupStart, SetupError, \
+    register, ConfigError, Assembly, SetupReplaceConfig, setupsOf
 from functools import partial, update_wrapper
-from inspect import isclass, ismodule, getfullargspec, isfunction
+from inspect import isclass, ismodule, getfullargspec, isfunction, cleandoc
 import importlib
 import logging
 
@@ -40,6 +40,8 @@ def injected(*args):
     assert isclass(clazz), 'Invalid class %s' % clazz
     Initializer(clazz)
     return clazz
+    
+# --------------------------------------------------------------------
 
 def entity(*args):
     '''
@@ -73,35 +75,62 @@ def config(*args):
         raise SetupError('Invalid name %r for configuration, needs to be lower case only' % function.__name__)
     return update_wrapper(register(SetupConfig(function, type=type), callerLocals()), function)
 
-def before(setup):
+def doc(setup, doc):
     '''
-    Decorator for setup functions that need to be called before other setup functions.
+    Updates the documentation of the provided configuration setup.
     
-    @param setup: SetupFunction
-        The setup function to listen to.
+    @param setup: SetupConfig
+        The configuration setup to update the documentation for.
+    @param doc: string
+        The documentation to update with, automatically the provided documentation will start on a new line.
     '''
-    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    assert isinstance(setup, (SetupConfig, SetupReplaceConfig)), 'Invalid configuration setup %s' % setup
+    assert isinstance(doc, str), 'Invalid documentation %s' % doc
+    
+    if isinstance(setup, SetupReplaceConfig): setup = setup.target
+    if setup.documentation is not None: setup.documentation += '\n%s' % cleandoc(doc)
+
+def before(*setups, auto=True):
+    '''
+    Decorator for setup functions that need to be called before the other setup functions. If multiple before setup
+    functions are provided then the before function will be invoked only for the first setup functions that occurs.
+    
+    @param setup: arguments[SetupFunction]
+        The setup function to listen to.
+    @param auto: boolean
+        In some cases the event is not called (for instance externally provided configurations) this means is auto managed
+        by the container, if placed on False the event is guaranteed to be called regardless of what the container option.
+    '''
+    if __debug__:
+        for setup in setups: assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.BEFORE), callerLocals()), function)
+        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.BEFORE, auto),
+                                       callerLocals()), function)
 
     return decorator
 
-def after(setup):
+def after(*setups, auto=True):
     '''
-    Decorator for setup functions that need to be called after other setup functions.
+    Decorator for setup functions that need to be called after the other setup functions. If multiple after setup
+    functions are provided then the after function will be invoked only after all the setup functions will occur.
     
-    @param setup: SetupFunction
-        The setup function to listen to.
+    @param setups: arguments[SetupFunction]
+        The setup function(s) to listen to.
+    @param auto: boolean
+        In some cases the event is not called (for instance externally provided configurations) this means is auto managed
+        by the container, if placed on False the event is guaranteed to be called regardless of what the container option.
     '''
-    assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    if __debug__:
+        for setup in setups: assert isinstance(setup, SetupFunction), 'Invalid setup function %s' % setup
+    assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
     def decorator(function):
         hasType, type = _process(function)
         if hasType: raise SetupError('No return type expected for function %s' % function)
-        return update_wrapper(register(SetupEvent(function, setup.name, SetupEvent.AFTER),
+        return update_wrapper(register(SetupEvent(function, tuple(setup.name for setup in setups), SetupEvent.AFTER, auto),
                                        callerLocals()), function)
-
     return decorator
 
 def replace(setup):
@@ -186,6 +215,49 @@ def initialize(entity):
         The entity to initialize.
     '''
     if entity is not None: Initializer.initialize(entity)
+
+def getEntity(identifier, module=None):
+    '''
+    Provides the setup function from the provided module (if not specified it will consider the calling module) based on the
+    identifier. The identifier can be either a name (string form) or a returned type (class form).
+    
+    @param identifier: string|class
+        The setup function identifier, wither the setup name or the setup returned type.
+    @param module: module
+        The module where to search the setup function.
+    @return: function
+        The found setup function.
+    '''
+    assert isinstance(identifier, (str, type)), 'Invalid identifier %s' % identifier
+    
+    if module is None: register = callerLocals()
+    else:
+        assert ismodule(module), 'Invalid module %s' % module
+        register = module.__dict__
+    assert isinstance(register, dict), 'Invalid register %s' % register
+    
+    setups = setupsOf(register, SetupSource)
+    assert setups is not None, 'No setups available in register %s' % register
+    
+    found = []
+    if isinstance(identifier, str):
+        identifier = module.__name__ + '.' + identifier
+        
+        for setup in setups:
+            assert isinstance(setup, SetupSource)
+            if isinstance(identifier, str):
+                if setup.name == identifier: found.append(setup)
+    else:
+        assert isclass(identifier), 'Invalid identifier class %s' % identifier
+        
+        for setup in setups:
+            assert isinstance(setup, SetupSource)
+            if setup.type == identifier or (setup.type and issubclass(setup.type, identifier)): found.append(setup)
+            
+    if not found: raise SetupError('No setup entity as found for "%s"' % identifier)
+    if len(found) > 1: raise SetupError('To many setup entities found (%s) for "%s"' % 
+                                        (', '.join(str(setup) for setup in found), identifier))
+    return found[0]
 
 # --------------------------------------------------------------------
 

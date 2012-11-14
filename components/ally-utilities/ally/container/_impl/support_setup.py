@@ -1,7 +1,7 @@
 '''
 Created on Jan 13, 2012
 
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -9,10 +9,11 @@ Created on Jan 13, 2012
 Provides the setup implementations for the IoC support module.
 '''
 
+from ..aop import classesIn
 from ..proxy import proxyWrapFor
+from .aop_container import AOPClasses
 from .entity_handler import Wiring, WireConfig, WireEntity
-from .ioc_setup import Setup, Assembly, SetupError, CallEntity, SetupSource, \
-    WithType
+from .ioc_setup import Setup, Assembly, SetupError, CallEntity, SetupSource
 from functools import partial
 from inspect import isclass
 import logging
@@ -112,7 +113,8 @@ class SetupEntityWire(Setup):
                     for wentity in wiring.entities:
                         assert isinstance(wentity, WireEntity)
                         if wentity.name not in value.__dict__:
-                            setattr(value, wentity.name, entityFor(wentity.type))
+                            try: setattr(value, wentity.name, entityFor(wentity.type))
+                            except: raise SetupError('Cannot solve wiring \'%s\' for %s' % (wentity.name, value))
                     for wconfig in wiring.configurations:
                         assert isinstance(wconfig, WireConfig)
                         if wconfig.name not in value.__dict__:
@@ -133,14 +135,14 @@ class SetupEntityListen(Setup):
         '''
         Creates a setup that will listen for entities that inherit or are in the provided classes.
         
-        @param group: string
+        @param group: string|None
             The name group of the call entities to be listened.
         @param classes: list[class]|tuple(class)
             The classes to listen for.
         @param listeners: list[Callable]|tuple(Callable)
            The listeners to be invoked. The listeners Callable's will take one argument that is the instance.
         '''
-        assert isinstance(group, str), 'Invalid group %s' % group
+        assert group is None or isinstance(group, str), 'Invalid group %s' % group
         assert isinstance(classes, (list, tuple)), 'Invalid classes %s' % classes
         assert isinstance(listeners, (list, tuple)), 'Invalid listeners %s' % listeners
         if __debug__:
@@ -155,13 +157,15 @@ class SetupEntityListen(Setup):
         @see: Setup.assemble
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        prefix = self.group + '.'
+        if self.group: prefix = self.group + '.'
+        else: prefix = None
         for name, call in assembly.calls.items():
-            if name.startswith(prefix) and isinstance(call, CallEntity):
+            if isinstance(call, CallEntity):
                 assert isinstance(call, CallEntity)
-                if call.marks.count(self) == 0:
-                    call.addInterceptor(self._intercept)
-                    call.marks.append(self)
+                if prefix is None or name.startswith(prefix):
+                    if call.marks.count(self) == 0:
+                        call.addInterceptor(self._intercept)
+                        call.marks.append(self)
 
     def _intercept(self, value, followUp):
         '''
@@ -236,7 +240,7 @@ class SetupEntityProxy(Setup):
                     proxies = [clazz for clazz in proxies
                                if all(not issubclass(cls, clazz) for cls in proxies if cls != clazz)]
                 if len(proxies) > 1:
-                    raise SetupError('Cannot create proxy for %s, because to many proxy classes matched %s' %
+                    raise SetupError('Cannot create proxy for %s, because to many proxy classes matched %s' % 
                                      (value, proxies))
 
                 value = proxyWrapFor(value)
@@ -280,17 +284,8 @@ class SetupEntityCreate(SetupSource):
         @see: Setup.index
         '''
         assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        for call in assembly.calls.values():
-            if isinstance(call, WithType):
-                assert isinstance(call, WithType)
-                if call.type == self._type:
-                    assert log.debug('There is already an entity of type %s', self._type) or True
-                    break
-        else:
-            if self.name in assembly.calls:
-                raise SetupError('There is already a setup call for name %r' % self.name)
-            call = CallEntity(assembly, self.name, self._function, self._type)
-        assembly.calls[self.name] = call
+        if self.name in assembly.calls: raise SetupError('There is already a setup call for name %r' % self.name)
+        assembly.calls[self.name] = CallEntity(assembly, self.name, self._function, self.type)
 
 # --------------------------------------------------------------------
 
@@ -317,3 +312,23 @@ class CreateEntity:
 
 # --------------------------------------------------------------------
 
+def _classes(classes):
+    '''
+    Provides the classes from the list of provided class references.
+    
+    @param classes: list(class|AOPClasses)|tuple(class|AOPClasses)
+        The classes or class reference to pull the classes from.
+    @return: list[class]
+        the list of classes obtained.
+    '''
+    assert isinstance(classes, (list, tuple)), 'Invalid classes %s' % classes
+    clazzes = []
+    for clazz in classes:
+        if isinstance(clazz, str):
+            clazzes.extend(classesIn(clazz).asList())
+        elif isclass(clazz): clazzes.append(clazz)
+        elif isinstance(clazz, AOPClasses):
+            assert isinstance(clazz, AOPClasses)
+            clazzes.extend(clazz.asList())
+        else: raise SetupError('Cannot use class %s' % clazz)
+    return clazzes

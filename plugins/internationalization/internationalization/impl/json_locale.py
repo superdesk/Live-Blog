@@ -13,6 +13,7 @@ from admin.introspection.api.component import IComponentService
 from admin.introspection.api.plugin import IPluginService, Plugin
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError
 from ally.internationalization import _
 from cdm.spec import ICDM, PathNotFound
@@ -20,10 +21,13 @@ from datetime import datetime
 from internationalization.api.json_locale import IJSONLocaleFileService
 from internationalization.core.spec import IPOFileManager, InvalidLocaleError
 from json.encoder import JSONEncoder
+from io import BytesIO
+from sys import getdefaultencoding
 
 # --------------------------------------------------------------------
 
 @injected
+@setup(IJSONLocaleFileService)
 class JSONFileService(IJSONLocaleFileService):
     '''
     Implementation for @see: IJSONLocaleFileService
@@ -99,7 +103,8 @@ class JSONFileService(IJSONLocaleFileService):
                 republish = False if mngFileTimestamp is None else cdmFileTimestamp < mngFileTimestamp
 
             if republish:
-                self.cdmLocale.publishContent(path, JSONEncoder().encode(self.poFileManager.getPluginAsDict(plugin, locale)))
+                jsonString = JSONEncoder().encode(self.poFileManager.getPluginAsDict(plugin, locale))
+                self.cdmLocale.publishContent(path, BytesIO(bytes(jsonString, getdefaultencoding())))
         except InvalidLocaleError: raise InputError(_('Invalid locale %(locale)s') % dict(locale=locale))
         return self.cdmLocale.getURI(path, scheme)
 
@@ -110,7 +115,7 @@ class JSONFileService(IJSONLocaleFileService):
         Returns the path to the CDM JSON file corresponding to the given locale and / or
         component / plugin. If no component of plugin was specified it returns the
         name of the global JSON file.
-        
+
         @param locale: string
             The locale.
         @param component: string

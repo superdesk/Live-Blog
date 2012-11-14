@@ -13,7 +13,7 @@ from ally.container.ioc import injected
 from ally.core.http.spec.codes import INVALID_HEADER_VALUE
 from ally.core.http.spec.server import IEncoderHeader, IDecoderHeader
 from ally.core.spec.codes import Code
-from ally.design.context import Context, requires, defines
+from ally.design.context import Context, requires, defines, optional
 from ally.design.processor import HandlerProcessorProceed
 from ally.support.util_io import IInputStream, IClosable
 
@@ -30,8 +30,8 @@ class RequestContentDecode(Context):
     '''
     The request content context.
     '''
-    # ---------------------------------------------------------------- Required
-    source = requires(IInputStream)
+    # ---------------------------------------------------------------- Optional
+    source = optional(IInputStream)
     # ---------------------------------------------------------------- Defined
     length = defines(int, doc='''
     @rtype: integer
@@ -83,7 +83,9 @@ class ContentLengthDecodeHandler(HandlerProcessorProceed):
                 response.errorMessage = 'Invalid value \'%s\' for header \'%s\''\
                 ', expected an integer value' % (value, self.nameContentLength)
                 return
-            else: requestCnt.source = StreamLimitedLength(requestCnt.source, requestCnt.length)
+            else:
+                if RequestContentDecode.source in requestCnt:
+                    requestCnt.source = StreamLimitedLength(requestCnt.source, requestCnt.length)
 
 class StreamLimitedLength(IInputStream, IClosable):
     '''

@@ -9,9 +9,11 @@ gui/__init__.py
 gui-resources/__init__.py
 gui-resources/images/__init__.py
 gui-resources/scripts/__init__.py
+gui-resources/scripts/build/__init__.py
 gui-resources/scripts/js/__init__.py
 gui-resources/scripts/js/dust/__init__.py
 gui-resources/scripts/js/dust/helpers/__init__.py
+gui-resources/scripts/js/gizmo/__init__.py
 gui-resources/scripts/js/history/__init__.py
 gui-resources/scripts/js/jquery/__init__.py
 gui-resources/scripts/js/jquery/bootstrap/__init__.py

@@ -139,6 +139,7 @@ def pythonPath(level=1):
     '''
     gl = callerGlobals(level)
     moduleName, modulePath = gl['__name__'], gl['__file__']
+    if modulePath.endswith('__init__.py'): modulePath = dirname(modulePath)
     for _k in range(0, moduleName.count('.') + 1):
         modulePath = dirname(modulePath)
     return relpath(modulePath)
@@ -164,55 +165,104 @@ def searchModules(pattern):
             
             __setup__.*_http
             Will return all the modules that are found in __setup__ package that end with _http.
-    @return: dictionary{string, list[string]}
-        A dictionary containing as a key the module full name, and as a value a list of paths where this module is
+    @return: dictionary{tuple(boolean, string), list[string]}
+        A dictionary containing as a key a tuple with a flag indicating that the the module full name, and as a value a list of paths where this module is
         defined.
+    '''
+    return {keyPack[1]: paths for keyPack, paths in searchPaths(pattern).items()}
+
+def searchPaths(pattern):
+    '''
+    Finds all modules/packages available in the sys.path that respect the provided pattern. The search is done directly on the
+    importers based on PEP 302. Basically this search guarantees that all modules that are defined (even if some might
+    not be imported) respecting the pattern will be obtained.
+    
+    @param pattern: string
+        The pattern is formed based on full module name, ex:
+        
+            __setup__
+            Will return a map with the key setup and the values will contain all the paths that define a __setup__
+            module.
+            
+            __setup__.*
+            Will return all the modules that are found in __setup__ package.
+            
+            __setup__.**
+            Will return all the modules and sub modules that are found in __setup__ package.
+            
+            __setup__.*_http
+            Will return all the modules that are found in __setup__ package that end with _http.
+    @return: dictionary{tuple(boolean, string), list[string]}
+        A dictionary containing as a key a tuple with a flag indicating that the full name is a package and as a second value the package/module full path,
+        and as a value a list of paths where this package/module is defined.
     '''
     assert isinstance(pattern, str), 'Invalid module pattern %s' % pattern
     modules, importers = {}, None
     k = pattern.rfind('.')
     if k >= 0:
         name = pattern[k + 1:]
-        parent = searchModules(pattern[:k])
+        parent = searchPaths(pattern[:k])
+
         if name == '**':
             while parent:
-                pckg, pckgPaths = parent.popitem()
+                keyPack, pckgPaths = parent.popitem()
+                isPackage, pckg = keyPack
                 for path in pckgPaths:
-                    moduleLoader = get_importer(dirname(path)).find_module(pckg)
-                    if moduleLoader and moduleLoader.is_package(pckg):
+                    if isPackage:
                         moduleImporter = get_importer(path)
                         for modulePath, isPkg in iter_importer_modules(moduleImporter):
                             path = dirname(moduleImporter.find_module(modulePath).get_filename(modulePath))
+                            keyPack = (isPkg, pckg + ('.' if pckg else '') + modulePath)
                             if isPkg:
-                                paths = parent.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
+                                paths = parent.get(keyPack)
+                                if paths is None: paths = parent[keyPack] = []
                                 if path not in paths: paths.append(path)
-                            paths = modules.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
+
+                            paths = modules.get(keyPack)
+                            if paths is None: paths = modules[keyPack] = []
                             if path not in paths: paths.append(path)
             return modules
         elif name.find('*') >= 0:
             matcher = re.compile('[a-zA-Z0-9_]*'.join([re.escape(e) for e in name.split('*')]))
-            for pckg, pckgPaths in parent.items():
+            for keyPack, pckgPaths in parent.items():
+                isPackage, pckg = keyPack
                 for path in pckgPaths:
-                    moduleLoader = get_importer(dirname(path)).find_module(pckg)
-                    if moduleLoader and moduleLoader.is_package(pckg):
+                    if isPackage:
                         moduleImporter = get_importer(path)
                         for modulePath, isPkg in iter_importer_modules(moduleImporter):
                             if matcher.match(modulePath):
                                 path = dirname(moduleImporter.find_module(modulePath).get_filename(modulePath))
-                                paths = modules.setdefault(pckg + ('.' if pckg else '') + modulePath, [])
+                                keyPack = (isPkg, pckg + ('.' if pckg else '') + modulePath)
+                                paths = modules.get(keyPack)
+                                if paths is None: paths = modules[keyPack] = []
                                 if path not in paths: paths.append(path)
             return modules
-        else: importers = [(pckg, get_importer(path)) for pckg, paths in parent.items() for path in paths ]
+        else: importers = [(keyPack[0], keyPack[1], get_importer(path)) for keyPack, paths in parent.items() for path in paths]
     else:
         name = pattern
-        importers = [('', imp) for imp in iter_importers()]
+        importers = [(True, '', imp) for imp in iter_importers()]
 
-    for package, importer in importers:
-        moduleLoader = importer.find_module(name)
-        if moduleLoader:
-            path = dirname(moduleLoader.get_filename(name))
-            paths = modules.setdefault(package + ('.' if package else '') + name, [])
+    for isPackage, package, importer in importers:
+        if isPackage:
+            moduleLoader = importer.find_module(name)
+            if moduleLoader:
+                path = dirname(moduleLoader.get_filename(name))
+                keyPack = (moduleLoader.is_package(name), package + ('.' if package else '') + name)
+            else: keyPack = None
+        elif package == name or package.endswith('.' + name):
+            nameMod = name
+            kk = nameMod.rfind('.')
+            if kk >= 0: nameMod = nameMod[kk + 1:]
+            moduleLoader = importer.find_module(nameMod)
+            path = dirname(moduleLoader.get_filename(nameMod))
+            keyPack = (False, package)
+        else: keyPack = None
+
+        if keyPack:
+            paths = modules.get(keyPack)
+            if paths is None: paths = modules[keyPack] = []
             if path not in paths: paths.append(path)
+
     return modules
 
 def packageModules(package):
@@ -283,7 +333,7 @@ def validateTypeFor(clazz, name, vauleType, allowNone=True):
 
         get = getattr(descriptor, '__get__')
 
-        descriptor.__set__ # Just to raise AttributeError in case there is no __set__ on the descriptor
+        descriptor.__set__  # Just to raise AttributeError in case there is no __set__ on the descriptor
         def set(self, value):
             if not ((allowNone and value is None) or isinstance(value, vauleType)):
                 raise ValueError('Invalid value %s for class %s' % (value, vauleType))

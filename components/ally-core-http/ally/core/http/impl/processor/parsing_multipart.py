@@ -78,7 +78,7 @@ class DataMultiPart:
     '''
     Contains the data required by the multi part stream.
     '''
-    charSet = 'ASCII'
+    charSet = 'UTF8'
     # The character set used in decoding the multi part header areas.
     formatMarkStart = '--%s\r\n'
     # The format used in constructing the separator marker between the multi part content.
@@ -145,9 +145,9 @@ class ParsingMultiPartHandler(ParsingHandler, DataMultiPart):
         chain.proceed()
 
         if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
-        if Request.decoder not in request: return # Skip if there is no decoder.
 
-        if requestCnt.type and self._reMultipart.match(requestCnt.type):
+        isMultipart = requestCnt.type and self._reMultipart.match(requestCnt.type)
+        if isMultipart:
             assert log.debug('Content type %s is multi part', requestCnt.type) or True
             boundary = requestCnt.typeAttr.pop(self.attrBoundary, None)
             if not boundary:
@@ -161,16 +161,18 @@ class ParsingMultiPartHandler(ParsingHandler, DataMultiPart):
                 response.code, response.text = BAD_CONTENT, 'No boundary found in multi part content'
                 return
 
+        if Request.decoder not in request:
+            if isMultipart: chain.update(requestCnt=requestCnt)
+            return # Skip if there is no decoder.
+
         if self.processParsing(request=request, requestCnt=requestCnt, response=response, **keyargs):
             # We process the chain without the request content anymore
             if RequestContentMultiPart.fetchNextContent in requestCnt:
                 nextContent = requestCnt.fetchNextContent()
                 if nextContent is not None:
                     assert isinstance(nextContent, RequestContentMultiPart), 'Invalid request content %s' % nextContent
-                    keyargs.update(requestCnt=nextContent)
-        else: keyargs.update(requestCnt=requestCnt)
-
-        chain.process(request=request, response=response, **keyargs)
+                    chain.update(requestCnt=nextContent)
+        else: chain.update(requestCnt=requestCnt)
 
 # --------------------------------------------------------------------
 
@@ -397,12 +399,9 @@ class NextContent:
             req.headers = stream._pullHeaders()
             if stream._flag & FLAG_CLOSED: stream._flag ^= FLAG_CLOSED
 
-            chain = self._processing.newChain()
-            assert isinstance(chain, Chain), 'Invalid chain %s' % chain
-
             reqCnt.source = stream
             reqCnt.fetchNextContent = NextContent(reqCnt, self._response, self._processing, self._data, stream)
             reqCnt.previousContent = self._requestCnt
-            chain.process(request=req, requestCnt=reqCnt, response=self._response)
+            Chain(self._processing).process(request=req, requestCnt=reqCnt, response=self._response).doAll()
 
             return reqCnt

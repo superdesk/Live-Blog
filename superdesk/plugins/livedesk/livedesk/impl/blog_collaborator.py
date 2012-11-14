@@ -19,11 +19,13 @@ from sqlalchemy.exc import OperationalError
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
+from ally.container.support import setup
 from sqlalchemy.orm.exc import NoResultFound
 
 # --------------------------------------------------------------------
 
 @injected
+@setup(IBlogCollaboratorService)
 class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
     '''
     Implementation for @see: IBlogCollaboratorService
@@ -33,7 +35,6 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         '''
         Construct the blog collaborator service.
         '''
-        SessionSupport.__init__(self)
 
     def getById(self, blogId, collaboratorId):
         '''

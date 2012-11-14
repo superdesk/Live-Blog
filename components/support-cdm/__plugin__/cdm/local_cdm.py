@@ -11,7 +11,7 @@ Provides the configurations for a local file system content manager.
 
 from ally.container import ioc
 from cdm.impl.local_filesystem import IDelivery, HTTPDelivery, \
-    LocalFileSystemLinkCDM
+    LocalFileSystemLinkCDM, LocalFileSystemCDM
 from cdm.spec import ICDM
 from os import path
 
@@ -25,7 +25,12 @@ def server_uri():
 @ioc.config
 def repository_path():
     ''' The repository absolute or relative (to the distribution folder) path '''
-    return path.join('workspace', 'cdm')
+    return path.join('workspace', 'shared', 'cdm')
+
+@ioc.config
+def use_linked_cdm():
+    ''' Set to true when the files should not be copied into cdm'''
+    return True
 
 # --------------------------------------------------------------------
 # Creating the content delivery managers
@@ -39,7 +44,7 @@ def delivery() -> IDelivery:
 
 @ioc.entity
 def contentDeliveryManager() -> ICDM:
-    cdm = LocalFileSystemLinkCDM();
+    cdm = LocalFileSystemLinkCDM() if use_linked_cdm() else LocalFileSystemCDM()
     cdm.delivery = delivery()
     return cdm
 

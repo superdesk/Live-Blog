@@ -18,16 +18,16 @@ from ..gui_core.gui_core import getPublishedGui
 
 @ioc.entity   
 def menuAction():
-    return Action('livedesk', Parent=defaults.menuAction(), Label=NC_('Menu', 'Live Blogs'),
-                  ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/menu-live-blogs.js'))
+    return Action('livedesk', Parent=defaults.menuAction(), Label=NC_('Menu', 'Live Blogs') ) # ,
+                  #ScriptPath=getPublishedGui('livedesk/scripts/js/menu-live-blogs.js'))
 
-def menuTestAction():
-    return Action('livedesk-test', Parent=defaults.menuAction(), Label=NC_('Menu', 'Test'),
-                  ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/test.js'))
+#def menuTestAction():
+#    return Action('livedesk-test', Parent=defaults.menuAction(), Label=NC_('Menu', 'Test'),
+#                  ScriptPath=getPublishedGui('livedesk/scripts/js/test.js'))
 
 @ioc.entity   
 def subMenuAction():
-    return Action('submenu', Parent=menuAction(), ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/submenu-live-blogs.js'))
+    return Action('submenu', Parent=menuAction(), ScriptPath=getPublishedGui('livedesk/scripts/js/submenu-live-blogs.js'))
 
 @ioc.entity   
 def modulesAction():
@@ -36,16 +36,21 @@ def modulesAction():
 @ioc.entity   
 def modulesAddAction():
     return Action('add', Parent=modulesAction(), 
-                  ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/add-live-blogs.js'))
+                  ScriptPath=getPublishedGui('livedesk/scripts/js/add-live-blogs.js'))
 @ioc.entity   
 def modulesEditAction():
     return Action('edit', Parent=modulesAction(), 
-                  ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/edit-live-blogs.js'))
+                  ScriptPath=getPublishedGui('livedesk/scripts/js/edit-live-blogs.js'))
 
 @ioc.entity   
 def modulesConfigureAction():
     return Action('configure', Parent=modulesAction(), 
-                  ScriptPath=getPublishedGui('superdesk/livedesk/scripts/js/configure-blog.js'))
+                  ScriptPath=getPublishedGui('livedesk/scripts/js/configure-blog.js'))
+
+@ioc.entity   
+def modulesArchiveAction():
+    return Action('archive', Parent=modulesAction(), 
+                  ScriptPath=getPublishedGui('livedesk/scripts/js/archive.js'))
 
 @ioc.start
 def registerActions():
@@ -55,5 +60,5 @@ def registerActions():
     actionManagerService().add(modulesAddAction())
     actionManagerService().add(modulesEditAction())
     actionManagerService().add(modulesConfigureAction())
+    actionManagerService().add(modulesArchiveAction())
     
-    actionManagerService().add(menuTestAction())

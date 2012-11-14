@@ -222,7 +222,7 @@ class CriteriaEntry(TypeSupport):
         'Invalid container object %s, expected %s' % (obj, self._ally_type.parent)
         main = self._ally_type.criteria.main
         if not main:
-            raise ValueError('Cannot set value for %s because the criteria %s has no main property' %
+            raise ValueError('Cannot set value for %s because the criteria %s has no main property' % 
                              (self, self._ally_type.criteria))
         obj = self.__get__(obj)
         for prop in main: setattr(obj, prop, value)
@@ -263,14 +263,14 @@ class CriteriaEntry(TypeSupport):
 
 # --------------------------------------------------------------------
 
-ABCMeta = ABCMeta # Just to get rid of the pydev warning of not used
+ABCMeta = ABCMeta  # Just to get rid of the pydev warning of not used
 
 class ContainerSupport(metaclass=ABCMeta):
     '''
     Support class for containers.
     '''
-    _ally_type = TypeContainer # Contains the type that represents the container
-    _ally_reference = {} # Provides the references for the property descriptors.
+    _ally_type = TypeContainer  # Contains the type that represents the container
+    _ally_reference = {}  # Provides the references for the property descriptors.
 
     def __new__(cls, *args, **keyargs):
         '''
@@ -314,7 +314,7 @@ class ContainerSupport(metaclass=ABCMeta):
                 s.append('=')
                 s.append(str(getattr(self, prop)))
                 s.append(',')
-        if s[-1] == ',': del s[-1] # Just remove the last comma
+        if s[-1] == ',': del s[-1]  # Just remove the last comma
         s.append(']')
         return ''.join(s)
 
@@ -350,7 +350,7 @@ class QuerySupport(metaclass=ABCMeta):
     '''
     Support class for queries.
     '''
-    _ally_type = TypeQuery # Contains the type that represents the query
+    _ally_type = TypeQuery  # Contains the type that represents the query
 
     def __new__(cls, *args, **keyargs):
         '''
@@ -415,7 +415,7 @@ class QuerySupport(metaclass=ABCMeta):
                 s.append('=')
                 s.append(str(getattr(self, crt)))
                 s.append(',')
-        if s[-1] == ',': del s[-1] # Just remove the last comma
+        if s[-1] == ',': del s[-1]  # Just remove the last comma
         s.append(']')
         return ''.join(s)
 

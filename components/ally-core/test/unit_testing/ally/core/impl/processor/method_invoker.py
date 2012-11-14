@@ -52,7 +52,7 @@ class TestMethodInvoker(unittest.TestCase):
 
         def callProcess(chain, **keyargs): handler.process(**keyargs)
         chain = Chain([callProcess])
-        chain.process(request=request, response=response)
+        chain.process(request=request, response=response).doAll()
 
         self.assertEqual(response.allows, 0)
         self.assertTrue(not response.code.isSuccess)

@@ -13,15 +13,18 @@ from admin.introspection.api.component import IComponentService
 from admin.introspection.api.plugin import IPluginService
 from ally.container import ioc
 from ally.container.support import entityFor
+from ally.container.ioc import SetupError
 
 # --------------------------------------------------------------------
 
 @ioc.entity
 def componentService() -> IComponentService:
-    import ally_deploy_application
-    return entityFor(IComponentService, ally_deploy_application.assembly)
+    try: import application
+    except ImportError: raise SetupError('Cannot access the application module')
+    return entityFor(IComponentService, application.assembly)
 
 @ioc.entity
 def pluginService() -> IPluginService:
-    import ally_deploy_application
-    return entityFor(IPluginService, ally_deploy_application.assembly)
+    try: import application
+    except ImportError: raise SetupError('Cannot access the application module')
+    return entityFor(IPluginService, application.assembly)

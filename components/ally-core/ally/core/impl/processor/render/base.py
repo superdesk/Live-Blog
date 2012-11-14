@@ -78,7 +78,6 @@ class RenderBaseHandler(HandlerProcessor):
 
             response.renderFactory = partial(self.renderFactory, responseCnt.charSet)
             return # We need to stop the chain if we have been able to provide the encoding
-
         chain.proceed()
 
     # ----------------------------------------------------------------

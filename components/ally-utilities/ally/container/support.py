@@ -1,7 +1,7 @@
 '''
 Created on Jan 12, 2012
 
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -10,15 +10,16 @@ Provides support functions for the container.
 '''
 
 from ..support.util_sys import callerLocals, callerGlobals
-from ._impl.aop_container import AOPClasses, AOPResources
+from ._impl.aop_container import AOPResources
 from ._impl.entity_handler import Wiring, WireConfig
 from ._impl.ioc_setup import ConfigError, register, SetupConfig, setupsOf, \
     setupFirstOf, SetupStart
-from ._impl.support_setup import CreateEntity, SetupError, SetupEntityProxy, \
-    SetupEntityWire, Assembly, CallEntity, SetupEntityCreate
-from .aop import classesIn
+from ._impl.support_setup import SetupError, SetupEntityProxy, SetupEntityWire, \
+    Assembly, CallEntity, SetupEntityCreate
+from ally.container._impl.ioc_setup import CallConfig
 from ally.container._impl.support_setup import SetupEntityListen, \
-    SetupEntityListenAfterBinding
+    SetupEntityListenAfterBinding, _classes
+from ally.container.config import Config
 from copy import deepcopy
 from functools import partial
 from inspect import isclass, ismodule, getsource
@@ -26,66 +27,70 @@ from inspect import isclass, ismodule, getsource
 # --------------------------------------------------------------------
 # Functions available in setup modules.
 
-def createEntitySetup(api, *impl, formatter=lambda group, clazz: group + '.' + clazz.__name__, setupModule=None):
+def setup(type, name=None):
     '''
-    Creates entity setup functions for the provided API classes. The name of the setup functions that will be generated
-    are formed based on the provided formatter.
-    To create a setup function a class from the impl classes has to inherit at least one of the api classes then it will
-    create a setup function based on the api class that will create an instance of the impl class. If a impl class
-    inherits multiple api classes than for each one of the api class a setup function is generated, all setup function
-    will provide the same impl instance. If an api class is already delivered by a different call than no create entity
-    setup will made for that implementation, the idea is if you defined a setup function in the setup module that will
-    deliver an instance for that api class it means it should not be created again.
+    Decorate a IMPL class with the info about required API class and optional a name
     
-    @param api: string|class|AOPClasses|tuple(string|class|AOPClasses)|list(string|class|AOPClasses)
-        The classes to be considered as the APIs for the setup functions.
-    @param impl: arguments(string|class|AOPClasses)
+    @param type: class
+        The type of the correspondent API.
+    @param name: string
+        The name associated to created IOC object
+    '''
+    assert isclass(type), 'Expected a class instead of %s ' % type
+    if name: assert isinstance(name, str), 'Expected a string name instead of %s ' % name
+
+    def decorator(clazz):
+        setattr(clazz, '__ally_setup__', (type, name))
+        return clazz
+
+    return decorator
+
+def createEntitySetup(*classes, formatter=lambda group, clazz, name: group + '.' + name if name else group + '.' + clazz.__name__,
+                      module=None):
+    '''
+    For impl classes create the setup functions for the associated API classes. The name of the setup functions that will be generated
+    are formed based on the provided formatter. To create a setup function a class from the impl classes has to inherit the api class.
+    
+    @param classes: arguments(string|class|AOPClasses)
         The classes to be considered the implementations for the APIs.
     @param formatter: Callable
-        The formatter to use in creating the entity setup function name, the Callable will take two arguments, first is
-        the group where the setup function is defined and second the class for wich the setup is created. 
-    @param setupModule: module|None
+        The formatter to use in creating the entity setup function name, the Callable will take three arguments, first is
+        the group where the setup function is defined, the second is the class for wich the setup is created and the third 
+        is optional and is the name of the created instance. 
+    @param module: module|None
         If the setup module is not provided than the calling module will be considered.
     '''
     assert callable(formatter), 'Invalid formatter %s' % formatter
-    if setupModule:
-        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
-        registry = setupModule.__dict__
-        group = setupModule.__name__
+    if module:
+        assert ismodule(module), 'Invalid setup module %s' % module
+        registry = module.__dict__
+        group = module.__name__
     else:
         registry = callerLocals()
         if '__name__' not in registry:
             raise SetupError('The create entity call needs to be made directly from the module')
         group = registry['__name__']
-    apis = _classes(api if isinstance(api, (tuple, list)) else [api])
+
     wireClasses = []
-    for clazz in _classes(impl):
-        apiClasses = [apiClass for apiClass in apis if issubclass(clazz, apiClass)]
-        if apiClasses:
-            # We need to trim the API classes to the top ones.
-            while True:
-                topApis = []
-                for k in range(0, len(apiClasses) - 1):
-                    for j in range(k + 1, len(apiClasses)):
-                        if issubclass(apiClasses[j], apiClasses[k]): break
-                    else: topApis.append(apiClasses[k])
-                if not topApis: break
-                apiClasses = topApis
+    for clazz in _classes(classes):
+        if not hasattr(clazz, '__ally_setup__'): continue
+        setupTuple = clazz.__ally_setup__
+        if not setupTuple: continue
+        apiClass, name = setupTuple
+        assert issubclass(clazz, apiClass), 'The impl class % do not extend the declared API class %s' % (clazz, apiClass)
+        wireClasses.append(clazz)
+        register(SetupEntityCreate(clazz, apiClass, name=formatter(group, apiClass, name), group=group), registry)
 
-            wireClasses.append(clazz)
-            create = CreateEntity(clazz)
-            for apiClass in apiClasses:
-                register(SetupEntityCreate(create, apiClass, name=formatter(group, apiClass), group=group), registry)
-    wireEntities(*wireClasses, setupModule=setupModule)
+    wireEntities(*wireClasses, module=module)
 
-def wireEntities(*classes, setupModule=None):
+def wireEntities(*classes, module=None):
     '''
     Creates entity wiring setups for the provided classes. The wiring setups consists of configurations found in the
     provided classes that will be published in the setup module.
     
     @param classes: arguments(string|class|AOPClasses)
         The classes to be wired.
-    @param setupModule: module|None
+    @param module: module|None
         If the setup module is not provided than the calling module will be considered.
     '''
     def processConfig(clazz, wconfig):
@@ -96,10 +101,10 @@ def wireEntities(*classes, setupModule=None):
         if wconfig.hasValue: return deepcopy(wconfig.value)
         raise ConfigError('A configuration value is required for %r in class %r' % (wconfig.name, clazz.__name__))
 
-    if setupModule:
-        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
-        registry = setupModule.__dict__
-        group = setupModule.__name__
+    if module:
+        assert ismodule(module), 'Invalid setup module %s' % module
+        registry = module.__dict__
+        group = module.__name__
     else:
         registry = callerLocals()
         if '__name__' not in registry:
@@ -128,7 +133,7 @@ def wireEntities(*classes, setupModule=None):
             wire.update(wirings)
         else: register(SetupEntityWire(group, wirings), registry)
 
-def listenToEntities(*classes, listeners=None, setupModule=None, beforeBinding=True):
+def listenToEntities(*classes, listeners=None, beforeBinding=True, module=None, all=False):
     '''
     Listens for entities defined in the provided module that are of the provided classes. The listening is done at the 
     moment of the entity creation so the listen is not dependent of the declared entity return type.
@@ -138,8 +143,10 @@ def listenToEntities(*classes, listeners=None, setupModule=None, beforeBinding=T
         by the entity setup functions.
     @param listeners: None|Callable|list[Callable]|tuple(Callable)
         The listeners to be invoked. The listeners Callable's will take one argument that is the instance.
-    @param setupModule: module|None
-        If the setup module is not provided than the calling module will be considered.
+    @param module: module|dictionary{string:object}|None
+        If the setup module is not provided than the calling module will be considered as the registry for the setup.
+    @param all: boolean
+        Flag indicating that the listening should be performed on all assembly.
     @param beforeBinding: boolean
         Flag indicating that the listening should be performed before any binding occurs (True) or after the
         bindings (False).
@@ -148,21 +155,30 @@ def listenToEntities(*classes, listeners=None, setupModule=None, beforeBinding=T
     elif not isinstance(listeners, (list, tuple)): listeners = [listeners]
     assert isinstance(listeners, (list, tuple)), 'Invalid listeners %s' % listeners
     assert isinstance(beforeBinding, bool), 'Invalid before binding flag %s' % beforeBinding
-    if setupModule:
-        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
-        registry = setupModule.__dict__
-        group = setupModule.__name__
-    else:
+    assert isinstance(all, bool), 'Invalid all flag %s' % all
+    if not module:
         registry = callerLocals()
         if '__name__' not in registry:
             raise SetupError('The create proxy call needs to be made directly from the module')
-        group = registry['__name__']
+        if all: group = None
+        else: group = registry['__name__']
+    elif ismodule(module):
+        registry = module.__dict__
+        if all: group = None
+        else: group = module.__name__
+    else:
+        assert isinstance(module, dict), 'Invalid setup module %s' % module
+        if '__name__' not in module:
+            raise SetupError('The provided registry dictionary has no __name__')
+        registry = module
+        if all: group = None
+        else: group = module['__name__']
 
     if beforeBinding: setup = SetupEntityListen(group, _classes(classes), listeners)
     else: setup = SetupEntityListenAfterBinding(group, _classes(classes), listeners)
     register(setup, registry)
 
-def bindToEntities(*classes, binders=None, setupModule=None):
+def bindToEntities(*classes, binders=None, module=None):
     '''
     Creates entity implementation proxies for the provided entities classes found in the provided module. The binding is
     done at the moment of the entity creation so the binding is not dependent of the declared entity return type.
@@ -172,16 +188,16 @@ def bindToEntities(*classes, binders=None, setupModule=None):
     @param binders: None|Callable|list[Callable]|tuple(Callable)
         The binders to be invoked when a proxy is created. The binders Callable's will take one argument that is the newly
         created proxy instance.
-    @param setupModule: module|None
+    @param module: module|None
         If the setup module is not provided than the calling module will be considered.
     '''
     if not binders: binders = []
     elif not isinstance(binders, (list, tuple)): binders = [binders]
     assert isinstance(binders, (list, tuple)), 'Invalid binders %s' % binders
-    if setupModule:
-        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
-        registry = setupModule.__dict__
-        group = setupModule.__name__
+    if module:
+        assert ismodule(module), 'Invalid setup module %s' % module
+        registry = module.__dict__
+        group = module.__name__
     else:
         registry = callerLocals()
         if '__name__' not in registry:
@@ -189,14 +205,16 @@ def bindToEntities(*classes, binders=None, setupModule=None):
         group = registry['__name__']
     register(SetupEntityProxy(group, _classes(classes), binders), registry)
 
-def loadAllEntities(*classes, setupModule=None):
+def loadAllEntities(*classes, module=None):
     '''
     Loads all entities that have the type in the provided classes.
     
     @param classes: arguments(string|class|AOPClasses)
         The classes to have the entities loaded for.
-    @param setupModule: module|None
+    @param module: module|None
         If the setup module is not provided than the calling module will be considered.
+    @return: Setup
+        The setup start that loads all the entities, the return value can be used for after and before events.
     '''
     def loadAll(prefix, classes):
         for clazz in classes:
@@ -204,10 +222,10 @@ def loadAllEntities(*classes, setupModule=None):
                 if name.startswith(prefix) and isinstance(call, CallEntity) and call.type and \
                 (call.type == clazz or issubclass(call.type, clazz)): Assembly.process(name)
 
-    if setupModule:
-        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
-        registry = setupModule.__dict__
-        group = setupModule.__name__
+    if module:
+        assert ismodule(module), 'Invalid setup module %s' % module
+        registry = module.__dict__
+        group = module.__name__
     else:
         registry = callerLocals()
         if '__name__' not in registry:
@@ -215,23 +233,23 @@ def loadAllEntities(*classes, setupModule=None):
         group = registry['__name__']
 
     loader = partial(loadAll, group + '.', _classes(classes))
-    register(SetupStart(loader, name='loader_%s' % id(loader)), registry)
+    return register(SetupStart(loader, name='loader_%s' % id(loader)), registry)
 
-def include(module, setupModule=None):
+def include(module, inModule=None):
     '''
     By including the provided module all the setup functions from the the included module are added as belonging to the
     including module, is just like defining the setup functions again in the including module.
     
     @param module: module
         The module to be included.
-    @param setupModule: module|None
+    @param inModule: module|None
         If the setup module is not provided than the calling module will be considered.
     '''
     assert ismodule(module), 'Invalid module %s' % module
 
-    if setupModule:
-        assert ismodule(setupModule), 'Invalid setup module %s' % setupModule
-        registry = setupModule.__dict__
+    if inModule:
+        assert ismodule(inModule), 'Invalid setup module %s' % inModule
+        registry = inModule.__dict__
     else: registry = callerLocals()
     exec(compile(getsource(module), registry['__file__'], 'exec'), registry)
 
@@ -240,7 +258,7 @@ def include(module, setupModule=None):
 
 def entities():
     '''
-    !Attention this function is only available in an open assembly @see: ioc.open!
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
     Provides all the entities references found in the current assembly wrapped in a AOP class.
     
     @return: AOP
@@ -250,7 +268,7 @@ def entities():
 
 def entitiesLocal():
     '''
-    !Attention this function is only available in an open assembly @see: ioc.open!
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
     Provides all the entities references for the module from where the call is made found in the current assembly.
     
     @return: AOP
@@ -265,7 +283,7 @@ def entitiesLocal():
 
 def entitiesFor(clazz, assembly=None):
     '''
-    !Attention this function is only available in an open assembly @see: ioc.open!
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open! 
     Provides the entities for the provided class (only if the setup function exposes a return type that is either the
     provided class or a super class) found in the current assembly.
     
@@ -289,7 +307,7 @@ def entitiesFor(clazz, assembly=None):
 
 def entityFor(clazz, assembly=None):
     '''
-    !Attention this function is only available in an open assembly @see: ioc.open!
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
     Provides the entity for the provided class (only if the setup function exposes a return type that is either the
     provided class or a super class) found in the current assembly.
     
@@ -310,7 +328,7 @@ def entityFor(clazz, assembly=None):
     if not entities:
         raise SetupError('There is no entity setup function having a return type of class or subclass %s' % clazz)
     if len(entities) > 1:
-        raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' %
+        raise SetupError('To many entities setup functions %r having a return type of class or subclass %s' % 
                          (', '.join(entities), clazz))
 
     Assembly.stack.append(assembly)
@@ -319,23 +337,47 @@ def entityFor(clazz, assembly=None):
 
 # --------------------------------------------------------------------
 
-def _classes(classes):
+def force(setup, value, assembly=None):
     '''
-    Provides the classes from the list of provided class references.
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
+    Forces a configuration setup to have the provided value. This method should be called in a @ioc.before event that
+    targets the forced value configuration.
     
-    @param classes: list(class|AOPClasses)|tuple(class|AOPClasses)
-        The classes or class reference to pull the classes from.
-    @return: list[class]
-        the list of classes obtained.
+    @param setup: SetupConfig
+        The setup to force the value on.
+    @param value: object
+        The value to be forced, needs to be compatible with the configuration setup.
+    @param assembly: Assembly|None
+        The assembly to find the configuration in, if None the current assembly will be considered.
     '''
-    assert isinstance(classes, (list, tuple)), 'Invalid classes %s' % classes
-    clazzes = []
-    for clazz in classes:
-        if isinstance(clazz, str):
-            clazzes.extend(classesIn(clazz).asList())
-        elif isclass(clazz): clazzes.append(clazz)
-        elif isinstance(clazz, AOPClasses):
-            assert isinstance(clazz, AOPClasses)
-            clazzes.extend(clazz.asList())
-        else: raise SetupError('Cannot use class %s' % clazz)
-    return clazzes
+    assert isinstance(setup, SetupConfig), 'Invalid setup %s' % setup
+    assembly = assembly or Assembly.current()
+    assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+    
+    Assembly.stack.append(assembly)
+    try:
+        call = assembly.fetchForName(setup.name)
+        assert isinstance(call, CallConfig), 'Invalid call %s' % call
+        call.value = value
+    finally: Assembly.stack.pop()
+    
+def persist(setup, value, assembly=None):
+    '''
+    !Attention this function is only available in an open assembly if the assembly is not provided @see: ioc.open!
+    Persists a configuration setup to have the provided value but only in saving the configuration file, so this
+    method should be called before a the configurations are persisted.
+    
+    @param setup: SetupConfig
+        The setup to persist the value on.
+    @param value: object
+        The value to be forced, needs to be compatible with the configuration setup.
+    @param assembly: Assembly|None
+        The assembly to find the configuration in, if None the current assembly will be considered.
+    '''
+    assert isinstance(setup, SetupConfig), 'Invalid setup %s' % setup
+    assembly = assembly or Assembly.current()
+    assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+    
+    config = assembly.configurations.get(setup.name)
+    assert isinstance(config, Config), 'Invalid configuration %s for the assembly' % setup.name
+    config.value = value

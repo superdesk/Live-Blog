@@ -157,7 +157,7 @@ class TypeClass(Type):
         @return: boolean
             True if the type is of this type, False otherwise.
         '''
-        if isclass(type) and (issubclass(type, self.clazz) or issubclass(self.clazz, type)): return True
+        if isclass(type) and issubclass(type, self.clazz): return True
         if self == typeFor(type): return True
         return False
 

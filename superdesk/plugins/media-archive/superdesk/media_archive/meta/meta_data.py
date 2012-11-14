@@ -17,6 +17,7 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String, DateTime, Integer
 from superdesk.meta.metadata_superdesk import Base
 from ally.support.sqlalchemy.session import openSession
+from superdesk.user.meta.user import UserMapped
 from ally.internationalization import N_
 
 # --------------------------------------------------------------------
@@ -26,7 +27,7 @@ META_TYPE_KEY = N_('other')
 
 # --------------------------------------------------------------------
 
-class Thumbnail(Base):
+class ThumbnailFormat(Base):
     '''
     Provides the mapping for thumbnails.
     This is not a REST model.
@@ -51,18 +52,21 @@ class MetaDataMapped(Base, MetaData):
     Name = Column('name', String(255), nullable=False)
     SizeInBytes = Column('size_in_bytes', Integer)
     CreatedOn = Column('created_on', DateTime, nullable=False)
+    Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id), nullable=False)
+    
     # None REST model attribute --------------------------------------
-    typeId = Column('type', ForeignKey(MetaTypeMapped.id, ondelete='RESTRICT'), nullable=False)
-    thumbnailId = Column('fk_thumbnail_id', ForeignKey(Thumbnail.id, ondelete='RESTRICT'), nullable=False)
+    typeId = Column('fk_type_id', ForeignKey(MetaTypeMapped.Id, ondelete='RESTRICT'), nullable=False)
+    thumbnailFormatId = Column('fk_thumbnail_format_id', ForeignKey(ThumbnailFormat.id, ondelete='RESTRICT'), nullable=False)
+    content = Column('content', String(255))
 
     _cache_types = {}
-    # A dictionary having as a key the type id and as a value the type key. This is because not to many meta data types are
+    # A dictionary having as a key the type id and as a value the type. This is because not too many meta data types are
     # expected.
     @reconstructor
     def init_on_load(self):
-        key = self._cache_types.get(self.typeId)
-        if key is None:
+        type = self._cache_types.get(self.typeId)
+        if type is None:
             metaType = openSession().query(MetaTypeMapped).get(self.typeId)
             assert isinstance(metaType, MetaTypeMapped), 'Invalid type id %s' % metaType
-            key = self._cache_types[metaType.id] = metaType.Key
-        self.Type = key
+            type = self._cache_types[metaType.Id] = metaType.Type
+        self.Type = type

@@ -20,24 +20,23 @@ from ally.design.processor import Handler
 
 # --------------------------------------------------------------------
 
-@ioc.config
+@ioc.config()
 def ajax_cross_domain() -> bool:
     '''Indicates that the server should also be able to support cross domain ajax requests'''
-    return False
+    return True
 
 @ioc.config
 def headers_ajax() -> dict:
     '''The ajax specific headers required by browser for cross domain calls'''
     return {
-            'Access-Control-Allow-Origin':'*',
-            #TODO: implement proper processor for this quickfix
-            'Access-Control-Allow-Headers':'X-Filter, X-HTTP-Method-Override',
+            'Access-Control-Allow-Origin':['*'],
+            'Access-Control-Allow-Headers':['X-Filter', 'X-HTTP-Method-Override', 'X-Format-DateTime'],
             }
 
 # --------------------------------------------------------------------
 
 @ioc.entity
-def headerSetEncode() -> Handler:
+def headerSetAjax() -> Handler:
     b = HeaderSetEncodeHandler()
     b.headers = headers_ajax()
     return b
@@ -53,4 +52,4 @@ def deliverOkHandler() -> Handler:
 @ioc.after(updateAssemblyResourcesForHTTP)
 def updateAssemblyResourcesForHTTPAjax():
     if ajax_cross_domain():
-        assemblyResources().add(headerSetEncode(), deliverOkHandler(), before=uri())
+        assemblyResources().add(headerSetAjax(), deliverOkHandler(), before=uri())

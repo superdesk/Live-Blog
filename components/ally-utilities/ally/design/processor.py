@@ -189,35 +189,30 @@ class Processing:
 
         self.contexts = contexts
         self.calls = deque()
-
-    def newChain(self):
-        '''
-        Constructs a new processors chain.
         
-        @return: Chain
-            The chain of processors.
-        '''
-        return Chain(self.calls)
-
 class Chain:
     '''
     A chain that contains a list of processors (callables) that are executed one by one. Each processor will have
-     the duty to proceed with the processing if is the case by calling the chain.
+    the duty to proceed with the processing if is the case by calling the chain.
     '''
-    __slots__ = ('_calls', '_consumed', '_proceed')
+    __slots__ = ('_calls', '_callBacks', '_callBacksErrors', '_keyargs', '_consumed', '_proceed')
 
-    def __init__(self, calls):
+    def __init__(self, processing):
         '''
-        Initializes the chain with the processors to be executed.
+        Initializes the chain with the processing to be executed.
         
-        @param calls: Iterable(callable)
-            The iterable of callables to be executed. Attention the order in which the processors are provided
+        @param processing: Processing|Iterable[callable]
+            The processing to be handled by the chain. Attention the order in which the processors are provided
             is critical since one processor is responsible for delegating to the next.
         '''
-        assert isinstance(calls, Iterable), 'Invalid processors %s' % calls
-        self._calls = deque(calls)
+        if isinstance(processing, Processing): processing = processing.calls
+        assert isinstance(processing, Iterable), 'Invalid processing %s' % processing
+        self._calls = deque(processing)
         if __debug__:
-            for proc in self._calls: assert callable(proc), 'Invalid processor %s' % proc
+            for call in self._calls: assert callable(call), 'Invalid processor call %s' % call
+        self._callBacks = deque()
+        self._callBacksErrors = deque()
+        self._keyargs = None
         self._consumed = False
 
     def proceed(self):
@@ -225,32 +220,135 @@ class Chain:
         Indicates to the chain that it should proceed with the chain execution after a processor has returned. 
         The proceed is available only when the chain is in execution. The execution is continued with the same
         arguments.
+        
+        @return: this chain
+            This chain for chaining purposes.
         '''
+        assert self._keyargs is not None, 'Cannot proceed if no process is called'
         self._proceed = True
+        return self
 
     def process(self, **keyargs):
         '''
-        Called in order to execute the next processors in the chain. This method will stop processing when all
-        the processors have been executed.
+        Called in order to execute the next processors in the chain. This method registers the chain proceed
+        execution but in order to actually execute you need to call the *do* or *doAll* method.
         
         @param keyargs: key arguments
             The key arguments that are passed on to the next processors.
+        @return: this chain
+            This chain for chaining purposes.
         '''
-        proceed = True
-        while proceed:
-            proceed = self._proceed = False
-            if len(self._calls) > 0:
-                call = self._calls.popleft()
-                assert log.debug('Processing %s', call) or True
-                call(self, **keyargs)
-                assert log.debug('Processing finalized %r', call) or True
+        self._keyargs = keyargs
+        self._proceed = True
+        return self
+    
+    def update(self, **keyargs):
+        '''
+        Used to update the key arguments of the processing and also mark the chain for proceeding. A *process* method
+        needs to be executed first.
 
-                if self._proceed:
-                    assert log.debug('Proceed signal received, continue execution') or True
-                    proceed = self._proceed
-            else:
-                assert log.debug('Processing finalized by consuming') or True
-                self._consumed = True
+        @param keyargs: key arguments
+            The key arguments that need to be updated and passed on to the next processors.
+        @return: this chain
+            This chain for chaining purposes.
+        '''
+        assert self._keyargs is not None, 'Cannot update if no process is called'
+        self._keyargs.update(keyargs)
+        self._proceed = True
+        return self
+        
+    def branch(self, processing):
+        '''
+        Branches the chain to a different processing and automatically marks the chain for proceeding.
+        If the key arguments are not updated they must be compatible from the previous processing.
+        
+        @param processing: Processing
+            The processing to be handled by the chain. Attention the order in which the processors are provided
+            is critical since one processor is responsible for delegating to the next.
+        @return: this chain
+            This chain for chaining purposes.
+        '''
+        assert isinstance(processing, Processing), 'Invalid processing %s' % processing
+        assert self._keyargs is not None, 'Cannot branch if no process is called'
+        self._calls = deque(processing.calls)
+        self._proceed = True
+        return self
+    
+    def callBack(self, callBack):
+        '''
+        Add a call back to the chain that will be called after the chain is completed.
+        Also marks the chain as proceeding.
+        
+        @param callBack: callable(*keyargs)
+            The call back.
+        @return: this chain
+            This chain for chaining purposes.
+        '''
+        assert self._keyargs is not None, 'Cannot do a call back if no process is called'
+        self._callBacks.append(callBack)
+        self._proceed = True
+        return self
+        
+    def callBackError(self, callBack):
+        '''
+        Add a call back to the chain that will be called if an error occurs. In the received key arguments there will
+        be also the error that occurred and the trace back of the error. If there is at least one error call back in 
+        the chain the exception that will occur in the chain will not be propagated. Also marks the chain as proceeding.
+        
+        @param callBack: callable(*keyargs)
+            The call back.
+        @return: this chain
+            This chain for chaining purposes.
+        '''
+        assert self._keyargs is not None, 'Cannot do a call back if no process is called'
+        self._callBacksErrors.append(callBack)
+        self._proceed = True
+        return self
+        
+    def do(self):
+        '''
+        Called in order to do the next chain element. A *process* method needs to be executed first.
+        
+        @return: boolean
+            True if the chain has performed the execution of the next element, False if there is no more to be executed.
+        '''
+        assert self._keyargs is not None, 'Cannot proceed if no process is called'
+        assert self._calls, 'Nothing to execute'
+        assert self._proceed, 'Cannot proceed if no process is called'
+        
+        call = self._calls.popleft()
+        assert log.debug('Processing %s', call) or True
+        self._proceed = False
+        try: call(self, **self._keyargs)
+        except:
+            if self._callBacksErrors:
+                self._proceed = False
+                while self._callBacksErrors: self._callBacksErrors.pop()()
+            else: raise
+                
+        assert log.debug('Processing finalized \'%s\'', call) or True
+        if self._proceed:
+            assert log.debug('Proceed signal received, continue execution') or True
+            if self._calls: return True
+            assert log.debug('Processing finalized by consuming') or True
+            self._consumed = True
+            self._keyargs = None
+        else:
+            self._calls.clear()
+            self._keyargs = None
+        while self._callBacks: self._callBacks.pop()()
+        return False
+        
+    def doAll(self):
+        '''
+        Do all the chain elements. A *process* method needs to be executed first.
+
+        @return: this chain
+            This chain for chaining purposes.
+        '''
+        while True:
+            if not self.do(): break
+        return self
 
     def isConsumed(self):
         '''
@@ -276,6 +374,7 @@ class Handler(metaclass=abc.ABCMeta):
         @param processor: Processor
             The processor for the container.
         '''
+        assert isinstance(processor, Processor), 'Invalid processor %s' % processor
         self.processor = processor
 
 class HandlerProcessor(Handler):
@@ -357,27 +456,32 @@ class Assembly:
         @param after: Processor|Handler
             The processor(s) will be ordered after this processor, you can only specify after or before.
         '''
-        index = len(self._processors)
-        if before is not None:
-            before = self._processorFrom(before)
-            assert after is None, 'Cannot have before and after at the same time'
-
-            try: index = self._processors.index(before)
-            except ValueError: raise AttributeError('Unknown before processor %s in assembly' % before)
-
-        elif after is not None:
-            after = self._processorFrom(after)
-
-            try: index = self._processors.index(after) + 1
-            except ValueError: raise AttributeError('Unknown after processor %s in assembly' % after)
-
+        index = self._indexFrom(before, after)
         for processor in self._processorsFrom(processors):
             self._processors.insert(index, processor)
             index += 1
 
+    def move(self, processor, before=None, after=None):
+        '''
+        Moves in to the assembly the provided processor.
+        
+        @param processor: Processor|Handler
+            The processor to be moved in to the assembly.
+        @param before: Processor|Handler
+            The processor(s) will be moved before this processor, you can only specify before or after.
+        @param after: Processor|Handler
+            The processor(s) will be moved after this processor, you can only specify after or before.
+        '''
+        assert before is not None or after is not None, 'You need to provide an after or a before processor in order to move'
+        processor = self._processorFrom(processor)
+        try: self._processors.remove(processor)
+        except ValueError: raise AttributeError('Unknown processor %s in assembly' % processor)
+        index = self._indexFrom(before, after)
+        self._processors.insert(index, processor)
+
     def replace(self, replaced, replacer):
         '''
-        Add to the assembly the provided processors.
+        Replaces in to the assembly the provided processors.
         
         @param replaced: Processor|Handler
             The processor to be replaced in to the assembly.
@@ -434,7 +538,7 @@ class Assembly:
             if missing is None: missing = assContext.required()
             missing.difference_update(assContext.defined())
             if missing:
-                raise AssemblyError('Cannot resolve any definers for attributes:\n%s' %
+                raise AssemblyError('Cannot resolve any definers for attributes:\n%s' % 
                                     '\n'.join('\t%s.%s' % key for key in missing))
 
         self._validateOrder(processors)
@@ -460,7 +564,7 @@ class Assembly:
 
             definedOnly = assContext.definedOnly()
             if definedOnly:
-                report.append('\nThe following attributes are not used by any processor:\n\t%s' %
+                report.append('\nThe following attributes are not used by any processor:\n\t%s' % 
                               ', '.join('%s.%s' % key for key in sorted(definedOnly)))
 
             if not report: report.append('Nothing to report, everything fits nicely')
@@ -510,6 +614,32 @@ class Assembly:
                 assert isinstance(processor, Assembly)
                 for processor in  processor._processors: yield processor
             else: yield self._processorFrom(processor)
+
+    def _indexFrom(self, before=None, after=None):
+        '''
+        Provides the index where to insert based on the provided before and after processors.
+        
+        @param before: Processor|Handler
+            The processor(s) will be moved before this processor, you can only specify before or after.
+        @param after: Processor|Handler
+            The processor(s) will be moved after this processor, you can only specify after or before.
+        @return: integer
+            The index where to insert.
+        '''
+        index = len(self._processors)
+        if before is not None:
+            before = self._processorFrom(before)
+            assert after is None, 'Cannot have before and after at the same time'
+
+            try: index = self._processors.index(before)
+            except ValueError: raise AttributeError('Unknown before processor %s in assembly' % before)
+
+        elif after is not None:
+            after = self._processorFrom(after)
+
+            try: index = self._processors.index(after) + 1
+            except ValueError: raise AttributeError('Unknown after processor %s in assembly' % after)
+        return index
 
     def _indexAttributes(self, processors):
         '''
@@ -594,7 +724,7 @@ class Assembly:
                         # The other index defines stuff for index we need to check if doesn't apply reversed
                         raise AssemblyError('First processor defines attributes %s required by the second processor'
                         ', but also the second processor defines attributes %s required by the first processor:'
-                        '\nFirst processor at:%s\nSecond processor at:%s' %
+                        '\nFirst processor at:%s\nSecond processor at:%s' % 
                         (['%s.%s' % attr for attr in definesRequired], ['%s.%s' % attr for attr in otherDefinesRequired],
                         location(processors[index]), location(processors[indexOther])))
 
@@ -713,13 +843,13 @@ class AssemblyContext:
             name, nameAttribute = key
 
             attributes = contexts.get(name)
-            if attributes is None: attributes = contexts[name] = dict()
+            if attributes is None: attributes = contexts[name] = dict(__module__=__name__)
 
             try: attributes[nameAttribute] = assAttr.create()
             except AssemblyError:
                 raise AssemblyError('Cannot create attribute \'%s\' from context \'%s\'' % (nameAttribute, name))
 
-        return {name: ContextMetaClass(name[0].upper() + name[1:], (Context,), attributes)
+        return {name: ContextMetaClass('Generated$%s%s' % (name[0].upper(), name[1:]), (Context,), attributes)
                             for name, attributes in contexts.items()}
 
     # ----------------------------------------------------------------
@@ -810,7 +940,7 @@ class AssemblyAttribute:
         if self.defined and self.required:
             types = self.defined.intersection(self.required)
             if not types:
-                raise AssemblyError('Invalid defined %s and required %s assembly types' %
+                raise AssemblyError('Invalid defined %s and required %s assembly types' % 
                                     ([typ.__name__ for typ in self.defined], [typ.__name__ for typ in self.required]))
         elif self.defined: types = self.defined
         elif self.required: types = self.required
@@ -829,14 +959,7 @@ class AssemblyAttribute:
         '''
         assert isinstance(attribute, Attribute), 'Invalid attribute %s' % attribute
 
-        if attribute.status & DEFINED:
-            if not self.defined: self.defined.update(attribute.types)
-            else:
-                if self.defined.isdisjoint(attribute.types):
-                    raise AssemblyError('The defined assembly types %s are not compatible with the defined types %s '
-                                        'of attribute %s' % ([typ.__name__ for typ in self.defined],
-                                                             [typ.__name__ for typ in attribute.types], attribute))
-                self.defined.intersection_update(attribute.types)
+        if attribute.status & DEFINED: self.defined.update(attribute.types)
 
         if attribute.status & (REQUIRED | OPTIONAL):
             if not self.required: self.required.update(attribute.types)
@@ -848,7 +971,7 @@ class AssemblyAttribute:
                     self.required.intersection_update(attribute.types)
 
         if self.required and self.defined and self.required != self.defined and self.defined.issuperset(self.required):
-                raise AssemblyError('The defined attributes types %s are not compatible with the required types %s' %
+                raise AssemblyError('The defined attributes types %s are not compatible with the required types %s' % 
                 ([typ.__name__ for typ in self.defined], [typ.__name__ for typ in self.required]))
 
         self.status |= attribute.status

@@ -10,7 +10,7 @@ Contains the SQL alchemy meta for blog collaborator API.
 '''
 
 from ..api.blog_collaborator import BlogCollaborator
-from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.schema import Column, ForeignKey, UniqueConstraint
 from superdesk.meta.metadata_superdesk import Base
 from .blog import BlogMapped
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
@@ -41,4 +41,4 @@ class BlogCollaboratorMapped(BlogCollaboratorDefinition, CollaboratorMapped, Blo
     '''
     Provides the mapping for BlogCollaborator.
     '''
-    __table_args__ = dict(BlogCollaboratorDefinition.__table_args__, extend_existing=True)
+    __table_args__ = (UniqueConstraint('fk_blog_id', 'fk_collaborator_id', name='uix_1'), dict(BlogCollaboratorDefinition.__table_args__, extend_existing=True))
