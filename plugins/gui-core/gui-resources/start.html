@@ -2,23 +2,55 @@
 <html>
 <head>
 	<title>GEN Live Desk</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<!-- base href="http://superdesk.org/my-client/implementation" target="_self" /-->
 	<script>
-	config = new function(){
+	config = new function()
+	{
+	    // this.server_tech = true;
+	    // use this if you have some sort of server tech like mod_rewrite,
+	    // and also would be nice to add a <base /> tag
+	    
 		this.domain = '{server_url}';
-		this.rest_url = '//' + this.domain + '/resources';
 		this.api_url = '//' + this.domain;
+		this.rest_url = '//' + this.domain + '/resources';
 		this.content_url =  '//' + this.domain + '/content';
-		this.lib_url = this.content_url + '/lib/core';
-		this.js_url = this.lib_url + '/scripts/js';
-		this.gui_url = this.content_url + '/gui';
+		this.lib_url = this.content_url + '/{lib_core}';
+		this.lib_js_url = this.lib_url + 'scripts/js/%s';
+		this.lib_css_url = this.lib_url + 'styles/css/%s';
+
+		// other
+		this.lib_js_urn = '{lib_core}/scripts/js/'.replace(/\/+/g, '/');
+		
+		this.gui_url = '{gui}';
+		
+		var replace = function(format)
+		{
+			return function()
+			{
+				var a = arguments, i = -1,
+				str = format.replace(/(%s)/g, function(m){ i++; return typeof a[i] !== 'undefined' ? a[i] : m; });
+				return str;
+			}
+		}
+		// TODO core() and gui() is inconsistent 
+		this.core = replace(this.lib_url);
+		this.coreScripts = this.cjs = replace(this.lib_js_url);
+		this.coreStyles = this.ccss = replace(this.lib_css_url);
+		
+		this.gui = replace(this.gui_url);
+		this.guiJs = replace(this.gui('%s/scripts/js/%s'));
+		
 	};
 	</script>		
-	<script>document.write('<script data-main="' + config.js_url + '/main" src="' + config.js_url + '/require.js"><'+'/script>')</script>
+	<script>document.write('<script data-main="'+ config.coreScripts('main') + '" src="'+ config.coreScripts('require.js') +'"><'+'/script>')</script>
+	<script>document.write('<style>'+
+		'@IMPORT url("'+ config.coreStyles('bootstrap.css') +'");'+
+		'@IMPORT url("'+ config.coreStyles('responsive.css') +'");'+
+		'@IMPORT url("'+ config.coreStyles('custom.css') +'");'+
+		'@IMPORT url("'+ config.coreStyles('splitter.css') +'");'+
+	+'</style>')</script>
 	<style>
-		@IMPORT url("http://{server_url}/content/lib/core/styles/css/bootstrap.css");
-		@IMPORT url("http://{server_url}/content/lib/core/styles/css/responsive.css");
-		@IMPORT url("http://{server_url}/content/lib/core/styles/css/custom.css");
-		@IMPORT url("http://{server_url}/content/lib/core/styles/css/splitter.css");
 		#area-main { margin-top: 60px } 
 		.sidebar-nav { padding: 9px 0 }
 		

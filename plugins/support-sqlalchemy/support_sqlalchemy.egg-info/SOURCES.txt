@@ -4,6 +4,7 @@ __plugin__/__init__.py
 __plugin__/sql_alchemy/__init__.py
 sql_alchemy/__init__.py
 sql_alchemy/database_config.py
+sql_alchemy/multiprocess_config.py
 sql_alchemy/impl/__init__.py
 sql_alchemy/impl/entity.py
 sql_alchemy/impl/keyed.py

@@ -1,0 +1,371 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>livedesk.impl.blog_post &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for livedesk.impl.blog_post</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on May 4, 2012</span>
+
+<span class="sd">@package: livedesk</span>
+<span class="sd">@copyright: 2012 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+
+<span class="sd">Contains the SQL alchemy meta for livedesk blog posts API.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">..api.blog_post</span> <span class="kn">import</span> <span class="n">IBlogPostService</span><span class="p">,</span> <span class="n">QBlogPostUnpublished</span><span class="p">,</span> \
+    <span class="n">QBlogPostPublished</span>
+<span class="kn">from</span> <span class="nn">..meta.blog_post</span> <span class="kn">import</span> <span class="n">BlogPostMapped</span><span class="p">,</span> <span class="n">BlogPostEntry</span>
+<span class="kn">from</span> <span class="nn">ally.api.extension</span> <span class="kn">import</span> <span class="n">IterPart</span>
+<span class="kn">from</span> <span class="nn">ally.container</span> <span class="kn">import</span> <span class="n">wire</span>
+<span class="kn">from</span> <span class="nn">ally.container.ioc</span> <span class="kn">import</span> <span class="n">injected</span>
+<span class="kn">from</span> <span class="nn">ally.container.support</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="kn">from</span> <span class="nn">ally.exception</span> <span class="kn">import</span> <span class="n">InputError</span><span class="p">,</span> <span class="n">Ref</span>
+<span class="kn">from</span> <span class="nn">ally.internationalization</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.session</span> <span class="kn">import</span> <span class="n">SessionSupport</span>
+<span class="kn">from</span> <span class="nn">ally.support.sqlalchemy.util_service</span> <span class="kn">import</span> <span class="n">buildQuery</span><span class="p">,</span> <span class="n">buildLimits</span>
+<span class="kn">from</span> <span class="nn">livedesk.api.blog_post</span> <span class="kn">import</span> <span class="n">QBlogPost</span><span class="p">,</span> <span class="n">QWithCId</span><span class="p">,</span> <span class="n">BlogPost</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.exc</span> <span class="kn">import</span> <span class="n">NoResultFound</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.util</span> <span class="kn">import</span> <span class="n">aliased</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql</span> <span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">fn</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.functions</span> <span class="kn">import</span> <span class="n">current_timestamp</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql.operators</span> <span class="kn">import</span> <span class="n">desc_op</span>
+<span class="kn">from</span> <span class="nn">superdesk.collaborator.meta.collaborator</span> <span class="kn">import</span> <span class="n">CollaboratorMapped</span>
+<span class="kn">from</span> <span class="nn">superdesk.person.meta.person</span> <span class="kn">import</span> <span class="n">PersonMapped</span>
+<span class="kn">from</span> <span class="nn">superdesk.post.api.post</span> <span class="kn">import</span> <span class="n">IPostService</span><span class="p">,</span> <span class="n">Post</span><span class="p">,</span> <span class="n">QPostUnpublished</span>
+<span class="kn">from</span> <span class="nn">superdesk.post.meta.type</span> <span class="kn">import</span> <span class="n">PostTypeMapped</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="n">UserPerson</span> <span class="o">=</span> <span class="n">aliased</span><span class="p">(</span><span class="n">PersonMapped</span><span class="p">)</span>
+
+<span class="nd">@injected</span>
+<span class="nd">@setup</span><span class="p">(</span><span class="n">IBlogPostService</span><span class="p">)</span>
+<div class="viewcode-block" id="BlogPostServiceAlchemy"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy">[docs]</a><span class="k">class</span> <span class="nc">BlogPostServiceAlchemy</span><span class="p">(</span><span class="n">SessionSupport</span><span class="p">,</span> <span class="n">IBlogPostService</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation for @see: IBlogPostService</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">postService</span> <span class="o">=</span> <span class="n">IPostService</span><span class="p">;</span> <span class="n">wire</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="s">&#39;postService&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Construct the blog post service.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postService</span><span class="p">,</span> <span class="n">IPostService</span><span class="p">),</span> <span class="s">&#39;Invalid post service </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">postService</span>
+        <span class="n">SessionSupport</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BlogPostServiceAlchemy.getById"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.getById">[docs]</a>    <span class="k">def</span> <span class="nf">getById</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">postId</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.getById</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Blog</span> <span class="o">==</span> <span class="n">blogId</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Id</span> <span class="o">==</span> <span class="n">postId</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span> <span class="k">return</span> <span class="n">sql</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">NoResultFound</span><span class="p">:</span> <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;No such blog post&#39;</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Id</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.getPublished"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.getPublished">[docs]</a>    <span class="k">def</span> <span class="nf">getPublished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">typeId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">creatorId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">authorId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                     <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.getPublished</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="n">q</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">QBlogPostPublished</span><span class="p">),</span> <span class="s">&#39;Invalid query </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">q</span>
+
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildQuery</span><span class="p">(</span><span class="n">blogId</span><span class="p">,</span> <span class="n">typeId</span><span class="p">,</span> <span class="n">creatorId</span><span class="p">,</span> <span class="n">authorId</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">PublishedOn</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">desc_op</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span><span class="p">))</span>
+        <span class="n">sqlLimit</span> <span class="o">=</span> <span class="n">buildLimits</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">detailed</span><span class="p">:</span> <span class="k">return</span> <span class="n">IterPart</span><span class="p">(</span><span class="n">sqlLimit</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="n">sql</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trimmDeleted</span><span class="p">(</span><span class="n">sqlLimit</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.getUnpublished"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.getUnpublished">[docs]</a>    <span class="k">def</span> <span class="nf">getUnpublished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">typeId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">creatorId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">authorId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.getUnpublished</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="n">q</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">QBlogPostUnpublished</span><span class="p">),</span> <span class="s">&#39;Invalid query </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">q</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildQuery</span><span class="p">(</span><span class="n">blogId</span><span class="p">,</span> <span class="n">typeId</span><span class="p">,</span> <span class="n">creatorId</span><span class="p">,</span> <span class="n">authorId</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">PublishedOn</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">desc_op</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span><span class="p">))</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">buildLimits</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trimmDeleted</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.getOwned"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.getOwned">[docs]</a>    <span class="k">def</span> <span class="nf">getOwned</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">creatorId</span><span class="p">,</span> <span class="n">typeId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.getOwned</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="n">q</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">QBlogPost</span><span class="p">),</span> <span class="s">&#39;Invalid query </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">q</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildQuery</span><span class="p">(</span><span class="n">blogId</span><span class="p">,</span> <span class="n">typeId</span><span class="p">,</span> <span class="n">creatorId</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">q</span> <span class="ow">and</span> <span class="n">QBlogPost</span><span class="o">.</span><span class="n">isPublished</span> <span class="ow">in</span> <span class="n">q</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">isPublished</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">PublishedOn</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">PublishedOn</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="c">#sql = sql.filter(BlogPostMapped.Author == None)</span>
+
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">desc_op</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span><span class="p">))</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">buildLimits</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trimmDeleted</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.getAll"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.getAll">[docs]</a>    <span class="k">def</span> <span class="nf">getAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">typeId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">creatorId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">authorId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.getAll</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="n">q</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">QBlogPost</span><span class="p">),</span> <span class="s">&#39;Invalid query </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">q</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buildQuery</span><span class="p">(</span><span class="n">blogId</span><span class="p">,</span> <span class="n">typeId</span><span class="p">,</span> <span class="n">creatorId</span><span class="p">,</span> <span class="n">authorId</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">desc_op</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span><span class="p">))</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">buildLimits</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trimmDeleted</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.insert"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">post</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.insert</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">Post</span><span class="p">),</span> <span class="s">&#39;Invalid post </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">post</span>
+
+        <span class="n">postEntry</span> <span class="o">=</span> <span class="n">BlogPostEntry</span><span class="p">(</span><span class="n">Blog</span><span class="o">=</span><span class="n">blogId</span><span class="p">,</span> <span class="n">blogPostId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">postService</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">post</span><span class="p">))</span>
+        <span class="n">postEntry</span><span class="o">.</span><span class="n">CId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextCId</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">postEntry</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">postEntry</span><span class="o">.</span><span class="n">blogPostId</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.publish"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.publish">[docs]</a>    <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">postId</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.publish</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getById</span><span class="p">(</span><span class="n">blogId</span><span class="p">,</span> <span class="n">postId</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">Post</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">post</span><span class="o">.</span><span class="n">PublishedOn</span><span class="p">:</span> <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Already published&#39;</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Post</span><span class="o">.</span><span class="n">PublishedOn</span><span class="p">))</span>
+
+        <span class="n">post</span><span class="o">.</span><span class="n">PublishedOn</span> <span class="o">=</span> <span class="n">current_timestamp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postService</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>
+
+        <span class="n">postEntry</span> <span class="o">=</span> <span class="n">BlogPostEntry</span><span class="p">(</span><span class="n">Blog</span><span class="o">=</span><span class="n">blogId</span><span class="p">,</span> <span class="n">blogPostId</span><span class="o">=</span><span class="n">post</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+        <span class="n">postEntry</span><span class="o">.</span><span class="n">CId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextCId</span><span class="p">()</span>
+        <span class="n">postEntry</span><span class="o">.</span><span class="n">Order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextOrdering</span><span class="p">(</span><span class="n">blogId</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">postEntry</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">postId</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.insertAndPublish"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.insertAndPublish">[docs]</a>    <span class="k">def</span> <span class="nf">insertAndPublish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">post</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.insertAndPublish</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">Post</span><span class="p">),</span> <span class="s">&#39;Invalid post </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">post</span>
+
+        <span class="n">postId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">blogId</span><span class="p">,</span> <span class="n">post</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">blogId</span><span class="p">,</span> <span class="n">postId</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">postId</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.update"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">post</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.update</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">Post</span><span class="p">),</span> <span class="s">&#39;Invalid post </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">post</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">postService</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>
+
+        <span class="n">postEntry</span> <span class="o">=</span> <span class="n">BlogPostEntry</span><span class="p">(</span><span class="n">Blog</span><span class="o">=</span><span class="n">blogId</span><span class="p">,</span> <span class="n">blogPostId</span><span class="o">=</span><span class="n">post</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+        <span class="n">postEntry</span><span class="o">.</span><span class="n">CId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextCId</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">postEntry</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.reorder"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.reorder">[docs]</a>    <span class="k">def</span> <span class="nf">reorder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">postId</span><span class="p">,</span> <span class="n">refPostId</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.reorder</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Blog</span> <span class="o">==</span> <span class="n">blogId</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Id</span> <span class="o">==</span> <span class="n">refPostId</span><span class="p">)</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">order</span><span class="p">:</span> <span class="k">raise</span> <span class="n">InputError</span><span class="p">(</span><span class="n">Ref</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Invalid before post&#39;</span><span class="p">)))</span>
+
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Blog</span> <span class="o">==</span> <span class="n">blogId</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Id</span> <span class="o">!=</span> <span class="n">postId</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">before</span><span class="p">:</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span> <span class="o">&gt;</span> <span class="n">order</span><span class="p">)</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span> <span class="o">&lt;</span> <span class="n">order</span><span class="p">)</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">desc_op</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span><span class="p">))</span>
+
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">orderPrev</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">orderPrev</span><span class="p">:</span> <span class="n">order</span> <span class="o">=</span> <span class="p">(</span><span class="n">order</span> <span class="o">+</span> <span class="n">orderPrev</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">order</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Blog</span> <span class="o">==</span> <span class="n">blogId</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Id</span> <span class="o">==</span> <span class="n">postId</span><span class="p">)</span>
+
+        <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getById</span><span class="p">(</span><span class="n">blogId</span><span class="p">,</span> <span class="n">postId</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">BlogPostMapped</span><span class="p">)</span>
+
+        <span class="n">post</span><span class="o">.</span><span class="n">Order</span> <span class="o">=</span> <span class="n">order</span>
+        <span class="n">post</span><span class="o">.</span><span class="n">CId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextCId</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="BlogPostServiceAlchemy.delete"><a class="viewcode-back" href="../../../livedesk.impl.html#livedesk.impl.blog_post.BlogPostServiceAlchemy.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        @see: IBlogPostService.delete</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postService</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+            <span class="n">postEntry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BlogPostEntry</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">postEntry</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">postEntry</span><span class="p">,</span> <span class="n">BlogPostEntry</span><span class="p">)</span>
+                <span class="n">postEntry</span><span class="o">.</span><span class="n">CId</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextCId</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">flush</span><span class="p">((</span><span class="n">postEntry</span><span class="p">,))</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="c"># ----------------------------------------------------------------</span>
+</div>
+    <span class="k">def</span> <span class="nf">_buildQuery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">,</span> <span class="n">typeId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">creatorId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">authorId</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Builds the general query for posts.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="p">)</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Blog</span> <span class="o">==</span> <span class="n">blogId</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">typeId</span><span class="p">:</span> <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PostTypeMapped</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">PostTypeMapped</span><span class="o">.</span><span class="n">Key</span> <span class="o">==</span> <span class="n">typeId</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">creatorId</span><span class="p">:</span> <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Creator</span> <span class="o">==</span> <span class="n">creatorId</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">authorId</span><span class="p">:</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">((</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Author</span> <span class="o">==</span> <span class="n">authorId</span><span class="p">)</span> <span class="o">|</span>
+                             <span class="p">((</span><span class="n">CollaboratorMapped</span><span class="o">.</span><span class="n">Id</span> <span class="o">==</span> <span class="n">authorId</span><span class="p">)</span> <span class="o">&amp;</span>
+                              <span class="p">(</span><span class="n">CollaboratorMapped</span><span class="o">.</span><span class="n">Person</span> <span class="o">==</span> <span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Creator</span><span class="p">)))</span>
+        <span class="n">addDeleted</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="n">q</span><span class="p">:</span>
+            <span class="n">sql</span> <span class="o">=</span> <span class="n">buildQuery</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">BlogPostMapped</span><span class="p">)</span>
+            <span class="n">addDeleted</span> <span class="o">=</span> <span class="n">QPostUnpublished</span><span class="o">.</span><span class="n">deletedOn</span> <span class="ow">in</span> <span class="n">q</span> <span class="ow">or</span> <span class="n">QWithCId</span><span class="o">.</span><span class="n">cId</span> <span class="ow">in</span> <span class="n">q</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">addDeleted</span><span class="p">:</span> <span class="n">sql</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">DeletedOn</span> <span class="o">==</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sql</span>
+
+    <span class="k">def</span> <span class="nf">_trimmDeleted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posts</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Trim the information from the deleted posts.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">post</span> <span class="ow">in</span> <span class="n">posts</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">BlogPost</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">BlogPost</span><span class="o">.</span><span class="n">DeletedOn</span> <span class="ow">in</span> <span class="n">post</span> <span class="ow">and</span> <span class="n">post</span><span class="o">.</span><span class="n">DeletedOn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">trimmed</span> <span class="o">=</span> <span class="n">BlogPost</span><span class="p">()</span>
+                <span class="n">trimmed</span><span class="o">.</span><span class="n">Id</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">Id</span>
+                <span class="n">trimmed</span><span class="o">.</span><span class="n">CId</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">CId</span>
+                <span class="n">trimmed</span><span class="o">.</span><span class="n">DeletedOn</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">DeletedOn</span>
+                <span class="k">yield</span> <span class="n">trimmed</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">post</span>
+
+    <span class="k">def</span> <span class="nf">_nextCId</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the next change Id.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">CId</span><span class="p">))</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">max</span><span class="p">:</span> <span class="k">return</span> <span class="nb">max</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_nextOrdering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blogId</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the next ordering.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Order</span><span class="p">))</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BlogPostMapped</span><span class="o">.</span><span class="n">Blog</span> <span class="o">==</span> <span class="n">blogId</span><span class="p">)</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">max</span><span class="p">:</span> <span class="k">return</span> <span class="nb">max</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">1</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

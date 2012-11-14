@@ -11,10 +11,10 @@ Contains the SQL alchemy meta for media image data API.
 
 from ..api.image_data import ImageData
 from .meta_data import MetaDataMapped
-from ally.support.sqlalchemy.mapper import mapperSimple
-from sqlalchemy.schema import Table, Column, ForeignKey
-from sqlalchemy.types import Integer
-from superdesk.meta.metadata_superdesk import meta
+from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.types import Integer, String, DateTime
+from sqlalchemy.ext.declarative import declared_attr
+from superdesk.meta.metadata_superdesk import Base
 from ally.internationalization import N_
 
 # --------------------------------------------------------------------
@@ -24,10 +24,31 @@ META_TYPE_KEY = N_('image')
 
 # --------------------------------------------------------------------
 
-table = Table('archive_image_data', meta,
-              Column('fk_meta_data_id', ForeignKey(MetaDataMapped.Id), primary_key=True, key='Id'),
-              Column('width', Integer, key='Width'),
-              Column('height', Integer, key='Height'),
-              mysql_engine='InnoDB', mysql_charset='utf8')
+class ImageDataDefinition:
+    '''
+    Provides the mapping for ImageData definition.
+    '''
+    __tablename__ = 'archive_image_data'
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-ImageData = mapperSimple(ImageData, table, inherits=MetaDataMapped)
+    Id = declared_attr(lambda cls: Column('fk_metadata_id', ForeignKey(MetaDataMapped.Id), primary_key=True))
+    Width = declared_attr(lambda cls: Column('width', Integer))
+    Height = declared_attr(lambda cls: Column('height', Integer))
+    CreationDate = declared_attr(lambda cls: Column('creation_date', DateTime))
+    CameraMake = declared_attr(lambda cls: Column('camera_make', String(255)))
+    CameraModel = declared_attr(lambda cls: Column('camera_model', String(255)))
+
+# --------------------------------------------------------------------
+
+class ImageDataEntry(Base, ImageDataDefinition):
+    '''
+    Provides the mapping for ImageData table.
+    '''
+
+# --------------------------------------------------------------------
+
+class ImageDataMapped(ImageDataDefinition, MetaDataMapped, ImageData):
+    '''
+    Provides the mapping for ImageData when extending MetaData.
+    '''
+    __table_args__ = dict(ImageDataDefinition.__table_args__, extend_existing=True)

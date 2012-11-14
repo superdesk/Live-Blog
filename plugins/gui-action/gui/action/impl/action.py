@@ -11,11 +11,13 @@ Action Manager Implementation
 
 import re
 from ally.container.ioc import injected
+from ally.container.support import setup
 from gui.action.api.action import IActionManagerService, Action
 
 # --------------------------------------------------------------------
 
 @injected
+@setup(IActionManagerService)
 class ActionManagerService(IActionManagerService):
     '''
     @see: IActionManagerService

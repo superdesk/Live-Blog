@@ -8,6 +8,7 @@ Created on Mar 6, 2012
 
 APIs for person.
 '''
+
 from ally.api.config import service, query
 from ally.api.criteria import AsLikeOrdered
 from ally.support.api.entity import Entity, IEntityService, QEntity

@@ -14,6 +14,7 @@ from ally.api.operator.authentication.service import IAuthenticationSupport
 from ally.api.type import typeFor, Type
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref, DevelError
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport, commitNow
@@ -38,8 +39,14 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
+class IAuthenticationCompoundService(IAuthenticationService, IAuthenticationSupport, ICleanupService):
+    '''
+    Compound specification class formed from the authentication specifications.
+    '''
+
 @injected
-class AuthenticationService(SessionSupport, IAuthenticationService, IAuthenticationSupport, ICleanupService):
+@setup(IAuthenticationCompoundService)
+class AuthenticationServiceAlchemy(SessionSupport, IAuthenticationCompoundService):
     '''
     The service implementation that provides the authentication.
     '''
@@ -47,7 +54,7 @@ class AuthenticationService(SessionSupport, IAuthenticationService, IAuthenticat
     authentication_token_size = 5; wire.config('authentication_token_size', doc='''
     The number of characters that the authentication token should have.
     ''')
-    session_token_size = 10; wire.config('session_token_size', doc='''
+    session_token_size = 5; wire.config('session_token_size', doc='''
     The number of characters that the authentication token should have.
     ''')
     authentication_timeout = 10; wire.config('authentication_timeout', doc='''
@@ -66,7 +73,6 @@ class AuthenticationService(SessionSupport, IAuthenticationService, IAuthenticat
         assert isinstance(self.authentication_timeout, int), \
         'Invalid authentication timeout %s' % self.authentication_timeout
         assert isinstance(self.session_timeout, int), 'Invalid session timeout %s' % self.session_timeout
-        SessionSupport.__init__(self)
 
         self.authenticationTimeOut = timedelta(seconds=self.authentication_timeout)
         self.sessionTimeOut = timedelta(seconds=self.session_timeout)
@@ -108,7 +114,7 @@ class AuthenticationService(SessionSupport, IAuthenticationService, IAuthenticat
         if sql.delete() > 0:
             commitNow() # We make sure that the delete has been performed
 
-            try: user = self.session().query(UserMapped).filter(UserMapped.Name == authentication.UserName).one()
+            try: user = self.session().query(UserMapped).filter(UserMapped.Name == authentication.UserName).filter(UserMapped.DeletedOn == None).one()
             except NoResultFound: user = None
 
             if user is not None:
@@ -154,7 +160,8 @@ class AuthenticationService(SessionSupport, IAuthenticationService, IAuthenticat
         except NoResultFound: return False
         assert isinstance(login, LoginMapped), 'Invalid login %s' % login
         login.AccessedOn = current_timestamp()
-        self.session().flush(login)
+        self.session().flush((login,))
+        self.session().expunge(login)
         commitNow()
         # We need to fore the commit because if there is an exception while processing the request we need to make
         # sure that the last access has been updated.
@@ -162,7 +169,7 @@ class AuthenticationService(SessionSupport, IAuthenticationService, IAuthenticat
         for authType in arguments:
             assert isinstance(authType, Type), 'Invalid type %s' % authType
 
-            if authType == typeFor(User.Id): arguments[authType] = 1
+            if authType == typeFor(User.Id): arguments[authType] = login.User
             else: raise DevelError('Invalid authenticated type %s' % authType)
 
         return True

@@ -14,6 +14,7 @@ from ally.container.ioc import injected
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
+from ally.container.support import setup
 from livedesk.meta.blog_admin import AdminMapped, AdminEntry
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm.exc import NoResultFound
@@ -21,6 +22,7 @@ from sqlalchemy.orm.exc import NoResultFound
 # --------------------------------------------------------------------
 
 @injected
+@setup(IBlogAdminService)
 class BlogAdminServiceAlchemy(SessionSupport, IBlogAdminService):
     '''
     Implementation for @see: IBlogAdminService
@@ -30,7 +32,6 @@ class BlogAdminServiceAlchemy(SessionSupport, IBlogAdminService):
         '''
         Construct the blog administrator service.
         '''
-        SessionSupport.__init__(self)
 
     def getById(self, blogId, userId):
         '''

@@ -76,8 +76,9 @@ define([
                 var data = 
                 {
                     Language: $("#add-live-blog [name='Language']:eq(0)").val(),
-                    Title: $.styledNodeHtml(title),
-                    Description: $.styledNodeHtml(descr)
+                    Title: $.styledNodeHtml(title).replace(/<br\s*\/?>\s*$/, ''),
+					Type: '1',
+                    Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, '')
                 };
                 new $.restAuth('LiveDesk/Blog').insert(data).done(function(liveBlog)
                 {
@@ -88,9 +89,9 @@ define([
                         .find("[data-value='Title']:eq(0)").html('').end()
                         .find("[data-value='Description']:eq(0)").html('');
 
-                    require([$.superdesk.apiUrl+'/content/gui/superdesk/livedesk/scripts/js/edit-live-blogs.js'],
+                    require([$.superdesk.apiUrl+'/content/lib/livedesk/scripts/js/edit-live-blogs.js'],
                         function(EditApp){
-                            new EditApp(liveBlog.href).render();
+                            new EditApp(liveBlog.href);
                             $('#navbar-top').trigger('refresh-menu');
                         });
                 });

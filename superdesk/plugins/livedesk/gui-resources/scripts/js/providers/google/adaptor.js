@@ -2,36 +2,91 @@ define('providers/google/adaptor', [
     'providers',
     'utils/str',
     'jquery',
+    'gizmo',
     'jquery/rest',
     'jquery/utils',
-    'providers/google/tab'
-], function(providers,str, $){
+    'providers/google/tab',
+    'tmpl!livedesk>providers/google/post'
+], 
+function(providers,str, $, Gizmo)
+{
+    var AnnotateView = Gizmo.View.extend
+    ({
+        tagName: 'li',
+        init: function(data)
+        {
+            var self = this;
+            $(self.el).on('click', '.btn.publish', function()
+            {
+                //self.data.Content = $('.google-full-content .result-text', self.el).html();
+                self.data.Meta.annotation = [$('.google-full-content .annotation:eq(0)', self.el).html(), 
+                    $('.google-full-content .annotation:eq(1)', self.el).html()];
+                self.data.Meta = JSON.stringify(self.data.Meta);
+                
+                self.parent.insert(self.data, self);
+                
+                $('.actions', self.el).addClass('hide');
+            })
+			.on('click', '.btn.cancel', function()
+            {
+                self.parent = null;
+                self.el.remove();
+            })
+			.on('click', 'a.close', function(){
+				$('#delete-post .yes')
+					.off(self.getEvent('click'))
+					.on(self.getEvent('click'), function(){
+						self.parent = null;
+						self.el.remove();
+					});				
+			});
 
-    $.extend(providers.google, {
-        adaptor: {
+        },
+        render: function()
+        {
+            var self = this;
+            $.tmpl('livedesk>providers/google/post', this.data, function(e, o)
+            { 
+                self.el.addClass( $(o).attr('class') );
+                self.el.html( $(o).html() );
+                $('.actions', self.el).removeClass('hide');
+            });
+        }
+    });
+    
+    $.extend(providers.google, 
+    {
+        adaptor: 
+        {
             author: 1,
-            init: function() {
+            init: function() 
+            {
                 var self = this;
                 new $.rest('Superdesk/Collaborator/')
                     .xfilter('Id')
-                    .request({data: { name: 'google'}})
+                    .request({data: { 'qs.name': 'google'}})
                     .done(function(collabs)
                     {
-                        if($.isDefined(collabs[0])) {
+                        if($.isDefined(collabs[0])) 
                             self.author = collabs[0].Id;
-                        }
                     });
             },
-            universal: function(obj) {
-		var meta =  jQuery.extend(true, {}, obj);
+            universal: function(obj) 
+            {
+                var meta =  jQuery.extend(true, {}, obj);
                 delete meta.content;
-		return {
-                    Content: obj.content,
-                    Type: 'normal',
-                    Author: this.author,
-                    Meta: meta
-                };
+                return new AnnotateView
+                ({
+                    data: 
+                    {
+                        Content: obj.content,
+                        Type: 'normal',
+                        Author: this.author,
+                        Meta: meta
+                    }
+                });
             },
+            
 			// Todo remove this stuff
             web: function(obj) {
                 delete obj['$idx'];

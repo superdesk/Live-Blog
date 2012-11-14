@@ -2,7 +2,7 @@
 {<body}
 <section class="scroller main-section configure-blog" {ui.content}>
 	<header>
-		<h3>Configure: {Title}</h3>
+		<h3>_('Configure:'); {Title|t}</h3>
 	</header>
 	<div class="row-fluid">
 		<div class="span10">
@@ -16,6 +16,12 @@
               				data-key="OutputLink">{OutputLink}</a>
              		</div>
           		</div>
+        		<div class="control-group">
+            		<label class="control-label">gettext("This Blogs embed script");</label>
+            		<div class="controls">
+              			<textarea>{EmbedSource}</textarea>
+             		</div>
+          		</div>				
           		<div class="control-group">
             		<label class="control-label">Language</label>
             		<div class="controls">

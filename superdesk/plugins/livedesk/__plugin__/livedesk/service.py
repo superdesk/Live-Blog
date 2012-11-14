@@ -15,11 +15,11 @@ from ..superdesk.db_superdesk import bindSuperdeskSession, bindSuperdeskValidati
 
 # --------------------------------------------------------------------
 
-API, IMPL = 'livedesk.api.**.I*Service', 'livedesk.impl.**.*'
+SERVICES = 'livedesk.api.**.I*Service'
 
-support.createEntitySetup(API, IMPL)
-support.bindToEntities(IMPL, binders=bindSuperdeskSession)
-support.listenToEntities(IMPL, listeners=addService(bindSuperdeskSession, bindSuperdeskValidations))
-support.loadAllEntities(API)
+support.createEntitySetup('livedesk.impl.**.*')
+support.bindToEntities('livedesk.impl.**.*Alchemy', binders=bindSuperdeskSession)
+support.listenToEntities(SERVICES, listeners=addService(bindSuperdeskSession, bindSuperdeskValidations))
+support.loadAllEntities(SERVICES)
 
 # --------------------------------------------------------------------
