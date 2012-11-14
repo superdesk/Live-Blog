@@ -3,11 +3,11 @@ setup.py
 __plugin__/__init__.py
 __plugin__/superdesk_user/__init__.py
 __plugin__/superdesk_user/actions.py
-__plugin__/superdesk_user/authenticate.py
 __plugin__/superdesk_user/gui.py
 gui-resources/__init__.py
 gui-resources/scripts/__init__.py
 gui-resources/scripts/js/__init__.py
+gui-resources/scripts/js/models/__init__.py
 gui-resources/templates/__init__.py
 superdesk/__init__.py
 superdesk/user/__init__.py

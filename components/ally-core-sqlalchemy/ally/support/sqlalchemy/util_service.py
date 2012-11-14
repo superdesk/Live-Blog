@@ -9,14 +9,17 @@ Created on Jan 5, 2012
 Provides utility methods for SQL alchemy service implementations.
 '''
 
-from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual, AsDate, AsTime, AsDateTime, \
-    AsRange
+from ally.api.criteria import AsLike, AsOrdered, AsBoolean, AsEqual, AsDate, \
+    AsTime, AsDateTime, AsRange
 from ally.api.type import typeFor
 from ally.exception import InputError, Ref
 from ally.internationalization import _
-from ally.support.api.util_service import namesForModel, namesForQuery
+from ally.support.api.util_service import namesForQuery
+from ally.support.sqlalchemy.mapper import mappingFor
 from itertools import chain
 from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.orm.mapper import Mapper
+from sqlalchemy.orm.properties import ColumnProperty
 
 # --------------------------------------------------------------------
 
@@ -60,7 +63,12 @@ def buildQuery(sqlQuery, query, mapped):
     clazz = query.__class__
 
     ordered, unordered = [], []
-    properties = {prop.lower(): getattr(mapped, prop) for prop in namesForModel(mapped)}
+    mapper = mappingFor(mapped)
+    assert isinstance(mapper, Mapper)
+
+    properties = {cp.key.lower(): getattr(mapper.c, cp.key)
+                  for cp in mapper.iterate_properties if isinstance(cp, ColumnProperty)}
+
     for criteria in namesForQuery(clazz):
         column = properties.get(criteria.lower())
         if column is not None and getattr(clazz, criteria) in query:

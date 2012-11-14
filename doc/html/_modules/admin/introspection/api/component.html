@@ -1,0 +1,161 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>admin.introspection.api.component &mdash; ally-py 1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="ally-py 1.0b1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for admin.introspection.api.component</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on Mar 4, 2012</span>
+
+<span class="sd">@package: administration introspection</span>
+<span class="sd">@copyright: 2011 Sourcefabric o.p.s.</span>
+<span class="sd">@license: http://www.gnu.org/licenses/gpl-3.0.txt</span>
+<span class="sd">@author: Gabriel Nistor</span>
+
+<span class="sd">Provides the components introspection.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">admin.api.domain_admin</span> <span class="kn">import</span> <span class="n">modelAdmin</span>
+<span class="kn">from</span> <span class="nn">ally.api.config</span> <span class="kn">import</span> <span class="n">service</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="n">query</span>
+<span class="kn">from</span> <span class="nn">ally.api.criteria</span> <span class="kn">import</span> <span class="n">AsLike</span><span class="p">,</span> <span class="n">AsBoolean</span>
+<span class="kn">from</span> <span class="nn">ally.api.type</span> <span class="kn">import</span> <span class="n">Iter</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+
+<span class="nd">@modelAdmin</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s">&#39;Id&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Component"><a class="viewcode-back" href="../../../../admin.introspection.api.html#admin.introspection.api.component.Component">[docs]</a><span class="k">class</span> <span class="nc">Component</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the component data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">Id</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">Name</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">Group</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">Version</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">Locale</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">Description</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">Loaded</span> <span class="o">=</span> <span class="nb">bool</span>
+    <span class="n">Path</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">InEgg</span> <span class="o">=</span> <span class="nb">bool</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="nd">@query</span><span class="p">(</span><span class="n">Component</span><span class="p">)</span>
+<div class="viewcode-block" id="QComponent"><a class="viewcode-back" href="../../../../admin.introspection.api.html#admin.introspection.api.component.QComponent">[docs]</a><span class="k">class</span> <span class="nc">QComponent</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides the component query.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">AsLike</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">AsLike</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">AsLike</span>
+    <span class="n">locale</span> <span class="o">=</span> <span class="n">AsLike</span>
+    <span class="n">loaded</span> <span class="o">=</span> <span class="n">AsBoolean</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">AsLike</span>
+    <span class="n">inEgg</span> <span class="o">=</span> <span class="n">AsBoolean</span>
+
+<span class="c"># --------------------------------------------------------------------</span>
+</div>
+<span class="nd">@service</span>
+<div class="viewcode-block" id="IComponentService"><a class="viewcode-back" href="../../../../admin.introspection.api.html#admin.introspection.api.component.IComponentService">[docs]</a><span class="k">class</span> <span class="nc">IComponentService</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Provides services for ally components.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@call</span>
+<div class="viewcode-block" id="IComponentService.getById"><a class="viewcode-back" href="../../../../admin.introspection.api.html#admin.introspection.api.component.IComponentService.getById">[docs]</a>    <span class="k">def</span> <span class="nf">getById</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span><span class="n">Component</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Component</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides the component based on the provided id.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+</div>
+    <span class="nd">@call</span>
+<div class="viewcode-block" id="IComponentService.getComponents"><a class="viewcode-back" href="../../../../admin.introspection.api.html#admin.introspection.api.component.IComponentService.getComponents">[docs]</a>    <span class="k">def</span> <span class="nf">getComponents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span><span class="n">QComponent</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iter</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provides all the components.</span>
+<span class="sd">        &#39;&#39;&#39;</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">ally-py 1.0b1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Gabriel Nistor.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

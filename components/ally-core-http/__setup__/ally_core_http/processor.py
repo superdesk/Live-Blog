@@ -13,7 +13,7 @@ from . import server_pattern_rest
 from ..ally_core.encoder_decoder import parsingAssembly
 from ..ally_core.processor import argumentsBuild, argumentsPrepare, \
     assemblyResources, updateAssemblyResources, createEncoder, renderEncoder, \
-    methodInvoker, invoking, parser, default_characterset
+    explainError, methodInvoker, invoking, parser, default_characterset
 from ..ally_core.resources import resourcesLocator
 from ally.container import ioc
 from ally.core.http.impl.processor.encoder import CreateEncoderPathHandler
@@ -171,6 +171,7 @@ def updateAssemblyResourcesForHTTP():
     assemblyResources().add(parameter(), fetcher(), before=argumentsBuild())
 
     assemblyResources().add(contentTypeEncode(), contentLanguageEncode(), allowEncode(), after=renderEncoder())
+    assemblyResources().add(contentLengthEncode(), after=explainError())
 
     if allow_method_override(): assemblyResources().add(methodOverrideDecode(), before=uri())
 

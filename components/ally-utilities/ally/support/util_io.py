@@ -10,12 +10,17 @@ Provides utility functions for handling I/O operations.
 '''
 
 from ally.zip.util_zip import normOSPath, getZipFilePath, ZIPSEP
-from os.path import isfile
-from os import stat
-from zipfile import ZipFile
-from datetime import datetime
 from collections import Iterable
+from datetime import datetime
+from genericpath import isdir, exists
+from os import stat, makedirs
+from os.path import isfile, normpath, join, dirname
+from shutil import copy, move
+from zipfile import ZipFile, ZipInfo
 import abc
+import os
+from tempfile import TemporaryDirectory
+from stat import S_IEXEC
 
 # --------------------------------------------------------------------
 
@@ -55,7 +60,7 @@ class IOutputStream(metaclass=abc.ABCMeta):
         '''
         Write the bytes or bytearray object, b and return the number of bytes written. When in non-blocking mode,
         a BlockingIOError is raised if the buffer needs to be written out but the raw stream blocks.
-        
+
         @param bytes: bytearray
             The bytes to write.
         '''
@@ -86,7 +91,7 @@ class IClosable(metaclass=abc.ABCMeta):
 
 # --------------------------------------------------------------------
 
-class replaceInFile:
+class ReplaceInFile:
     '''
     Provides the file read replacing.
     '''
@@ -97,7 +102,7 @@ class replaceInFile:
         '''
         Creates a proxy for the provided file object that will replace in the provided file content based on the data
         provided in the replacements map.
-        
+
         @param fileObj: a file like object with a 'read' method
             The file object to wrap and have the content changed.
         @param replacements: dictionary{string|bytes, string|bytes}
@@ -120,9 +125,10 @@ class replaceInFile:
 
     def read(self, count=None):
         '''
-        Perform the data read. 
+        Perform the data read.
         '''
-        data = self._fileObj.read(count)
+        if count is None: data = self._fileObj.read()
+        else: data = self._fileObj.read(count)
 
         if not data:
             if self._leftOver:
@@ -172,7 +178,7 @@ def pipe(srcFileObj, dstFileObj, bufferSize=1024):
 def readGenerator(fileObj, bufferSize=1024):
     '''
     Provides a generator that read data from the provided file object.
-    
+
     @param fileObj: a file like object with a 'read' method
         The file object to have the generator read data from.
     @param bufferSize: integer
@@ -193,7 +199,7 @@ def readGenerator(fileObj, bufferSize=1024):
 def writeGenerator(generator, fileObj):
     '''
     Provides a generator that read data from the provided file object.
-    
+
     @param generator: Iterable
         The generator to get the content to be writen.
     @param fileObj: a file like object with a 'write' method
@@ -209,7 +215,7 @@ def writeGenerator(generator, fileObj):
 def convertToBytes(iterable, charSet, encodingError):
     '''
     Provides a generator that converts from string to bytes based on string data from another Iterable.
-    
+
     @param iterable: Iterable
         The iterable providing the strings to convert.
     @param charSet: string
@@ -227,7 +233,7 @@ def convertToBytes(iterable, charSet, encodingError):
 def openURI(path):
     '''
     Returns a read file object for the given path.
-    
+
     @param path: string
         The path to a resource: a file system path, a ZIP path
     @return: byte file
@@ -245,7 +251,7 @@ def openURI(path):
 def timestampURI(path):
     '''
     Returns the last modified time stamp for the given path.
-    
+
     @param path: string
         The path to a resource: a file system path, a ZIP path
     @return: datetime
@@ -257,17 +263,69 @@ def timestampURI(path):
     zipFilePath, _inZipPath = getZipFilePath(path)
     return datetime.fromtimestamp(stat(zipFilePath).st_mtime)
 
-class keepOpen:
+def synchronizeURIToDir(path, dirPath):
+    '''
+    Publishes the entire contents from the URI path to the provided directory path.
+
+    @param path: string
+        The path to a resource: a file system path, a ZIP path
+    @param dirPath: string
+        The directory path to synchronize with.
+    '''
+    assert isinstance(path, str) and path, 'Invalid content path %s' % path
+    assert isinstance(dirPath, str), 'Invalid directory path value %s' % dirPath
+
+    if not isdir(path):
+        # not a directory, see if it's a entry in a zip file
+        zipFilePath, inDirPath = getZipFilePath(path)
+        zipFile = ZipFile(zipFilePath)
+        if not inDirPath.endswith(ZIPSEP): inDirPath = inDirPath + ZIPSEP
+
+        tmpDir = TemporaryDirectory()
+
+        lenPath, zipTime = len(inDirPath), datetime.fromtimestamp(stat(zipFilePath).st_mtime)
+        for zipInfo in zipFile.filelist:
+            assert isinstance(zipInfo, ZipInfo), 'Invalid zip info %s' % zipInfo
+            if zipInfo.filename.startswith(inDirPath):
+                if zipInfo.filename[0] == '/': dest = zipInfo.filename[1:]
+                else: dest = zipInfo.filename
+
+                dest = normpath(join(dirPath, dest[lenPath:]))
+
+                if exists(dest) and zipTime <= datetime.fromtimestamp(stat(dest).st_mtime): continue
+                destDir = dirname(dest)
+                if not exists(destDir): makedirs(destDir)
+
+                zipFile.extract(zipInfo.filename, tmpDir.name)
+                move(join(tmpDir.name, normOSPath(zipInfo.filename)), dest)
+                if zipInfo.filename.endswith('.exe'): os.chmod(dest, stat(dest).st_mode | S_IEXEC)
+
+        return
+
+    path = normpath(path)
+    assert os.access(path, os.R_OK), 'Unable to read the directory path %s' % path
+    lenPath = len(path) + 1
+    for root, _dirs, files in os.walk(path):
+        for file in files:
+            src, dest = join(root, file), join(dirPath, root[lenPath:], file)
+
+            if exists(dest) and \
+            datetime.fromtimestamp(stat(src).st_mtime) <= datetime.fromtimestamp(stat(dest).st_mtime): continue
+
+            destDir = dirname(dest)
+            if not exists(destDir): makedirs(destDir)
+            copy(src, dest)
+
+class KeepOpen:
     '''
     Keeps opened a file object, basically blocks the close calls.
     '''
-
     __slots__ = ['_fileObj']
 
     def __init__(self, fileObj):
         '''
         Construct the keep open file object proxy.
-        
+
         @param fileObj: file
             A file type object to keep open.
         '''

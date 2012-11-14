@@ -24,13 +24,21 @@ DESCRIPTION = 'Provides the HTTP communication support'
 
 @ioc.config
 def server_type() -> str:
-    '''The type of the server to use one of basic, cherrypy'''
+    '''
+    The type of the server to use, the options are:
+    "basic"- single threaded server, the safest but slowest server to use.
+    '''
     return 'basic'
+
+@ioc.config
+def server_host() -> str:
+    '''The IP address to bind the server to, something like 127.0.0.1'''
+    return '0.0.0.0'
 
 @ioc.config
 def server_port() -> int:
     '''The port on which the server will run'''
-    return 80
+    return 8080
 
 @ioc.config
 def server_version() -> str:

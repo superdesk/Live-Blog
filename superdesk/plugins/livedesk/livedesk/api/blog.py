@@ -14,10 +14,11 @@ from ally.support.api.entity import Entity, IEntityCRUDService
 from superdesk.language.api.language import LanguageEntity
 from superdesk.user.api.user import User
 from datetime import datetime
-from ally.api.config import query, service, call
+from ally.api.config import query, service, call, UPDATE
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered
 from ally.api.type import Iter
 from ally.api.authentication import auth
+from livedesk.api.blog_type import BlogType
 
 # --------------------------------------------------------------------
 
@@ -26,6 +27,7 @@ class Blog(Entity):
     '''
     Provides the blog model.
     '''
+    Type = BlogType
     Language = LanguageEntity
     Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
     Title = str
@@ -67,7 +69,7 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call
-    def getAll(self, languageId:LanguageEntity=None, adminId:auth(User)=None, offset:int=None, limit:int=None,
+    def getAll(self, languageId:LanguageEntity=None, userId:auth(User)=None, offset:int=None, limit:int=None,
                detailed:bool=True, q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs.
@@ -83,4 +85,11 @@ class IBlogService(IEntityCRUDService):
     def getLive(self, languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs that are live at this moment.
+        '''
+
+    @call(webName='PutLive', method=UPDATE)
+    def putLive(self, adminId:auth(User.Id), blogId:Blog.Id):
+        '''
+        Puts blog live
+        @raise InputError: on invalid credentials or blog id 
         '''

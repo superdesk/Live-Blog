@@ -9,25 +9,28 @@ Created on May 3, 2012
 Populates sample data for the services.
 '''
 
-from __plugin__.superdesk.db_superdesk import alchemySessionCreator, \
-    createTables
+from ..superdesk.db_superdesk import alchemySessionCreator, createTables
+from ally.api.extension import IterPart
 from ally.container import ioc
 from ally.container.support import entityFor
 from datetime import datetime
 from livedesk.api.blog import IBlogService, QBlog, Blog
-from livedesk.api.blog_collaborator import IBlogCollaboratorService
-from superdesk.language.api.language import ILanguageService, LanguageEntity
 from livedesk.api.blog_admin import IBlogAdminService
+from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from livedesk.api.blog_post import IBlogPostService
-from superdesk.post.api.post import Post
-from superdesk.user.api.user import IUserService, QUser, User
-from superdesk.source.api.source import ISourceService, QSource, Source
+from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
+from livedesk.api.blog_type_post import IBlogTypePostService
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
-from superdesk.source.meta.type import SourceTypeMapped
+from superdesk.collaborator.api.collaborator import ICollaboratorService, \
+    Collaborator
+from superdesk.language.api.language import ILanguageService, LanguageEntity
 from superdesk.person.api.person import QPerson
-from superdesk.collaborator.api.collaborator import ICollaboratorService, Collaborator
+from superdesk.post.api.post import Post
 from superdesk.post.meta.type import PostTypeMapped
+from superdesk.source.api.source import ISourceService, QSource, Source
+from superdesk.source.meta.type import SourceTypeMapped
+from superdesk.user.api.user import IUserService, QUser, User
 import hashlib
 
 # --------------------------------------------------------------------
@@ -71,6 +74,7 @@ SOURCES = {
            'google': (False, 'www.google.com', 'xml'),
            'twitter': (False, 'www.twitter.com', 'xml'),
            'flickr': (False, 'www.flickr.com', 'xml'),
+           'youtube': (False, 'www.youtube.com', 'xml'),
            }
 
 _cache_sources = {}
@@ -91,10 +95,49 @@ def getSourcesIds():
     return _cache_sources
 
 
+BLOG_TYPE_POSTS = [
+                   ('default', 'normal', 'User1', 'User1', 'Hello world!'),
+                   ('default', 'normal', 'User1', 'User1', 'Greetings!')
+                   ]
+
+def createBlogTypePosts():
+    blogTypePostService = entityFor(IBlogTypePostService)
+    assert isinstance(blogTypePostService, IBlogTypePostService)
+    for data in BLOG_TYPE_POSTS:
+        pst = Post()
+        blogType, pst.Type, creator, author, pst.Content = data
+        blogTypeId = getBlogTypesIds()[blogType]
+        exists = False
+        for post in blogTypePostService.getAll(blogTypeId):
+            if post.Content == pst.Content: exists = True; break
+        if not exists:
+            pst.Creator = getUsersIds()[creator]
+            if author: pst.Author = getCollaboratorsIds()[author]
+            blogTypePostService.insert(blogTypeId, pst)
+
+
+BLOG_TYPES = ('default',)
+
+_cache_blog_types = {}
+def getBlogTypesIds():
+    blogTypeService = entityFor(IBlogTypeService)
+    assert isinstance(blogTypeService, IBlogTypeService)
+    if not _cache_blog_types:
+        blogTypePosts = _cache_blog_types
+        for name in BLOG_TYPES:
+            blgTypes = blogTypeService.getAll(q=QBlogType(name=name))
+            if blgTypes: blogTypePosts[name] = next(iter(blgTypes)).Id
+            else:
+                blgType = BlogType()
+                blgType.Name = name
+                blogTypePosts[name] = blogTypeService.insert(blgType)
+    return _cache_blog_types
+
+
 BLOGS = {
-         'GEN Live Desk Master Class': ('User1', 'en', 'An in-depth demonstration of the '
-                                        'current state of development of the GEN Live Desk '
-                                        'tool for live online news coverage.',
+         'GEN Live Desk Master Class': ('default', 'User1', 'en', 'An in-depth demonstration'
+                                        ' of the current state of development of the GEN'
+                                        ' Live Desk tool for live online news coverage.',
                                         datetime.now(), datetime.now()),
          }
 
@@ -110,7 +153,8 @@ def getBlogsIds():
             else:
                 blg = Blog()
                 blg.Title = name
-                usrName, langCode, blg.Description, blg.CreatedOn, blg.LiveOn = BLOGS[name]
+                blogType, usrName, langCode, blg.Description, blg.CreatedOn, blg.LiveOn = BLOGS[name]
+                blg.Type = getBlogTypesIds()[blogType]
                 blg.Creator = getUsersIds()[usrName]
                 blg.Language = getLanguagesIds()[langCode]
                 blogs[name] = blogService.insert(blg)
@@ -118,29 +162,11 @@ def getBlogsIds():
 
 
 USERS = {
-         'Adam': ('Adam', 'Thomas', 'adam.thomas@sourcefabric.org'),
-         'Antoine': ('Antoine', 'Laurent', 'alaurent@globaleditorsnetwork.org'),
-         'Bertrand': ('Bertrand', 'Pecquerie', 'bpecquerie@globaleditorsnetwork.org'),
-		 'Billy': ('Mihai', 'Balaceanu', 'mihai.balaceanu@sourcefabric.org'),
-         'David': ('David', 'Bauer', 'david.bauer@tageswoche.ch'),
-         'Doug': ('Douglas', 'Arellanes', 'douglas.arellanes@sourcefabric.org'),
-         'Gabriel': ('Gabriel', 'Nistor', 'gabriel.nistor@sourcefabric.org'),
-         'Gideon': ('Gideon', 'Lehmann', 'gideon.lehmann@sourcefabric.org'),
-         'Guest': ('Guest', None, ''),
-         'John': ('John', 'Burke', 'jburke@globaleditorsnetwork.org'),
-         'Mihail': ('Mihail', 'Nistor', 'mihai.nistor@sourcefabric.org'),
-         'Mugur': ('Mugur', 'Rus', 'mugur.rus@sourcefabric.org'),
-         'Sava': ('Sava', 'Tatic', 'sava.tatic@sourcefabric.org'),
          'User1': ('User1', None, ''),
          'User2': ('User2', None, ''),
          'User3': ('User3', None, ''),
          'User4': ('User4', None, ''),
          'User5': ('User5', None, ''),
-         'User6': ('User6', None, ''),
-         'User7': ('User7', None, ''),
-         'User8': ('User8', None, ''),
-         'User9': ('User9', None, ''),
-         'User10': ('User10', None, ''),
        }
 
 _cache_users = {}
@@ -150,47 +176,30 @@ def getUsersIds():
     if not _cache_users:
         users = _cache_users
         for name in USERS:
-            usrs = userService.getAll(q=QUser(name=name))
+            usrs = userService.getAll(adminId=None, q=QUser(name=name))
             if usrs: users[name] = next(iter(usrs)).Id
             else:
                 usr = User()
                 usr.Name = name
                 usr.Password = hashlib.sha512(b'a').hexdigest()
                 usr.FirstName, usr.LastName, usr.EMail = USERS[name]
-                users[name] = userService.insert(usr)
+                users[name] = userService.insert(adminId=None, user=usr)
     return _cache_users
 
 
 COLLABORATORS = {
-                 'Adam': 'internal',
-                 'Antoine': 'internal',
-                 'Bertrand': 'internal',
-                 'Billy': 'internal',
-                 'David': 'internal',
-                 'Doug': 'internal',
-                 'Gabriel': 'internal',
-                 'Gideon': 'internal',
-                 'Guest': 'internal',
-                 'John': 'internal',
-                 'Mihail': 'internal',
-                 'Mugur': 'internal',
-                 'Sava': 'internal',
                  'User1': 'internal',
                  'User2': 'internal',
                  'User3': 'internal',
                  'User4': 'internal',
                  'User5': 'internal',
-                 'User6': 'internal',
-                 'User7': 'internal',
-                 'User8': 'internal',
-                 'User9': 'internal',
-                 'User10': 'internal',
 
                  'advertisement': 'advertisement',
                  'internal': 'internal',
                  'google': 'google',
                  'twitter': 'twitter',
                  'flickr': 'flickr',
+                 'youtube': 'youtube',
                  }
 
 _cache_collaborators = {}
@@ -221,11 +230,6 @@ BLOG_COLLABORATORS = {
                       'User3': 'GEN Live Desk Master Class',
                       'User4': 'GEN Live Desk Master Class',
                       'User5': 'GEN Live Desk Master Class',
-                      'User6': 'GEN Live Desk Master Class',
-                      'User7': 'GEN Live Desk Master Class',
-                      'User8': 'GEN Live Desk Master Class',
-                      'User9': 'GEN Live Desk Master Class',
-                      'User10': 'GEN Live Desk Master Class',
                      }
 
 def createBlogCollaborators():
@@ -241,29 +245,11 @@ def createBlogCollaborators():
 
 
 BLOG_ADMINS = {
-               'Adam': 'GEN Live Desk Master Class',
-               'Antoine': 'GEN Live Desk Master Class',
-               'Bertrand': 'GEN Live Desk Master Class',
-               'Billy': 'GEN Live Desk Master Class',
-               'David': 'GEN Live Desk Master Class',
-               'Doug': 'GEN Live Desk Master Class',
-               'Gabriel': 'GEN Live Desk Master Class',
-               'Gideon': 'GEN Live Desk Master Class',
-               'Guest': 'GEN Live Desk Master Class',
-               'John': 'GEN Live Desk Master Class',
-               'Mihail': 'GEN Live Desk Master Class',
-               'Mugur': 'GEN Live Desk Master Class',
-               'Sava': 'GEN Live Desk Master Class',
                'User1': 'GEN Live Desk Master Class',
                'User2': 'GEN Live Desk Master Class',
                'User3': 'GEN Live Desk Master Class',
                'User4': 'GEN Live Desk Master Class',
                'User5': 'GEN Live Desk Master Class',
-               'User6': 'GEN Live Desk Master Class',
-               'User7': 'GEN Live Desk Master Class',
-               'User8': 'GEN Live Desk Master Class',
-               'User9': 'GEN Live Desk Master Class',
-               'User10': 'GEN Live Desk Master Class',
                }
 
 def createBlogAdmins():
@@ -304,7 +290,7 @@ POSTS = [
           'paid subscriptions to increase revenue.'),
          ('GEN Live Desk Master Class', 'wrapup', 'User2', 'User2', 'That is all for today folks. Join us '
           'at GEN News World Media Summit to see Douglas Arellanes demoing the tool live.'),
-         ('GEN Live Desk Master Class', 'advertisement', 'Mugur', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">GEN Live Desk is a new open source '
+         ('GEN Live Desk Master Class', 'advertisement', 'User4', 'advertisement', '<a href="http://genlivedesk.org" target="_blank">GEN Live Desk is a new open source '
           'live-blogging tool for newsrooms and journalists. Sign up now to receive a private invite and '
           'be one of the first to test it!</a>')
          ]
@@ -313,7 +299,9 @@ def createBlogPosts():
     blogPostService = entityFor(IBlogPostService)
     assert isinstance(blogPostService, IBlogPostService)
     for _blogName, blogId in _cache_blogs.items():
-        if len(blogPostService.getPublished(blogId)) > 0: return
+        published = blogPostService.getPublished(blogId, detailed=True, limit=0)
+        assert isinstance(published, IterPart), 'Invalid part %s' % published
+        if published.total > 0: return
     for data in POSTS:
         pst = Post()
         blog, pst.Type, creator, author, pst.Content = data
@@ -339,3 +327,4 @@ def populate():
     createBlogCollaborators()
     createBlogAdmins()
     createBlogPosts()
+    createBlogTypePosts()

@@ -12,7 +12,7 @@ Provides the configurations for the authentication processors.
 from ..ally_authentication_core.resources import resourcesLocatorAuthentication
 from ..ally_core.processor import assemblyResources, argumentsBuild
 from ..ally_core_http.processor import converterPath, uri, redirect, \
-    assemblyRedirect, pathAssemblies
+    assemblyRedirect, pathAssemblies, parameter
 from ally.container import ioc
 from ally.core.authentication.impl.processor.authentication import \
     AuthenticationHandler
@@ -83,7 +83,7 @@ def updateAssemblyResourcesAuthentication():
     assemblyResourcesAuthentication().add(assemblyResources())
     assemblyResourcesAuthentication().replace(uri(), uriAuthentication())
     assemblyResourcesAuthentication().replace(redirect(), redirectAuthentication())
-    assemblyResourcesAuthentication().add(authentication(), before=argumentsBuild())
+    assemblyResourcesAuthentication().add(authentication(), before=parameter())
 
 @ioc.before(assemblyRedirectAuthentication)
 def updateAssemblyRedirectAuthentication():

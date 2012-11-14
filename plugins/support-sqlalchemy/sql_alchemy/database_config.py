@@ -1,9 +1,9 @@
 '''
 Created on Jan 8, 2012
 
-@package Newscoop
-@copyright 2011 Sourcefabric o.p.s.
-@license http://www.gnu.org/licenses/gpl-3.0.txt
+@package: support sqlalchemy
+@copyright: 2011 Sourcefabric o.p.s.
+@license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
 
 Contains sql alchemy database setup.
@@ -23,7 +23,11 @@ log = logging.getLogger(__name__)
 
 @ioc.config
 def database_url():
-    '''The database URL, something like sqlite:///rest.db'''
+    '''
+    The database URL, something like:
+        "sqlite:///{database}.db"
+        "mysql+mysqlconnector://{user}:{password}@localhost/{database}"
+    '''
     raise ioc.ConfigError('A database URL is required')
 
 @ioc.config
@@ -37,8 +41,7 @@ def alchemySessionCreator(): return sessionmaker(bind=alchemyEngine())
 
 @ioc.entity
 def alchemyEngine() -> Engine:
-    engine = create_engine(database_url(), pool_recycle=alchemy_pool_recycle())
-    return engine
+    return create_engine(database_url(), pool_recycle=alchemy_pool_recycle())
 
 @ioc.entity
 def metas(): return []

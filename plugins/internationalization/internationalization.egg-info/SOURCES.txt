@@ -37,7 +37,8 @@ internationalization/support/__init__.py
 internationalization/support/babel/__init__.py
 internationalization/support/babel/util_babel.py
 test/__init__.py
-test/internationalization/__init__.py
-test/internationalization/core/__init__.py
-test/internationalization/core/impl/__init__.py
-test/internationalization/core/impl/po_file_manager.py
+test/unit_testing/__init__.py
+test/unit_testing/internationalization/__init__.py
+test/unit_testing/internationalization/core/__init__.py
+test/unit_testing/internationalization/core/impl/__init__.py
+test/unit_testing/internationalization/core/impl/po_file_manager.py

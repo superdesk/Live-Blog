@@ -13,22 +13,15 @@ from ally.container.binder import registerProxyBinder, bindBeforeListener, \
     bindAfterListener, bindExceptionListener, indexAfter, INDEX_LOCK_BEGIN, \
     indexBefore, INDEX_LOCK_END
 from ally.exception import DevelError
-from ally.support.util import AttributeOnThread
 from collections import deque
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm.session import Session
 import logging
+from threading import current_thread
 
 # --------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
-
-ATTR_SESSION_CREATE = AttributeOnThread(__name__, 'session_create', deque)
-# Attribute used for storing the session creator on the thread
-ATTR_SESSION = AttributeOnThread(__name__, 'session', dict)
-# Attribute used for storing the session on the thread
-ATTR_KEEP_ALIVE = AttributeOnThread(__name__, 'session_alive', bool)
-# Attribute used for storing the flag that indicates if a session should be closed or kept alive after a call. 
 
 INDEX_SESSION_BEGIN = indexAfter('sql_session_begin', INDEX_LOCK_BEGIN)
 # The sql session begin index.
@@ -44,15 +37,25 @@ class SessionSupport:
     of the request, the session will be automatically handled by the session processor.
     '''
 
-    session = Session
-
-    def __init__(self):
+    def session(self):
         '''
-        Bind the session method.
+        Provide or construct a session.
         '''
-        self.session = openSession
+        return openSession()
 
 # --------------------------------------------------------------------
+
+def setKeepAlive(keep):
+    '''
+    Set the flag that indicates if a session should be closed or kept alive after a call has finalized.
+    If the session is left opened then other processes need to close it.
+    
+    @param keep: boolean
+        Flag indicating that the session should be left open (True) or not (False).
+    '''
+    assert isinstance(keep, bool), 'Invalid keep flag %s' % keep
+    current_thread()._ally_db_session_alive = keep
+    
 
 def beginWith(sessionCreator):
     '''
@@ -62,8 +65,8 @@ def beginWith(sessionCreator):
         The session creator class.
     '''
     assert issubclass(sessionCreator, Session), 'Invalid session creator %s' % sessionCreator
-    creators = ATTR_SESSION_CREATE.get(None)
-    if not creators: creators = ATTR_SESSION_CREATE.set(deque())
+    try: creators = current_thread()._ally_db_session_create
+    except AttributeError: creators = current_thread()._ally_db_session_create = deque()
     assert isinstance(creators, deque)
     creators.append(sessionCreator)
     assert log.debug('Begin session creator %s', sessionCreator) or True
@@ -73,14 +76,15 @@ def openSession():
     Function to provide the session on the current thread, this will automatically create a session based on the current 
     thread session creator if one is not already created.
     '''
-    creators = ATTR_SESSION_CREATE.get(None)
-    if not creators: raise DevelError('Invalid call, it seems that the thread is not tagged with an SQL session')
+    thread = current_thread()
+    try: creators = thread._ally_db_session_create
+    except AttributeError: raise DevelError('Invalid call, it seems that the thread is not tagged with an SQL session')
     creator = creators[-1]
     creatorId = id(creator)
-    sessions = ATTR_SESSION.get(None)
-    if not sessions:
+    try: sessions = thread._ally_db_session
+    except AttributeError:
         session = creator()
-        ATTR_SESSION.set({creatorId:session})
+        thread._ally_db_session = {creatorId:session}
         assert log.debug('Created SQL Alchemy session %s', session) or True
     else:
         session = sessions.get(creatorId)
@@ -93,11 +97,12 @@ def hasSession():
     '''
     Function to check if there is a session on the current thread.
     '''
-    creators = ATTR_SESSION_CREATE.get(None)
-    if not creators: raise DevelError('Invalid call, it seems that the thread is not tagged with an SQL session')
+    thread = current_thread()
+    try: creators = thread._ally_db_session_create
+    except AttributeError: raise DevelError('Invalid call, it seems that the thread is not tagged with an SQL session')
     creatorId = id(creators[-1])
-    sessions = ATTR_SESSION.get(None)
-    if not sessions: return False
+    try: sessions = thread._ally_db_session
+    except AttributeError: return False
     return creatorId in sessions
 
 def endCurrent(sessionCloser=None):
@@ -108,15 +113,16 @@ def endCurrent(sessionCloser=None):
         A Callable that will be invoked for the ended transaction. It will take as a parameter the session to be closed.
     '''
     assert not sessionCloser or callable(sessionCloser), 'Invalid session closer %s' % sessionCloser
-    creators = ATTR_SESSION_CREATE.get(None)
-    if not creators: raise DevelError('Illegal end transaction call, there is no transaction begun')
+    thread = current_thread()
+    try: creators = thread._ally_db_session_create
+    except AttributeError: raise DevelError('Illegal end transaction call, there is no transaction begun')
     assert isinstance(creators, deque)
 
     creator = creators.pop()
     assert log.debug('End session creator %s', creator) or True
     if not creators:
-        if not ATTR_KEEP_ALIVE.get(False): endSessions(sessionCloser)
-        ATTR_SESSION_CREATE.clear()
+        if not getattr(current_thread(), '_ally_db_session_alive', False): endSessions(sessionCloser)
+        del thread._ally_db_session_create
 
 def endSessions(sessionCloser=None):
     '''
@@ -126,12 +132,13 @@ def endSessions(sessionCloser=None):
         A Callable that will be invoked for the ended transactions. It will take as a parameter the session to be closed.
     '''
     assert not sessionCloser or callable(sessionCloser), 'Invalid session closer %s' % sessionCloser
-    sessions = ATTR_SESSION.get(None)
-    if sessions:
-        while sessions:
-            _creatorId, session = sessions.popitem()
-            if sessionCloser: sessionCloser(session)
-    ATTR_SESSION.clear()
+    thread = current_thread()
+    try: sessions = thread._ally_db_session
+    except AttributeError: return
+    while sessions:
+        _creatorId, session = sessions.popitem()
+        if sessionCloser: sessionCloser(session)
+    del thread._ally_db_session
     assert log.debug('Ended all sessions') or True
 
 # --------------------------------------------------------------------
@@ -202,16 +209,16 @@ def commitNow():
     @return: boolean
         True if a session was commited, False otherwise.
     '''
-    creators = ATTR_SESSION_CREATE.get(None)
-    if creators:
-        creator = creators[-1]
-        creatorId = id(creator)
-        sessions = ATTR_SESSION.get(None)
-        if sessions:
-            session = sessions.get(creatorId)
-            if session is not None:
-                commit(session)
-                return True
-    return False
+    thread = current_thread()
+    try: creators = thread._ally_db_session_create
+    except AttributeError: return False
+    creator = creators[-1]
+    creatorId = id(creator)
+    try: sessions = thread._ally_db_session
+    except AttributeError: return False
+    session = sessions.get(creatorId)
+    if session is not None:
+        commit(session)
+        return True
 
 

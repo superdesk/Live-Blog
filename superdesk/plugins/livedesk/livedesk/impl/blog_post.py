@@ -16,6 +16,7 @@ from ..meta.blog_post import BlogPostMapped, BlogPostEntry
 from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
@@ -36,6 +37,7 @@ from superdesk.post.meta.type import PostTypeMapped
 UserPerson = aliased(PersonMapped)
 
 @injected
+@setup(IBlogPostService)
 class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
     '''
     Implementation for @see: IBlogPostService
@@ -48,7 +50,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         Construct the blog post service.
         '''
         assert isinstance(self.postService, IPostService), 'Invalid post service %s' % self.postService
-        SessionSupport.__init__(self)
 
     def getById(self, blogId, postId):
         '''
@@ -67,13 +68,14 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         @see: IBlogPostService.getPublished
         '''
         assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
+
         sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
         sql = sql.filter(BlogPostMapped.PublishedOn != None)
 
-        sql = sql.order_by(BlogPostMapped.PublishedOn.desc())
+        sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return sqlLimit.all()
+        return self._trimmDeleted(sqlLimit.all())
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
@@ -96,7 +98,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if q and QBlogPost.isPublished in q:
             if q.isPublished.value: sql = sql.filter(BlogPostMapped.PublishedOn != None)
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
-        sql = sql.filter(BlogPostMapped.Author == None)
+        #sql = sql.filter(BlogPostMapped.Author == None)
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
@@ -139,7 +141,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
         postEntry.CId = self._nextCId()
-        postEntry.ordering = self._nextOrdering(blogId)
+        postEntry.Order = self._nextOrdering(blogId)
         self.session().merge(postEntry)
 
         return postId
@@ -151,10 +153,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert isinstance(post, Post), 'Invalid post %s' % post
 
         post.PublishedOn = current_timestamp()
-
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
         postEntry.CId = self._nextCId()
-        postEntry.ordering = self._nextOrdering(blogId)
+        postEntry.Order = self._nextOrdering(blogId)
         self.session().add(postEntry)
 
         return postEntry.blogPostId
@@ -197,6 +198,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         orderPrev = sql.scalar()
 
         if orderPrev: order = (order + orderPrev) / 2
+        elif before: order += 1
         else: order -= 1
 
         sql = self.session().query(BlogPostMapped)
@@ -235,8 +237,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
         if authorId:
-            sql = sql.filter((BlogPostMapped.Author == authorId) |
-                             ((CollaboratorMapped.Id == authorId) &
+            sql = sql.filter((BlogPostMapped.Author == authorId) | 
+                             ((CollaboratorMapped.Id == authorId) & 
                               (CollaboratorMapped.Person == BlogPostMapped.Creator)))
         addDeleted = False
         if q:

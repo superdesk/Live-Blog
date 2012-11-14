@@ -10,8 +10,8 @@ Provides the configurations for delivering files from the local file system.
 '''
 
 from ..ally_core.processor import explainError, renderer
-from ..ally_core_http.processor import header, internalError, allowEncode, \
-    acceptDecode, pathAssemblies
+from ..ally_core_http.processor import contentLengthEncode, contentTypeEncode, \
+    header, internalError, allowEncode, acceptDecode, pathAssemblies
 from ally.container import ioc
 from ally.core.cdm.processor.content_delivery import ContentDeliveryHandler
 from ally.design.processor import Handler, Assembly
@@ -31,11 +31,20 @@ def server_pattern_content():
 
 @ioc.config
 def repository_path():
-    ''' The repository absolute or relative (to the distribution folder) path '''
-    return path.join('workspace', 'cdm')
+    ''' The repository absolute or relative (to the distribution folder) path from where to serve the files '''
+    return path.join('workspace', 'shared', 'cdm')
 
 # --------------------------------------------------------------------
 # Creating the processors used in handling the request
+
+@ioc.entity
+def contentDelivery() -> Handler:
+    h = ContentDeliveryHandler()
+    h.repositoryPath = repository_path()
+    h.errorAssembly = assemblyContentError()
+    return h
+
+# --------------------------------------------------------------------
 
 @ioc.entity
 def assemblyContent() -> Assembly:
@@ -45,17 +54,21 @@ def assemblyContent() -> Assembly:
     return Assembly()
 
 @ioc.entity
-def contentDelivery() -> Handler:
-    h = ContentDeliveryHandler()
-    h.repositoryPath = repository_path()
-    return h
+def assemblyContentError() -> Assembly:
+    '''
+    The assembly containing the handlers that will be used in error processing for a content file request.
+    '''
+    return Assembly()
 
 # --------------------------------------------------------------------
 
 @ioc.before(assemblyContent)
 def updateAssemblyContent():
-    assemblyContent().add(internalError(), contentDelivery(), header(), acceptDecode(), renderer(), explainError(),
-                          allowEncode())
+    assemblyContent().add(internalError(), header(), contentDelivery(), contentTypeEncode(), contentLengthEncode())
+# TODO: add also caching headers
+@ioc.before(assemblyContentError)
+def updateAssemblyContentError():
+    assemblyContentError().add(acceptDecode(), renderer(), explainError(), allowEncode(), contentTypeEncode())
 
 @ioc.before(pathAssemblies)
 def updatePathAssembliesForContent():

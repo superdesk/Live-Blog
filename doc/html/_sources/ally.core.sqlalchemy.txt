@@ -1,0 +1,18 @@
+sqlalchemy Package
+==================
+
+:mod:`sqlalchemy` Package
+-------------------------
+
+.. automodule:: ally.core.sqlalchemy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    ally.core.sqlalchemy.processor
+

@@ -56,8 +56,8 @@ class ParseTextHandler(ParseBaseHandler):
         process.append((deque(), obj))
         while process:
             path, obj = process.popleft()
-            if isinstance(obj, (str, list)):
-                decoder(path=path, value=obj, **data)
+            if obj is None or isinstance(obj, (str, list)):
+                if not decoder(path=deque(path), value=obj, **data): return 'Invalid path \'%s\' in object' % '/'.join(path)
 
             elif isinstance(obj, dict):
                 for name, value in obj.items():

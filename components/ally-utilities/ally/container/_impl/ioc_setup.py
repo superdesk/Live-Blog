@@ -1,7 +1,7 @@
 '''
 Created on Jan 12, 2012
 
-@package: Newscoop
+@package: ally utilities
 @copyright: 2011 Sourcefabric o.p.s.
 @license: http://www.gnu.org/licenses/gpl-3.0.txt
 @author: Gabriel Nistor
@@ -91,311 +91,6 @@ def register(setup, register):
 
 # --------------------------------------------------------------------
 
-class Setup:
-    '''
-    The setup entity. This class provides the means of indexing setup Callable objects.
-    '''
-
-    priority_index = 1
-    # Provides the indexing priority for the setup.
-    priority_assemble = 1
-    # Provides the assemble priority for the setup.
-
-    def index(self, assembly):
-        '''
-        Indexes the call of the setup and other data.
-        
-        @param assembly: Assembly
-            The assembly to index on.
-        '''
-
-    def assemble(self, assembly):
-        '''
-        Assemble the calls map and also add the call starts. This method will be invoked after all index methods have
-        been finalized.
-        
-        @param assembly: Assembly
-            The assembly to assemble additional behavior on.
-        '''
-
-class SetupFunction(Setup):
-    '''
-    A setup indexer based on a function.
-    '''
-
-    def __init__(self, function, name=None, group=None):
-        '''
-        Constructs the setup call for the provided function.
-        
-        @param function: function|Callable
-            The function of the setup call, lambda functions or Callable are allowed only if the name is provided.
-        @param name: string|None
-            The name of this setup, if not specified it will be extracted from the provided function.
-        @param group: string|None
-            The group of this setup, if not specified it will be extracted from the provided function.
-        '''
-        assert not group or isinstance(group, str), 'Invalid group %s' % group
-        if name:
-            assert callable(function), 'Invalid callable function %s' % function
-            assert isinstance(name, str), 'Invalid name %s' % name
-            self.name = name
-            self.group = group
-        else:
-            assert isfunction(function), 'Invalid function %s' % function
-            assert function.__name__ != '<lambda>', 'Lambda functions cannot be used %s' % function
-            if group: self.group = group
-            else: self.group = function.__module__
-            self.name = self.group + '.' + function.__name__
-            if __debug__:
-                fnArgs = getfullargspec(function)
-                assert not (fnArgs.args or fnArgs.varargs or fnArgs.varkw), \
-                'The setup function %r cannot have any type of arguments' % self.name
-        self._function = function
-
-    def __call__(self):
-        '''
-        Provides the actual setup of the call.
-        '''
-        return Assembly.process(self.name)
-
-class SetupSource(SetupFunction):
-    '''
-    Provides the setup for retrieving a value based on a setup function.
-    '''
-
-    def __init__(self, function, type=None, **keyargs):
-        '''
-        @see: SetupFunction.__init__
-        
-        @param type: class|None
-            The type(class) of the value that is being delivered by this source.
-        '''
-        SetupFunction.__init__(self, function, **keyargs)
-        assert type is None or isclass(type), 'Invalid type %s' % type
-        self._type = type
-
-class SetupEntity(SetupSource):
-    '''
-    Provides the entity setup.
-    '''
-
-    def __init__(self, function, **keyargs):
-        '''
-        @see: SetupSource.__init__
-        '''
-        SetupSource.__init__(self, function, **keyargs)
-
-    def index(self, assembly):
-        '''
-        @see: Setup.index
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self.name in assembly.calls:
-            raise SetupError('There is already a setup call for name %r' % self.name)
-        assembly.calls[self.name] = CallEntity(assembly, self.name, self._function, self._type)
-
-class SetupConfig(SetupSource):
-    '''
-    Provides the configuration setup.
-    '''
-
-    priority_assemble = 3
-
-    def __init__(self, function, **keyargs):
-        '''
-        @see: SetupSource.__init__
-        '''
-        SetupSource.__init__(self, function, **keyargs)
-        self._type = normalizeConfigType(self._type) if self._type else None
-
-    def index(self, assembly):
-        '''
-        @see: Setup.index
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self.name in assembly.calls:
-            raise SetupError('There is already a setup call for name %r' % self.name)
-
-        assembly.calls[self.name] = CallConfig(assembly, self.name, self._type)
-
-    def assemble(self, assembly):
-        '''
-        @see: Setup.assemble
-        Checks for aliases to replace.
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        config = assembly.calls.get(self.name)
-        assert isinstance(config, CallConfig), 'Invalid call configuration %s' % config
-
-        valueSet = False
-        for name, val in assembly.configExtern.items():
-            if name == self.name or self.name.endswith('.' + name):
-                if name in assembly.configUsed:
-                    raise SetupError('The configuration %r is already in use and the configuration %r cannot use it '
-                                     'again, provide a more detailed path for the configuration (ex: "ally_core.url" '
-                                     'instead of "url")' % (name, self.name))
-                assembly.configUsed.add(name)
-                valueSet, config.value = True, val
-
-        if not config.hasValue:
-            valueSet = True
-            try: config.value = self._function()
-            except ConfigError as e: config.value = e
-
-        if valueSet:
-            cfg = assembly.configurations.get(self.name)
-            if not cfg:
-                cfg = Config(self.name, config.value, self.group, getdoc(self._function))
-                assembly.configurations[self.name] = cfg
-            else:
-                assert isinstance(cfg, Config), 'Invalid config %s' % cfg
-                cfg.value = config.value
-
-class SetupReplaceConfig(SetupFunction):
-    '''
-    Provides the setup for replacing a configuration setup function.
-    '''
-
-    priority_assemble = 2
-
-    def __init__(self, function, target, **keyargs):
-        '''
-        @see: SetupFunction.__init__
-        
-        @param target: SetupFunction
-            The setup name to be replaced.
-        '''
-        assert isinstance(target, SetupConfig), 'Invalid target %s' % target
-        SetupFunction.__init__(self, function, name=target.name, group=target.group, ** keyargs)
-
-    def assemble(self, assembly):
-        '''
-        @see: Setup.assemble
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self.name not in assembly.calls:
-            raise SetupError('There is no setup configuration call for name %r to be replaced' % self.name)
-        config = assembly.calls[self.name]
-        assert isinstance(config, CallConfig), 'Invalid call configuration %s' % config
-        try: config.value = self._function()
-        except ConfigError as e: config.value = e
-
-        assembly.configurations[self.name] = Config(self.name, config.value, self.group, getdoc(self._function))
-
-class SetupReplace(SetupFunction):
-    '''
-    Provides the setup for replacing an entity or event setup function.
-    '''
-
-    priority_assemble = 2
-
-    def __init__(self, function, target, **keyargs):
-        '''
-        @see: SetupFunction.__init__
-        
-        @param target: string
-            The setup name to be replaced.
-        '''
-        assert isinstance(target, SetupEntity), 'Invalid target %s' % target
-        SetupFunction.__init__(self, function, name=target.name, group=target.group, ** keyargs)
-
-    def assemble(self, assembly):
-        '''
-        @see: Setup.assemble
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self.name not in assembly.calls:
-            raise SetupError('There is no setup call for name %r to be replaced' % self.name)
-        call = assembly.calls[self.name]
-        if not isinstance(call, WithCall):
-            raise SetupError('Cannot replace call for name %r' % self.name)
-        assert isinstance(call, WithCall)
-        call.call = self._function
-
-class SetupEvent(SetupFunction):
-    '''
-    Provides the setup event function.
-    '''
-
-    priority_assemble = 4
-
-    BEFORE = 'before'
-    AFTER = 'after'
-    EVENTS = [BEFORE, AFTER]
-
-    def __init__(self, function, target, event, **keyargs):
-        '''
-        @see: SetupFunction.__init__
-        
-        @param target: string
-            The target name of the event call.
-        @param event: string
-            On of the defined EVENTS.
-        '''
-        SetupFunction.__init__(self, function, **keyargs)
-        assert isinstance(target, str), 'Invalid target %s' % target
-        assert event in self.EVENTS, 'Invalid event %s' % event
-        self._target = target
-        self._event = event
-
-    def index(self, assembly):
-        '''
-        @see: Setup.index
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self.name in assembly.calls:
-            raise SetupError('There is already a setup call for name %r' % self.name)
-        assembly.calls[self.name] = CallEvent(assembly, self.name, self._function)
-
-    def assemble(self, assembly):
-        '''
-        @see: Setup.assemble
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self._target not in assembly.calls:
-            raise SetupError('There is no setup call for target %r to add the event on' % self._target)
-        call = assembly.calls[self._target]
-        if not isinstance(call, WithListeners):
-            raise SetupError('Cannot find any listener support for target %r to add the event' % self._target)
-        assert isinstance(call, WithListeners)
-        if self._event == self.BEFORE: call.addBefore(partial(assembly.processForName, self.name))
-        elif self._event == self.AFTER: call.addAfter(partial(assembly.processForName, self.name))
-
-    def __call__(self):
-        '''
-        Provides the actual setup of the call.
-        '''
-        raise SetupError('Cannot invoke the event setup %r directly' % self.name)
-
-class SetupStart(SetupFunction):
-    '''
-    Provides the start function.
-    '''
-
-    def __init__(self, function, **keyargs):
-        '''
-        @see: SetupFunction.__init__
-        '''
-        SetupFunction.__init__(self, function, **keyargs)
-
-    def index(self, assembly):
-        '''
-        @see: Setup.index
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        if self.name in assembly.calls:
-            raise SetupError('There is already a setup call for name %r' % self.name)
-        assembly.calls[self.name] = CallEvent(assembly, self.name, self._function)
-
-    def assemble(self, assembly):
-        '''
-        @see: Setup.assemble
-        '''
-        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
-        assembly.callsStart.append(partial(assembly.processForName, self.name))
-
-# --------------------------------------------------------------------
-
 class WithListeners:
     '''
     Provides support for listeners to be notified of the call process.
@@ -408,25 +103,31 @@ class WithListeners:
         self._listenersBefore = []
         self._listenersAfter = []
 
-    def addBefore(self, listener):
+    def addBefore(self, listener, auto):
         '''
         Adds a before listener.
         
         @param listener: Callable
             A callable that takes no parameters that will be invoked before the call is processed.
+        @param auto: boolean
+            Flag indicating that the call of the listener should be auto managed by the called.
         '''
         assert callable(listener), 'Invalid listener %s' % listener
-        self._listenersBefore.append(listener)
+        assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
+        self._listenersBefore.append((listener, auto))
 
-    def addAfter(self, listener):
+    def addAfter(self, listener, auto):
         '''
         Adds an after listener.
         
         @param listener: Callable
             A callable that takes no parameters that will be invoked after the call is processed.
+        @param auto: boolean
+            Flag indicating that the call of the listener should be auto managed by the called.
         '''
         assert callable(listener), 'Invalid listener %s' % listener
-        self._listenersAfter.append(listener)
+        assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
+        self._listenersAfter.append((listener, auto))
 
 class WithCall:
     '''
@@ -495,6 +196,325 @@ class WithType:
 
 # --------------------------------------------------------------------
 
+class Setup:
+    '''
+    The setup entity. This class provides the means of indexing setup Callable objects.
+    '''
+
+    priority_index = 1
+    # Provides the indexing priority for the setup.
+    priority_assemble = 1
+    # Provides the assemble priority for the setup.
+
+    def index(self, assembly):
+        '''
+        Indexes the call of the setup and other data.
+        
+        @param assembly: Assembly
+            The assembly to index on.
+        '''
+
+    def assemble(self, assembly):
+        '''
+        Assemble the calls map and also add the call starts. This method will be invoked after all index methods have
+        been finalized.
+        
+        @param assembly: Assembly
+            The assembly to assemble additional behavior on.
+        '''
+
+class SetupFunction(Setup):
+    '''
+    A setup indexer based on a function.
+    '''
+
+    def __init__(self, function, name=None, group=None):
+        '''
+        Constructs the setup call for the provided function.
+        
+        @param function: function|Callable
+            The function of the setup call, lambda functions or Callable are allowed only if the name is provided.
+        @param name: string|None
+            The name of this setup, if not specified it will be extracted from the provided function.
+        @param group: string|None
+            The group of this setup, if not specified it will be extracted from the provided function.
+        '''
+        assert not group or isinstance(group, str), 'Invalid group %s' % group
+        if name:
+            assert callable(function), 'Invalid callable function %s' % function
+            assert isinstance(name, str), 'Invalid name %s' % name
+            self.name = name
+            self.group = group
+        else:
+            assert isfunction(function), 'Invalid function %s' % function
+            assert function.__name__ != '<lambda>', 'Lambda functions cannot be used %s' % function
+            if group: self.group = group
+            else: self.group = function.__module__
+            self.name = self.group + '.' + function.__name__
+            if __debug__:
+                fnArgs = getfullargspec(function)
+                assert not (fnArgs.args or fnArgs.varargs or fnArgs.varkw), \
+                'The setup function %r cannot have any type of arguments' % self.name
+        self._function = function
+
+    def __call__(self):
+        '''
+        Provides the actual setup of the call.
+        '''
+        return Assembly.process(self.name)
+
+class SetupSource(SetupFunction, WithType):
+    '''
+    Provides the setup for retrieving a value based on a setup function.
+    '''
+
+    def __init__(self, function, type=None, **keyargs):
+        '''
+        @see: SetupFunction.__init__
+        
+        @param type: class|None
+            The type(class) of the value that is being delivered by this source.
+        '''
+        SetupFunction.__init__(self, function, **keyargs)
+        WithType.__init__(self, type)
+
+class SetupEntity(SetupSource):
+    '''
+    Provides the entity setup.
+    '''
+
+    def __init__(self, function, **keyargs):
+        '''
+        @see: SetupSource.__init__
+        '''
+        SetupSource.__init__(self, function, **keyargs)
+
+    def index(self, assembly):
+        '''
+        @see: Setup.index
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        if self.name in assembly.calls:
+            raise SetupError('There is already a setup call for name %r' % self.name)
+        assembly.calls[self.name] = CallEntity(assembly, self.name, self._function, self._type)
+
+class SetupConfig(SetupSource):
+    '''
+    Provides the configuration setup.
+    '''
+
+    priority_assemble = 3
+
+    def __init__(self, function, **keyargs):
+        '''
+        @see: SetupSource.__init__
+        '''
+        SetupSource.__init__(self, function, **keyargs)
+        self._type = normalizeConfigType(self._type) if self._type else None
+        self.documentation = getdoc(function)
+
+    def index(self, assembly):
+        '''
+        @see: Setup.index
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        if self.name in assembly.calls:
+            raise SetupError('There is already a setup call for name %r' % self.name)
+
+        assembly.calls[self.name] = CallConfig(assembly, self.name, self._type)
+
+    def assemble(self, assembly):
+        '''
+        @see: Setup.assemble
+        Checks for aliases to replace.
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        config = assembly.calls.get(self.name)
+        assert isinstance(config, CallConfig), 'Invalid call configuration %s' % config
+
+        for name, val in assembly.configExtern.items():
+            if name == self.name or self.name.endswith('.' + name):
+                if name in assembly.configUsed:
+                    raise SetupError('The configuration %r is already in use and the configuration "%s" cannot use it '
+                                     'again, provide a more detailed path for the configuration (ex: "ally_core.url" '
+                                     'instead of "url")' % (name, self.name))
+                assembly.configUsed.add(name)
+                config.external, config.value = True, val
+
+        if not config.hasValue:
+            try: config.value = self._function()
+            except ConfigError as e: config.value = e
+
+        cfg = assembly.configurations.get(self.name)
+        if not cfg:
+            cfg = Config(self.name, config.value, self.group, self.documentation)
+            assembly.configurations[self.name] = cfg
+        else:
+            assert isinstance(cfg, Config), 'Invalid configuration %s' % cfg
+            cfg.value = config.value
+
+class SetupReplaceConfig(SetupFunction):
+    '''
+    Provides the setup for replacing a configuration setup function.
+    '''
+
+    priority_assemble = 2
+
+    def __init__(self, function, target, **keyargs):
+        '''
+        @see: SetupFunction.__init__
+        
+        @param target: SetupFunction
+            The setup name to be replaced.
+        '''
+        assert isinstance(target, SetupConfig), 'Invalid target %s' % target
+        SetupFunction.__init__(self, function, name=target.name, group=target.group, ** keyargs)
+        documentation = getdoc(function)
+        if documentation:
+            if target.documentation: target.documentation += '\n%s' % documentation
+            else: target.documentation = documentation
+        self.target = target
+
+    def assemble(self, assembly):
+        '''
+        @see: Setup.assemble
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        if self.name not in assembly.calls:
+            raise SetupError('There is no setup configuration call for name %r to be replaced' % self.name)
+        config = assembly.calls[self.name]
+        assert isinstance(config, CallConfig), 'Invalid call configuration %s' % config
+        try: config.value = self._function()
+        except ConfigError as e: config.value = e
+
+        assembly.configurations[self.name] = Config(self.name, config.value, self.group, self.target.documentation)
+
+class SetupReplace(SetupFunction):
+    '''
+    Provides the setup for replacing an entity or event setup function.
+    '''
+
+    priority_assemble = 2
+
+    def __init__(self, function, target, **keyargs):
+        '''
+        @see: SetupFunction.__init__
+        
+        @param target: SetupSource
+            The setup to be replaced.
+        '''
+        assert isinstance(target, SetupSource), 'Invalid target %s' % target
+        SetupFunction.__init__(self, function, name=target.name, group=target.group, ** keyargs)
+
+    def assemble(self, assembly):
+        '''
+        @see: Setup.assemble
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        if self.name not in assembly.calls:
+            raise SetupError('There is no setup call for name %r to be replaced' % self.name)
+        call = assembly.calls[self.name]
+        if not isinstance(call, WithCall):
+            raise SetupError('Cannot replace call for name %r' % self.name)
+        assert isinstance(call, WithCall)
+        call.call = self._function
+
+class SetupEvent(SetupFunction):
+    '''
+    Provides the setup event function.
+    '''
+
+    priority_assemble = 4
+
+    BEFORE = 'before'
+    AFTER = 'after'
+    EVENTS = [BEFORE, AFTER]
+
+    def __init__(self, function, target, event, auto, **keyargs):
+        '''
+        @see: SetupFunction.__init__
+        
+        @param target: string|tuple(string)
+            The target name of the event call.
+        @param event: string
+            On of the defined EVENTS.
+        @param auto: boolean
+            Flag indicating that the event call should be auto managed by the container.
+        '''
+        SetupFunction.__init__(self, function, **keyargs)
+        if isinstance(target, str): targets = (target,)
+        else: targets = target
+        assert isinstance(targets, tuple), 'Invalid targets %s' % targets
+        if __debug__:
+            for target in targets: assert isinstance(target, str), 'Invalid target %s' % target
+        assert event in self.EVENTS, 'Invalid event %s' % event
+        assert isinstance(auto, bool), 'Invalid auto flag %s' % auto
+        self._targets = targets
+        self._event = event
+        self._auto = auto
+
+    def index(self, assembly):
+        '''
+        @see: Setup.index
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        if self.name in assembly.calls:
+            raise SetupError('There is already a setup call for name %r' % self.name)
+        if self._event == self.BEFORE or len(self._targets) == 1:
+            assembly.calls[self.name] = CallEvent(assembly, self.name, self._function)
+        else:
+            assembly.calls[self.name] = CallEventOnCount(assembly, self.name, self._function, len(self._targets))
+
+    def assemble(self, assembly):
+        '''
+        @see: Setup.assemble
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        for target in self._targets:
+            if target not in assembly.calls:
+                raise SetupError('There is no setup call for target \'%s\' to add the event on' % target)
+            call = assembly.calls[target]
+            if not isinstance(call, WithListeners):
+                raise SetupError('Cannot find any listener support for target %r to add the event' % target)
+            assert isinstance(call, WithListeners)
+            if self._event == self.BEFORE: call.addBefore(partial(assembly.processForName, self.name), self._auto)
+            elif self._event == self.AFTER: call.addAfter(partial(assembly.processForName, self.name), self._auto)
+
+    def __call__(self):
+        '''
+        Provides the actual setup of the call.
+        '''
+        raise SetupError('Cannot invoke the event setup %r directly' % self.name)
+
+class SetupStart(SetupFunction):
+    '''
+    Provides the start function.
+    '''
+
+    def __init__(self, function, **keyargs):
+        '''
+        @see: SetupFunction.__init__
+        '''
+        SetupFunction.__init__(self, function, **keyargs)
+
+    def index(self, assembly):
+        '''
+        @see: Setup.index
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        if self.name in assembly.calls:
+            raise SetupError('There is already a setup call for name %r' % self.name)
+        assembly.calls[self.name] = CallEvent(assembly, self.name, self._function)
+
+    def assemble(self, assembly):
+        '''
+        @see: Setup.assemble
+        '''
+        assert isinstance(assembly, Assembly), 'Invalid assembly %s' % assembly
+        assembly.callsStart.append(partial(assembly.processForName, self.name))
+
+# --------------------------------------------------------------------
+
 class CallEvent(WithCall, WithListeners):
     '''
     Provides the event call.
@@ -526,14 +546,40 @@ class CallEvent(WithCall, WithListeners):
         '''
         Provides the call for the source.
         '''
-        if self._processed: raise SetupError('The event call %r cannot be dispatched twice' % self.name)
+        if self._processed: return
         self._processed = True
         self._assembly.called.add(self.name)
 
-        for listener in self._listenersBefore: listener()
+        for listener, _auto in self._listenersBefore: listener()
         ret = self.call()
         if ret is not None: raise SetupError('The event call %r cannot return any value' % self.name)
-        for listener in self._listenersAfter: listener()
+        for listener, _auto in self._listenersAfter: listener()
+        
+class CallEventOnCount(CallEvent):
+    '''
+    Event call that triggers only after being called count times.
+    @see: CallEvent
+    '''
+
+    def __init__(self, assembly, name, call, count):
+        '''
+        Construct the call on count event.
+        @see: CallEvent.__init__
+        
+        @param count: integer
+            The number of calls that the event needs to be called in order to actually trigger.
+        '''
+        assert isinstance(count, int) and count > 0, 'Invalid count %s' % count
+        super().__init__(assembly, name, call)
+        
+        self._count = count
+
+    def __call__(self):
+        '''
+        Provides the call for the source.
+        '''
+        if self._count > 0: self._count -= 1
+        if self._count <= 0: super().__call__()
 
 class CallEntity(WithCall, WithType, WithListeners):
     '''
@@ -610,7 +656,7 @@ class CallEntity(WithCall, WithType, WithListeners):
             self._hasValue = True
             self._value = v
 
-            for listener in self._listenersBefore: listener()
+            for listener, _auto in self._listenersBefore: listener()
 
             if followUp: followUp()
 
@@ -620,7 +666,7 @@ class CallEntity(WithCall, WithType, WithListeners):
                     Initializer.initialize(value)
                     del value_calls[valueId]
 
-            for listener in self._listenersAfter: listener()
+            for listener, _auto in self._listenersAfter: listener()
 
             assert log.debug('Finalized %r with value %s', self.name, value) or True
         return self._value
@@ -650,6 +696,7 @@ class CallConfig(WithType, WithListeners):
 
         self._assembly = assembly
         self.name = name
+        self.external = False
         self._hasValue = False
         self._processed = False
 
@@ -684,8 +731,11 @@ class CallConfig(WithType, WithListeners):
         if not self._processed:
             self._processed = True
             self._assembly.called.add(self.name)
-
-            for listener in chain(self._listenersBefore, self._listenersAfter): listener()
+            for listener, auto in chain(self._listenersBefore, self._listenersAfter):
+                if auto:
+                    if not self.external: listener() 
+                    # We only call the listeners if the configuration was not provided externally
+                else: listener()
         if isinstance(self._value, Exception): raise self._value
         if not self._hasValue: raise ConfigError('No value for configuration %s' % self.name)
         return self._value
@@ -732,14 +782,16 @@ class Assembly:
             The external configurations values to be used in the context.
         @ivar configUsed: set{string}
             A set containing the used configurations names from the external configurations.
-        @ivar configurations: dictionary[string, Config]
+        @ivar configurations: dictionary{string:Config}
             A dictionary of the assembly configurations, the key is the configuration name and the value is a
             Config object.
         @ivar calls: dictionary{string, Callable}
             A dictionary containing as a key the name of the call to be resolved and as a value the Callable that will
             resolve the name. The Callable will not take any argument.
-        @ivar callsStart: list[Callable]
+        @ivar callsStart: deque[Callable]
             A list of Callable that are used as IoC start calls.
+        @ivar callsFinalize: deque[Callable]
+            A list of Callable that are used as IoC finalize calls.
         @ivar called: set[string]
             A set of the called calls in this assembly.
         @ivar started: boolean
@@ -754,7 +806,7 @@ class Assembly:
         self.configurations = {}
         self.calls = {}
         self.value_calls = {}
-        self.callsStart = []
+        self.callsStart = deque()
         self.called = set()
         self.started = False
 
@@ -781,9 +833,7 @@ class Assembly:
 
         configs = {}
         for name, config in self.configurations.items():
-            assert isinstance(config, Config)
-            #TODO: mark the configurations if their are not active
-            #if self.started and config.name not in self.called: continue
+            assert isinstance(config, Config), 'Invalid configuration %s' % config
             sname = name[len(config.group) + 1:]
             other = configs.pop(sname, None)
             while other:
@@ -793,6 +843,19 @@ class Assembly:
                 other = configs.pop(sname, None)
             configs[sname] = config
         return configs
+    
+    def fetchForName(self, name):
+        '''
+        Fetch the call with the specified name.
+        
+        @param name: string
+            The name of the call to be fetched.
+        '''
+        assert isinstance(name, str), 'Invalid name %s' % name
+        call = self.calls.get(name)
+        if not call: raise SetupError('No IoC resource for name %r' % name)
+        if not callable(call): raise SetupError('Invalid call %s for name %r' % (call, name))
+        return call
 
     def processForName(self, name):
         '''
@@ -803,11 +866,9 @@ class Assembly:
         '''
         assert isinstance(name, str), 'Invalid name %s' % name
         self._processing.append(name)
-        call = self.calls.get(name)
-        if not call: raise SetupError('No IoC resource for name %r' % name)
-        if not callable(call): raise SetupError('Invalid call %s for name %r' % (call, name))
-        try: value = call()
-        except: raise SetupError('Exception occurred for %r in processing chain %r' %
+        try: value = self.fetchForName(name)()
+        except (SetupError, SystemExit): raise
+        except: raise SetupError('Exception occurred for %r in processing chain %r' % 
                                  (name, ', '.join(self._processing)))
         self._processing.pop()
         return value
@@ -850,17 +911,7 @@ class Context:
         '''
         Construct the context.
         '''
-        self._setups = []
-
-    def addSetup(self, setup):
-        '''
-        Adds a new setup to the context.
-        
-        @param setup: Setup
-            The setup to add to the context.
-        '''
-        assert isinstance(setup, Setup), 'Invalid setup %s' % setup
-        self._setups.append(setup)
+        self._modules = []
 
     def addSetupModule(self, module):
         '''
@@ -870,10 +921,11 @@ class Context:
             The setup module.
         '''
         assert ismodule(module), 'Invalid module setup %s' % module
-        try:
-            self._setups.extend(module.__ally_setups__)
-        except AttributeError:
-            log.info('No setup found in %s', module)
+        try: module.__ally_setups__
+        except AttributeError: log.info('No setup found in %s', module)
+        else:
+            self._modules.append(module)
+            self._modules.sort(key=lambda module: module.__name__)
 
     def assemble(self, configurations=None):
         '''
@@ -883,12 +935,15 @@ class Context:
             The external configurations values to be used for the assembly.
         '''
         assembly = Assembly(configurations or {})
-
-        for setup in sorted(self._setups, key=lambda setup: setup.priority_index):
+        
+        setups = deque()
+        for module in self._modules: setups.extend(module.__ally_setups__) 
+        
+        for setup in sorted(setups, key=lambda setup: setup.priority_index):
             assert isinstance(setup, Setup), 'Invalid setup %s' % setup
             setup.index(assembly)
 
-        for setup in sorted(self._setups, key=lambda setup: setup.priority_assemble):
+        for setup in sorted(setups, key=lambda setup: setup.priority_assemble):
             setup.assemble(assembly)
 
         return assembly

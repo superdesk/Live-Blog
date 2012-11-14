@@ -213,6 +213,7 @@ class Normalizer:
     '''
     Provides the normalization for key type strings, like the ones used in paths and content key names.
     '''
+    __slots__ = ()
 
     def normalize(self, name):
         '''
@@ -233,6 +234,7 @@ class Converter:
     Provides the conversion of primitive types to strings in vice versa.
     The converter provides basic conversion, please extend for more complex or custom transformation.
     '''
+    __slots__ = ()
 
     def asString(self, objValue, objType):
         '''
@@ -271,9 +273,9 @@ class Converter:
         if objType.isOf(bool):
             return strValue.strip().lower() == 'true'
         if objType.isOf(datetime):
-            return datetime.strptime(strValue, '%a, %d %b %Y %H:%M:%S')
+            return datetime.strptime(strValue, '%Y-%m-%d %H:%M:%S')
         if objType.isOf(date):
-            return datetime.strptime(strValue, 'a, %d %b %Y').date()
+            return datetime.strptime(strValue, '%Y-%m-%d').date()
         if objType.isOf(time):
             return time.strptime(strValue, '%H:%M:%S').time()
         raise AssertionError('Invalid object type %s for converter' % objType)
@@ -282,6 +284,7 @@ class ConverterPath(Normalizer, Converter):
     '''
     Provides normalization and conversion for path elements.
     '''
+    __slots__ = ()
 
 # --------------------------------------------------------------------
 

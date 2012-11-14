@@ -1,0 +1,11 @@
+admin Package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    admin.api
+    admin.introspection
+

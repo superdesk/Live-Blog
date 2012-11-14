@@ -46,6 +46,8 @@ class ResponseContent(Context):
     @rtype: Iterable
     The generator containing the response content.
     ''')
+    # ---------------------------------------------------------------- Optional
+    length = optional(int)
 
 # --------------------------------------------------------------------
 
@@ -54,6 +56,17 @@ class RenderEncoderHandler(HandlerProcessorProceed):
     '''
     Implementation for a handler that renders the response content encoder.
     '''
+    
+    allowChunked = False
+    # Flag indicating that a chuncked transfer is allowed, more or less if this is false a length is a must.
+    bufferSize = 1024
+    # The buffer size used in the generator returned chuncks.
+    
+    
+    def __init__(self):
+        assert isinstance(self.allowChunked, bool), 'Invalid allow chuncked flag %s' % self.allowChunked
+        assert isinstance(self.bufferSize, int), 'Invalid buffer size %s' % self.bufferSize
+        super().__init__()
 
     def process(self, response:Response, responseCnt:ResponseContent, **keyargs):
         '''
@@ -62,22 +75,30 @@ class RenderEncoderHandler(HandlerProcessorProceed):
         assert isinstance(response, Response), 'Invalid response %s' % response
         assert isinstance(responseCnt, ResponseContent), 'Invalid response content %s' % responseCnt
 
-        if Response.code in response and not response.code.isSuccess: return # Skip in case the response is in error
-        if Response.encoder not in response: return # SKip in case there is no encoder to render
+        if Response.code in response and not response.code.isSuccess: return  # Skip in case the response is in error
+        if Response.encoder not in response: return  # Skip in case there is no encoder to render
+        assert callable(response.renderFactory), 'Invalid response renderer factory %s' % response.renderFactory
 
-        responseCnt.source = self.renderAsGenerator(response.obj, response.encoder, response.renderFactory,
-                                                    response.encoderData or {})
+        output = BytesIO()
+        render = response.renderFactory(output)
+        assert isinstance(render, IRender), 'Invalid render %s' % render
 
-    def renderAsGenerator(self, value, encoder, renderFactory, data, bufferSize=1024):
+        resolve = Resolve(response.encoder).request(value=response.obj, render=render, **response.encoderData or {})
+
+        if not self.allowChunked and ResponseContent.length not in responseCnt:
+    
+            while resolve.has(): resolve.do()
+            content = output.getvalue()
+            responseCnt.length = len(content)
+            responseCnt.source = (content,)
+            output.close()
+        else:
+            responseCnt.source = self.renderAsGenerator(resolve, output, self.bufferSize)
+
+    def renderAsGenerator(self, resolve, output, bufferSize):
         '''
         Create a generator for rendering the encoder.
         '''
-        output = BytesIO()
-        render = renderFactory(output)
-        assert isinstance(render, IRender), 'Invalid render %s' % render
-
-        resolve = Resolve(encoder).request(value=value, render=render, **data)
-
         while resolve.has():
             if output.tell() >= bufferSize:
                 yield output.getvalue()
@@ -85,3 +106,4 @@ class RenderEncoderHandler(HandlerProcessorProceed):
                 output.truncate()
             resolve.do()
         yield output.getvalue()
+        output.close()

@@ -9,8 +9,8 @@ Created on Nov 24, 2011
 Provides the configurations for the processors used in handling the request.
 '''
 
-from ..ally_core.processor import updateAssemblyResources, \
-    assemblyResources, invoking
+from ..ally_core.processor import updateAssemblyResources, assemblyResources, \
+    argumentsBuild
 from ally.container import ioc
 from ally.core.sqlalchemy.processor.transactional_wrapping import \
     TransactionWrappingHandler
@@ -26,4 +26,4 @@ def transactionWrapping() -> Handler: return TransactionWrappingHandler()
 
 @ioc.after(updateAssemblyResources)
 def updateAssemblyResourcesForAlchemy():
-    assemblyResources().add(transactionWrapping(), before=invoking())
+    assemblyResources().add(transactionWrapping(), after=argumentsBuild())
