@@ -16,5 +16,5 @@ window.livedesk.i18n = {
 	'updating...': 'Wird aktualisiert...',
 	'by': 'von',
 	'updated on ': 'Zuletzt aktualisiert um ',
-	'The liveblog coverage was stopped ': 'Die LiveBlog Abdeckung wurde gestoppt ',
+	'The liveblog coverage was stopped ': 'Die Live-Berichterstattung ist abgeschlossen ',
 };
