@@ -131,7 +131,9 @@ $.extend(providers.flickr, {
                                 appendTo: 'body',
                                 zIndex: 2700,
                                 clone: true,
-                                start: function() {
+                                start: function(evt, ui) {
+                                    item = $(evt.currentTarget);
+                                    $(ui.helper).css('width', item.width());
                                     var idx = parseInt($(this).attr('idx'),10), page = parseInt($(this).attr('page'),10);
                                     var originalUrl = $(this).attr('data-url');
                                     var itemNo = parseInt( (page * self.per_page) + idx );
