@@ -164,7 +164,9 @@ define('providers/youtube', [
                                     appendTo: 'body',
                                     zIndex: 2700,
                                     clone: true,
-                                    start: function() {
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
                                         var idx = parseInt($(this).attr('idx'),10);
                                         $(this).data('data', self.adaptor.universal( results[idx] ));
                                     }   
@@ -226,7 +228,9 @@ define('providers/youtube', [
                                     appendTo: 'body',
                                     zIndex: 2700,
                                     clone: true,
-                                    start: function() {
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
                                         var idx = parseInt($(this).attr('idx'),10);
                                         results[idx].id = results[idx].video.id;
                                         results[idx].uploaded = results[idx].video.uploaded;
@@ -288,7 +292,9 @@ define('providers/youtube', [
                                     appendTo: 'body',
                                     zIndex: 2700,
                                     clone: true,
-                                    start: function() {
+                                    start: function(evt, ui) {
+                                        item = $(evt.currentTarget);
+                                        $(ui.helper).css('width', item.width());
                                         var idx = parseInt($(this).attr('idx'),10);
                                         $(this).data('data', self.adaptor.universal( results[idx] ));
                                     }   

@@ -120,6 +120,7 @@ $.extend(providers.google, {
                             results: data.responseData.results, 
                             startx: start
                         }, function(e,o) {
+
                             $('#ggl-web-results').append(o).find('.google').draggable(
                             {
                                 revert: 'invalid',
@@ -127,7 +128,9 @@ $.extend(providers.google, {
                                 appendTo: 'body',
                                 zIndex: 2700,
                                 clone: true,
-                                start: function() {
+                                start: function(evt, ui) {
+                                    item = $(evt.currentTarget);
+                                    $(ui.helper).css('width', item.width());
                                     var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
                                     self.data[startx+idx].type = 'web';
                                     $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
@@ -214,7 +217,9 @@ $.extend(providers.google, {
                                 appendTo: 'body',
                                 zIndex: 2700,
                                 clone: true,
-                                start: function() {
+                                start: function(evt, ui) {
+                                    item = $(evt.currentTarget);
+                                    $(ui.helper).css('width', item.width());
                                     var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
                                     self.data[startx+idx].type = 'news';
                                     $(this).data('data', self.adaptor.universal(self.data[startx+idx]));
@@ -282,7 +287,9 @@ $.extend(providers.google, {
                                 appendTo: 'body',
                                 zIndex: 2700,
                                 clone: true,
-                                start: function() {
+                                start: function(evt, ui) {
+                                    item = $(evt.currentTarget);
+                                    $(ui.helper).css('width', item.width());
                                     var idx = parseInt($(this).attr('idx'),10), startx = parseInt($(this).attr('startx'),10);
                                     self.data[startx+idx].type = 'images';
                                     $(this).data('data', self.adaptor.universal(self.data[startx+idx]));

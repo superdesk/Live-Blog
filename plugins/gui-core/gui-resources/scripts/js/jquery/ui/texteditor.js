@@ -280,7 +280,6 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                                     return false;
                                 };
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId, true);
-                                console.log(url)
 
                                     // need to remark selection because apparently inserting images removes ranges
                                     self.restoreSelectionMarkerId = self.lib.markSelection(self.restoreSelectionMarkerId);
@@ -508,7 +507,6 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                             {
                                 self.lib.restoreSelection(self.restoreSelectionMarkerId);
                                 parent = self.editTarget;
-                                console.log(parent);
                                 parent.html($(this).find('textarea.editor-code').val());
                                 $(this).dialog('close');
                             }
@@ -634,17 +632,17 @@ define('jqueryui/texteditor', ['jquery','jqueryui/widget', 'jqueryui/ext', 'jque
                         command = new this.plugins.lib.commandFactory( new this.plugins.lib.linkCommand(this, calledForElements), element );
                     return command;
                 },
-                image : function()
+                image : function(calledForElements)
                 {
                     var element = $('<a class="image" />').html('');
-                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.imageCommand(this), element );
+                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.imageCommand(this, calledForElements), element );
                     this.plugins.floatingToolbar && this.plugins.floatingToolbar.blockElements.push('img');
                     return command;
                 },
-                html : function()
+                html : function(calledForElements)
                 {
                     var element = $('<a class="code" />').html('&lt;/&gt');
-                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.htmlCodeCommand(this), element );
+                    var command = new this.plugins.lib.commandFactory( new this.plugins.lib.htmlCodeCommand(this, calledForElements), element );
                     return command;
                 }
             },
