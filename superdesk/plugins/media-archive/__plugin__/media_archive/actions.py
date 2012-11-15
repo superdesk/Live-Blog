@@ -19,7 +19,7 @@ from ..gui_core.gui_core import getPublishedGui
 @ioc.entity   
 def menuAction():
     return Action('media-archive', Parent=defaults.menuAction(), Label=NC_('Menu', 'Media Archive'), Href='/media-archive', 
-                  ScriptPath=getPublishedGui('media-archive/scripts/js/menu-media-archive.js'))
+                  ScriptPath=getPublishedGui('media-archive/scripts/js/menu.js'))
 
 #@ioc.entity   
 #def subMenuAction():
@@ -37,7 +37,7 @@ def modulesAddAction():
 @ioc.entity   
 def modulesMainAction():
     return Action('main', Parent=modulesAction(), 
-                  ScriptPath=getPublishedGui('media-archive/scripts/js/media-archive-main.js'))
+                  ScriptPath=getPublishedGui('media-archive/scripts/js/list.js'))
 
 @ioc.entity   
 def modulesConfigureAction():
