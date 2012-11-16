@@ -45,7 +45,7 @@ $.extend(providers.twitter, {
         
 	data: [],
 	init: function(){
-		if(!this.initialized) {
+		if(!this.initialized || !this.el.children(":first").length) {
 			this.render();
                         this.adaptor.init();
                         this.resetAutoRefresh();
@@ -505,11 +505,10 @@ $.extend(providers.twitter, {
             }
             
             var self = this;
-            
-            if ( $('#twitter-search-web').val() < 1  ) {
+            var twtVal = $('#twitter-search-web').val();
+            if ( twtVal.length < 1  ) {
                 $('#twitter-search-web').val(this.lastSearchItem);
             }
-            
             
             var text = $('#twitter-search-web').val();
             if (text.length < 1) {
@@ -524,7 +523,7 @@ $.extend(providers.twitter, {
             $('#twt-web-more').html('');
 
             qstring = typeof qstring !== 'undefined' ? qstring : '?q='+ encodeURIComponent(text) +'&include_entities=true';
-            if ( qstring == '?q='+ text +'&include_entities=true' ) {
+            if ( qstring == '?q='+ encodeURIComponent(text) +'&include_entities=true' ) {
                 $('#twt-web-results').html('');
                 self.data = [];
             }
