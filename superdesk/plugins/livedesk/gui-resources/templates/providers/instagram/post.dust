@@ -1,0 +1,28 @@
+<li class="flickr draggable timeline clearfix" data-post-id="{Id}" data-post-type="{Type.Key}">
+	<div class="drag-bar"></div>
+    <div class="tool-box-right">
+    	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
+    </div>
+    <div class="flickr-full-content">
+    	{#Meta}
+	    <div class="result-content">
+			<div class="result-text">
+				<a href="http://farm{farm}.staticflickr.com/{server}/{id}_{secret}.jpg" target="_blank">
+					<img alt="{title}" src='http://farm{farm}.staticflickr.com/{server}/{id}_{secret}_s.jpg'>
+				</a>
+			</div>
+			<p>{title}</p>
+			<p class="attributes">
+				<i class="source-icon"></i>
+			</p>
+	    </div>
+    	<div class="editable annotation">
+			{annotation|s}<br />
+		</div>
+		{/Meta}
+	</div> 
+    <div class="btn-group pull-right clearfix actions hide">
+    	<button class="btn btn-mini cancel">Cancel</button>
+    	<button class="btn btn-mini btn-primary publish">Publish</button>
+   	</div>		
+</li>
