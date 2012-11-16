@@ -1,0 +1,7 @@
+<div class="search-header">
+    <input type="text" placeholder="_('Search')" id="instagram-search-text" style="display:block">
+</div>
+<ul class="search-result-list scroller" id="instagram-image-holder" style="margin-top:10px;">
+    <div id="instagram-image-results"></div>
+    <div id="instagram-image-more"></div>
+</ul>
