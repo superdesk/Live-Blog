@@ -1,3 +1,4 @@
+// TODO refactor
 define([
 	'providers/enabled',
 	'jquery', 'jquery/superdesk', 'jquery/rest', 'jqueryui/texteditor', 'jquery/utils',
@@ -80,7 +81,7 @@ define([
 					Type: '1',
                     Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, '')
                 };
-                new $.restAuth('LiveDesk/Blog').insert(data).done(function(liveBlog)
+                new $.restAuth('LiveDesk/Blog?X-Filter=*').insert(data).done(function(liveBlog)
                 {
                     $("#add-live-blog")
                         .dialog('close')
@@ -91,8 +92,12 @@ define([
 
                     require([$.superdesk.apiUrl+'/content/lib/livedesk/scripts/js/edit-live-blogs.js'],
                         function(EditApp){
-                            new EditApp(liveBlog.href);
-                            $('#navbar-top').trigger('refresh-menu');
+                            superdesk.navigation.bind( 'live-blog/'+liveBlog.Id, 
+                                    function(){ 
+                                        new EditApp(liveBlog.href); 
+                                        $('#navbar-top').trigger('refresh-menu');
+                                    }, 
+                                    liveBlog.Title );
                         });
                 });
             });

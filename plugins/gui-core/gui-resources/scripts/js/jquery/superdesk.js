@@ -147,6 +147,12 @@ var superdesk =
         {
             return this._startPathname;
         },
+        consumeStartPathname: function()
+        {
+            var r = this._startPathname;
+            this._startPathname = '';
+            return r;
+        },
         /*!
          * bind a callback on history state or execute if already bound
          */

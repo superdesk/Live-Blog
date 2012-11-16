@@ -81,8 +81,11 @@ define
                 if( superdesk.navigation.getStartPathname() == '') return false;
                 self.menu.find('[href]').each(function()
                 {
-                    if( $(this).attr('href').replace(/^\/+|\/+$/g, '') == superdesk.navigation.getStartPathname()) 
-                        $(this).trigger('click'); 
+                    if( $(this).attr('href').replace(/^\/+|\/+$/g, '') == superdesk.navigation.getStartPathname())
+                    {
+                        superdesk.navigation.consumeStartPathname()
+                        $(this).trigger('click');
+                    }
                 });
             }); 
         }
