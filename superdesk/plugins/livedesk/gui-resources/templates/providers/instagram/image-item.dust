@@ -1,8 +1,10 @@
 {#photos}   
-    <li class="instagram image draggable " style="border:0px; height:80px; width:210px; margin-left:10px; margin-bottom:10px;" idx="{@idx}{.}{/idx}" page="{page}" data-id="{id}">
+    <li class="instagram image draggable " style="border:0px; height:107px; width:111px; margin-left:10px; margin-bottom:10px;" idx="{@idx}{.}{/idx}" page="{page}" data-id="{id}">
         <div class="drag-bar"></div>
         <div class="result-content">
-            
+        	<a href="{images.standard_resolution.url}" title="{caption.text}" target="_blank">
+	            <img src="{images.thumbnail.url}" width="{images.thumbnail.width}" height="{images.thumbnail.height}" alt="{caption.text}">
+	        </a>
         </div>
     </li>
 {/photos}
