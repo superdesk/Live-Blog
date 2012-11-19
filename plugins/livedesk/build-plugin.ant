@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="livedesk" default="build" basedir=".">
+
+	<property name="root" value="../"/>
+	<property name="destination" value="."/>
+	<property name="egg.livedesk" value="livedesk-1.0.egg"/>
+
+	<target name="clean">
+		<delete file="${destination}/${egg.livedesk}" />
+	</target>
+
+	<target name="build" depends="clean">
+		<zip destfile="${destination}/${egg.livedesk}" basedir="${root}/livedesk">
+			<exclude name="**/__pycache__/"/>
+			<exclude name="/.*"/>
+			<exclude name="/*.egg"/>
+		</zip>
+	</target>
+
+</project>

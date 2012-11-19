@@ -1,0 +1,1 @@
+{#results}<li class="draggable" idx="{@idx}{.}{/idx}" startx="{startx}">        <div class="drag-bar"></div>	<div class="result-content">		<h3><a href="{url}" target="_blank">{title|s}</a></h3>		<a href="{url}" target="_blank"><img src="{tbUrl|s}"/></a>		<p class="result-text">{content|s}</p>	</div></li>{/results}

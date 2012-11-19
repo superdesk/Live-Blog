@@ -1,0 +1,2 @@
+resources
+__plugin__
