@@ -11,6 +11,6 @@
 *.properties
 *.properties.bak
 
-/.project
-/.pydevproject
+.project
+.pydevproject
 /.metadata/
