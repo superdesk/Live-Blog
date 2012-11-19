@@ -1,0 +1,12 @@
+js Package
+==========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    gui-resources.scripts.js.embed
+    gui-resources.scripts.js.models
+    gui-resources.scripts.js.providers
+
