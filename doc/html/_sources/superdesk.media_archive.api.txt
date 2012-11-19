@@ -1,0 +1,91 @@
+api Package
+===========
+
+:mod:`audio_data` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.api.audio_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`audio_info` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.api.audio_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`domain_archive` Module
+----------------------------
+
+.. automodule:: superdesk.media_archive.api.domain_archive
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`image_data` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.api.image_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`image_info` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.api.image_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`meta_data` Module
+-----------------------
+
+.. automodule:: superdesk.media_archive.api.meta_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`meta_info` Module
+-----------------------
+
+.. automodule:: superdesk.media_archive.api.meta_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`meta_type` Module
+-----------------------
+
+.. automodule:: superdesk.media_archive.api.meta_type
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`query_criteria` Module
+----------------------------
+
+.. automodule:: superdesk.media_archive.api.query_criteria
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`video_data` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.api.video_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`video_info` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.api.video_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

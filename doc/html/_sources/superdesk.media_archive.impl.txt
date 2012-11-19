@@ -1,0 +1,107 @@
+impl Package
+============
+
+:mod:`audio_data` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.impl.audio_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`audio_info` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.impl.audio_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`audio_persist` Module
+---------------------------
+
+.. automodule:: superdesk.media_archive.impl.audio_persist
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`image_data` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.impl.image_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`image_info` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.impl.image_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`image_persist` Module
+---------------------------
+
+.. automodule:: superdesk.media_archive.impl.image_persist
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`meta_data` Module
+-----------------------
+
+.. automodule:: superdesk.media_archive.impl.meta_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`meta_info` Module
+-----------------------
+
+.. automodule:: superdesk.media_archive.impl.meta_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`meta_type` Module
+-----------------------
+
+.. automodule:: superdesk.media_archive.impl.meta_type
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`query_criteria` Module
+----------------------------
+
+.. automodule:: superdesk.media_archive.impl.query_criteria
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`video_data` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.impl.video_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`video_info` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.impl.video_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`video_persist` Module
+---------------------------
+
+.. automodule:: superdesk.media_archive.impl.video_persist
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
