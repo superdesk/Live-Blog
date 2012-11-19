@@ -1,0 +1,10 @@
+<form class="form-inline">
+	<input type="text" class="span5" placeholder="Live Blog name">
+	<select id="language" class="span3">
+		<option>Select language</option>
+		{#languages}
+			<option value="{code}">{name}</option>
+		{/languages}
+	</select>
+	<input type="button" class="btn btn-medium btn-primary" value="Save">
+</form>

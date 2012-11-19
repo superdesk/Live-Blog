@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>Sample File Upload</title>
+</head>
+<body>
+
+<h1>Sample File Upload Form</h1>
+
+
+<form method='POST' enctype='multipart/form-data' action=''>
+File to upload: <input type=file name=upload_file>
+<input type=submit value=Press multiple="multiple"> to upload the file!
+</form>
+<script>
+	$('form:first').attr('action','/resources/my/Archive/MetaData/Upload?Authorization='+ localStorage.getItem('superdesk.login.session'));
+</script>
+</body>
+</html>

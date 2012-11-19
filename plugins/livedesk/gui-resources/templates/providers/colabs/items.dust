@@ -1,0 +1,20 @@
+{#Posts}
+<li class="with-avatar collaborators {?PublishedOn}published{:else}draggable{/PublishedOn}" 
+	data-colab-id="{Creator.Id}" data-post-id="{Id}">
+	<div class="drag-bar"></div>
+	<figure>
+        {#Person}
+            {?Avatar}
+                <img src="{Avatar}" />
+            {:else}
+                <img src="images/avatar_default_collaborator.png" />
+            {/Avatar}
+        {/Person}
+	</figure>
+	<div class="result-content">
+    	<h3><span class="author">{AuthorName}</span></h3>
+    	<p class="result-text">{Content|s}</p>
+    	<p class="attributes"><time>{PublishedOn}</time></p>
+	</div>
+</li>
+{/Posts}
