@@ -1,3 +1,0 @@
-define('providers', function(){
-	return {};
-});

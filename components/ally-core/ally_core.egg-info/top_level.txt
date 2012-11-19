@@ -1,4 +1,0 @@
-test
-__setup__
-__deploy__
-ally

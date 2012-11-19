@@ -1,3 +1,0 @@
-{#licenses}
-<option value="{id}">{name}</option>
-{/licenses}

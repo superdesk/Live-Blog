@@ -1,3 +1,0 @@
-ally_api >= 1.0
-ally_core_sqlalchemy >= 1.0
-ally_core_plugin >= 1.0
