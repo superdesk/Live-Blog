@@ -17,7 +17,7 @@ from genericpath import exists
 
 if __name__ == '__main__':
     filePath = abspath(__file__)
-    sourceDist = join(dirname(dirname(dirname(filePath))), 'distribution')
+    sourceDist = join(dirname(dirname(dirname(filePath))), 'ally-py', 'distribution')
     destDist = join(dirname(dirname(filePath)), 'distribution')
     for dir in ('components', 'plugins'):
         dstDir = join(destDist, dir)
