@@ -1,0 +1,11 @@
+impl Package
+============
+
+:mod:`authentication` Module
+----------------------------
+
+.. automodule:: superdesk.authentication.impl.authentication
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

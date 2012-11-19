@@ -1,0 +1,12 @@
+collaborator Package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.collaborator.api
+    superdesk.collaborator.impl
+    superdesk.collaborator.meta
+

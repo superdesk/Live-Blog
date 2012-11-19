@@ -1,0 +1,10 @@
+scripts Package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    gui-resources.scripts.js
+

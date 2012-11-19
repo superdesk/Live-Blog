@@ -1,0 +1,19 @@
+api Package
+===========
+
+:mod:`api` Package
+------------------
+
+.. automodule:: superdesk.collaborator.api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`collaborator` Module
+--------------------------
+
+.. automodule:: superdesk.collaborator.api.collaborator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

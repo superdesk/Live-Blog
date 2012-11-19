@@ -1,0 +1,12 @@
+livedesk Package
+================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    livedesk.api
+    livedesk.impl
+    livedesk.meta
+

@@ -1,0 +1,10 @@
+embed Package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    gui-resources.scripts.js.embed.img
+

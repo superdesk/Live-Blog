@@ -1,0 +1,11 @@
+api Package
+===========
+
+:mod:`user` Module
+------------------
+
+.. automodule:: superdesk.user.api.user
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

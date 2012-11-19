@@ -1,0 +1,11 @@
+Linux Package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.ffmpeg.Linux.all
+    resources.ffmpeg.Linux.x86_64
+

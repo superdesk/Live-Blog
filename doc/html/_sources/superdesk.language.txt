@@ -1,0 +1,12 @@
+language Package
+================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.language.api
+    superdesk.language.impl
+    superdesk.language.meta
+

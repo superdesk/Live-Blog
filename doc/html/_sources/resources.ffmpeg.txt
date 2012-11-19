@@ -1,0 +1,13 @@
+ffmpeg Package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.ffmpeg.Darwin
+    resources.ffmpeg.Linux
+    resources.ffmpeg.Windows
+    resources.ffmpeg.all
+

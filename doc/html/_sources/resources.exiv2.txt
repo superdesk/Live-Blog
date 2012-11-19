@@ -1,0 +1,13 @@
+exiv2 Package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.exiv2.Darwin
+    resources.exiv2.Linux
+    resources.exiv2.Windows
+    resources.exiv2.all
+

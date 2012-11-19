@@ -1,0 +1,27 @@
+api Package
+===========
+
+:mod:`api` Package
+------------------
+
+.. automodule:: superdesk.post.api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`post` Module
+------------------
+
+.. automodule:: superdesk.post.api.post
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`type` Module
+------------------
+
+.. automodule:: superdesk.post.api.type
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

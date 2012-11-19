@@ -1,0 +1,11 @@
+all Package
+===========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.exiv2.Darwin.all.bin
+    resources.exiv2.Darwin.all.libs
+

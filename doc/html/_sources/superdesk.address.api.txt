@@ -1,0 +1,11 @@
+api Package
+===========
+
+:mod:`api` Package
+------------------
+
+.. automodule:: superdesk.address.api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

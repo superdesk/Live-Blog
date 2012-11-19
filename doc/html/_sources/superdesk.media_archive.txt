@@ -1,0 +1,13 @@
+media_archive Package
+=====================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superdesk.media_archive.api
+    superdesk.media_archive.core
+    superdesk.media_archive.impl
+    superdesk.media_archive.meta
+

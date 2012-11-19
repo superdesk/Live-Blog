@@ -1,0 +1,16 @@
+providers Package
+=================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    gui-resources.scripts.js.providers.ads
+    gui-resources.scripts.js.providers.colabs
+    gui-resources.scripts.js.providers.edit
+    gui-resources.scripts.js.providers.flickr
+    gui-resources.scripts.js.providers.google
+    gui-resources.scripts.js.providers.twitter
+    gui-resources.scripts.js.providers.youtube
+
