@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rest-client version="2.3.3"><request><http-version>1.1</http-version><URL>http://localhost/resources/my/LiveDesk/Blog/1/Post/Published</URL><method>POST</method><headers><header key="Content-Language" value="en"/><header key="Content-Type" value="text/xml"/><header key="Authorization" value="1"/></headers><body content-type="text/plain" charset="UTF-8">&lt;Post&gt;&#x0D;
+	&lt;Content&gt;Muieeee&lt;/Content&gt;&#x0D;
+	&lt;Author&gt;6&lt;/Author&gt;&#x0D;
+	&lt;Type&gt;normal&lt;/Type&gt;&#x0D;
+&lt;/Post&gt;</body></request></rest-client>

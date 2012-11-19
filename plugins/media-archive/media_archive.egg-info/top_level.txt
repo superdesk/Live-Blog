@@ -1,0 +1,4 @@
+superdesk
+gui-resources
+resources
+__plugin__
