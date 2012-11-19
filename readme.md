@@ -20,7 +20,7 @@ will come...
 
 ## Superdesk is on base
 
-* AllyPy
+* [Ally-Py][Ally-Py]Ally-Py
 * more will come...
 
 ## Read More
@@ -28,7 +28,7 @@ will come...
 * Superdesk for developers - [overview][9]
 * [Superdesk wiki][10]
 
-
+[Ally-Py]: http://www.sourcefabric.org/en/superdesk/ally_py/
 [Superdesk]: http://superdesk.sourcefabric.org/
 [1]: http://www.sourcefabric.org/en/superdesk/features/#desk
 [2]: http://www.sourcefabric.org/en/superdesk/features/#COPE
