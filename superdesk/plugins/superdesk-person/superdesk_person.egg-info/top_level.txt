@@ -1,3 +1,0 @@
-superdesk
-gui-resources
-__plugin__

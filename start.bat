@@ -1,3 +1,3 @@
 @ECHO OFF
 setlocal
-python.exe superdesk/distribution/application.py
+python.exe distribution/application.py
