@@ -1,2 +1,0 @@
-superdesk
-__plugin__
