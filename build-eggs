@@ -2,7 +2,7 @@
 
 python_cli=python3
 
-ally_py_dir=../ally-py
+ally_py_dir=..
 
 dirs="$ally_py_dir/components $ally_py_dir/plugins plugins"
 
