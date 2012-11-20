@@ -1,22 +1,37 @@
-<div class="media-box-hover-list" style="-moz-user-select: none; top: -1995px; left: 0px;">
+{! overwrite item blocks if needed in specific templates like so
+	{<body}
+		...
+	{/body}
+	{<side}
+		...
+	{/side}
+!}
+
+<div class="media-box-list" style="-moz-user-select: none; top: -1995px; left: 0px;">
+  	
   	{+body}
-  	<figure><img src="pictures/pic2.jpg"></figure>
-    <div class="actions-left">
-    	 <div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div>
-         <a data-placement="bottom" rel="tooltip" class="add-to-scratchpad" href="#" data-original-title="add to scratchpad"></a>
-         <span style="display:none; position:absolute" class="label label-important alertAlreadyAdded">already added</span>
-    </div>
-    <div class="media-info">
-        <h5>Title 2</h5>
-        <dl>
-            <dt>Source</dt><dd>4</dd>
-        </dl>           
-    </div>
+	  	{#Item}
+		<figure>{Content|s}</figure>
+		
+		<!--div class="actions-left">
+			<div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div>
+		    <a data-placement="bottom" rel="tooltip" class="add-to-scratchpad" href="#" data-original-title="add to scratchpad"></a>
+		    <span style="display:none; position:absolute" class="label label-important alertAlreadyAdded">_('already added')</span>
+		</div-->
+		
+		<div class="media-info">
+			<h5>{Name}</h5>
+		    <!--dl>
+		        <dt>Source</dt><dd>4</dd>
+		    </dl-->           
+		</div>
+		{/Item}
     {/body}
 
+	{+side}
 	<div class="actions-right">
     	<div class="btn-group">
-        	<button class="btn btn-mini">action</button>
+        	<button class="btn btn-mini">_('Action')</button>
 			<button data-toggle="dropdown" class="btn btn-mini dropdown-toggle">
             	<span class="caret"></span>
 			</button>
@@ -39,4 +54,6 @@
           </ul>
         </div>
     </div>
+    {/side}
+    
 </div>
