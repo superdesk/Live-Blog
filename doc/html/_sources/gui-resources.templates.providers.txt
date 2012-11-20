@@ -12,4 +12,5 @@ Subpackages
     gui-resources.templates.providers.flickr
     gui-resources.templates.providers.google
     gui-resources.templates.providers.twitter
+    gui-resources.templates.providers.youtube
 
