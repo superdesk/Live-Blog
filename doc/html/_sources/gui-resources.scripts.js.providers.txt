@@ -12,4 +12,5 @@ Subpackages
     gui-resources.scripts.js.providers.flickr
     gui-resources.scripts.js.providers.google
     gui-resources.scripts.js.providers.twitter
+    gui-resources.scripts.js.providers.youtube
 

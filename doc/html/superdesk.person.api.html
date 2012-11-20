@@ -59,83 +59,8 @@
             
   <div class="section" id="api-package">
 <h1>api Package<a class="headerlink" href="#api-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-superdesk.person.api.person">
-<span id="person-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">person</span></tt> Module<a class="headerlink" href="#module-superdesk.person.api.person" title="Permalink to this headline">¶</a></h2>
-<p>Created on Mar 6, 2012</p>
-<p>&#64;package: superdesk person
-&#64;copyright: 2012 Sourcefabric o.p.s.
-&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
-&#64;author: Mihai Balaceanu</p>
-<p>APIs for person.</p>
-<dl class="class">
-<dt id="superdesk.person.api.person.IPersonService">
-<em class="property">class </em><tt class="descclassname">superdesk.person.api.person.</tt><tt class="descname">IPersonService</tt><a class="reference internal" href="_modules/superdesk/person/api/person.html#IPersonService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.person.api.person.IPersonService" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.IEntityService" title="ally.support.api.entity.IEntityService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityService</span></tt></a></p>
-<p>Person model service interface</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="superdesk.person.api.person.Person">
-<em class="property">class </em><tt class="descclassname">superdesk.person.api.person.</tt><tt class="descname">Person</tt><a class="reference internal" href="_modules/superdesk/person/api/person.html#Person"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.person.api.person.Person" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.Entity" title="ally.support.api.entity.Entity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.Entity</span></tt></a></p>
-<p>Provides the person model.</p>
-<dl class="attribute">
-<dt id="superdesk.person.api.person.Person.Address">
-<tt class="descname">Address</tt><em class="property"> = Person.Address(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.Address" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.person.api.person.Person.EMail">
-<tt class="descname">EMail</tt><em class="property"> = Person.EMail(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.EMail" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.person.api.person.Person.FirstName">
-<tt class="descname">FirstName</tt><em class="property"> = Person.FirstName(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.FirstName" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.person.api.person.Person.FullName">
-<tt class="descname">FullName</tt><em class="property"> = Person.FullName(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.FullName" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.person.api.person.Person.Id">
-<tt class="descname">Id</tt><em class="property"> = Person.Id(int)</em><a class="headerlink" href="#superdesk.person.api.person.Person.Id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.person.api.person.Person.LastName">
-<tt class="descname">LastName</tt><em class="property"> = Person.LastName(str)</em><a class="headerlink" href="#superdesk.person.api.person.Person.LastName" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="superdesk.person.api.person.QPerson">
-<em class="property">class </em><tt class="descclassname">superdesk.person.api.person.</tt><tt class="descname">QPerson</tt><a class="reference internal" href="_modules/superdesk/person/api/person.html#QPerson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.person.api.person.QPerson" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.QEntity" title="ally.support.api.entity.QEntity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.QEntity</span></tt></a></p>
-<p>Query for person service</p>
-<dl class="attribute">
-<dt id="superdesk.person.api.person.QPerson.email">
-<tt class="descname">email</tt><a class="headerlink" href="#superdesk.person.api.person.QPerson.email" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor used for defining criteria entries in a query object.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.person.api.person.QPerson.firstName">
-<tt class="descname">firstName</tt><a class="headerlink" href="#superdesk.person.api.person.QPerson.firstName" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor used for defining criteria entries in a query object.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.person.api.person.QPerson.lastName">
-<tt class="descname">lastName</tt><a class="headerlink" href="#superdesk.person.api.person.QPerson.lastName" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor used for defining criteria entries in a query object.</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="person-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">person</span></tt> Module<a class="headerlink" href="#person-module" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -148,7 +73,7 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">api Package</a><ul>
-<li><a class="reference internal" href="#module-superdesk.person.api.person"><tt class="docutils literal"><span class="pre">person</span></tt> Module</a></li>
+<li><a class="reference internal" href="#person-module"><tt class="docutils literal"><span class="pre">person</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>

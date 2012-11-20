@@ -1,0 +1,11 @@
+Darwin Package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.exiv2.Darwin.all
+    resources.exiv2.Darwin.i386
+

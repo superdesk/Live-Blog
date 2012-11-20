@@ -1,0 +1,10 @@
+x86 Package
+===========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.ffmpeg.Windows.x86.bin
+
