@@ -1,0 +1,10 @@
+AMD64 Package
+=============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.exiv2.Windows.AMD64.bin
+

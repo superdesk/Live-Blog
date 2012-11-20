@@ -6,8 +6,6 @@ Subpackages
 
 .. toctree::
 
-    gui-resources.images
     gui-resources.scripts
-    gui-resources.styles
     gui-resources.templates
 

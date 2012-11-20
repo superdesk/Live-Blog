@@ -1,5 +1,5 @@
 .. ally-py documentation master file, created by
-   sphinx-quickstart on Tue Oct  9 13:55:21 2012.
+   sphinx-quickstart on Mon Nov 19 18:44:19 2012.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -11,20 +11,9 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
-   admin
-   ally
-   ally_deploy_application
-   cdm
-   development
-   gui
    gui-resources
-   gui.action
-   gui.api
-   internationalization
    livedesk
-   package_extender
    resources
-   sql_alchemy
    superdesk
 
 
