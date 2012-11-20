@@ -68,47 +68,8 @@
 &#64;author: Gabriel Nistor</p>
 <p>Implementations package.</p>
 </div>
-<div class="section" id="module-superdesk.country.impl.country">
-<span id="country-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">country</span></tt> Module<a class="headerlink" href="#module-superdesk.country.impl.country" title="Permalink to this headline">¶</a></h2>
-<p>Created on Jun 23, 2011</p>
-<p>&#64;package superdesk
-&#64;copyright 2011 Sourcefabric o.p.s.
-&#64;license <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
-&#64;author: Gabriel Nistor</p>
-<p>SQL alchemy implementation for language API.</p>
-<dl class="class">
-<dt id="superdesk.country.impl.country.Countries">
-<em class="property">class </em><tt class="descclassname">superdesk.country.impl.country.</tt><tt class="descname">Countries</tt><a class="reference internal" href="_modules/superdesk/country/impl/country.html#Countries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.country.impl.country.Countries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.dict</span></tt></p>
-<p>A simple dictionary class used for marking the countries codes (as keys) and country default names (as values).</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="superdesk.country.impl.country.CountryServiceBabelAlchemy">
-<em class="property">class </em><tt class="descclassname">superdesk.country.impl.country.</tt><tt class="descname">CountryServiceBabelAlchemy</tt><a class="reference internal" href="_modules/superdesk/country/impl/country.html#CountryServiceBabelAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.country.impl.country.CountryServiceBabelAlchemy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="superdesk.country.api.html#superdesk.country.api.country.ICountryService" title="superdesk.country.api.country.ICountryService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.country.api.country.ICountryService</span></tt></a></p>
-<p>Implementation for &#64;see: ICountryService using Babel library for translating country names and for the country codes
-it uses an external source.</p>
-<dl class="attribute">
-<dt id="superdesk.country.impl.country.CountryServiceBabelAlchemy.countries">
-<tt class="descname">countries</tt><a class="headerlink" href="#superdesk.country.impl.country.CountryServiceBabelAlchemy.countries" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#superdesk.country.impl.country.Countries" title="superdesk.country.impl.country.Countries"><tt class="xref py py-class docutils literal"><span class="pre">Countries</span></tt></a></p>
-</dd></dl>
-
-<dl class="method">
-<dt id="superdesk.country.impl.country.CountryServiceBabelAlchemy.getAllAvailable">
-<tt class="descname">getAllAvailable</tt><big>(</big><em>locales</em>, <em>offset=None</em>, <em>limit=None</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/country/impl/country.html#CountryServiceBabelAlchemy.getAllAvailable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.country.impl.country.CountryServiceBabelAlchemy.getAllAvailable" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#64;see: ILanguageService.getAllAvailable</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="superdesk.country.impl.country.CountryServiceBabelAlchemy.getByCode">
-<tt class="descname">getByCode</tt><big>(</big><em>code</em>, <em>locales</em><big>)</big><a class="reference internal" href="_modules/superdesk/country/impl/country.html#CountryServiceBabelAlchemy.getByCode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.country.impl.country.CountryServiceBabelAlchemy.getByCode" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#64;see: ICountryService.getByCode</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="country-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">country</span></tt> Module<a class="headerlink" href="#country-module" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -122,7 +83,7 @@ it uses an external source.</p>
   <ul>
 <li><a class="reference internal" href="#">impl Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">impl</span></tt> Package</a></li>
-<li><a class="reference internal" href="#module-superdesk.country.impl.country"><tt class="docutils literal"><span class="pre">country</span></tt> Module</a></li>
+<li><a class="reference internal" href="#country-module"><tt class="docutils literal"><span class="pre">country</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>

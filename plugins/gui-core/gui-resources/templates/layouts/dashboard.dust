@@ -1,6 +1,0 @@
-<div class="hero-unit well" style="margin-top:60px">
-	<h2>_("Welcome to ")<h2/><h1><span style="color:#9BDABB">_("GEN")</span> <span style="color:#014E60">_("Live Desk");</span>!</h1>
-	<p>_("An open source live-blogging tool for newsrooms and journalists, developed by the Global Editor's Network and Sourcefabric.")</p>
-	<p><a class="btn btn-primary btn-large" href="http://www.genlivedesk.org/" target="_blank">_("Learn more"); &raquo;</a></p>
-</div>
-<hr />

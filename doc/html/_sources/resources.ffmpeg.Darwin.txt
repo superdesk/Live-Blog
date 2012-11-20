@@ -7,4 +7,5 @@ Subpackages
 .. toctree::
 
     resources.ffmpeg.Darwin.all
+    resources.ffmpeg.Darwin.i386
 
