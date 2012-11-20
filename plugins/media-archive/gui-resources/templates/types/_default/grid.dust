@@ -1,0 +1,64 @@
+{! overwrite item blocks if needed in specific templates like so
+	{<body}
+		...
+	{/body}
+	{<side}
+		...
+	{/side}
+	{<side}
+		...
+	{/side}
+!}
+
+<div class="media-box" style="-moz-user-select: none; top: 12px; left: 12px;">
+	<figure>
+    	{+body}
+    		{#Item}
+		    	{Content|s}
+		        <div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div>
+		        <div class="media-box-button top right">
+		        	<a href="javascript:void(0)" rel="popover"
+		        		data-content="{Description}" data-additional="info" data-original-title="{Title}">
+		        		<i class="icon-info-sign"></i>
+		        	</a>
+		        </div>
+	        {/Item}
+        {/body}
+        {+side}
+	        <div class="media-box-button bottom right">
+				<ul class="nav nav-pills">
+	            	<li class="dropdown">
+	                	<a href="#" data-toggle="dropdown" class="dropdown-toggle"><b class="caret"></b></a>
+						<ul class="dropdown-menu pull-right">
+							<li>
+			              		<a class="viewDetails" href="javascript:void(0)"><i class="icon-eye-open"></i> _('View details')</a>
+			              	</li>
+			        		<li>
+			        			<a data-action="edit" href="javascript:void(0)"><i class="icon-pencil"></i> _('Edit')</a>
+			        		</li>
+			        		<li>
+			        			<a data-action="edit-metadata" href="javascript:void(0)"><i class="icon-list-alt"></i> _('Edit metadata')</a>
+			        		</li>
+			                <li>
+			                	<a data-action="download" href="javascript:void(0)"><i class="icon-download-alt"></i> _('Download')</a>
+			                </li>
+			        		<li>
+			        			<a data-action="delete" href="javascript:void(0)"><i class="icon-trash"></i> _('Delete')</a>
+			        		</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		{/side}
+	</figure>
+
+	{+title}
+	{#Item}
+    	<h5>{Name}</h5>
+		<!--dl><dt>Source</dt><dd>6</dd></dl-->
+    	<!--a data-placement="top" title="add to scratchpad" rel="tooltip" class="add-to-scratchpad" href="#"></a>
+    	<span style="display:none; position:absolute" class="label label-important alertAlreadyAdded">already added</span-->
+    {/Item}
+    {/title}
+            
+</div>
