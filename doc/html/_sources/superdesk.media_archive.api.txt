@@ -1,10 +1,18 @@
 api Package
 ===========
 
-:mod:`api` Package
-------------------
+:mod:`audio_data` Module
+------------------------
 
-.. automodule:: superdesk.media_archive.api
+.. automodule:: superdesk.media_archive.api.audio_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`audio_info` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.api.audio_info
     :members:
     :undoc-members:
     :show-inheritance:
