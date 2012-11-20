@@ -68,117 +68,11 @@
 &#64;author: Gabriel Nistor</p>
 <p>APIs package.</p>
 </div>
-<div class="section" id="module-superdesk.source.api.source">
-<span id="source-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">source</span></tt> Module<a class="headerlink" href="#module-superdesk.source.api.source" title="Permalink to this headline">¶</a></h2>
-<p>Created on May 2, 2012</p>
-<p>&#64;package: superdesk source
-&#64;copyright: 2012 Sourcefabric o.p.s.
-&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
-&#64;author: Gabriel Nistor</p>
-<p>API specifications for source. A source provides content, the source type of a source dictates the format in which
-the content is received from the source.</p>
-<dl class="class">
-<dt id="superdesk.source.api.source.ISourceService">
-<em class="property">class </em><tt class="descclassname">superdesk.source.api.source.</tt><tt class="descname">ISourceService</tt><a class="reference internal" href="_modules/superdesk/source/api/source.html#ISourceService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.api.source.ISourceService" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.IEntityGetCRUDService" title="ally.support.api.entity.IEntityGetCRUDService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.IEntityGetCRUDService</span></tt></a></p>
-<p>Provides the service methods for the source.</p>
-<dl class="method">
-<dt id="superdesk.source.api.source.ISourceService.getAll">
-<tt class="descname">getAll</tt><big>(</big><em>typeKey=None</em>, <em>offset=None</em>, <em>limit=30</em>, <em>detailed=True</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/source/api/source.html#ISourceService.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.api.source.ISourceService.getAll" title="Permalink to this definition">¶</a></dt>
-<dd><p>Provides all the available sources.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="superdesk.source.api.source.QSource">
-<em class="property">class </em><tt class="descclassname">superdesk.source.api.source.</tt><tt class="descname">QSource</tt><a class="reference internal" href="_modules/superdesk/source/api/source.html#QSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.api.source.QSource" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.QEntity" title="ally.support.api.entity.QEntity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.QEntity</span></tt></a></p>
-<p>Provides the query for source model.</p>
-<dl class="attribute">
-<dt id="superdesk.source.api.source.QSource.isModifiable">
-<tt class="descname">isModifiable</tt><a class="headerlink" href="#superdesk.source.api.source.QSource.isModifiable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor used for defining criteria entries in a query object.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.source.api.source.QSource.name">
-<tt class="descname">name</tt><a class="headerlink" href="#superdesk.source.api.source.QSource.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Descriptor used for defining criteria entries in a query object.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="superdesk.source.api.source.Source">
-<em class="property">class </em><tt class="descclassname">superdesk.source.api.source.</tt><tt class="descname">Source</tt><a class="reference internal" href="_modules/superdesk/source/api/source.html#Source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.api.source.Source" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.entity.Entity" title="ally.support.api.entity.Entity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.entity.Entity</span></tt></a></p>
-<p>Provides the source model.</p>
-<dl class="attribute">
-<dt id="superdesk.source.api.source.Source.Id">
-<tt class="descname">Id</tt><em class="property"> = Source.Id(int)</em><a class="headerlink" href="#superdesk.source.api.source.Source.Id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.source.api.source.Source.IsModifiable">
-<tt class="descname">IsModifiable</tt><em class="property"> = Source.IsModifiable(bool)</em><a class="headerlink" href="#superdesk.source.api.source.Source.IsModifiable" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.source.api.source.Source.Name">
-<tt class="descname">Name</tt><em class="property"> = Source.Name(str)</em><a class="headerlink" href="#superdesk.source.api.source.Source.Name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.source.api.source.Source.Type">
-<tt class="descname">Type</tt><em class="property"> = Source.Type(SourceType)</em><a class="headerlink" href="#superdesk.source.api.source.Source.Type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.source.api.source.Source.URI">
-<tt class="descname">URI</tt><em class="property"> = Source.URI(str)</em><a class="headerlink" href="#superdesk.source.api.source.Source.URI" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="source-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">source</span></tt> Module<a class="headerlink" href="#source-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-superdesk.source.api.type">
-<span id="type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">type</span></tt> Module<a class="headerlink" href="#module-superdesk.source.api.type" title="Permalink to this headline">¶</a></h2>
-<p>Created on Apr 19, 2012</p>
-<p>&#64;package: superdesk source
-&#64;copyright: 2012 Sourcefabric o.p.s.
-&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
-&#64;author: Gabriel Nistor</p>
-<p>API specifications for source types. A source type provides the understanding (parsing) for content from a source.</p>
-<dl class="class">
-<dt id="superdesk.source.api.type.ISourceTypeService">
-<em class="property">class </em><tt class="descclassname">superdesk.source.api.type.</tt><tt class="descname">ISourceTypeService</tt><a class="reference internal" href="_modules/superdesk/source/api/type.html#ISourceTypeService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.api.type.ISourceTypeService" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.keyed.IEntityGetService" title="ally.support.api.keyed.IEntityGetService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityGetService</span></tt></a>, <a class="reference internal" href="ally.support.api.html#ally.support.api.keyed.IEntityFindService" title="ally.support.api.keyed.IEntityFindService"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.IEntityFindService</span></tt></a></p>
-<p>Provides the service methods for the source types.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="superdesk.source.api.type.SourceType">
-<em class="property">class </em><tt class="descclassname">superdesk.source.api.type.</tt><tt class="descname">SourceType</tt><a class="reference internal" href="_modules/superdesk/source/api/type.html#SourceType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.api.type.SourceType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="ally.support.api.html#ally.support.api.keyed.Entity" title="ally.support.api.keyed.Entity"><tt class="xref py py-class docutils literal"><span class="pre">ally.support.api.keyed.Entity</span></tt></a></p>
-<p>Provides the source type model.</p>
-<dl class="attribute">
-<dt id="superdesk.source.api.type.SourceType.IsAvailable">
-<tt class="descname">IsAvailable</tt><em class="property"> = SourceType.IsAvailable(bool)</em><a class="headerlink" href="#superdesk.source.api.type.SourceType.IsAvailable" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.source.api.type.SourceType.Key">
-<tt class="descname">Key</tt><em class="property"> = SourceType.Key(str)</em><a class="headerlink" href="#superdesk.source.api.type.SourceType.Key" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="superdesk.source.api.type.SourceType.Name">
-<tt class="descname">Name</tt><em class="property"> = SourceType.Name(str)</em><a class="headerlink" href="#superdesk.source.api.type.SourceType.Name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="type-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">type</span></tt> Module<a class="headerlink" href="#type-module" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -192,8 +86,8 @@ the content is received from the source.</p>
   <ul>
 <li><a class="reference internal" href="#">api Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">api</span></tt> Package</a></li>
-<li><a class="reference internal" href="#module-superdesk.source.api.source"><tt class="docutils literal"><span class="pre">source</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-superdesk.source.api.type"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
+<li><a class="reference internal" href="#source-module"><tt class="docutils literal"><span class="pre">source</span></tt> Module</a></li>
+<li><a class="reference internal" href="#type-module"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>

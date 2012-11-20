@@ -1,6 +1,30 @@
 impl Package
 ============
 
+:mod:`audio_data` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.impl.audio_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`audio_info` Module
+------------------------
+
+.. automodule:: superdesk.media_archive.impl.audio_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`audio_persist` Module
+---------------------------
+
+.. automodule:: superdesk.media_archive.impl.audio_persist
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`image_data` Module
 ------------------------
 
