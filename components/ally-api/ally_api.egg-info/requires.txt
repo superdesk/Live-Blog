@@ -1,1 +1,0 @@
-ally_utilities >= 1.0

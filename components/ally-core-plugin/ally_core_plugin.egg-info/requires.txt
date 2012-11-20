@@ -1,2 +1,0 @@
-ally_utilities >= 1.0
-support_cdm >= 1.0
