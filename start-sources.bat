@@ -1,6 +1,6 @@
 @ECHO OFF
 setlocal
-SET ALLYPATH=..\ally-py
+SET ALLYPATH=..\
 SET ALLYCOM=%ALLYPATH%components\
 set PYTHONPATH=%ALLYCOM%ally-api
 set PYTHONPATH=%PYTHONPATH%;%ALLYCOM%ally-authentication
