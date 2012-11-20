@@ -6,5 +6,6 @@ Subpackages
 
 .. toctree::
 
+    resources.exiv2
     resources.ffmpeg
 
