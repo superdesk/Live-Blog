@@ -59,55 +59,11 @@
             
   <div class="section" id="impl-package">
 <h1>impl Package<a class="headerlink" href="#impl-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-superdesk.source.impl.source">
-<span id="source-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">source</span></tt> Module<a class="headerlink" href="#module-superdesk.source.impl.source" title="Permalink to this headline">¶</a></h2>
-<p>Created on May 3, 2012</p>
-<p>&#64;package: superdesk source
-&#64;copyright: 2012 Sourcefabric o.p.s.
-&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
-&#64;author: Gabriel Nistor</p>
-<p>Contains the SQL alchemy implementation for source API.</p>
-<dl class="class">
-<dt id="superdesk.source.impl.source.SourceServiceAlchemy">
-<em class="property">class </em><tt class="descclassname">superdesk.source.impl.source.</tt><tt class="descname">SourceServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/source/impl/source.html#SourceServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.impl.source.SourceServiceAlchemy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.entity.EntityGetCRUDServiceAlchemy" title="sql_alchemy.impl.entity.EntityGetCRUDServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.entity.EntityGetCRUDServiceAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.source.api.html#superdesk.source.api.source.ISourceService" title="superdesk.source.api.source.ISourceService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.source.api.source.ISourceService</span></tt></a></p>
-<p>Implementation for &#64;see: ISourceService</p>
-<dl class="method">
-<dt id="superdesk.source.impl.source.SourceServiceAlchemy.getAll">
-<tt class="descname">getAll</tt><big>(</big><em>typeKey=None</em>, <em>offset=None</em>, <em>limit=None</em>, <em>detailed=False</em>, <em>q=None</em><big>)</big><a class="reference internal" href="_modules/superdesk/source/impl/source.html#SourceServiceAlchemy.getAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.impl.source.SourceServiceAlchemy.getAll" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#64;see: ISourceService.getAll</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="superdesk.source.impl.source.SourceServiceAlchemy.insert">
-<tt class="descname">insert</tt><big>(</big><em>source</em><big>)</big><a class="reference internal" href="_modules/superdesk/source/impl/source.html#SourceServiceAlchemy.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.impl.source.SourceServiceAlchemy.insert" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#64;see: ISourceService.insert</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="superdesk.source.impl.source.SourceServiceAlchemy.update">
-<tt class="descname">update</tt><big>(</big><em>source</em><big>)</big><a class="reference internal" href="_modules/superdesk/source/impl/source.html#SourceServiceAlchemy.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.impl.source.SourceServiceAlchemy.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#64;see: ISourceService.update</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="source-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">source</span></tt> Module<a class="headerlink" href="#source-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-superdesk.source.impl.type">
-<span id="type-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">type</span></tt> Module<a class="headerlink" href="#module-superdesk.source.impl.type" title="Permalink to this headline">¶</a></h2>
-<p>Created on May 3, 2012</p>
-<p>&#64;package: superdesk source
-&#64;copyright: 2012 Sourcefabric o.p.s.
-&#64;license: <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.txt">http://www.gnu.org/licenses/gpl-3.0.txt</a>
-&#64;author: Gabriel Nistor</p>
-<p>Contains the SQL alchemy implementation for source type API.</p>
-<dl class="class">
-<dt id="superdesk.source.impl.type.SourceTypeServiceAlchemy">
-<em class="property">class </em><tt class="descclassname">superdesk.source.impl.type.</tt><tt class="descname">SourceTypeServiceAlchemy</tt><a class="reference internal" href="_modules/superdesk/source/impl/type.html#SourceTypeServiceAlchemy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superdesk.source.impl.type.SourceTypeServiceAlchemy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.keyed.EntityGetServiceAlchemy" title="sql_alchemy.impl.keyed.EntityGetServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityGetServiceAlchemy</span></tt></a>, <a class="reference internal" href="sql_alchemy.impl.html#sql_alchemy.impl.keyed.EntityFindServiceAlchemy" title="sql_alchemy.impl.keyed.EntityFindServiceAlchemy"><tt class="xref py py-class docutils literal"><span class="pre">sql_alchemy.impl.keyed.EntityFindServiceAlchemy</span></tt></a>, <a class="reference internal" href="superdesk.source.api.html#superdesk.source.api.type.ISourceTypeService" title="superdesk.source.api.type.ISourceTypeService"><tt class="xref py py-class docutils literal"><span class="pre">superdesk.source.api.type.ISourceTypeService</span></tt></a></p>
-<p>Implementation for &#64;see: ISourceTypeService</p>
-</dd></dl>
-
+<div class="section" id="type-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">type</span></tt> Module<a class="headerlink" href="#type-module" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -120,8 +76,8 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">impl Package</a><ul>
-<li><a class="reference internal" href="#module-superdesk.source.impl.source"><tt class="docutils literal"><span class="pre">source</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-superdesk.source.impl.type"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
+<li><a class="reference internal" href="#source-module"><tt class="docutils literal"><span class="pre">source</span></tt> Module</a></li>
+<li><a class="reference internal" href="#type-module"><tt class="docutils literal"><span class="pre">type</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>

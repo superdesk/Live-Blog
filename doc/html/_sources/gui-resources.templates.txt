@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    gui-resources.templates.archive
     gui-resources.templates.configure
     gui-resources.templates.layouts
     gui-resources.templates.list
