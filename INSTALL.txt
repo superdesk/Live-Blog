@@ -1,4 +1,4 @@
-Installation procedure for Livedesk V.1.0 (for developers)
+Installation procedure for Livedesk v0.9 (for developers)
 http://www.sourcefabric.org
 
 
