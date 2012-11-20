@@ -1,0 +1,10 @@
+x86 Package
+===========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.exiv2.Windows.x86.bin
+
