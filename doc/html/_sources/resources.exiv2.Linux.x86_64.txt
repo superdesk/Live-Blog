@@ -1,0 +1,11 @@
+x86_64 Package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    resources.exiv2.Linux.x86_64.bin
+    resources.exiv2.Linux.x86_64.lib
+

@@ -1,2 +1,0 @@
-gui
-__plugin__
