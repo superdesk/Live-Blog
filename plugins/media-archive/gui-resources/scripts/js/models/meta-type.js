@@ -1,5 +1,5 @@
 define([ 'gizmo/superdesk' ],
-function(giz, MetaType)
+function(giz)
 {
 	return giz.Model.extend({  });
 });
