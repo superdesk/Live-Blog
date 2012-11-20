@@ -6,6 +6,5 @@ Subpackages
 
 .. toctree::
 
-    gui-resources.scripts.build
     gui-resources.scripts.js
 
