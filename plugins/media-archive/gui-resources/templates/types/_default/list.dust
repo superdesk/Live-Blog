@@ -1,0 +1,42 @@
+<div class="media-box-hover-list" style="-moz-user-select: none; top: -1995px; left: 0px;">
+  	{+body}
+  	<figure><img src="pictures/pic2.jpg"></figure>
+    <div class="actions-left">
+    	 <div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div>
+         <a data-placement="bottom" rel="tooltip" class="add-to-scratchpad" href="#" data-original-title="add to scratchpad"></a>
+         <span style="display:none; position:absolute" class="label label-important alertAlreadyAdded">already added</span>
+    </div>
+    <div class="media-info">
+        <h5>Title 2</h5>
+        <dl>
+            <dt>Source</dt><dd>4</dd>
+        </dl>           
+    </div>
+    {/body}
+
+	<div class="actions-right">
+    	<div class="btn-group">
+        	<button class="btn btn-mini">action</button>
+			<button data-toggle="dropdown" class="btn btn-mini dropdown-toggle">
+            	<span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu pull-right">
+				<li>
+              		<a class="viewDetails" href="javascript:void(0)"><i class="icon-eye-open"></i> _('View details')</a>
+              	</li>
+        		<li>
+        			<a href="javascript:void(0)"><i class="icon-pencil"></i> _('Edit')</a>
+        		</li>
+        		<li>
+        			<a href="javascript:void(0)"><i class="icon-list-alt"></i> _('Edit metadata')</a>
+        		</li>
+                <li>
+                	<a href="javascript:void(0)"><i class="icon-download-alt"></i> _('Download')</a>
+                </li>
+        		<li>
+        			<a href="javascript:void(0)"><i class="icon-trash"></i> _('Delete')</a>
+        		</li>
+          </ul>
+        </div>
+    </div>
+</div>
