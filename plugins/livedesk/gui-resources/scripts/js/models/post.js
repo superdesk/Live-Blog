@@ -19,7 +19,7 @@ function(Gizmo)
 		{
 			var removeHref = this.href;
 			if(this.href.indexOf('LiveDesk/Blog') !== -1 ) {
-				removeHref = removeHref.replace(/LiveDesk\/Blog\/\d/,'Superdesk')
+				removeHref = removeHref.replace(/LiveDesk\/Blog\/[\d]+/,'Superdesk')
 			}
 			var
 				self = this,
