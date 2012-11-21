@@ -59,7 +59,13 @@ function($, superdesk, giz, gizList, MetaData, MetaType)
         /*!
          * @return MetaDataCollection
          */
-        getCollection: function(){ return !this.collection ? new MetaDataCollection : this.collection; },
+        getCollection: function(){ return !this.collection ? (this.collection = new MetaDataCollection) : this.collection; },
+        refreshData: function()
+        {
+            data = gizList.ListView.prototype.refreshData.call(this);
+            data.thumbSize = 'medium';
+            return data;
+        },
         displayModes: ['grid-view', 'list-view'],
         displayMode: 0,
         getItemView: function(model)
