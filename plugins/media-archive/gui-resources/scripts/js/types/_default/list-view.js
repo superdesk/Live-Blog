@@ -3,12 +3,12 @@ define
     'jquery',
     'jquery/superdesk',
     'gizmo/superdesk',
-    config.guiJs('media-archive', 'types/_default/view'),
+    config.guiJs('media-archive', 'types/_default/common'),
     'tmpl!media-archive>types/_default/list'
 ],
-function($, superdesk, giz, View)
+function($, superdesk, giz, base)
 {
-    ItemView = View.extend({});
+    ItemView = base.item.extend({});
     return ItemView;
 });
 
