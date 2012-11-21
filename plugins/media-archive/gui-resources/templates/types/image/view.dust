@@ -1,0 +1,2 @@
+{>"media-archive>types/_default/view"/}
+{<content}<figure><img src="{Thumbnail.href}" /></figure>{/content}

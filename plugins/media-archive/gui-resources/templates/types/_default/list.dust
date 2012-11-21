@@ -35,23 +35,7 @@
 			<button data-toggle="dropdown" class="btn btn-mini dropdown-toggle">
             	<span class="caret"></span>
 			</button>
-			<ul class="dropdown-menu pull-right">
-				<li>
-              		<a class="viewDetails" href="javascript:void(0)"><i class="icon-eye-open"></i> _('View details')</a>
-              	</li>
-        		<li>
-        			<a href="javascript:void(0)"><i class="icon-pencil"></i> _('Edit')</a>
-        		</li>
-        		<li>
-        			<a href="javascript:void(0)"><i class="icon-list-alt"></i> _('Edit metadata')</a>
-        		</li>
-                <li>
-                	<a href="javascript:void(0)"><i class="icon-download-alt"></i> _('Download')</a>
-                </li>
-        		<li>
-        			<a href="javascript:void(0)"><i class="icon-trash"></i> _('Delete')</a>
-        		</li>
-          </ul>
+			{>"media-archive>types/_default/menu"/}
         </div>
     </div>
     {/side}
