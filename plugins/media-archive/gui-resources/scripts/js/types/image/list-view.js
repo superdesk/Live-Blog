@@ -4,6 +4,7 @@ define
     'jquery/superdesk',
     'gizmo/superdesk',
     config.guiJs('media-archive', 'types/_default/list-view'),
+    config.guiJs('media-archive', 'types/image/common'),
     'tmpl!media-archive>types/image/list'
 ],
 function($, superdesk, giz, ItemView)
@@ -11,11 +12,13 @@ function($, superdesk, giz, ItemView)
     /*!
      * @see gizmo/views/list/ItemView
      */
-    AudioView = ItemView.extend
+    ImageView = ItemView.extend
     ({
-        tmpl: 'media-archive>types/image/list'
+        tmpl: 'media-archive>types/image/list',
+        editClass: common.edit,
+        viewClass: common.view
     });
     
-    return AudioView;
+    return ImageView;
 });
 
