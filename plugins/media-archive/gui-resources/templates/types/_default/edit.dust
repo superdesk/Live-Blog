@@ -1,0 +1,9 @@
+{>"media-archive>types/_default/view"/}
+{<meta}
+<div class="span6">
+	<dl>
+    	{#Meta}<dt><input value="{Key}" /></dt><dd><input value="{Value}" /></dd>{/Meta}
+	</dl>
+</div>
+{/meta}
+{<footer}{/footer}
