@@ -1,0 +1,36 @@
+<li class="soundcloud draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
+    <div class="drag-bar"></div>
+    <div class="tool-box-right">
+    	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
+    </div>
+    
+    <div class="result-content" style="display:block; position:relative; min-height: 90px;">
+		<img src="{Meta.artwork_url}" style="position:absolute; max-width: 80px; max-height: 64px; right: 5px;">
+        <div style="display:block; right: 90px; position: absolute; left:5px;">
+            <h3><a href="{Meta.permalink_url}" target="_blank">{Meta.title|s}</a></h3>
+            <p class="result-text" style="float:left; text-align: left; height:51px;">
+                    {Meta.description|s}&nbsp;
+            </p>
+            
+        </div>
+        <div style="display:block; width: 100%; float:left; position: absolute; bottom:5px;">
+            <p class="attributes" >
+                    <i class="source-icon">
+                            <img src="http://g.etfv.co/http://www.soundcloud.com" style="max-width: 16px" border="0">
+                    </i>
+                    <a class="author-name" href="{Meta.user.permalink_url}" target="_blank">{Meta.user.username}</a>
+                    <time>{Meta.created_at}</time>
+            </p>
+        </div>
+	</div>
+    <div class="editable annotation">
+            {Meta.annotation|s}<br />
+    </div>	
+	
+    <div class="btn-group pull-right clearfix actions hide">
+    	<button class="btn btn-mini cancel">Cancel</button>
+    	<button class="btn btn-mini btn-primary publish">Publish</button>
+   	</div>		
+</li>
+
+
