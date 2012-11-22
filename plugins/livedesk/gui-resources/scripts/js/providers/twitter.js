@@ -283,7 +283,8 @@ $.extend(providers.twitter, {
                         }
                     },
                     error : function(){
-                        self.jsonpError('#twt-timeline-more');
+                        self.stopLoading('#twt-timeline-more');
+                        self.noResults('#twt-timeline-results');
                         self.resetAutoRefresh();
                     }
                 })
@@ -379,7 +380,8 @@ $.extend(providers.twitter, {
                     }
                 },
                 error : function() {
-                    self.jsonpError('#twt-user-more');
+                    self.stopLoading('#twt-user-more');
+                    self.noResults('#twt-user-results');
                     self.resetAutoRefresh();
                 }
             });
@@ -472,7 +474,8 @@ $.extend(providers.twitter, {
                     }
                 },
                 error : function(xOptions, message) {
-                    self.jsonpError('#twt-favorites-more');
+                    self.stopLoading('#twt-favorites-more');
+                    self.noResults('#twt-favorites-results');
                     self.resetAutoRefresh();
                 }
             });
@@ -581,6 +584,7 @@ $.extend(providers.twitter, {
                     }
             },
             error : function() {
+                self.stopLoading('#twt-web-more');
                 self.jsonpError('#twt-web-more');
                 self.resetAutoRefresh();
             }
