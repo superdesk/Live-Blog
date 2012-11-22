@@ -107,8 +107,9 @@ define('providers/youtube', [
             },
             
             trimDesc : function(desc) {
+                desc = typeof desc != 'undefined' ? desc : '';
                 if (desc.length > 200) {
-                    return desc.substring(0, 200) + ' ...;'
+                    return desc.substring(0, 200) + ' ...';
                 } else {
                     return desc;
                 }
