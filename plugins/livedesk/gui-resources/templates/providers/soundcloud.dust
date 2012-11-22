@@ -1,0 +1,7 @@
+<div class="search-header">
+    <input type="text" placeholder="_('Search')" id="soundcloud-search-text" style="display:block">
+</div>
+<ul class="search-result-list scroller" id="soundcloud-sound-holder" style="margin-top:10px;">
+    <div id="soundcloud-sound-results"></div>
+    <div id="soundcloud-sound-more"></div>
+</ul>
