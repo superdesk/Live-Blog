@@ -6,6 +6,7 @@
         </div>
         <div class="module">
         </div>
+		<div class="scratchpad-open-padding"></div>
 	</div>
     <div class="fake-sidebar"></div>
     <div class="main-content" id="main-content">
@@ -44,6 +45,7 @@
         <div class="main-content-inner grid scroller">
 		</div>
           
+        <div class="scratchpad-open-padding"></div></div>
         
     </div>
 	
