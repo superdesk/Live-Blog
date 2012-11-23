@@ -133,55 +133,65 @@ function(providers, Gizmo, $)
 		({
 			timeInterval: 10000,
 			idInterval: 0,
-			_latestCId: 0,
+			_maximCId: 0,
+			_minimOrder: Infinity,			
 			/*!
 			 * for auto refresh
 			 */
 			keep: false,
 			init: function(){ 
 				var self = this;
-				self.model.on('publish reorder', function(evt, data){
-					self.getMaximumNearCid(self.parse([data]));
+				self.model.on('publish reorder', function(evt, post){
+					if((this._maximCId + 1) === parseInt(post.get('CId')))
+						this._maximCId++;
 				});
 				this.on('read update updates',function(evt, data)
 				{
 					if(!data)
 						data = self._list;
-					self.getMaximumCid(self.parse(data));
+					var theData = self._parse(data);
+					self.getMaximCid(theData);
+					self.getMinimOrder(theData);
 				});
-			},
+			},			
 			destroy: function(){ this.stop(); },
 			setIdInterval: function(fn)
 			{
 				this.idInterval = setInterval(fn, this.timeInterval);
 				return this;
 			},
-			getMaximumNearCid: function(data)
+			/*!
+			 * Get the minim Order value from the post list received.
+			 */
+			getMinimOrder: function(data)
 			{
-				for(i=0, count=data.list.length; i<count; i++) {
-					var CId = parseInt(data.list[i].get('CId'))
-					if( !isNaN(CId) && (this._latestCId < CId) && ((this._latestCId + 1) == CId))
-						this._latestCId = CId;
+				for(var i=0, Order, count=data.list.length; i<count; i++) {
+					Order = parseFloat(data.list[i].get('Order'))
+					if( !isNaN(Order) && (this._minimOrder > Order) )
+						this._minimOrder = Order;
 				}
 			},
-			getMaximumCid: function(data)
+			/*!
+			 * Get the maximum CId value from the post list received.
+			 */			
+			getMaximCid: function(data)
 			{
-				for(i=0, count=data.list.length; i<count; i++) {
+				for(var i=0, CId, count=data.list.length; i<count; i++) {
 					var CId = parseInt(data.list[i].get('CId'))
-					if( !isNaN(CId) && (this._latestCId < CId) )
-						this._latestCId = CId;
+					if( !isNaN(CId) && (this._maximCId < CId) )
+						this._maximCId = CId;
 				}
 			},
 			start: function()
 			{
-				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: { 'X-Filter': 'CId, Order'}};
-				if(self._latestCId === 0) delete requestOptions.data;
+				var self = this, requestOptions = {data: {'cId.since': this._maximCId, 'order.start': this._minimOrder}, headers: { 'X-Filter': 'CId, Order'}};
+				if(self._maximCId === 0) delete requestOptions.data;
 				if(!this.keep && self.view && !self.view.checkElement()) 
 				{
 					self.stop();
 					return;
 				}				
-				return this.sync(requestOptions);
+				return this.desc('order').sync(requestOptions);
 				return this;
 			},
 			stop: function()
@@ -206,7 +216,19 @@ function(providers, Gizmo, $)
 		TimelineCollection = AutoCollection.extend
 		({
 			model: Gizmo.Register.Post,
-			href: new Gizmo.Url('/Post/Published')
+			href: new Gizmo.Url('/Post/Published'),
+			_stats: { total: 0, offset: 0, offsetMore: 0 },
+			parse: function(data) {
+				if(data.total)
+//					this._stats.total = data.total;
+//					this._stats.offset = data.offset;
+					if(data.offsetMore !== data.total) {
+						this._stats.offsetMore = data.offsetMore;					
+				}
+				if(data.PostList)
+					return data.PostList;
+				return data;
+			}			
 		}),
 		
 		/*!
@@ -446,7 +468,7 @@ function(providers, Gizmo, $)
 
 		TimelineView = Gizmo.View.extend
 		({
-			limit: 25,
+			limit: 2,
 			offset: 0,
 			events: 
 			{
@@ -474,8 +496,10 @@ function(providers, Gizmo, $)
 					.xfilter(self.xfilter)
 					.limit(self.limit)
 					.offset(self.offset)
+					.desc('order')					
 					.autosync().done(function(data){
-						if(parseInt(data.total)<= self.limit) {
+						self.collection._stats.total = parseInt(data.total);
+						if(self.collection._stats.total <= self.limit) {
 							$('#more').hide();
 						}
 					});
@@ -492,15 +516,15 @@ function(providers, Gizmo, $)
 			more: function(evnt, ui)
 			{
 				var self = this,
-					offset = $(evnt.target).data('offset');
-				offset = offset? offset: 1;
+					offset = self.collection._stats.offsetMore;
+				offset = offset? offset: self.limit;
 				self.collection
 					.xfilter(self.xfilter)
 					.limit(self.limit)
-					.offset(offset*self.limit)
+					.offset(offset)
+					.desc('order')
 					.sync().done(function(data){
-						self.total = parseInt(data.total);
-						if((offset+1)*self.limit >= self.total)
+						if((offset+1)*self.limit >= self.collection._stats.total)
 							$(evnt.target).hide();
 					});
 				$(evnt.target).data('offset', offset+1);
@@ -883,11 +907,6 @@ function(providers, Gizmo, $)
 						cookie: "docksplitter",
 						dockKey: 'Z',   // Alt-Shift-Z in FF/IE
 						accessKey: 'I'  // Alt-Shift-I in FF/IE
-					});
-					
-					$('.main.splitter-pane .scroller', $(self.el)).on('scroll', function()
-					{
-					    $(this).find('[contenteditable]').trigger('blur');
 					});
 					
 					$.superdesk.hideLoader();
