@@ -1571,7 +1571,7 @@ bootstrap.css (line 1929)
     z-index:2;
 }
 
-li.google .config-notif, li.ads .config-notif, li.flickr .config-notif, li.youtube .config-notif  {
+li.google .config-notif, li.ads .config-notif, li.flickr .config-notif, li.youtube .config-notif, li.instagram .config-notif  {
     display: none !important; 
 }
 
@@ -1582,12 +1582,3 @@ li.google .config-notif, li.ads .config-notif, li.flickr .config-notif, li.youtu
     visibility: visible;
 }
 
-.big-icon-instagram { 
-	background-position: 0 -260px;
-}
-a:hover .big-icon-instagram { 
-	background-position: -35px -260px;
-}
-.active .big-icon-instagram, .active a:hover .big-icon-instagram { 
-	background-position: -70px -260px;
-}
