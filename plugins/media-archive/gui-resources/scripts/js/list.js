@@ -2,7 +2,7 @@ requirejs.config
 ({
     paths: 
     { 
-        'media-types': config.gui('media-archive/scripts/js/types') 
+        'media-types': config.gui('media-archive/scripts/js/types')
     }
 });
 define
@@ -70,15 +70,22 @@ function($, superdesk, giz, gizList, MetaData, MetaType)
         displayMode: 0,
         getItemView: function(model)
         {
-            console.log('get view')
+            console.log('get view');
             // make a placeholder element to append the new view after it has been loaded
-            var placeEl = $('<span />');
-            require(['media-types/'+model.get('Type')+'/'+this.displayModes[this.displayMode]], 
-                    function(View)
-                    { 
-                        try{ (new View({ model: model, el: placeEl })).render(); }
-                        catch(e){ console.log(View); }
-                    });
+            var placeEl = $('<span />'),
+                self = this;
+            superdesk.getAction('modules.media-archive.'+model.get('Type'))
+            .done(function(action)
+            {
+                if( action && action.ScriptPath ) 
+                    // TODO clean up this path
+                    require([superdesk.apiUrl+action.ScriptPath+self.displayModes[self.displayMode]+'.js'],
+                            function(View)
+                            { 
+                                try{ (new View({ model: model, el: placeEl })).render(); }
+                                catch(e){ console.log(View); }
+                            });
+            });
             
             return placeEl;
         }
