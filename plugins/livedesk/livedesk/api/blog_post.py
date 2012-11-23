@@ -10,7 +10,7 @@ API specifications for livedesk blog posts.
 '''
 
 from .blog import Blog
-from ally.api.config import service, call, INSERT, query, UPDATE
+from ally.api.config import service, call, INSERT, query, UPDATE, extension
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.post.api.post import Post, QPostUnpublished, \
     QPost, IPostService
@@ -21,6 +21,7 @@ from ally.api.criteria import AsRangeOrdered, AsBoolean
 from ally.api.authentication import auth
 from superdesk.person.api.person import Person
 from superdesk.post.api.type import PostType
+from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -66,6 +67,21 @@ class QBlogPost(QPost, QWithCId):
 
 # --------------------------------------------------------------------
 
+@extension
+class IterPost(IterPart):
+    '''
+    The post iterable that provides extended information on the posts collection. The offset more is constructed withouth
+	the cId filtering, the idea is if you provide in your query a filter saying that you require elements that have an
+	order greater then a certain value and also provide a cId in your filtering, you will have a return that is presenting
+	you the changed entries based on the cId, but the offsetMore will present you how many posts there are that are greater
+	then the provided order with no regards to cId. This is helpful when requesting the next page because the offset more
+	will tell you exactly fron where you next page will start. As a conclusion to have a relevant offsetMore you need to
+	query based on order and cId.
+    '''
+    offsetMore = int
+
+# --------------------------------------------------------------------
+
 @service
 class IBlogPostService:
     '''
@@ -82,7 +98,7 @@ class IBlogPostService:
     def getPublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
                      offset:int=None, limit:int=None, detailed:bool=True, q:QBlogPostPublished=None) -> Iter(BlogPost):
         '''
-        Provides all the blogs published posts.
+        Provides all the blogs published posts. The detailed iterator will return a @see: IterPost.
         '''
 
     @call(webName='Unpublished')
