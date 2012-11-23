@@ -4,13 +4,41 @@ define
     'jquery/superdesk',
     'gizmo/superdesk',
     config.guiJs('media-archive', 'models/meta-info'),
+    config.guiJs('media-archive', 'models/languages'),
     'tmpl!media-archive>types/_default/menu', // list/grid item context menu
     'tmpl!media-archive>types/_default/view',
-    'tmpl!media-archive>types/_default/edit'
+    'tmpl!media-archive>types/_default/edit',
+    'tmpl!media-archive>types/_default/languages'
 ],
-function($, superdesk, giz, MetaInfo)
+function($, superdesk, giz, MetaInfo, Languages)
 {
     var 
+    /*!
+     * edit box for languages
+     */
+    LanguagesEditView = giz.View.extend
+    ({
+        tagName: 'span',
+        init: function()
+        {
+            this.collection = new Languages();
+            this.collection.on('read update', this.render, this);
+            this.collection.xfilter('Id, Name').sync();
+        },
+        render: function(selected)
+        {
+            var data = {Languages: this.collection.feed()};
+            // select if we have any value
+            if(selected) data.selected = function(chk, ctx){ return ctx.current().Id == selected ? "selected='selected'" : ""; }
+            this.el && $(this.el).tmpl('media-archive>types/_default/languages', data);
+            return this;
+        }
+    }),
+    /*!
+     * the instance
+     * we're using this to generate the same tpl for language editing
+     */
+    LangEditView = new LanguagesEditView,
     /*!
      * view item view
      */
@@ -28,11 +56,18 @@ function($, superdesk, giz, MetaInfo)
         modalState: false,
         init: function()
         {
-            this.model.on('full-refresh', this.render, this);
+            this.getModel().on('full-refresh', this.render, this);
             var self = this;
             $(this.el).modal({show: false});
             $(this.el).on('hide', function(){ self.modalState = false; });
             $(this.el).on('show', function(){ self.modalState = true; });
+        },
+        /*!
+         * adds possibillity to overwrite the model
+         */
+        getModel: function()
+        {
+            return this.model;
         },
         refresh: function()
         {
@@ -42,10 +77,12 @@ function($, superdesk, giz, MetaInfo)
             this.model.refresh();
             return this;
         },
+        /*!
+         * build data for template
+         */
         feedTemplate: function()
         {
             var data = this.model.feed(true);
-            
             // calculate human readable size
             data.SizeInBytes = parseInt(data.SizeInBytes);
             var sizes = [ _('n/a'), _('Bytes'), _('KB'), _('MB'), _('GB'), _('TB'), _('PB'), _('EB'), _('ZB'), _('YB')],
@@ -57,7 +94,15 @@ function($, superdesk, giz, MetaInfo)
         tmpl: 'media-archive>types/_default/view',
         render: function()
         {
-            $(this.el).tmpl(this.tmpl, this.feedTemplate());
+            var self = this,
+                data = this.feedTemplate();
+            // get language box 
+            data.Languages = LangEditView.render().el.clone().html();
+            // get language box for each meta
+            for(var i=0; i<data.Meta.length; i++)
+                data.Meta[i].Languages = LangEditView.render(data.Meta.Language).el.clone().html();
+            $(this.el).tmpl(this.tmpl, data);
+            return this;
         },
         activate: function()
         {
@@ -74,9 +119,16 @@ function($, superdesk, giz, MetaInfo)
      */
     Edit = ViewDetails.extend
     ({
-        tmpl: 'media-archive>types/_default/edit',
         events:
         {
+            '[data-dismiss="modal"]': { 'click' : 'hide' }
+        },
+        edit: $.noop,
+        tmpl: 'media-archive>types/_default/edit',
+        init: function()
+        {
+            this.getModel().on('full-refresh', this.render, this);
+            var self = this;
         }
     }),
     
@@ -115,19 +167,19 @@ function($, superdesk, giz, MetaInfo)
         editView: false, // the instance
         getEdit: function()
         {
-            return !this.editView ? (this.editView = new (this.editClass)({ model: this.model})) : this.editView;
+            return !this.editView ? (this.editView = new (this.editClass)({ model: this.model })) : this.editView;
         },
         /*!
          * show "edit" modal
-         * doing a trick to reuse the view element for edit if open
+         * doing a trick to reuse the view element if open for edit 
          */
         edit: function()
         {
             var e = this.getEdit(),
-                v = this.getViewDetails();
-            v.modalState && e.setElement(v.el);
+                v = this.viewDetailsView;
+            (v && v.modalState) && e.setElement(v.el);
             e.refresh();
-            !v.modalState && e.activate(); 
+            (!v || !v.modalState) && e.activate(); 
         },
         
         download: function(){},
@@ -146,14 +198,14 @@ function($, superdesk, giz, MetaInfo)
                 data = this.model.feed();
             data.Content = function(chk, ctx)
             {
-                return data.Thumbnail && data.Thumbnail.href ? '<img src="'+data.Thumbnail.href+'" />' : ''
-            }
+                return data.Thumbnail && data.Thumbnail.href ? '<img src="'+data.Thumbnail.href+'" />' : '';
+            };
             $(this.el).tmpl(this.tmpl, {Item: data}).prop('model', this.model).prop('view', this);
             
             return this;
         }
     });
     
-    return {item: ItemView, view: ViewDetails, edit: Edit};
+    return {item: ItemView, view: ViewDetails, edit: Edit, languages: LangEditView};
 });
 
