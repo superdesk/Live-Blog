@@ -28,7 +28,10 @@
 			{+meta}
             <div class="span6">
             	<dl>
-                	{#Meta}<dt>{Key}</dt><dd>{Value}</dd>{/Meta}
+                	{#Meta}
+                		<dt>_('Title')</dt><dd>{Title}</dd>
+                		<dt>_('Description')</dt><dd>{Description}</dd>
+                	{/Meta}
             	</dl>
             </div>
             {/meta}
