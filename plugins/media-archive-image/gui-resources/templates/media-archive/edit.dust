@@ -1,6 +1,7 @@
-{>"media-archive>types/_default/view"/}
+{>"media-archive-image>media-archive/view"/}
+
 {<meta}
-<form class="form-horizontal row-fluid">
+	<form class="form-horizontal row-fluid">
     {#Meta}
 	<fieldset>
     	<dl>
@@ -16,10 +17,13 @@
             <dd>
             	<input name="Description" class="span3" value="{Description}" />
 			</dd>
+			<dt>_('Caption')</dt>
+            <dd>
+            	<input name="Caption" class="span3" value="{Caption}" />
+			</dd>
         </dl>
     </fieldset>
     {/Meta}
-    
     <fieldset data-fieldset="add">
     	<dl>
         	<dt>_('Language')</dt>
@@ -34,9 +38,11 @@
             <dd>
             	<input name="Description" class="span3" />
 			</dd>
+			<dt>_('Caption')</dt>
+            <dd>
+            	<input name="Caption" class="span3" />
+			</dd>
         </dl>
 	</fieldset>
-	
 </form>
 {/meta}
-{<footer}{/footer}
