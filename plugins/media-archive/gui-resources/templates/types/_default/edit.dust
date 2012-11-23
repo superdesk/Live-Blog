@@ -1,9 +1,42 @@
 {>"media-archive>types/_default/view"/}
 {<meta}
-<div class="span6">
-	<dl>
-    	{#Meta}<dt><input value="{Key}" /></dt><dd><input value="{Value}" /></dd>{/Meta}
-	</dl>
-</div>
+<form class="form-horizontal row-fluid">
+    {#Meta}
+	<fieldset>
+    	<dl>
+        	<dt>_('Language')</dt>
+            <dd>
+            	{Languages|s}
+			</dd>
+			<dt>_('Title')</dt>
+            <dd>
+            	<input name="Title" class="span3" value="{Title}" />
+			</dd>
+			<dt>_('Description')</dt>
+            <dd>
+            	<input name="Description" class="span3" value="{Description}" />
+			</dd>
+        </dl>
+    </fieldset>
+    {/Meta}
+    
+    <fieldset data-fieldset="add">
+    	<dl>
+        	<dt>_('Language')</dt>
+            <dd>
+            	{Languages|s}
+			</dd>
+			<dt>_('Title')</dt>
+            <dd>
+            	<input name="Title" class="span3" />
+			</dd>
+			<dt>_('Description')</dt>
+            <dd>
+            	<input name="Description" class="span3" />
+			</dd>
+        </dl>
+	</fieldset>
+	
+</form>
 {/meta}
 {<footer}{/footer}
