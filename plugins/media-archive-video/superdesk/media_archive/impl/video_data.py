@@ -14,8 +14,12 @@ from ..meta.video_data import VideoDataMapped
 from .meta_data import MetaDataServiceBaseAlchemy
 from ally.container.ioc import injected
 from ally.container.support import setup
-from superdesk.media_archive.core.spec import IMetaDataHandler, IMetaDataReferencer
+from superdesk.media_archive.core.spec import IMetaDataHandler, IMetaDataReferencer,\
+    IThumbnailManager
 from superdesk.media_archive.api.video_data import IVideoDataService
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
+from cdm.spec import ICDM
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -27,14 +31,29 @@ class VideoDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, I
     '''
 
     handler = IMetaDataHandler
+    
+    cdmArchive = ICDM
+    # The archive CDM.
+    thumbnailManager = IThumbnailManager; wire.entity('thumbnailManager')
+    # Provides the thumbnail referencer
 
     def __init__(self):
-        assert isinstance(self.handler, IMetaDataHandler), \
-        'Invalid handler %s' % self.handler
+        assert isinstance(self.handler, IMetaDataHandler), 'Invalid handler %s' % self.handler
+        assert isinstance(self.cdmArchive, ICDM), 'Invalid archive CDM %s' % self.cdmArchive
+        assert isinstance(self.thumbnailManager, IThumbnailManager), 'Invalid thumbnail manager %s' % self.thumbnailManager
+       
         MetaDataServiceBaseAlchemy.__init__(self, VideoDataMapped, QVideoData, self)
     
     # ----------------------------------------------------------------
 
     def populate(self, metaData, scheme, thumbSize=None):
-        
+        '''
+        @see: IMetaDataReferencer.populate
+        '''
+        assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
+        metaData.Content = self.cdmArchive.getURI(metaData.content, scheme)
+        self.thumbnailManager.populate(metaData, scheme, thumbSize)
+
         return metaData
+    
+    # ----------------------------------------------------------------
