@@ -709,6 +709,25 @@ section.main-section {
 	.active .big-icon-youtube, .active a:hover .big-icon-youtube { 
 		background-position: -70px -208px;
 		} 
+
+.big-icon-soundcloud { 
+	background-position: 0 -234px;
+}
+a:hover .big-icon-soundcloud { 
+	background-position: -35px -234px;
+}
+.active .big-icon-soundcloud, .active a:hover .big-icon-soundcloud { 
+	background-position: -70px -234px;
+}
+.big-icon-instagram { 
+	background-position: 0 -260px;
+}
+a:hover .big-icon-instagram { 
+	background-position: -35px -260px;
+}
+.active .big-icon-instagram, .active a:hover .big-icon-instagram { 
+	background-position: -70px -260px;
+}
 		
 /*
 ====================================================
@@ -1561,4 +1580,14 @@ li.google .config-notif, li.ads .config-notif, li.flickr .config-notif, li.youtu
 }
 #flickr-image-results > li.draggable:hover .drag-bar {
     visibility: visible;
+}
+
+.big-icon-instagram { 
+	background-position: 0 -260px;
+}
+a:hover .big-icon-instagram { 
+	background-position: -35px -260px;
+}
+.active .big-icon-instagram, .active a:hover .big-icon-instagram { 
+	background-position: -70px -260px;
 }
