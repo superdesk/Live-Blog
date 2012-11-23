@@ -4,8 +4,8 @@ define
     'jquery/superdesk',
     'gizmo/superdesk',
     config.guiJs('media-archive', 'types/_default/grid-view'),
-    config.guiJs('media-archive', 'types/image/common'),
-    'tmpl!media-archive>types/image/grid'
+    config.guiJs('media-archive-image', 'media-archive/common'),
+    'tmpl!media-archive-image>media-archive/grid'
 ],
 function($, superdesk, giz, ItemView, common)
 {
@@ -14,7 +14,7 @@ function($, superdesk, giz, ItemView, common)
      */
     ImageView = ItemView.extend
     ({
-        tmpl: 'media-archive>types/image/grid',
+        tmpl: 'media-archive-image>media-archive/grid',
         editClass: common.edit,
         viewClass: common.view
     });
