@@ -13,13 +13,24 @@ from ..superdesk import service
 from ally.container import ioc
 from superdesk.media_archive.api.video_data import IVideoDataService
 from superdesk.media_archive.impl.video_data import VideoDataServiceAlchemy
+from cdm.spec import ICDM
+from __plugin__.cdm.local_cdm import contentDeliveryManager
+from cdm.support import ExtendPathCDM
 
 # --------------------------------------------------------------------
 
 videoDataHandler = ioc.getEntity('videoDataHandler', service)
 
+@ioc.entity
+def cdmArchive() -> ICDM:
+    '''
+    The content delivery manager (CDM) for the media archive.
+    '''
+    return ExtendPathCDM(contentDeliveryManager(), 'media_archive/%s')
+
 @ioc.replace(ioc.getEntity(IVideoDataService, service))
 def videoData() -> IVideoDataService:
     b = VideoDataServiceAlchemy()
+    b.cdmArchive = cdmArchive()
     b.handler = videoDataHandler()
     return b
