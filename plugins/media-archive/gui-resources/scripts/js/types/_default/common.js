@@ -52,6 +52,7 @@ function($, superdesk, giz, MetaInfo, Languages)
         edit: function()
         {
             this.parentView.edit.call(this.parentView);
+            this.hide();
         },
         modalState: false,
         init: function()
@@ -101,6 +102,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             // get language box for each meta
             for(var i=0; i<data.Meta.length; i++)
                 data.Meta[i].Languages = LangEditView.render(data.Meta.Language).el.clone().html();
+            console.log(this.el, this.tmpl);
             $(this.el).tmpl(this.tmpl, data);
             return this;
         },
@@ -121,15 +123,107 @@ function($, superdesk, giz, MetaInfo, Languages)
     ({
         events:
         {
-            '[data-dismiss="modal"]': { 'click' : 'hide' }
+            '[data-dismiss="modal"]': { 'click' : 'hide' },
+            '[data-action="save"]': { 'click' : 'save' },
+            '[data-action="show-add-meta"]': { 'click' : 'showAddMeta' },
+            '[data-action="add-meta"]': { 'click' : 'addMeta' },
+            '[data-action="delete-meta"]': { 'click' : 'deleteMeta' }
         },
         edit: $.noop,
+        /*!
+         * return the MetaInfo collection
+         */
+        getInfoNode: function()
+        {
+            return this.model.get('MetaInfo');
+        },
+        /*!
+         * return new meta info object
+         * used on insert
+         */
+        getNewMetaInfo: function()
+        {
+            return new MetaInfo;
+        },
+        /*!
+         * handles save action
+         */
+        save: function()
+        {
+            var self = this;
+            self.getInfoNode().each(function()
+            {
+                var model = this,
+                    inputs = $(self.el).find("[data-meta='"+this.get('href')+"']").get(0);
+                $('input,select,textarea', inputs).each(function(){ model.set( $(this).attr('name'), $(this).val()); });
+                model.sync().done(self.postSave);
+                
+            });
+        },
+        /*!
+         * calback after save
+         */
+        postSave: function()
+        {
+            $('.save-message', this.el).removeClass('hide');
+        },
+        /*!
+         * add handler
+         */
+        addMeta: function()
+        {
+            var metaInfo = this.getInfoNode();
+                newMeta =  this.getNewMetaInfo(),
+                self = this;
+                
+            newMeta.set('MetaData', this.model.get('Id'));
+            $('input,select,textarea', $("[data-meta='add']:eq(0)", this.el))
+                .each(function(){ newMeta.set( $(this).attr('name'), $(this).val()); });
+            newMeta.sync(newMeta.url.get()).done(function()
+            { 
+                metaInfo._list.push(newMeta);
+                self.postAdd.call(self, arguments[0]); 
+            });
+        },
+        /*!
+         * callback after add
+         */
+        postAdd: function(newMeta)
+        {
+            var addBox = $("[data-meta='add']:eq(0)", this.el),
+                metaBox = addBox.clone();
+            
+            $('select', metaBox).val($('select', addBox).val());
+            metaBox.attr('data-meta', newMeta.href).insertBefore(addBox);
+            metaBox.find('[data-action="add-meta"]')
+                .replaceWith('<button data-action="delete-meta" type="button">'+_('Delete meta')+'</button>');
+            $('input,textarea', addBox).val('');
+            $('select', addBox).val($('select option:eq(0)', addBox).val());
+        },
+        /*!
+         * delete meta handler
+         */
+        deleteMeta: function(evt)
+        {
+            var filedset = $(evt.currentTarget).parents('fieldset[data-meta]:eq(0)');
+                href = filedset.attr('data-meta');
+            this.getInfoNode().get(href).done(function(meta){ meta.remove().sync().done(function(){ filedset.remove(); }); });
+        },
+        /*!
+         * handler for switching to add meta screen
+         */
+        showAddMeta: function()
+        {
+            $('[data-fieldset="add"]', this.el).find('input,select,textarea').eq(0).focus();
+        },
+        
         tmpl: 'media-archive>types/_default/edit',
         init: function()
         {
             this.getModel().on('full-refresh', this.render, this);
             var self = this;
         }
+        
     }),
     
     /*!
@@ -175,6 +269,8 @@ function($, superdesk, giz, MetaInfo, Languages)
          */
         edit: function()
         {
+            this.getEdit().refresh().activate();
+            return;
             var e = this.getEdit(),
                 v = this.viewDetailsView;
             (v && v.modalState) && e.setElement(v.el);
