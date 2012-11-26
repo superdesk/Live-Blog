@@ -1,9 +1,11 @@
 {>"media-archive-image>media-archive/view"/}
 
 {<meta}
-	<form class="form-horizontal row-fluid">
+<div class="span6">
+<form class="form-horizontal row-fluid">
+	<button href="javascript:void(0)" data-action="show-add-meta" class="btn" type="button">_('Add meta')</button>
     {#Meta}
-	<fieldset>
+	<fieldset data-meta="{href}">
     	<dl>
         	<dt>_('Language')</dt>
             <dd>
@@ -21,10 +23,13 @@
             <dd>
             	<input name="Caption" class="span3" value="{Caption}" />
 			</dd>
+            <dd>
+            	<button data-action="delete-meta" class="btn btn-warning" type="button">_('Delete meta')</button>
+			</dd>
         </dl>
     </fieldset>
     {/Meta}
-    <fieldset data-fieldset="add">
+    <fieldset data-meta="add">
     	<dl>
         	<dt>_('Language')</dt>
             <dd>
@@ -42,7 +47,15 @@
             <dd>
             	<input name="Caption" class="span3" />
 			</dd>
+            <dd>
+            	<button data-action="add-meta" class="btn btn-primary" type="button">_('Add meta')</button>
+			</dd>
         </dl>
 	</fieldset>
 </form>
+</div>
 {/meta}
+
+{<footer}
+	<button class="btn" data-action="save">_('save')</button>
+{/footer}
