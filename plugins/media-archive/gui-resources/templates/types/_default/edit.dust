@@ -1,5 +1,6 @@
 {>"media-archive>types/_default/view"/}
-{<meta}
+{+meta}
+<div class="span6">
 <form class="form-horizontal row-fluid">
     {#Meta}
 	<fieldset>
@@ -36,7 +37,9 @@
 			</dd>
         </dl>
 	</fieldset>
-	
 </form>
+</div>
 {/meta}
-{<footer}{/footer}
+{<footer}
+	<button class="btn">_('save')</button>
+{/footer}
