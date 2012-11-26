@@ -11,29 +11,33 @@
     <div class="main-content" id="main-content">
     	<div class="main-content-topnav">
         	<a class="toggle-sidebar-button" href="#"></a>
+            <span class="title">_('Search results') </span>
+            <span class="info">({Total})</span>
+            
         
             <div class="btn-group pull-right">
-            	<a href="#" class="btn"><i class="icon-settings"></i></a>
-            	<a href="#" data-toggle="dropdown" class="btn dropdown-toggle"><span class="caret"></span></a>
+            	<a href="javascript:void(0)" class="btn"><i class="icon-settings"></i></a>
+            	<a href="javascript:void(0)" data-toggle="dropdown" class="btn dropdown-toggle"><span class="caret"></span></a>
             		<ul class="dropdown-menu">
                 		
-                		<li><a href="#"><i class="icon-eye-open"></i> View/Hide details</a></li>
-                         <li class="divider"></li>
-                        <li><a href="#"><i class="icon-th-large"></i> 25 items per page</a></li>
-                		<li><a href="#"><i class="icon-th-large"></i> 50 items per page</a></li>
-                         <li class="divider"></li>
-                        <li><a href="#" id="grid_view"><i class="icon-th"></i> Grid view</a></li>
-                		<li><a href="#" id="list_view"><i class="icon-th-list"></i> List view</a></li>
+                		<li><a href="#"><i class="icon-eye-open"></i> _('View/Hide details')</a></li>
+                        <li class="divider"></li>
+                        {#ipp}
+							<li class="{isipp}"><a href="javascript:void(0)" data-ipp="{.}"><i class="icon-th-large"></i> {.} _('items per page')</a></li>
+						{/ipp}
+                        <li class="divider"></li>
+                        <li><a href="javascript:void(0)" id="grid_view"><i class="icon-th"></i> Grid view</a></li>
+                		<li><a href="javascript:void(0)" id="list_view"><i class="icon-th-list"></i> List view</a></li>
               		</ul>
           	</div>
             
    			<div style="margin-right:10px;" class="btn-group pull-right">
-            	<a href="#" class="btn btn-info">Action</a>
+            	<a href="#" class="btn btn-info">_('Action')</a>
             	<a href="#" data-toggle="dropdown" class="btn btn-info dropdown-toggle"><span class="caret"></span></a>
             		<ul class="dropdown-menu">
-                		<li><a href="#" id="add-to-scratchpad-many"><i class="icon-scratchpad"></i> Add to scratchpad</a></li>
-                        <li><a href="#"><i class="icon-download-alt"></i> Download</a></li>
-                		<li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+                		<!--li><a href="#" id="add-to-scratchpad-many"><i class="icon-scratchpad"></i> Add to scratchpad</a></li-->
+                        <li><a href="#"><i class="icon-download-alt"></i> _('Download')</a></li>
+                		<li><a href="#"><i class="icon-trash"></i> _('Delete')</a></li>
               		</ul>
           	</div>
         </div>
