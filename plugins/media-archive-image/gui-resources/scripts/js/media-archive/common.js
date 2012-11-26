@@ -5,10 +5,11 @@ define
     'gizmo/superdesk',
     config.guiJs('media-archive', 'types/_default/common'),
     config.guiJs('media-archive', 'models/image-data'),
+    config.guiJs('media-archive', 'models/image-info'),
     'tmpl!media-archive-image>media-archive/view',
     'tmpl!media-archive-image>media-archive/edit'
 ],
-function($, superdesk, giz, base, ImageData)
+function($, superdesk, giz, base, ImageData, ImageInfo)
 {
     var 
     // vide details view
@@ -34,7 +35,15 @@ function($, superdesk, giz, base, ImageData)
     ({
         tmpl: 'media-archive-image>media-archive/edit',
         feedTemplate: View.prototype.feedTemplate,
-        getModel: View.prototype.getModel
+        getModel: View.prototype.getModel,
+        getInfoNode: function()
+        {
+            return this.model.get('ImageInfo');
+        },
+        getNewMetaInfo: function()
+        {
+            return new ImageInfo;
+        }
     });
     return {edit: Edit, view: View};
 });
