@@ -1,0 +1,1 @@
+<div class="live-blog">	{+header}		<a id="pintotop" href="#">_('to top');</a>		<p style="display: block;" id="liveblog-status" class="update-time">_('updated on ');<span class="new-notification">_('new posts');</span></p>			{/header}	{+list}	{/list}</div>

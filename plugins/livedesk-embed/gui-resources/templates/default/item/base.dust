@@ -1,0 +1,15 @@
+<li class="{+class}default{/class}">
+	{+head}
+	<div class="result-header">
+		<div class="post_info">
+			<time>{time}</time>
+			<p rel="author">_('by'); {author}</p>
+			<a href="#livedeskitem=21.0" rel="bookmark">#</a>
+			<input type="text" data-type="permalink" style="visibility:hidden" value="{permalink}">
+		</div>
+	</div>
+	{/head}
+	{+body}
+	
+	{/body}
+</li>
