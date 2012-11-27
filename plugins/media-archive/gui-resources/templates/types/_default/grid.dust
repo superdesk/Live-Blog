@@ -10,12 +10,12 @@
 	{/side}
 !}
 
-<div class="media-box" style="-moz-user-select: none; top: 12px; left: 12px;">
+<div class="media-box" style="-moz-user-select: none;">
 	<figure>
     	{+body}
     		{#Item}
 		    	{Content|s}
-		        <div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div>
+		        <!--div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div-->
 		        <div class="media-box-button top right">
 		        	<a href="javascript:void(0)" rel="popover"
 		        		data-content="{Description}" data-additional="info" data-original-title="{Title}">

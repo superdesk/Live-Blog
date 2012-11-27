@@ -102,7 +102,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             // get language box for each meta
             for(var i=0; i<data.Meta.length; i++)
                 data.Meta[i].Languages = LangEditView.render(data.Meta.Language).el.clone().html();
-            console.log(this.el, this.tmpl);
+
             $(this.el).tmpl(this.tmpl, data);
             return this;
         },
@@ -265,17 +265,13 @@ function($, superdesk, giz, MetaInfo, Languages)
         },
         /*!
          * show "edit" modal
-         * doing a trick to reuse the view element if open for edit 
          */
         edit: function()
         {
-            this.getEdit().refresh().activate();
-            return;
             var e = this.getEdit(),
                 v = this.viewDetailsView;
-            (v && v.modalState) && e.setElement(v.el);
-            e.refresh();
-            (!v || !v.modalState) && e.activate(); 
+            (!v || !v.modalState) && e.refresh();
+            e.activate();
         },
         
         download: function(){},
