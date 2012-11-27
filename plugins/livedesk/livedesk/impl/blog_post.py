@@ -160,6 +160,25 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         return postEntry.blogPostId
 
+    def unpublish(self, blogId, postId):
+        '''
+        @see: IBlogPostService.unpublish
+        '''
+        post = self.getById(blogId, postId)
+        assert isinstance(post, Post)
+
+        if not post.PublishedOn: raise InputError(Ref(_('Already unpublished'), ref=Post.PublishedOn))
+
+        post.PublishedOn = None
+        self.postService.update(post)
+
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
+        postEntry.CId = self._nextCId()
+        postEntry.Order = self._nextOrdering(blogId)
+        self.session().merge(postEntry)
+
+        return postId
+
     def update(self, blogId, post):
         '''
         @see: IBlogPostService.update
