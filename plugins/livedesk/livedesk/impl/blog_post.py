@@ -174,7 +174,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
         postEntry.CId = self._nextCId()
-        postEntry.Order = self._nextOrdering(blogId)
+        postEntry.Order = None
         self.session().merge(postEntry)
 
         return postId
