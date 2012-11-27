@@ -10,6 +10,7 @@ define([
 		limit: 100,
 		offset: 0,
 		hashIdentifier: 'livedeskitem=',
+		location: '',
 		el: '#livedesk-root',
 		timeInterval: 10000,
 		idInterval: 0,
@@ -72,6 +73,7 @@ define([
 		{		
 			var self = this;
 			self._views = [];
+			self.location = window.location.href.split('#')[0];
 			self.rendered = false;
 			if($.type(self.url) === 'string')
 				self.model = new Gizmo.Register.Blog(self.url.replace('my/',''));				

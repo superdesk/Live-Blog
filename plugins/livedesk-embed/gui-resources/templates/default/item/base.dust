@@ -1,15 +1,24 @@
 <li class="{+class}default{/class}">
+	<a name="{Order}"></a>
 	{+head}
 	<div class="result-header">
 		<div class="post_info">
-			<time>{time}</time>
-			<p rel="author">_('by'); {author}</p>
-			<a href="#livedeskitem=21.0" rel="bookmark">#</a>
+			<time>{CreatedOn}</time>
+			<p rel="author">_('by'); {AuthorName}</p>
+			<a href="#{HashIdentifier}{Order}" rel="bookmark">#</a>
 			<input type="text" data-type="permalink" style="visibility:hidden" value="{permalink}">
 		</div>
+		{+head_bottom}{/head_bottom}
 	</div>
 	{/head}
 	{+body}
-	
+	<div class="result-content">
+		{+body_top}{/body_top}
+		<div class="result-text">{Content|s}</div>
+			{+reference}
+			<p class="attributes"><i class="source-icon"></i>{+reference_name}{/reference_name}</p>
+			{/reference}
+		</div>		
+		{+body_bottom}{/body_bottom}
 	{/body}
 </li>
