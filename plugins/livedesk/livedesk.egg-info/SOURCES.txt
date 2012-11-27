@@ -45,6 +45,7 @@ livedesk/api/blog.py
 livedesk/api/blog_admin.py
 livedesk/api/blog_collaborator.py
 livedesk/api/blog_post.py
+livedesk/api/blog_post_security_sample.py
 livedesk/api/blog_type.py
 livedesk/api/blog_type_post.py
 livedesk/api/domain_livedesk.py
