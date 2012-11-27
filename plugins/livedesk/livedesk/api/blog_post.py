@@ -110,19 +110,25 @@ class IBlogPostService:
     @call
     def insert(self, blogId:Blog.Id, post:Post) -> BlogPost.Id:
         '''
-        Inserts the post for the blog.
+        Inserts the post in the blog.
         '''
 
     @call(method=INSERT, webName='Publish')
     def publish(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
         '''
-        Inserts the post for the blog.
+        Publishes the post in the blog.
         '''
 
     @call(webName='Published')
     def insertAndPublish(self, blogId:Blog.Id, post:Post) -> BlogPost.Id:
         '''
-        Inserts the post for the blog.
+        Inserts and publishes the post in the blog.
+        '''
+
+    @call(method=INSERT, webName='Unpublish')
+    def unpublish(self, blogId:Blog.Id, postId:BlogPost.Id) -> BlogPost.Id:
+        '''
+        Unpublishes the post in the blog.
         '''
 
     @call
@@ -141,9 +147,9 @@ class IBlogPostService:
     def delete(self, id:Post.Id) -> bool:
         '''
         Delete the post for the provided id.
-        
+
         @param id: integer
             The id of the post to be deleted.
-            
+
         @return: True if the delete is successful, false otherwise.
         '''
