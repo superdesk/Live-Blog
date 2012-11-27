@@ -1,3 +1,11 @@
+<div class="subnav subnav-fixed">
+	<a href="javascript:void(0)" class="btn btn-large btn-info pull-right"
+		data-action="add-media"> <span class="media-archive-icon-add"></span>_('Add Media')</a>
+  	<div class="searchbar-container">
+    	<input type="text" name="searchbar">
+    </div>
+</div>
+  
 <section class="main-section">
 	<div class="main-sidebar-left scroller" id="sidebar">
     	<div class="module">
