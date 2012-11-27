@@ -1,0 +1,1 @@
+requirejs.config({	paths: {		'theme': 'livedesk-embed/templates/default',	}});require(['../config'], function(){	require(['livedesk-embed/main']);});
