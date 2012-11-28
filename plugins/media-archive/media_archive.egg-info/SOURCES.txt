@@ -8,6 +8,16 @@ __plugin__/media_archive/service.py
 gui-resources/__init__.py
 gui-resources/scripts/__init__.py
 gui-resources/scripts/js/__init__.py
+gui-resources/scripts/js/models/__init__.py
+gui-resources/scripts/js/types/__init__.py
+gui-resources/scripts/js/types/_default/__init__.py
+gui-resources/scripts/js/types/audio/__init__.py
+gui-resources/scripts/js/types/video/__init__.py
+gui-resources/templates/__init__.py
+gui-resources/templates/types/__init__.py
+gui-resources/templates/types/_default/__init__.py
+gui-resources/templates/types/audio/__init__.py
+gui-resources/templates/types/video/__init__.py
 media_archive.egg-info/PKG-INFO
 media_archive.egg-info/SOURCES.txt
 media_archive.egg-info/dependency_links.txt
