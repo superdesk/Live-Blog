@@ -2,6 +2,7 @@
 	<div class="drag-bar"></div>
     <div class="tool-box-right">
     	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
+        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image">&nbsp;</a>{/PublishedOn}
     </div>
     <div class="youtube-full-content">
             <div class="editable annotation">
