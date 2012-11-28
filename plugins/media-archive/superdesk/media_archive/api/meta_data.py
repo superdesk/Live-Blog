@@ -58,7 +58,7 @@ class IMetaDataService:
         Provides the meta data based on the id.
         '''
 
-    @call
+    @call(webName='testMeta')
     def getMetaDatas(self, scheme:Scheme, typeId:MetaType.Id=None, offset:int=None, limit:int=10, q:QMetaData=None,
                      thumbSize:str=None) -> Iter(MetaData):
         '''
