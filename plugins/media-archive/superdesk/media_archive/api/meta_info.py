@@ -16,31 +16,22 @@ from ally.api.criteria import AsLikeOrdered, AsLike
 from ally.api.type import Iter, Scheme#, Count 
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from superdesk.language.api.language import LanguageEntity
-from superdesk.media_archive.api.meta_data import MetaDataBase
 from ally.api.type import Reference
 from superdesk.user.api.user import User
 from datetime import datetime
 
 # --------------------------------------------------------------------
 
-class MetaInfoBase():
+@modelArchive
+class MetaInfo(Entity):
     '''
     Provides the meta data information that is provided by the user.
     '''
+    MetaData = MetaData
     Language = LanguageEntity
     Title = str
     Keywords = str
     Description = str
-
-# --------------------------------------------------------------------
-
-@modelArchive
-class MetaInfo(MetaInfoBase, Entity):
-    '''
-    Provides the meta data information that is provided by the user.
-    '''
-    
-    MetaData = MetaData
 
 # --------------------------------------------------------------------
 
