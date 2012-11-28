@@ -21,7 +21,7 @@ from ally.support.util_sys import pythonPath
 from datetime import datetime
 from os.path import join, splitext, abspath
 from sqlalchemy.exc import SQLAlchemyError
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
 from superdesk.media_archive.core.spec import IMetaDataHandler
@@ -92,7 +92,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
         p = Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
-                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                  stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         result = p.wait()
         # 253 is the exiv2 code for error: No Exif data found in the file
         if result != 0 and result != 253: return False
