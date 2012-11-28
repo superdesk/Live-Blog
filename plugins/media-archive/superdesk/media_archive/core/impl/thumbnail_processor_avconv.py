@@ -11,7 +11,6 @@ Thumbnail processor class definition.
 
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.container.support import setup
 from ally.support.util_io import synchronizeURIToDir
 from ally.support.util_sys import pythonPath
 from genericpath import exists
