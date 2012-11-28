@@ -92,10 +92,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             return posts
         else:
             sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
-            sql = sql.filter(BlogPostMapped.PublishedOn != None)
+            sql = sql.filter((BlogPostMapped.PublishedOn != None) | ((BlogPostMapped.CId != None) & (BlogPostMapped.DeletedOn == None)))
 
             sql = sql.order_by(desc_op(BlogPostMapped.Order))
             sqlLimit = buildLimits(sql, offset, limit)
+            if detailed: return IterPart(self._trimmDeleted(sqlLimit.all()), sql.count(), offset, limit)
             return self._trimmDeleted(sqlLimit.all())
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
@@ -301,7 +302,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         for post in posts:
             assert isinstance(post, BlogPost)
-            if BlogPost.DeletedOn in post and post.DeletedOn is not None:
+            if (BlogPost.DeletedOn in post and post.DeletedOn is not None) or (BlogPost.PublishedOn not in post or post.PublishedOn is None):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
                 trimmed.CId = post.CId
