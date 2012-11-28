@@ -1,10 +1,12 @@
 {>"theme/item/base"/}
-{<class}googleservice{/class}
+{<item_class}googleservice{/item_class}
 {<body_top}
 	<h3><a href="{Meta.unescapedUrl}" target="_blank">{Meta.title|s}</a></h3>
 {/body_top}
 {<head_bottom}{/head_bottom}
-{<body_bottom}
-	<div class="editable annotation">{Meta.annotation|s}</div>
-{/body_bottom}
+{?Meta.annotation}
+	{<body_bottom}
+		<div class="editable annotation">{Meta.annotation|s}</div>
+	{/body_bottom}
+{/Meta.annotation}
 {<reference_name} {Meta.visibleUrl}{/reference_name}
