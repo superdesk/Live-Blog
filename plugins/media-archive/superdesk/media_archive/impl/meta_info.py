@@ -108,10 +108,12 @@ class MetaDataInfoService (SessionSupport, IMetaDataInfoService):
             metaDataInfo.Creator = metaDataMapped.Creator
             metaDataInfo.CreatedOn = metaDataMapped.CreatedOn
             
-            metaDataInfo.Language = metaInfoMapped.Language
-            metaDataInfo.Title = metaInfoMapped.Title
-            metaDataInfo.Keywords = metaInfoMapped.Keywords
-            metaDataInfo.Description = metaInfoMapped.Description
+            if metaInfoMapped:
+                metaDataInfo.Language = metaInfoMapped.Language
+                metaDataInfo.Title = metaInfoMapped.Title
+                metaDataInfo.Keywords = metaInfoMapped.Keywords
+                metaDataInfo.Description = metaInfoMapped.Description
+                
             
             metaDataInfos.append(metaDataInfo)
             
