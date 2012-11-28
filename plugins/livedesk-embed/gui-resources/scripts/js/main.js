@@ -5,7 +5,10 @@
 ], function($){
 	$('#livedesk-root').tmpl('theme/container');
 });*/
-require([ 'livedesk-embed/views/timeline', 'jquery/i18n' ], function(TimelineView){
-	new TimelineView({ url: livedesk.blog });
-	
+require([
+	'css!theme/livedesk',
+	'livedesk-embed/views/timeline', 
+	'jquery/i18n',
+], function(css, TimelineView){
+	new TimelineView({ url: livedesk.blog });	
 });
