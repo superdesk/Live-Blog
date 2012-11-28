@@ -97,6 +97,8 @@ class MetaDataInfoService (SessionSupport, IMetaDataInfoService):
             metaDataMapped.Content = self.cdmArchive.getURI(metaDataMapped.content, scheme)
             self.thumbnailManager.populate(metaDataMapped, scheme, thumbSize)
             
+            #TODO: change to use copy from ally-api, util_service.py
+            #the current problem is that on the object returned by sqlalchemy the properties are not visible in copy
             metaDataInfo.Id = metaDataMapped.Id
             metaDataInfo.Name = metaDataMapped.Name
             metaDataInfo.Type = metaDataMapped.Type
