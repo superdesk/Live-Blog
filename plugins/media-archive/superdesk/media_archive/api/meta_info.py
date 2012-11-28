@@ -54,8 +54,8 @@ class IMetaInfoService(IEntityGetCRUDService):
     '''
 
     @call
-    def getMetaInfos(self, scheme:Scheme, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, 
-                     offset:int=None, limit:int=10, qi:QMetaInfo=None, qd:QMetaData=None, thumbSize:str=None) -> Iter(MetaInfo):
+    def getMetaInfos(self, dataId:MetaData.Id=None, languageId:LanguageEntity.Id=None, 
+                     offset:int=None, limit:int=10, qi:QMetaInfo=None, qd:QMetaData=None) -> Iter(MetaInfo):
         '''
         Provides the meta info's.
         '''
