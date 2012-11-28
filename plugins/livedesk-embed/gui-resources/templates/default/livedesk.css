@@ -10,7 +10,7 @@
     margin: 0;
 }
 
-    #livedesk-root .live-blog p.update-time {
+    #livedesk-root .live-blog div.update-time {
         border: 1px solid #a8a8a8 ;
         border-width:2px 0 ;
         text-transform: uppercase ;
@@ -100,6 +100,16 @@
                     margin-right: 3px ;
                     vertical-align: middle ;
                 }
+                .source-link {
+                    color: #2D6AAF;
+                    text-decoration: none;
+                    line-height: 12px;
+                }
+                .source-link:hover {
+                    color: #484848;
+                }
+
+
                 .normal .attributes .source-icon {
                     background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/icfj-16px.png") ;
                 }
@@ -122,16 +132,13 @@
                 .googleservice .attributes .source-icon {
                     background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/google-16px.png");
                 }
-                .imagepost .attributes .source-icon {
-                    background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/icfj-16px.png") ;
-                }
-
-                .linkpost .attributes .source-icon {
-                    background-image: url("img/favicon.ico") ;
-                }
+                .instagram .attributes .source-icon {
+                    background-image: url("http://uidesign.lab.sourcefabric.org/liveblog/embed/img/instagram.png");
+                }            
 
                 .googleservice h3,
-                .linkpost h3 {
+                .linkpost h3,
+                {
                     margin:0;
                     padding: 0 0 5px 0;
                 }
@@ -147,26 +154,52 @@
                     color:#484848;
                 }
 
-                .imagepost figure {
+                .imagepost figure, 
+                .instagram figure,
+                .flickrservice figure  {
                     margin: 0;
                     padding: 0;
                 }
+                .imagepost figure img,
+                .instagram figure img,
+                .flickrservice figure img,
+                .googleservice img {
+                    padding: 2px;
+                    border: 1px solid #e0e0e0;
+                }
 
-                .imagepost figure figcaption {
+                .imagepost figure figcaption,
+                .instagram figure figcaption,
+                .flickrservice figure figcaption {
                     color:#787878;
                     padding: 5px 0 0;
                     font-size: 12px;
                     width: 500px;
                 }
 
-                .imagepost img {
-                    padding: 2px;
-                    border: 1px solid #e0e0e0;
+
+                .linkpost .attributes a  {
+                    color:#666;
                 }
 
-                .linkpost {
-
+                .linkpost figure.link-thumbnail {
+                    max-width: 50px;
+                    max-height: 50px;
+                    margin: 0 10px 0 0;
+                    padding: 0;
+                    float:left;
                 }
+                .linkpost figure.link-thumbnail img {
+                    max-width: 50px;
+                    max-height: 50px;
+                }
+                .linkpost figure + h3 + .result-text {
+                    padding-left: 60px;
+                }
+                .linkpost figure + h3 + .result-text + p {
+                    padding-left: 60px;
+                }
+
 
             .liveblog-post-list li.quotation .result-content {
                 padding-left:55px ;
@@ -193,10 +226,11 @@
                 margin: 0 ;
                 padding: 3px 10px ;
                 position: absolute ;
-                top: 20px ;
+                top: 24px ;
                 right: 25px ;
                 height: 23px ;
-                border: 1px solid #E0DED7 ;
+                border: 1px solid #d0d0d0 ;
+                background: #F8F8F8;
                 width: 250px ;
                 color: #666 ;
                 z-index:1500;
@@ -328,7 +362,7 @@ ul.liveblog-post-list li.advertisement a p {
     overflow: auto;
 }
 
-.update-time  + #liveblog-posts li:first-child {
+.update-time + #liveblog-posts li:first-child {
     border-top-width: 0px !important;
 } 
 
@@ -467,5 +501,70 @@ li.loading-more {
     padding: 20px !important;
 }
 li.loading-more:hover{
-    background: none !important ;
-};
+    -background: none !important ;
+}
+li#loading-more:hover{
+    background: url(img/dots32.gif) no-repeat scroll center center #FFFFFF !important;
+}
+li#loading-more{
+    background: url(img/dots32.gif) no-repeat scroll center center #FFFFFF !important;
+}
+.share {
+    width: 35px;
+    height: 25px;
+    position: absolute;
+    right: 40px;
+    margin-top: -1px;
+    top: 7px;
+    line-height: 12px;
+    font-size: 11px;
+    color: #585858;
+    text-decoration: none;
+    background: url(img/share.png) no-repeat 0 0;
+    padding-left: 18px;
+    padding-top: 1px;
+    display: none;
+}
+
+.liveblog-post-list li:hover .share {
+    display: block ;
+}
+
+.share-box {
+    display: none;
+    background: #F8F8F8;
+    padding: 10px;
+    border: 1px solid #D0D0D0;
+    position: absolute;
+    top: 24px;
+    right: 45px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    box-shadow: 2px 2px 4px 0px #787878;
+}
+
+.social {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    margin-right: 5px;
+}
+.social:last-child {
+    margin-right: 0px;
+}
+.social.facebook {
+    background: url(img/social_facebook_color.png) no-repeat;
+}
+.social.twitter {
+    background: url(img/social_twitter_color.png) no-repeat;
+}
+.social.google {
+    background: url(img/social_google_color.png) no-repeat;
+}
+.social.linkedin {
+    background: url(img/social_linkedin_color.png) no-repeat;
+}
+.social.pinterest {
+    background: url(img/social_pinterest_color.png) no-repeat;
+}

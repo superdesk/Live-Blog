@@ -27,12 +27,12 @@ define('jquery/i18n',['gettext', 'utils/str', 'jquery', 'jquery/utils'],function
 			$.mergeObj(window,this, 
 				this.mapper,
 				{
-					   _: "gettext",
+					  "_": "gettext",
 					"C_": "pgettext",
 					"N_": function() { return function(msgid) { return new str(msgid);}},
-					"NC_": function() { return function(msgctxt, msgid) { return new str(msgid);}},
+					"NC_": function() { return function(msgctxt, msgid) { return new str(msgid);}}
 				});
-		},
+		}
 	}
 	I18n = new i18n;
 	I18n.install();
