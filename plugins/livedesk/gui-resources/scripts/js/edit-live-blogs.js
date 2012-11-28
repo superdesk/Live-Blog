@@ -218,6 +218,7 @@ function(providers, Gizmo, $)
 			{
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeDialog' },
+				'a.unpublish': { click: 'unpublishDialog' },
 				'.editable': { focusout: 'save',  focusin: 'edit'}
 			},
 			
@@ -229,6 +230,7 @@ function(providers, Gizmo, $)
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
 				this.model
 				    .on('delete', this.remove, this)
+				    .on('unpublish', this.remove, this)
 					.on('read', function()
 					{
 					    /*!
@@ -439,6 +441,16 @@ function(providers, Gizmo, $)
 					.off(this.getEvent('click'))
 					.on(this.getEvent('click'), function(){
 						self.model.removeSync();
+					});
+
+			},
+			unpublishDialog: function()
+			{
+				var self = this;
+				$('#unpublish-post .yes')
+					.off(this.getEvent('click'))
+					.on(this.getEvent('click'), function(){
+						self.model.unpublishSync();
 					});
 
 			}
