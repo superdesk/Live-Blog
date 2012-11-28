@@ -22,8 +22,7 @@ from ally.api.authentication import auth
 
 # --------------------------------------------------------------------
 
-@modelArchive
-class MetaData(Entity):
+class MetaDataBase():
     '''
     Provides the meta data that is extracted based on the content.
     '''
@@ -34,6 +33,15 @@ class MetaData(Entity):
     SizeInBytes = int
     Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
     CreatedOn = datetime
+
+# --------------------------------------------------------------------
+
+
+@modelArchive
+class MetaData(MetaDataBase, Entity):
+    '''
+    Provides the meta data that is extracted based on the content.
+    '''
 
 # --------------------------------------------------------------------
 
