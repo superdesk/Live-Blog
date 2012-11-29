@@ -44,7 +44,7 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
         @see: IPersonIconService.getById
         '''
         personIcon = self.session().query(PersonIconMapped).get(id)
-        if not personIcon: raise InputError(Ref(_('Invalid person icon identifier'), ref=PersonIconMapped.Id))
+        if not personIcon: raise InputError(Ref(_('Invalid person icon'), ref=PersonIconMapped.Id))
         assert isinstance(personIcon, PersonIconMapped)
         assert isinstance(self.metaDataService, IMetaDataUploadService)
         metaData = self.metaDataService.getById(personIcon.MetaData, scheme, thumbSize)
@@ -54,12 +54,10 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
         '''
         @see: IPersonIconService.setIcon
         '''
-        assert isinstance(personId, Person.Id), 'Invalid person identifier %s' % personId
-        assert isinstance(metaDataId, MetaData.Id), 'Invalid metadata identifier %s' % metaDataId
         entityDb = PersonIconMapped()
-        entityDb.Person, entityDb.MetaData = personId, metaDataId
+        entityDb.Id, entityDb.MetaData = personId, metaDataId
         try:
-            self.session().add(entityDb)
+            self.session().merge(entityDb)
             self.session().flush((entityDb,))
         except SQLAlchemyError as e: handle(e, entityDb)
         return entityDb.Id
