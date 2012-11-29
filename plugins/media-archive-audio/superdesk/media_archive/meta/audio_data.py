@@ -9,13 +9,13 @@ Created on Aug 23, 2012
 Contains the SQL alchemy meta for media audio data API.
 '''
 
-from ..api.audio_data import AudioData
-from .meta_data import MetaDataMapped
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
 from sqlalchemy.ext.declarative import declared_attr
 from superdesk.meta.metadata_superdesk import Base
 from ally.internationalization import N_
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
+from superdesk.media_archive.api.audio_data import AudioData
 
 # --------------------------------------------------------------------
 
