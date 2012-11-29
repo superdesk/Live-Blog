@@ -4,13 +4,17 @@
 <div class="span6">
 <form class="form-horizontal row-fluid">
 	<button href="javascript:void(0)" data-action="show-add-meta" class="btn" type="button">_('Add meta')</button>
+	
+	<dl data-select="language">
+		<dt>_('Language')</dt>
+    	<dd>
+        	{Languages|s}
+		</dd>
+	</dl>
+	
     {#Meta}
-	<fieldset data-meta="{href}">
+	<fieldset data-meta="{href}" data-language="{Language}">
     	<dl>
-        	<dt>_('Language')</dt>
-            <dd>
-            	{Languages|s}
-			</dd>
 			<dt>_('Title')</dt>
             <dd>
             	<input name="Title" class="span3" value="{Title}" />
@@ -31,10 +35,6 @@
     {/Meta}
     <fieldset data-meta="add">
     	<dl>
-        	<dt>_('Language')</dt>
-            <dd>
-            	{Languages|s}
-			</dd>
 			<dt>_('Title')</dt>
             <dd>
             	<input name="Title" class="span3" />
