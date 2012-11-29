@@ -11,11 +11,11 @@ Contains the services setups for media video archive.
 
 from ..superdesk import service
 from ally.container import ioc
-from superdesk.media_archive.api.video_data import IVideoDataService
 from superdesk.media_archive.impl.video_data import VideoDataServiceAlchemy
 from cdm.spec import ICDM
 from __plugin__.cdm.local_cdm import contentDeliveryManager
 from cdm.support import ExtendPathCDM
+from superdesk.media_archive.api.video_data import IVideoDataService
 
 # --------------------------------------------------------------------
 
