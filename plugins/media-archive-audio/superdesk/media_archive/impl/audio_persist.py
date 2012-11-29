@@ -9,9 +9,6 @@ Created on Aug 23, 2012
 Implementation for the audio persistence API.
 '''
 
-from ..core.spec import IThumbnailManager
-from ..meta.audio_data import AudioDataEntry
-from ..meta.meta_data import MetaDataMapped
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -24,9 +21,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
-from superdesk.media_archive.core.spec import IMetaDataHandler
-from superdesk.media_archive.meta.audio_data import META_TYPE_KEY
+from superdesk.media_archive.core.spec import IMetaDataHandler,\
+    IThumbnailManager
 import re
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
+from superdesk.media_archive.meta.audio_data import AudioDataEntry,\
+    META_TYPE_KEY
 
 # --------------------------------------------------------------------
 
