@@ -13,15 +13,17 @@ define
     'gizmo/views/list',
     config.guiJs('media-archive', 'models/meta-data'),
     config.guiJs('media-archive', 'models/meta-type'),
+    config.guiJs('media-archive', 'models/meta-data-info'),
     config.guiJs('media-archive', 'add'),
     'tmpl!media-archive>list',
     'tmpl!media-archive>item',
 ],
-function($, superdesk, giz, gizList, MetaData, MetaType, Add)
+function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, Add)
 {
     var 
     MetaDataCollection = giz.Collection.extend({ model: MetaData, href: new giz.Url('Archive/MetaData') }),
     MetaTypeCollection = giz.Collection.extend({ model: MetaType, href: new giz.Url('Archive/MetaType') }),
+    MetaDataInfos = giz.Collection.extend({ model: MetaDataInfo, href: new giz.Url('Archive/MetaDataInfo') }),
     // ---
         
     /*!
@@ -53,8 +55,45 @@ function($, superdesk, giz, gizList, MetaData, MetaType, Add)
         users: null,
         events:
         {
-            '[data-action="add-media"]': { 'click' : 'add' }
+            '[data-action="add-media"]': { 'click' : 'add' },
+            '[rel="popover"]': { 'mouseenter': 'popover', 'mouseleave': 'popoverleave' }
         },
+        
+//        popover: function(evt)
+//        {
+//            //first we detect collision
+//            //get main-content-inner width and left
+//            var mainContentInnerWidth = $(".main-content-inner").width();
+//            var mainContentInnerLeft = $(".main-content-inner").offset().left;
+//            //get button left
+//            var left = $(evt.currentTarget).offset().left;
+//            //calculate free space on right side
+//            var freeSpace = mainContentInnerWidth - (left-mainContentInnerLeft);
+//            //show popover with default effects
+//            $("#additionalInfo").popover({trigger:'manual'});
+//            $("#additionalInfo").popover('show');
+//            var collisionRadius = $(".popover.fade.right.in").outerWidth();
+//            if (freeSpace>collisionRadius) {
+//                //there is no collision - show popover on left side         
+//                var t = $(".popover.fade.left.in");
+//                t.removeClass('left');
+//                t.addClass('right');
+//            }
+//            else {
+//                //we have collision - show popover on left side
+//                var t = $(".popover.fade.right.in");
+//                var left = $(this).offset().left - t.outerWidth();
+//                t.removeClass('right');
+//                t.css("left",left+"px");
+//                t.addClass('left');
+//            }   
+//        },
+//        
+//        popoverleave: function()
+//        {
+//            $("#additionalInfo").popover('hide');
+//        },
+//        
         itemView: ItemView,
         tmpl: 'media-archive>list',
         itemsPlaceholder: '.main-content-inner',
@@ -67,7 +106,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, Add)
         /*!
          * @return MetaDataCollection
          */
-        getCollection: function(){ return !this.collection ? (this.collection = new MetaDataCollection) : this.collection; },
+        getCollection: function(){ return !this.collection ? (this.collection = new MetaDataInfos) : this.collection; },
         /*!
          * @see gizmo/views/list/ListView.refreshData
          */
@@ -75,7 +114,6 @@ function($, superdesk, giz, gizList, MetaData, MetaType, Add)
         {
             data = gizList.ListView.prototype.refreshData.call(this);
             data.thumbSize = 'medium';
-            data.desc = 'createdOn';
             return data;
         },
         /*!
