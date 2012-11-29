@@ -9,17 +9,16 @@ Created on Apr 19, 2012
 SQL Alchemy based implementation for the image data API. 
 '''
 
-from ..api.image_data import QImageData
-from ..meta.image_data import ImageDataMapped
-from .meta_data import MetaDataServiceBaseAlchemy
 from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.media_archive.core.spec import IMetaDataHandler, IMetaDataReferencer,\
     IThumbnailManager
-from superdesk.media_archive.api.image_data import IImageDataService
+from superdesk.media_archive.api.image_data import IImageDataService, QImageData
 from superdesk.media_archive.meta.meta_data import MetaDataMapped
 from cdm.spec import ICDM
 from ally.container import wire
+from superdesk.media_archive.core.impl.meta_service_base import MetaDataServiceBaseAlchemy
+from superdesk.media_archive.meta.image_data import ImageDataMapped
 
 # --------------------------------------------------------------------
 
