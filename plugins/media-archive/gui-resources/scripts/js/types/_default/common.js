@@ -127,9 +127,22 @@ function($, superdesk, giz, MetaInfo, Languages)
             '[data-action="save"]': { 'click' : 'save' },
             '[data-action="show-add-meta"]': { 'click' : 'showAddMeta' },
             '[data-action="add-meta"]': { 'click' : 'addMeta' },
-            '[data-action="delete-meta"]': { 'click' : 'deleteMeta' }
+            '[data-action="delete-meta"]': { 'click' : 'deleteMeta' },
+            '[data-select="language"] select': { 'change': 'selectMetaByLanguage' }
+            
         },
         edit: $.noop,
+        
+        /*!
+         * handler for selecting a meta info set by language
+         */
+        selectMetaByLanguage: function(evt)
+        {
+            var langFields = $('fieldset[data-language="'+$(evt.currentTarget).val()+'"]').eq(0);
+            if( !langFields.length ) this.showAddMeta();
+            langFields.find('input,textarea,select').eq(0).focus();
+        },
+        
         /*!
          * return the MetaInfo collection
          */
@@ -154,10 +167,13 @@ function($, superdesk, giz, MetaInfo, Languages)
             self.getInfoNode().each(function()
             {
                 var model = this,
-                    inputs = $(self.el).find("[data-meta='"+this.get('href')+"']").get(0);
-                $('input,select,textarea', inputs).each(function(){ model.set( $(this).attr('name'), $(this).val()); });
-                model.sync().done(self.postSave);
-                
+                    inputs = $(self.el).find("[data-meta='"+this.get('href')+"']").get(0),
+                    data = {};
+                $('input,select,textarea', inputs).each(function()
+                {
+                    data[$(this).attr('name')] = $(this).val(); 
+                });
+                model.set(data).sync().done(self.postSave);
             });
         },
         /*!
@@ -174,12 +190,18 @@ function($, superdesk, giz, MetaInfo, Languages)
         {
             var metaInfo = this.getInfoNode();
                 newMeta =  this.getNewMetaInfo(),
-                self = this;
+                self = this,
+                data = {};
                 
             newMeta.set('MetaData', this.model.get('Id'));
             $('input,select,textarea', $("[data-meta='add']:eq(0)", this.el))
-                .each(function(){ newMeta.set( $(this).attr('name'), $(this).val()); });
-            newMeta.sync(newMeta.url.get()).done(function()
+                .each(function()
+                { 
+                    data[$(this).attr('name')] = $(this).val();
+                });
+            data.Language = $('[data-select="language"] select', this.el).val();
+            
+            newMeta.set(data).sync(newMeta.url.get()).done(function()
             { 
                 metaInfo._list.push(newMeta);
                 self.postAdd.call(self, arguments[0]); 
@@ -214,7 +236,7 @@ function($, superdesk, giz, MetaInfo, Languages)
          */
         showAddMeta: function()
         {
-            $('[data-fieldset="add"]', this.el).find('input,select,textarea').eq(0).focus();
+            $('[data-meta="add"]', this.el).find('input,select,textarea').eq(0).focus();
         },
         
         tmpl: 'media-archive>types/_default/edit',
@@ -245,7 +267,7 @@ function($, superdesk, giz, MetaInfo, Languages)
         viewDetailsView: false, // the instance
         getViewDetails: function()
         {
-            return !this.viewDetailsView ? (this.viewDetailsView = new (this.viewClass)({ model: this.model, parentView: this})) : this.viewDetailsView;
+            return !this.viewDetailsView ? (this.viewDetailsView = new (this.viewClass)({ model: this.model.getMetaData(), parentView: this})) : this.viewDetailsView;
         },
         /*!
          * show "view details" modal
@@ -261,7 +283,7 @@ function($, superdesk, giz, MetaInfo, Languages)
         editView: false, // the instance
         getEdit: function()
         {
-            return !this.editView ? (this.editView = new (this.editClass)({ model: this.model })) : this.editView;
+            return !this.editView ? (this.editView = new (this.editClass)({ model: this.model.getMetaData() })) : this.editView;
         },
         /*!
          * show "edit" modal
