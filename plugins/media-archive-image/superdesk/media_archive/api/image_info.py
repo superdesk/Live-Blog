@@ -9,12 +9,13 @@ Created on Apr 19, 2012
 API specifications for media archive image info.
 '''
 
-from .domain_archive import modelArchive
-from .image_data import ImageData, QImageData
-from .meta_data import MetaData, QMetaData
-from .meta_info import MetaInfo, QMetaInfo, IMetaInfoService
 from ally.api.config import query, service
 from ally.api.criteria import AsLikeOrdered
+from superdesk.media_archive.api.domain_archive import modelArchive
+from superdesk.media_archive.api.meta_info import MetaInfo, QMetaInfo,\
+    IMetaInfoService
+from superdesk.media_archive.api.image_data import ImageData, QImageData
+from superdesk.media_archive.api.meta_data import MetaData, QMetaData
 
 # --------------------------------------------------------------------
 

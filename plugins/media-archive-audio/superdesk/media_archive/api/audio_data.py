@@ -9,10 +9,11 @@ Created on Oct 1, 2012
 API specifications for media meta data audio archive.
 '''
 
-from .domain_archive import modelArchive
-from .meta_data import MetaData, QMetaData, IMetaDataService
 from ally.api.config import query, service
 from ally.api.criteria import AsEqualOrdered, AsLikeOrdered
+from superdesk.media_archive.api.domain_archive import modelArchive
+from superdesk.media_archive.api.meta_data import QMetaData, IMetaDataService,\
+    MetaData
 
 # --------------------------------------------------------------------
 
