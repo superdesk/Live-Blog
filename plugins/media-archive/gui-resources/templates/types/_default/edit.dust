@@ -2,13 +2,17 @@
 {+meta}
 <div class="span6">
 <form class="form-horizontal row-fluid">
+
+	<dl data-select="language">
+		<dt>_('Language')</dt>
+    	<dd>
+        	{Languages|s}
+		</dd>
+	</dl>
+	
     {#Meta}
 	<fieldset>
     	<dl>
-        	<dt>_('Language')</dt>
-            <dd>
-            	{Languages|s}
-			</dd>
 			<dt>_('Title')</dt>
             <dd>
             	<input name="Title" class="span3" value="{Title}" />
@@ -23,10 +27,6 @@
     
     <fieldset data-fieldset="add">
     	<dl>
-        	<dt>_('Language')</dt>
-            <dd>
-            	{Languages|s}
-			</dd>
 			<dt>_('Title')</dt>
             <dd>
             	<input name="Title" class="span3" />
