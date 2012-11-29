@@ -18,7 +18,8 @@
 		        <!--div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div-->
 		        <div class="media-box-button top right">
 		        	<a href="javascript:void(0)" rel="popover"
-		        		data-content="{Description}" data-additional="info" data-original-title="{Title}">
+		        		data-content="{Description}" data-additional="info" 
+		        		data-original-title="{?Title}{Title}{:else}{Name}{/Title}">
 		        		<i class="icon-info-sign"></i>
 		        	</a>
 		        </div>
@@ -38,7 +39,7 @@
 
 	{+title}
 	{#Item}
-    	<h5>{Name}</h5>
+    	<h5>{?Title}{Title}{:else}{Name}{/Title}</h5>
 		<!--dl><dt>Source</dt><dd>6</dd></dl-->
     	<!--a data-placement="top" title="add to scratchpad" rel="tooltip" class="add-to-scratchpad" href="#"></a>
     	<span style="display:none; position:absolute" class="label label-important alertAlreadyAdded">already added</span-->
