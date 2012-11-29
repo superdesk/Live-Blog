@@ -11,11 +11,11 @@ Contains the services setups for media image archive.
 
 from ..superdesk import service
 from ally.container import ioc
-from superdesk.media_archive.api.image_data import IImageDataService
 from superdesk.media_archive.impl.image_data import ImageDataServiceAlchemy
 from cdm.spec import ICDM
 from __plugin__.cdm.local_cdm import contentDeliveryManager
 from cdm.support import ExtendPathCDM
+from superdesk.media_archive.api.image_data import IImageDataService
 
 # --------------------------------------------------------------------
 
