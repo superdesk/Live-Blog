@@ -31,6 +31,8 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
+import sqlalchemy
+from sqlalchemy.sql.expression import func
 
 # --------------------------------------------------------------------
 
@@ -74,21 +76,24 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sqlMore = None
             if q:
                 if QWithCId.cId in q: sqlMore = buildQuery(sql, q, BlogPostMapped, exclude=QWithCId.cId)
-                
+
                 sql = buildQuery(sql, q, BlogPostMapped)
                 if QPostUnpublished.deletedOn not in q and QWithCId.cId not in q:
                     sql = sql.filter(BlogPostMapped.DeletedOn == None)
                     if sqlMore: sqlMore = sqlMore.filter(BlogPostMapped.DeletedOn == None)
-                    
+
             sqlLimit = buildLimits(sql, offset, limit)
-            posts = IterPost(sqlLimit.all(), sql.count(), offset, limit)
+            posts = IterPost(self._trimmDeleted(sqlLimit.all()), sql.count(), offset, limit)
+
+            posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).one()[0]
+
             if sqlMore: posts.offsetMore = sqlMore.count()
             else: posts.offsetMore = posts.total
             return posts
         else:
             sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
             sql = sql.filter(BlogPostMapped.PublishedOn != None)
-    
+
             sql = sql.order_by(desc_op(BlogPostMapped.Order))
             sqlLimit = buildLimits(sql, offset, limit)
             return self._trimmDeleted(sqlLimit.all())
@@ -254,7 +259,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                 sql = sql.filter(BlogPostMapped.DeletedOn == None)
 
         return sql
-    
+
     def _filterQuery(self, blogId, typeId=None, creatorId=None, authorId=None):
         '''
         Creates the general query filter for posts based on the provided parameters.
@@ -265,8 +270,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
         if authorId:
-            sql = sql.filter((BlogPostMapped.Author == authorId) | 
-                             ((CollaboratorMapped.Id == authorId) & 
+            sql = sql.filter((BlogPostMapped.Author == authorId) |
+                             ((CollaboratorMapped.Id == authorId) &
                               (CollaboratorMapped.Person == BlogPostMapped.Creator)))
 
         return sql
