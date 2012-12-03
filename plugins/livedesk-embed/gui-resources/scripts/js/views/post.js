@@ -12,7 +12,7 @@ define([
 	'tmpl!theme/item/source/google',
 	'tmpl!theme/item/source/twitter',
 	'tmpl!theme/item/source/youtube',
-	'tmpl!theme/item/source/flicker',
+	'tmpl!theme/item/source/flickr',
 	'tmpl!theme/item/source/soundcloud',
 	'tmpl!theme/item/source/instagram',	
 ], function( $, Gizmo ) {
@@ -52,10 +52,16 @@ define([
 			var self = this, data = self.model.feed();
 			data.HashIdentifier = self._parent.hashIdentifier;
 			if(data.Meta) {
+
 				data.Meta = JSON.parse(data.Meta);
+
 				if(data.Meta.annotation[1] === null) {
 					data.Meta.annotation = data.Meta.annotation[0];
 					data.Meta.annotation = (data.Meta.annotation === '<br/>') || (data.Meta.annotation === '<br>') ? '' :  data.Meta.annotation;
+				}
+				if ( typeof data.Meta.annotation !== 'string') {
+					var aux = data.Meta.annotation;
+					data.Meta.annotation = {'before': aux[0] , 'after': aux[1]}
 				}
 			}
 			data.permalink = self._parent.location + '#' + self._parent.hashIdentifier + data.Order;			
