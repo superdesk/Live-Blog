@@ -16,8 +16,9 @@ define([
 		timeInterval: 10000,
 		idInterval: 0,
 		_latestCId: 0,
-		inProgress: false,
+		inProgress: false,		
 		atEnd: false,
+		autoRender: true,
 		more: function(evt) {
 			var self = this;
 			if(self.atEnd || self.inProgress)
@@ -65,7 +66,7 @@ define([
 				var closedOn = new Date(this.model.get('ClosedOn'));
 				this.pause();
 				this.model.get('PostPublished').pause();					
-				this.el.find('#liveblog-status').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM:ss')));
+				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM:ss')));
 			}
 		},                       
 		gotoHash : function() {
@@ -76,7 +77,8 @@ define([
 			}
 		},
 		init: function()
-		{		
+		{
+			console.log(_("%s Hello").format(["Miss"])+'');
 			var self = this;
 			self._views = [];
 			self.location = window.location.href.split('#')[0];
@@ -94,9 +96,10 @@ define([
 						orderhash = window.location.href.split('#'),
 						postPublished = self.model.get('PostPublished')
 							.on('read readauto', self.render, self)
-							.on('addings addingsauto', self.addAll, self)
-							.on('addingsauto', self.updateTotal, self)
-							.on('updates updatesauto', self.updateStatus, self)
+							.on('addings', self.addAll, self)
+							.on('addingsauto',self.addAllAutoupdate, self)
+							//.on('addingsauto', self.updateTotal, self)
+							.on('updatesauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
 							.limit(self.limit);
@@ -208,23 +211,36 @@ define([
 			}
 			//console.log('total: ',this.model.get('PostPublished').total);
 		},
+		addAllAutoupdate: function(evt, data)
+		{
+			if(this.autoRender) {
+				for(i = data.length; i--;) {
+					this.addOne(data[i]);
+					this.model.get('PostPublished').total++;
+				}			
+			} else {
+				console.log('Not render: ', _('%(count) new posts').format( { count: data.length})+'');
+				$("#liveblog-status-count",this.el).text(_('%(count) new posts').format( { count: data.length}));
+			}
+		},
 		addAll: function(evt, data)
 		{
-			var i = data.length;
-			while(i--) {
+			var i, self = this;
+			for(i = data.length; i--;) {
 				this.addOne(data[i]);
 			}
 			this.toggleMoreVisibility();
 		},
 		updateingStatus: function()
 		{
-			this.el.find('#liveblog-status').html(_('updating...'));
+			this.el.find('#liveblog-status-time').html(_('updating...'));
 		},
 		updateStatus: function()
 		{
 			var now = new Date();
 			this.el.find('#liveblog-status').fadeOut(function(){
-				$(this).text(_('updated on ')+now.format(_('HH:MM:ss'))).fadeIn();
+				
+				$(this).find('#liveblog-status-time').text(_('updated on ')+now.format(_('HH:MM:ss'))).end().fadeIn();
 			});
 		},
 		renderBlog: function()
@@ -269,12 +285,14 @@ define([
 				start = element.offset().top;
 			$("#liveblog-posts", self.el).scroll(function() {
 				var r   = element.offset().top;
-				if( $(this).outerHeight() === ($(this).get(0).scrollHeight - $(this).scrollTop()))
+				if( !self.atEnd && ($(this).outerHeight() === ($(this).get(0).scrollHeight - $(this).scrollTop())))
 					self.more();
 				if (r < start) {
+					self.autoRender = false;
 					$("#liveblog-status", self.el).addClass("shadow")
 				}
 				else {
+					self.autoRender = true;
 					$("#liveblog-status", self.el).removeClass("shadow");
 				}
 
