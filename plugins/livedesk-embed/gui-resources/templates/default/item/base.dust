@@ -14,7 +14,7 @@
 	{+body}
 	<div class="result-content">
 		{+body_top}{/body_top}
-		<div class="result-text">{Content|s}</div>
+		{+body_content}<div class="result-text">{Content|s}</div>{/body_content}
 			{+reference}
 			<p class="attributes"><i class="source-icon"></i>{+reference_name}{/reference_name}</p>
 			{/reference}
