@@ -24,8 +24,9 @@ PYTHONPATH=${PYTHONPATH}:${ALLYPLUG}support-sqlalchemy
 
 FULLPATH=
 SUPERPLUG=${FULLPATH}plugins/
-#PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%ffmpeg-binary
+#PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}ffmpeg-binary
 PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}livedesk
+PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}livedesk-embed
 PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}media-archive
 PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}media-archive-audio
 PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}media-archive-image
@@ -43,5 +44,7 @@ PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}superdesk-source
 PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}superdesk-user
 
 #echo $PYTHONPATH
-#del distribution\workspace\superdesk.db
+export PYTHONPATH=$PYTHONPATH
+rm distribution/workspace/shared/superdesk.db
 python3.2 distribution/application.py
+#python3.2 distribution/application.py -dump
