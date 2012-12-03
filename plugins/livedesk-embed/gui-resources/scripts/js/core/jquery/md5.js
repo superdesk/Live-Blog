@@ -20,7 +20,7 @@
 /*jslint bitwise: true */
 /*global unescape, define */
 
-define('jquery/md5',['jquery'], function ($) {
+define(['jquery'], function ($) {
     'use strict';
 
     /*

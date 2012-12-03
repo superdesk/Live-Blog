@@ -1,5 +1,5 @@
 {>"theme/item/base"/}
-{<class}advertisement{/class}
+{<item_class}advertisement{/item_class}
 {<head}{/head}
 {<body}	
 	{Content|s}
