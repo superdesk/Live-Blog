@@ -468,7 +468,7 @@ function(providers, Gizmo, $)
 
 		TimelineView = Gizmo.View.extend
 		({
-			limit: 2,
+			limit: 15,
 			offset: 0,
 			events: 
 			{
