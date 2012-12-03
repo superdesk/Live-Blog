@@ -8,7 +8,7 @@ define([
 	'tmpl!theme/item/posttype/normal',
 	'tmpl!theme/item/posttype/wrapup',
 	'tmpl!theme/item/posttype/quote',
-	'tmpl!theme/item/posttype/advertisement',	
+	'tmpl!theme/item/source/advertisement',	
 	'tmpl!theme/item/source/google',
 	'tmpl!theme/item/source/twitter',
 	'tmpl!theme/item/source/youtube',
@@ -87,6 +87,7 @@ define([
 			}
 			else if(data.Type)
 				data.item = "posttype/"+data.Type.Key;
+			//console.log(data.Author.Source.Name,data.item);
 			$.tmpl('theme/item/item',data, function(e, o){
 				if(!e) {
 					self.setElement(o);
