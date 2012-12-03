@@ -15,15 +15,23 @@ define([
 		el: '#livedesk-root',
 		timeInterval: 10000,
 		idInterval: 0,
-		_latestCId: 0,
-		inProgress: false,		
-		atEnd: false,
+		_latestCId: 0,	
+		flags: { 
+			addAllPending: false,
+			more: false,
+			atEnd: false
+		},
+		scroll: {
+			element: null,
+			start: 0
+		},
 		autoRender: true,
+		pendingAutoupdates: [],
 		more: function(evt) {
 			var self = this;
-			if(self.atEnd || self.inProgress)
+			if(self.flags.atEnd || self.flags.more)
 				return;
-			self.inProgress = true;
+			self.flags.more = true;
 			var delta = self.model.get('PostPublished').delta;
 				postPublished = self.model.get('PostPublished')
 			if(self.filters) {
@@ -38,10 +46,10 @@ define([
 				.sync().done(function(data){				
 					var total = self.model.get('PostPublished').total;
 					if(self._views.length >= total) {
-						self.atEnd = true;
+						self.flags.atEnd = true;
 						$("#liveblog-posts li#loading-more", self.el).hide();
 					}
-					self.inProgress = false;
+					self.flags.more = false;
 				});
 		},
 		setIdInterval: function(fn){
@@ -78,7 +86,6 @@ define([
 		},
 		init: function()
 		{
-			console.log(_("%s Hello").format(["Miss"])+'');
 			var self = this;
 			self._views = [];
 			self.location = window.location.href.split('#')[0];
@@ -211,22 +218,50 @@ define([
 			}
 			//console.log('total: ',this.model.get('PostPublished').total);
 		},
+		toggleStatusCount: function()
+		{
+			if(this.pendingAutoupdates.length !== 0) {
+				$("#liveblog-status-count",this.el).text(_('%(count)s new posts').format( { count: this.pendingAutoupdates.length})).show();
+			} else {
+				$("#liveblog-status-count",this.el).hide();
+			}
+		},
 		addAllAutoupdate: function(evt, data)
 		{
 			if(this.autoRender) {
-				for(i = data.length; i--;) {
-					this.addOne(data[i]);
-					this.model.get('PostPublished').total++;
-				}			
-			} else {
-				console.log('Not render: ', _('%(count) new posts').format( { count: data.length})+'');
-				$("#liveblog-status-count",this.el).text(_('%(count) new posts').format( { count: data.length}));
+				if(data.length) {
+					for(i = 0, count = data.length; i < count; i++) {
+						this.addOne(data[i]);
+						this.model.get('PostPublished').total++;
+					}
+					this.markScroll();
+				}
+			} else if(data.length !== 0){
+				this.pendingAutoupdates = this.pendingAutoupdates.concat(data);
+				console.log(this.pendingAutoupdates);
+				this.toggleStatusCount();
 			}
+		},
+		addAllPending: function()
+		{
+			if(!this.flags.addAllPending && this.pendingAutoupdates.length) {
+				this.flags.addAllPending = true;
+				console.log('addPending: ',this.pendingAutoupdates);
+				console.log(this.pendingAutoupdates.length);
+				for(var i = 0, count = this.pendingAutoupdates.length; i < count; i++) {
+					console.log(i, this.pendingAutoupdates[i]);
+					this.addOne(this.pendingAutoupdates[i]);
+				}
+				this.pendingAutoupdates = [];
+				this.toggleStatusCount();
+				this.markScroll();
+			}
+			this.flags.addAllPending = false;
 		},
 		addAll: function(evt, data)
 		{
 			var i, self = this;
-			for(i = data.length; i--;) {
+			for(i = 0, count = data.length; i < count; i++) {
 				this.addOne(data[i]);
 			}
 			this.toggleMoreVisibility();
@@ -240,7 +275,7 @@ define([
 			var now = new Date();
 			this.el.find('#liveblog-status').fadeOut(function(){
 				
-				$(this).find('#liveblog-status-time').text(_('updated on ')+now.format(_('HH:MM:ss'))).end().fadeIn();
+				$(this).find('#liveblog-status-time').text(_('updated on %s').format(now.format(_('HH:MM:ss')))).end().fadeIn();
 			});
 		},
 		renderBlog: function()
@@ -256,6 +291,13 @@ define([
 			} else {
 				$('#loading-more',this.el).show();
 			}			
+		},
+		markScroll: function()
+		{
+			var self = this;
+			self.scroll.element = $("#liveblog-posts li:not(#load-more)", self.el).first();
+			console.log(self.scroll.element);
+			self.scroll.start = self.scroll.element.offset().top;		
 		},
 		render: function(evt)
 		{				
@@ -281,18 +323,17 @@ define([
 			$("#pintotop", self.el).on(self.getEvent('click'), function(){
 				$("#liveblog-posts",self.el).scrollTop(0);
 			});
-			var element = $("#liveblog-posts li:not(#load-more)", self.el).first(),
-				start = element.offset().top;
+			self.markScroll();
 			$("#liveblog-posts", self.el).scroll(function() {
-				var r   = element.offset().top;
-				if( !self.atEnd && ($(this).outerHeight() === ($(this).get(0).scrollHeight - $(this).scrollTop())))
+				if( !self.flags.atEnd && ($(this).outerHeight() === ($(this).get(0).scrollHeight - $(this).scrollTop())))
 					self.more();
-				if (r < start) {
+				if (self.scroll.element.offset().top < self.scroll.start) {
 					self.autoRender = false;
 					$("#liveblog-status", self.el).addClass("shadow")
 				}
 				else {
 					self.autoRender = true;
+					self.addAllPending();
 					$("#liveblog-status", self.el).removeClass("shadow");
 				}
 
