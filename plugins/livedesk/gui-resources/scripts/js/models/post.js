@@ -37,7 +37,7 @@ function(Gizmo)
 				self = this,
 				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
                 ret = dataAdapter(publishHref).insert({},{headers: { 'X-Filter': 'CId, Order'}}).done(function(data){
-					self.parse(data);
+					self._parse(data);
 					self.Class.triggerHandler('publish', self);
 				});
 			return ret;
