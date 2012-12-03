@@ -230,7 +230,7 @@ define([
 		{
 			if(this.autoRender) {
 				if(data.length) {
-					for(i = 0, count = data.length; i < count; i++) {
+					for(var i = 0, count = data.length; i < count; i++) {
 						this.addOne(data[i]);
 						this.model.get('PostPublished').total++;
 					}
@@ -238,7 +238,7 @@ define([
 				}
 			} else if(data.length !== 0){
 				this.pendingAutoupdates = this.pendingAutoupdates.concat(data);
-				console.log(this.pendingAutoupdates);
+				//console.log('Pending autoupdates',this.pendingAutoupdates);
 				this.toggleStatusCount();
 			}
 		},
@@ -246,10 +246,10 @@ define([
 		{
 			if(!this.flags.addAllPending && this.pendingAutoupdates.length) {
 				this.flags.addAllPending = true;
-				console.log('addPending: ',this.pendingAutoupdates);
-				console.log(this.pendingAutoupdates.length);
+				//console.log('addPending: ',this.pendingAutoupdates);
+				//console.log(this.pendingAutoupdates.length);
 				for(var i = 0, count = this.pendingAutoupdates.length; i < count; i++) {
-					console.log(i, this.pendingAutoupdates[i]);
+					//console.log(i, this.pendingAutoupdates[i]);
 					this.addOne(this.pendingAutoupdates[i]);
 				}
 				this.pendingAutoupdates = [];
@@ -268,6 +268,7 @@ define([
 		},
 		updateingStatus: function()
 		{
+
 			this.el.find('#liveblog-status-time').html(_('updating...'));
 		},
 		updateStatus: function()
@@ -296,7 +297,7 @@ define([
 		{
 			var self = this;
 			self.scroll.element = $("#liveblog-posts li:not(#load-more)", self.el).first();
-			console.log(self.scroll.element);
+			//console.log(self.scroll.element);
 			self.scroll.start = self.scroll.element.offset().top;		
 		},
 		render: function(evt)
@@ -314,7 +315,8 @@ define([
 			var next = self._latest, current, model, i = data.length;                               
 			self.views=[];
 			self.renderedTotal = i;
-			while(i--) {
+			for(var i = 0, count = data.length; i < count; i++) {
+				//console.log(data[i]);
 				data[i].on('rendered', self.renderedOn, self);
 				auxView = self.addOne(data[i]);
 				self.views.push(auxView);
