@@ -30,8 +30,6 @@ from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
     MetaDataServiceAlchemy
 from superdesk.media_archive.impl.query_criteria import QueryCriteriaService
 import logging
-from superdesk.media_archive.api.meta_info import IMetaDataInfoService
-from superdesk.media_archive.impl.meta_info import MetaDataInfoService
 
 # --------------------------------------------------------------------
 
@@ -92,12 +90,6 @@ def metaDataService() -> IMetaDataUploadService:
     b.metaDataHandlers = metaDataHandlers()
     return b
 
-@ioc.replace(ioc.getEntity(IMetaDataInfoService, service))
-def metaDataInfoService() -> IMetaDataInfoService:
-    b = MetaDataInfoService()
-    b.cdmArchive = cdmArchive()
-    return b
-
 @ioc.entity
 def queryIndexer() -> QueryIndexer:
     b = QueryIndexer()
@@ -112,7 +104,7 @@ def publishQueryCriteriaService() -> IQueryCriteriaService:
 
 @ioc.after(loadAllMetaDataHandlers, createTables)
 def publishQueryService():
-    b = createService(queryIndexer())
+    b = createService(queryIndexer(), cdmArchive(), thumbnailManager())
     registerService(b, (bindSuperdeskSession,))
 
 @ioc.after(loadAllMetaDataHandlers, createTables)
