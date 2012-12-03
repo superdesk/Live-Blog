@@ -44,6 +44,7 @@ PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}superdesk-source
 PYTHONPATH=${PYTHONPATH}:${SUPERPLUG}superdesk-user
 
 #echo $PYTHONPATH
+export PYTHONPATH=$PYTHONPATH
 rm distribution/workspace/shared/superdesk.db
 python3.2 distribution/application.py
 #python3.2 distribution/application.py -dump
