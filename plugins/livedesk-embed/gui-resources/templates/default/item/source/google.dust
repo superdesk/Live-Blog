@@ -1,5 +1,5 @@
 {>"theme/item/base"/}
-{<class}googleservice{/class}
+{<item_class}googleservice{/item_class}
 {<body_top}
 	<h3><a href="{Meta.unescapedUrl}" target="_blank">{Meta.title|s}</a></h3>
 {/body_top}

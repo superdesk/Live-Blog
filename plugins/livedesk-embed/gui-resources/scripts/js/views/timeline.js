@@ -2,25 +2,37 @@ define([
 	'jquery',
 	'gizmo/superdesk',
 	'livedesk-embed/views/post',	
-	'jquery/tmpl',	
+	'jquery/tmpl',
+	'jquery/scrollspy',
 	'livedesk-embed/models/blog',
 	'tmpl!theme/container'
 ], function($, Gizmo, PostView) {
 	return Gizmo.View.extend({
-		limit: 100,
+		limit: 6,
 		offset: 0,
 		hashIdentifier: 'livedeskitem=',
 		location: '',
 		el: '#livedesk-root',
 		timeInterval: 10000,
 		idInterval: 0,
-		_latestCId: 0,
-		events: {
-			'#liveblog-more': { click: 'more'}
+		_latestCId: 0,	
+		flags: { 
+			addAllPending: false,
+			more: false,
+			atEnd: false
 		},
+		scroll: {
+			element: null,
+			start: 0
+		},
+		autoRender: true,
+		pendingAutoupdates: [],
 		more: function(evt) {
-			var self = this,
-				delta = self.model.get('PostPublished').delta;
+			var self = this;
+			if(self.flags.atEnd || self.flags.more)
+				return;
+			self.flags.more = true;
+			var delta = self.model.get('PostPublished').delta;
 				postPublished = self.model.get('PostPublished')
 			if(self.filters) {
 				$.each(self.filters, function(method, args) {
@@ -33,8 +45,11 @@ define([
 				.offset(self._views.length)
 				.sync().done(function(data){				
 					var total = self.model.get('PostPublished').total;
-					if(self._views.length >= total)
-						$(evt.target).hide();
+					if(self._views.length >= total) {
+						self.flags.atEnd = true;
+						$("#liveblog-posts li#loading-more", self.el).hide();
+					}
+					self.flags.more = false;
 				});
 		},
 		setIdInterval: function(fn){
@@ -59,7 +74,7 @@ define([
 				var closedOn = new Date(this.model.get('ClosedOn'));
 				this.pause();
 				this.model.get('PostPublished').pause();					
-				this.el.find('#liveblog-status').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM:ss')));
+				this.el.find('#liveblog-status-time').html(_('The liveblog coverage was stopped ')+closedOn.format(_('mm/dd/yyyy HH:MM:ss')));
 			}
 		},                       
 		gotoHash : function() {
@@ -70,7 +85,7 @@ define([
 			}
 		},
 		init: function()
-		{		
+		{
 			var self = this;
 			self._views = [];
 			self.location = window.location.href.split('#')[0];
@@ -88,9 +103,10 @@ define([
 						orderhash = window.location.href.split('#'),
 						postPublished = self.model.get('PostPublished')
 							.on('read readauto', self.render, self)
-							.on('addings addingsauto', self.addAll, self)
-							.on('addingsauto', self.updateTotal, self)
-							.on('updates updatesauto', self.updateStatus, self)
+							.on('addings', self.addAll, self)
+							.on('addingsauto',self.addAllAutoupdate, self)
+							//.on('addingsauto', self.updateTotal, self)
+							.on('updatesauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
 							.limit(self.limit);
@@ -167,7 +183,7 @@ define([
 			model.postview = current;
 			current.order =  parseFloat(model.get('Order'));
 			if(!count) {
-				this.el.find('#liveblog-post-list').prepend(current.el);
+				this.el.find('#load-more').after(current.el);
 				self._views = [current];
 			} else {
 				var next, prev;
@@ -202,23 +218,65 @@ define([
 			}
 			//console.log('total: ',this.model.get('PostPublished').total);
 		},
+		toggleStatusCount: function()
+		{
+			if(this.pendingAutoupdates.length !== 0) {
+				$("#liveblog-status-count",this.el).text(_('%(count)s new posts').format( { count: this.pendingAutoupdates.length})).show();
+			} else {
+				$("#liveblog-status-count",this.el).hide();
+			}
+		},
+		addAllAutoupdate: function(evt, data)
+		{
+			if(this.autoRender) {
+				if(data.length) {
+					for(var i = 0, count = data.length; i < count; i++) {
+						this.addOne(data[i]);
+						this.model.get('PostPublished').total++;
+					}
+					this.markScroll();
+				}
+			} else if(data.length !== 0){
+				this.pendingAutoupdates = this.pendingAutoupdates.concat(data);
+				//console.log('Pending autoupdates',this.pendingAutoupdates);
+				this.toggleStatusCount();
+			}
+		},
+		addAllPending: function()
+		{
+			if(!this.flags.addAllPending && this.pendingAutoupdates.length) {
+				this.flags.addAllPending = true;
+				//console.log('addPending: ',this.pendingAutoupdates);
+				//console.log(this.pendingAutoupdates.length);
+				for(var i = 0, count = this.pendingAutoupdates.length; i < count; i++) {
+					//console.log(i, this.pendingAutoupdates[i]);
+					this.addOne(this.pendingAutoupdates[i]);
+				}
+				this.pendingAutoupdates = [];
+				this.toggleStatusCount();
+				this.markScroll();
+			}
+			this.flags.addAllPending = false;
+		},
 		addAll: function(evt, data)
 		{
-			var i = data.length;
-			while(i--) {
+			var i, self = this;
+			for(i = 0, count = data.length; i < count; i++) {
 				this.addOne(data[i]);
 			}
 			this.toggleMoreVisibility();
 		},
 		updateingStatus: function()
 		{
-			this.el.find('#liveblog-status').html(_('updating...'));
+
+			this.el.find('#liveblog-status-time').html(_('updating...'));
 		},
 		updateStatus: function()
 		{
 			var now = new Date();
 			this.el.find('#liveblog-status').fadeOut(function(){
-				$(this).text(_('updated on ')+now.format(_('HH:MM:ss'))).fadeIn();
+				
+				$(this).find('#liveblog-status-time').text(_('updated on %s').format(now.format(_('HH:MM:ss')))).end().fadeIn();
 			});
 		},
 		renderBlog: function()
@@ -230,30 +288,58 @@ define([
 		toggleMoreVisibility: function()
 		{				
 			if(this.limit >= this.model.get('PostPublished').total ) {
-				$('#liveblog-more',this.el).hide();
+				$('#loading-more',this.el).hide();
 			} else {
-				$('#liveblog-more',this.el).show();
+				$('#loading-more',this.el).show();
 			}			
+		},
+		markScroll: function()
+		{
+			var self = this;
+			self.scroll.element = $("#liveblog-posts li:not(#load-more)", self.el).first();
+			//console.log(self.scroll.element);
+			self.scroll.start = self.scroll.element.offset().top;		
 		},
 		render: function(evt)
 		{				
-			this.el.tmpl('theme/container');
-			this.renderBlog();
-			this.ensureStatus();
-			var postPublished = this.model.get('PostPublished');
+			var self = this,
+				data,
+				auxView,
+				postPublished = self.model.get('PostPublished');;
+			self.el.tmpl('theme/container');
+			self.renderBlog();
+			self.ensureStatus();
 			data = postPublished._list;
 			postPublished.total = postPublished.listTotal;
-			this.toggleMoreVisibility();
-			var next = this._latest, current, model, i = data.length;                               
-			var self = this, auxView;
-			this.views=[];
-			this.renderedTotal = i;
-			while(i--) {
-				data[i].on('rendered', this.renderedOn, this);
-				auxView = this.addOne(data[i]);
-				this.views.push(auxView);
+			self.toggleMoreVisibility();
+			var next = self._latest, current, model, i = data.length;                               
+			self.views=[];
+			self.renderedTotal = i;
+			for(var i = 0, count = data.length; i < count; i++) {
+				//console.log(data[i]);
+				data[i].on('rendered', self.renderedOn, self);
+				auxView = self.addOne(data[i]);
+				self.views.push(auxView);
 			}
-			this.model.get('PostPublished').triggerHandler('rendered');           
+			self.model.get('PostPublished').triggerHandler('rendered');
+			$("#pintotop", self.el).on(self.getEvent('click'), function(){
+				$("#liveblog-posts",self.el).scrollTop(0);
+			});
+			self.markScroll();
+			$("#liveblog-posts", self.el).scroll(function() {
+				if( !self.flags.atEnd && ($(this).outerHeight() === ($(this).get(0).scrollHeight - $(this).scrollTop())))
+					self.more();
+				if (self.scroll.element.offset().top < self.scroll.start) {
+					self.autoRender = false;
+					$("#liveblog-status", self.el).addClass("shadow")
+				}
+				else {
+					self.autoRender = true;
+					self.addAllPending();
+					$("#liveblog-status", self.el).removeClass("shadow");
+				}
+
+			});			
 		},
 		renderedOn: function(){
 		   this.renderedTotal--;
