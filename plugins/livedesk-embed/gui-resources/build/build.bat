@@ -1,0 +1,1 @@
+java -classpath js.jar -Xss128m org.mozilla.javascript.tools.shell.Main r.js -o build.js
