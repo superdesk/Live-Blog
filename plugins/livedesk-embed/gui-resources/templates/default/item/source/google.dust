@@ -4,6 +4,7 @@
 	<h3><a href="{Meta.unescapedUrl}" target="_blank">{Meta.title|s}</a></h3>
 {/body_top}
 {<head_bottom}{/head_bottom}
+{<body_content}<div class="result-text">{Content|s}</div>{#Meta}{?tbUrl}<p><a href="{url}" target="_blank"><img src="{tbUrl|s}"/></a></p>{/tbUrl}{/Meta}{/body_content}
 {<body_bottom}
 	<div class="editable annotation">{Meta.annotation|s}</div>
 {/body_bottom}
