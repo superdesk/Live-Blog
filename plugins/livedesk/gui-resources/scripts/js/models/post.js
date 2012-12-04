@@ -19,7 +19,7 @@ function(Gizmo)
 		{
 			var removeHref = this.href;
 			if(this.href.indexOf('LiveDesk/Blog') !== -1 ) {
-				removeHref = removeHref.replace(/LiveDesk\/Blog\/\d/,'Superdesk')
+				removeHref = removeHref.replace(/LiveDesk\/Blog\/[\d]+/,'Superdesk')
 			}
 			var
 				self = this,
@@ -39,6 +39,18 @@ function(Gizmo)
                 ret = dataAdapter(publishHref).insert({},{headers: { 'X-Filter': 'CId, Order'}}).done(function(data){
 					self._parse(data);
 					self.Class.triggerHandler('publish', self);
+				});
+			return ret;
+		},
+		unpublishSync: function()
+		{
+			var publishHref = this.href+'/Unpublish';
+			var
+				self = this,
+				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
+                ret = dataAdapter(publishHref).insert({},{headers: { 'X-Filter': 'CId, Order'}}).done(function(data){
+					delete self.data["PublishedOn"];
+					self.triggerHandler('unpublish');
 				});
 			return ret;
 		}
