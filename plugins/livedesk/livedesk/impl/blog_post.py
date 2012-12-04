@@ -92,10 +92,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             return posts
         else:
             sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
-            sql = sql.filter(BlogPostMapped.PublishedOn != None)
+            sql = sql.filter((BlogPostMapped.PublishedOn != None) | ((BlogPostMapped.CId != None) & (BlogPostMapped.DeletedOn == None)))
 
             sql = sql.order_by(desc_op(BlogPostMapped.Order))
             sqlLimit = buildLimits(sql, offset, limit)
+            if detailed: return IterPart(self._trimmDeleted(sqlLimit.all()), sql.count(), offset, limit)
             return self._trimmDeleted(sqlLimit.all())
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
@@ -143,7 +144,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert isinstance(post, Post), 'Invalid post %s' % post
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
-        postEntry.CId = self._nextCId()
+        if post.PublishedOn is not None: postEntry.CId = self._nextCId()
         self.session().add(postEntry)
 
         return postEntry.blogPostId
@@ -180,6 +181,25 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         self.session().query(BlogPostMapped).get(postEntry.blogPostId).PublishedOn = current_timestamp()
 
         return postEntry.blogPostId
+
+    def unpublish(self, blogId, postId):
+        '''
+        @see: IBlogPostService.unpublish
+        '''
+        post = self.getById(blogId, postId)
+        assert isinstance(post, Post)
+
+        if not post.PublishedOn: raise InputError(Ref(_('Already unpublished'), ref=Post.PublishedOn))
+
+        post.PublishedOn = None
+        self.postService.update(post)
+
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
+        postEntry.CId = self._nextCId()
+        postEntry.Order = None
+        self.session().merge(postEntry)
+
+        return postId
 
     def update(self, blogId, post):
         '''
@@ -282,7 +302,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         for post in posts:
             assert isinstance(post, BlogPost)
-            if BlogPost.DeletedOn in post and post.DeletedOn is not None:
+            if (BlogPost.DeletedOn in post and post.DeletedOn is not None) or (BlogPost.PublishedOn not in post or post.PublishedOn is None):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
                 trimmed.CId = post.CId

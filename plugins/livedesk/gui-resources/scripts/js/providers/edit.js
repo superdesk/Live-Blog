@@ -45,6 +45,9 @@ define('providers/edit', [
 				.on('read', function(){			
 					self.render();
 				})
+				.on('unpublish', function(){			
+					self.rerender();
+				})
 				.on('set', function(evt, data){
 					if(self.model.updater !== self) {
 						self.rerender();
