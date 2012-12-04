@@ -41,6 +41,18 @@ function(Gizmo)
 					self.Class.triggerHandler('publish', self);
 				});
 			return ret;
+		},
+		unpublishSync: function()
+		{
+			var publishHref = this.href+'/Unpublish';
+			var
+				self = this,
+				dataAdapter = function(){ return self.syncAdapter.request.apply(self.syncAdapter, arguments); },
+                ret = dataAdapter(publishHref).insert({},{headers: { 'X-Filter': 'CId, Order'}}).done(function(data){
+					delete self.data["PublishedOn"];
+					self.triggerHandler('unpublish');
+				});
+			return ret;
 		}
 	}, { register: 'Post' } );
 });
