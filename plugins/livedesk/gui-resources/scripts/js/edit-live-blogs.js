@@ -133,13 +133,14 @@ function(providers, Gizmo, $)
 		({
 			_timeInterval: 10000,
 			_idInterval: 0,
-			_stats: { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 },
+			_stats: {},
 			/*!
 			 * for auto refresh
 			 */
 			keep: false,
 			init: function(){ 
 				var self = this;
+				self._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
 				self.model.on('publish reorder', function(evt, post){
 					if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 						self._stats.lastCId++;
