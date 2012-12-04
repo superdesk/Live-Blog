@@ -1,7 +1,7 @@
 {>"theme/item/base"/}
 {<class}youtubeservice{/class}
 
-{<body_top}<div class="editable annotation">{Meta.annotation.before|s}</div>{/body_top}
+{<body_top}{?Meta.annotation.before}<div class="editable annotation">{Meta.annotation.before|s}</div>{/Meta.annotation.before}{/body_top}
 {<body_content}
 			<div class="result-text">                              
 				 <iframe src="//youtube.com/embed/{Meta.id}" style='display: block' class='youtube-content' width='450px' height='300px'></iframe>
@@ -17,7 +17,7 @@
            	{/Meta}
 {/body_content}
 {<body_bottom}
-	<div class="editable annotation">{Meta.annotation.after|s}</div>
+	{?Meta.annotation.after}<div class="editable annotation">{Meta.annotation.after|s}</div>{/Meta.annotation.after}
 {/body_bottom}
 {<reference_name} youtube.com{/reference_name}
 
