@@ -134,6 +134,7 @@ function(providers, Gizmo, $)
 			_timeInterval: 10000,
 			_idInterval: 0,
 			_stats: { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 },
+			_minimOrder: Infinity,			
 			/*!
 			 * for auto refresh
 			 */
@@ -190,6 +191,13 @@ function(providers, Gizmo, $)
 				ret = this.stop().start();
 				this._idInterval = setInterval(function(){self.start();}, this._timeInterval);
 				return ret;
+			}
+			 * Get the minim Order value from the post list received.
+			 */
+			getMinimOrder: function(data)
+			 * Get the maximum CId value from the post list received.
+			 */			
+			getMaximCid: function(data)
 			},
 			start: function()
 			{
@@ -320,7 +328,19 @@ function(providers, Gizmo, $)
 		TimelineCollection = AutoCollection.extend
 		({
 			model: Gizmo.Register.Post,
-			href: new Gizmo.Url('/Post/Published')
+			href: new Gizmo.Url('/Post/Published'),
+			_stats: { total: 0, offset: 0, offsetMore: 0 },
+			parse: function(data) {
+				if(data.total)
+//					this._stats.total = data.total;
+//					this._stats.offset = data.offset;
+					if(data.offsetMore !== data.total) {
+						this._stats.offsetMore = data.offsetMore;					
+				}
+				if(data.PostList)
+					return data.PostList;
+				return data;
+			}			
 		}),
 		
 		/*!
@@ -332,6 +352,7 @@ function(providers, Gizmo, $)
 			{
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeDialog' },
+				'a.unpublish': { click: 'unpublishDialog' },
 				'.editable': { focusout: 'save',  focusin: 'edit'}
 			},
 			
@@ -343,6 +364,7 @@ function(providers, Gizmo, $)
 								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
 				this.model
 				    .on('delete', this.remove, this)
+				    .on('unpublish', this.remove, this)
 					.on('read', function()
 					{
 					    /*!
@@ -558,6 +580,16 @@ function(providers, Gizmo, $)
 						self.model.removeSync();
 					});
 
+			},
+			unpublishDialog: function()
+			{
+				var self = this;
+				$('#unpublish-post .yes')
+					.off(this.getEvent('click'))
+					.on(this.getEvent('click'), function(){
+						self.model.unpublishSync();
+					});
+
 			}
 		}),
 
@@ -595,6 +627,7 @@ function(providers, Gizmo, $)
 					.offset(self.collection._stats.offset)
 					.desc('order')					
 					.auto();
+						if(self.collection._stats.total <= self.limit) {
 				self.collection.view = self;
 				
 				// default autorefresh on
