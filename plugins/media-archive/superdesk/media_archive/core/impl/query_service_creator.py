@@ -110,17 +110,18 @@ class QueryServiceAlchemy(SessionSupport):
         assert isclass(QMetaDataClass), 'Invalid meta data class %s' % QMetaDataClass
 
         self.cdmArchive = cdmArchive
+        self.thumbnailManager = thumbnailManager
         self.queryIndexer = queryIndexer
         self.QMetaInfo = QMetaInfoClass
         self.QMetaData = QMetaDataClass
 
     # --------------------------------------------------------------------
 
-    def getMetaInfos(self, scheme, offset=None, limit=None, qi=None, qd=None, thumbSize=None):
+    def getMetaInfos(self, scheme, offset=None, limit=1000, qi=None, qd=None, thumbSize=None):
         '''
         Provides the meta data based on unified multi-plugin criteria.
         '''
-        sql = self.session().query(MetaDataMapped)
+        sql = self.session().query(MetaDataMapped, MetaInfoMapped)
         sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
 
         if qi is not None:
@@ -161,8 +162,7 @@ class QueryServiceAlchemy(SessionSupport):
 
 
         sql = buildLimits(sql, offset, limit)
-
-        #return sql.all()
+        
         count = 0
         metaDataInfos = list()
         for row in sql.all():
