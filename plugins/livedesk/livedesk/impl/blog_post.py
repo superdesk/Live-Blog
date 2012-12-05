@@ -13,7 +13,6 @@ Contains the SQL alchemy meta for livedesk blog posts API.
 from ..api.blog_post import IBlogPostService, QBlogPostUnpublished, \
     QBlogPostPublished
 from ..meta.blog_post import BlogPostMapped, BlogPostEntry
-from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -31,7 +30,6 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
-import sqlalchemy
 from sqlalchemy.sql.expression import func
 
 # --------------------------------------------------------------------
@@ -71,33 +69,28 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
 
+        sql = self._filterQuery(blogId, typeId, creatorId, authorId)
+        sqlMore = None
+        if q:
+            if QWithCId.cId in q and q.cId:
+                sql = sql.filter((BlogPostMapped.PublishedOn != None) | ((BlogPostMapped.CId != None) & (BlogPostMapped.DeletedOn == None)))
+                sqlMore = buildQuery(sql, q, BlogPostMapped, exclude=QWithCId.cId)
+            sql = buildQuery(sql, q, BlogPostMapped)
+        if not sqlMore:
+            sql = sql.filter((BlogPostMapped.PublishedOn != None) & (BlogPostMapped.DeletedOn == None))
+
+        sql = sql.order_by(desc_op(BlogPostMapped.Order))
+
+        sqlLimit = buildLimits(sql, offset, limit)
         if detailed:
-            sql = self._filterQuery(blogId, typeId, creatorId, authorId)
-            sqlMore = None
-            if q:
-                if QWithCId.cId in q: sqlMore = buildQuery(sql, q, BlogPostMapped, exclude=QWithCId.cId)
-
-                sql = buildQuery(sql, q, BlogPostMapped)
-                if QPostUnpublished.deletedOn not in q and QWithCId.cId not in q:
-                    sql = sql.filter(BlogPostMapped.DeletedOn == None)
-                    if sqlMore: sqlMore = sqlMore.filter(BlogPostMapped.DeletedOn == None)
-
-            sqlLimit = buildLimits(sql, offset, limit)
             posts = IterPost(self._trimmDeleted(sqlLimit.all()), sql.count(), offset, limit)
 
-            posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).one()[0]
-
+            posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
             if sqlMore: posts.offsetMore = sqlMore.count()
             else: posts.offsetMore = posts.total
-            return posts
         else:
-            sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
-            sql = sql.filter((BlogPostMapped.PublishedOn != None) | ((BlogPostMapped.CId != None) & (BlogPostMapped.DeletedOn == None)))
-
-            sql = sql.order_by(desc_op(BlogPostMapped.Order))
-            sqlLimit = buildLimits(sql, offset, limit)
-            if detailed: return IterPart(self._trimmDeleted(sqlLimit.all()), sql.count(), offset, limit)
-            return self._trimmDeleted(sqlLimit.all())
+            posts = self._trimmDeleted(sqlLimit.all())
+        return posts
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
@@ -196,7 +189,6 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
         postEntry.CId = self._nextCId()
-        postEntry.Order = None
         self.session().merge(postEntry)
 
         return postId
