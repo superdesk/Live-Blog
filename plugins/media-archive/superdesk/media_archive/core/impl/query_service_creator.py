@@ -162,7 +162,7 @@ class QueryServiceAlchemy(SessionSupport):
 
 
         sql = buildLimits(sql, offset, limit)
-       
+        
         count = 0
         metaDataInfos = list()
         for row in sql.all():
@@ -170,7 +170,7 @@ class QueryServiceAlchemy(SessionSupport):
             
             metaDataMapped = row[0]
             metaInfoMapped = row[1]
-
+            
             assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data %s' % metaDataMapped
             metaDataMapped.Content = self.cdmArchive.getURI(metaDataMapped.content, scheme)
             self.thumbnailManager.populate(metaDataMapped, scheme, thumbSize)
