@@ -1,4 +1,46 @@
 define('jquery/utils',['jquery'], function ($) {
+$.trimTag = function( tag, myString ) {
+	function recursiveTrim( tag, myString) {
+		function simpleTrim ( tag, myString ) {
+			var slen = myString.length;
+			var tlen = tag.length;
+			if ( myString.indexOf(tag) === 0) {
+				myString = myString.substr(tlen, slen);
+			}
+			var slen = myString.length;
+			var minus = slen-tlen;
+			if ( myString.substr(slen-tlen, slen) == tag ) {
+				myString = myString.substr(0, slen-tlen);
+			}
+			return myString;
+		};
+		var newString = myString;
+		var i = 0;
+		while ( 1 ) {
+			i ++;
+			newString = simpleTrim( tag, myString);
+			if ( newString == myString ) {
+				break;
+			}
+			myString = newString;
+			if ( i > 100) {
+				//prevent infinite loop at a cost :)
+				break;
+			}
+		}
+		return newString;
+	}
+
+	if ( typeof tag === 'string') {
+		myString = recursiveTrim( tag, myString );
+	} else {
+		for ( var c = 0; c < tag.length; c ++ ) {
+			var myTag = tag[c];
+			myString = recursiveTrim ( myTag, myString );
+		}
+	}
+	return myString;
+};
 $.isString = function( obj ) {
     return obj && typeof(obj) === 'string';
 }
