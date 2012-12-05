@@ -25,7 +25,7 @@ function($, superdesk, giz, User, Person, sha)
         url: new giz.Url('Superdesk/Collaborator'),
         sources: Sources
     }),
-    PersonCollaborators = giz.Collection.extend({model: Collaborator});
+    UserCollaborators = giz.Collection.extend({model: Collaborator});
     // ---
         
     ItemView = giz.View.extend
@@ -58,7 +58,7 @@ function($, superdesk, giz, User, Person, sha)
             if( !this.model.__collaborator && data.Collaborator )
             {
                 var newCollaborator = new Collaborator;
-                newCollaborator.set('Person', this.model.get('Id'))
+                newCollaborator.set('User', this.model.get('Id'))
                     .sources.xfilter('*').sync().done(function()
                     {
                         newCollaborator.sources.each(function()
@@ -123,7 +123,8 @@ function($, superdesk, giz, User, Person, sha)
             '#user-add-modal [data-action="close"]': { 'click': 'closeAddUser' },
             '#user-edit-modal [data-action="close"]': { 'click': 'closeUpdateUser' },
             '#user-delete-modal [data-action="delete"]': { 'click': 'deleteUser' },
-            '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' }
+            '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' },
+            'table thead th': { 'click': 'sortList' }
             
         },
         
@@ -288,7 +289,7 @@ function($, superdesk, giz, User, Person, sha)
                 if( $('#user-add-modal form input#inputCollaborator:checked').length )
                 {
                     var newCollaborator = new Collaborator;
-                    newCollaborator.set('Person', newModel.get('Id'))
+                    newCollaborator.set('User', newModel.get('Id'))
                         .on('insert', h, this)
                         .sources.xfilter('*').sync().done(function()
                         {
@@ -328,12 +329,11 @@ function($, superdesk, giz, User, Person, sha)
         {
             var $this = $(evt.target),
                 model = $this.prop('model');
-
-            var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
-            personModel.sync().done(function()
+            //var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
+            model.sync().done(function()
             {
-                var p = personModel.get('Id'),
-                    c = new PersonCollaborators({ href: new giz.Url('Superdesk/Person/'+p+'/Collaborator')});
+                var p = model.get('Id'),
+                    c = new UserCollaborators({ href: new giz.Url('Superdesk/User/'+p+'/Collaborator')});
                 
                 // check collaborator status
                 c.xfilter('Id,Source.Id,Source.Name').sync().done(function()
@@ -350,7 +350,7 @@ function($, superdesk, giz, User, Person, sha)
                 
                 $('#user-edit-modal form input', self.el).each(function()
                 {
-                    var val = model.get( $(this).attr('name') ) || personModel.get( $(this).attr('name') );
+                    var val = model.get( $(this).attr('name') ) || model.get( $(this).attr('name') );
                     !$.isObject(val) && $(this).val( val );
                 });
 
@@ -413,6 +413,23 @@ function($, superdesk, giz, User, Person, sha)
                 $('#user-edit-modal', self.el).modal('hide');
             }); 
         },
+        
+        currentSort: {'asc': 'name'},
+        sortList: function(evt)
+        {
+            var sort = $(evt.target).attr('data-sort');
+            if( !sort ) return false;
+            if( this.currentSort.asc != sort ) this.currentSort = {'asc': sort};
+            else this.currentSort = {'desc': sort};
+            
+            this.refresh();
+        },
+        
+        sort: function()
+        {
+            return this.currentSort;
+        },
+        
         init: function()
         {
             var self = this;
@@ -433,7 +450,7 @@ function($, superdesk, giz, User, Person, sha)
             var self = this;
             this.users._list = [];
             this.syncing = true;
-            var options = {data: {limit: this.page.limit, offset: this.page.offset, asc: 'name'}, done: function(data)
+            var options = {data: $.extend({limit: this.page.limit, offset: this.page.offset}, this.sort()), done: function(data)
             { 
                 self.syncing = false; 
                 self.page.total = data.total;
@@ -442,9 +459,9 @@ function($, superdesk, giz, User, Person, sha)
         },
         activate: function()
         {
-            $(this.el).on( 'click', 'table tbody .edit', this.showUpdateUser);
-            
             var self = this;
+            $(self.el).off(self.getEvent('click'), 'table tbody .edit').on( self.getEvent('click'), 'table tbody .edit', this.showUpdateUser);
+            
             return this.refresh().done(function()
             {
                 $(superdesk.layoutPlaceholder).html(self.el);
@@ -492,6 +509,11 @@ function($, superdesk, giz, User, Person, sha)
                 // new ItemView for each models
                 self.renderList();
                 self.users.on('read update', self.renderList, self);
+                
+                $('table th', self.el).each(function()
+                { 
+                    for(var i in self.currentSort) if($(this).attr('data-sort') == self.currentSort[i]) $(this).addClass(i); 
+                });
             });
             $.superdesk.hideLoader();
         }

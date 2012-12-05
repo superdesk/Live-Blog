@@ -16,6 +16,7 @@ function(Gizmo, User, Language, Posts, Collaborators, Admins)
             Creator: User,
             Language: Language,
             Collaborator: Collaborators,
+            CollaboratorPotential: Collaborators,
             Admin: Admins,
             Post: Posts,
             PostPublished: Posts,
