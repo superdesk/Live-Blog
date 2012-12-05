@@ -46,7 +46,10 @@ def modulesEditAction():
 def modulesConfigureAction():
     return Action('configure', Parent=modulesAction(), 
                   ScriptPath=getPublishedGui('livedesk/scripts/js/configure-blog.js'))
-
+@ioc.entity   
+def modulesManageCollaboratorsAction():
+    return Action('manage-collaborators', Parent=modulesAction(), 
+                  ScriptPath=getPublishedGui('livedesk/scripts/js/manage-collaborators.js'))
 @ioc.entity   
 def modulesArchiveAction():
     return Action('archive', Parent=modulesAction(), 
@@ -60,5 +63,6 @@ def registerActions():
     actionManagerService().add(modulesAddAction())
     actionManagerService().add(modulesEditAction())
     actionManagerService().add(modulesConfigureAction())
+    actionManagerService().add(modulesManageCollaboratorsAction())
     actionManagerService().add(modulesArchiveAction())
     
