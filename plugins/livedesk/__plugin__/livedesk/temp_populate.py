@@ -75,6 +75,7 @@ SOURCES = {
            'twitter': (False, 'www.twitter.com', 'xml'),
            'flickr': (False, 'www.flickr.com', 'xml'),
            'youtube': (False, 'www.youtube.com', 'xml'),
+           'instagram': (False, 'www.instagram.com', 'xml'),
            }
 
 _cache_sources = {}
@@ -200,6 +201,7 @@ COLLABORATORS = {
                  'twitter': 'twitter',
                  'flickr': 'flickr',
                  'youtube': 'youtube',
+                 'instagram': 'instagram',
                  }
 
 _cache_collaborators = {}
