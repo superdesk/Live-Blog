@@ -11,5 +11,5 @@ function(Gizmo, Blog, Post)
             Blog: Gizmo.Collection.extend(Blog),
             Post: Gizmo.Collection.extend(Post)
         }
-    });
+    }, { register: 'User' } );
 });

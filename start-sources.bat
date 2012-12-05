@@ -1,6 +1,6 @@
 @ECHO OFF
 setlocal
-SET ALLYPATH=..\ally-py
+SET ALLYPATH=..\
 SET ALLYCOM=%ALLYPATH%components\
 set PYTHONPATH=%ALLYCOM%ally-api
 set PYTHONPATH=%PYTHONPATH%;%ALLYCOM%ally-authentication
@@ -28,6 +28,7 @@ SET FULLPATH=
 SET SUPERPLUG=%FULLPATH%plugins\
 REM set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%ffmpeg-binary
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%livedesk
+set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%livedesk-embed
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%media-archive
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%media-archive-audio
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%media-archive-image
@@ -44,5 +45,8 @@ set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-post
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-source
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-user
 
-del distribution\workspace\superdesk.db
+IF EXIST distribution\workspace\shared\superdesk.db del distribution\workspace\shared\superdesk.db
+
+IF NOT EXIST distribution\application.properties python distribution\application.py -dump
+
 python distribution\application.py
