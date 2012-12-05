@@ -137,7 +137,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert isinstance(post, Post), 'Invalid post %s' % post
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
-        if post.PublishedOn is not None: postEntry.CId = self._nextCId()
+        if post.PublishedOn is not None:
+            postEntry.CId = self._nextCId()
+            postEntry.Order = self._nextOrdering(blogId)
         self.session().add(postEntry)
 
         return postEntry.blogPostId
