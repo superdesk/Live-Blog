@@ -1,0 +1,18 @@
+<div class="module">
+    <h3 class="header"><i class="icon-chevron-down"></i>File Types</h3>
+    <div class="module-row" style="display: block;">
+        <ul class="treeview" id="type-list">
+        {#Types}
+            <li icon="{Type}">
+            	<label for="filter-{Type}">
+            		<span class="treemenuicon photo">{Type}</span>
+            		<input type="checkbox" class="check" id="filter-{Type}" value="{Type}" />
+            	</label>
+            </li>
+        {/Types}
+        </ul>
+	</div>
+</div>
+<span data-placeholder="modules">
+
+</span>
