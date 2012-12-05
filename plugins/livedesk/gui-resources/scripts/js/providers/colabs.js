@@ -1,12 +1,14 @@
-define( 'providers/colabs', 
-[ 'providers', 'jquery', 'gizmo/superdesk', 
-  
-  config.guiJs('livedesk', 'models/blog'),
-  config.guiJs('livedesk', 'models/collaborator'),
-  
-  'providers/colabs/adaptor',
-  'tmpl!livedesk>providers/colabs',
-  'tmpl!livedesk>providers/colabs/items' ],
+define( 'providers/colabs', [ 
+    'providers', 
+    'jquery',
+    'gizmo/superdesk',
+    config.guiJs('livedesk', 'models/blog'),
+    config.guiJs('livedesk', 'models/collaborator'),
+   'jquery/avatar',
+
+    'providers/colabs/adaptor',
+    'tmpl!livedesk>providers/colabs',
+    'tmpl!livedesk>providers/colabs/items' ],
   
 function(providers, $, giz, Blog, Collaborator)
 {
@@ -27,8 +29,11 @@ function(providers, $, giz, Blog, Collaborator)
         },
         render: function()
         {
-            var self = this;
-            $.tmpl( 'livedesk>providers/colabs/items', {Posts: this.model.feed('json')}, function(e, o)
+            var self = this,
+                posts = this.model.feed('json');
+            $.avatar.set(posts, 'User.EMail');
+            console.log(posts);
+            $.tmpl( 'livedesk>providers/colabs/items', {Posts: posts }, function(e, o)
             {
                 self.setElement(o);
                 // make draggable
@@ -122,7 +127,7 @@ function(providers, $, giz, Blog, Collaborator)
                     self.setupHeader.call(self, this);
                     self.setupColabStream.call(self, this); 
                 });
-                collaborators.xfilter('Person.Id', 'Person.FullName', 'Person.EMail', 'Post').sync();
+                collaborators.xfilter('User.Id', 'User.FullName', 'User.EMail', 'Post').sync();
             });
             
             $('.'+providers.colabs.className)

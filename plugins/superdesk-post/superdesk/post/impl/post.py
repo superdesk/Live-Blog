@@ -29,7 +29,7 @@ from sqlalchemy.sql.functions import current_timestamp
 
 # --------------------------------------------------------------------
 
-COPY_EXCLUDE = ('Type', 'IsModified', 'AuthorName')
+COPY_EXCLUDE = ('Type', 'IsModified', 'IsPublished', 'AuthorName')
 
 @injected
 @setup(IPostService)
@@ -90,10 +90,10 @@ class PostServiceAlchemy(EntityGetServiceAlchemy, IPostService):
         postDb.typeId = self._typeId(post.Type)
         if post.CreatedOn is None: postDb.CreatedOn = current_timestamp()
         if not postDb.Author:
-            colls = self.session().query(CollaboratorMapped).filter(CollaboratorMapped.Person == postDb.Creator).all()
+            colls = self.session().query(CollaboratorMapped).filter(CollaboratorMapped.User == postDb.Creator).all()
             if not colls:
                 coll = CollaboratorMapped()
-                coll.Person = postDb.Creator
+                coll.User = postDb.Creator
                 src = self.session().query(SourceMapped).filter(SourceMapped.Name == PostServiceAlchemy.default_source_name).one()
                 coll.Source = src.Id
                 self.session().add(coll)
