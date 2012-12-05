@@ -13,7 +13,6 @@ Contains the SQL alchemy meta for livedesk blog posts API.
 from ..api.blog_post import IBlogPostService, QBlogPostUnpublished, \
     QBlogPostPublished
 from ..meta.blog_post import BlogPostMapped, BlogPostEntry
-from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -21,7 +20,7 @@ from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
-from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost
+from livedesk.api.blog_post import QBlogPost, QWithCId, BlogPost, IterPost
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.util import aliased
 from sqlalchemy.sql import functions as fn
@@ -31,6 +30,7 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
+from sqlalchemy.sql.expression import func
 
 # --------------------------------------------------------------------
 
@@ -69,13 +69,28 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert q is None or isinstance(q, QBlogPostPublished), 'Invalid query %s' % q
 
-        sql = self._buildQuery(blogId, typeId, creatorId, authorId, q)
-        sql = sql.filter(BlogPostMapped.PublishedOn != None)
+        sql = self._filterQuery(blogId, typeId, creatorId, authorId)
+        sqlMore = None
+        if q:
+            if QWithCId.cId in q and q.cId:
+                sql = sql.filter((BlogPostMapped.PublishedOn != None) | ((BlogPostMapped.CId != None) & (BlogPostMapped.DeletedOn == None)))
+                sqlMore = buildQuery(sql, q, BlogPostMapped, exclude=QWithCId.cId)
+            sql = buildQuery(sql, q, BlogPostMapped)
+        if not sqlMore:
+            sql = sql.filter((BlogPostMapped.PublishedOn != None) & (BlogPostMapped.DeletedOn == None))
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
+
         sqlLimit = buildLimits(sql, offset, limit)
-        if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
-        return self._trimmDeleted(sqlLimit.all())
+        if detailed:
+            posts = IterPost(self._trimmDeleted(sqlLimit.all()), sql.count(), offset, limit)
+
+            posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
+            if sqlMore: posts.offsetMore = sqlMore.count()
+            else: posts.offsetMore = posts.total
+        else:
+            posts = self._trimmDeleted(sqlLimit.all())
+        return posts
 
     def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
@@ -98,11 +113,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if q and QBlogPost.isPublished in q:
             if q.isPublished.value: sql = sql.filter(BlogPostMapped.PublishedOn != None)
             else: sql = sql.filter(BlogPostMapped.PublishedOn == None)
-        #sql = sql.filter(BlogPostMapped.Author == None)
+        # sql = sql.filter(BlogPostMapped.Author == None)
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
-        return self._trimmDeleted(sql.all())
+        return sql.all()
 
     def getAll(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
@@ -122,7 +137,9 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert isinstance(post, Post), 'Invalid post %s' % post
 
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
-        postEntry.CId = self._nextCId()
+        if post.PublishedOn is not None:
+            postEntry.CId = self._nextCId()
+            postEntry.Order = self._nextOrdering(blogId)
         self.session().add(postEntry)
 
         return postEntry.blogPostId
@@ -152,13 +169,31 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
 
-        post.PublishedOn = current_timestamp()
         postEntry = BlogPostEntry(Blog=blogId, blogPostId=self.postService.insert(post))
         postEntry.CId = self._nextCId()
         postEntry.Order = self._nextOrdering(blogId)
         self.session().add(postEntry)
+        self.session().query(BlogPostMapped).get(postEntry.blogPostId).PublishedOn = current_timestamp()
 
         return postEntry.blogPostId
+
+    def unpublish(self, blogId, postId):
+        '''
+        @see: IBlogPostService.unpublish
+        '''
+        post = self.getById(blogId, postId)
+        assert isinstance(post, Post)
+
+        if not post.PublishedOn: raise InputError(Ref(_('Already unpublished'), ref=Post.PublishedOn))
+
+        post.PublishedOn = None
+        self.postService.update(post)
+
+        postEntry = BlogPostEntry(Blog=blogId, blogPostId=post.Id)
+        postEntry.CId = self._nextCId()
+        self.session().merge(postEntry)
+
+        return postId
 
     def update(self, blogId, post):
         '''
@@ -231,20 +266,27 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         Builds the general query for posts.
         '''
+        sql = self._filterQuery(blogId, typeId, creatorId, authorId)
+        if q:
+            sql = buildQuery(sql, q, BlogPostMapped)
+            if QPostUnpublished.deletedOn not in q and QWithCId.cId not in q:
+                sql = sql.filter(BlogPostMapped.DeletedOn == None)
+
+        return sql
+
+    def _filterQuery(self, blogId, typeId=None, creatorId=None, authorId=None):
+        '''
+        Creates the general query filter for posts based on the provided parameters.
+        '''
         sql = self.session().query(BlogPostMapped)
         sql = sql.filter(BlogPostMapped.Blog == blogId)
 
         if typeId: sql = sql.join(PostTypeMapped).filter(PostTypeMapped.Key == typeId)
         if creatorId: sql = sql.filter(BlogPostMapped.Creator == creatorId)
         if authorId:
-            sql = sql.filter((BlogPostMapped.Author == authorId) | 
-                             ((CollaboratorMapped.Id == authorId) & 
-                              (CollaboratorMapped.Person == BlogPostMapped.Creator)))
-        addDeleted = False
-        if q:
-            sql = buildQuery(sql, q, BlogPostMapped)
-            addDeleted = QPostUnpublished.deletedOn in q or QWithCId.cId in q
-        if not addDeleted: sql = sql.filter(BlogPostMapped.DeletedOn == None)
+            sql = sql.filter((BlogPostMapped.Author == authorId) |
+                             ((CollaboratorMapped.Id == authorId) &
+                              (CollaboratorMapped.User == BlogPostMapped.Creator)))
 
         return sql
 
@@ -254,10 +296,11 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         '''
         for post in posts:
             assert isinstance(post, BlogPost)
-            if BlogPost.DeletedOn in post and post.DeletedOn is not None:
+            if (BlogPost.DeletedOn in post and post.DeletedOn is not None) or (BlogPost.PublishedOn not in post or post.PublishedOn is None):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
                 trimmed.CId = post.CId
+                trimmed.IsPublished = post.IsPublished
                 trimmed.DeletedOn = post.DeletedOn
                 yield trimmed
             else:

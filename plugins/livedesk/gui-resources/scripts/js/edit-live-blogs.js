@@ -131,72 +131,192 @@ function(providers, Gizmo, $)
 		 */
 		AutoCollection = Gizmo.Collection.extend
 		({
-			timeInterval: 10000,
-			idInterval: 0,
-			_latestCId: 0,
+			_timeInterval: 10000,
+			_idInterval: 0,
+			_stats: {},
 			/*!
 			 * for auto refresh
 			 */
 			keep: false,
 			init: function(){ 
 				var self = this;
-				self.model.on('publish reorder', function(evt, data){
-					self.getMaximumNearCid(self.parse([data]));
+				self._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
+				self.model.on('unpublish publish reorder', function(evt, post){
+					if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
+						self._stats.lastCId++;
 				});
-				this.on('read update updates',function(evt, data)
+				self.on('readauto', function(evt, data, attr){
+					// set offset to limit
+					self._stats.offset = self._stats.limit;
+					// set total from the attributes 
+					self._stats.total = parseInt(attr.total);
+					attr.lastCId = parseInt(attr.lastCId);
+					if(attr.lastCId > self._stats.lastCId)
+						self._stats.lastCId = attr.lastCId;
+				}).on('readauto updateauto update removeingsauto',function(evt, data)
 				{
-					if(!data)
-						data = self._list;
-					self.getMaximumCid(self.parse(data));
+					self.getLastCid(data);
+					self.getFirstOrder(data);
+				}).on('addingsauto', function(evt, data){
+					/*!
+					 * If addings ( from getting the auto updates ) 
+					 *   receive we need to increase the total count of the posts and the offset
+					 *   with the numbers of posts added
+					 */
+					self._stats.total += data.length;
+					self._stats.offset += data.length;
+
+				}).on('removeingsauto', function(evt, data){
+					/*!
+					 * If removeings from the collection ( from getting the autou pdates ) 
+					 *   receive we need to decrease the total and the offset for the next page
+					 *   with the numbers of posts added
+					 */					
+					self._stats.total -= data.length;
+					self._stats.offset -= data.length;
+
+				}).on('addings', function(evt, data){
+					/*!
+					 * If addings ( from getting the next page ) 
+					 *   receive we need to increase the offset for the next page
+					 *   with the numbers of posts added
+					 */
+					self._stats.offset += data.length;
 				});
-			},
+			},			
 			destroy: function(){ this.stop(); },
-			setIdInterval: function(fn)
+			auto: function(fn)
 			{
-				this.idInterval = setInterval(fn, this.timeInterval);
-				return this;
-			},
-			getMaximumNearCid: function(data)
-			{
-				for(i=0, count=data.list.length; i<count; i++) {
-					var CId = parseInt(data.list[i].get('CId'))
-					if( !isNaN(CId) && (this._latestCId < CId) && ((this._latestCId + 1) == CId))
-						this._latestCId = CId;
-				}
-			},
-			getMaximumCid: function(data)
-			{
-				for(i=0, count=data.list.length; i<count; i++) {
-					var CId = parseInt(data.list[i].get('CId'))
-					if( !isNaN(CId) && (this._latestCId < CId) )
-						this._latestCId = CId;
-				}
+				var self = this;
+				ret = this.stop().start();
+				this._idInterval = setInterval(function(){self.start();}, this._timeInterval);
+				return ret;
 			},
 			start: function()
 			{
-				var self = this, requestOptions = {data: {'cId.since': this._latestCId}, headers: { 'X-Filter': 'CId, Order'}};
-				if(self._latestCId === 0) delete requestOptions.data;
+				var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers: { 'X-Filter': 'CId, Order, IsPublished'}};
+				if(self._stats.lastCId === 0) delete requestOptions.data;
 				if(!this.keep && self.view && !self.view.checkElement()) 
 				{
 					self.stop();
 					return;
 				}				
-				return this.sync(requestOptions);
-				return this;
+				this.triggerHandler('beforeUpdate');
+				return this.autosync(requestOptions);
 			},
 			stop: function()
 			{
 				var self = this;
-				clearInterval(self.idInterval);
+				clearInterval(self._idInterval);
 				return this;
 			},
-			autosync: function()
+			/*!
+			 * Get the minim Order value from the post list received.
+			 */
+			getFirstOrder: function(data)
 			{
-				var self = this,
-				ret = this.stop().start();
-				this.setIdInterval(function(){self.start();});
-				return ret;
-			}
+				for(var i=0, Order, count=data.length; i<count; i++) {
+					Order = parseFloat(data[i].get('Order'))
+					if( !isNaN(Order) && (this._stats.fistOrder > Order) )
+						this._stats.fistOrder = Order;
+				}
+			},
+			/*!
+			 * Get the maximum CId value from the post list received.
+			 */			
+			getLastCid: function(data)
+			{
+				for(var i=0, CId, count=data.length; i<count; i++) {
+					var CId = parseInt(data[i].get('CId'))
+					if( !isNaN(CId) && (this._stats.lastCId < CId) )
+						this._stats.lastCId = CId;
+				}
+			},
+	        autosync: function()
+	        {
+            var self = this;
+            return (this.href &&
+                this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
+                {					
+                    var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length;
+                     // important or it will infiloop
+                    for( var i=0; i < list.length; i++ )
+                    {
+                        var model = false;
+                        for( var j=0; j<count; j++ ) {
+							if( list[i].hash() == self._list[j].hash() )
+                            {
+								model = list[i];
+                                break;
+                            }
+						}
+                        if( !model ) {
+							if(self.isCollectionDeleted(list[i])) {
+                                if( self.hasEvent('removeingsauto') ) {
+                                    removeings.push(list[i]);
+                                }
+
+                            } else if( !list[i].isDeleted() ) {
+								self._list.push(list[i]);
+								changeset.push(list[i]);
+                                if( self.hasEvent('addingsauto') ) {
+                                    addings.push(list[i]);
+                                }
+							} else {
+                                if( self.hasEvent('updatesauto') ) {
+								    updates.push(list[i]);
+                                }					
+							}
+                        }
+                        else {
+                            if( self.hasEvent('updatesauto') ) {
+                                updates.push(model);
+                            }
+                            if(self.isCollectionDeleted(model)) {
+                                self._list.splice(i,1);
+                                if( self.hasEvent('removeingsauto') ) {
+                                    removeings.push(model);
+                                }
+
+                            }
+                            if( model.isDeleted()) {
+                                model._remove();                               
+                            } else if( model.isChanged() ){
+								changeset.push(model);
+							}
+                            else {
+                                model.on('delete', function(){ self.remove(this.hash()); })
+                                        .on('garbage', function(){ this.desynced = true; });
+                            }
+                        }
+                    }
+                    self.desynced = false;
+					/**
+					 * If the initial data is empty then trigger READ event
+					 * else UPDATE with the changeset if there are some
+					 */
+					if( ( count === 0) ){
+						//console.log('read');
+
+						self.triggerHandler('readauto',[self._list,attr]);
+                    } else {                    
+                        /**
+                         * Trigger handler with changeset extraparameter as a vector of vectors,
+                         * caz jquery will send extraparameters as arguments when calling handler
+                         */
+                        if( updates.length && self.hasEvent('updatesauto') ) {
+                            self.triggerHandler('updatesauto', [updates,attr]);
+                        }
+                        if( addings.length && self.hasEvent('addingsauto') ) {
+                            self.triggerHandler('addingsauto', [addings,attr]);
+                        }
+                        if( removeings.length && self.hasEvent('removeingsauto') ) {
+                            self.triggerHandler('removeingsauto', [removeings,attr]);
+                        }
+						self.triggerHandler('updateauto', [changeset,attr]);
+					}
+                }));
+	        }
 		
 		}),
 		
@@ -206,7 +326,20 @@ function(providers, Gizmo, $)
 		TimelineCollection = AutoCollection.extend
 		({
 			model: Gizmo.Register.Post,
-			href: new Gizmo.Url('/Post/Published')
+			href: new Gizmo.Url('/Post/Published'),
+			parse: function(data) {
+				if(data.total)
+					if(data.offsetMore !== data.total) {
+						this._stats.offsetMore = data.offsetMore;					
+				}
+				if(data.PostList)
+					return data.PostList;
+				return data;
+			},
+			isCollectionDeleted: function(model)
+	        {
+	        	return model.get('IsPublished') === 'True'? false : true;
+	        }	
 		}),
 		
 		/*!
@@ -218,6 +351,7 @@ function(providers, Gizmo, $)
 			{
 				'': { sortstop: 'reorder' },
 				'a.close': { click: 'removeDialog' },
+				'a.unpublish': { click: 'unpublishDialog' },
 				'.editable': { focusout: 'save',  focusin: 'edit'}
 			},
 			
@@ -226,9 +360,10 @@ function(providers, Gizmo, $)
 				var self = this;
 				self.el.data('view', self);
 				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, IsPublished';
 				this.model
 				    .on('delete', this.remove, this)
+				    .on('unpublish', this.remove, this)
 					.on('read', function()
 					{
 					    /*!
@@ -348,6 +483,9 @@ function(providers, Gizmo, $)
 			render: function()
 			{
 				var self = this, order = parseFloat(this.model.get('Order'));
+				if(isNaN(order)) {
+					order = 0.0;
+				}
 				if ( !isNaN(self.order) && (order != self.order) && this.model.ordering !== self) {
 					var actions = { prev: 'insertBefore', next: 'insertAfter' }, ways = { prev: 1, next: -1}, anti = { prev: 'next', next: 'prev'}
 					for( var dir = (self.order - order > 0)? 'next': 'prev', cursor=self[dir];
@@ -441,44 +579,53 @@ function(providers, Gizmo, $)
 						self.model.removeSync();
 					});
 
+			},
+			unpublishDialog: function()
+			{
+				var self = this;
+				$('#unpublish-post .yes')
+					.off(this.getEvent('click'))
+					.on(this.getEvent('click'), function(){
+						self.model.unpublishSync();
+					});
+
 			}
 		}),
 
 		TimelineView = Gizmo.View.extend
 		({
-			limit: 25,
-			offset: 0,
 			events: 
 			{
 				'ul.post-list': { sortstop: 'sortstop' },
 				'#more': { click: 'more' }
 			},
+			moreHidden: false,
 			init: function()
 			{
 				var self = this;
-				self._latest = undefined;
 				self._views = [];
+				self.moreHidden = false;
 				self.collection.model.on('publish', function(evt, model){
 					self.addOne(model);
 				});
 				self.xfilter = 'CId, Order';
 				self.collection
-					.on('read', function()
+					.on('read readauto', function()
 					{
 						self.render();
+						self.toggleMoreVisibility();
 					})
-					.on('update', function(evt, data)
+					.on('update updateauto', function(evt, data)
 					{
 						self.addAll(data);
+						self.toggleMoreVisibility();
 					})
+					.on('removeingsauto', self.removeAllAutoupdate, self)
 					.xfilter(self.xfilter)
-					.limit(self.limit)
-					.offset(self.offset)
-					.autosync().done(function(data){
-						if(parseInt(data.total)<= self.limit) {
-							$('#more').hide();
-						}
-					});
+					.limit(self.collection._stats.limit)
+					.offset(self.collection._stats.offset)
+					.desc('order')					
+					.auto();
 				self.collection.view = self;
 				
 				// default autorefresh on
@@ -489,21 +636,25 @@ function(providers, Gizmo, $)
 				    .tooltip({placement: 'bottom'});
 				
 			},
+			toggleMoreVisibility: function()
+			{
+				var self = this;
+				if(self.moreHidden)
+					return;
+				if(self.collection._stats.offset >= self.collection._stats.total) {
+					self.moreHidden = true;
+					$('#more', self._parent.el).hide();
+				}
+			},
 			more: function(evnt, ui)
 			{
-				var self = this,
-					offset = $(evnt.target).data('offset');
-				offset = offset? offset: 1;
+				var self = this;
 				self.collection
 					.xfilter(self.xfilter)
-					.limit(self.limit)
-					.offset(offset*self.limit)
-					.sync().done(function(data){
-						self.total = parseInt(data.total);
-						if((offset+1)*self.limit >= self.total)
-							$(evnt.target).hide();
-					});
-				$(evnt.target).data('offset', offset+1);
+					.limit(self.collection._stats.limit)
+					.offset(self.collection._stats.offset)
+					.desc('order')
+					.sync();
 			},
 			sortstop: function(evnt, ui)
 			{
@@ -529,6 +680,9 @@ function(providers, Gizmo, $)
 					count = self._views.length;
 				model.postview = current;
 				current.order =  parseFloat(model.get('Order'));
+				if(isNaN(current.order)) {
+					current.order = 0.0;
+				}
 				if(!count) {
 					this.el.find('ul.post-list').append(current.el);
 					self._views = [current];
@@ -555,15 +709,18 @@ function(providers, Gizmo, $)
 						prev.next = current;
 						current.prev = prev;
 						self._views.splice(prevIndex+1, 0, current);
-					}
-					
-					/*current.next = this._latest;
-					if( this._latest !== undefined )
-						this._latest.prev = current;
-					this._latest = current;
-					*/					
+					}				
 				}
 				$(current).on('render', function(){ self.autorefreshHandle.call(self, current.el.outerHeight(true)); });
+			},
+			removeAllAutoupdate: function(evt, data)
+			{
+				var self = this;
+				for( var i = 0, count = data.length; i < count; i++ ) {
+					if(data[i].postview) {
+						data[i].postview.remove();
+					}
+				}
 			},
 			addAll: function(data)
 			{
@@ -885,11 +1042,6 @@ function(providers, Gizmo, $)
 						accessKey: 'I'  // Alt-Shift-I in FF/IE
 					});
 					
-					$('.main.splitter-pane .scroller', $(self.el)).on('scroll', function()
-					{
-					    $(this).find('[contenteditable]').trigger('blur');
-					});
-					
 					$.superdesk.hideLoader();
 					
 				});
@@ -944,6 +1096,18 @@ function(providers, Gizmo, $)
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
 					$.superdesk.getAction('modules.livedesk.configure')
+					.done(function(action)
+					{
+						action.ScriptPath && 
+							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+					});
+				})
+				.off(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
+				.on(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
+				{
+					event.preventDefault();
+					var blogHref = $(this).attr('href')
+					$.superdesk.getAction('modules.livedesk.manage-collaborators')
 					.done(function(action)
 					{
 						action.ScriptPath && 
