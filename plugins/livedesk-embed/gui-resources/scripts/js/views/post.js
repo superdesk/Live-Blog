@@ -2,6 +2,7 @@ define([
 	'jquery',
 	'gizmo/superdesk',
 	'jquery/tmpl',
+	'jquery/utils',
 	'tmpl!theme/item/base',
 	'tmpl!theme/item/item',
 	'tmpl!theme/item/annotated',
@@ -77,14 +78,19 @@ define([
 			if(data.Meta) {
 
 				data.Meta = JSON.parse(data.Meta);
-
 				if(data.Meta.annotation[1] === null) {
 					data.Meta.annotation = data.Meta.annotation[0];
-					data.Meta.annotation = (data.Meta.annotation === '<br/>') || (data.Meta.annotation === '<br>') ? '' :  data.Meta.annotation;
+					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 				}
+
 				if ( typeof data.Meta.annotation !== 'string') {
 					var aux = data.Meta.annotation;
-					data.Meta.annotation = {'before': aux[0] , 'after': aux[1]}
+					data.Meta.annotation = {
+						'before': $.trimTag(['<br>', '<br />'], aux[0]), 
+						'after': $.trimTag(['<br>', '<br />'], aux[1]),
+					}
+				} else {
+					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
 				}
 			}
 			data.permalink = self._parent.location + '#' + self._parent.hashIdentifier + data.Order;			
