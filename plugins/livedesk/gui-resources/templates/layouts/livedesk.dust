@@ -8,9 +8,9 @@
 	<ul class="nav nav-pills pull-left">	
     {!#blog!}
 		<li class="{ui.submenuActive1}"><a data-target="edit-blog" href="{BlogHref}">{Title|t}</a></li>
-		<li class="{ui.submenuActive2}"><a data-target="configure-blog" href="{BlogHref}">_("Configure Blog")</a></li>
-		<!--li class=""><a href="#">Manage collaborators</a></li>
-		<li class=""><a href="#">Manage feeds</a></li-->
+		<li class="{ui.submenuActive2}"><a data-target="configure-blog" href="{BlogHref}">_("Configure Blog");</a></li>
+		<li class="{ui.submenuActive3}"><a data-target="manage-collaborators-blog" href="{BlogHref}">_("Manage collaborators");</a></li>
+		<!--<li class=""><a href="#">Manage feeds</a></li-->
 	{!/blog!}	
     </ul>
     
@@ -81,6 +81,19 @@
   <div class="modal-footer">
     <a data-dismiss="modal" class="no btn" href="#">_("No")</a>
     <a data-dismiss="modal" class="yes btn btn-primary" href="#">_("Yes")</a>
+  </div>
+</div>
+<div id="unpublish-post" class="modal hide in">
+  <div class="modal-header"> 
+    <a data-dismiss="modal" class="close">x</a>
+    <h3>Unpublish post</h3>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to unpublish the post <strong id="postname-to-unpublish"></strong>?</p>
+  </div>
+  <div class="modal-footer">
+    <a data-dismiss="modal" class="no btn" href="#">No</a>
+    <a data-dismiss="modal" class="yes btn btn-primary" href="#">Yes</a>
   </div>
 </div>
 

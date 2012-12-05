@@ -11,7 +11,6 @@ define
     'jquery/superdesk',
     'gizmo/superdesk',
     'gizmo/views/list',
-    'utils/nlp',
     config.guiJs('media-archive', 'models/meta-data'),
     config.guiJs('media-archive', 'models/meta-type'),
     config.guiJs('media-archive', 'models/meta-data-info'),
@@ -24,7 +23,7 @@ define
     'tmpl!media-archive>sidebar/crit-numeric',
     'tmpl!media-archive>sidebar/crit-string',
 ],
-function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add)
+function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add)
 {
     var // collections
     MetaDataCollection = giz.Collection.extend({ model: MetaData, href: MetaData.prototype.url.get() }),

@@ -1,0 +1,5 @@
+<div class="article-view">
+	<div class="ctx {ViewClass}">
+		{Content|s}
+	</div>
+</div>

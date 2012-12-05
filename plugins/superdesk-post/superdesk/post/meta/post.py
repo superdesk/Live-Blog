@@ -50,6 +50,9 @@ class PostMapped(Base, Post):
     def IsModified(self):
         return self.UpdatedOn is not None
     @hybrid_property
+    def IsPublished(self):
+        return self.PublishedOn is not None
+    @hybrid_property
     def AuthorName(self):
         if self.Author is None: return self.creator.Name
         return self.author.Name
@@ -65,6 +68,10 @@ class PostMapped(Base, Post):
     @IsModified.expression
     def _IsModified(cls):
         return case([(cls.UpdatedOn != None, True)], else_=False)
+    @classmethod
+    @IsPublished.expression
+    def _IsPublished(cls):
+        return case([(cls.PublishedOn != None, True)], else_=False)
     @classmethod
     @AuthorName.expression
     def _AuthorName(cls):
