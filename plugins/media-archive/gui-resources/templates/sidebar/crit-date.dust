@@ -1,11 +1,11 @@
 <div class="module" data-criteria="{id}" {initial}>
 	<h3 class="header"><i class="icon-chevron-down"></i>{title}</h3>
 	<div class="module-row">
-		<label for="date_from" class="half">from
-			<input class="date" id="date_from" type="text" data-criteria-append=".since" />
+		<label for="date-from-{id}" class="half">from
+			<input class="date" id="date-from-{id}" type="text" data-criteria-append=".since" />
 		</label>
-		<label for="date_to" class="half">to
-			<input class="date" id="date_to" type="text" data-criteria-append=".until" />
+		<label for="date-to-{id}" class="half">to
+			<input class="date" id="date-to-{id}" type="text" data-criteria-append=".until" />
 		</label>
 	</div>
 </div>
