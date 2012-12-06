@@ -1,0 +1,18 @@
+{>"livedesk>layouts/livedesk"/}
+{<body}
+<section class="scroller main-section configure-blog" {ui.content}>
+	<header>
+		<h3>_('Collaborators managment:'); {Title|t}</h3>
+	</header>
+	<div class="row-fluid">
+		<div class="span10">
+			<form class="form-horizontal form-large">
+        	<fieldset>
+          </fieldset>
+        
+      </form>
+      </div>
+    </div>
+
+</section>
+{/body}
