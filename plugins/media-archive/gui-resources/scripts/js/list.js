@@ -67,7 +67,9 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         {
             "#type-list input": { "click": "selectType" }
         },
+        tagName: 'span',
         types: null,
+        criteriaList: null, 
         init: function()
         {
             this.types = new MetaTypeCollection;
@@ -75,6 +77,14 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             this.types.on('read update', this.render, this);
             this.criteriaList.on('read update', this.renderCriteria, this);
         },
+        placeInView: function(el)
+        {
+            el.append(this.el);
+            this.delegateEvents();
+        },
+        /*!
+         * refresh types
+         */
         refresh: function()
         {
             this.types.xfilter('*').sync();
@@ -120,6 +130,9 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             return criteriaTypes.replace(/InfoEntry-/g,'|').replace(/DataEntry-/g, '|').replace(/\|$/,'').replace(/\|$/,'').toLowerCase().split('|').sort();
         },
         _criteriaForAll: {},
+        /*!
+         * append initial criteria for all types
+         */
         renderCriteria: function()
         {
             var types = this.types.feed(),
@@ -129,6 +142,8 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                 types[i].Type.toLowerCase() != 'other' && allTypes.push(types[i].Type);
             allTypes.sort();
             allTypes = allTypes.toString();
+
+            $('[data-placeholder="modules"]', this.el).html('');
             for( var i=0; i<criteria.length; i++ )
                 if( criteria[i].Key in this.criteriaRules && allTypes == this._criteriaTypes(criteria[i].Types).toString() )
                 {
@@ -143,6 +158,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         },
         selectType: function()
         {
+            console.log('x');
             var selectedTypes = [],
                 criteria = this.criteriaList.feed();
             $('#type-list input:checked', this.el).each(function()
@@ -258,8 +274,9 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         },
         renderCallback: function()
         {
-            this.filterView.searchInput = $('.searchbar-container [name="searchbar"]', this.el);
-            this.filterView.setElement($(this.el).find('#sidebar')).refresh();
+            this.filterView.searchInput = $('.searchbar-container [name="search"]', this.el);
+            this.filterView.placeInView($(this.el).find('#sidebar'));
+            this.filterView.refresh();
         },
         /*!
          * @return MetaDataCollection
