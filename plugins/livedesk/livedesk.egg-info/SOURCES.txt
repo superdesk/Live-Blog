@@ -18,6 +18,8 @@ gui-resources/scripts/js/providers/colabs/__init__.py
 gui-resources/scripts/js/providers/edit/__init__.py
 gui-resources/scripts/js/providers/flickr/__init__.py
 gui-resources/scripts/js/providers/google/__init__.py
+gui-resources/scripts/js/providers/instagram/__init__.py
+gui-resources/scripts/js/providers/soundcloud/__init__.py
 gui-resources/scripts/js/providers/twitter/__init__.py
 gui-resources/scripts/js/providers/youtube/__init__.py
 gui-resources/templates/__init__.py
@@ -31,6 +33,8 @@ gui-resources/templates/providers/colabs/__init__.py
 gui-resources/templates/providers/edit/__init__.py
 gui-resources/templates/providers/flickr/__init__.py
 gui-resources/templates/providers/google/__init__.py
+gui-resources/templates/providers/instagram/__init__.py
+gui-resources/templates/providers/soundcloud/__init__.py
 gui-resources/templates/providers/twitter/__init__.py
 gui-resources/templates/providers/youtube/__init__.py
 livedesk/__init__.py
