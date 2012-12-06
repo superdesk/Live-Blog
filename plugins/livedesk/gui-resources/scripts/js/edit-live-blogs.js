@@ -1102,6 +1102,18 @@ function(providers, Gizmo, $)
 							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
 					});
 				})
+				.off(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
+				.on(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
+				{
+					event.preventDefault();
+					var blogHref = $(this).attr('href')
+					$.superdesk.getAction('modules.livedesk.manage-collaborators')
+					.done(function(action)
+					{
+						action.ScriptPath && 
+							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+					});
+				})
 				.off('click'+this.getNamespace(), 'a[data-target="edit-blog"]')
 				.on('click'+this.getNamespace(), 'a[data-target="edit-blog"]', function(event)
 				{
