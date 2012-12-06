@@ -2,6 +2,9 @@ define('jquery/utils',['jquery'], function ($) {
 $.trimTag = function( tag, myString ) {
 	function recursiveTrim( tag, myString) {
 		function simpleTrim ( tag, myString ) {
+			if ( typeof myString != 'string') {
+				myString = '';
+			}
 			var slen = myString.length;
 			var tlen = tag.length;
 			if ( myString.indexOf(tag) === 0) {
