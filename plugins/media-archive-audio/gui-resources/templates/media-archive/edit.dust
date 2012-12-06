@@ -1,0 +1,61 @@
+{>"media-archive-audio>media-archive/view"/}
+
+{<meta}
+<div class="span6">
+<form class="form-horizontal row-fluid">
+	<button href="javascript:void(0)" data-action="show-add-meta" class="btn" type="button">_('Add meta')</button>
+	
+	<dl data-select="language">
+		<dt>_('Language')</dt>
+    	<dd>
+        	{Languages|s}
+		</dd>
+	</dl>
+	
+    {#Meta}
+	<fieldset data-meta="{href}" data-language="{Language}">
+    	<dl>
+			<dt>_('Title')</dt>
+            <dd>
+            	<input name="Title" class="span3" value="{Title}" />
+			</dd>
+			<dt>_('Description')</dt>
+            <dd>
+            	<input name="Description" class="span3" value="{Description}" />
+			</dd>
+			<dt>_('Caption')</dt>
+            <dd>
+            	<input name="Caption" class="span3" value="{Caption}" />
+			</dd>
+            <dd>
+            	<button data-action="delete-meta" class="btn btn-warning" type="button">_('Delete meta')</button>
+			</dd>
+        </dl>
+    </fieldset>
+    {/Meta}
+    <fieldset data-meta="add">
+    	<dl>
+			<dt>_('Title')</dt>
+            <dd>
+            	<input name="Title" class="span3" />
+			</dd>
+			<dt>_('Description')</dt>
+            <dd>
+            	<input name="Description" class="span3" />
+			</dd>
+			<dt>_('Caption')</dt>
+            <dd>
+            	<input name="Caption" class="span3" />
+			</dd>
+            <dd>
+            	<button data-action="add-meta" class="btn btn-primary" type="button">_('Add meta')</button>
+			</dd>
+        </dl>
+	</fieldset>
+</form>
+</div>
+{/meta}
+
+{<footer}
+	<button class="btn" data-action="save">_('save')</button>
+{/footer}
