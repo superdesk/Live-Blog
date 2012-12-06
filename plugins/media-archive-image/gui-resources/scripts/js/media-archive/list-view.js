@@ -7,7 +7,7 @@ define
     config.guiJs('media-archive-image', 'media-archive/common'),
     'tmpl!media-archive-image>media-archive/list'
 ],
-function($, superdesk, giz, ItemView)
+function($, superdesk, giz, ItemView, common)
 {
     /*!
      * @see gizmo/views/list/ItemView
