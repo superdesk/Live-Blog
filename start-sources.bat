@@ -45,13 +45,8 @@ set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-post
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-source
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-user
 
-if exist {distribution\workspace\shared\superdesk.db} (
-	del distribution\workspace\shared\superdesk.db
-)
-if exist {distribution\application.properties} (
-	python distribution\application.py	
-) else (
-	python distribution\application.py -dump
-	python distribution\application.py
-)
+IF EXIST distribution\workspace\shared\superdesk.db del distribution\workspace\shared\superdesk.db
 
+IF NOT EXIST distribution\application.properties python distribution\application.py -dump
+
+python distribution\application.py
