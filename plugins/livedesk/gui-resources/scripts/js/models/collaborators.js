@@ -1,5 +1,8 @@
 define(['gizmo/superdesk', config.guiJs('livedesk', 'models/collaborator')], 
-function(giz, Collaborator)
+function(Gizmo, Collaborator)
 {
-    return giz.Collection.extend({ model: Collaborator }, { register: 'Collaborators' } );
+    return Gizmo.Collection.extend({ 
+    	url: new Gizmo.Url('Superdesk/Collaborator'),
+    	model: Collaborator
+    }, { register: 'Collaborators' } );
 });
