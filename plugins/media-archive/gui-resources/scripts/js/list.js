@@ -11,21 +11,36 @@ define
     'jquery/superdesk',
     'gizmo/superdesk',
     'gizmo/views/list',
+    'utils/nlp',
     config.guiJs('media-archive', 'models/meta-data'),
     config.guiJs('media-archive', 'models/meta-type'),
     config.guiJs('media-archive', 'models/meta-data-info'),
+    config.guiJs('media-archive', 'models/query-criteria'),
     config.guiJs('media-archive', 'add'),
     'tmpl!media-archive>list',
     'tmpl!media-archive>item',
+    'tmpl!media-archive>sidebar/types',
+    'tmpl!media-archive>sidebar/crit-date',
+    'tmpl!media-archive>sidebar/crit-numeric',
+    'tmpl!media-archive>sidebar/crit-string',
 ],
-function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, Add)
+function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, QueryCriteria, Add)
 {
-    var 
-    MetaDataCollection = giz.Collection.extend({ model: MetaData, href: new giz.Url('Archive/MetaData') }),
-    MetaTypeCollection = giz.Collection.extend({ model: MetaType, href: new giz.Url('Archive/MetaType') }),
-    MetaDataInfos = giz.Collection.extend({ model: MetaDataInfo, href: new giz.Url('Archive/MetaDataInfo') }),
+    var // collections
+    MetaDataCollection = giz.Collection.extend({ model: MetaData, href: MetaData.prototype.url.get() }),
+    MetaTypeCollection = giz.Collection.extend({ model: MetaType, href: MetaType.prototype.url.get() }),
+    MetaDataInfos = giz.Collection.extend({ model: MetaDataInfo, href: MetaDataInfo.prototype.url.get() }),
+    QueryCriteriaList = giz.Collection.extend({ model: QueryCriteria, href: QueryCriteria.prototype.url.get() }),
     // ---
+      
+    aintersect = function(a1, a2)
+    {
+        var results = [], lookup = {}, i;
+        for( i = 0; i < a1.length; i++ ) lookup[a1[i]] = true;
+        for( i = 0; i < a2.length; i++ ) if( a2[i] in lookup ) results.push(a2[i]);
         
+        return results;
+    }
     /*!
      * @see gizmo/views/list/ItemView
      */
@@ -47,17 +62,166 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, Add)
         }
     }),
     
+    FilterView = giz.View.extend
+    ({
+        events: 
+        {
+            "#type-list input": { "click": "selectType" }
+        },
+        tagName: 'span',
+        types: null,
+        criteriaList: null, 
+        init: function()
+        {
+            this.types = new MetaTypeCollection;
+            this.criteriaList = new QueryCriteriaList;
+            this.types.on('read update', this.render, this);
+            this.criteriaList.on('read update', this.renderCriteria, this);
+        },
+        placeInView: function(el)
+        {
+            el.append(this.el);
+            this.delegateEvents();
+        },
+        /*!
+         * refresh types
+         */
+        refresh: function()
+        {
+            this.types.xfilter('*').sync();
+        },
+        render: function()
+        {
+            var data = this.types.feed(),
+                self = this;
+            $(this.el).tmpl('media-archive>sidebar/types', {Types: data}, function()
+            {
+                self.criteriaList.sync();
+            }); //, PluralType: function(chk, ctx){ console.log(nlp.pluralize(ctx.current().Type)); return 'x' }});
+        },
+        
+        criteriaRules: 
+        {
+            "qd.videoBitrate": _("Video Bitrate"),
+            "qd.videoEncoding": _("Audio Encoding"),
+            "qd.audioBitrate": _("Audio Bitrate"),
+            "qd.audioEncoding": _("Audio Encoding"),
+            "qd.sampleRate": _("Sample Rate"),
+            "qd.createdOn": _("Date"),
+            "qd.fps": _("FPS"),
+            "qd.tbpm": _("BPM"),
+            "qd.albumArtist": _("Artists"),
+            "qd.width": _("Width"),
+            "qd.height": _("Height"),
+            "qd.genre": _("Genre"),
+            "qd.album": _("Album")
+        },
+        criteriaTypes:
+        {
+            "AsEqualOrdered": "numeric",
+            "AsLikeOrdered": "string",
+            "AsDateTimeOrdered": "date"
+        },
+        /*!
+         * @param string criteriaTypes
+         * @return string Comparable string for the types on which the criteria applies 
+         */
+        _criteriaTypes: function(criteriaTypes)
+        {
+            return criteriaTypes.replace(/InfoEntry-/g,'|').replace(/DataEntry-/g, '|').replace(/\|$/,'').replace(/\|$/,'').toLowerCase().split('|').sort();
+        },
+        _criteriaForAll: {},
+        /*!
+         * append initial criteria for all types
+         */
+        renderCriteria: function()
+        {
+            var types = this.types.feed(),
+                criteria = this.criteriaList.feed(),
+                allTypes = [];
+            for( var i=0; i<types.length; i++ )
+                types[i].Type.toLowerCase() != 'other' && allTypes.push(types[i].Type);
+            allTypes.sort();
+            allTypes = allTypes.toString();
+
+            $('[data-placeholder="modules"]', this.el).html('');
+            for( var i=0; i<criteria.length; i++ )
+                if( criteria[i].Key in this.criteriaRules && allTypes == this._criteriaTypes(criteria[i].Types).toString() )
+                {
+                    this._criteriaForAll[criteria[i].Key] = true;
+                    $.tmpl('media-archive>sidebar/crit-'+this.criteriaTypes[criteria[i].Criteria], 
+                            {id: criteria[i].Key, title: this.criteriaRules[criteria[i].Key], initial: "data-initial='true'"}, 
+                            function(e,o)
+                            { 
+                                $('[data-placeholder="modules"]', this.el).append(o); 
+                            });
+                }
+        },
+        selectType: function()
+        {
+            console.log('x');
+            var selectedTypes = [],
+                criteria = this.criteriaList.feed();
+            $('#type-list input:checked', this.el).each(function()
+            {
+                selectedTypes.push($(this).val());
+            });
+            selectedTypes = selectedTypes.sort();
+            $('[data-placeholder="modules"] [data-criteria][data-initial!="true"]', this.el).addClass('hide');
+            for( var i=0; i<criteria.length; i++ )
+                if( criteria[i].Key in this.criteriaRules &&
+                    !(criteria[i].Key in this._criteriaForAll) &&
+                    aintersect(selectedTypes, this._criteriaTypes(criteria[i].Types)).length )
+                {
+                    var module = $('[data-placeholder="modules"] [data-criteria="'+criteria[i].Key+'"]', this.el);
+                    if( !module.length )
+                        $.tmpl( 'media-archive>sidebar/crit-'+this.criteriaTypes[criteria[i].Criteria], 
+                            {id: criteria[i].Key, title: this.criteriaRules[criteria[i].Key]}, 
+                            function(e,o)
+                            { 
+                                $('[data-placeholder="modules"]', this.el).append(o); 
+                            });
+                    else
+                        module.removeClass('hide');
+                }
+        },
+        getSearch: function()
+        {
+            var query = {}, criteria, inVal, inAttr;
+            $('[data-placeholder="modules"] [data-criteria]:visible', this.el)
+            .each(function()
+            {
+                criteria = $(this).attr('data-criteria');
+                $(this).find('input,textarea,select').each(function()
+                {
+                    inVal = $(this).val();
+                    if($.trim(inVal)=='') return true;
+                    inAttr = $(this).attr('data-criteria-append');
+                    if(inAttr)
+                    {
+                        query[criteria+inAttr] = $(this).val();
+                        return true;
+                    }    
+                    query[criteria] = $(this).val();
+                });
+            });
+            var search = this.searchInput.val();
+            if( $.trim(search) != '' ) query['qi.keywords.ilike'] = search; 
+            return query;
+        }
+    }),
+    
     /*!
      * @see gizmo/views/list/ListView
      */
     ListView = gizList.ListView.extend
     ({
         users: null,
-        events:
+        events: $.extend(gizList.ListView.prototype.events, 
         {
             '[data-action="add-media"]': { 'click' : 'add' },
             '[rel="popover"]': { 'mouseenter': 'popover', 'mouseleave': 'popoverleave' }
-        },
+        }),
         
 //        popover: function(evt)
 //        {
@@ -100,13 +264,33 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, Add)
         init: function()
         {
             gizList.ListView.prototype.init.call(this);
+            this.filterView = new FilterView;
             var self = this;
             $(Add).on('uploaded', function(e, Id){ self.uploaded.call(self, Id); });
+        },
+        getSearchTerm: function(){ return 'abc'; },
+        searchData: function()
+        { 
+            return $.extend(this.filterView.getSearch(), { thumbSize: 'medium', limit: this.page.limit }); 
+        },
+        renderCallback: function()
+        {
+            this.filterView.searchInput = $('.searchbar-container [name="search"]', this.el);
+            this.filterView.placeInView($(this.el).find('#sidebar'));
+            this.filterView.refresh();
         },
         /*!
          * @return MetaDataCollection
          */
-        getCollection: function(){ return !this.collection ? (this.collection = new MetaDataInfos) : this.collection; },
+        getCollection: function()
+        { 
+            if(!this.collection)
+            {
+                this.collection = new MetaDataInfos;
+                this.collection.on('read', this.renderList, this);
+            }
+            return this.collection; 
+        },
         /*!
          * @see gizmo/views/list/ListView.refreshData
          */
@@ -129,7 +313,6 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, Add)
          */
         getItemView: function(model)
         {
-            console.log('get view');
             // make a placeholder element to append the new view after it has been loaded
             var placeEl = $('<span />'),
                 self = this;
@@ -154,7 +337,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, Add)
                                         self.recentlyUploaded = null;
                                     }
                                 }
-                                catch(e){ console.log(View); }
+                                catch(e){ console.debug(View); }
                             });
             });
             
