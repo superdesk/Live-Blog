@@ -1,0 +1,10 @@
+<div class="module" data-criteria="{id}">
+	<h3 class="header"><i class="icon-chevron-down"></i>{title}</h3>
+	<div class="module-row">
+		<label for="string-{id}" class="half">
+			<input class="date" id="string-{id}" type="text" />
+		</label>
+	</div>
+</div>
+            
+        
