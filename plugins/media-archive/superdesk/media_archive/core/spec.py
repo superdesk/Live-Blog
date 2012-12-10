@@ -164,6 +164,8 @@ class QueryIndexer:
 
         self.infoCriterias = dict()
         self.dataCriterias = dict()
+        
+        self.register(MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData)
 
     # --------------------------------------------------------------------
 
@@ -183,16 +185,19 @@ class QueryIndexer:
 
         assert isclass(EntryMetaInfoClass) and issubclass(EntryMetaInfoClass, Base), \
         'Invalid entry meta info class %s' % EntryMetaInfoClass
-        assert not issubclass(EntryMetaInfoClass, MetaInfoMapped), \
-        'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
+        
+        #TODO: why a class is not his subclass?
+        #assert not issubclass(EntryMetaInfoClass, MetaInfoMapped), \
+        #'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
 
         assert isclass(QMetaInfoClass) and issubclass(QMetaInfoClass, QMetaInfo), \
         'Invalid meta info query class %s' % QMetaInfoClass
 
         assert isclass(EntryMetaDataClass) and issubclass(EntryMetaDataClass, Base), \
         'Invalid entry meta data class %s' % EntryMetaDataClass
-        assert not issubclass(EntryMetaDataClass, MetaDataMapped), \
-        'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
+        
+        #assert not issubclass(EntryMetaDataClass, MetaDataMapped), \
+        #'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
 
         assert isclass(QMetaDataClass) and issubclass(QMetaDataClass, QMetaData), \
         'Invalid meta data query class %s' % QMetaDataClass
