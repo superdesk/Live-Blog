@@ -2,19 +2,17 @@
 	<a href="javascript:void(0)" class="btn btn-large btn-info pull-right"
 		data-action="add-media"> <span class="media-archive-icon-add"></span>_('Add Media')</a>
   	<div class="searchbar-container">
-    	<input type="text" name="searchbar">
+    	<input type="text" name="search" />
+    	<button data-action="search" class="pull-right">_('Search')</button>
     </div>
 </div>
   
 <section class="main-section">
+
 	<div class="main-sidebar-left scroller" id="sidebar">
-    	<div class="module">
-        </div>
-        <div class="module">
-        </div>
-        <div class="module">
-        </div>
+    	
 	</div>
+	
     <div class="fake-sidebar"></div>
     <div class="main-content" id="main-content">
     	<div class="main-content-topnav">
@@ -56,6 +54,28 @@
         <div class="main-content-inner grid scroller">
 		</div>
           
+        {#pagination}
+			<div class="pagination">
+			{?currentpages}
+			<ul class="{className}">
+				<li> <a href="javascript:void(0)" data-pagination="first" title="_('First')">&#8676;</a> </li>
+				<li> <a href="javascript:void(0)" data-pagination="prev" title="_('Previous')">&larr;</a> </li> 
+				{#currentpages}
+				<li class="{className}"> 
+					<a href="javascript:void(0)" data-pagination="currentpages" title="_('Page') {page}" data-offset="{offset}">{page}</a> 
+				</li>	
+				{/currentpages}
+				<li> <a href="javascript:void(0)" data-pagination="next" title="_('Next')">&rarr;</a> </li>
+				<li> <a href="javascript:void(0)" data-pagination="last" title="_('Last')">&#8677;</a> </li>
+			</ul>
+			<ul class="ipp" style="margin:0 8px">
+				{#ipp}
+				<li class="{isipp}"> <a href="javascript:void(0)" data-ipp="{.}">{.}</a> </li>
+				{/ipp}
+			</ul>
+			{/currentpages}
+			</div>
+		{/pagination}
         
     </div>
 	
