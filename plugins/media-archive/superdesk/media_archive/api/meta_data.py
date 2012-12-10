@@ -12,7 +12,7 @@ API specifications for media archive meta data.
 from .domain_archive import modelArchive
 from .meta_type import MetaType
 from ally.api.config import query, service, call
-from ally.api.criteria import AsDateTimeOrdered
+from ally.api.criteria import AsDateTimeOrdered, AsLikeOrdered, AsEqualOrdered
 from ally.api.model import Content
 from ally.api.type import Reference, Iter, Scheme#, Count
 from ally.support.api.entity import Entity, QEntity
@@ -42,6 +42,10 @@ class QMetaData(QEntity):
     '''
     The query for he meta models.
     '''
+    name = AsLikeOrdered
+    type = AsEqualOrdered
+    sizeInBytes = AsEqualOrdered
+    creator = AsEqualOrdered
     createdOn = AsDateTimeOrdered
 
 # --------------------------------------------------------------------
