@@ -23,7 +23,6 @@ from ally.container.support import setup
 from sqlalchemy.orm.exc import NoResultFound
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from sqlalchemy.sql.expression import not_
-from ally.api.config import LIMIT_DEFAULT
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from ally.api.extension import IterPart
 
