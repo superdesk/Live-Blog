@@ -41,5 +41,5 @@
 </div>
 {/meta}
 {<footer}
-	<button class="btn">_('save')</button>
+	<button class="btn" data-action="save">_('Save')</button>
 {/footer}
