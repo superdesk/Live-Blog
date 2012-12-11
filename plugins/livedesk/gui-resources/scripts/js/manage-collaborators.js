@@ -115,14 +115,14 @@ define([
 		events: {
 			'.save': { click: 'addPendingCollaborators'},
 			'[name="internalCollaboratorSelectAll"]': { change: 'toggleCollaborators' },
-			'.searchbox': { keyup: 'searchWait' }
+			'.searchbox': { keyup: 'search' }
 		},
 		stillTyping: false,
 		init: function(){
 			var self = this;
 			self.collection
 				.on('read', self.render, self)
-				.on('update', self.render, self);
+				.on('modified', self.render, self);
 
 		},
 		searchWait: function(evt) {
@@ -138,7 +138,7 @@ define([
 			self.collection
 				.xfilter('Id,Name,Person.Id,Person.FullName,Person.EMail')
 				.limit(self.collection.config("limit"))
-				.param($this.val(),'qs.name')
+				.param('%'+$this.val()+'%','qp.firstName.ilike')
 				.sync();
 		},
 		refresh: function() {
@@ -160,6 +160,9 @@ define([
 			for(var i=0, count = data.length; i<count; i++) {
 				this.addOne(data[i]);
 			}
+		},
+		addUpdates: function(evt, data) {
+
 		},
 		render: function(evt, data) {
 			var self = this;
@@ -221,7 +224,7 @@ define([
 			var self = this;
 			if(!self.addInternalCollaboratorsView) {
 				self.addInternalCollaboratorsView = new AddInternalCollaboratorsView({
-					collection: Gizmo.Auth(new Gizmo.Register.Collaborators()),
+					collection: self.collectionPotentialCollaborator,//Gizmo.Auth(new Gizmo.Register.Collaborators()),
 					el: $('#addCollaborator2'),
 					_parent: self
 				});
@@ -275,7 +278,8 @@ define([
 				    })()
 			});
 			self.manageInternalCollaboratorsView = new ManageInternalCollaboratorsView({
-				collection: self.model.get('Collaborator')
+				collection: self.model.get('Collaborator'),
+				collectionPotentialCollaborator: self.model.get('CollaboratorPotential')
 			});
 			$.superdesk.applyLayout('livedesk>manage-collaborators', data, function(){
 				self.el.find('.controls').append(self.manageInternalCollaboratorsView.el);
