@@ -66,7 +66,17 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
     ({
         events: 
         {
-            "#type-list input": { "click": "selectType" }
+            "#type-list input": { "click": "selectType" },
+            '.open-filter-button': { 'click': 'showFilterList' },
+            '#MAFilter': 
+            { 
+                'keydown': 'key2filter', 
+                'keyup': 'keyup2filter' 
+            },
+            '.filter-list': { 'hover': 'hoverFilterList' },
+            '.filter-list li': { 'click': 'selectFilter' },
+            '.filters-form': { 'submit': 'saveFilter' },
+            '.closebutton': { 'click': 'deleteFilter' }
         },
         tagName: 'span',
         types: null,
@@ -81,7 +91,6 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         placeInView: function(el)
         {
             el.append(this.el);
-            this.delegateEvents();
         },
         /*!
          * refresh types
@@ -96,14 +105,22 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
                 self = this;
             $(this.el).tmpl('media-archive>sidebar/types', {Types: data}, function()
             {
+                
                 self.criteriaList.sync();
             }); //, PluralType: function(chk, ctx){ console.log(nlp.pluralize(ctx.current().Type)); return 'x' }});
         },
+
+        showFilterList: function()
+        {
+            if(!$('.filter-list', this.el).hasClass('hide')) $('.filter-list').addClass('hide');
+            else $('.filter-list', this.el).removeClass('hide');
+            $('#MAFilter', this.el).focus();
+        },
         
-        criteriaRules: 
+        criteriaNames: 
         {
             "qd.videoBitrate": _("Video Bitrate"),
-            "qd.videoEncoding": _("Audio Encoding"),
+            "qd.videoEncoding": _("Video Encoding"),
             "qd.audioBitrate": _("Audio Bitrate"),
             "qd.audioEncoding": _("Audio Encoding"),
             "qd.sampleRate": _("Sample Rate"),
@@ -132,9 +149,21 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         },
         _criteriaForAll: {},
         /*!
-         * append initial criteria for all types
+         * append filter criteria to select list
          */
         renderCriteria: function()
+        {
+            var criteria = this.criteriaList,
+                criteriaNames = this.criteriaNames,
+                self = this;
+            criteria.each(function()
+            {
+                var key = this.get('Key');
+                if( key in criteriaNames ) $('#MAFilterResults', self.el).append('<li data-criteria="'+key+'">'+criteriaNames[key]+'</li>');
+            });
+        },
+        
+        /*renderCriteria: function()
         {
             var types = this.types.feed(),
                 criteria = this.criteriaList.feed(),
@@ -146,17 +175,18 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
 
             $('[data-placeholder="modules"]', this.el).html('');
             for( var i=0; i<criteria.length; i++ )
-                if( criteria[i].Key in this.criteriaRules && allTypes == this._criteriaTypes(criteria[i].Types).toString() )
+                if( criteria[i].Key in this.criteriaNames && allTypes == this._criteriaTypes(criteria[i].Types).toString() )
                 {
                     this._criteriaForAll[criteria[i].Key] = true;
                     $.tmpl('media-archive>sidebar/crit-'+this.criteriaTypes[criteria[i].Criteria], 
-                            {id: criteria[i].Key, title: this.criteriaRules[criteria[i].Key], initial: "data-initial='true'"}, 
+                            {id: criteria[i].Key, title: this.criteriaNames[criteria[i].Key], initial: "data-initial='true'"}, 
                             function(e,o)
                             { 
                                 $('[data-placeholder="modules"]', this.el).append(o); 
                             });
                 }
-        },
+        },*/
+        
         selectType: function()
         {
             console.log('x');
@@ -166,47 +196,153 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             {
                 selectedTypes.push($(this).val());
             });
+            if( !selectedTypes.length )
+            {
+                $('.filter-list li', this.el).removeClass('hide');
+                return true;
+            }
             selectedTypes = selectedTypes.sort();
-            $('[data-placeholder="modules"] [data-criteria][data-initial!="true"]', this.el).addClass('hide');
+            $('.filter-list li', this.el).addClass('hide');
             for( var i=0; i<criteria.length; i++ )
-                if( criteria[i].Key in this.criteriaRules &&
+            {
+                if( criteria[i].Key in this.criteriaNames &&
                     !(criteria[i].Key in this._criteriaForAll) &&
                     aintersect(selectedTypes, this._criteriaTypes(criteria[i].Types)).length )
                 {
-                    var module = $('[data-placeholder="modules"] [data-criteria="'+criteria[i].Key+'"]', this.el);
-                    if( !module.length )
-                        $.tmpl( 'media-archive>sidebar/crit-'+this.criteriaTypes[criteria[i].Criteria], 
-                            {id: criteria[i].Key, title: this.criteriaRules[criteria[i].Key]}, 
-                            function(e,o)
-                            { 
-                                $('[data-placeholder="modules"]', this.el).append(o); 
-                            });
-                    else
-                        module.removeClass('hide');
+                    $('.filter-list li[data-criteria="'+criteria[i].Key+'"]', self.el).removeClass('hide');
                 }
+            }
         },
+        
+        hoverFilterList: function()
+        {
+            $('.filter-list li').removeClass('hover');
+        },
+
+        key2filter: function(evt)
+        {
+            var selected = $('.filter-list li.hover', this.el);
+            
+            switch(evt.keyCode) 
+            {
+                case 40: // down arr
+                    selected.removeClass('hover');
+                    var next = selected.next('li');
+                    if( !next.length ) next = $('.filter-list li:first', this.el);
+                    next.addClass('hover');
+                    break;
+
+                case 38: // up arr
+                    selected.removeClass('hover');
+                    var prev = selected.prev('li');
+                    if( !prev.length ) prev = $('.filter-list li:last', this.el);
+                    prev.addClass('hover');
+                    break;
+
+                case 9:
+                case 13: // return
+                    var evt = new $.Event;
+                    evt.target = selected;
+                    this.selectFilter(evt);
+                    return false;
+                    break;
+
+                default:
+                    break;
+            }
+            
+        },
+        
+        keyup2filter: function(evt)
+        {
+            if( $.inArray(evt.keyCode, [13, 38, 40]) !== -1  ) return false;
+            var src = $(evt.target).val().toLowerCase();
+            if( src == '' ) 
+            {
+                $('.filter-list li').removeClass('hide')
+                return;
+            }
+            $('.filter-list li').each(function()
+            { 
+                $(this).text().toLowerCase().indexOf(src) == -1 && $(this).addClass('hide');
+            });
+        },
+        
+        _selectedFilter: null,
+        _savedFilters: {},
+        selectFilter: function(evt)
+        {
+            var self = this,
+                criteria = $(evt.target).attr('data-criteria');
+            $('#MAFilter', this.el).val(self.criteriaNames[criteria]);
+            this.criteriaList.get(criteria).done(function(model)
+            {
+                self._selectedFilter = model;
+                $.tmpl( 'media-archive>sidebar/crit-'+self.criteriaTypes[model.get('Criteria')], 
+                        {id: model.get('Key'), title: self.criteriaNames[model.get('Key')]}, 
+                        function(e,o)
+                        { 
+                            $('.filter-value-container', self.el).html(o);
+                            $('.filter-edit', self.el).addClass('editing');
+                        });
+            });
+            $('.filter-list').addClass('hide');
+            return false;
+        },
+        
+        saveFilter: function()
+        {
+            if(!this._selectedFilter) return false;
+            var rule = $('.filter-edit [data-modifier].active', this.el).attr('data-modifier'),
+                self = this,
+                criteria = self._selectedFilter.get('Key'),
+                displayVal = [],
+                storeCriteria = [],
+                inVal, inAttr;
+            
+            $('.filter-value-container').find('input,textarea,select').each(function()
+            {
+                inVal = $(this).val();
+                if( $.trim(inVal) == '' ) return true;
+                inAttr = $(this).attr('data-criteria-append');
+                if( inAttr )
+                {
+                    self._savedFilters[criteria+inAttr] = inVal;
+                    self._savedFilters[criteria+inAttr+'.operand'] = rule;
+                    displayVal.push(inVal);
+                    storeCriteria.push(criteria+inAttr);
+                    storeCriteria.push(criteria+inAttr+'.operand');
+                    return true;
+                }    
+                self._savedFilters[criteria] = inVal;
+                self._savedFilters[criteria+'.operand'] = rule;
+                displayVal.push(inVal);
+                storeCriteria.push(criteria);
+                storeCriteria.push(criteria+'.operand');
+            });
+            
+            var newTag = $('<li class="modifier-is">'+self.criteriaNames[criteria]+': '+displayVal.join(', ')
+                +'<a class="closebutton" href="javascript:void(0)">x</a></li>');
+            newTag.data('criteria', storeCriteria);
+            $('.tag-container', self.el).append(newTag);
+            
+            return false;
+        },
+        
+        deleteFilter: function(evt)
+        {
+            var tag = $(evt.currentTarget).parents('li:eq(0)');
+                storedCriteria = tag.data('criteria');
+            for( var i=0; i<storedCriteria.length; i++ ) delete this._savedFilters[storedCriteria[i]];
+            tag.remove();
+        },
+        
         getSearch: function()
         {
-            var query = {}, criteria, inVal, inAttr;
-            $('[data-placeholder="modules"] [data-criteria]:visible', this.el)
-            .each(function()
-            {
-                criteria = $(this).attr('data-criteria');
-                $(this).find('input,textarea,select').each(function()
-                {
-                    inVal = $(this).val();
-                    if($.trim(inVal)=='') return true;
-                    inAttr = $(this).attr('data-criteria-append');
-                    if(inAttr)
-                    {
-                        query[criteria+inAttr] = $(this).val();
-                        return true;
-                    }    
-                    query[criteria] = $(this).val();
-                });
-            });
-            var search = this.searchInput.val();
-            if( $.trim(search) != '' ) query['qi.keywords.ilike'] = search; 
+            var search = this.searchInput.val(),
+                query = {};
+            for( var i in this._savedFilters ) query[i] = this._savedFilters[i];
+            if( $.trim(search) != '' ) query['qi.keywords.ilike'] = search;
             return query;
         }
     }),
@@ -220,7 +356,8 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         events: $.extend(gizList.ListView.prototype.events, 
         {
             '[data-action="add-media"]': { 'click' : 'add' },
-            '[rel="popover"]': { 'mouseenter': 'popover', 'mouseleave': 'popoverleave' }
+            '[rel="popover"]': { 'mouseenter': 'popover', 'mouseleave': 'popoverleave' },
+            '.ipp a': { 'click': 'switchPage' }
         }),
         
 //        popover: function(evt)

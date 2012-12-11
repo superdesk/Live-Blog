@@ -1,3 +1,25 @@
+<div class="module filter-edit">
+<form class="filters-form">
+	<h3 class="header"><i class="icon-chevron-down"></i>Filters</h3>
+	<div class="module-row">
+		<div id="filter-modifiers" data-toggle="buttons-radio" class="btn-group">
+			<a data-modifier="and" class="btn btn-mini active" type="button">Include</a>
+			<a data-modifier="or" class="btn btn-mini" type="button">Expand</a>
+			<a data-modifier="not" class="btn btn-mini" type="button">Exclude</a>
+		</div>
+	</div>
+	<div class="module-row">
+		<input type="text" placeholder="Filter type" value="" name="MAFilter" id="MAFilter" autocomplete="off" />
+		<div id="open-filter" class="open-filter-button"></div>
+		<ul id="MAFilterResults" class="filter-list hide" style="position: absolute; top: 24px;"></ul>
+		<div class="filter-value-container"></div>
+		<button data-action="save-filter" type="submit">save filter</button>
+		<ul id="tag-container" class="tag-container clearfix"></ul>
+	</div>
+</form>
+			<!--script src="js/MAfilter.js" type="text/javascript"></script-->
+</div>
+		
 <div class="module">
     <h3 class="header"><i class="icon-chevron-down"></i>File Types</h3>
     <div class="module-row" style="display: block;">
