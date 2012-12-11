@@ -280,7 +280,7 @@ def createPostType(key):
 
 
 POSTS = [
-		 ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'Hello world!'),
+     ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'Hello world!'),
          ('GEN Live Desk Master Class', 'quote', 'User2', 'User2', 'GEN Live Desk is a next-generation '
           'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
          ('GEN Live Desk Master Class', 'normal', 'User3', 'User3', 'GEN Live Desk is free to download, '
