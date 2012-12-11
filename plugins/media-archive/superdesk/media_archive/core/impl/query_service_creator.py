@@ -155,7 +155,9 @@ class QueryServiceAlchemy(SessionSupport):
         andClauses = None
         orClauses = None
         
-        if qi is not None and qd is None:
+        if qi is None and qd is None:
+            pass;
+        elif qi is not None and qd is None:
             sql = buildPartialQuery(sql, qi, MetaInfoMapped, queryClauses)
             
             for metaInfo in metaInfos:
@@ -176,7 +178,7 @@ class QueryServiceAlchemy(SessionSupport):
             sql = buildPartialQuery(sql, qd, MetaDataMapped, queryClauses, andClauses, orClauses)
             
             for metaInfo in metaInfos:
-                if self.queryIndexer.metaDatasByInfo[metaInfo.__tablename__] not in metaDatas: 
+                if self.queryIndexer.metaDatasByInfo[metaInfo.__tablename__] in metaDatas:
                     sql = sql.outerjoin(metaInfo)
                     sql = sql.outerjoin(metaData)
                     andClauses = list()
