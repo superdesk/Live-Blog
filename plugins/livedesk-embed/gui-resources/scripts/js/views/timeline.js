@@ -106,6 +106,7 @@ define([
 							.on('addings', self.addAll, self)
 							.on('addingsauto',self.addAllAutoupdate, self)
 							//.on('addingsauto', self.updateTotal, self)
+							.on('removeingsauto', self.removeAllAutoupdate, self)
 							.on('updatesauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
@@ -225,6 +226,10 @@ define([
 			} else {
 				$("#liveblog-status-count",this.el).hide();
 			}
+		},
+		removeAllAutoupdate: function(evt, data)
+		{
+
 		},
 		addAllAutoupdate: function(evt, data)
 		{
