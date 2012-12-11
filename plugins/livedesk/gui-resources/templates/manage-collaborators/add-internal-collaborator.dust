@@ -1,0 +1,27 @@
+<li>
+  <input type="checkbox" class="select-colaborator" name="internalCollaborator1" group="internalCollaborators">
+  <figure>
+    <img src="img/avatar_default_collaborator.png" width="32" height="32" />
+  </figure>
+  <span class="add-collaborator-name">{Name}</span>
+  <span>{#Person}{EMail}{/Person}</span>
+  <div class="dropdown dropdown-simple">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+      View only <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu bottom-up pull-right">
+      <li>
+        <a href="#">View only</a>
+      </li>
+      <li>
+        <a href="#">Edit</a>
+      </li>
+      <li>
+        <a href="#">Publish</a>
+      </li>
+      <li>
+        <a href="#">Admin</a>
+      </li>
+    </ul>
+  </div>
+</li>
