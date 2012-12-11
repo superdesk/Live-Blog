@@ -395,6 +395,10 @@ define(['jquery', 'utils/class'], function($,Class)
 				this.href = this.url + data.id;
 			return this;
 		},
+		isChanged: function()
+		{
+			return !$.isEmptyObject(this.changeset);
+		},
 		clearChangeset: function()
 		{
 			this._changed = false
@@ -587,12 +591,14 @@ define(['jquery', 'utils/class'], function($,Class)
 	Collection.prototype =
 	{
 		_list: [],
+        _events: {},
 		getList: function(){return this._list;},
 		count: function(){return this._list.length;},
 		_construct: function()
 		{
 			if( !this.model ) this.model = Model;
 			this._list = [];
+            this._events = {};
 			this.desynced = true;
 			var buildData = buildOptions = function(){void(0);},
 				self = this;
@@ -677,61 +683,101 @@ define(['jquery', 'utils/class'], function($,Class)
 		/*!
 		 * @param options
 		 */
-		sync: function()
-		{
-			var self = this;
-			return (this.href &&
-				this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
-				{
-					var data = self._parse(data), addings = [], updates = [], count = self._list.length;
-					 // important or it will infiloop
-					for( var i=0; i < data.length; i++ )
-					{
-						var model = false;
-						for( var j=0; j<count; j++ ) {
-							if( data[i].hash() == self._list[j].hash() )
-							{
-								model = data[i];
-								break;
-							}
+        sync: function()
+        {
+            var self = this;
+            return (this.href &&
+                this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
+                {					
+                    var attr = self.parseAttributes(data), 
+                    	dataList = self.parse(data);
+                    	list = self._parse(data), 
+                    	changeset = [], 
+                    	removeings = [], 
+                    	updates = [], 
+                    	addings = [], 
+                    	count = self._list.length;
+                     // important or it will infiloop
+                    for( var i=0; i < list.length; i++ )
+                    {
+                        var model = false;
+                        for( var j=0; j<count; j++ ) {
+							if( list[i].hash() == self._list[j].hash() )
+                            {
+								model = list[i];
+                                break;
+                            }
 						}
-						if( !model ) {
-							if( !data[i].isDeleted() ) {
-								self._list.push(data[i]);
-								addings.push(data[i]);
+                        if( !model ) {
+                            if( !list[i].isDeleted() ) {
+								self._list.push(list[i]);
+								changeset.push(list[i]);
+                                if( self.hasEvent('addings') ) {
+                                    addings.push(list[i]);
+                                }
 							} else {
-								updates.push(data[i]);						
+                                if( self.hasEvent('updates') ) {
+								    updates.push(list[i]);
+                                }					
 							}
-						}
-						else {
-							updates.push(model);
-							if( model.isDeleted() ) {
-								model._remove();
-							} else {
-								model.on('delete', function(){self.remove(this.hash());})
-										.on('garbage', function(){this.desynced = true;});
+                        }
+                        else {
+                            if( self.hasEvent('updates') ) {
+                                updates.push(model);
+                            }
+                            if(self.isCollectionDeleted(model)) {
+                                self._list.splice(i,1);
+                                if( self.hasEvent('removeings') ) {
+                                    removeings.push(model);
+                                }
+
+                            }
+                            if( model.isDeleted()) {
+                                model._remove();                                
+                            } else if( model.isChanged() ){
+								changeset.push(model);
 							}
-						}
-					}
-					self.desynced = false;
+                            else {
+                                model.on('delete', function(){ self.remove(this.hash()); })
+                                        .on('garbage', function(){ this.desynced = true; });
+                            }
+                        }
+                    }
+                    self.desynced = false;
 					/**
 					 * If the initial data is empty then trigger READ event
 					 * else UPDATE with the changeset if there are some
 					 */
 					if( ( count === 0) ){
 						//console.log('read');
-						self.triggerHandler('read');
-					} else {                    
-						/**
-						 * Trigger handler with changeset extraparameter as a vector of vectors,
-						 * caz jquery will send extraparameters as arguments when calling handler
-						 */
-						//console.log('update');
-						self.triggerHandler('updates', [updates]);
-						self.triggerHandler('addings', [addings]);
+
+						self.triggerHandler('read',[self._list, attr]);
+                    } else {                    
+                        /**
+                         * Trigger handler with changeset extraparameter as a vector of vectors,
+                         * caz jquery will send extraparameters as arguments when calling handler
+                         */
+                        if( updates.length && self.hasEvent('updates') ) {
+                            self.triggerHandler('updates', [updates,attr]);
+                        }
+                        if( addings.length && self.hasEvent('addings') ) {
+                            self.triggerHandler('addings', [addings,attr]);
+                        }
+                        if( removeings.length && self.hasEvent('removeings') ) {
+                            self.triggerHandler('removeings', [removeings,attr]);
+                        }
+						self.triggerHandler('update', [changeset,attr]);
 					}
-				}));
-		},
+                }));
+        },
+        /*!
+         * overwrite this to add other logic in implementation
+         * ex: if a model hasn't a field then this should be removed from the collection
+         */
+        isCollectionDeleted: function(model)
+        {
+            return false;
+        },
 		/*!
 		 * overwrite this to add other logic upon parse complex type data
 		 */
@@ -739,6 +785,10 @@ define(['jquery', 'utils/class'], function($,Class)
 		{
 			return model;
 		},
+        parseAttributes: function(data)
+        {
+            return data;
+        },
 		/**
 		 * should be override by implementation
 		 */
@@ -755,27 +805,18 @@ define(['jquery', 'utils/class'], function($,Class)
 			}
 			return ret;
 		},
-		
-		/*!
-		 *
-		 */
-		_parse: function(data)
-		{
-			if(data._parsed) {
-				return data._parsed;
-			}
-			data = this.parse(data);
-			var i,list = [], model;
-			for( i in data ) {
-				if(data.hasOwnProperty(i)) {
-					model = new this.model(data[i]);
-					model = this.modelDataBuild(model);
-					list.push( model );
-				}
-			}
-			data._parsed = list;
-			return data._parsed;
-		},
+        /*!
+         * the list parser private method, to be called from sync
+         */
+        _parse: function(data)
+        {
+            var list = this.parse(data),
+            newlist = [];
+            for( var i = 0, count = list.length; i < count;  i++ ) {
+                newlist.push( this.modelDataBuild(new this.model(list[i])) );
+            }
+            return newlist;
+        },
 		insert: function(model)
 		{
 			this.desynced = false;
@@ -791,6 +832,10 @@ define(['jquery', 'utils/class'], function($,Class)
 		off: function(evt, handler)		
 		{
 			$(this).off(evt, handler);
+            var arrEvt = evt.split(" ");
+            for(var i = 0, count = arrEvt.length; i < count; i++ ){
+                delete this._events[arrEvt[i]];
+            }
 			return this;
 		},
 		/*!
@@ -808,6 +853,10 @@ define(['jquery', 'utils/class'], function($,Class)
 					handler.apply(obj, arguments);
 				});
 			}
+            var arrEvt = evt.split(" ");
+            for(var i = 0, count = arrEvt.length; i < count; i++ ){
+                this._events[arrEvt[i]] = true;
+            }
 			return this;
 		},
 		one: function(evt, handler, obj)
@@ -840,7 +889,14 @@ define(['jquery', 'utils/class'], function($,Class)
 		{
 			$(this).triggerHandler(evt, data);
 			return this;
-		}
+		},
+		/*!
+		 * return true is the collection has evt else false
+		 */
+        hasEvent: function(evt)
+        {
+            return $.type(this._events[evt]) === 'undefined' ? false :  this._events[evt];
+        }
 	};
 
 	Collection.extend = cextendFnc = function(props, options)
