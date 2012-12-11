@@ -231,9 +231,6 @@ def getCollaboratorsIds():
 BLOG_COLLABORATORS = {
                       'User1': 'GEN Live Desk Master Class',
                       'User2': 'GEN Live Desk Master Class',
-                      'User3': 'GEN Live Desk Master Class',
-                      'User4': 'GEN Live Desk Master Class',
-                      'User5': 'GEN Live Desk Master Class',
                      }
 
 def createBlogCollaborators():
