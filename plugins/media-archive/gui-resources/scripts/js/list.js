@@ -307,17 +307,17 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                 if( inAttr )
                 {
                     self._savedFilters[criteria+inAttr] = inVal;
-                    self._savedFilters[criteria+inAttr+'.operand'] = rule;
+                    self._savedFilters[criteria+inAttr+'.operator'] = rule;
                     displayVal.push(inVal);
                     storeCriteria.push(criteria+inAttr);
-                    storeCriteria.push(criteria+inAttr+'.operand');
+                    storeCriteria.push(criteria+inAttr+'.operator');
                     return true;
                 }    
                 self._savedFilters[criteria] = inVal;
-                self._savedFilters[criteria+'.operand'] = rule;
+                self._savedFilters[criteria+'.operator'] = rule;
                 displayVal.push(inVal);
                 storeCriteria.push(criteria);
-                storeCriteria.push(criteria+'.operand');
+                storeCriteria.push(criteria+'.operator');
             });
             
             var newTag = $('<li class="modifier-is">'+self.criteriaNames[criteria]+': '+displayVal.join(', ')
