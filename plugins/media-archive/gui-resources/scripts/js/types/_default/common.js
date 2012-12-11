@@ -6,7 +6,7 @@ define
     config.guiJs('media-archive', 'models/meta-info'),
     config.guiJs('media-archive', 'models/languages'),
     'tmpl!media-archive>types/_default/menu', // list/grid item context menu
-    'tmpl!media-archive>types/_default/view',
+    'tmpl!media-archive>types/_default/view', 
     'tmpl!media-archive>types/_default/edit',
     'tmpl!media-archive>types/_default/languages'
 ],
@@ -47,13 +47,33 @@ function($, superdesk, giz, MetaInfo, Languages)
         events:
         {
             '[data-dismiss="modal"]': { 'click' : 'hide' },
-            '[data-action="edit"]': { 'click': 'edit' }
+            '[data-action="edit"]': { 'click': 'edit' },
+            '[data-dismiss="modal"]': { 'click' : 'hide' },
+            '[data-select="language"] select': { 'change': 'selectMetaByLanguage' },
         },
         edit: function()
         {
             this.parentView.edit.call(this.parentView);
             this.hide();
         },
+        /*!
+         * handler for selecting a meta info set by language
+         */
+        selectMetaByLanguage: function(evt)
+        {
+            var theLang = $('[data-select="language"] select', this.el).eq(0).val(),
+                self = this;
+            
+            $('.metadata-details', this.el).html('');
+            if(!(theLang in this.currentMeta)) return false;
+            
+            for( var i in this.currentMeta[theLang] )
+                if( typeof this.currentMeta[theLang][i] == 'string' && $.inArray(i, ['href', 'Language', 'Id']) == -1 )
+                    $('.metadata-details', this.el)
+                        .append( '<dt>'+_(i)+'</dt>' )
+                        .append( '<dd>'+this.currentMeta[theLang][i]+'</dd>' );
+        },
+        
         modalState: false,
         init: function()
         {
@@ -64,7 +84,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             $(this.el).on('show', function(){ self.modalState = true; });
         },
         /*!
-         * adds possibillity to overwrite the model
+         * adds possibility to overwrite the model
          */
         getModel: function()
         {
@@ -92,18 +112,23 @@ function($, superdesk, giz, MetaInfo, Languages)
             
             return {Item: data};
         },
+        currentMeta: {},
         tmpl: 'media-archive>types/_default/view',
         render: function()
         {
             var self = this,
                 data = this.feedTemplate();
+            
             // get language box 
             data.Languages = LangEditView.render().el.clone().html();
-            // get language box for each meta
+            //
             for(var i=0; i<data.Meta.length; i++)
-                data.Meta[i].Languages = LangEditView.render(data.Meta.Language).el.clone().html();
-
-            $(this.el).tmpl(this.tmpl, data);
+                this.currentMeta[data.Meta[i].Language] = data.Meta[i];
+            $(this.el).tmpl(this.tmpl, data, function()
+            {
+                self.selectMetaByLanguage();
+            });
+            
             return this;
         },
         activate: function()
@@ -125,22 +150,48 @@ function($, superdesk, giz, MetaInfo, Languages)
         {
             '[data-dismiss="modal"]': { 'click' : 'hide' },
             '[data-action="save"]': { 'click' : 'save' },
-            '[data-action="show-add-meta"]': { 'click' : 'showAddMeta' },
-            '[data-action="add-meta"]': { 'click' : 'addMeta' },
-            '[data-action="delete-meta"]': { 'click' : 'deleteMeta' },
-            '[data-select="language"] select': { 'change': 'selectMetaByLanguage' }
-            
+            '[data-select="language"] select': { 'change': 'selectMetaByLanguage' },
+            '[data-meta="edit"] input': { 'change' : 'editMeta'},
+            '[data-meta="edit"] select': { 'change' : 'editMeta'},
+            '[data-meta="edit"] textarea': { 'change' : 'editMeta'}
         },
-        edit: $.noop,
+
+        addedMeta: {},
+        currentAdd: null,
+        currentLang: null,
+        editMeta: function(evt)
+        {
+            var theLang = $('[data-select="language"] select', this.el).eq(0).val(),
+                self = this;
+            
+            if( !this.currentMeta[theLang] ) 
+            {
+                if(!this.addedMeta[theLang]) this.addedMeta[theLang] = {};
+                this.addedMeta[theLang][$(evt.currentTarget).attr('name')] = $(evt.currentTarget).val();
+            }
+            else
+                this.currentMeta[theLang][$(evt.currentTarget).attr('name')] = $(evt.currentTarget).val();
+        },
         
         /*!
          * handler for selecting a meta info set by language
          */
         selectMetaByLanguage: function(evt)
         {
-            var langFields = $('fieldset[data-language="'+$(evt.currentTarget).val()+'"]').eq(0);
-            if( !langFields.length ) this.showAddMeta();
-            langFields.find('input,textarea,select').eq(0).focus();
+            var theLang = $('[data-select="language"] select', this.el).eq(0).val(),
+                isAdd = !(theLang in this.currentMeta),
+                self = this;
+
+            // set values on inputs
+            $('[data-meta="edit"]', this.el).find('input,select,textarea').val('').each(function()
+            {
+                if(isAdd)
+                {
+                    self.addedMeta[theLang] && $(this).val(self.addedMeta[theLang][$(this).attr('name')]);
+                    return true;
+                }
+                $(this).val(self.currentMeta[theLang][$(this).attr('name')]);    
+            });
         },
         
         /*!
@@ -163,18 +214,41 @@ function($, superdesk, giz, MetaInfo, Languages)
          */
         save: function()
         {
-            var self = this;
-            self.getInfoNode().each(function()
+            var self = this,
+                metaInfo = self.getInfoNode();
+
+            // save edits
+            metaInfo.each(function()
             {
                 var model = this,
-                    inputs = $(self.el).find("[data-meta='"+this.get('href')+"']").get(0),
+                    editMeta = self.currentMeta[this.get('Language').get('Id')],
                     data = {};
-                $('input,select,textarea', inputs).each(function()
-                {
-                    data[$(this).attr('name')] = $(this).val(); 
-                });
+                if(!editMeta) return true;
+                for( var i in editMeta ) if( i != 'href' && typeof editMeta[i] == 'string' ) data[i] = editMeta[i];
                 model.set(data).sync().done(self.postSave);
             });
+
+            // add new meta
+            for( i in this.addedMeta)
+            {
+                var metaInfo = this.getInfoNode();
+                    newMeta =  this.getNewMetaInfo(),
+                    self = this,
+                    data = {};
+                
+                
+                for( var k in this.addedMeta[i] )
+                    data[k] = this.addedMeta[i][k];
+                
+                data.MetaData = this.model.get('Id');
+                data.Language = i;
+
+                newMeta.set(data).sync(newMeta.url.get()).done(function()
+                { 
+                    metaInfo._list.push(newMeta);
+                    self.postAdd.call(self, arguments[0]); 
+                });
+            }
         },
         /*!
          * calback after save
@@ -183,62 +257,15 @@ function($, superdesk, giz, MetaInfo, Languages)
         {
             $('.save-message', this.el).removeClass('hide');
         },
-        /*!
-         * add handler
-         */
-        addMeta: function()
-        {
-            var metaInfo = this.getInfoNode();
-                newMeta =  this.getNewMetaInfo(),
-                self = this,
-                data = {};
-                
-            newMeta.set('MetaData', this.model.get('Id'));
-            $('input,select,textarea', $("[data-meta='add']:eq(0)", this.el))
-                .each(function()
-                { 
-                    data[$(this).attr('name')] = $(this).val();
-                });
-            data.Language = $('[data-select="language"] select', this.el).val();
-            
-            newMeta.set(data).sync(newMeta.url.get()).done(function()
-            { 
-                metaInfo._list.push(newMeta);
-                self.postAdd.call(self, arguments[0]); 
-            });
-        },
+        
         /*!
          * callback after add
          */
         postAdd: function(newMeta)
         {
-            var addBox = $("[data-meta='add']:eq(0)", this.el),
-                metaBox = addBox.clone();
-            
-            $('select', metaBox).val($('select', addBox).val());
-            metaBox.attr('data-meta', newMeta.href).insertBefore(addBox);
-            metaBox.find('[data-action="add-meta"]')
-                .replaceWith('<button data-action="delete-meta" type="button">'+_('Delete meta')+'</button>');
-            $('input,textarea', addBox).val('');
-            $('select', addBox).val($('select option:eq(0)', addBox).val());
+            $('.add-message', this.el).removeClass('hide');
         },
-        /*!
-         * delete meta handler
-         */
-        deleteMeta: function(evt)
-        {
-            var filedset = $(evt.currentTarget).parents('fieldset[data-meta]:eq(0)');
-                href = filedset.attr('data-meta');
-            this.getInfoNode().get(href).done(function(meta){ meta.remove().sync().done(function(){ filedset.remove(); }); });
-        },
-        /*!
-         * handler for switching to add meta screen
-         */
-        showAddMeta: function()
-        {
-            $('[data-meta="add"]', this.el).find('input,select,textarea').eq(0).focus();
-        },
-        
+
         tmpl: 'media-archive>types/_default/edit',
         init: function()
         {
