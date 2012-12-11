@@ -178,7 +178,8 @@ class QueryServiceAlchemy(SessionSupport):
             sql = buildPartialQuery(sql, qd, MetaDataMapped, queryClauses, andClauses, orClauses)
             
             for metaInfo in metaInfos:
-                if self.queryIndexer.metaDatasByInfo[metaInfo.__tablename__] in metaDatas:
+                metaData = self.queryIndexer.metaDatasByInfo[metaInfo.__tablename__]
+                if metaData in metaDatas:
                     sql = sql.outerjoin(metaInfo)
                     sql = sql.outerjoin(metaData)
                     andClauses = list()
