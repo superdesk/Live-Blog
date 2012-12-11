@@ -160,10 +160,9 @@ class QueryServiceAlchemy(SessionSupport):
                 sql = sql.join(metaData)
                 sql = buildQuery(sql, qd, metaData)
 
-
+        count = sql.count();
         sql = buildLimits(sql, offset, limit)
 
-        count = 0
         metaDataInfos = list()
         for row in sql.all():
             metaDataInfo = MetaDataInfo()
@@ -190,11 +189,8 @@ class QueryServiceAlchemy(SessionSupport):
                 metaDataInfo.Title = metaInfoMapped.Title
                 metaDataInfo.Keywords = metaInfoMapped.Keywords
                 metaDataInfo.Description = metaInfoMapped.Description
-                
             
             metaDataInfos.append(metaDataInfo)
-            
-            count = count + 1
             
         return IterPart(metaDataInfos, count, offset, limit)   
 
