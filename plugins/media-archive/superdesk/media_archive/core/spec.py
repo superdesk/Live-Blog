@@ -140,6 +140,11 @@ class QueryIndexer:
 
     def __init__(self):
         '''
+        @ivar metaDatasByInfo: dict{MetaInfoName, MetaData class)
+        Contains all MetaData class associated to MetaInfoName
+        @ivar metaInfosBydata: dict{MetaDataName, MetaInfo class)
+        Contains all MetaInfo class associated to MetaDataName
+        
         @ivar metaInfos: set(EntryMetaInfo class)
         The set of plugin specific entry meta info for registered plugins
         @ivar metaDatas: set(EntryMetaData class)
@@ -156,6 +161,10 @@ class QueryIndexer:
         Contains all meta data related criteria names and associated criteria class 
         
         '''
+        
+        self.metaDatasByInfo = dict()
+        self.metaInfosByData = dict()
+        
         self.metaInfos = set()
         self.metaDatas = set()
 
@@ -209,6 +218,9 @@ class QueryIndexer:
         if (EntryMetaDataClass in self.metaDatas):
             raise Exception('Already registered the meta data class %s' % EntryMetaInfoClass)
 
+
+        self.metaDatasByInfo[EntryMetaInfoClass.__tablename__] = EntryMetaDataClass
+        self.metaInfosByData[EntryMetaDataClass.__tablename__] = EntryMetaInfoClass
 
         for criteria in namesForQuery(QMetaInfoClass):
             criteriaClass = self.infoCriterias.get(criteria)
