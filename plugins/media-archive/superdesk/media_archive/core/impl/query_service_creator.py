@@ -13,7 +13,7 @@ from ally.api.config import service, call, query
 from ally.api.type import Iter, Scheme, Reference
 from ally.support.api.util_service import namesForQuery
 from ally.support.sqlalchemy.session import SessionSupport
-from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
+from ally.support.sqlalchemy.util_service import buildPartialQuery, buildLimits
 from inspect import isclass
 from superdesk.media_archive.api.meta_data import QMetaData, MetaData
 from superdesk.media_archive.api.meta_info import QMetaInfo, MetaInfo
@@ -26,6 +26,7 @@ from superdesk.language.api.language import LanguageEntity
 from datetime import datetime
 from cdm.spec import ICDM
 from superdesk.media_archive.api.domain_archive import modelArchive
+from sqlalchemy.sql.expression import or_
 
 
 # --------------------------------------------------------------------
@@ -121,46 +122,85 @@ class QueryServiceAlchemy(SessionSupport):
         '''
         Provides the meta data based on unified multi-plugin criteria.
         '''
-        sql = self.session().query(MetaDataMapped, MetaInfoMapped)
+        sql = self.session().query(MetaDataMapped)
         sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
+        sql = sql.add_entity(MetaInfoMapped)
+        
+        queryClauses = list()
 
         if qi is not None:
             assert isinstance(qi, self.QMetaInfo), 'Invalid query %s' % qi
-            metaInfos = self.queryIndexer.metaInfos.copy()
+            metaInfos = set()
             assert isinstance(metaInfos, set)
 
             for name in namesForQuery(qi):
                 if getattr(self.QMetaInfo, name) not in qi: continue
                 criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
                 assert criteriaMetaInfos, 'No model class available for %s' % name
-                metaInfos.intersection(criteriaMetaInfos)
-
-            sql = buildQuery(sql, qi, MetaInfoMapped)
-            for metaInfo in metaInfos:
-                sql = sql.join(metaInfo)
-                try:
-                    sql = buildQuery(sql, qi, metaInfo)
-                except :
-                    raise Exception('Cannot build query for meta info %s' % metaInfo)
-
+                if MetaInfoMapped not in criteriaMetaInfos: 
+                    metaInfos = set.union(metaInfos, criteriaMetaInfos)
 
         if qd is not None:
             assert isinstance(qd, self.QMetaData), 'Invalid query %s' % qd
-            metaDatas = self.queryIndexer.metaDatas.copy()
+            metaDatas = set()
             assert isinstance(metaDatas, set)
 
             for name in namesForQuery(qd):
                 if getattr(self.QMetaData, name) not in qd: continue
                 criteriaMetaDatas = self.queryIndexer.metaDataByCriteria.get(name)
                 assert criteriaMetaDatas, 'No model class available for %s' % name
-                metaDatas.intersection(criteriaMetaDatas)
+                if MetaDataMapped not in criteriaMetaDatas: 
+                    metaDatas = set.union(metaDatas, criteriaMetaDatas)       
 
-            sql = buildQuery(sql, qd, MetaDataMapped)
+        andClauses = None
+        orClauses = None
+        
+        if qi is None and qd is None:
+            pass;
+        elif qi is not None and qd is None:
+            sql = buildPartialQuery(sql, qi, MetaInfoMapped, queryClauses)
+            
+            for metaInfo in metaInfos:
+                sql = sql.outerjoin(metaInfo)
+                sql = buildPartialQuery(sql, qi, metaInfo, queryClauses)
+                
+        elif qi is None and qd is not None:
+            sql = buildPartialQuery(sql, qd, MetaDataMapped, queryClauses)
+            
             for metaData in metaDatas:
-                sql = sql.join(metaData)
-                sql = buildQuery(sql, qd, metaData)
-
-        count = sql.count();
+                sql = sql.outerjoin(metaData)
+                sql = buildPartialQuery(sql, qd, metaData, queryClauses)
+                
+        else: 
+            andClauses = list()
+            orClauses = list()
+            sql = buildPartialQuery(sql, qi, MetaInfoMapped, queryClauses, andClauses, orClauses, append=False)
+            sql = buildPartialQuery(sql, qd, MetaDataMapped, queryClauses, andClauses, orClauses)
+            
+            for metaInfo in metaInfos:
+                metaData = self.queryIndexer.metaDatasByInfo[metaInfo.__tablename__]
+                if metaData in metaDatas:
+                    sql = sql.outerjoin(metaInfo)
+                    sql = sql.outerjoin(metaData)
+                    andClauses = list()
+                    orClauses = list()
+                    sql = buildPartialQuery(sql, qi, metaInfo, queryClauses, andClauses, orClauses, append=False)
+                    sql = buildPartialQuery(sql, qd, metaData, queryClauses, andClauses, orClauses)
+                else:     
+                    sql = sql.outerjoin(metaInfo)
+                    sql = buildPartialQuery(sql, qi, metaInfo, queryClauses)
+                    
+            for metaData in metaDatas:
+                if self.queryIndexer.metaInfosByData[metaData.__tablename__] not in metaInfos: 
+                    sql = sql.outerjoin(metaData)
+                    sql = buildPartialQuery(sql, qd, metaData, queryClauses)      
+                    
+        length = len(queryClauses)
+        if length == 1: sql = sql.filter(queryClauses[0])
+        elif length > 1: sql = sql.filter(or_(*queryClauses)) 
+        
+        count = sql.count()
+        
         sql = buildLimits(sql, offset, limit)
         
         metaDataInfos = list()
@@ -190,8 +230,7 @@ class QueryServiceAlchemy(SessionSupport):
                 metaDataInfo.Title = metaInfoMapped.Title
                 metaDataInfo.Keywords = metaInfoMapped.Keywords
                 metaDataInfo.Description = metaInfoMapped.Description
-            
+                         
             metaDataInfos.append(metaDataInfo)
             
         return IterPart(metaDataInfos, count, offset, limit)   
-
