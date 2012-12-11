@@ -26,7 +26,7 @@ from superdesk.language.api.language import LanguageEntity
 from datetime import datetime
 from cdm.spec import ICDM
 from superdesk.media_archive.api.domain_archive import modelArchive
-from sqlalchemy.sql.expression import or_, and_
+from sqlalchemy.sql.expression import or_
 
 
 # --------------------------------------------------------------------
@@ -140,12 +140,6 @@ class QueryServiceAlchemy(SessionSupport):
                 if MetaInfoMapped not in criteriaMetaInfos: 
                     metaInfos = set.union(metaInfos, criteriaMetaInfos)
 
-            sql = buildPartialQuery(sql, qi, MetaInfoMapped, queryClauses)
-            
-            for metaInfo in metaInfos:
-                sql = sql.outerjoin(metaInfo)
-                sql = buildPartialQuery(sql, qi, metaInfo, queryClauses)
-
         if qd is not None:
             assert isinstance(qd, self.QMetaData), 'Invalid query %s' % qd
             metaDatas = set()
@@ -156,14 +150,48 @@ class QueryServiceAlchemy(SessionSupport):
                 criteriaMetaDatas = self.queryIndexer.metaDataByCriteria.get(name)
                 assert criteriaMetaDatas, 'No model class available for %s' % name
                 if MetaDataMapped not in criteriaMetaDatas: 
-                    metaDatas = set.union(metaDatas, criteriaMetaDatas)
+                    metaDatas = set.union(metaDatas, criteriaMetaDatas)       
 
+        andClauses = None
+        orClauses = None
+        
+        if qi is not None and qd is None:
+            sql = buildPartialQuery(sql, qi, MetaInfoMapped, queryClauses)
+            
+            for metaInfo in metaInfos:
+                sql = sql.outerjoin(metaInfo)
+                sql = buildPartialQuery(sql, qi, metaInfo, queryClauses)
+                
+        elif qi is None and qd is not None:
             sql = buildPartialQuery(sql, qd, MetaDataMapped, queryClauses)
             
             for metaData in metaDatas:
                 sql = sql.outerjoin(metaData)
                 sql = buildPartialQuery(sql, qd, metaData, queryClauses)
-
+                
+        else: 
+            andClauses = list()
+            orClauses = list()
+            sql = buildPartialQuery(sql, qi, MetaInfoMapped, queryClauses, andClauses, orClauses, append=False)
+            sql = buildPartialQuery(sql, qd, MetaDataMapped, queryClauses, andClauses, orClauses)
+            
+            for metaInfo in metaInfos:
+                if self.queryIndexer.metaDatasByInfo[metaInfo.__tablename__] not in metaDatas: 
+                    sql = sql.outerjoin(metaInfo)
+                    sql = sql.outerjoin(metaData)
+                    andClauses = list()
+                    orClauses = list()
+                    sql = buildPartialQuery(sql, qi, metaInfo, queryClauses, andClauses, orClauses, append=False)
+                    sql = buildPartialQuery(sql, qd, metaData, queryClauses, andClauses, orClauses)
+                else:     
+                    sql = sql.outerjoin(metaInfo)
+                    sql = buildPartialQuery(sql, qi, metaInfo, queryClauses)
+                    
+            for metaData in metaDatas:
+                if self.queryIndexer.metaInfosByData[metaData.__tablename__] not in metaInfos: 
+                    sql = sql.outerjoin(metaData)
+                    sql = buildPartialQuery(sql, qd, metaData, queryClauses)      
+                    
         length = len(queryClauses)
         if length == 1: sql = sql.filter(queryClauses[0])
         elif length > 1: sql = sql.filter(or_(*queryClauses)) 
@@ -203,4 +231,3 @@ class QueryServiceAlchemy(SessionSupport):
             metaDataInfos.append(metaDataInfo)
             
         return IterPart(metaDataInfos, count, offset, limit)   
-
