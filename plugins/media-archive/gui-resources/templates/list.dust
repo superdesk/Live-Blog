@@ -1,3 +1,4 @@
+<span id="media-archive">
 <div class="subnav subnav-fixed">
 	<a href="javascript:void(0)" class="btn btn-large btn-info pull-right"
 		data-action="add-media"> <span class="media-archive-icon-add"></span>_('Add Media')</a>
@@ -16,9 +17,9 @@
     <div class="fake-sidebar"></div>
     <div class="main-content" id="main-content">
     	<div class="main-content-topnav">
-        	<a class="toggle-sidebar-button" href="#"></a>
+        	<a class="toggle-sidebar-button" href="javascript:void(0)"></a>
             <span class="title">_('Search results') </span>
-            <span class="info">({Total})</span>
+            <span class="info">({#pagination}{total}{/pagination})</span>
             
         
             <div class="btn-group pull-right">
@@ -28,33 +29,29 @@
                 		
                 		<li><a href="#"><i class="icon-eye-open"></i> _('View/Hide details')</a></li>
                         <li class="divider"></li>
+                        {#pagination}
                         {#ipp}
-							<li class="{isipp}"><a href="javascript:void(0)" data-ipp="{.}"><i class="icon-th-large"></i> {.} _('items per page')</a></li>
+							<li class="{isipp} ipp"><a href="javascript:void(0)" data-ipp="{.}"><i class="icon-th-large"></i> {.} _('items per page')</a></li>
 						{/ipp}
+						{/pagination}
                         <li class="divider"></li>
                         <li><a href="javascript:void(0)" id="grid_view"><i class="icon-th"></i> Grid view</a></li>
                 		<li><a href="javascript:void(0)" id="list_view"><i class="icon-th-list"></i> List view</a></li>
               		</ul>
           	</div>
             
-   			<div style="margin-right:10px;" class="btn-group pull-right">
+   			<!--div style="margin-right:10px;" class="btn-group pull-right">
             	<a href="#" class="btn btn-info">_('Action')</a>
             	<a href="#" data-toggle="dropdown" class="btn btn-info dropdown-toggle"><span class="caret"></span></a>
             		<ul class="dropdown-menu">
-                		<!--li><a href="#" id="add-to-scratchpad-many"><i class="icon-scratchpad"></i> Add to scratchpad</a></li-->
+                		<li><a href="#" id="add-to-scratchpad-many"><i class="icon-scratchpad"></i> Add to scratchpad</a></li>
                         <li><a href="#"><i class="icon-download-alt"></i> _('Download')</a></li>
                 		<li><a href="#"><i class="icon-trash"></i> _('Delete')</a></li>
               		</ul>
-          	</div>
+          	</div-->
         </div>
         <div class="main-content-subnav">
-       		
-        </div>
-        
-        <div class="main-content-inner grid scroller">
-		</div>
-          
-        {#pagination}
+       		{#pagination}
 			<div class="pagination">
 			{?currentpages}
 			<ul class="{className}">
@@ -68,15 +65,15 @@
 				<li> <a href="javascript:void(0)" data-pagination="next" title="_('Next')">&rarr;</a> </li>
 				<li> <a href="javascript:void(0)" data-pagination="last" title="_('Last')">&#8677;</a> </li>
 			</ul>
-			<ul class="ipp" style="margin:0 8px">
-				{#ipp}
-				<li class="{isipp}"> <a href="javascript:void(0)" data-ipp="{.}">{.}</a> </li>
-				{/ipp}
-			</ul>
 			{/currentpages}
 			</div>
-		{/pagination}
+			{/pagination}
+        </div>
         
+        <div class="main-content-inner media-library-main-content-inner grid scroller">
+		</div>
+          
     </div>
 	
 </section>
+</span>
