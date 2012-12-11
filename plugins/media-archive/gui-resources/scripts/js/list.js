@@ -147,7 +147,7 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         {
             return criteriaTypes.replace(/InfoEntry-/g,'|').replace(/DataEntry-/g, '|').replace(/\|$/,'').replace(/\|$/,'').toLowerCase().split('|').sort();
         },
-        _criteriaForAll: {},
+
         /*!
          * append filter criteria to select list
          */
@@ -163,33 +163,11 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             });
         },
         
-        /*renderCriteria: function()
-        {
-            var types = this.types.feed(),
-                criteria = this.criteriaList.feed(),
-                allTypes = [];
-            for( var i=0; i<types.length; i++ )
-                types[i].Type.toLowerCase() != 'other' && allTypes.push(types[i].Type);
-            allTypes.sort();
-            allTypes = allTypes.toString();
-
-            $('[data-placeholder="modules"]', this.el).html('');
-            for( var i=0; i<criteria.length; i++ )
-                if( criteria[i].Key in this.criteriaNames && allTypes == this._criteriaTypes(criteria[i].Types).toString() )
-                {
-                    this._criteriaForAll[criteria[i].Key] = true;
-                    $.tmpl('media-archive>sidebar/crit-'+this.criteriaTypes[criteria[i].Criteria], 
-                            {id: criteria[i].Key, title: this.criteriaNames[criteria[i].Key], initial: "data-initial='true'"}, 
-                            function(e,o)
-                            { 
-                                $('[data-placeholder="modules"]', this.el).append(o); 
-                            });
-                }
-        },*/
-        
+        /*!
+         * show/hide filters depending on type
+         */
         selectType: function()
         {
-            console.log('x');
             var selectedTypes = [],
                 criteria = this.criteriaList.feed();
             $('#type-list input:checked', this.el).each(function()
@@ -219,6 +197,9 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             $('.filter-list li').removeClass('hover');
         },
 
+        /*!
+         * filter input keydown handler
+         */
         key2filter: function(evt)
         {
             var selected = $('.filter-list li.hover', this.el);
@@ -230,6 +211,7 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
                     var next = selected.next('li');
                     if( !next.length ) next = $('.filter-list li:first', this.el);
                     next.addClass('hover');
+                    $('.filter-list', this.el).removeClass('hide');
                     break;
 
                 case 38: // up arr
@@ -237,11 +219,13 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
                     var prev = selected.prev('li');
                     if( !prev.length ) prev = $('.filter-list li:last', this.el);
                     prev.addClass('hover');
+                    $('.filter-list', this.el).removeClass('hide');
                     break;
 
                 case 9:
                 case 13: // return
                     var evt = new $.Event;
+                    if( !selected ) return false;
                     evt.target = selected;
                     this.selectFilter(evt);
                     return false;
@@ -253,13 +237,17 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             
         },
         
+        /*!
+         * filter input keyup handler
+         */
         keyup2filter: function(evt)
         {
             if( $.inArray(evt.keyCode, [13, 38, 40]) !== -1  ) return false;
             var src = $(evt.target).val().toLowerCase();
             if( src == '' ) 
             {
-                $('.filter-list li').removeClass('hide')
+                $('.filter-list li').removeClass('hide');
+                this.selectType();
                 return;
             }
             $('.filter-list li').each(function()
@@ -268,6 +256,9 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             });
         },
         
+        /*!
+         * select the filter and show interface for its value
+         */
         _selectedFilter: null,
         _savedFilters: {},
         selectFilter: function(evt)
@@ -289,7 +280,9 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             $('.filter-list').addClass('hide');
             return false;
         },
-        
+        /*!
+         * save selected filter and value 
+         */
         saveFilter: function()
         {
             if(!this._selectedFilter) return false;
@@ -321,7 +314,7 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
                 storeCriteria.push(criteria+'.operator');
             });
             
-            var newTag = $('<li class="modifier-is">'+self.criteriaNames[criteria]+': '+displayVal.join(', ')
+            var newTag = $('<li class="modifier-'+rule+'">'+self.criteriaNames[criteria]+': '+displayVal.join(', ')
                 +'<a class="closebutton" href="javascript:void(0)">x</a></li>');
             newTag.data('criteria', storeCriteria);
             $('.tag-container', self.el).append(newTag);
