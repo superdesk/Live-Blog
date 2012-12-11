@@ -62,7 +62,7 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
         '''
         Processes the meta data persistence and type association. The meta data will already be in the database this method
         has to update and associate the meta data in respect with the handler. By using the contentType and file extension
-        info, the plugin will decide if process or not the request. The method will take no action if fails to process the 
+        info, the plugin will decide if process or not the request. The method will take no action if fails to process the
         content (content has wrong format, or wrong declared format).
 
         @param metaDataMapped: MetaDataMapped
@@ -79,13 +79,13 @@ class IMetaDataHandler(metaclass=abc.ABCMeta):
     def process(self, metaDataMapped, contentPath):
         '''
         Processes the meta data persistence and type association. The meta data will already be in the database this method
-        has to update and associate the meta data and meta info in respect with the handler. The method will take no action if fails to process the 
+        has to update and associate the meta data and meta info in respect with the handler. The method will take no action if fails to process the
         content (content has wrong format)
 
         @param metaDataMapped: MetaDataMapped
             The meta data mapped for the current uploaded content.
         @contentPath: string
-            The path were the media file is stored    
+            The path were the media file is stored
         @return: boolean
             True if the content has been processed, False otherwise.
         '''
@@ -135,7 +135,7 @@ class IThumbnailProcessor(metaclass=abc.ABCMeta):
 class QueryIndexer:
     '''
         Manages the query related information about plugins in order to be able to support
-        the multi-plugin queries 
+        the multi-plugin queries
     '''
 
     def __init__(self):
@@ -144,27 +144,27 @@ class QueryIndexer:
         Contains all MetaData class associated to MetaInfoName
         @ivar metaInfosBydata: dict{MetaDataName, MetaInfo class)
         Contains all MetaInfo class associated to MetaDataName
-        
+
         @ivar metaInfos: set(EntryMetaInfo class)
         The set of plugin specific entry meta info for registered plugins
         @ivar metaDatas: set(EntryMetaData class)
-        The set of plugin specific entry meta data for registered plugins    
-        
+        The set of plugin specific entry meta data for registered plugins
+
         @ivar metaInfoByCriteria: dict{CriteriaName : set(EntryMetaInfo class)}
-        The set of plugin specific entry meta info for registered plugins grouped by criteria name   
+        The set of plugin specific entry meta info for registered plugins grouped by criteria name
         @ivar metaDataByCriteria: dict{CriteriaName : set(EntryMetaData class)}
-        The set of plugin specific entry meta data for registered plugins grouped by criteria name   
-        
+        The set of plugin specific entry meta data for registered plugins grouped by criteria name
+
         @ivar infoCriterias: dict{CriteriaName, Criteria class)
         Contains all meta info related criteria names and associated criteria class
         @ivar dataCriterias: dict{CriteriaName, Criteria class)
-        Contains all meta data related criteria names and associated criteria class 
-        
+        Contains all meta data related criteria names and associated criteria class
+
         '''
-        
+
         self.metaDatasByInfo = dict()
         self.metaInfosByData = dict()
-        
+
         self.metaInfos = set()
         self.metaDatas = set()
 
@@ -173,7 +173,7 @@ class QueryIndexer:
 
         self.infoCriterias = dict()
         self.dataCriterias = dict()
-        
+
         self.register(MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData)
 
     # --------------------------------------------------------------------
@@ -181,7 +181,7 @@ class QueryIndexer:
     def register(self, EntryMetaInfoClass, QMetaInfoClass, EntryMetaDataClass, QMetaDataClass):
         '''
         Construct the meta info base service for the provided classes.
-        
+
         @param EntryMetaInfoClass: class
             A class that contains the specific for media meta info related columns.
         @param QMetaInfoClass: class
@@ -194,19 +194,20 @@ class QueryIndexer:
 
         assert isclass(EntryMetaInfoClass) and issubclass(EntryMetaInfoClass, Base), \
         'Invalid entry meta info class %s' % EntryMetaInfoClass
-        
-        #TODO: why a class is not his subclass?
-        #assert not issubclass(EntryMetaInfoClass, MetaInfoMapped), \
-        #'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
+
+        assert isclass(EntryMetaInfoClass) and EntryMetaInfoClass is MetaInfoMapped or \
+        not issubclass(EntryMetaInfoClass, MetaInfoMapped), \
+        'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
 
         assert isclass(QMetaInfoClass) and issubclass(QMetaInfoClass, QMetaInfo), \
         'Invalid meta info query class %s' % QMetaInfoClass
 
         assert isclass(EntryMetaDataClass) and issubclass(EntryMetaDataClass, Base), \
         'Invalid entry meta data class %s' % EntryMetaDataClass
-        
-        #assert not issubclass(EntryMetaDataClass, MetaDataMapped), \
-        #'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
+
+        assert isclass(EntryMetaDataClass) and EntryMetaDataClass is MetaDataMapped or \
+        not issubclass(EntryMetaDataClass, MetaDataMapped), \
+        'The Entry class should be registered, not extended class %s' % EntryMetaInfoClass
 
         assert isclass(QMetaDataClass) and issubclass(QMetaDataClass, QMetaData), \
         'Invalid meta data query class %s' % QMetaDataClass
