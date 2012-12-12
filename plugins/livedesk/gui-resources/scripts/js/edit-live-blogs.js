@@ -133,7 +133,7 @@ function(providers, Gizmo, $)
 		({
 			_timeInterval: 10000,
 			_idInterval: 0,
-			_stats: { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 },
+			_stats: {},
 			_minimOrder: Infinity,			
 			/*!
 			 * for auto refresh
@@ -141,6 +141,7 @@ function(providers, Gizmo, $)
 			keep: false,
 			init: function(){ 
 				var self = this;
+				self._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
 				self.model.on('publish reorder', function(evt, post){
 					if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 						self._stats.lastCId++;
@@ -627,7 +628,6 @@ function(providers, Gizmo, $)
 					.offset(self.collection._stats.offset)
 					.desc('order')					
 					.auto();
-						if(self.collection._stats.total <= self.limit) {
 				self.collection.view = self;
 				
 				// default autorefresh on
@@ -1095,6 +1095,18 @@ function(providers, Gizmo, $)
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
 					$.superdesk.getAction('modules.livedesk.configure')
+					.done(function(action)
+					{
+						action.ScriptPath && 
+							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+					});
+				})
+				.off(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
+				.on(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
+				{
+					event.preventDefault();
+					var blogHref = $(this).attr('href')
+					$.superdesk.getAction('modules.livedesk.manage-collaborators')
 					.done(function(action)
 					{
 						action.ScriptPath && 
