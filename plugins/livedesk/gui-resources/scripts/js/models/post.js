@@ -51,6 +51,8 @@ function(Gizmo)
                 ret = dataAdapter(publishHref).insert({},{headers: { 'X-Filter': 'CId, Order'}}).done(function(data){
 					delete self.data["PublishedOn"];
 					self.triggerHandler('unpublish');
+					self._parse(data);
+					self.Class.triggerHandler('unpublish', self);
 				});
 			return ret;
 		}
