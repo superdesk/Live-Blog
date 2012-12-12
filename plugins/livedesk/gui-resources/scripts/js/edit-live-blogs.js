@@ -140,7 +140,7 @@ function(providers, Gizmo, $)
 			keep: false,
 			init: function(){ 
 				var self = this;
-				self.model.on('publish reorder', function(evt, post){
+				self.model.on('unpublish publish reorder', function(evt, post){
 					if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 						self._stats.lastCId++;
 				});
@@ -152,7 +152,7 @@ function(providers, Gizmo, $)
 					attr.lastCId = parseInt(attr.lastCId);
 					if(attr.lastCId > self._stats.lastCId)
 						self._stats.lastCId = attr.lastCId;
-				}).on('readauto updateauto update',function(evt, data)
+				}).on('readauto updateauto update removeingsauto',function(evt, data)
 				{
 					self.getLastCid(data);
 					self.getFirstOrder(data);
@@ -193,7 +193,7 @@ function(providers, Gizmo, $)
 			},
 			start: function()
 			{
-				var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers: { 'X-Filter': 'CId, Order'}};
+				var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers: { 'X-Filter': 'CId, Order, IsPublished'}};
 				if(self._stats.lastCId === 0) delete requestOptions.data;
 				if(!this.keep && self.view && !self.view.checkElement()) 
 				{
@@ -250,7 +250,12 @@ function(providers, Gizmo, $)
                             }
 						}
                         if( !model ) {
-                            if( !list[i].isDeleted() ) {
+							if(self.isCollectionDeleted(list[i])) {
+                                if( self.hasEvent('removeingsauto') ) {
+                                    removeings.push(list[i]);
+                                }
+
+                            } else if( !list[i].isDeleted() ) {
 								self._list.push(list[i]);
 								changeset.push(list[i]);
                                 if( self.hasEvent('addingsauto') ) {
@@ -329,7 +334,11 @@ function(providers, Gizmo, $)
 				if(data.PostList)
 					return data.PostList;
 				return data;
-			}			
+			},
+			isCollectionDeleted: function(model)
+	        {
+	        	return model.get('IsPublished') === 'True'? false : true;
+	        }	
 		}),
 		
 		/*!
@@ -350,7 +359,7 @@ function(providers, Gizmo, $)
 				var self = this;
 				self.el.data('view', self);
 				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, IsPublished';
 				this.model
 				    .on('delete', this.remove, this)
 				    .on('unpublish', this.remove, this)
@@ -610,6 +619,7 @@ function(providers, Gizmo, $)
 						self.addAll(data);
 						self.toggleMoreVisibility();
 					})
+					.on('removeingsauto', self.removeAllAutoupdate, self)
 					.xfilter(self.xfilter)
 					.limit(self.collection._stats.limit)
 					.offset(self.collection._stats.offset)
@@ -701,6 +711,15 @@ function(providers, Gizmo, $)
 					}				
 				}
 				$(current).on('render', function(){ self.autorefreshHandle.call(self, current.el.outerHeight(true)); });
+			},
+			removeAllAutoupdate: function(evt, data)
+			{
+				var self = this;
+				for( var i = 0, count = data.length; i < count; i++ ) {
+					if(data[i].postview) {
+						data[i].postview.remove();
+					}
+				}
 			},
 			addAll: function(data)
 			{
