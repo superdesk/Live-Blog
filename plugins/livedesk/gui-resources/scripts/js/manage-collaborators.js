@@ -2,6 +2,7 @@ define([
 	'jquery',
 	'gizmo/superdesk',
 	'jquery/rest',
+	'jquery/superdesk',
 	'jquery/avatar',
 	config.guiJs('livedesk', 'models/collaborators'),
 	config.guiJs('livedesk', 'models/blog'),
@@ -12,7 +13,7 @@ define([
 	'tmpl!livedesk>manage-collaborators/internal-collaborator',
 	'tmpl!livedesk>manage-collaborators/internal-collaborators',
 	'tmpl!livedesk>manage-collaborators/add-internal-collaborator'
-	], function ($, Gizmo, Collaborators) {
+	], function ($, Gizmo) {
 
 	/*!
 	 * A default view witch can handle the sort process
@@ -115,9 +116,10 @@ define([
 		events: {
 			'.save': { click: 'addPendingCollaborators'},
 			'[name="internalCollaboratorSelectAll"]': { change: 'toggleCollaborators' },
-			'.searchbox': { keyup: 'search' }
+			'.searchbox': { keyup: 'searchWait' }
 		},
 		stillTyping: false,
+
 		init: function(){
 			var self = this;
 			self.collection
@@ -126,24 +128,27 @@ define([
 
 		},
 		searchWait: function(evt) {
-			var self = this;
-			self.stillTyping = true;
-			setTimeout(function(){
-				self.still
-			}, 500)
+			var self = this, el = $(evt.target);
+			clearTimeout($(el).data("typing"));
+			$(el).data("typing", setTimeout(function(){
+				var val = $(el).val();
+				if( $(el).data('previous') !== val )
+					self.search(val);
+				$(el).data('previous', val);
+			}, 200));
 		},
-		search: function(evt) {
-			var self = this,
-				$this = $(evt.target);
+		search: function(searchText) {
+			var self = this;
 			self.collection
 				.xfilter('Id,Name,Person.Id,Person.FullName,Person.EMail')
 				.limit(self.collection.config("limit"))
-				.param('%'+$this.val()+'%','qp.firstName.ilike')
+				.param('%'+searchText+'%','qp.firstName.ilike')
 				.sync();
 		},
 		refresh: function() {
 			var self = this;
 			self._addPending = [];
+			self.el.find('.searchbox').val('');
 			self.collection
 				.xfilter('Id,Name,Person.Id,Person.FullName,Person.EMail')
 				.limit(self.collection.config("limit"))
@@ -281,7 +286,57 @@ define([
 				collection: self.model.get('Collaborator'),
 				collectionPotentialCollaborator: self.model.get('CollaboratorPotential')
 			});
+            data.ui = {
+				content: 'is-content=1', 
+				side: 'is-side=1', 
+				submenu: 'is-submenu', 
+				submenuActive3: 'active'	
+			};
+
 			$.superdesk.applyLayout('livedesk>manage-collaborators', data, function(){
+		       var topSubMenu = $(self.el).find('[is-submenu]');
+		        $(topSubMenu)
+		        .off(self.getEvent('click'), 'a[data-target="configure-blog"]')
+		        .on(self.getEvent('click'), 'a[data-target="configure-blog"]', function(event)
+		        {
+		            event.preventDefault();
+		            var blogHref = $(this).attr('href');
+		            $.superdesk.getActions('modules.livedesk.configure')
+		            .done(function(action)
+		            {
+		            	action = (action[0])? action[0] : action;
+		                action.ScriptPath &&
+		                    require([$.superdesk.apiUrl+action.ScriptPath], function(app){ 
+		                    	console.log(app);
+		                    	new app(blogHref); });
+		            });
+		        })
+		        .off(self.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
+				.on(self.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
+				{
+					event.preventDefault();
+					var blogHref = $(this).attr('href')
+					$.superdesk.getAction('modules.livedesk.manage-collaborators')
+					.done(function(action)
+					{
+						action = (action[0])? action[0] : action;
+						action.ScriptPath && 
+							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+					});
+				})
+		        .off(self.getEvent('click'), 'a[data-target="edit-blog"]')
+		        .on(self.getEvent('click'), 'a[data-target="edit-blog"]', function(event)
+		        {
+		            event.preventDefault();
+		            var blogHref = $(this).attr('href');
+		            $.superdesk.getAction('modules.livedesk.edit')
+		            .done(function(action)
+		            {
+		            	action = (action[0])? action[0] : action;
+		                action.ScriptPath && 
+							require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
+		            });
+		        });
 				self.el.find('.controls').append(self.manageInternalCollaboratorsView.el);
 			});
 		},
