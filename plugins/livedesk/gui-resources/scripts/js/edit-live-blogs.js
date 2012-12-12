@@ -134,7 +134,6 @@ function(providers, Gizmo, $)
 			_timeInterval: 10000,
 			_idInterval: 0,
 			_stats: {},
-			_minimOrder: Infinity,			
 			/*!
 			 * for auto refresh
 			 */
@@ -192,13 +191,6 @@ function(providers, Gizmo, $)
 				ret = this.stop().start();
 				this._idInterval = setInterval(function(){self.start();}, this._timeInterval);
 				return ret;
-			}
-			 * Get the minim Order value from the post list received.
-			 */
-			getMinimOrder: function(data)
-			 * Get the maximum CId value from the post list received.
-			 */			
-			getMaximCid: function(data)
 			},
 			start: function()
 			{
