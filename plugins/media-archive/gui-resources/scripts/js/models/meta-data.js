@@ -10,10 +10,10 @@ function(giz, MetaInfoList)
             MetaInfo: MetaInfoList
         },
         infoNode: 'MetaInfo',
-        refresh: function()
+        refresh: function(thumbSize)
         {
             var self = this;
-            this.sync({data: {thumbSize: 'medium'}}).done(function()
+            this.sync({data: {thumbSize: thumbSize || 'medium'}}).done(function()
             {
                 self.get(self.infoNode).xfilter('*').sync().done(function()
                 {
