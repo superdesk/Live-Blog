@@ -133,13 +133,15 @@ function(providers, Gizmo, $)
 		({
 			_timeInterval: 10000,
 			_idInterval: 0,
-			_stats: { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 },
+			_stats: {},
+			_minimOrder: Infinity,			
 			/*!
 			 * for auto refresh
 			 */
 			keep: false,
 			init: function(){ 
 				var self = this;
+				self._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
 				self.model.on('publish reorder', function(evt, post){
 					if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 						self._stats.lastCId++;
@@ -190,6 +192,13 @@ function(providers, Gizmo, $)
 				ret = this.stop().start();
 				this._idInterval = setInterval(function(){self.start();}, this._timeInterval);
 				return ret;
+			}
+			 * Get the minim Order value from the post list received.
+			 */
+			getMinimOrder: function(data)
+			 * Get the maximum CId value from the post list received.
+			 */			
+			getMaximCid: function(data)
 			},
 			start: function()
 			{
@@ -320,7 +329,19 @@ function(providers, Gizmo, $)
 		TimelineCollection = AutoCollection.extend
 		({
 			model: Gizmo.Register.Post,
-			href: new Gizmo.Url('/Post/Published')
+			href: new Gizmo.Url('/Post/Published'),
+			_stats: { total: 0, offset: 0, offsetMore: 0 },
+			parse: function(data) {
+				if(data.total)
+//					this._stats.total = data.total;
+//					this._stats.offset = data.offset;
+					if(data.offsetMore !== data.total) {
+						this._stats.offsetMore = data.offsetMore;					
+				}
+				if(data.PostList)
+					return data.PostList;
+				return data;
+			}			
 		}),
 		
 		/*!
@@ -1074,6 +1095,18 @@ function(providers, Gizmo, $)
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
 					$.superdesk.getAction('modules.livedesk.configure')
+					.done(function(action)
+					{
+						action.ScriptPath && 
+							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+					});
+				})
+				.off(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
+				.on(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
+				{
+					event.preventDefault();
+					var blogHref = $(this).attr('href')
+					$.superdesk.getAction('modules.livedesk.manage-collaborators')
 					.done(function(action)
 					{
 						action.ScriptPath && 
