@@ -9,6 +9,7 @@ define
 ],
 function($, superdesk, giz, ItemView, common)
 {
+    var
     /*!
      * @see gizmo/views/list/ItemView
      */

@@ -79,6 +79,7 @@ function($, superdesk, giz, MetaInfo, Languages)
         {
             this.getModel().on('full-refresh', this.render, this);
             var self = this;
+            this.currentMeta = {};
             $(this.el).modal({show: false});
             $(this.el).on('hide', function(){ self.modalState = false; });
             $(this.el).on('show', function(){ self.modalState = true; });
@@ -95,7 +96,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             /*!
              * @see media-archive/models/meta-data 
              */
-            this.model.refresh();
+            this.model.refresh('huge');
             return this;
         },
         /*!
@@ -118,7 +119,6 @@ function($, superdesk, giz, MetaInfo, Languages)
         {
             var self = this,
                 data = this.feedTemplate();
-            
             // get language box 
             data.Languages = LangEditView.render().el.clone().html();
             //
@@ -183,8 +183,9 @@ function($, superdesk, giz, MetaInfo, Languages)
                 self = this;
 
             // set values on inputs
-            $('[data-meta="edit"]', this.el).find('input,select,textarea').val('').each(function()
+            $('[data-meta="edit"]', this.el).find('input,select,textarea').filter(':not([data-select="language"] select)').each(function()
             {
+                $(this).val('');
                 if(isAdd)
                 {
                     self.addedMeta[theLang] && $(this).val(self.addedMeta[theLang][$(this).attr('name')]);
@@ -269,10 +270,13 @@ function($, superdesk, giz, MetaInfo, Languages)
         tmpl: 'media-archive>types/_default/edit',
         init: function()
         {
+            this.addedMeta = {};
+            this.currentMeta = {};
+            this.currentAdd = null;
+            this.currentLang = null;
             this.getModel().on('full-refresh', this.render, this);
             var self = this;
         }
-        
     }),
     
     /*!
