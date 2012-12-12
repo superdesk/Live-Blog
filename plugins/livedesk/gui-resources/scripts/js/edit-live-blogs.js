@@ -599,7 +599,6 @@ function(providers, Gizmo, $)
 					self.addOne(model);
 				});
 				self.xfilter = 'CId, Order';
-				console.log(self.collection._stats.limit);
 				self.collection
 					.on('read readauto', function()
 					{
