@@ -628,7 +628,6 @@ function(providers, Gizmo, $)
 					.offset(self.collection._stats.offset)
 					.desc('order')					
 					.auto();
-						if(self.collection._stats.total <= self.limit) {
 				self.collection.view = self;
 				
 				// default autorefresh on
