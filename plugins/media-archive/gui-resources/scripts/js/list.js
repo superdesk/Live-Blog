@@ -184,7 +184,6 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             for( var i=0; i<criteria.length; i++ )
             {
                 if( criteria[i].Key in this.criteriaNames &&
-                    !(criteria[i].Key in this._criteriaForAll) &&
                     aintersect(selectedTypes, this._criteriaTypes(criteria[i].Types)).length )
                 {
                     $('.filter-list li[data-criteria="'+criteria[i].Key+'"]', self.el).removeClass('hide');
@@ -452,13 +451,12 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
                 if( action && action.ScriptPath ) 
                     // TODO clean up this path
                     // TODO fallback on default
-                    require([superdesk.apiUrl+action.ScriptPath+self.displayModes[self.displayMode]+'.js'],
-                            function(View)
+                    require([superdesk.apiUrl+action.ScriptPath+self.displayModes[self.displayMode]+'.js'], function(View)
                             { 
                                 try
                                 { 
                                     // render new item view
-                                    var newItemView = (new View({ model: model, el: placeEl }));
+                                    var newItemView = new View({ model: model, el: placeEl });
                                     newItemView.render();
                                     // look for recently uploaded item to popup edit
                                     if( self.recentlyUploaded && self.recentlyUploaded == model.get('Id') )
