@@ -300,6 +300,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
                 trimmed.CId = post.CId
+                trimmed.IsPublished = post.IsPublished
                 trimmed.DeletedOn = post.DeletedOn
                 yield trimmed
             else:
