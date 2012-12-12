@@ -4,8 +4,8 @@ define
     'jquery/superdesk',
     'gizmo/superdesk',
     config.guiJs('media-archive', 'types/_default/common'),
-    config.guiJs('media-archive', 'models/audio-data'),
-    config.guiJs('media-archive', 'models/audio-info'),
+    config.guiJs('media-archive-audio', 'models/audio-data'),
+    config.guiJs('media-archive-audio', 'models/audio-info'),
     'tmpl!media-archive-audio>media-archive/view',
     'tmpl!media-archive-audio>media-archive/edit'
 ],
