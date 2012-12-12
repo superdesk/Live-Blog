@@ -134,7 +134,6 @@ function(providers, Gizmo, $)
 			_timeInterval: 10000,
 			_idInterval: 0,
 			_stats: { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 },
-			_minimOrder: Infinity,			
 			/*!
 			 * for auto refresh
 			 */
@@ -191,13 +190,6 @@ function(providers, Gizmo, $)
 				ret = this.stop().start();
 				this._idInterval = setInterval(function(){self.start();}, this._timeInterval);
 				return ret;
-			}
-			 * Get the minim Order value from the post list received.
-			 */
-			getMinimOrder: function(data)
-			 * Get the maximum CId value from the post list received.
-			 */			
-			getMaximCid: function(data)
 			},
 			start: function()
 			{
@@ -627,7 +619,6 @@ function(providers, Gizmo, $)
 					.offset(self.collection._stats.offset)
 					.desc('order')					
 					.auto();
-						if(self.collection._stats.total <= self.limit) {
 				self.collection.view = self;
 				
 				// default autorefresh on

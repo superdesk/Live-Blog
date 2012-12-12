@@ -229,7 +229,12 @@ define([
 		},
 		removeAllAutoupdate: function(evt, data)
 		{
-
+			var self = this;
+			for( var i = 0, count = data.length; i < count; i++ ) {
+				if(data[i].postview) {
+					data[i].postview.remove();
+				}
+			}
 		},
 		addAllAutoupdate: function(evt, data)
 		{
