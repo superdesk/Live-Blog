@@ -321,11 +321,8 @@ function(providers, Gizmo, $)
 		({
 			model: Gizmo.Register.Post,
 			href: new Gizmo.Url('/Post/Published'),
-			_stats: { total: 0, offset: 0, offsetMore: 0 },
 			parse: function(data) {
 				if(data.total)
-//					this._stats.total = data.total;
-//					this._stats.offset = data.offset;
 					if(data.offsetMore !== data.total) {
 						this._stats.offsetMore = data.offsetMore;					
 				}
@@ -596,13 +593,13 @@ function(providers, Gizmo, $)
 			init: function()
 			{
 				var self = this;
-				self._latest = undefined;
 				self._views = [];
 				self.moreHidden = false;
 				self.collection.model.on('publish', function(evt, model){
 					self.addOne(model);
 				});
 				self.xfilter = 'CId, Order';
+				console.log(self.collection._stats.limit);
 				self.collection
 					.on('read readauto', function()
 					{
@@ -702,13 +699,7 @@ function(providers, Gizmo, $)
 						prev.next = current;
 						current.prev = prev;
 						self._views.splice(prevIndex+1, 0, current);
-					}
-					
-					/*current.next = this._latest;
-					if( this._latest !== undefined )
-						this._latest.prev = current;
-					this._latest = current;
-					*/					
+					}				
 				}
 				$(current).on('render', function(){ self.autorefreshHandle.call(self, current.el.outerHeight(true)); });
 			},
