@@ -27,10 +27,11 @@
 			<thead>
 				<tr>
 	    			<th>#</th>
-	        		<th>First Name</th>
-	        		<th>Last Name</th>
-	        		<th>Login</th>
-	        		<th>E-Mail</th>
+	        		<th data-sort="firstName">_('First Name')</th>
+	        		<th data-sort="lastName">_('Last Name')</th>
+	        		<th data-sort="name">_('Login')</th>
+	        		<th data-sort="email">_('E-Mail')</th>
+	        		<th data-sort="createdOn">_('Created On')</th>
 				</tr>
 			</thead>
 			<tbody>

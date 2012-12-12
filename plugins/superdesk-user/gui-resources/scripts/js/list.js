@@ -123,7 +123,8 @@ function($, superdesk, giz, User, Person, sha)
             '#user-add-modal [data-action="close"]': { 'click': 'closeAddUser' },
             '#user-edit-modal [data-action="close"]': { 'click': 'closeUpdateUser' },
             '#user-delete-modal [data-action="delete"]': { 'click': 'deleteUser' },
-            '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' }
+            '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' },
+            'table thead th': { 'click': 'sortList' }
             
         },
         
@@ -413,6 +414,22 @@ function($, superdesk, giz, User, Person, sha)
                 $('#user-edit-modal', self.el).modal('hide');
             }); 
         },
+        
+        currentSort: {'asc': 'name'},
+        sortList: function(evt)
+        {
+            var sort = $(evt.target).attr('data-sort');
+            if( !sort ) return false;
+            if( this.currentSort.asc != sort ) this.currentSort = {'asc': sort};
+            else this.currentSort = {'desc': sort};
+            this.refresh();
+        },
+        
+        sort: function()
+        {
+            return this.currentSort;
+        },
+        
         init: function()
         {
             var self = this;
@@ -433,7 +450,7 @@ function($, superdesk, giz, User, Person, sha)
             var self = this;
             this.users._list = [];
             this.syncing = true;
-            var options = {data: {limit: this.page.limit, offset: this.page.offset, asc: 'name'}, done: function(data)
+            var options = {data: $.extend({limit: this.page.limit, offset: this.page.offset}, this.sort()), done: function(data)
             { 
                 self.syncing = false; 
                 self.page.total = data.total;
