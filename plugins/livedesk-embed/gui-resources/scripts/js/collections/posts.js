@@ -14,10 +14,9 @@ define([
 				return data.PostList;
 			return data;
 		},
-       isCollectionDeleted: function(model)
+		isCollectionDeleted: function(model)
         {
-           console.log(model.get('IsPublished'));
-           return model.get('IsPublished') === 'True'? true : false;
+           return model.get('IsPublished') === 'True'? false : true;
         },
 		model: Gizmo.Register.Post
 	},{ register: 'Posts' });
