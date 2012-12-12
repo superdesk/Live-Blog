@@ -27,5 +27,5 @@
 {/meta}
 
 {<footer}
-	<button class="btn" data-action="save">_('Save')</button>
+	<button class="btn" data-action="save" data-dismiss="modal">_('Save')</button>
 {/footer}
