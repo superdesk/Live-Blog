@@ -139,18 +139,22 @@ define([
 							var imgsrc = $('.result-content img:first', self.el).attr('src');
 							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=";
 							var gglurl = "https://plus.google.com/share?url=" + myPerm + "&t=";
+							var emailurl = "mailto:?to=&subject=&body=" + myPerm;
 							var socialParams = {
 								'fbclick': "$.socialShareWindow('http://facebook.com/share.php?u=" + myPerm + "',400,570); return false;",
 								'twtclick': "$.socialShareWindow('http://twitter.com/home?status=Reading:" + myPerm + "',400,570); return false;",
 								'linclick': "$.socialShareWindow('http://www.linkedin.com/shareArticle?mini=true&url=" + myPerm + "', 400, 570); return false;",
-								'pinclick': "$.socialShareWindow('" + pinurl + "', 400, 570); return false;",
-								'gglclick': "$.socialShareWindow('" + gglurl + "', 400, 570); return false;"
+								'pinclick': "$.socialShareWindow('" + pinurl + "', 400, 700); return false;",
+								'gglclick': "$.socialShareWindow('" + gglurl + "', 400, 570); return false;",
+								'emailclick': "$.socialShareWindow('" + emailurl + "', 1024, 768); return false;",
+								'emailurl': emailurl
 							}
 							$.tmpl('theme/item/social-share', socialParams, function(e, o){
 								share.after(o);
 								share.attr('data-added', 'yes');	
 							});
 						}
+						
 						$(this).next('.share-box').toggle();
 					})
 				}
