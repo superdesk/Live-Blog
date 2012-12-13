@@ -110,8 +110,8 @@ $.styledNodeHtml = function(node)
     return node.html();
 };
 $.socialShareWindow = function(url, height, width) {
-	var options = 'resizable, height='+height+',width='+width;
-	var socialShareWindow = window.open( url, 'Livedesk Social Share', options );
+	var options = 'resizable, height=' + height + ', width=' + width;
+	var socialShareWindow = window.open( url, '', options);
 	socialShareWindow.focus();
 	return false;
 }
