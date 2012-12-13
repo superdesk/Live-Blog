@@ -26,7 +26,7 @@
         {#Types}
             <li icon="{Type}">
             	<label for="filter-{Type}">
-            		<span class="treemenuicon photo">{Type}</span>
+            		<span class="treemenuicon {Type}">{Type}</span>
             		<input type="checkbox" class="check" id="filter-{Type}" value="{Type}" />
             	</label>
             </li>
