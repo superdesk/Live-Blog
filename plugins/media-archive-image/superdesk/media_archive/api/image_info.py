@@ -10,12 +10,12 @@ API specifications for media archive image info.
 '''
 
 from ally.api.config import query, service
-from ally.api.criteria import AsLikeOrdered
 from superdesk.media_archive.api.domain_archive import modelArchive
 from superdesk.media_archive.api.meta_info import MetaInfo, QMetaInfo,\
     IMetaInfoService
 from superdesk.media_archive.api.image_data import ImageData, QImageData
 from superdesk.media_archive.api.meta_data import MetaData, QMetaData
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
 
 # --------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ class QImageInfo(QMetaInfo):
     '''
     The query for image info model.
     '''
-    caption = AsLikeOrdered
+    caption = AsLikeExpressionOrdered
 
 # --------------------------------------------------------------------
 
