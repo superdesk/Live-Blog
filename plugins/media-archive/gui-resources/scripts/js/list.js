@@ -180,7 +180,6 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             this.criteriaList.each(function()
             {
                 var key = this.get('Key');
-                console.log(key, self.criteriaNames, key in self.criteriaNames);
                 if( key in self.criteriaNames ) 
                 {
                     newEntry = '<li data-criteria="'+key+'"' ;
@@ -241,16 +240,16 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             {
                 case 40: // down arr
                     selected.removeClass('hover');
-                    var next = selected.next('li');
-                    if( !next.length ) next = $('.filter-list li:first', this.el);
+                    var next = selected.nextAll('li:not(.hide):eq(0)');
+                    if( !next.length ) next = $('.filter-list li:not(.hide):first', this.el);
                     next.addClass('hover');
                     $('.filter-list', this.el).removeClass('hide');
                     break;
 
                 case 38: // up arr
                     selected.removeClass('hover');
-                    var prev = selected.prev('li');
-                    if( !prev.length ) prev = $('.filter-list li:last', this.el);
+                    var prev = selected.prevAll('li:not(.hide):eq(0)');
+                    if( !prev.length ) prev = $('.filter-list li:not(.hide):last', this.el);
                     prev.addClass('hover');
                     $('.filter-list', this.el).removeClass('hide');
                     break;
@@ -264,6 +263,10 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
                     return false;
                     break;
 
+                case 8: // backspace
+                    console.log('bkspace');
+                    break;
+                    
                 default:
                     break;
             }
@@ -275,6 +278,8 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
          */
         keyup2filter: function(evt)
         {
+            console.log(evt.keyCode);
+            
             if( $.inArray(evt.keyCode, [13, 38, 40]) !== -1  ) return false;
             var src = $(evt.target).val().toLowerCase();
             if( src == '' ) 
