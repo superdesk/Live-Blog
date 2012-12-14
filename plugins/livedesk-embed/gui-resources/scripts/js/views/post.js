@@ -73,9 +73,15 @@ define([
 				item.nextUntil('.wrapup').show();
 			}
 		},		
-		render: function()
+		render: function(evt, data)
 		{
-			var self = this, data = self.model.feed();
+			var self = this, 
+				data = self.model.feed(),
+				order = parseFloat(self.model.get('Order'));
+			if ( !isNaN(self.order) && (order != self.order)) {
+				self.order = order;
+				self._parent.reorderOne(self);
+			}
 			data.HashIdentifier = self._parent.hashIdentifier;
 			if(data.Meta) {
 
