@@ -9,13 +9,11 @@ define([
 ], function($, Gizmo, PostView) {
 	return Gizmo.View.extend({
 		limit: 6,
-		offset: 0,
 		hashIdentifier: 'livedeskitem=',
 		location: '',
 		el: '#livedesk-root',
 		timeInterval: 10000,
 		idInterval: 0,
-		_latestCId: 0,	
 		flags: { 
 			addAllPending: false,
 			more: false,
@@ -41,8 +39,8 @@ define([
 			}
 			postPublished
 				.xfilter(self.xfilter)
-				.limit(self.limit)
-				.offset(self._views.length)
+				.limit(postPublished._stats.limit)
+				.offset(postPublished._stats.offset)
 				.sync().done(function(data){				
 					var total = self.model.get('PostPublished').total;
 					if(self._views.length >= total) {
@@ -101,7 +99,8 @@ define([
 				if(!self.rendered) {
 					var hashIndex, 
 						orderhash = window.location.href.split('#'),
-						postPublished = self.model.get('PostPublished')
+						postPublished = self.model.get('PostPublished');
+						postPublished
 							.on('read readauto', self.render, self)
 							.on('addings', self.addAll, self)
 							.on('addingsauto',self.addAllAutoupdate, self)
@@ -110,7 +109,7 @@ define([
 							.on('updatesauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
-							.limit(self.limit);
+							.limit(postPublished._stats.limit);
 					if(orderhash[1] && ( (hashIndex = orderhash[1].indexOf(self.hashIdentifier)) !== -1)) {
 						var order = parseFloat(orderhash[1].substr(hashIndex+self.hashIdentifier.length));
 						self.filters = {end: [order, 'order']};
@@ -120,7 +119,8 @@ define([
 							.sync();
 					} else {
 							postPublished
-								.offset(self.offset).auto();
+								.offset(postPublished._stats.offset)
+								.auto();
 					}
 				}
 				self.rendered = true;
@@ -145,8 +145,9 @@ define([
 					postPublished._list = [];						
 					postPublished._latestCId = 0;
 					postPublished
-						.limit(self.limit)
-						.offset(self.offset).auto();
+						.limit(postPublished._stats.limit)
+						.offset(postPublished._stats.offset)
+						.auto();
 					$(this).hide();
 				})
 				.show();
@@ -297,7 +298,7 @@ define([
 		},
 		toggleMoreVisibility: function()
 		{				
-			if(this.limit >= this.model.get('PostPublished').total ) {
+			if(this.model.get('PostPublished')._stats.offset >= this.model.get('PostPublished')._stats.total ) {
 				$('#loading-more',this.el).hide();
 			} else {
 				$('#loading-more',this.el).show();
