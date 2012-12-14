@@ -1,0 +1,315 @@
+<div id="configureblogtype" class="modal hide fade in" style="display: block;">
+  
+  <div screenid="0" class="modalscreen" style="display: block;">
+
+    <div class="modal-header"> <a data-dismiss="modal" class="close">×</a>
+      <h3>Add New Blog Type</h3>
+    </div>
+  
+    <div class="modal-body">
+
+      <form>
+        
+        <label>Blog type name</label>
+        <input type="text" class="fullwidth-input" value="" placeholder="Enter Blog Type Name" name="blogtypename">
+        
+
+
+        <a name="addnewposttype" href="#" class="btn"><i class="icon-plus-sign"></i> Create New Post</a>
+
+      </form>
+
+      
+    </div>
+
+    <div class="modal-footer"> 
+      <a data-dismiss="modal" class="btn" href="#">Cancel</a> 
+      <a name="save-changes-modal" data-dismiss="modal" class="btn btn-primary" href="#">Save changes</a> 
+    </div>
+
+  </div>
+
+
+  <!--screen 1 -->
+  <div screenid="1" class="modalscreen">
+
+    <div class="modal-header"> <a data-dismiss="modal" class="close">×</a>
+      <h3>Create new Post Type</h3>
+    </div>
+  
+    <div class="modal-body">
+
+      <form>
+        <div class="wizard">
+          <div class="wizard-line"></div>
+          <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+          </ul>
+        </div>
+        <legend class="small-legend">Post Name</legend>
+        <input type="text" placeholder="Enter the Post Name" class="fullwidth-input" name="posttype-name">
+        <!--
+        <legend class="small-legend" style="margin-top:10px;">Select the Post Type</legend>
+        <select name="posttype-type">
+          <option selected="selected">Normal</option>
+          <option>Wrapup</option>
+          <option>Quote</option>
+        </select>
+        -->
+      </form>
+
+    </div>
+
+    <div class="modal-footer"> 
+      <a data-dismiss="modal" class="btn" href="#">Cancel</a> 
+      <a name="wizard-next" class="btn btn-primary" href="#">Next</a> 
+
+    </div>
+
+  </div>
+
+
+  <!--screen 2 -->
+  <div screenid="2" class="modalscreen">
+
+    <div class="modal-header"> <a data-dismiss="modal" class="close">×</a>
+      <h3>Create new Post Type</h3>
+    </div>
+  
+    <div class="modal-body">
+
+      <form>
+        <div class="wizard">
+          <div class="wizard-line"></div>
+          <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+          </ul>
+        </div>
+        <legend class="small-legend">Predefine the content of the Post Type</legend>
+        <div class="alert alert-info">
+           <a data-dismiss="alert" class="close">×</a>
+           <strong>Note!</strong> You can optionally place a predifined text in your Post type.
+        </div>
+        <textarea class="fullwidth-input" name="posttype-predefined" placeholder="Type your text here" rows="4"></textarea>
+
+      </form>
+
+    </div>
+
+    <div class="modal-footer"> 
+      <a name="wizard-back" class="btn pull-left" href="#">Back</a> 
+      <a data-dismiss="modal" class="btn" href="#">Cancel</a> 
+      <a name="wizard-next" class="btn btn-primary" href="#">Next</a> 
+
+    </div>
+
+  </div>
+
+
+
+
+
+  <!--screen 3 -->
+  <div screenid="3" class="modalscreen">
+
+    <div class="modal-header"> <a data-dismiss="modal" class="close">×</a>
+      <h3>Create new Post Type</h3>
+    </div>
+  
+    <div class="modal-body">
+
+      <form>
+        <div class="wizard">
+          <div class="wizard-line"></div>
+          <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+          </ul>
+        </div>
+        <legend class="small-legend">Customize the Font style and color of the Post Type <i style="color:#989898">(optional)</i></legend>
+        <div class="alert alert-info">
+           <a data-dismiss="alert" class="close">×</a>
+           <strong>Note!</strong> You can difine a differnt Font style, size and/or color for each Post type.
+        </div>
+        <legend class="small-legend wizard-legend">Font options</legend>
+        <select name="posttypetext-fontfamily" style="width:140px;">
+          <option selected="selected" value="1">Arial, Helvetica, sans-serif</option>
+          <option value="2">Times New Roman, Times, serif</option>
+          <option value="3">Courier New, Courier, monospace</option>
+          <option value="4">Verdana, Arial, Helvetica, sans-serif</option>
+        </select>
+        <select name="posttypetext-fontsize" style="width:65px;margin-left:5px;">
+          <option value="8">8px</option>
+          <option value="9">9px</option>
+          <option value="10">10px</option>
+          <option value="11">11px</option>
+          <option value="12">12px</option>
+          <option selected="selected" value="13">13px</option>
+          <option value="14">14px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+          <option value="22">22px</option>
+          <option value="24">24px</option>
+          <option value="28">28px</option>
+          <option value="32">32px</option>
+          <option value="38">38px</option>
+          <option value="45">45px</option>
+          <option value="55">55px</option>
+        </select>
+        <div class="btn-toolbar">
+          <div data-toggle="buttons-checkbox" class="btn-group">
+            <a name="posttypetext-bold" href="#" class="btn"><i class="icon-bold"></i></a>
+            <a name="posttypetext-italic" href="#" class="btn"><i class="icon-italic"></i></a>
+            <a name="posttypetext-underline" href="#" class="btn"><i class="icon-underline"></i></a>
+          </div>
+        </div>
+        <div class="btn-toolbar">
+          <div data-toggle="buttons-radio" class="btn-group">
+            <a align="left" name="posttypetext-align" href="#" class="btn"><i class="icon-align-left"></i></a>
+            <a align="center" name="posttypetext-align" href="#" class="btn"><i class="icon-align-center"></i></a>
+            <a align="right" name="posttypetext-align" href="#" class="btn"><i class="icon-align-right"></i></a>
+          </div>
+        </div>
+        <div id="colorpicker1" class="btn-group color-picker">
+          <button name="picked-color" class="btn"><span name="picked-color" class="wizard-color black"></span></button>
+          <button data-toggle="dropdown" class="btn dropdown-toggle">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu pull-right">
+            <li><span class="wizard-color black"></span> Default color</li>
+            <li class="divider"></li>
+            <li>
+              <span class="wizard-color gray"></span>
+              <span class="wizard-color gray-dark"></span>
+              <span class="wizard-color blue"></span>
+              <span class="wizard-color blue-light"></span>
+              <span class="wizard-color green"></span>
+              <span class="wizard-color green-light"></span>
+              <span class="wizard-color red"></span>
+              <span class="wizard-color orange"></span>
+              <span class="wizard-color white"></span>
+            </li>
+          </ul>
+        </div>
+        <legend style="border:0;margin-bottom:0px;" class="small-legend wizard-legend">Preview</legend>
+        <div class="wizard-preview">
+          Vel vut turpis rhoncus lectus pulvinar lacus, sed urna, scelerisque vel lundium a, egestas! Vut, amet in, porttitor lacus phasellus dignissim lundium lundium! Placerat! Nisi, dolor proin augue in, nec aliquet nisi pellentesque
+        </div>
+      </form>
+
+    </div>
+
+    <div class="modal-footer"> 
+      <a name="wizard-back" class="btn pull-left" href="#">Back</a> 
+      <a data-dismiss="modal" class="btn" href="#">Cancel</a> 
+      <a name="wizard-next" class="btn btn-primary" href="#">Next</a> 
+
+    </div>
+
+  </div>
+
+
+
+  <!--screen 4 -->
+  <div screenid="4" class="modalscreen">
+
+    <div class="modal-header"> <a data-dismiss="modal" class="close">×</a>
+      <h3>Create new Post Type</h3>
+    </div>
+  
+    <div class="modal-body">
+
+      <form>
+        <div class="wizard">
+          <div class="wizard-line"></div>
+          <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+          </ul>
+        </div>
+        <legend class="small-legend">Customize the Background the Post Type <i style="color:#989898">(optional)</i></legend>
+        <div class="alert alert-info">
+           <a data-dismiss="alert" class="close">×</a>
+           <strong>Note!</strong> You can difine a differnt Background color and/or graphic for each Post type.
+        </div>
+
+        <legend class="small-legend wizard-legend">Background options</legend>
+        <label class="bgcolor">Background color:</label>
+
+        <div style="float:left;margin-left:10px;" id="colorpicker2" class="btn-group color-picker">
+          <button name="picked-color" class="btn"><span name="picked-color" class="wizard-color white"></span></button>
+          <button data-toggle="dropdown" class="btn dropdown-toggle">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu pull-right">
+            <li><span class="wizard-color white"></span> Default color</li>
+            <li class="divider"></li>
+            <li>
+              <span class="wizard-color gray"></span>
+              <span class="wizard-color gray-dark"></span>
+              <span class="wizard-color blue"></span>
+              <span class="wizard-color blue-light"></span>
+              <span class="wizard-color green"></span>
+              <span class="wizard-color green-light"></span>
+              <span class="wizard-color red"></span>
+              <span class="wizard-color orange"></span>
+              <span class="wizard-color white"></span>
+            </li>
+          </ul>
+        </div>
+
+        <label style="display:inline-block; vertical-align:middle; margin-left:20px;" class="checkbox">
+          <input type="checkbox" name="posstype-addbgimage">
+          Add Background graphic
+        </label>
+
+        <div class="wizard-picture-selection">
+          <ul>
+            <li><img imageid="1" src="img/posttype-icons/posttype-1.png"></li>
+            <li><img imageid="2" src="img/posttype-icons/posttype-2.png"></li>
+            <li><img imageid="3" src="img/posttype-icons/posttype-3.png"></li>
+            <li><img imageid="4" src="img/posttype-icons/posttype-4.png"></li>
+            <li><img imageid="5" src="img/posttype-icons/posttype-5.png"></li>
+            <li><img imageid="6" src="img/posttype-icons/posttype-6.png"></li>
+            <li><img imageid="7" src="img/posttype-icons/posttype-7.png"></li>
+            <li><img imageid="8" src="img/posttype-icons/posttype-8.png"></li>
+            <li><img imageid="9" src="img/posttype-icons/posttype-9.png"></li>
+            <li><img imageid="10" src="img/posttype-icons/posttype-10.png"></li>
+            <li><img imageid="11" src="img/posttype-icons/posttype-11.png"></li>
+            <li><img imageid="12" src="img/posttype-icons/posttype-12.png"></li>
+          </ul>
+        </div>
+
+        <legend style="border:0;margin-bottom:0px;" class="small-legend wizard-legend">Preview</legend>
+        <div class="wizard-preview">
+          Vel vut turpis rhoncus lectus pulvinar lacus, sed urna, scelerisque vel lundium a, egestas! Vut, amet in, porttitor lacus phasellus dignissim lundium lundium! Placerat! Nisi, dolor proin augue in, nec aliquet nisi pellentesque
+        </div>
+        
+
+      </form>
+
+    </div>
+
+    <div class="modal-footer"> 
+      <a name="wizard-back" class="btn pull-left" href="#">Back</a> 
+      <a data-dismiss="modal" class="btn" href="#">Cancel</a> 
+      <a name="save-posttype" class="btn btn-primary" href="#">Save</a>
+      <a data-dismiss="modal" name="save-posttype-close" class="btn btn-primary" href="#">Save and Close</a> 
+
+    </div>
+
+  </div>
+
+
+</div>
