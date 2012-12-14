@@ -11,6 +11,7 @@ define([
     'tmpl!livedesk>add/languages',
     'tmpl!livedesk>blogtypes',
     'tmpl!livedesk>blogtype/blogtype',
+    'tmpl!livedesk>blogtype/postposts',
 ], function( $, Gizmo) {
 
     var 
@@ -35,11 +36,15 @@ define([
                 .sync();
         },
         render: function(evt, data){
-            this.el.tmpl('livedesk>blogtype/postposts', { PostPosts: this.collection.feed() });
+            var self = this;
+            $.tmpl('livedesk>blogtype/postposts', { PostPosts: this.collection.feed() }, function(e, o){
+                self.setElement(o);
+            });
         }        
     }),
     BlogTypeView =  Gizmo.View.extend({
         el: 'li',
+        namespace: 'livedesk',
         init: function(){
             var self = this;
             self.render();
@@ -48,8 +53,13 @@ define([
             var self = this;
             $.tmpl('livedesk>blogtype/blogtype', { BlogType: self.model.feed() }, function(e,o){
                 self.setElement(o);
+                $(self.el).on(self.getEvent('click'), 'h3', function(){
+                        var li = $(this).parent().parent();
+                        li.find('.blogtype-content').toggle(300);
+                        li.toggleClass("collapse-open");
+                });
                 self.postPosts = new PostPostsView({
-                    el: self.el.find('.posttypes'),
+                    el: $('<div></div>').appendTo(self.el.find('.blogtype-content')),
                     collection: self.model.get('PostPosts')
                 });
             });
@@ -60,7 +70,7 @@ define([
             var self = this;
             self.collection
                 .on('read update', self.render, self)
-                .xfilter('*')
+                .xfilter('Id,Name,PostPosts')
                 .sync();
         },
         addOne: function(model){

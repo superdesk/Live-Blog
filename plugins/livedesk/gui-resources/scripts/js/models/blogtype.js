@@ -1,9 +1,11 @@
 define([
 	'gizmo/superdesk',
-	config.guiJs('livedesk', 'models/post')
-], function(Gizmo)
+	config.guiJs('livedesk', 'models/posts')
+], function( Gizmo )
 {
     return Gizmo.Model.extend({
-    	PostPosts: Gizmo.Register.Posts
+    	defaults: { 
+    		PostPosts: Gizmo.Register.Posts
+    	}
 	}, { register: 'BlogType' });
 });
