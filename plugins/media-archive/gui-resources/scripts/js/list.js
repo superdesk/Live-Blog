@@ -18,7 +18,6 @@ define
     config.guiJs('media-archive', 'models/query-criteria'),
     config.guiJs('media-archive', 'add'),
     'tmpl!media-archive>list',
-    'tmpl!media-archive>item',
     'tmpl!media-archive>sidebar/types',
     'tmpl!media-archive>sidebar/crit-date',
     'tmpl!media-archive>sidebar/crit-numeric',
@@ -166,16 +165,37 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
          */
         renderCriteria: function()
         {
-            var criteria = this.criteriaList,
-                criteriaNames = this.criteriaNames,
-                self = this;
-            criteria.each(function()
+            var allTypes = [],
+                self = this,
+                newEntry = '';
+            
+            // get all types string to compare
+            this.types.each(function(){ this.get('Type').toLowerCase() != 'other' && allTypes.push(this.get('Type')); });
+            allTypes.sort();
+            allTypes = allTypes.toString();
+            
+            
+            //this.criteriaList.each(function(){ console.log(this, this.get('Key')); });
+                    
+            this.criteriaList.each(function()
             {
                 var key = this.get('Key');
-                if( key in criteriaNames ) $('#MAFilterResults', self.el).append('<li data-criteria="'+key+'">'+criteriaNames[key]+'</li>');
+                console.log(key, self.criteriaNames, key in self.criteriaNames);
+                if( key in self.criteriaNames ) 
+                {
+                    newEntry = '<li data-criteria="'+key+'"' ;
+                    if( allTypes == self._criteriaTypes(this.get('Types')).toString() )
+                    {
+                        self._criteriaForAll[key] = true;
+                        newEntry += ' data-initial="true"';
+                    }
+                    newEntry += '>'+self.criteriaNames[key]+'</li>';
+                    $('#MAFilterResults', self.el).append(newEntry);
+                }
             });
+            $('#MAFilterResults [data-initial!="true"]', self.el).addClass('hide');
         },
-        
+
         /*!
          * show/hide filters depending on type
          */
@@ -190,6 +210,7 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             if( !selectedTypes.length )
             {
                 $('.filter-list li', this.el).removeClass('hide');
+                $('.filter-list li[data-initial!="true"]', this.el).addClass('hide');
                 return true;
             }
             selectedTypes = selectedTypes.sort();
