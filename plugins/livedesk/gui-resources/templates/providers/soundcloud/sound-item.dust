@@ -1,0 +1,24 @@
+{#items}
+<li class="soundcloud draggable" idx="{@idx}{.}{/idx}" startx="{startx}" style="min-height:105px; cursor: move;" data-id="{id}">
+	<div class="drag-bar"></div>
+	<div class="result-content" style="display: block">
+		<img src="{artwork_url}" style="position:absolute; max-width: 80px; max-height: 64px; right: 5px;">
+        <div style="display:block; right: 90px; position: absolute; left:5px;">
+            <h3><a href="{permalink_url}" target="_blank">{title|s}</a></h3>
+            <p class="result-text" style="float:left; text-align: left; height:51px;">
+                    {description|s}&nbsp;
+            </p>
+            
+        </div>
+        <div style="display:block; width: 100%; float:left; position: absolute; bottom:5px;">
+            <p class="attributes" >
+                    <i class="source-icon">
+                            <img src="http://g.etfv.co/http://www.soundcloud.com" style="max-width: 16px" border="0">
+                    </i>
+                    <a class="author-name" href="{user.permalink_url}" target="_blank">{user.username}</a>
+                    <time>{created_at}</time>
+            </p>
+        </div>
+    </div>
+</li>
+{/items}

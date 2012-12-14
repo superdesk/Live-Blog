@@ -1,5 +1,5 @@
 {>"theme/item/base"/}
-{<class}flickrservice{/class}
+{<item_class}flickrservice{/item_class}
 {<body_content}
 			<a href="http://farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg" target="_blank">
 				<img alt="{Meta.title}" src='http://farm{Meta.farm}.staticflickr.com/{Meta.server}/{Meta.id}_{Meta.secret}.jpg'>

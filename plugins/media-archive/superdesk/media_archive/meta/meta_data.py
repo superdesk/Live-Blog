@@ -64,9 +64,9 @@ class MetaDataMapped(Base, MetaData):
     # expected.
     @reconstructor
     def init_on_load(self):
-        type = self._cache_types.get(self.typeId)
-        if type is None:
+        typeId = self._cache_types.get(self.typeId)
+        if typeId is None:
             metaType = openSession().query(MetaTypeMapped).get(self.typeId)
             assert isinstance(metaType, MetaTypeMapped), 'Invalid type id %s' % metaType
-            type = self._cache_types[metaType.Id] = metaType.Type
-        self.Type = type
+            typeId = self._cache_types[metaType.Id] = metaType.Type
+        self.Type = typeId

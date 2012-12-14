@@ -9,17 +9,17 @@ Created on Apr 20, 2012
 SQL Alchemy based implementation for the image data API. 
 '''
 
-from ..api.image_data import QImageData
-from ..api.image_info import IImageInfoService, QImageInfo
-from ..meta.image_data import ImageDataMapped
-from ..meta.image_info import ImageInfoMapped
-from .meta_info import MetaInfoServiceBaseAlchemy
 from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.media_archive.core.spec import QueryIndexer
 from ally.container import wire
-from superdesk.media_archive.meta.image_info import ImageInfoEntry
-from superdesk.media_archive.meta.image_data import ImageDataEntry
+from superdesk.media_archive.api.image_info import IImageInfoService, QImageInfo
+from superdesk.media_archive.core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
+from superdesk.media_archive.api.image_data import QImageData
+from superdesk.media_archive.meta.image_data import ImageDataMapped,\
+    ImageDataEntry, META_TYPE_KEY
+from superdesk.media_archive.meta.image_info import ImageInfoMapped,\
+    ImageInfoEntry
 
 
 # --------------------------------------------------------------------
@@ -35,4 +35,4 @@ class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
 
     def __init__(self):
         MetaInfoServiceBaseAlchemy.__init__(self, ImageInfoMapped, QImageInfo, ImageDataMapped, QImageData)
-        self.queryIndexer.register(ImageInfoEntry, QImageInfo, ImageDataEntry, QImageData)
+        self.queryIndexer.register(ImageInfoEntry, QImageInfo, ImageDataEntry, QImageData, META_TYPE_KEY)
