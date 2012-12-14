@@ -35,7 +35,7 @@ class AsOperator:
 # --------------------------------------------------------------------
 
 @criteria
-class AsLikeExpression(AsLike):
+class AsLikeExpression:
     '''
     Provides query for properties that can be managed by a like function, this will only handle string types
     Also provides the boolean expression functionality, that in case of like string operator can had in the same all conditions
@@ -51,7 +51,7 @@ class AsLikeExpression(AsLike):
 # --------------------------------------------------------------------
 
 @criteria
-class AsLikeExpressionOrdered(AsLikeOrdered):
+class AsLikeExpressionOrdered(AsOrdered):
     '''
     Provides the like search and also the ordering and boolean expression functionality (see AsOperator).
     '''
