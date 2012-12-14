@@ -109,5 +109,11 @@ $.styledNodeHtml = function(node)
     }
     return node.html();
 };
+$.socialShareWindow = function(url, height, width) {
+	var options = 'resizable, height=' + height + ', width=' + width;
+	var socialShareWindow = window.open( url, '', options);
+	socialShareWindow.focus();
+	return false;
+}
 $.extend($.browser, {language: window.navigator.userLanguage || window.navigator.language});
 });
