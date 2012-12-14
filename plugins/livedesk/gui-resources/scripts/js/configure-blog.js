@@ -7,29 +7,6 @@ function($)
     var content = null,
     blogHref = null,
     blogData = null,
-    currentColabIds = [],
-    gotColabs = null, // deferred
-    getColabs = function()
-    {
-        currentColabIds = [];
-        new $.rest('Superdesk/Collaborator?limit=10000') // TODO huge hardcode
-        .xfilter('Id,Name,Person.Id,Person.FullName,Person.EMail')
-        .done(function(data)
-        {
-            for( var i in data ) if( data[i].Person ) data[i] = $.avatar.parse(data[i]);
-            $('#internal-colabs', content).tmpl('livedesk>configure/internal-colabs', {Colab: data});
-        });
-        new $.restAuth(blogData.Collaborator.href).xfilter('Id,Name,Person')
-        .done(function(data)
-        {
-            $(data).each(function()
-            { 
-                currentColabIds.push(this.Id);
-                $('#internal-colabs [data-key="Id"][value="'+this.Id+'"]', content).attr('checked', true); 
-            });
-            gotColabs.resolve();
-        });
-    },
     aedit =
     {
         _create: function(elements)
@@ -59,25 +36,6 @@ function($)
                 .addClass('alert-error').find('span').text(_('Error'));
         });
     },
-    saveColabs = function()
-    {
-        $.when(gotColabs).then(function()
-        {
-            var newIds = [];
-            $('#internal-colabs [data-key="Id"]:checked').each(function()
-            { 
-                 newIds.push($(this).val());
-                 $.inArray( $(this).val(), currentColabIds ) === -1 &&
-                     new $.restAuth(blogData.Collaborator.href+$(this).val()+'/Add').insert().done(function(){ });
-                     //insertColabIds.push($(this).val()); 
-            });
-            for( var i in currentColabIds )
-                $.inArray(currentColabIds[i], newIds) === -1 &&
-                    new $.restAuth(blogData.Collaborator.href+currentColabIds[i]+'/Remove').delete().done(function(){ });
-                //deleteColabIds.push(currentColabIds[i]);
-            currentColabIds = newIds;
-        });
-    },
     init = function()
     {
         content = $('[is-content]');
@@ -92,8 +50,6 @@ function($)
                 html += '<option value="'+Languages[i].Id+'">'+Languages[i].Name+'</option>';
             langInput.html(html).val(langInput.attr('data-value'));
         });
-        
-        getColabs();
         
         var topSubMenu = $(this).find('[is-submenu]');
         $(topSubMenu)
@@ -119,6 +75,18 @@ function($)
             {
                 action.ScriptPath && 
 					require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
+            });
+        })
+        .off('click.livedesk', 'a[data-target="manage-collaborators-blog"]')
+        .on('click.livedesk', 'a[data-target="manage-collaborators-blog"]', function(event)
+        {
+            event.preventDefault();
+            var blogHref = $(this).attr('href')
+            $.superdesk.getAction('modules.livedesk.manage-collaborators')
+            .done(function(action)
+            {
+                action.ScriptPath && 
+                    require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
             });
         });
         $('[data-action="save"]', content)

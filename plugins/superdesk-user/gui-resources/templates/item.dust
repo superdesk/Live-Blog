@@ -7,6 +7,7 @@
 	<td>{LastName}</td>
 	<td>{Name}</td>
 	<td>{EMail}</td>
+	<td>{CreatedOn}</td>
 	<td>    
 		<div class="btn-group">
     		<button class="btn edit">_('Edit')</button>

@@ -509,7 +509,7 @@ li#loading-more:hover{
 li#loading-more{
     background: url(img/dots32.gif) no-repeat scroll center center #FFFFFF !important;
 }
-.share {
+.sf-share {
     width: 35px;
     height: 25px;
     position: absolute;
@@ -526,8 +526,12 @@ li#loading-more{
     display: none;
 }
 
-.liveblog-post-list li:hover .share {
+.liveblog-post-list li:hover .sf-share {
     display: block ;
+}
+
+.liveblog-post-list li:hover .share-box {
+    display: none ;
 }
 
 .share-box {
@@ -567,4 +571,7 @@ li#loading-more{
 }
 .social.pinterest {
     background: url(img/social_pinterest_color.png) no-repeat;
+}
+.social.email {
+    background: url(img/social_email_color.png) no-repeat;
 }
