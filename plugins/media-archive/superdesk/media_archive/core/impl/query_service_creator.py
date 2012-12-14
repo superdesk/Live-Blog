@@ -33,7 +33,7 @@ from ally.api.criteria import AsBoolean, AsLike, AsEqual, AsDate, AsDateTime, \
 from ally.support.sqlalchemy.mapper import mappingFor
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty
-from superdesk.media_archive.api.criteria import AsOperator
+from superdesk.media_archive.api.criteria import AsOperator, AsIn
 
 
 # --------------------------------------------------------------------
@@ -292,10 +292,10 @@ def buildPartialQuery(sqlQuery, query, mapped, queryClauses, andClauses=None, or
                     else: andClauses.append(column.ilike(crt.ilike))
             elif isinstance(crt, AsIn):
                     if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column.ilike(crt.ilike))
-                        elif crt.op == 'not': andClauses.append(not_(column.ilike(crt.ilike)))
-                        else: andClauses.append(column.ilike(crt.ilike))
-                    else: andClauses.append(column.ilike(crt.ilike))
+                        if crt.op == 'or': orClauses.append(column.in_(crt.values))
+                        elif crt.op == 'not': andClauses.append(not_(column.in_(crt.values)))
+                        else: andClauses.append(column.in_(crt.values))
+                    else: andClauses.append(column.in_(crt.values))
             elif isinstance(crt, AsEqual):
                 if AsEqual.equal in crt:
                     if isinstance(crt, AsOperator) and AsOperator.op in crt:

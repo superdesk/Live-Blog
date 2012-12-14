@@ -19,7 +19,7 @@ from datetime import datetime
 from superdesk.user.api.user import User
 from ally.api.authentication import auth
 from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, \
-    AsEqualExpressionOrdered, AsDateTimeExpressionOrdered
+    AsEqualExpressionOrdered, AsDateTimeExpressionOrdered, AsInExpressionOrdered
 
 # --------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ class QMetaData(QEntity):
     The query for he meta models.
     '''
     name = AsLikeExpressionOrdered
-    type = AsEqualExpressionOrdered
+    type = AsInExpressionOrdered
     sizeInBytes = AsEqualExpressionOrdered
     creator = AsEqualExpressionOrdered
     createdOn = AsDateTimeExpressionOrdered
