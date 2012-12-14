@@ -352,41 +352,6 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             '.ipp a': { 'click': 'switchPage' }
         }),
         
-//        popover: function(evt)
-//        {
-//            //first we detect collision
-//            //get main-content-inner width and left
-//            var mainContentInnerWidth = $(".main-content-inner").width();
-//            var mainContentInnerLeft = $(".main-content-inner").offset().left;
-//            //get button left
-//            var left = $(evt.currentTarget).offset().left;
-//            //calculate free space on right side
-//            var freeSpace = mainContentInnerWidth - (left-mainContentInnerLeft);
-//            //show popover with default effects
-//            $("#additionalInfo").popover({trigger:'manual'});
-//            $("#additionalInfo").popover('show');
-//            var collisionRadius = $(".popover.fade.right.in").outerWidth();
-//            if (freeSpace>collisionRadius) {
-//                //there is no collision - show popover on left side         
-//                var t = $(".popover.fade.left.in");
-//                t.removeClass('left');
-//                t.addClass('right');
-//            }
-//            else {
-//                //we have collision - show popover on left side
-//                var t = $(".popover.fade.right.in");
-//                var left = $(this).offset().left - t.outerWidth();
-//                t.removeClass('right');
-//                t.css("left",left+"px");
-//                t.addClass('left');
-//            }   
-//        },
-//        
-//        popoverleave: function()
-//        {
-//            $("#additionalInfo").popover('hide');
-//        },
-//        
         itemView: ItemView,
         tmpl: 'media-archive>list',
         itemsPlaceholder: '.main-content-inner',
