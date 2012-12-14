@@ -2,6 +2,9 @@ define('jquery/utils',['jquery'], function ($) {
 $.trimTag = function( tag, myString ) {
 	function recursiveTrim( tag, myString) {
 		function simpleTrim ( tag, myString ) {
+			if ( typeof myString != 'string') {
+				myString = '';
+			}
 			var slen = myString.length;
 			var tlen = tag.length;
 			if ( myString.indexOf(tag) === 0) {
@@ -106,5 +109,11 @@ $.styledNodeHtml = function(node)
     }
     return node.html();
 };
+$.socialShareWindow = function(url, height, width) {
+	var options = 'resizable, height='+height+',width='+width;
+	var socialShareWindow = window.open( url, 'Livedesk Social Share', options );
+	socialShareWindow.focus();
+	return false;
+}
 $.extend($.browser, {language: window.navigator.userLanguage || window.navigator.language});
 });
