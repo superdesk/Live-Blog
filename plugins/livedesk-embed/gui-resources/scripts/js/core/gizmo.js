@@ -688,7 +688,7 @@ define(['jquery', 'utils/class'], function($,Class)
             var self = this;
             return (this.href &&
                 this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
-                {					
+                {		
                     var attr = self.parseAttributes(data), 
                     	dataList = self.parse(data);
                     	list = self._parse(data), 

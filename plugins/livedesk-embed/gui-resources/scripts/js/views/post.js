@@ -95,7 +95,7 @@ define([
 					var aux = data.Meta.annotation;
 					data.Meta.annotation = {
 						'before': $.trimTag(['<br>', '<br />'], aux[0]), 
-						'after': $.trimTag(['<br>', '<br />'], aux[1]),
+						'after': $.trimTag(['<br>', '<br />'], aux[1])
 					}
 				} else {
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);

@@ -179,7 +179,7 @@ define([
 		addOne: function(model)
 		{
 			var self = this,
-				current = new PostView({model: model, _parent: self}),				    
+				current = new PostView({model: model, _parent: self}),
 				count = self._views.length;
 			model.postview = current;
 			current.order =  parseFloat(model.get('Order'));
@@ -288,7 +288,7 @@ define([
 				//.find('p').html(this.model.get('Description'));
 		},
 		toggleMoreVisibility: function()
-		{				
+		{	
 			if(this.model.get('PostPublished')._stats.offset >= this.model.get('PostPublished')._stats.total ) {
 				$('#loading-more',this.el).hide();
 			} else {
