@@ -110,8 +110,8 @@ define(['gizmo/superdesk'], function(Gizmo) {
         return (this.href &&
             this.syncAdapter.request.call(this.syncAdapter, this.href).read(arguments[0]).done(function(data)
             {					
-                var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length;
-                 // important or it will infiloop
+                var attr = self.parseAttributes(data), list = self._parse(data), changeset = [], removeings = [], updates = [], addings = [], count = self._list.length; 
+                // important or it will infiloop
                 for( var i=0; i < list.length; i++ )
                 {
                     var model = false;
