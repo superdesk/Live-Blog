@@ -1,0 +1,20 @@
+{+blogtype_item}
+{#BlogType}
+<li blogtypeid="{Id}">
+  <div class="blogtype-header">
+    <label class="radio">
+        <input type="radio" value="{Id}" name="blogtypeselection">
+    </label>
+    
+    <div class="tool-box-right">
+      <a class="tool-box-button" href="#"><i class="icon-remove"></i></a>
+      <a class="tool-box-button" name="openmodal" href="#"><i class="icon-pencil"></i></a>
+    </div>
+    <h3>{Name}</h3>
+  </div>
+  <div class="blogtype-content">
+    <h4>_("Blog Posts");</h4>
+  </div>
+</li>
+{/BlogType}
+{/blogtype_item}

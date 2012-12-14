@@ -1,11 +1,11 @@
-define(['gizmo/superdesk', config.guiJs('livedesk', 'models/post')], 
-function(giz, Post)
-{
-    return giz.Collection.extend(
-	{ 
+define(['gizmo/superdesk', 
+    config.guiJs('livedesk', 'models/post')
+], function( Gizmo, Post ) {
+
+    return Gizmo.Collection.extend({ 
 		model: Post,
-		insertSync: function()
-		{
+		insertSync: function() {
+            
             this.desynced = false;
             if( !(model instanceof Model) ) model = this.modelDataBuild(new this.model(model));
             this._list.push(model);
@@ -13,5 +13,5 @@ function(giz, Post)
             model.sync(this.href);
             return model;
 		}		
-	});
+	}, { register: 'Posts' });
 });
