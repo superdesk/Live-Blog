@@ -117,7 +117,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
-        return self._trimmDeleted(sql.all())
+        return sql.all()
 
     def getAll(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
         '''
@@ -286,7 +286,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if authorId:
             sql = sql.filter((BlogPostMapped.Author == authorId) |
                              ((CollaboratorMapped.Id == authorId) &
-                              (CollaboratorMapped.Person == BlogPostMapped.Creator)))
+                              (CollaboratorMapped.User == BlogPostMapped.Creator)))
 
         return sql
 
@@ -300,6 +300,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
                 trimmed = BlogPost()
                 trimmed.Id = post.Id
                 trimmed.CId = post.CId
+                trimmed.IsPublished = post.IsPublished
                 trimmed.DeletedOn = post.DeletedOn
                 yield trimmed
             else:

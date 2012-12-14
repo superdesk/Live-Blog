@@ -83,11 +83,12 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         '''
         assert isinstance(metaData, MetaDataMapped), 'Invalid meta data %s' % metaData
         metaData.Content = self.cdmArchive.getURI(metaData.content, scheme)
+        
         return self.thumbnailManager.populate(metaData, scheme, thumbSize)
 
     # ----------------------------------------------------------------
 
-    def insert(self, userId, content):
+    def insert(self, userId, content, scheme, thumbSize=None):
         '''
         @see: IMetaDataService.insert
         '''
@@ -98,7 +99,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         metaData.CreatedOn = current_timestamp()
         metaData.Creator = userId
         metaData.Name = content.name
-
+        
         metaData.typeId = self._metaType.Id
         metaData.thumbnailFormatId = self._thumbnailFormat.id
 
@@ -128,8 +129,8 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
 
         if metaData.content != path:
             self.cdmArchive.republish(path, metaData.content)
-
-        return metaData.Id
+        
+        return self.getById(metaData.Id, scheme, thumbSize)
 
     # ----------------------------------------------------------------
 

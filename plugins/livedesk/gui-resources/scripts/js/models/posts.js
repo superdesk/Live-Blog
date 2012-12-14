@@ -3,7 +3,7 @@ define(['gizmo/superdesk',
 ], function( Gizmo, Post ) {
 
     return Gizmo.Collection.extend({ 
-		model: Post,
+		model: Gizmo.Register.Post,
 		insertSync: function() {
             
             this.desynced = false;

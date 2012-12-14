@@ -1,16 +1,17 @@
 {#User}
 	<td>
 		<a name="{href}" />
-		{Id}
+		{Id} {x|s}
 	</td>
 	<td>{FirstName}</td>
 	<td>{LastName}</td>
 	<td>{Name}</td>
 	<td>{EMail}</td>
+	<td>{CreatedOn}</td>
 	<td>    
-		<div class="btn-group">
+		<span class="btn-group">
     		<button class="btn edit">_('Edit')</button>
     		<button class="btn btn-danger delete">_('Delete')</button>
-    	</div>
+    	</span>
     </td>
 {/User}
