@@ -75,6 +75,8 @@ SOURCES = {
            'twitter': (False, 'www.twitter.com', 'xml'),
            'flickr': (False, 'www.flickr.com', 'xml'),
            'youtube': (False, 'www.youtube.com', 'xml'),
+           'instagram': (False, 'www.instagram.com', 'xml'),
+           'soundcloud': (False, 'www.soundcloud.com', 'xml'),
            }
 
 _cache_sources = {}
@@ -200,6 +202,8 @@ COLLABORATORS = {
                  'twitter': 'twitter',
                  'flickr': 'flickr',
                  'youtube': 'youtube',
+                 'instagram': 'instagram',
+                 'soundcloud': 'soundcloud'
                  }
 
 _cache_collaborators = {}
@@ -227,9 +231,6 @@ def getCollaboratorsIds():
 BLOG_COLLABORATORS = {
                       'User1': 'GEN Live Desk Master Class',
                       'User2': 'GEN Live Desk Master Class',
-                      'User3': 'GEN Live Desk Master Class',
-                      'User4': 'GEN Live Desk Master Class',
-                      'User5': 'GEN Live Desk Master Class',
                      }
 
 def createBlogCollaborators():
@@ -279,7 +280,7 @@ def createPostType(key):
 
 
 POSTS = [
-		 ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'Hello world!'),
+     ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'Hello world!'),
          ('GEN Live Desk Master Class', 'quote', 'User2', 'User2', 'GEN Live Desk is a next-generation '
           'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
          ('GEN Live Desk Master Class', 'normal', 'User3', 'User3', 'GEN Live Desk is free to download, '
