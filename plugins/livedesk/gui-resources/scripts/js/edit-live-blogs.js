@@ -133,14 +133,15 @@ function(providers, Gizmo, $)
 		({
 			_timeInterval: 10000,
 			_idInterval: 0,
-			_stats: { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 },
+			_stats: {},
 			/*!
 			 * for auto refresh
 			 */
 			keep: false,
 			init: function(){ 
 				var self = this;
-				self.model.on('publish reorder', function(evt, post){
+				self._stats = { limit: 15, offset: 0, lastCId: 0, fistOrder: Infinity, total: 0 };
+				self.model.on('unpublish publish reorder', function(evt, post){
 					if((self._stats.lastCId + 1) === parseInt(post.get('CId')))
 						self._stats.lastCId++;
 				});
@@ -152,7 +153,7 @@ function(providers, Gizmo, $)
 					attr.lastCId = parseInt(attr.lastCId);
 					if(attr.lastCId > self._stats.lastCId)
 						self._stats.lastCId = attr.lastCId;
-				}).on('readauto updateauto update',function(evt, data)
+				}).on('readauto updateauto update removeingsauto',function(evt, data)
 				{
 					self.getLastCid(data);
 					self.getFirstOrder(data);
@@ -193,7 +194,7 @@ function(providers, Gizmo, $)
 			},
 			start: function()
 			{
-				var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers: { 'X-Filter': 'CId, Order'}};
+				var self = this, requestOptions = {data: {'cId.since': this._stats.lastCId, 'order.start': this._stats.fistOrder }, headers: { 'X-Filter': 'CId, Order, IsPublished'}};
 				if(self._stats.lastCId === 0) delete requestOptions.data;
 				if(!this.keep && self.view && !self.view.checkElement()) 
 				{
@@ -250,7 +251,12 @@ function(providers, Gizmo, $)
                             }
 						}
                         if( !model ) {
-                            if( !list[i].isDeleted() ) {
+							if(self.isCollectionDeleted(list[i])) {
+                                if( self.hasEvent('removeingsauto') ) {
+                                    removeings.push(list[i]);
+                                }
+
+                            } else if( !list[i].isDeleted() ) {
 								self._list.push(list[i]);
 								changeset.push(list[i]);
                                 if( self.hasEvent('addingsauto') ) {
@@ -320,7 +326,20 @@ function(providers, Gizmo, $)
 		TimelineCollection = AutoCollection.extend
 		({
 			model: Gizmo.Register.Post,
-			href: new Gizmo.Url('/Post/Published')
+			href: new Gizmo.Url('/Post/Published'),
+			parse: function(data) {
+				if(data.total)
+					if(data.offsetMore !== data.total) {
+						this._stats.offsetMore = data.offsetMore;					
+				}
+				if(data.PostList)
+					return data.PostList;
+				return data;
+			},
+			isCollectionDeleted: function(model)
+	        {
+	        	return model.get('IsPublished') === 'True'? false : true;
+	        }	
 		}),
 		
 		/*!
@@ -341,7 +360,7 @@ function(providers, Gizmo, $)
 				var self = this;
 				self.el.data('view', self);
 				self.xfilter = 'DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id';
+								   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, IsPublished';
 				this.model
 				    .on('delete', this.remove, this)
 				    .on('unpublish', this.remove, this)
@@ -584,7 +603,6 @@ function(providers, Gizmo, $)
 			init: function()
 			{
 				var self = this;
-				self._latest = undefined;
 				self._views = [];
 				self.moreHidden = false;
 				self.collection.model.on('publish', function(evt, model){
@@ -602,6 +620,7 @@ function(providers, Gizmo, $)
 						self.addAll(data);
 						self.toggleMoreVisibility();
 					})
+					.on('removeingsauto', self.removeAllAutoupdate, self)
 					.xfilter(self.xfilter)
 					.limit(self.collection._stats.limit)
 					.offset(self.collection._stats.offset)
@@ -690,15 +709,18 @@ function(providers, Gizmo, $)
 						prev.next = current;
 						current.prev = prev;
 						self._views.splice(prevIndex+1, 0, current);
-					}
-					
-					/*current.next = this._latest;
-					if( this._latest !== undefined )
-						this._latest.prev = current;
-					this._latest = current;
-					*/					
+					}				
 				}
 				$(current).on('render', function(){ self.autorefreshHandle.call(self, current.el.outerHeight(true)); });
+			},
+			removeAllAutoupdate: function(evt, data)
+			{
+				var self = this;
+				for( var i = 0, count = data.length; i < count; i++ ) {
+					if(data[i].postview) {
+						data[i].postview.remove();
+					}
+				}
 			},
 			addAll: function(data)
 			{
@@ -1074,6 +1096,18 @@ function(providers, Gizmo, $)
 					event.preventDefault();
 					var blogHref = $(this).attr('href')
 					$.superdesk.getAction('modules.livedesk.configure')
+					.done(function(action)
+					{
+						action.ScriptPath && 
+							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+					});
+				})
+				.off(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
+				.on(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]', function(event)
+				{
+					event.preventDefault();
+					var blogHref = $(this).attr('href')
+					$.superdesk.getAction('modules.livedesk.manage-collaborators')
 					.done(function(action)
 					{
 						action.ScriptPath && 

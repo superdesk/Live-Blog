@@ -1,0 +1,127 @@
+              <div style="margin-bottom:40px;" class="collaborators-row">
+                
+                  <div class="colaborator-title">External collaborators</div>
+                  <a href="#addCollaborator" data-toggle="modal" class="btn pull-right plain-table-button"><i class="icon-plus-sign"></i> Add new</a>
+
+                  <ul class="plain-table">
+                    <li>
+                      
+                      <figure><img width="22" height="22" src="img/avatar_default_collaborator.png"></figure>
+                      <a href="#editCollaborator" data-toggle="modal" class="collaborator-name-large">Ana Nedic</a><span>Tageswoche</span>
+                      <div class="table-buttons">
+                        <a title="edit collaborator" href="#editCollaborator" data-toggle="modal"><i class="icon-pencil"></i></a>
+                        <a title="delete collaborator" data="delete_external_collaborator" href="#"><i class="icon-remove"></i></a>
+                      </div>
+                       <div class="dropdown dropdown-simple">
+                          <a data-toggle="dropdown" class="dropdown-toggle" href="#">View only <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right">
+                              <li><a href="#">View only</a></li>
+                              <li><a href="#">Edit</a></li>
+                              <li><a href="#">Publish</a></li>
+                              <li><a href="#">Admin</a></li>
+                        </ul>
+                      </div>
+                      
+                    </li>
+
+                    <li>
+                      
+                      <figure><img width="22" height="22" src="img/avatar_default_collaborator.png"></figure>
+                      <a href="#editCollaborator" data-toggle="modal" class="collaborator-name-large">Billy Bragg</a><span>Reuters</span>
+                      <div class="table-buttons">
+                        <a title="edit collaborator" href="#editCollaborator" data-toggle="modal"><i class="icon-pencil"></i></a>
+                        <a title="delete collaborator" data="delete_external_collaborator" href="#"><i class="icon-remove"></i></a>
+                      </div>
+                       <div class="dropdown dropdown-simple">
+                          <a data-toggle="dropdown" class="dropdown-toggle" href="#">View only <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right">
+                              <li><a href="#">View only</a></li>
+                              <li><a href="#">Edit</a></li>
+                              <li><a href="#">Publish</a></li>
+                              <li><a href="#">Admin</a></li>
+                        </ul>
+                      </div>
+                    </li>
+
+                    <li>
+                     
+                      <figure><img width="22" height="22" src="img/avatar_default_collaborator.png"></figure>
+                      <a href="#editCollaborator" data-toggle="modal" class="collaborator-name-large">Majed Abusalama</a><span>Deutsche Welle</span>
+                      <div class="table-buttons">
+                        <a title="edit collaborator" href="#editCollaborator" data-toggle="modal"><i class="icon-pencil"></i></a>
+                        <a title="delete collaborator" data="delete_external_collaborator" href="#"><i class="icon-remove"></i></a>
+                      </div>
+                       <div class="dropdown dropdown-simple">
+                          <a data-toggle="dropdown" class="dropdown-toggle" href="#">View only <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right">
+                              <li><a href="#">View only</a></li>
+                              <li><a href="#">Edit</a></li>
+                              <li><a href="#">Publish</a></li>
+                              <li><a href="#">Admin</a></li>
+                        </ul>
+                      </div>
+                    </li>
+
+                    <li>
+                     
+                      <figure><img width="22" height="22" src="img/avatar_default_collaborator.png"></figure>
+                      <a href="#editCollaborator" data-toggle="modal" class="collaborator-name-large">Matina Stevis</a><span>WSJ</span>
+                      <div class="table-buttons">
+                        <a title="edit collaborator" href="#editCollaborator" data-toggle="modal"><i class="icon-pencil"></i></a>
+                        <a title="delete collaborator" data="delete_external_collaborator" href="#"><i class="icon-remove"></i></a>
+                      </div>
+                       <div class="dropdown dropdown-simple">
+                          <a data-toggle="dropdown" class="dropdown-toggle" href="#">View only <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right">
+                              <li><a href="#">View only</a></li>
+                              <li><a href="#">Edit</a></li>
+                              <li><a href="#">Publish</a></li>
+                              <li><a href="#">Admin</a></li>
+                        </ul>
+                      </div>
+                    </li>
+
+                    <li>
+                     
+                      <figure><img width="22" height="22" src="img/avatar_default_collaborator.png"></figure>
+                      <a href="#editCollaborator" data-toggle="modal" class="collaborator-name-large">Paco González</a><span>Telecinco</span>
+                      <div class="table-buttons">
+                        <a title="edit collaborator" href="#editCollaborator" data-toggle="modal"><i class="icon-pencil"></i></a>
+                        <a title="delete collaborator" data="delete_external_collaborator" href="#"><i class="icon-remove"></i></a>
+                      </div>
+                       <div class="dropdown dropdown-simple">
+                          <a data-toggle="dropdown" class="dropdown-toggle" href="#">View only <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right">
+                              <li><a href="#">View only</a></li>
+                              <li><a href="#">Edit</a></li>
+                              <li><a href="#">Publish</a></li>
+                              <li><a href="#">Admin</a></li>
+                        </ul>
+                      </div>
+                    </li>
+
+                    <li>
+                     
+                      <figure><img width="22" height="22" src="img/avatar_default_collaborator.png"></figure>
+                      <a href="#editCollaborator" data-toggle="modal" class="collaborator-name-large">April O'Neil</a><span>Channel 6</span>
+                      <div class="table-buttons">
+                        <a title="edit collaborator" href="#editCollaborator" data-toggle="modal"><i class="icon-pencil"></i></a>
+                        <a title="delete collaborator" data="delete_external_collaborator" href="#"><i class="icon-remove"></i></a>
+                      </div>
+                       <div class="dropdown dropdown-simple">
+                          <a data-toggle="dropdown" class="dropdown-toggle" href="#">View only <b class="caret"></b></a>
+                          <ul class="dropdown-menu bottom-up pull-right">
+                              <li><a href="#">View only</a></li>
+                              <li><a href="#">Edit</a></li>
+                              <li><a href="#">Publish</a></li>
+                              <li><a href="#">Admin</a></li>
+                        </ul>
+                      </div>
+                    </li>
+
+
+
+
+                  </ul>         
+
+              </div>

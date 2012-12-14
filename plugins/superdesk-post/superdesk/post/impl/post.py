@@ -29,7 +29,7 @@ from sqlalchemy.sql.functions import current_timestamp
 
 # --------------------------------------------------------------------
 
-COPY_EXCLUDE = ('Type', 'IsModified', 'AuthorName')
+COPY_EXCLUDE = ('Type', 'IsModified', 'IsPublished', 'AuthorName')
 
 @injected
 @setup(IPostService)

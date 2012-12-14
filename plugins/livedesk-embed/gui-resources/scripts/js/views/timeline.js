@@ -93,7 +93,7 @@ define([
 			if($.type(self.url) === 'string')
 				self.model = new Gizmo.Register.Blog(self.url.replace('my/',''));				
 			self.xfilter = 'PublishedOn, DeletedOn, Order, Id, CId, Content, CreatedOn, Type, AuthorName, Author.Source.Name, Author.Source.Id, IsModified, ' +
-							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
+							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta, IsPublished';
 			//self.xfilter = 'CId';								   
 			self.model.on('read', function()
 			{
@@ -106,6 +106,7 @@ define([
 							.on('addings', self.addAll, self)
 							.on('addingsauto',self.addAllAutoupdate, self)
 							//.on('addingsauto', self.updateTotal, self)
+							.on('removeingsauto', self.removeAllAutoupdate, self)
 							.on('updatesauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
@@ -224,6 +225,15 @@ define([
 				$("#liveblog-status-count",this.el).text(_('%(count)s new posts').format( { count: this.pendingAutoupdates.length})).show();
 			} else {
 				$("#liveblog-status-count",this.el).hide();
+			}
+		},
+		removeAllAutoupdate: function(evt, data)
+		{
+			var self = this;
+			for( var i = 0, count = data.length; i < count; i++ ) {
+				if(data[i].postview) {
+					data[i].postview.remove();
+				}
 			}
 		},
 		addAllAutoupdate: function(evt, data)
