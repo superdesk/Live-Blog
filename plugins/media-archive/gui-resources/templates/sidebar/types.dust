@@ -13,7 +13,7 @@
 		<div id="open-filter" class="open-filter-button"></div>
 		<ul id="MAFilterResults" class="filter-list hide" style="position: absolute; top: 24px;"></ul>
 		<div class="filter-value-container"></div>
-		<button data-action="save-filter" type="submit">save filter</button>
+		<button data-action="save-filter" class="btn btn-mini" type="submit" style="margin-top:5px;">save filter</button>
 		<ul id="tag-container" class="tag-container clearfix"></ul>
 	</div>
 </form>
