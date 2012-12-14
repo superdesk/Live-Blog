@@ -104,7 +104,6 @@ define([
 							.on('read readauto', self.render, self)
 							.on('addings', self.addAll, self)
 							.on('addingsauto',self.addAllAutoupdate, self)
-							//.on('addingsauto', self.updateTotal, self)
 							.on('removeingsauto', self.removeAllAutoupdate, self)
 							.on('updatesauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
@@ -211,14 +210,6 @@ define([
 				}
 			}
 			return current;
-		},
-		updateTotal: function(evt,data)
-		{
-			var i = data.length;
-			while(i--) {
-					this.model.get('PostPublished').total++;
-			}
-			//console.log('total: ',this.model.get('PostPublished').total);
 		},
 		toggleStatusCount: function()
 		{
