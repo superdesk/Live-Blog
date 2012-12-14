@@ -109,7 +109,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         if adminId:
             userFilter = (BlogMapped.Creator == adminId) | exists().where((AdminEntry.adminId == adminId) & (AdminEntry.Blog == BlogMapped.Id))
         if collaboratorId:
-            userFilter |= exists().where((CollaboratorMapped.Person == collaboratorId) \
+            userFilter |= exists().where((CollaboratorMapped.User == collaboratorId) \
                                          & (BlogCollaboratorMapped.blogCollaboratorId == CollaboratorMapped.Id) \
                                          & (BlogCollaboratorMapped.Blog == BlogMapped.Id))
         if userFilter is not None: sql = sql.filter(userFilter)

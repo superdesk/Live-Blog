@@ -6,9 +6,11 @@ define([
 	'tmpl!theme/item/base',
 	'tmpl!theme/item/item',
 	'tmpl!theme/item/annotated',
+	'tmpl!theme/item/social-share',
 	'tmpl!theme/item/posttype/normal',
 	'tmpl!theme/item/posttype/wrapup',
 	'tmpl!theme/item/posttype/quote',
+	'tmpl!theme/item/posttype/link',
 	'tmpl!theme/item/source/advertisement',	
 	'tmpl!theme/item/source/google',
 	'tmpl!theme/item/source/twitter',
@@ -25,6 +27,7 @@ define([
 							   'AuthorPerson.EMail, AuthorPerson.FirstName, AuthorPerson.LastName, AuthorPerson.Id, Meta';
 					self.model
 							.on('read update', function(evt, data){
+
 									//console.log('this.data: ',$.extend({},this.data), ' is only:' ,isOnly(this.data, ['CId','Order']));
 									/*if(isOnly(this.data, ['CId','Order']) || isOnly(data, ['CId','Order'])) {
 											console.log('this.data: ',$.extend({},this.data));
@@ -41,7 +44,7 @@ define([
 							.xfilter(self.xfilter)
 							.sync();
 		},
-		remove: function()
+		remove: function(evt)
 		{
 			var self = this;
 			self._parent.removeOne(self);
@@ -71,9 +74,15 @@ define([
 				item.nextUntil('.wrapup').show();
 			}
 		},		
-		render: function()
+		render: function(evt, data)
 		{
-			var self = this, data = self.model.feed();
+			var self = this, 
+				data = self.model.feed(),
+				order = parseFloat(self.model.get('Order'));
+			if ( !isNaN(self.order) && (order != self.order)) {
+				self.order = order;
+				self._parent.reorderOne(self);
+			}
 			data.HashIdentifier = self._parent.hashIdentifier;
 			if(data.Meta) {
 
@@ -87,7 +96,7 @@ define([
 					var aux = data.Meta.annotation;
 					data.Meta.annotation = {
 						'before': $.trimTag(['<br>', '<br />'], aux[0]), 
-						'after': $.trimTag(['<br>', '<br />'], aux[1]),
+						'after': $.trimTag(['<br>', '<br />'], aux[1])
 					}
 				} else {
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
@@ -119,9 +128,61 @@ define([
 					});
 					$('.big-toggle', self.el).off( self.getEvent('click') ).on(self.getEvent('click'), function(){
 						self.toggleWrap(this, true);
-					});					
+					});
+
+					var li = $('.result-header', self.el).parent();
+					li.hover(function(){
+						//hover in
+					}, function(){
+						$(this).find('.share-box').fadeOut(100);
+					});
+
+					var sharelink = $('.sf-share', self.el);
+					sharelink.on(self.getEvent('click'), function(){
+						var share = $(this);
+						var added = share.attr('data-added');
+						if ( added != 'yes') {
+							var myPerm = escape(data.permalink);
+							var imgsrc = $('.result-content img:first', self.el).attr('src');
+							var pinurl = "http://pinterest.com/pin/create/button/?url=" + myPerm + "&media=" + imgsrc + "&description=";
+							var gglurl = "https://plus.google.com/share?url=" + myPerm + "&t=";
+							var emailurl = "mailto:?to=&subject=&body=" + myPerm;
+							var socialParams = {
+								'fbclick': "$.socialShareWindow('http://facebook.com/share.php?u=" + myPerm + "',400,570); return false;",
+								'twtclick': "$.socialShareWindow('http://twitter.com/home?status=Reading:" + myPerm + "',400,570); return false;",
+								'linclick': "$.socialShareWindow('http://www.linkedin.com/shareArticle?mini=true&url=" + myPerm + "', 400, 570); return false;",
+								'pinclick': "$.socialShareWindow('" + pinurl + "', 400, 700); return false;",
+								'gglclick': "$.socialShareWindow('" + gglurl + "', 400, 570); return false;",
+								'emailclick': "$.socialShareWindow('" + emailurl + "', 1024, 768); return false;",
+								'emailurl': emailurl
+							}
+							$.tmpl('theme/item/social-share', socialParams, function(e, o){
+								share.after(o);
+								share.attr('data-added', 'yes');	
+							});
+						}
+						
+						$(this).next('.share-box').toggle();
+					})
 				}
 			});
+			setTimeout(function(){
+				/*
+				$.tmpl('theme/item/social-share', {'permalink': data.permalink}, function(e, o){
+					$('.sf-share[data-shared!="yes"]').on('click', function(){
+						var share = $(this);
+						var added = share.attr('data-added');
+						if ( added != 'yes') {
+							var url = share.attr('data-added');
+							share.after(o);
+							share.attr('data-added', 'yes');
+						}
+						$(this).next('.share-box').toggle();
+					});
+				});	
+				*/
+			});
+					
 		}
 	});
 });

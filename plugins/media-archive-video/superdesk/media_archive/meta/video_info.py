@@ -9,12 +9,12 @@ Created on Aug 23, 2012
 Contains the SQL alchemy meta for media video info API.
 '''
 
-from ..api.video_info import VideoInfo
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String
 from superdesk.media_archive.meta.meta_info import MetaInfoMapped
 from sqlalchemy.ext.declarative import declared_attr
 from superdesk.meta.metadata_superdesk import Base
+from superdesk.media_archive.api.video_info import VideoInfo
 
 # --------------------------------------------------------------------
 
