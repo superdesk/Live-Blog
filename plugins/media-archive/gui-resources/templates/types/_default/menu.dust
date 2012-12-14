@@ -3,10 +3,7 @@
   		<a data-action="view" class="viewDetails" href="javascript:void(0)"><i class="icon-eye-open"></i> _('View details')</a>
   	</li>
 	<li>
-		<a data-action="edit" href="javascript:void(0)"><i class="icon-pencil"></i> _('Edit')</a>
-	</li>
-	<li>
-		<a data-action="edit-metadata" href="javascript:void(0)"><i class="icon-list-alt"></i> _('Edit metadata')</a>
+		<a data-action="edit" href="javascript:void(0)"><i class="icon-list-alt"></i> _('Edit metadata')</a>
 	</li>
     <li>
     	<a data-action="download" href="javascript:void(0)"><i class="icon-download-alt"></i> _('Download')</a>
