@@ -1,0 +1,5 @@
+<ul class="posts">
+	{#PostPosts}
+	<li>{Content}</li>
+	{/PostPosts}
+</ul>
