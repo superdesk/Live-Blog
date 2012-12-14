@@ -1,5 +1,5 @@
 {>"theme/item/base"/}
-{<class}youtubeservice{/class}
+{<item_class}youtubeservice{/item_class}
 
 {<body_top}{?Meta.annotation.before}<div class="editable annotation">{Meta.annotation.before|s}</div>{/Meta.annotation.before}{/body_top}
 {<body_content}
