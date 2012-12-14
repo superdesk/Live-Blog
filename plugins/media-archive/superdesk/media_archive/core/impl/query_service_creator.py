@@ -135,7 +135,7 @@ class QueryServiceAlchemy(SessionSupport):
 
     # --------------------------------------------------------------------
 
-    def getMetaInfos(self, scheme, offset=None, limit=1000, all=None, qi=None, qd=None, thumbSize=None):
+    def getMetaInfos(self, scheme, offset=None, limit=1000, qa=None, qi=None, qd=None, thumbSize=None):
         '''
         Provides the meta data based on unified multi-plugin criteria.
         '''
@@ -145,8 +145,15 @@ class QueryServiceAlchemy(SessionSupport):
 
         queryClauses = list()
 
-        if all is not None:
-            pass
+        if qa is not None:
+            print ('\ninclude: ')
+            for value in qa.all.inc: print(value)
+
+            print ('\nextend: ')
+            for value in qa.all.ext: print(value)
+
+            print ('\nexclude: ')
+            for value in qa.all.exc: print(value)
 
         if qi is not None:
             assert isinstance(qi, self.QMetaInfo), 'Invalid query %s' % qi
