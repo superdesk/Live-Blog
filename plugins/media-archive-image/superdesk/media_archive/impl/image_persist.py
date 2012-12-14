@@ -9,9 +9,6 @@ Created on Apr 25, 2012
 Implementation for the image persistence API.
 '''
 
-from ..core.spec import IThumbnailManager
-from ..meta.image_data import ImageDataEntry
-from ..meta.meta_data import MetaDataMapped
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -21,12 +18,15 @@ from ally.support.util_sys import pythonPath
 from datetime import datetime
 from os.path import join, splitext, abspath
 from sqlalchemy.exc import SQLAlchemyError
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
-from superdesk.media_archive.core.spec import IMetaDataHandler
-from superdesk.media_archive.meta.image_data import META_TYPE_KEY
+from superdesk.media_archive.core.spec import IMetaDataHandler,\
+    IThumbnailManager
 import re
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
+from superdesk.media_archive.meta.image_data import META_TYPE_KEY,\
+    ImageDataEntry
 
 # --------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ class ImagePersistanceAlchemy(SessionSupport, IMetaDataHandler):
         assert isinstance(metaDataMapped, MetaDataMapped), 'Invalid meta data mapped %s' % metaDataMapped
 
         p = Popen([join(self.metadata_extractor_path, 'bin', 'exiv2.exe'), contentPath],
-                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                  stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         result = p.wait()
         # 253 is the exiv2 code for error: No Exif data found in the file
         if result != 0 and result != 253: return False

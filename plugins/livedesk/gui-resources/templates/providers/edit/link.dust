@@ -1,0 +1,16 @@
+	<div>{url}</div>
+	<div class="link-preview">
+		<figure class="link-thumbnail"> 
+			<img src="{thumbnail}">
+		</figure>
+
+		<p><h3 class="linkpost-editable"><a href="{url}">{title}</a></h3></p>
+		<p class="result-text linkpost-editable">{description}</p>
+		<p class="attributes">
+			<i class="source-icon">
+				<img src="{favicon}" style="max-width: 16px" border="0">
+			</i>
+			<a href="{url}" class="source-link" target="_blank">{title}</a>
+		</p>
+
+	</div>

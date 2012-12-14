@@ -16,6 +16,7 @@ function(Gizmo, User, Language, Posts, Collaborators, Admins)
             Creator: User,
             Language: Language,
             Collaborator: Collaborators,
+            CollaboratorPotential: Collaborators,
             Admin: Admins,
             Post: Posts,
             PostPublished: Posts,
@@ -29,7 +30,7 @@ function(Gizmo, User, Language, Posts, Collaborators, Admins)
                 { 
                     return self.syncAdapter.request.apply(self.syncAdapter, arguments); 
                 },
-                ret = dataAdapter(putLiveHref).update();
+                ret = dataAdapter(putLiveHref).update({});
             this.triggerHandler('putlive');
             return ret;
         }
