@@ -4,7 +4,7 @@
 		data-action="add-media"> <span class="media-archive-icon-add"></span>_('Add Media')</a>
   	<div class="searchbar-container">
     	<input type="text" name="search" />
-    	<button data-action="search" class="pull-right">_('Search')</button>
+    	<button data-action="search" class="btn pull-right">_('Search')</button>
     </div>
 </div>
   
