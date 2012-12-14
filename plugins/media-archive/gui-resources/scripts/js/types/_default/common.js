@@ -8,7 +8,9 @@ define
     'tmpl!media-archive>types/_default/menu', // list/grid item context menu
     'tmpl!media-archive>types/_default/view', 
     'tmpl!media-archive>types/_default/edit',
-    'tmpl!media-archive>types/_default/languages'
+    'tmpl!media-archive>types/_default/languages',
+    'tmpl!media-archive>types/_default/grid-hover',
+    'tmpl!media-archive>types/_default/list-hover'
 ],
 function($, superdesk, giz, MetaInfo, Languages)
 {
@@ -39,6 +41,7 @@ function($, superdesk, giz, MetaInfo, Languages)
      * we're using this to generate the same tpl for language editing
      */
     LangEditView = new LanguagesEditView,
+    
     /*!
      * view item view
      */
@@ -279,6 +282,100 @@ function($, superdesk, giz, MetaInfo, Languages)
         }
     }),
     
+    HoverMenuView = giz.View.extend
+    ({
+        events: 
+        {
+            '[data-action="view"]': { 'click': 'viewDetails' },
+            '[data-action="edit"]': { 'click': 'edit' },
+            '[data-action="download"]': { 'click': 'download' },
+            '[data-action="delete"]': { 'click': 'remove' },
+            '.media-box-button.top.right' : { 'mouseenter': 'popover' },
+            '.media-box-button.top.right' : { 'mouseleave': 'popoverHide' }
+        },
+        tmpl: 'media-archive>types/_default/grid-hover',
+        render: function(data, tmpl)
+        {
+            $(this.el).tmpl(tmpl || this.tmpl, data);
+            return this;
+        },
+        show: function(item)
+        {
+            this.currentItem = item;
+            // TODO this is wrong
+            var box = $(item.el).find('div:eq(0)');
+            $(this.el).appendTo(box.parents().eq(1));
+            
+            boxPosition = box.offset();
+            $(this.el).removeClass('hide').offset({top: boxPosition.top-8, left : boxPosition.left-8});
+            
+            // get main-content-inner width and left
+            var mainContentInnerWidth = $(item.el).parents().eq(1).width();
+            var mainContentInnerLeft = $(item.el).parents().eq(1).offset().left;
+             
+            var bottommenu = $(this.el).find("div.media-box-button.bottom.right");
+            //get menu left attr
+            var left = bottommenu.offset().left;
+            //calculate free space on right side
+            var freeSpace = mainContentInnerWidth - (left-mainContentInnerLeft);
+            var collisionRadius = bottommenu.find("ul.nav.nav-pills > li > ul").outerWidth();
+
+            if (freeSpace<collisionRadius) 
+                bottommenu.find("ul.nav.nav-pills > li").addClass("pull-right");
+            else 
+                bottommenu.find("ul.nav.nav-pills > li").removeClass("pull-right");
+            
+        },
+        hide: function()
+        {
+            $(this).addClass('hide');
+        },
+        
+        popover: function(evt)
+        {
+            //first we detect collision
+            //get main-content-inner width and left
+            var mainContentInnerWidth = $(this.currentItem).parents().eq(1).width();
+            var mainContentInnerLeft = $(this.currentItem).parents().eq(1).offset().left;
+            //get button left
+            var left = $(evt.currentTarget).offset().left;
+            //calculate free space on right side
+            var freeSpace = mainContentInnerWidth - (left-mainContentInnerLeft);
+            //show popover with default effects
+            $("#additionalInfo", this.el).popover({trigger:'manual'});
+            $("#additionalInfo", this.el).popover('show');
+            var collisionRadius = $(".popover.fade.right.in", this.el).outerWidth();
+            if (freeSpace>collisionRadius) {
+                //there is no collision - show popover on left side         
+                var t = $(".popover.fade.left.in", this.el);
+                t.removeClass('left');
+                t.addClass('right');
+            }
+            else {
+                //we have collision - show popover on left side
+                var t = $(".popover.fade.right.in", this.el);
+                var left = $(this).offset().left - t.outerWidth();
+                t.removeClass('right');
+                t.css("left",left+"px");
+                t.addClass('left');
+            }   
+        },
+        
+        popoverHide: function()
+        {
+            $("#additionalInfo", this.el).popover('hide');
+        },
+
+        
+        viewDetails: function(){ this.currentItem.viewDetails.call(this.currentItem); },
+        edit: function(){ this.currentItem.edit.call(this.currentItem); },
+        download: function(){ this.currentItem.download.call(this.currentItem); },
+        remove: function(){ this.currentItem.remove.call(this.currentItem); }
+        
+    }),
+    
+    HoverMenu = new HoverMenuView,
+    
     /*!
      * list item
      */
@@ -289,8 +386,12 @@ function($, superdesk, giz, MetaInfo, Languages)
             '[data-action="view"]': { 'click': 'viewDetails' },
             '[data-action="edit"]': { 'click': 'edit' },
             '[data-action="download"]': { 'click': 'download' },
-            '[data-action="delete"]': { 'click': 'remove' }
+            '[data-action="delete"]': { 'click': 'remove' },
+            '': { 'mouseenter': 'hoverView', 'mouseleave': 'hoverViewOut' }
         },
+        
+        hoverViewOut: function(){ HoverMenu.hide(); },
+        hoverView: function(){ HoverMenu.render(this._getData(), this.hoverTmpl).show(this); },
         
         // view modal
         
@@ -321,10 +422,7 @@ function($, superdesk, giz, MetaInfo, Languages)
          */
         edit: function()
         {
-            var e = this.getEdit(),
-                v = this.viewDetailsView;
-            (!v || !v.modalState) && e.refresh();
-            e.activate();
+            this.getEdit().refresh().activate();
         },
         
         download: function(){},
@@ -337,16 +435,20 @@ function($, superdesk, giz, MetaInfo, Languages)
         model: null,
         tagName: 'div',
         
-        render: function()
+        _getData: function()
         {
-            var self = this,
-                data = this.model.feed();
+            var data = this.model.feed();
             data.Content = function(chk, ctx)
             {
                 return data.Thumbnail && data.Thumbnail.href ? '<img src="'+data.Thumbnail.href+'" />' : '';
             };
+            return data;
+        },
+        render: function()
+        {
+            var self = this,
+                data = this._getData();
             $(this.el).tmpl(this.tmpl, {Item: data}).prop('model', this.model).prop('view', this);
-            
             return this;
         }
     });
