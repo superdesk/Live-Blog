@@ -135,9 +135,22 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         },
         criteriaTypes:
         {
-            "AsEqualOrdered": "numeric",
-            "AsLikeOrdered": "string",
-            "AsDateTimeOrdered": "date"
+            "AsEqual": "numeric",
+	    "AsEqualOrdered": "numeric",
+            "AsEqualExpression": "numeric",		
+            "AsEqualExpressionOrdered": "numeric",
+	    "AsIn":"string",
+	    "AsInOrdered": "numeric",
+            "AsInExpression": "numeric",		
+            "AsInExpressionOrdered": "numeric",	
+	    "AsLike": "string",
+	    "AsLikeOrdered": "string",
+            "AsLikeExpression": "string",
+            "AsLikeExpressionOrdered": "string",
+	    "AsDateTime": "date",
+	    "AsDateTimeOrdered": "date",
+            "AsDateTimeExpression": "date",
+            "AsDateTimeExpressionOrdered": "date"
         },
         /*!
          * @param string criteriaTypes
@@ -279,6 +292,7 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             $('.filter-list').addClass('hide');
             return false;
         },
+	_criteriaOperator: '.op',
         /*!
          * save selected filter and value 
          */
@@ -300,17 +314,17 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
                 if( inAttr )
                 {
                     self._savedFilters[criteria+inAttr] = inVal;
-                    self._savedFilters[criteria+inAttr+'.operator'] = rule;
+                    self._savedFilters[criteria+inAttr+self._criteriaOperator] = rule;
                     displayVal.push(inVal);
                     storeCriteria.push(criteria+inAttr);
-                    storeCriteria.push(criteria+inAttr+'.operator');
+                    storeCriteria.push(criteria+inAttr+self._criteriaOperator);
                     return true;
                 }    
                 self._savedFilters[criteria] = inVal;
-                self._savedFilters[criteria+'.operator'] = rule;
+                self._savedFilters[criteria+self._criteriaOperator] = rule;
                 displayVal.push(inVal);
                 storeCriteria.push(criteria);
-                storeCriteria.push(criteria+'.operator');
+                storeCriteria.push(criteria+self._criteriaOperator);
             });
             
             var newTag = $('<li class="modifier-'+rule+'">'+self.criteriaNames[criteria]+': '+displayVal.join(', ')
