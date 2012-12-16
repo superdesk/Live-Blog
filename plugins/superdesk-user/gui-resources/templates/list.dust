@@ -23,7 +23,7 @@
 		</div>
 		{~s}
 		<button style="margin: 10px 0" class="btn btn-primary add-user">_('Add User')</button>
-		<table class="table table-hover table-bordered">
+		<table class="table table-hover table-bordered table-sort" >
 			<thead>
 				<tr>
 	    			<th>#</th>
