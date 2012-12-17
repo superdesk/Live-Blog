@@ -10,9 +10,9 @@ Provides custom criteria for media archive multiplugin archive.
 '''
 
 from ally.api.config import criteria
-from ally.api.criteria import AsOrdered, AsLike, AsEqual, AsBoolean, AsRange, \
+from ally.api.criteria import AsOrdered, AsEqual, AsBoolean, AsRange, \
     AsDate, AsDateTime, AsDateTimeOrdered, AsTime, AsTimeOrdered, AsDateOrdered, \
-    AsRangeOrdered, AsLikeOrdered, AsEqualOrdered, AsBooleanOrdered
+    AsRangeOrdered, AsEqualOrdered, AsBooleanOrdered
 from ally.api.type import List
 
 # --------------------------------------------------------------------
