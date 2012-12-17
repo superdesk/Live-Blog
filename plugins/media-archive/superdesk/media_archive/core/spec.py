@@ -140,10 +140,15 @@ class QueryIndexer:
 
     def __init__(self):
         '''
-        @ivar metaDatasByInfo: dict{MetaInfoName, MetaData class)
+        @ivar metaDatasByInfo: dict{MetaInfoName: MetaData class}
         Contains all MetaData class associated to MetaInfoName
-        @ivar metaInfosBydata: dict{MetaDataName, MetaInfo class)
+        @ivar metaInfosBydata: dict{MetaDataName: MetaInfo class}
         Contains all MetaInfo class associated to MetaDataName
+
+        @ivar typeByMetaData: dict{MetaDataName: typeId}
+        Contains all MetaData Names and the associated type
+        @ivar typeByMetaInfo: dict{MetaInfoName: typeId}
+        Contains all MetaInfo Names and the associated type
 
         @ivar metaInfos: set(EntryMetaInfo class)
         The set of plugin specific entry meta info for registered plugins
@@ -165,6 +170,9 @@ class QueryIndexer:
         self.metaDatasByInfo = dict()
         self.metaInfosByData = dict()
 
+        self.typesByMetaData = dict()
+        self.typesByMetaInfo = dict()
+
         self.metaInfos = set()
         self.metaDatas = set()
 
@@ -174,11 +182,9 @@ class QueryIndexer:
         self.infoCriterias = dict()
         self.dataCriterias = dict()
 
-        self.register(MetaInfoMapped, QMetaInfo, MetaDataMapped, QMetaData)
-
     # --------------------------------------------------------------------
 
-    def register(self, EntryMetaInfoClass, QMetaInfoClass, EntryMetaDataClass, QMetaDataClass):
+    def register(self, EntryMetaInfoClass, QMetaInfoClass, EntryMetaDataClass, QMetaDataClass, typeId):
         '''
         Construct the meta info base service for the provided classes.
 
@@ -190,6 +196,8 @@ class QueryIndexer:
             A class that contains the specific for media meta data related columns.
         @param QMetaDataClass: class
             A class that extends QMetaData API class.
+        @param typeId: int
+            The id of the type associated to the current registered plugin
         '''
 
         assert isclass(EntryMetaInfoClass) and issubclass(EntryMetaInfoClass, Base), \
@@ -220,8 +228,11 @@ class QueryIndexer:
             raise Exception('Already registered the meta data class %s' % EntryMetaInfoClass)
 
 
-        self.metaDatasByInfo[EntryMetaInfoClass.__tablename__] = EntryMetaDataClass
-        self.metaInfosByData[EntryMetaDataClass.__tablename__] = EntryMetaInfoClass
+        self.metaDatasByInfo[EntryMetaInfoClass.__name__] = EntryMetaDataClass
+        self.metaInfosByData[EntryMetaDataClass.__name__] = EntryMetaInfoClass
+
+        self.typesByMetaData[EntryMetaDataClass.__name__] = typeId
+        self.typesByMetaInfo[EntryMetaInfoClass.__name__] = typeId
 
         for criteria in namesForQuery(QMetaInfoClass):
             criteriaClass = self.infoCriterias.get(criteria)
