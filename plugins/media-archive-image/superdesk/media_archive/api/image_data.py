@@ -10,11 +10,12 @@ API specifications for media meta data image archive.
 '''
 
 from ally.api.config import query, service
-from ally.api.criteria import AsEqualOrdered, AsDateTimeOrdered, AsLikeOrdered
 from datetime import datetime
 from superdesk.media_archive.api.domain_archive import modelArchive
-from superdesk.media_archive.api.meta_data import MetaData, QMetaData,\
+from superdesk.media_archive.api.meta_data import MetaData, QMetaData, \
     IMetaDataService
+from superdesk.media_archive.api.criteria import AsEqualExpressionOrdered, \
+    AsDateTimeExpressionOrdered, AsLikeExpressionOrdered
 
 
 # --------------------------------------------------------------------
@@ -38,11 +39,11 @@ class QImageData(QMetaData):
     '''
     The query for image model.
     '''
-    width = AsEqualOrdered
-    height = AsEqualOrdered
-    creationDate = AsDateTimeOrdered
-    cameraMake = AsLikeOrdered
-    cameraModel = AsLikeOrdered
+    width = AsEqualExpressionOrdered
+    height = AsEqualExpressionOrdered
+    creationDate = AsDateTimeExpressionOrdered
+    cameraMake = AsLikeExpressionOrdered
+    cameraModel = AsLikeExpressionOrdered
 
 # --------------------------------------------------------------------
 

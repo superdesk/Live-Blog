@@ -10,12 +10,12 @@ API specifications for media archive audio info.
 '''
 
 from ally.api.config import query, service
-from ally.api.criteria import AsLikeOrdered
 from superdesk.media_archive.api.domain_archive import modelArchive
 from superdesk.media_archive.api.meta_info import MetaInfo, QMetaInfo,\
     IMetaInfoService
 from superdesk.media_archive.api.audio_data import AudioData, QAudioData
 from superdesk.media_archive.api.meta_data import MetaData, QMetaData
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
 
 # --------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ class QAudioInfo(QMetaInfo):
     '''
     The query for audio info model.
     '''
-    caption = AsLikeOrdered
+    caption = AsLikeExpressionOrdered
 
 # --------------------------------------------------------------------
 
