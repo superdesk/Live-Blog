@@ -55,7 +55,7 @@ class MetaDataMapped(Base, MetaData):
     Creator = Column('fk_creator_id', ForeignKey(UserMapped.Id), nullable=False)
     
     # None REST model attribute --------------------------------------
-    type = Column('fk_type_id', ForeignKey(MetaTypeMapped.Id, ondelete='RESTRICT'), nullable=False)
+    typeId = Column('fk_type_id', ForeignKey(MetaTypeMapped.Id, ondelete='RESTRICT'), nullable=False)
     thumbnailFormatId = Column('fk_thumbnail_format_id', ForeignKey(ThumbnailFormat.id, ondelete='RESTRICT'), nullable=False)
     content = Column('content', String(255))
 
@@ -64,9 +64,9 @@ class MetaDataMapped(Base, MetaData):
     # expected.
     @reconstructor
     def init_on_load(self):
-        type = self._cache_types.get(self.type)
-        if type is None:
-            metaType = openSession().query(MetaTypeMapped).get(self.type)
+        typeId = self._cache_types.get(self.typeId)
+        if typeId is None:
+            metaType = openSession().query(MetaTypeMapped).get(self.typeId)
             assert isinstance(metaType, MetaTypeMapped), 'Invalid type id %s' % metaType
-            type = self._cache_types[metaType.Id] = metaType.Type
-        self.Type = type
+            typeId = self._cache_types[metaType.Id] = metaType.Type
+        self.Type = typeId
