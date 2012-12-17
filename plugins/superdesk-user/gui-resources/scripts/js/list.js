@@ -422,6 +422,7 @@ function($, superdesk, giz, User, Person, sha)
             if( !sort ) return false;
             if( this.currentSort.asc != sort ) this.currentSort = {'asc': sort};
             else this.currentSort = {'desc': sort};
+            
             this.refresh();
         },
         
@@ -509,6 +510,11 @@ function($, superdesk, giz, User, Person, sha)
                 // new ItemView for each models
                 self.renderList();
                 self.users.on('read update', self.renderList, self);
+                
+                $('table th', self.el).each(function()
+                { 
+                    for(var i in self.currentSort) if($(this).attr('data-sort') == self.currentSort[i]) $(this).addClass(i); 
+                });
             });
             $.superdesk.hideLoader();
         }

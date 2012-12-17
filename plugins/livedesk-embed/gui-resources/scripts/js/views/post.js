@@ -73,9 +73,15 @@ define([
 				item.nextUntil('.wrapup').show();
 			}
 		},		
-		render: function()
+		render: function(evt, data)
 		{
-			var self = this, data = self.model.feed();
+			var self = this, 
+				data = self.model.feed(),
+				order = parseFloat(self.model.get('Order'));
+			if ( !isNaN(self.order) && (order != self.order)) {
+				self.order = order;
+				self._parent.reorderOne(self);
+			}
 			data.HashIdentifier = self._parent.hashIdentifier;
 			if(data.Meta) {
 
@@ -89,7 +95,7 @@ define([
 					var aux = data.Meta.annotation;
 					data.Meta.annotation = {
 						'before': $.trimTag(['<br>', '<br />'], aux[0]), 
-						'after': $.trimTag(['<br>', '<br />'], aux[1]),
+						'after': $.trimTag(['<br>', '<br />'], aux[1])
 					}
 				} else {
 					data.Meta.annotation = $.trimTag(['<br>', '<br />'], data.Meta.annotation);
