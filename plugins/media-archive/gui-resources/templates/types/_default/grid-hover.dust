@@ -3,7 +3,7 @@
   	<figure>
   	{+body}
   		{Content|s}
-        <div class="media-box-button top left" ><a href="#"><i class="icon-plus-small"></i></a></div>
+        <!--div class="media-box-button top left" ><a href="javascript:void(0)"><i class="icon-plus-small"></i></a></div-->
         <div class="media-box-button top right">
         	<a href="javascript:void(0)" id="additionalInfo" rel="popover" 
         		data-content="{Description}" data-additional="info" 
