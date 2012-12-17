@@ -68,13 +68,13 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         sql = buildLimits(sql, offset, limit)
         return self._trimmDeleted(sql.all())
 
-    def insert(self, blogTypeId, post):
+    def insert(self, blogTypeId, name, post):
         '''
         @see: IBlogPostService.insert
         '''
         assert isinstance(post, Post), 'Invalid post %s' % post
 
-        postEntry = BlogTypePostEntry(BlogType=blogTypeId, blogTypePostId=self.postService.insert(post))
+        postEntry = BlogTypePostEntry(BlogType=blogTypeId, Name=name, blogTypePostId=self.postService.insert(post))
         postEntry.Order = self._nextOrdering(blogTypeId)
         self.session().add(postEntry)
         self.session().flush((postEntry,))
