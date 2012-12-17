@@ -117,6 +117,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         
         criteriaNames: 
         {
+            "_any_": _('Any'),
             "qd.videoBitrate": _("Video Bitrate"),
             "qd.videoEncoding": _("Video Encoding"),
             "qd.audioBitrate": _("Audio Bitrate"),
@@ -134,30 +135,32 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         criteriaTypes:
         {
             "AsEqual": "numeric",
-	    "AsEqualOrdered": "numeric",
+            "AsEqualOrdered": "numeric",
             "AsEqualExpression": "numeric",		
             "AsEqualExpressionOrdered": "numeric",
-	    "AsIn":"string",
-	    "AsInOrdered": "numeric",
+            "AsIn":"string",
+            "AsInOrdered": "numeric",
             "AsInExpression": "numeric",		
             "AsInExpressionOrdered": "numeric",	
-	    "AsLike": "string",
-	    "AsLikeOrdered": "string",
+            "AsLike": "string",
+            "AsLikeOrdered": "string",
             "AsLikeExpression": "string",
             "AsLikeExpressionOrdered": "string",
-	    "AsDateTime": "date",
-	    "AsDateTimeOrdered": "date",
+            "AsDateTime": "date",
+            "AsDateTimeOrdered": "date",
             "AsDateTimeExpression": "date",
             "AsDateTimeExpressionOrdered": "date"
         },
         /*!
          * @param string criteriaTypes
-         * @return string Comparable string for the types on which the criteria applies 
+         * @return string Comparable sorted array for the types on which the criteria applies 
          */
         _criteriaTypes: function(criteriaTypes)
         {
             return criteriaTypes.replace(/InfoEntry-/g,'|').replace(/DataEntry-/g, '|').replace(/\|$/,'').replace(/\|$/,'').toLowerCase().split('|').sort();
         },
+        
+        
 
         /*!
          * append filter criteria to select list
@@ -173,9 +176,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             allTypes.sort();
             allTypes = allTypes.toString();
             
-            
-            //this.criteriaList.each(function(){ console.log(this, this.get('Key')); });
-                    
+            $('#MAFilterResults', self.el).append('<li data-criteria="_any_" data-initial="true">'+_('All')+'</li>');            
             this.criteriaList.each(function()
             {
                 var key = this.get('Key');
@@ -201,6 +202,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         {
             var selectedTypes = [],
                 criteria = this.criteriaList.feed();
+            // get the list of selected types
             $('#type-list input:checked', this.el).each(function()
             {
                 selectedTypes.push($(this).val());
@@ -213,6 +215,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             }
             selectedTypes = selectedTypes.sort();
             $('.filter-list li', this.el).addClass('hide');
+            // see what criteria is available for the current selection
             for( var i=0; i<criteria.length; i++ )
             {
                 if( criteria[i].Key in this.criteriaNames &&
@@ -293,15 +296,28 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             });
         },
         
+        _selectFilterCriteriaAll: function(criteria)
+        {
+            if( criteria != '_any_' ) return false;
+            $('.filter-edit', self.el).addClass('editing');
+            $('.filter-list').addClass('hide');
+            $('#MAFilter').focus();
+            return true;
+        },
+        
         /*!
          * select the filter and show interface for its value
          */
         _selectedFilter: null,
-        _savedFilters: {},
+        _savedFilters: [],
         selectFilter: function(evt)
         {
             var self = this,
                 criteria = $(evt.target).attr('data-criteria');
+            
+            // the case when we search by all keyword
+            if( this._selectFilterCriteriaAll(criteria) ) return;
+            
             $('#MAFilter', this.el).val(self.criteriaNames[criteria]);
             this.criteriaList.get(criteria).done(function(model)
             {
@@ -317,63 +333,75 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             $('.filter-list').addClass('hide');
             return false;
         },
-	_criteriaOperator: '.op',
+        _criteriaOperator: '.op',
         /*!
          * save selected filter and value 
          */
-        saveFilter: function()
+        saveFilter: function(evt)
         {
-            if(!this._selectedFilter) return false;
+            console.log(evt);
+            evt.preventDefault();
             var rule = $('.filter-edit [data-modifier].active', this.el).attr('data-modifier'),
                 self = this,
-                criteria = self._selectedFilter.get('Key'),
+                saveFilters = [],
+                criteria,
                 displayVal = [],
                 storeCriteria = [],
-                inVal, inAttr;
+                inAttr, inVal;
             
-            $('.filter-value-container').find('input,textarea,select').each(function()
+            if( !this._selectedFilter ) 
+            {
+                inVal = $('#MAFilter', this.el).val();
+                if( $.trim(inVal) == '' ) return false;
+                saveFilters.push({'qd.all': inVal});
+                saveFilters.push({'qd.all.op': rule});
+                displayVal.push(inVal);
+            }
+            else
+                criteria = self._selectedFilter.get('Key')
+            
+            criteria && $('.filter-value-container').find('input,textarea,select').each(function()
             {
                 inVal = $(this).val();
                 if( $.trim(inVal) == '' ) return true;
                 inAttr = $(this).attr('data-criteria-append');
                 if( inAttr )
                 {
-                    self._savedFilters[criteria+inAttr] = inVal;
-                    self._savedFilters[criteria+inAttr+self._criteriaOperator] = rule;
+                    x = {}, x[criteria+inAttr] = inVal; saveFilters.push(x);
+                    x = {}, x[criteria+inAttr+self._criteriaOperator] = rule; saveFilters.push(x);
                     displayVal.push(inVal);
-                    storeCriteria.push(criteria+inAttr);
-                    storeCriteria.push(criteria+inAttr+self._criteriaOperator);
                     return true;
                 }    
-                self._savedFilters[criteria] = inVal;
-                self._savedFilters[criteria+self._criteriaOperator] = rule;
+                x = {}, x[criteria] = inVal; saveFilters.push(x);
+                x = {}, x[criteria+self._criteriaOperator] = rule; saveFilters.push(x);
                 displayVal.push(inVal);
-                storeCriteria.push(criteria);
-                storeCriteria.push(criteria+self._criteriaOperator);
             });
             
-            var newTag = $('<li class="modifier-'+rule+'">'+self.criteriaNames[criteria]+': '+displayVal.join(', ')
-                +'<a class="closebutton" href="javascript:void(0)">x</a></li>');
-            newTag.data('criteria', storeCriteria);
+            var newTag = $('<li class="modifier-'+rule+'">'
+                    + (self.criteriaNames[criteria]||self.criteriaNames['_any_'])
+                    + ': '+displayVal.join(', ')
+                    + '<a class="closebutton" href="javascript:void(0)">x</a></li>');
+            newTag.data('criteria', [self._savedFilters.length-1, saveFilters.length]);
             $('.tag-container', self.el).append(newTag);
-            
+            self._savedFilters = self._savedFilters.concat(saveFilters);
             return false;
         },
         
         deleteFilter: function(evt)
         {
             var tag = $(evt.currentTarget).parents('li:eq(0)');
-                storedCriteria = tag.data('criteria');
-            for( var i=0; i<storedCriteria.length; i++ ) delete this._savedFilters[storedCriteria[i]];
+                cinfo = tag.data('criteria');
+            Array.prototype.splice.call(this._savedFilters, cinfo[0], cinfo[1]);
             tag.remove();
         },
         
         getSearch: function()
         {
             var search = this.searchInput.val(),
-                query = {};
-            for( var i in this._savedFilters ) query[i] = this._savedFilters[i];
-            if( $.trim(search) != '' ) query['qi.keywords.ilike'] = search;
+                query = [];
+            for( var i=0; i<this._savedFilters.length; i++ ) query.push(this._savedFilters[i]);
+            if( $.trim(search) != '' ) query.push({'qi.keywords.ilike': search});
+            
             return query;
         }
     }),
