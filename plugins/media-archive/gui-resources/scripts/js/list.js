@@ -17,7 +17,6 @@ define
     config.guiJs('media-archive', 'models/query-criteria'),
     config.guiJs('media-archive', 'add'),
     'tmpl!media-archive>list',
-    'tmpl!media-archive>item',
     'tmpl!media-archive>sidebar/types',
     'tmpl!media-archive>sidebar/crit-date',
     'tmpl!media-archive>sidebar/crit-numeric',
@@ -134,9 +133,22 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         },
         criteriaTypes:
         {
-            "AsEqualOrdered": "numeric",
-            "AsLikeOrdered": "string",
-            "AsDateTimeOrdered": "date"
+            "AsEqual": "numeric",
+	    "AsEqualOrdered": "numeric",
+            "AsEqualExpression": "numeric",		
+            "AsEqualExpressionOrdered": "numeric",
+	    "AsIn":"string",
+	    "AsInOrdered": "numeric",
+            "AsInExpression": "numeric",		
+            "AsInExpressionOrdered": "numeric",	
+	    "AsLike": "string",
+	    "AsLikeOrdered": "string",
+            "AsLikeExpression": "string",
+            "AsLikeExpressionOrdered": "string",
+	    "AsDateTime": "date",
+	    "AsDateTimeOrdered": "date",
+            "AsDateTimeExpression": "date",
+            "AsDateTimeExpressionOrdered": "date"
         },
         /*!
          * @param string criteriaTypes
@@ -152,16 +164,36 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
          */
         renderCriteria: function()
         {
-            var criteria = this.criteriaList,
-                criteriaNames = this.criteriaNames,
-                self = this;
-            criteria.each(function()
+            var allTypes = [],
+                self = this,
+                newEntry = '';
+            
+            // get all types string to compare
+            this.types.each(function(){ this.get('Type').toLowerCase() != 'other' && allTypes.push(this.get('Type')); });
+            allTypes.sort();
+            allTypes = allTypes.toString();
+            
+            
+            //this.criteriaList.each(function(){ console.log(this, this.get('Key')); });
+                    
+            this.criteriaList.each(function()
             {
                 var key = this.get('Key');
-                if( key in criteriaNames ) $('#MAFilterResults', self.el).append('<li data-criteria="'+key+'">'+criteriaNames[key]+'</li>');
+                if( key in self.criteriaNames ) 
+                {
+                    newEntry = '<li data-criteria="'+key+'"' ;
+                    if( allTypes == self._criteriaTypes(this.get('Types')).toString() )
+                    {
+                        self._criteriaForAll[key] = true;
+                        newEntry += ' data-initial="true"';
+                    }
+                    newEntry += '>'+self.criteriaNames[key]+'</li>';
+                    $('#MAFilterResults', self.el).append(newEntry);
+                }
             });
+            $('#MAFilterResults [data-initial!="true"]', self.el).addClass('hide');
         },
-        
+
         /*!
          * show/hide filters depending on type
          */
@@ -176,6 +208,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             if( !selectedTypes.length )
             {
                 $('.filter-list li', this.el).removeClass('hide');
+                $('.filter-list li[data-initial!="true"]', this.el).addClass('hide');
                 return true;
             }
             selectedTypes = selectedTypes.sort();
@@ -206,16 +239,16 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             {
                 case 40: // down arr
                     selected.removeClass('hover');
-                    var next = selected.next('li');
-                    if( !next.length ) next = $('.filter-list li:first', this.el);
+                    var next = selected.nextAll('li:not(.hide):eq(0)');
+                    if( !next.length ) next = $('.filter-list li:not(.hide):first', this.el);
                     next.addClass('hover');
                     $('.filter-list', this.el).removeClass('hide');
                     break;
 
                 case 38: // up arr
                     selected.removeClass('hover');
-                    var prev = selected.prev('li');
-                    if( !prev.length ) prev = $('.filter-list li:last', this.el);
+                    var prev = selected.prevAll('li:not(.hide):eq(0)');
+                    if( !prev.length ) prev = $('.filter-list li:not(.hide):last', this.el);
                     prev.addClass('hover');
                     $('.filter-list', this.el).removeClass('hide');
                     break;
@@ -229,6 +262,10 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                     return false;
                     break;
 
+                case 8: // backspace
+                    console.log('bkspace');
+                    break;
+                    
                 default:
                     break;
             }
@@ -240,6 +277,8 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
          */
         keyup2filter: function(evt)
         {
+            console.log(evt.keyCode);
+            
             if( $.inArray(evt.keyCode, [13, 38, 40]) !== -1  ) return false;
             var src = $(evt.target).val().toLowerCase();
             if( src == '' ) 
@@ -278,6 +317,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             $('.filter-list').addClass('hide');
             return false;
         },
+	_criteriaOperator: '.op',
         /*!
          * save selected filter and value 
          */
@@ -299,17 +339,17 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                 if( inAttr )
                 {
                     self._savedFilters[criteria+inAttr] = inVal;
-                    self._savedFilters[criteria+inAttr+'.operator'] = rule;
+                    self._savedFilters[criteria+inAttr+self._criteriaOperator] = rule;
                     displayVal.push(inVal);
                     storeCriteria.push(criteria+inAttr);
-                    storeCriteria.push(criteria+inAttr+'.operator');
+                    storeCriteria.push(criteria+inAttr+self._criteriaOperator);
                     return true;
                 }    
                 self._savedFilters[criteria] = inVal;
-                self._savedFilters[criteria+'.operator'] = rule;
+                self._savedFilters[criteria+self._criteriaOperator] = rule;
                 displayVal.push(inVal);
                 storeCriteria.push(criteria);
-                storeCriteria.push(criteria+'.operator');
+                storeCriteria.push(criteria+self._criteriaOperator);
             });
             
             var newTag = $('<li class="modifier-'+rule+'">'+self.criteriaNames[criteria]+': '+displayVal.join(', ')

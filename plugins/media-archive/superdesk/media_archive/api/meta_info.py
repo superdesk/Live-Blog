@@ -12,10 +12,11 @@ API specifications for media archive meta info.
 from .domain_archive import modelArchive
 from .meta_data import MetaData, QMetaData
 from ally.api.config import query, call, service
-from ally.api.criteria import AsLikeOrdered, AsLike
 from ally.api.type import Iter
 from ally.support.api.entity import Entity, QEntity, IEntityGetCRUDService
 from superdesk.language.api.language import LanguageEntity
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, \
+    AsLikeExpression
 
 
 # --------------------------------------------------------------------
@@ -39,9 +40,9 @@ class QMetaInfo(QEntity):
     '''
     The query for he meta info model.
     '''
-    title = AsLikeOrdered
-    keywords = AsLikeOrdered
-    description = AsLike
+    title = AsLikeExpressionOrdered
+    keywords = AsLikeExpressionOrdered
+    description = AsLikeExpression
 
 # --------------------------------------------------------------------
 
