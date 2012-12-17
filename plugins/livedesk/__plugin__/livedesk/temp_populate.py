@@ -98,8 +98,8 @@ def getSourcesIds():
 
 
 BLOG_TYPE_POSTS = [
-                   ('default', 'normal', 'User1', 'User1', 'Hello world!'),
-                   ('default', 'normal', 'User1', 'User1', 'Greetings!')
+                   ('default', 'normal', 'User1', 'User1', 'Hello', 'Hello world!'),
+                   ('default', 'normal', 'User1', 'User1', 'Conclusion', 'To summarise, this is the conclusion...')
                    ]
 
 def createBlogTypePosts():
@@ -107,7 +107,7 @@ def createBlogTypePosts():
     assert isinstance(blogTypePostService, IBlogTypePostService)
     for data in BLOG_TYPE_POSTS:
         pst = Post()
-        blogType, pst.Type, creator, author, pst.Content = data
+        blogType, pst.Type, creator, author, name, pst.Content = data
         blogTypeId = getBlogTypesIds()[blogType]
         exists = False
         for post in blogTypePostService.getAll(blogTypeId):
@@ -115,7 +115,7 @@ def createBlogTypePosts():
         if not exists:
             pst.Creator = getUsersIds()[creator]
             if author: pst.Author = getCollaboratorsIds()[author]
-            blogTypePostService.insert(blogTypeId, pst)
+            blogTypePostService.insert(blogTypeId, name, pst)
 
 
 BLOG_TYPES = ('default',)
@@ -231,6 +231,9 @@ def getCollaboratorsIds():
 BLOG_COLLABORATORS = {
                       'User1': 'GEN Live Desk Master Class',
                       'User2': 'GEN Live Desk Master Class',
+                      'User3': 'GEN Live Desk Master Class',
+                      'User4': 'GEN Live Desk Master Class',
+                      'User5': 'GEN Live Desk Master Class',
                      }
 
 def createBlogCollaborators():
@@ -280,7 +283,7 @@ def createPostType(key):
 
 
 POSTS = [
-     ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'Hello world!'),
+		 ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'Hello world!'),
          ('GEN Live Desk Master Class', 'quote', 'User2', 'User2', 'GEN Live Desk is a next-generation '
           'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
          ('GEN Live Desk Master Class', 'normal', 'User3', 'User3', 'GEN Live Desk is free to download, '
