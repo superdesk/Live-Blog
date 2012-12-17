@@ -34,7 +34,7 @@ from ally.support.sqlalchemy.mapper import mappingFor
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty
 from superdesk.media_archive.api.criteria import AsOperator, AsIn, \
-    AsLikeExpressionOrdered
+    AsLikeExpressionOrdered, AsLikeExpression
 
 
 # --------------------------------------------------------------------
@@ -145,16 +145,6 @@ class QueryServiceAlchemy(SessionSupport):
 
         queryClauses = list()
 
-        if qa is not None:
-            print ('\ninclude: ')
-            for value in qa.all.inc: print(value)
-
-            print ('\nextend: ')
-            for value in qa.all.ext: print(value)
-
-            print ('\nexclude: ')
-            for value in qa.all.exc: print(value)
-
         if qi is not None:
             assert isinstance(qi, self.QMetaInfo), 'Invalid query %s' % qi
             metaInfos = set()
@@ -189,10 +179,10 @@ class QueryServiceAlchemy(SessionSupport):
 
             for metaInfo in metaInfos:
                 sql = sql.outerjoin(metaInfo)
-                sql = buildPartialQuery(sql, qi, metaInfo, queryClauses)
+                sql = buildPartialQuery(sql, qi, qa, metaInfo, queryClauses)
 
         elif qi is None and qd is not None:
-            sql = buildPartialQuery(sql, qd, MetaDataMapped, queryClauses)
+            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, queryClauses)
 
             for metaData in metaDatas:
                 sql = sql.outerjoin(metaData)
@@ -201,26 +191,26 @@ class QueryServiceAlchemy(SessionSupport):
         else:
             andClauses = list()
             orClauses = list()
-            sql = buildPartialQuery(sql, qi, MetaInfoMapped, queryClauses, andClauses, orClauses, append=False)
-            sql = buildPartialQuery(sql, qd, MetaDataMapped, queryClauses, andClauses, orClauses)
+            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, queryClauses, andClauses, orClauses, append=False)
+            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, queryClauses, andClauses, orClauses)
 
             for metaInfo in metaInfos:
-                metaData = self.queryIndexer.metaDatasByInfo[metaInfo.__tablename__]
+                metaData = self.queryIndexer.metaDatasByInfo[metaInfo.__name__]
                 if metaData in metaDatas:
                     sql = sql.outerjoin(metaInfo)
                     sql = sql.outerjoin(metaData)
                     andClauses = list()
                     orClauses = list()
-                    sql = buildPartialQuery(sql, qi, metaInfo, queryClauses, andClauses, orClauses, append=False)
+                    sql = buildPartialQuery(sql, qi, qa, metaInfo, queryClauses, andClauses, orClauses, append=False)
                     sql = buildPartialQuery(sql, qd, metaData, queryClauses, andClauses, orClauses)
                 else:
                     sql = sql.outerjoin(metaInfo)
-                    sql = buildPartialQuery(sql, qi, metaInfo, queryClauses)
+                    sql = buildPartialQuery(sql, qi, qa, metaInfo, queryClauses)
 
             for metaData in metaDatas:
-                if self.queryIndexer.metaInfosByData[metaData.__tablename__] not in metaInfos:
+                if self.queryIndexer.metaInfosByData[metaData.__name__] not in metaInfos:
                     sql = sql.outerjoin(metaData)
-                    sql = buildPartialQuery(sql, qd, metaData, queryClauses)
+                    sql = buildPartialQuery(sql, qd, qa, metaData, queryClauses)
 
         length = len(queryClauses)
         if length == 1: sql = sql.filter(queryClauses[0])
@@ -261,7 +251,7 @@ class QueryServiceAlchemy(SessionSupport):
         return IterPart(metaDataInfos, count, offset, limit)
 
 
-def buildPartialQuery(sqlQuery, query, mapped, queryClauses, andClauses=None, orClauses=None, append=True):
+def buildPartialQuery(sqlQuery, query, queryLike, mapped, queryClauses, andClauses=None, orClauses=None, append=True):
     '''
     Builds the query on the SQL alchemy query.
 
@@ -310,6 +300,16 @@ def buildPartialQuery(sqlQuery, query, mapped, queryClauses, andClauses=None, or
                         elif crt.op == 'not': andClauses.append(not_(column.ilike(crt.ilike)))
                         else: andClauses.append(column.ilike(crt.ilike))
                     else: andClauses.append(column.ilike(crt.ilike))
+                if queryLike and isinstance(queryLike, AsLikeExpression):
+                    if AsLikeExpression.inc in queryLike:
+                        for value in queryLike.inc:
+                            andClauses.append(column.like(value))
+                    if AsLikeExpression.ext in queryLike:
+                        for value in queryLike.ext:
+                            orClauses.append(column.like(value))
+                    if AsLikeExpression.exc in queryLike:
+                        for value in queryLike.exc:
+                            andClauses.append(not_(column.like(value)))
             elif isinstance(crt, AsIn):
                     if isinstance(crt, AsOperator) and AsOperator.op in crt:
                         if crt.op == 'or': orClauses.append(column.in_(crt.values))
