@@ -23,6 +23,7 @@ class BlogTypePost(Post):
     '''
     Provides the blog post model.
     '''
+    Name = str
     Order = float
     BlogType = BlogType
 
@@ -56,7 +57,7 @@ class IBlogTypePostService:
         '''
 
     @call
-    def insert(self, blogTypeId:BlogType.Id, post:Post) -> BlogTypePost.Id:
+    def insert(self, blogTypeId:BlogType.Id, name:BlogTypePost.Name, post:Post) -> BlogTypePost.Id:
         '''
         Inserts the post for the blog type.
         '''
