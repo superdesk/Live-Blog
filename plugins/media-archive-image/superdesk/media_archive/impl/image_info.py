@@ -17,7 +17,7 @@ from superdesk.media_archive.api.image_info import IImageInfoService, QImageInfo
 from superdesk.media_archive.core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
 from superdesk.media_archive.api.image_data import QImageData
 from superdesk.media_archive.meta.image_data import ImageDataMapped,\
-    ImageDataEntry
+    ImageDataEntry, META_TYPE_KEY
 from superdesk.media_archive.meta.image_info import ImageInfoMapped,\
     ImageInfoEntry
 
@@ -35,4 +35,4 @@ class ImageInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IImageInfoService):
 
     def __init__(self):
         MetaInfoServiceBaseAlchemy.__init__(self, ImageInfoMapped, QImageInfo, ImageDataMapped, QImageData)
-        self.queryIndexer.register(ImageInfoEntry, QImageInfo, ImageDataEntry, QImageData)
+        self.queryIndexer.register(ImageInfoEntry, QImageInfo, ImageDataEntry, QImageData, META_TYPE_KEY)

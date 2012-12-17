@@ -46,12 +46,12 @@ class QueryCriteriaService(IQueryCriteriaService):
         queryCriterias = list()
         
         for key, metaInfos in self.queryIndexer.metaInfoByCriteria.items():
-            types = ''.join([(metaInfo.__name__ + '-') for metaInfo in metaInfos])            
+            types = ''.join([(self.queryIndexer.typesByMetaInfo[metaInfo.__name__] + '-') for metaInfo in metaInfos])
             criteria = self.queryIndexer.infoCriterias[key]
             queryCriterias.append(QueryCriteria('qi.' + key, criteria.__name__, types, key))#TODO: self._translate(key, locales)))
 
         for key, metaDatas in self.queryIndexer.metaDataByCriteria.items():
-            types = ''.join([(metaData.__name__ + '-') for metaData in metaDatas])       
+            types = ''.join([(self.queryIndexer.typesByMetaData[metaData.__name__] + '-') for metaData in metaDatas])
             criteria = self.queryIndexer.dataCriterias[key]
             queryCriterias.append(QueryCriteria('qd.' + key, criteria.__name__, types, key))#TODO: self._translate(key, locales)))  
 
