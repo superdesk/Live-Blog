@@ -354,8 +354,7 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             {
                 inVal = $('#MAFilter', this.el).val();
                 if( $.trim(inVal) == '' ) return false;
-                saveFilters.push({'qd.all': inVal});
-                saveFilters.push({'qd.all.op': rule});
+                x= {}; x['all.'+rule] = inVal; saveFilters.push(x);
                 displayVal.push(inVal);
             }
             else
@@ -368,13 +367,11 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
                 inAttr = $(this).attr('data-criteria-append');
                 if( inAttr )
                 {
-                    x = {}, x[criteria+inAttr] = inVal; saveFilters.push(x);
-                    x = {}, x[criteria+inAttr+self._criteriaOperator] = rule; saveFilters.push(x);
+                    x = {}; x[criteria+inAttr+'.'+rule] = inVal; saveFilters.push(x);
                     displayVal.push(inVal);
                     return true;
                 }    
-                x = {}, x[criteria] = inVal; saveFilters.push(x);
-                x = {}, x[criteria+self._criteriaOperator] = rule; saveFilters.push(x);
+                x = {}; x[criteria+'.'+rule] = inVal; saveFilters.push(x);
                 displayVal.push(inVal);
             });
             
@@ -433,7 +430,12 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         getSearchTerm: function(){ return 'abc'; },
         searchData: function()
         { 
-            return $.extend(this.filterView.getSearch(), { thumbSize: 'medium', limit: this.page.limit }); 
+            var aquery = this.filterView.getSearch(), query = '', j;
+            for( var i=0; i<aquery.length; i++ )
+                for( var j in aquery[i] ) query += encodeURIComponent(j) + "=" + encodeURIComponent(aquery[i][j]) + '&';
+                
+            return query + 'thumbSize=medium&limit='+this.page.limit;
+            //return $.extend(this.filterView.getSearch(), { thumbSize: 'medium', limit: this.page.limit }); 
         },
         renderCallback: function()
         {
