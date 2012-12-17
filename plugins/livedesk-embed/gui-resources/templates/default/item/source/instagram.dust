@@ -1,5 +1,5 @@
 {>"theme/item/base"/}
-{<class}instagramservice{/class}
+{<item_class}instagramservice{/item_class}
 {<body_content}
 			<a href="{Meta.images.standard_resolution.url}" title="{Meta.caption.text}" target="_blank">
 	        <img src="{Meta.images.standard_resolution.url}" width="{Meta.images.standard_resolution.width}" height="{Meta.images.standard_resolution.height}" alt="{Meta.caption.text}">
