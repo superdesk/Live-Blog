@@ -1,6 +1,6 @@
 <!-- ... -->
 <style>
-	.table .btn-group{ visibility: hidden; display: inline; }
+	.table .btn-group{ visibility: hidden; display: inline; position: static }
 	.table tr:hover .btn-group{ visibility: visible; }
 	#area-main{ height: 100%; -moz-box-sizing: border-box; padding-top: 40px; }
 	.pagination .ipp:after{ content: "_('items per page')"; float: left; line-height: 35px; margin: 0 8px; }   
@@ -32,6 +32,7 @@
 	        		<th data-sort="name">_('Login')</th>
 	        		<th data-sort="email">_('E-Mail')</th>
 	        		<th data-sort="createdOn">_('Created On')</th>
+	        		<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -40,7 +41,7 @@
 			<tfoot>
 			{#pagination}
 				<tr>
-					<td colspan="6" class="pagination">
+					<td colspan="7" class="pagination">
 					{?currentpages}
 					<ul class="{className}">
 						<li> <a href="javascript:void(0)" data-pagination="first" title="_('First')">&#8676;</a> </li>
