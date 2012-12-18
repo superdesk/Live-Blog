@@ -145,10 +145,20 @@ class QueryServiceAlchemy(SessionSupport):
 
         queryClauses = list()
 
+        metaInfos = set()
+        metaDatas = set()
+
+        if qa is not None:
+            assert isinstance(qa, self.QMetaDataInfo), 'Invalid query %s' % qi
+
+            for name, criteria in self.queryIndexer.infoCriterias:
+                if not isinstance(criteria, AsLikeExpression) and not isinstance(criteria, AsLikeExpression): continue
+                criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
+                metaInfos = set.union(metaInfos, criteriaMetaInfos)
+
+
         if qi is not None:
             assert isinstance(qi, self.QMetaInfo), 'Invalid query %s' % qi
-            metaInfos = set()
-            assert isinstance(metaInfos, set)
 
             for name in namesForQuery(qi):
                 if getattr(self.QMetaInfo, name) not in qi: continue
@@ -159,8 +169,6 @@ class QueryServiceAlchemy(SessionSupport):
 
         if qd is not None:
             assert isinstance(qd, self.QMetaData), 'Invalid query %s' % qd
-            metaDatas = set()
-            assert isinstance(metaDatas, set)
 
             for name in namesForQuery(qd):
                 if getattr(self.QMetaData, name) not in qd: continue
@@ -283,35 +291,32 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, queryClauses, andClaus
 
             crt = getattr(query, criteria)
             if isinstance(crt, AsBoolean):
-                if AsBoolean.value in crt:
-                    if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column == crt.value)
-                        elif crt.op == 'not': andClauses.append(not_(column == crt.value))
-                        else: andClauses.append(column == crt.value)
-                    else: andClauses.append(column == crt.value)
+                if AsBoolean.value in crt: andClauses.append(column == crt.value)
             elif isinstance(crt, AsLike):
-                if AsLike.like in crt:
-                    if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column.like(crt.like))
-                        elif crt.op == 'not': andClauses.append(not_(column.like(crt.like)))
-                        else: andClauses.append(column.like(crt.like))
-                    else: andClauses.append(column.like(crt.like))
-                elif AsLike.ilike in crt:
-                    if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column.ilike(crt.ilike))
-                        elif crt.op == 'not': andClauses.append(not_(column.ilike(crt.ilike)))
-                        else: andClauses.append(column.ilike(crt.ilike))
-                    else: andClauses.append(column.ilike(crt.ilike))
-                if queryLike and isinstance(queryLike, AsLikeExpression):
-                    if AsLikeExpression.inc in queryLike:
-                        for value in queryLike.inc:
+                if AsLike.like in crt: andClauses.append(column.like(crt.like))
+                elif AsLike.ilike in crt: andClauses.append(column.ilike(crt.ilike))
+            elif isinstance(crt, AsLikeExpression):
+                    if AsLikeExpression.inc in crt:
+                        for value in crt.inc:
                             andClauses.append(column.like(value))
-                    if AsLikeExpression.ext in queryLike:
-                        for value in queryLike.ext:
+                    if AsLikeExpression.ext in crt:
+                        for value in crt.ext:
                             orClauses.append(column.like(value))
-                    if AsLikeExpression.exc in queryLike:
-                        for value in queryLike.exc:
+                    if AsLikeExpression.exc in crt:
+                        for value in crt.exc:
                             andClauses.append(not_(column.like(value)))
+
+                    if queryLike and isinstance(queryLike, AsLikeExpression):
+                        if AsLikeExpression.inc in queryLike:
+                            for value in queryLike.inc:
+                                andClauses.append(column.like(value))
+                        if AsLikeExpression.ext in queryLike:
+                            for value in queryLike.ext:
+                                orClauses.append(column.like(value))
+                        if AsLikeExpression.exc in queryLike:
+                            for value in queryLike.exc:
+                                andClauses.append(not_(column.like(value)))
+
             elif isinstance(crt, AsIn):
                     if isinstance(crt, AsOperator) and AsOperator.op in crt:
                         if crt.op == 'or': orClauses.append(column.in_(crt.values))
@@ -319,37 +324,12 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, queryClauses, andClaus
                         else: andClauses.append(column.in_(crt.values))
                     else: andClauses.append(column.in_(crt.values))
             elif isinstance(crt, AsEqual):
-                if AsEqual.equal in crt:
-                    if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column == crt.equal)
-                        elif crt.op == 'not': andClauses.append(not_(column == crt.equal))
-                        else: andClauses.append(column.ilike(column == crt.equal))
-                    else: andClauses.append(column.ilike(column == crt.equal))
+                if AsEqual.equal in crt: andClauses.append(column.ilike(column == crt.equal))
             elif isinstance(crt, (AsDate, AsTime, AsDateTime, AsRange)):
-                if crt.__class__.start in crt:
-                    if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column >= crt.start)
-                        elif crt.op == 'not': andClauses.append(not_(column >= crt.start))
-                        else: andClauses.append(column.ilike(column >= crt.start))
-                    else: andClauses.append(column.ilike(column >= crt.start))
-                elif crt.__class__.until in crt:
-                    if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column < crt.until)
-                        elif crt.op == 'not': andClauses.append(not_(column < crt.until))
-                        else: andClauses.append(column.ilike(column < crt.until))
-                    else: andClauses.append(column.ilike(column < crt.until))
-                if crt.__class__.end in crt:
-                    if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column <= crt.end)
-                        elif crt.op == 'not': andClauses.append(not_(column <= crt.end))
-                        else: andClauses.append(column.ilike(column <= crt.end))
-                    else: andClauses.append(column.ilike(column <= crt.end))
-                elif crt.__class__.since in crt:
-                    if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column > crt.since)
-                        elif crt.op == 'not': andClauses.append(not_(column > crt.since))
-                        else: andClauses.append(column.ilike(column > crt.since))
-                    else: andClauses.append(column.ilike(column > crt.since))
+                if crt.__class__.start in crt: andClauses.append(column.ilike(column >= crt.start))
+                elif crt.__class__.until in crt: andClauses.append(column.ilike(column < crt.until))
+                if crt.__class__.end in crt:andClauses.append(column.ilike(column <= crt.end))
+                elif crt.__class__.since in crt: andClauses.append(column.ilike(column > crt.since))
 
             if isinstance(crt, AsOrdered):
                 assert isinstance(crt, AsOrdered)
