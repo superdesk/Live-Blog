@@ -49,12 +49,25 @@
 		</script>
 		<!-- Blog configuration should go from configuration -->
 		<script type="text/javascript">
+			var path = window.location.href.toString().split(window.location.host)[1],
+				attributes = path.split('?')[1],
+				objd,
+				id = 1;	
+			if(attributes) {
+				var parts = attributes.split('&');
+				for( var i = 0, count = parts.length; i < count; i++ ){
+					objd = parts[i].split('=');
+					if(objd[0].toLowerCase() === 'id') {
+						id = objd[1];
+					}
+				}
+			}
 			var livedesk = { 
 				'theme': {
 					'container': '<span>hello</span>'
 				},
 				'server': function(){ return config.api_url; },
-				'blog': config.rest_url+ '/my/LiveDesk/Blog/1'
+				'blog': config.rest_url+ '/my/LiveDesk/Blog/' + id
 			};
 		</script>
 
