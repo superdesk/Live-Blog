@@ -1,30 +1,22 @@
-<div id="configureblogtype" class="modal hide fade in" style="display: block;">
-  
+<div id="add-blogtype" class="modal hide fade in">
   <div screenid="0" class="modalscreen" style="display: block;">
-
-    <div class="modal-header"> <a data-dismiss="modal" class="close">×</a>
-      <h3>Add New Blog Type</h3>
+    <div class="modal-header">
+      <a data-dismiss="modal" class="close">x</a>
+      <h3>_("Add New Blog Type");</h3>
     </div>
   
     <div class="modal-body">
-
       <form>
-        
-        <label>Blog type name</label>
+        <label>_("Blog type name");</label>
         <input type="text" class="fullwidth-input" value="" placeholder="Enter Blog Type Name" name="blogtypename">
-        
 
-
-        <a name="addnewposttype" href="#" class="btn"><i class="icon-plus-sign"></i> Create New Post</a>
-
-      </form>
-
-      
+        <a name="addnewposttype" href="#" class="btn"><i class="icon-plus-sign"></i>_("Create New Post");</a>
+      </form>  
     </div>
 
     <div class="modal-footer"> 
-      <a data-dismiss="modal" class="btn" href="#">Cancel</a> 
-      <a name="save-changes-modal" data-dismiss="modal" class="btn btn-primary" href="#">Save changes</a> 
+      <a data-dismiss="modal" class="btn" href="#">_("Cancel");</a> 
+      <a name="save-changes-modal" data-dismiss="modal" class="btn btn-primary" href="#">_("Save changes");</a> 
     </div>
 
   </div>
