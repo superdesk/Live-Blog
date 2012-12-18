@@ -73,15 +73,17 @@ define([
 		},
 		render: function(){
 			var self = this, data = self.model.feed('json',true);
+			$.avatar.set(data, 'Person.EMail', { size: 22});
 			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator',data);
 		},
 		delete: function(){
 			var self = this;
 			$('#delete_internal_collaborator')
 				.find('#delete_collaborator_name').text(self.model.get('Name')).end()
-				.find('.btn-primary').on(self.getEvent("click"), function(evt){
+				.find('.btn-primary').off(self.getEvent("click")).on(self.getEvent("click"), function(evt){
 					evt.preventDefault();
-					self._parent._deletePending.push(self.model);
+					self._parent.remove(evt, self.model);
+					delete self.model.get('Person').internalCollaboratorView;
 					self.el.fadeTo(900, '0.1', function(){
 						self.el.remove();
 					});
@@ -166,9 +168,6 @@ define([
 				this.addOne(data[i]);
 			}
 		},
-		addUpdates: function(evt, data) {
-
-		},
 		render: function(evt, data) {
 			var self = this;
 			if(!data)
@@ -178,7 +177,7 @@ define([
 		},
 		addPendingCollaborators: function(evt) {
 			var self = this;
-			self._parent.addAllNew(evt, self._addPending);
+			self._parent.addAllNew(evt, self._addPending).save(evt, self._addPending);
 		},
 		toggleCollaborators: function(evt) {
 			var self = this;
@@ -206,13 +205,14 @@ define([
 				view = new CollaboratorView({ model: model, _parent: self});
 			model.get('Person').internalCollaboratorView = view;
 			self.el.find('.plain-table').prepend(view.el);
-			//self.sortOne(model, view);
+			self.sortOne(model, view);
 		},
 		addAllNew: function(evt, data) {
 			for(var i=0, count = data.length; i<count; i++) {
 				this.addOne(data[i]);
 				this._addPending.push(data[i]);
 			}
+			return this;
 		},
 		addAll: function(evt, data) {
 			for(var i=0, count = data.length; i<count; i++) {
@@ -236,21 +236,18 @@ define([
 			}
 			self.addInternalCollaboratorsView.refresh();
 		},
-		save: function(evt) {
+		save: function(evt, data) {
 			var self = this;
-			self.collection.add(self._addPending).done(function(){
-				self._addPending = [];
-			});
-			self.collection.remove(self._deletePending).done(function(){
-				self._deletePending = [];
-			});
+			self.collection.add(data);
+			return this;
+		},
+		remove: function(evt, model) {
+			var self = this;
+			self.collection.remove([model])
 		}
 	}),
+
 	MainManageCollaboratorsView = Gizmo.View.extend({
-		events: {
-			'#save-manage-collaborators': { click: 'save'},
-			'#save-and-close-manage-collaborators': { click: 'saveAndClose' }
-		},
 		refresh: function () {
 			var self = this;
 			self.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
@@ -307,7 +304,6 @@ define([
 		            	action = (action[0])? action[0] : action;
 		                action.ScriptPath &&
 		                    require([$.superdesk.apiUrl+action.ScriptPath], function(app){ 
-		                    	console.log(app);
 		                    	new app(blogHref); });
 		            });
 		        })
@@ -339,14 +335,6 @@ define([
 		        });
 				self.el.find('.controls').append(self.manageInternalCollaboratorsView.el);
 			});
-		},
-		save: function(evt) {
-			evt.preventDefault();
-			/*!
-			 * Delegate event to each of the subviews
-			 * manageInternal and manageExternal
-			 */
-			this.manageInternalCollaboratorsView.save(evt);
 		}
 	});
 	var mainManageCollaboratosView = new MainManageCollaboratorsView({
