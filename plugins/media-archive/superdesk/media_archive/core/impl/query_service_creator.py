@@ -33,8 +33,8 @@ from ally.api.criteria import AsBoolean, AsLike, AsEqual, AsDate, AsDateTime, \
 from ally.support.sqlalchemy.mapper import mappingFor
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty
-from superdesk.media_archive.api.criteria import AsOperator, AsIn, \
-    AsLikeExpressionOrdered, AsLikeExpression
+from superdesk.media_archive.api.criteria import AsIn, \
+    AsLikeExpressionOrdered, AsLikeExpression, AsInOrdered
 
 
 # --------------------------------------------------------------------
@@ -149,12 +149,23 @@ class QueryServiceAlchemy(SessionSupport):
         metaDatas = set()
 
         if qa is not None:
-            assert isinstance(qa, self.QMetaDataInfo), 'Invalid query %s' % qi
+            assert isinstance(qa, QMetaDataInfo), 'Invalid query %s' % qa
 
-            for name, criteria in self.queryIndexer.infoCriterias:
-                if not isinstance(criteria, AsLikeExpression) and not isinstance(criteria, AsLikeExpression): continue
-                criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
-                metaInfos = set.union(metaInfos, criteriaMetaInfos)
+            for name, criteria in self.queryIndexer.infoCriterias.items():
+                if criteria is AsLikeExpression or criteria is AsLikeExpressionOrdered:
+                    criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
+                    #if MetaInfo is present, add only MetaInfo
+                    if MetaInfoMapped not in criteriaMetaInfos:
+                        metaInfos = set.union(metaInfos, MetaInfoMapped)
+                    else: metaInfos.add(MetaInfoMapped)
+
+            for name, criteria in self.queryIndexer.dataCriterias.items():
+                if criteria is AsLikeExpression or criteria is AsLikeExpressionOrdered:
+                    criteriaMetaDatas = self.queryIndexer.metaDataByCriteria.get(name)
+                    #if MetaData is present, add only MetaData
+                    if MetaDataMapped not in criteriaMetaDatas:
+                        metaDatas = set.union(metaDatas, criteriaMetaDatas)
+                    else: metaDatas.add(MetaDataMapped)
 
 
         if qi is not None:
@@ -164,8 +175,10 @@ class QueryServiceAlchemy(SessionSupport):
                 if getattr(self.QMetaInfo, name) not in qi: continue
                 criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
                 assert criteriaMetaInfos, 'No model class available for %s' % name
+                #if MetaInfo is present, add only MetaInfo
                 if MetaInfoMapped not in criteriaMetaInfos:
-                    metaInfos = set.union(metaInfos, criteriaMetaInfos)
+                    metaInfos = set.union(metaInfos, MetaInfoMapped)
+                else: metaInfos.add(MetaInfoMapped)
 
         if qd is not None:
             assert isinstance(qd, self.QMetaData), 'Invalid query %s' % qd
@@ -174,51 +187,58 @@ class QueryServiceAlchemy(SessionSupport):
                 if getattr(self.QMetaData, name) not in qd: continue
                 criteriaMetaDatas = self.queryIndexer.metaDataByCriteria.get(name)
                 assert criteriaMetaDatas, 'No model class available for %s' % name
+                #if MetaData is present, add only MetaData
                 if MetaDataMapped not in criteriaMetaDatas:
                     metaDatas = set.union(metaDatas, criteriaMetaDatas)
+                else: metaDatas.add(MetaDataMapped)
 
         andClauses = None
         orClauses = None
 
-        if qi is None and qd is None:
+        if not metaInfos and not metaDatas:
             pass;
-        elif qi is not None and qd is None:
-            sql = buildPartialQuery(sql, qi, MetaInfoMapped, queryClauses)
+        elif metaInfos and not metaDatas:
+            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, queryClauses)
 
             for metaInfo in metaInfos:
+                if metaInfo is MetaInfoMapped: continue
                 sql = sql.outerjoin(metaInfo)
-                sql = buildPartialQuery(sql, qi, qa, metaInfo, queryClauses)
+                sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], queryClauses)
 
-        elif qi is None and qd is not None:
-            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, queryClauses)
+        elif not metaInfos and metaDatas:
+            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, queryClauses)
 
             for metaData in metaDatas:
+                if metaData is MetaDataMapped: continue
                 sql = sql.outerjoin(metaData)
-                sql = buildPartialQuery(sql, qd, metaData, queryClauses)
+                sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], queryClauses)
 
         else:
             andClauses = list()
             orClauses = list()
-            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, queryClauses, andClauses, orClauses, append=False)
-            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, queryClauses, andClauses, orClauses)
+            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, queryClauses, andClauses, orClauses, append=False)
+            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, queryClauses, andClauses, orClauses)
 
             for metaInfo in metaInfos:
+                if metaInfo is MetaInfoMapped: continue
                 metaData = self.queryIndexer.metaDatasByInfo[metaInfo.__name__]
                 if metaData in metaDatas:
+                    if metaData is MetaDataMapped: continue
                     sql = sql.outerjoin(metaInfo)
                     sql = sql.outerjoin(metaData)
                     andClauses = list()
                     orClauses = list()
-                    sql = buildPartialQuery(sql, qi, qa, metaInfo, queryClauses, andClauses, orClauses, append=False)
-                    sql = buildPartialQuery(sql, qd, metaData, queryClauses, andClauses, orClauses)
+                    sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], queryClauses, andClauses, orClauses, append=False)
+                    sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], queryClauses, andClauses, orClauses)
                 else:
                     sql = sql.outerjoin(metaInfo)
-                    sql = buildPartialQuery(sql, qi, qa, metaInfo, queryClauses)
+                    sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], queryClauses)
 
             for metaData in metaDatas:
+                if metaData is MetaDataMapped: continue
                 if self.queryIndexer.metaInfosByData[metaData.__name__] not in metaInfos:
                     sql = sql.outerjoin(metaData)
-                    sql = buildPartialQuery(sql, qd, qa, metaData, queryClauses)
+                    sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], queryClauses)
 
         length = len(queryClauses)
         if length == 1: sql = sql.filter(queryClauses[0])
@@ -259,7 +279,7 @@ class QueryServiceAlchemy(SessionSupport):
         return IterPart(metaDataInfos, count, offset, limit)
 
 
-def buildPartialQuery(sqlQuery, query, queryLike, mapped, queryClauses, andClauses=None, orClauses=None, append=True):
+def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, queryClauses, andClauses=None, orClauses=None, append=True):
     '''
     Builds the query on the SQL alchemy query.
 
@@ -270,8 +290,6 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, queryClauses, andClaus
     @param mapped: class
         The mapped model class to use the query on.
     '''
-    assert query is not None, 'A query object is required'
-    clazz = query.__class__
 
     ordered, unordered = [], []
     mapper = mappingFor(mapped)
@@ -283,64 +301,102 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, queryClauses, andClaus
     if andClauses is None: andClauses = list()
     if orClauses is None: orClauses = list()
 
-    for criteria in namesForQuery(clazz):
-        column = properties.get(criteria.lower())
-        if column is not None and getattr(clazz, criteria) in query:
+    if query:
+        clazz = query.__class__
+        for criteria in namesForQuery(clazz):
+            column = properties.get(criteria.lower())
 
-            crt = getattr(query, criteria)
-            if isinstance(crt, AsBoolean):
-                if AsBoolean.value in crt: andClauses.append(column == crt.value)
-            elif isinstance(crt, AsLike):
-                if AsLike.like in crt: andClauses.append(column.like(crt.like))
-                elif AsLike.ilike in crt: andClauses.append(column.ilike(crt.ilike))
-            elif isinstance(crt, AsLikeExpression):
-                    if AsLikeExpression.inc in crt:
-                        for value in crt.inc:
-                            andClauses.append(column.like(value))
-                    if AsLikeExpression.ext in crt:
-                        for value in crt.ext:
-                            orClauses.append(column.like(value))
-                    if AsLikeExpression.exc in crt:
-                        for value in crt.exc:
-                            andClauses.append(not_(column.like(value)))
+            if column is None: continue
 
-                    if queryLike and isinstance(queryLike, AsLikeExpression):
-                        if AsLikeExpression.inc in queryLike:
-                            for value in queryLike.inc:
+            if getattr(clazz, criteria) in query:
+                crt = getattr(query, criteria)
+
+                if isinstance(crt, AsBoolean):
+                    if AsBoolean.value in crt: andClauses.append(column == crt.value)
+                elif isinstance(crt, AsLike):
+                    if AsLike.like in crt: andClauses.append(column.like(crt.like))
+                    elif AsLike.ilike in crt: andClauses.append(column.ilike(crt.ilike))
+                elif isinstance(crt, AsLikeExpression) or isinstance(crt, AsLikeExpressionOrdered):
+                        if AsLikeExpression.inc in crt:
+                            for value in crt.inc:
                                 andClauses.append(column.like(value))
-                        if AsLikeExpression.ext in queryLike:
-                            for value in queryLike.ext:
+                        if AsLikeExpression.ext in crt:
+                            for value in crt.ext:
                                 orClauses.append(column.like(value))
-                        if AsLikeExpression.exc in queryLike:
-                            for value in queryLike.exc:
+                        if AsLikeExpression.exc in crt:
+                            for value in crt.exc:
                                 andClauses.append(not_(column.like(value)))
 
-            elif isinstance(crt, AsIn):
-                    if isinstance(crt, AsOperator) and AsOperator.op in crt:
-                        if crt.op == 'or': orClauses.append(column.in_(crt.values))
-                        elif crt.op == 'not': andClauses.append(not_(column.in_(crt.values)))
-                        else: andClauses.append(column.in_(crt.values))
-                    else: andClauses.append(column.in_(crt.values))
-            elif isinstance(crt, AsEqual):
-                if AsEqual.equal in crt: andClauses.append(column.ilike(column == crt.equal))
-            elif isinstance(crt, (AsDate, AsTime, AsDateTime, AsRange)):
-                if crt.__class__.start in crt: andClauses.append(column.ilike(column >= crt.start))
-                elif crt.__class__.until in crt: andClauses.append(column.ilike(column < crt.until))
-                if crt.__class__.end in crt:andClauses.append(column.ilike(column <= crt.end))
-                elif crt.__class__.since in crt: andClauses.append(column.ilike(column > crt.since))
+                        if queryLike:
+                            if AsLikeExpression.inc in queryLike:
+                                for value in queryLike.inc:
+                                    andClauses.append(column.like(value))
+                            if AsLikeExpression.ext in queryLike:
+                                for value in queryLike.ext:
+                                    orClauses.append(column.like(value))
+                            if AsLikeExpression.exc in queryLike:
+                                for value in queryLike.exc:
+                                    andClauses.append(not_(column.like(value)))
 
-            if isinstance(crt, AsOrdered):
-                assert isinstance(crt, AsOrdered)
-                if AsOrdered.ascending in crt:
-                    if AsOrdered.priority in crt and crt.priority:
-                        ordered.append((column, crt.ascending, crt.priority))
-                    else:
-                        unordered.append((column, crt.ascending, None))
+                elif isinstance(crt, AsIn) or isinstance(crt, AsInOrdered):
+                    andClauses.append(column.in_(crt.values))
+                elif isinstance(crt, AsEqual):
+                    if AsEqual.equal in crt: andClauses.append(column.ilike(column == crt.equal))
+                elif isinstance(crt, (AsDate, AsTime, AsDateTime, AsRange)):
+                    if crt.__class__.start in crt: andClauses.append(column.ilike(column >= crt.start))
+                    elif crt.__class__.until in crt: andClauses.append(column.ilike(column < crt.until))
+                    if crt.__class__.end in crt:andClauses.append(column.ilike(column <= crt.end))
+                    elif crt.__class__.since in crt: andClauses.append(column.ilike(column > crt.since))
 
-            ordered.sort(key=lambda pack: pack[2])
-            for column, asc, __ in chain(ordered, unordered):
-                if asc: sqlQuery = sqlQuery.order_by(column)
-                else: sqlQuery = sqlQuery.order_by(column.desc())
+                if isinstance(crt, AsOrdered):
+                    assert isinstance(crt, AsOrdered)
+                    if AsOrdered.ascending in crt:
+                        if AsOrdered.priority in crt and crt.priority:
+                            ordered.append((column, crt.ascending, crt.priority))
+                        else:
+                            unordered.append((column, crt.ascending, None))
+
+                ordered.sort(key=lambda pack: pack[2])
+                for column, asc, __ in chain(ordered, unordered):
+                    if asc: sqlQuery = sqlQuery.order_by(column)
+                    else: sqlQuery = sqlQuery.order_by(column.desc())
+
+            elif queryLike and getattr(pQuery, criteria):
+                crt = getattr(pQuery, criteria)
+                print(crt)
+
+                if crt is AsLikeExpression or crt is AsLikeExpressionOrdered:
+                    if AsLikeExpression.inc in queryLike:
+                        for value in queryLike.inc:
+                            andClauses.append(column.like(value))
+                    if AsLikeExpression.ext in queryLike:
+                        for value in queryLike.ext:
+                            orClauses.append(column.like(value))
+                    if AsLikeExpression.exc in queryLike:
+                        for value in queryLike.exc:
+                            andClauses.append(not_(column.like(value)))
+
+    elif queryLike:
+        for criteria in namesForQuery(pQuery):
+            column = properties.get(criteria.lower())
+
+            if column is None: continue
+
+            if getattr(pQuery, criteria):
+                crt = getattr(pQuery, criteria)
+                print(crt)
+
+                if crt is AsLikeExpression or crt is AsLikeExpressionOrdered:
+                    if AsLikeExpression.inc in queryLike:
+                        for value in queryLike.inc:
+                            andClauses.append(column.like(value))
+                    if AsLikeExpression.ext in queryLike:
+                        for value in queryLike.ext:
+                            orClauses.append(column.like(value))
+                    if AsLikeExpression.exc in queryLike:
+                        for value in queryLike.exc:
+                            andClauses.append(not_(column.like(value)))
+
 
     if not append:
         return sqlQuery
