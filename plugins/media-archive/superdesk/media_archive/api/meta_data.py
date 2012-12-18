@@ -13,13 +13,14 @@ from .domain_archive import modelArchive
 from .meta_type import MetaType
 from ally.api.config import query, service, call
 from ally.api.model import Content
-from ally.api.type import Reference, Iter, Scheme#, Count
+from ally.api.type import Reference, Iter, Scheme
 from ally.support.api.entity import Entity, QEntity
 from datetime import datetime
 from superdesk.user.api.user import User
 from ally.api.authentication import auth
 from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered, \
-    AsEqualExpressionOrdered, AsDateTimeExpressionOrdered, AsInExpressionOrdered
+    AsInOrdered
+from ally.api.criteria import AsRangeOrdered, AsDateTimeOrdered
 
 # --------------------------------------------------------------------
 
@@ -44,10 +45,10 @@ class QMetaData(QEntity):
     The query for he meta models.
     '''
     name = AsLikeExpressionOrdered
-    type = AsInExpressionOrdered
-    sizeInBytes = AsEqualExpressionOrdered
-    creator = AsEqualExpressionOrdered
-    createdOn = AsDateTimeExpressionOrdered
+    type = AsInOrdered
+    sizeInBytes = AsRangeOrdered
+    creator = AsInOrdered
+    createdOn = AsDateTimeOrdered
 
 # --------------------------------------------------------------------
 
