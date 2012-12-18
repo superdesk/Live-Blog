@@ -9,14 +9,65 @@
 			<div id="livedesk-root"></div>
 		</div>
 		<script>
-				var livedesk = { 
-					'theme': {
-						'container': '<span>hello</span>'
-					},
-					'server': function(){ return 'http://localhost:8080/';},
-					'blog': 'http://localhost:8080/resources/my/LiveDesk/Blog/1'
-				};
-				
+		config = new function()
+		{
+		    // this.server_tech = true;
+		    // use this if you have some sort of server tech like mod_rewrite,
+		    // and also would be nice to add a <base /> tag
+		    
+			this.domain = '{server_url}';
+			this.api_url = '//' + this.domain;
+			this.rest_url = '//' + this.domain + '/resources';
+			this.content_url =  '//' + this.domain + '/content';
+			this.lib_url = this.content_url + '/{lib_core}';
+			this.lib_js_url = this.lib_url + 'scripts/js/%s';
+			this.lib_css_url = this.lib_url + 'styles/css/%s';
+
+			// other
+			this.lib_js_urn = '{lib_core}/scripts/js/'.replace(/\/+/g, '/');
+			
+			this.gui_url = '{gui}';
+			
+			var replace = function(format)
+			{
+				return function()
+				{
+					var a = arguments, i = -1,
+					str = format.replace(/(%s)/g, function(m){ i++; return typeof a[i] !== 'undefined' ? a[i] : m; });
+					return str;
+				}
+			}
+			// TODO core() and gui() is inconsistent 
+			this.core = replace(this.lib_url);
+			this.coreScripts = this.cjs = replace(this.lib_js_url);
+			this.coreStyles = this.ccss = replace(this.lib_css_url);
+			
+			this.gui = replace(this.gui_url);
+			this.guiJs = replace(this.gui('%s/scripts/js/%s'));
+			
+		};
+		</script>
+		<!-- Blog configuration should go from configuration -->
+		<script type="text/javascript">
+			var livedesk = { 
+				'theme': {
+					'container': '<span>hello</span>'
+				},
+				'server': function(){ return config.api_url; },
+				'blog': config.rest_url+ '/my/LiveDesk/Blog/1'
+			};
+		</script>
+
+		<script>
+		(function (d, s, id) {
+		    var js, fjs = d.getElementsByTagName(s)[0];
+		    if (d.getElementById(id)) return;
+		    js = d.createElement(s);
+		    js.id = id;
+		    js.setAttribute('data-main',config.content_url + '/' + config.guiJs('livedesk-embed','theme/default'));
+		    js.src = config.coreScripts('require.js');
+		    fjs.parentNode.insertBefore(js, fjs);
+		}(document, "script", "livedesk-jssdk"));
 		</script>
 		<style>
 			.container {
@@ -26,6 +77,6 @@
 				width: 600px;
 			}		
 		</style>
-		<script data-main="http://localhost:8080/content/lib/livedesk-embed/scripts/js/theme/default" src="http://localhost:8080/content/lib/livedesk-embed/scripts/js/core/require.js"></script>
+		<!--<script data-main="//{server_url}/{gui}/livedesk-embed/scripts/js/theme/default" src="//{server_url}/{lib_core}/scripts/js/require.js"></script>-->
 	</body>
 </html>
