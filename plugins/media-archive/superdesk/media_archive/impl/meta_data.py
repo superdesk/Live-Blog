@@ -98,7 +98,7 @@ class MetaDataServiceAlchemy(MetaDataServiceBaseAlchemy, IMetaDataReferencer, IM
         metaData.CreatedOn = current_timestamp()
         metaData.Creator = userId
         metaData.Name = content.name
-
+        
         metaData.typeId = self._metaType.Id
         metaData.thumbnailFormatId = self._thumbnailFormat.id
 
