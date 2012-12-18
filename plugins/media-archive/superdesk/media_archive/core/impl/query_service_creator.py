@@ -149,12 +149,17 @@ class QueryServiceAlchemy(SessionSupport):
         metaDatas = set()
 
         if qa is not None:
-            assert isinstance(qa, self.QMetaDataInfo), 'Invalid query %s' % qi
+            assert isinstance(qa, QMetaDataInfo), 'Invalid query %s' % qa
 
-            for name, criteria in self.queryIndexer.infoCriterias:
-                if not isinstance(criteria, AsLikeExpression) and not isinstance(criteria, AsLikeExpression): continue
-                criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
-                metaInfos = set.union(metaInfos, criteriaMetaInfos)
+            for name, criteria in self.queryIndexer.infoCriterias.items():
+                if criteria is AsLikeExpression or criteria is AsLikeExpressionOrdered:
+                    criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
+                    metaInfos = set.union(metaInfos, criteriaMetaInfos)
+
+            for name, criteria in self.queryIndexer.dataCriterias.items():
+                if criteria is AsLikeExpression or criteria is AsLikeExpressionOrdered:
+                    criteriaMetaDatas = self.queryIndexer.metaDataByCriteria.get(name)
+                    metaDatas = set.union(metaDatas, criteriaMetaDatas)
 
 
         if qi is not None:
