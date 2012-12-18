@@ -4,24 +4,23 @@
     <h3>_('Add Live blog')</h3>
   </div>
   <div class="modal-body">
-
-   <form class="form-horizontal row-fluid">
-        <fieldset>
-            <div class="control-group">
-                <label class="control-label">_('Language');</label>
-                <div class="controls languages"></div>
-      </div>
-      <div class="control-group">
-        <label class="control-label">_('Configure type of blog');</label>
-            <div class="controls blogtypes"></div>
-          </div>      
-            <div class="control-group">
-              <h2 data-value="Title" placeholder="_('A new blog title')"></h2>
-            </div>
-            <div class="control-group">
-        <article data-value="Description" placeholder="_('and some description')"></article> 
+    <form class="form-horizontal row-fluid">
+      <fieldset>
+        <div class="control-group">
+          <label class="control-label">_('Language');</label>
+          <div class="controls languages"></div>
         </div>
-        </fieldset>
+        <div class="control-group">
+          <label class="control-label">_('Configure type of blog');</label>
+          <div class="controls blogtypes"></div>
+        </div>      
+        <div class="control-group">
+          <h2 data-value="Title" placeholder="_('A new blog title')"></h2>
+        </div>
+        <div class="control-group">
+          <article data-value="Description" placeholder="_('and some description')"></article> 
+        </div>
+      </fieldset>
     </form>
   </div>
   <div class="modal-footer">
@@ -29,6 +28,21 @@
     <a href="#" class="btn save btn-primary" data-dismiss="modal">_("Save changes");</a>
   </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!--
 <div id="add-live-blog" title="_('Add Live blog')">
     <form class="form-horizontal row-fluid">
