@@ -14,11 +14,6 @@
           </div>
         </div>
       </fieldset>
-      <div class="form-actions">
-        <button id="save-manage-collaborators" class="btn btn-primary">_("Save");</button>
-        <button id="save-and-close-manage-collaborators" class="btn btn-primary">_("Save &amp; Close");</button>
-        <button class="btn">_("Cancel");</button>
-      </div>
     </form>
   </div>
 </div>
