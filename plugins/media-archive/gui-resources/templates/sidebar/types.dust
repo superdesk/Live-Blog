@@ -3,9 +3,9 @@
 	<h3 class="header"><i class="icon-chevron-down"></i>Filters</h3>
 	<div class="module-row">
 		<div id="filter-modifiers" data-toggle="buttons-radio" class="btn-group">
-			<a data-modifier="and" class="btn btn-mini active" type="button">Include</a>
-			<a data-modifier="or" class="btn btn-mini" type="button">Expand</a>
-			<a data-modifier="not" class="btn btn-mini" type="button">Exclude</a>
+			<a data-modifier="inc" class="btn btn-mini active" type="button">Include</a>
+			<a data-modifier="exp" class="btn btn-mini" type="button">Expand</a>
+			<a data-modifier="exc" class="btn btn-mini" type="button">Exclude</a>
 		</div>
 	</div>
 	<div class="module-row">

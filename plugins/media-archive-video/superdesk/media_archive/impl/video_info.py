@@ -17,7 +17,7 @@ from superdesk.media_archive.api.video_info import IVideoInfoService, QVideoInfo
 from superdesk.media_archive.core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
 from superdesk.media_archive.api.video_data import QVideoData
 from superdesk.media_archive.meta.video_data import VideoDataMapped,\
-    VideoDataEntry
+    VideoDataEntry, META_TYPE_KEY
 from superdesk.media_archive.meta.video_info import VideoInfoMapped,\
     VideoInfoEntry
 
@@ -35,5 +35,5 @@ class VideoInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IVideoInfoService):
 
     def __init__(self):
         MetaInfoServiceBaseAlchemy.__init__(self, VideoInfoMapped, QVideoInfo, VideoDataMapped, QVideoData)
-        self.queryIndexer.register(VideoInfoEntry, QVideoInfo, VideoDataEntry, QVideoData)
+        self.queryIndexer.register(VideoInfoEntry, QVideoInfo, VideoDataEntry, QVideoData, META_TYPE_KEY)
         
