@@ -13,8 +13,8 @@ from ally.api.config import query, service
 from superdesk.media_archive.api.domain_archive import modelArchive
 from superdesk.media_archive.api.meta_data import QMetaData, IMetaDataService,\
     MetaData
-from superdesk.media_archive.api.criteria import AsEqualExpressionOrdered, \
-    AsLikeExpressionOrdered
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
+from ally.api.criteria import AsRangeOrdered, AsEqualOrdered
 
 # --------------------------------------------------------------------
 
@@ -51,24 +51,24 @@ class QAudioData(QMetaData):
     '''
     The query for audio model.
     '''
-    length = AsEqualExpressionOrdered
+    length = AsRangeOrdered
     audioEncoding = AsLikeExpressionOrdered
-    sampleRate = AsEqualExpressionOrdered
+    sampleRate = AsRangeOrdered
     channels = AsLikeExpressionOrdered
-    audioBitrate = AsEqualExpressionOrdered
+    audioBitrate = AsRangeOrdered
     
     title = AsLikeExpressionOrdered
     artist = AsLikeExpressionOrdered
-    track = AsEqualExpressionOrdered
+    track = AsRangeOrdered
     album = AsLikeExpressionOrdered
     genre = AsLikeExpressionOrdered
     #Part of a compilation 1 - True, 0 - False
-    tcmp = AsEqualExpressionOrdered
+    tcmp = AsEqualOrdered
     albumArtist = AsLikeExpressionOrdered
-    year = AsEqualExpressionOrdered
-    disk = AsEqualExpressionOrdered
+    year = AsRangeOrdered
+    disk = AsRangeOrdered
     #Beats-per-minute
-    tbpm = AsEqualExpressionOrdered
+    tbpm = AsRangeOrdered
     composer = AsLikeExpressionOrdered
 
 # --------------------------------------------------------------------
