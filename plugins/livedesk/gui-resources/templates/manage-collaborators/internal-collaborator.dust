@@ -4,7 +4,6 @@
       {#Person}{?Avatar}
                 <img src="{Avatar}" />
       {/Avatar}{/Person}
-    <img width="22" height="22" src="img/avatar_default_collaborator.png">
   </figure>
   <a href="#" class="collaborator-name">{Name}</a>
   <span data="collaborator_name">{#Person}{FullName}{/Person}</span>
