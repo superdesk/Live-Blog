@@ -14,8 +14,8 @@ from datetime import datetime
 from superdesk.media_archive.api.domain_archive import modelArchive
 from superdesk.media_archive.api.meta_data import MetaData, QMetaData, \
     IMetaDataService
-from superdesk.media_archive.api.criteria import AsEqualExpressionOrdered, \
-    AsDateTimeExpressionOrdered, AsLikeExpressionOrdered
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
+from ally.api.criteria import AsDateTimeOrdered, AsRangeOrdered
 
 
 # --------------------------------------------------------------------
@@ -39,9 +39,9 @@ class QImageData(QMetaData):
     '''
     The query for image model.
     '''
-    width = AsEqualExpressionOrdered
-    height = AsEqualExpressionOrdered
-    creationDate = AsDateTimeExpressionOrdered
+    width = AsRangeOrdered
+    height = AsRangeOrdered
+    creationDate = AsDateTimeOrdered
     cameraMake = AsLikeExpressionOrdered
     cameraModel = AsLikeExpressionOrdered
 

@@ -13,8 +13,8 @@ from ally.api.config import query, service
 from superdesk.media_archive.api.meta_data import MetaData, QMetaData,\
     IMetaDataService
 from superdesk.media_archive.api.domain_archive import modelArchive
-from superdesk.media_archive.api.criteria import AsEqualExpressionOrdered, \
-    AsLikeExpressionOrdered
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
+from ally.api.criteria import AsRangeOrdered
 
 # --------------------------------------------------------------------
 
@@ -42,16 +42,16 @@ class QVideoData(QMetaData):
     '''
     The query for video model.
     '''
-    length = AsEqualExpressionOrdered
+    length = AsRangeOrdered
     videoEncoding = AsLikeExpressionOrdered
-    width = AsEqualExpressionOrdered
-    height = AsEqualExpressionOrdered
-    videoBitrate = AsEqualExpressionOrdered
-    fps = AsEqualExpressionOrdered
+    width = AsRangeOrdered
+    height = AsRangeOrdered
+    videoBitrate = AsRangeOrdered
+    fps = AsRangeOrdered
     audioEncoding = AsLikeExpressionOrdered
-    sampleRate = AsEqualExpressionOrdered
+    sampleRate = AsRangeOrdered
     channels = AsLikeExpressionOrdered
-    audioBitrate = AsEqualExpressionOrdered
+    audioBitrate = AsRangeOrdered
 
 # --------------------------------------------------------------------
 
