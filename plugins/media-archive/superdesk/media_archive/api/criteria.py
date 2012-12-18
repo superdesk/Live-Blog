@@ -16,23 +16,6 @@ from ally.api.type import List
 # --------------------------------------------------------------------
 
 @criteria
-class AsOperator:
-    '''
-    Provides the option to set how different criteria are combined for the query. The operator(op) can have
-    the following values:
-
-    and - include - means that the value is mandatory for the given criteria
-    or - extend - means that the value is optional for the given criteria
-    not - exclude - means that the value if forbidden for the given criteria
-
-    The query compose an and condition with all and criteria, and all negated not criteria. Then is made an or with all
-    or criteria
-    '''
-    op = str
-
-# --------------------------------------------------------------------
-
-@criteria
 class AsLikeExpression:
     '''
     Provides query for properties that can be managed by a like function, this will only handle string types
