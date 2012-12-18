@@ -151,16 +151,17 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             "AsDateTimeExpression": "date",
             "AsDateTimeExpressionOrdered": "date"
         },
+        
+        // AsLikeExpressionOrdered, AsLikeExpression  
+        
         /*!
          * @param string criteriaTypes
          * @return string Comparable sorted array for the types on which the criteria applies 
          */
         _criteriaTypes: function(criteriaTypes)
         {
-            return criteriaTypes.replace(/InfoEntry-/g,'|').replace(/DataEntry-/g, '|').replace(/\|$/,'').replace(/\|$/,'').toLowerCase().split('|').sort();
+            return criteriaTypes.replace(/(^-)|(-$)/, '').toLowerCase().split('-').sort();
         },
-        
-        
 
         /*!
          * append filter criteria to select list
@@ -172,7 +173,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                 newEntry = '';
             
             // get all types string to compare
-            this.types.each(function(){ this.get('Type').toLowerCase() != 'other' && allTypes.push(this.get('Type')); });
+            this.types.each(function(){ allTypes.push(this.get('Type')); });
             allTypes.sort();
             allTypes = allTypes.toString();
             
@@ -184,10 +185,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                 {
                     newEntry = '<li data-criteria="'+key+'"' ;
                     if( allTypes == self._criteriaTypes(this.get('Types')).toString() )
-                    {
-                        self._criteriaForAll[key] = true;
                         newEntry += ' data-initial="true"';
-                    }
                     newEntry += '>'+self.criteriaNames[key]+'</li>';
                     $('#MAFilterResults', self.el).append(newEntry);
                 }
@@ -207,14 +205,9 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             {
                 selectedTypes.push($(this).val());
             });
-            if( !selectedTypes.length )
-            {
-                $('.filter-list li', this.el).removeClass('hide');
-                $('.filter-list li[data-initial!="true"]', this.el).addClass('hide');
-                return true;
-            }
+
             selectedTypes = selectedTypes.sort();
-            $('.filter-list li', this.el).addClass('hide');
+            $('.filter-list li[data-initial!="true"]', this.el).addClass('hide');
             // see what criteria is available for the current selection
             for( var i=0; i<criteria.length; i++ )
             {
@@ -256,17 +249,21 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                     $('.filter-list', this.el).removeClass('hide');
                     break;
 
-                case 9:
+                case 9: // tab
+                    break;
+                    
                 case 13: // return
-                    var evt = new $.Event;
-                    if( !selected ) return false;
-                    evt.target = selected;
-                    this.selectFilter(evt);
+                    if( selected.length ) 
+                    {
+                        evt.target = selected;
+                        this.selectFilter(evt);
+                        return false;
+                    }
+                    this.saveFilter(evt);
                     return false;
                     break;
 
                 case 8: // backspace
-                    console.log('bkspace');
                     break;
                     
                 default:
@@ -280,8 +277,6 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
          */
         keyup2filter: function(evt)
         {
-            console.log(evt.keyCode);
-            
             if( $.inArray(evt.keyCode, [13, 38, 40]) !== -1  ) return false;
             var src = $(evt.target).val().toLowerCase();
             if( src == '' ) 
@@ -298,9 +293,10 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         
         _selectFilterCriteriaAll: function(criteria)
         {
-            if( criteria != '_any_' ) return false;
+            if( criteria && criteria != '_any_' ) return false;
             $('.filter-edit', self.el).addClass('editing');
             $('.filter-list').addClass('hide');
+            $('.filter-value-container', self.el).html('');
             $('#MAFilter').focus();
             return true;
         },
@@ -339,7 +335,6 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
          */
         saveFilter: function(evt)
         {
-            console.log(evt);
             evt.preventDefault();
             var rule = $('.filter-edit [data-modifier].active', this.el).attr('data-modifier'),
                 self = this,
@@ -378,27 +373,25 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                     + (self.criteriaNames[criteria]||self.criteriaNames['_any_'])
                     + ': '+displayVal.join(', ')
                     + '<a class="closebutton" href="javascript:void(0)">x</a></li>');
-            newTag.data('criteria', [self._savedFilters.length-1, saveFilters.length]);
             $('.tag-container', self.el).append(newTag);
-            self._savedFilters = self._savedFilters.concat(saveFilters);
+            newTag.data('criteria', saveFilters);
             return false;
         },
         
         deleteFilter: function(evt)
         {
-            var tag = $(evt.currentTarget).parents('li:eq(0)');
-                cinfo = tag.data('criteria');
-            Array.prototype.splice.call(this._savedFilters, cinfo[0], cinfo[1]);
-            tag.remove();
+            $(evt.currentTarget).parents('li:eq(0)').remove();
         },
         
         getSearch: function()
         {
             var search = this.searchInput.val(),
                 query = [];
-            for( var i=0; i<this._savedFilters.length; i++ ) query.push(this._savedFilters[i]);
+            $('.tag-container li', self.el).each(function()
+            {
+                query = query.concat($(this).data('criteria'));
+            });
             if( $.trim(search) != '' ) query.push({'qi.keywords.ilike': search});
-            
             return query;
         }
     }),
@@ -430,6 +423,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         searchData: function()
         { 
             var aquery = this.filterView.getSearch(), query = '', j;
+            console.log(aquery);
             for( var i=0; i<aquery.length; i++ )
                 for( var j in aquery[i] ) query += encodeURIComponent(j) + "=" + encodeURIComponent(aquery[i][j]) + '&';
                 
