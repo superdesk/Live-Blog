@@ -170,6 +170,9 @@ class QueryIndexer:
         self.metaDatasByInfo = dict()
         self.metaInfosByData = dict()
 
+        self.queryByInfo = dict()
+        self.queryByData = dict()
+
         self.typesByMetaData = dict()
         self.typesByMetaInfo = dict()
 
@@ -233,6 +236,10 @@ class QueryIndexer:
 
         self.typesByMetaData[EntryMetaDataClass.__name__] = typeId
         self.typesByMetaInfo[EntryMetaInfoClass.__name__] = typeId
+
+        self.queryByData[EntryMetaDataClass.__name__] = QMetaDataClass
+        self.queryByInfo[EntryMetaInfoClass.__name__] = QMetaInfoClass
+
 
         for criteria in namesForQuery(QMetaInfoClass):
             criteriaClass = self.infoCriterias.get(criteria)
