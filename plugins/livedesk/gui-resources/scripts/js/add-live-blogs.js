@@ -114,18 +114,23 @@ define([
     }),
     Add = {
         BlogTypeView: Gizmo.View.extend({
-                evetns: {
-
+                events: {
+                    '#save-add-blogtype': { 'click': 'save' }
                 },
                 init: function() {
+                    this.model = new Gizmo.Register.BlogType();
                     this.render();
                 },
                 render: function(){
                     var self = this;
                     $.tmpl('livedesk>blogtype/add',{}, function(e,o){
-                        self.setElement(o).el.modal('hide');
+                        self.setElement(o);
                     });
                     return this;
+                },
+                save: function(){
+                    var name = this.el.find('[name="blogtypename"]').val();
+                    console.log(name);
                 }
             })
     },
