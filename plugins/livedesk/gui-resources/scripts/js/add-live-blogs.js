@@ -12,6 +12,8 @@ define([
     'tmpl!livedesk>blogtypes',
     'tmpl!livedesk>blogtype/blogtype',
     'tmpl!livedesk>blogtype/postposts',
+    'tmpl!livedesk>blogtype/add-window',
+    'tmpl!livedesk>blogtype/add'
 ], function( $, Gizmo) {
 
     var 
@@ -50,10 +52,10 @@ define([
             self.render();
         },
         render: function(evt, data){
-            var self = this;
+            var self = this, el;
             $.tmpl('livedesk>blogtype/blogtype', { BlogType: self.model.feed() }, function(e,o){
                 self.setElement(o);
-                $(self.el).on(self.getEvent('click'), 'h3', function(){
+                $(self.el).on(self.getEvent('click')+'test', 'h3', function(){
                         var li = $(this).parent().parent();
                         li.find('.blogtype-content').toggle(300);
                         li.toggleClass("collapse-open");
@@ -88,7 +90,7 @@ define([
             this.addAll(evt, data);
         }
     }),
-    AddBlogView = Gizmo.View.extend({
+    BlogView = Gizmo.View.extend({
         init: function() {
 
         },
@@ -110,11 +112,46 @@ define([
             });
         }
     }),
-    addBlogView = new AddBlogView({
-    });
-    $('body').append(addBlogView.el);
+    Add = {
+        BlogTypeView: Gizmo.View.extend({
+                evetns: {
+
+                },
+                init: function() {
+                    this.render();
+                },
+                render: function(){
+                    var self = this;
+                    $.tmpl('livedesk>blogtype/add',{}, function(e,o){
+                        self.setElement(o).el.modal('hide');
+                    });
+                    return this;
+                }
+            })
+    },
+    Config = {
+        BlogTypeView: Gizmo.View.extend({
+            init: function(){
+                var self = this;
+                if(!self.model)
+                    self.model = new Gizmo.Register.BlogType()
+                this.render();
+            },
+            render: function(){
+
+            }
+        }),
+        PostPostsView: Gizmo.View.extend({
+            ini: function(){}
+        })   
+    },
+    blogView = new BlogView(),
+    addBlogView = new Add.BlogTypeView();
+    $('body')
+        .append(blogView.el)
+        .append(addBlogView.el);
     return function()
     {
-        addBlogView.refresh();
+        blogView.refresh();
     }
 });
