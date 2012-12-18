@@ -14,7 +14,7 @@ from ally.container.support import setup
 from superdesk.media_archive.core.spec import QueryIndexer
 from ally.container import wire
 from superdesk.media_archive.meta.audio_data import AudioDataEntry,\
-    AudioDataMapped
+    AudioDataMapped, META_TYPE_KEY
 from superdesk.media_archive.core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
 from superdesk.media_archive.api.audio_data import QAudioData
 from superdesk.media_archive.api.audio_info import IAudioInfoService, QAudioInfo
@@ -35,5 +35,5 @@ class AudioInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IAudioInfoService):
 
     def __init__(self):
         MetaInfoServiceBaseAlchemy.__init__(self, AudioInfoMapped, QAudioInfo, AudioDataMapped, QAudioData)
-        self.queryIndexer.register(AudioInfoEntry, QAudioInfo, AudioDataEntry, QAudioData)
+        self.queryIndexer.register(AudioInfoEntry, QAudioInfo, AudioDataEntry, QAudioData, META_TYPE_KEY)
         
