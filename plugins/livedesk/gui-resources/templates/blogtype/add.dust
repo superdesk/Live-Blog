@@ -16,7 +16,7 @@
 
     <div class="modal-footer"> 
       <a data-dismiss="modal" class="btn" href="#">_("Cancel");</a> 
-      <a name="save-changes-modal" data-dismiss="modal" class="btn btn-primary" href="#">_("Save changes");</a> 
+      <a id="save-add-blogtype" data-dismiss="modal" class="btn btn-primary" href="#">_("Save changes");</a> 
     </div>
 
   </div>
