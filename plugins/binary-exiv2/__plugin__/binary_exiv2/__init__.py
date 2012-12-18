@@ -12,7 +12,7 @@ Provides the ffmpeg in the workspace tools.
 from os.path import join
 from ally.support.util_sys import pythonPath
 from ally.container import ioc
-from ally.support.util_deploy import deploy as deployTool
+from ally.support.util_deploy import deploy as deployTool, MACHINE_ALL
 
 # --------------------------------------------------------------------
 
@@ -34,4 +34,4 @@ def exiv2_dir_path():
 
 @ioc.start
 def deploy():
-    if exiv2_dir_path(): deployTool(join(pythonPath(), 'resources', 'exiv2'), exiv2_dir_path())
+    if exiv2_dir_path(): deployTool(join(pythonPath(), 'resources', 'exiv2'), exiv2_dir_path(), machineName=MACHINE_ALL)
