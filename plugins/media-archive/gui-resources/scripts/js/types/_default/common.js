@@ -52,7 +52,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             '[data-dismiss="modal"]': { 'click' : 'hide' },
             '[data-action="edit"]': { 'click': 'edit' },
             '[data-dismiss="modal"]': { 'click' : 'hide' },
-            '[data-select="language"] select': { 'change': 'selectMetaByLanguage' },
+            '[data-select="language"] select': { 'change': 'selectMetaByLanguage' }
         },
         edit: function()
         {
@@ -294,6 +294,9 @@ function($, superdesk, giz, MetaInfo, Languages)
             '.media-box-button.top.right' : { 'mouseleave': 'popoverHide' }
         },
         tmpl: 'media-archive>types/_default/grid-hover',
+        /*!
+         * render with optional new template
+         */
         render: function(data, tmpl)
         {
             $(this.el).tmpl(tmpl || this.tmpl, data);
@@ -305,6 +308,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             // TODO this is wrong
             var box = $(item.el).find('div:eq(0)');
             $(this.el).appendTo(box.parents().eq(1));
+            this.resetEvents();
             
             boxPosition = box.offset();
             $(this.el).removeClass('hide').offset({top: boxPosition.top-8, left : boxPosition.left-8});
@@ -365,13 +369,10 @@ function($, superdesk, giz, MetaInfo, Languages)
         {
             $("#additionalInfo", this.el).popover('hide');
         },
-
-        
         viewDetails: function(){ this.currentItem.viewDetails.call(this.currentItem); },
         edit: function(){ this.currentItem.edit.call(this.currentItem); },
         download: function(){ this.currentItem.download.call(this.currentItem); },
         remove: function(){ this.currentItem.remove.call(this.currentItem); }
-        
     }),
     
     HoverMenu = new HoverMenuView,
@@ -453,6 +454,6 @@ function($, superdesk, giz, MetaInfo, Languages)
         }
     });
     
-    return {item: ItemView, view: ViewDetails, edit: Edit, languages: LangEditView};
+    return {item: ItemView, view: ViewDetails, edit: Edit, languages: LangEditView, hoverMenu: HoverMenu};
 });
 
