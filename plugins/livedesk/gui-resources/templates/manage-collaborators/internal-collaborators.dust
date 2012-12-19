@@ -6,7 +6,7 @@
 <ul class="plain-table">
   <li class="search-waiting" style="display: none;">
     _("Searching"); &nbsp;&nbsp;
-    <img src="img/searching.gif"></li>
+    <img src="images/searching.gif"></li>
 </ul>
 </div>
 
