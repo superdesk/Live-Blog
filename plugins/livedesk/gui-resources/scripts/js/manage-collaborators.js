@@ -73,7 +73,7 @@ define([
 		},
 		render: function(){
 			var self = this, data = self.model.feed('json',true);
-			$.avatar.set(data, 'Person.EMail', { size: 22});
+			$.avatar.set(data, 'User.EMail', { size: 22});
 			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator',data);
 		},
 		delete: function(){
@@ -83,7 +83,7 @@ define([
 				.find('.btn-primary').off(self.getEvent("click")).on(self.getEvent("click"), function(evt){
 					evt.preventDefault();
 					self._parent.remove(evt, self.model);
-					delete self.model.get('Person').internalCollaboratorView;
+					delete self.model.get('User').internalCollaboratorView;
 					self.el.fadeTo(900, '0.1', function(){
 						self.el.remove();
 					});
@@ -142,9 +142,9 @@ define([
 		search: function(searchText) {
 			var self = this;
 			self.collection
-				.xfilter('Id,Name,Person.Id,Person.FullName,Person.EMail')
+				.xfilter('Id,Name,User.Id,User.FullName,User.EMail')
 				.limit(self.collection.config("limit"))
-				.param('%'+searchText+'%','qp.firstName.ilike')
+				.param('%'+searchText+'%','qu.firstName.ilike')
 				.sync();
 		},
 		refresh: function() {
@@ -152,12 +152,12 @@ define([
 			self._addPending = [];
 			self.el.find('.searchbox').val('');
 			self.collection
-				.xfilter('Id,Name,Person.Id,Person.FullName,Person.EMail')
+				.xfilter('Id,Name,User.Id,User.FullName,User.EMail')
 				.limit(self.collection.config("limit"))
 				.sync();
 		},
 		addOne: function(model) {
-			if( (model.get('Person')._clientId !== undefined) && (model.get('Person').internalCollaboratorView === undefined) ) {
+			if( (model.get('User')._clientId !== undefined) && (model.get('User').internalCollaboratorView === undefined) ) {
 				var self = this,
 					view = new AddInternalCollaboratorView({ model: model, _parent: self});
 					self.el.find('.internal-collaborators').append(view.el);
@@ -195,15 +195,15 @@ define([
 			self._addPending = [];
 			self._deletePending = [];
 			self.collection
-				.on('read', self.render, self)
-				.xfilter('Id,Name,Person.Id,Person.FullName,Person.EMail')
+				.one('read', self.render, self)
+				.xfilter('Id,Name,User.Id,User.FullName,User.EMail')
 				//.limit(self.collection.config("limit"))
 				.sync();
 		},
 		addOne: function(model) {
 			var self = this,
 				view = new CollaboratorView({ model: model, _parent: self});
-			model.get('Person').internalCollaboratorView = view;
+			model.get('User').internalCollaboratorView = view;
 			self.el.find('.plain-table').prepend(view.el);
 			self.sortOne(model, view);
 		},
@@ -220,6 +220,8 @@ define([
 			}
 		},
 		render: function(evt, data) {
+			if(!this.checkElement())
+				return;
 			var self = this;
 			self.el.tmpl('livedesk>manage-collaborators/internal-collaborators',function(){
 				self.addAll(evt, self.collection._list);
@@ -252,10 +254,12 @@ define([
 			var self = this;
 			self.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
 			self.model
-				.on('read', self.render, self)
+				.one('read', self.render, self)
 				.sync();
 		},
 		render: function(evt, data) {
+			if(!this.checkElement())
+				return;
 			var self = this,
 			data = $.extend({}, this.model.feed(), {
 					
