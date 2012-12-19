@@ -14,8 +14,8 @@ from ally.api.config import service, call, INSERT, DELETE, LIMIT_DEFAULT
 from ally.api.type import Iter
 from livedesk.api.domain_livedesk import modelLiveDesk
 from superdesk.collaborator.api.collaborator import Collaborator
-from superdesk.person.api.person import QPerson
 from superdesk.source.api.source import QSource
+from superdesk.user.api.user import QUser
 
 # --------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ class IBlogCollaboratorService:
 
     @call(webName="Potential")
     def getPotential(self, blogId:Blog, excludeSources:bool=True, offset:int=None, limit:int=LIMIT_DEFAULT,
-                     detailed:bool=True, qp:QPerson=None, qs:QSource=None) -> Iter(Collaborator):
+                     detailed:bool=True, qu:QUser=None, qs:QSource=None) -> Iter(Collaborator):
         '''
         Provides all the collaborators that are not registered to this blog.
         '''

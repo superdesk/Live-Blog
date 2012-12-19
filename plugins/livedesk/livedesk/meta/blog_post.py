@@ -55,4 +55,4 @@ class BlogPostMapped(BlogPostDefinition, PostMapped, BlogPost):
 
     # Expression for hybrid ------------------------------------
     AuthorPerson.expression(lambda cls: case([(cls.author == None, cls.Creator)], else_=
-                                             case([(CollaboratorMapped.Person != None, CollaboratorMapped.Person)])))
+                                             case([(CollaboratorMapped.User != None, CollaboratorMapped.User)])))

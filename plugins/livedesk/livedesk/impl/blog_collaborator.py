@@ -13,7 +13,6 @@ from ..api.blog_collaborator import IBlogCollaboratorService
 from ally.container.ioc import injected
 from livedesk.meta.blog_collaborator import BlogCollaboratorMapped, \
     BlogCollaboratorEntry
-from superdesk.person.meta.person import PersonMapped
 from superdesk.source.meta.source import SourceMapped
 from sqlalchemy.exc import OperationalError
 from ally.exception import InputError, Ref
@@ -25,6 +24,7 @@ from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from sqlalchemy.sql.expression import not_
 from ally.support.sqlalchemy.util_service import buildQuery, buildLimits
 from ally.api.extension import IterPart
+from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
@@ -56,19 +56,19 @@ class BlogCollaboratorServiceAlchemy(SessionSupport, IBlogCollaboratorService):
         @see: IBlogCollaboratorService.getAll
         '''
         sql = self.session().query(BlogCollaboratorMapped).filter(BlogCollaboratorMapped.Blog == blogId)
-        sql = sql.join(PersonMapped).join(SourceMapped).order_by(BlogCollaboratorMapped.Name)
+        sql = sql.join(UserMapped).join(SourceMapped).order_by(BlogCollaboratorMapped.Name)
         return sql.all()
 
-    def getPotential(self, blogId, excludeSources=True, offset=None, limit=None, detailed=True, qp=None, qs=None):
+    def getPotential(self, blogId, excludeSources=True, offset=None, limit=None, detailed=True, qu=None, qs=None):
         '''
         @see: IBlogCollaboratorService.getPotentialCollaborators
         '''
         sqlBlog = self.session().query(BlogCollaboratorMapped.Id).filter(BlogCollaboratorMapped.Blog == blogId)
-        sql = self.session().query(CollaboratorMapped).join(PersonMapped).join(SourceMapped)
+        sql = self.session().query(CollaboratorMapped).join(UserMapped).join(SourceMapped)
         sql = sql.filter(not_(CollaboratorMapped.Id.in_(sqlBlog)))
         sql = sql.order_by(CollaboratorMapped.Name)
-        if excludeSources: sql = sql.filter(CollaboratorMapped.Person != None)
-        if qp: sql = buildQuery(sql, qp, PersonMapped)
+        if excludeSources: sql = sql.filter(CollaboratorMapped.User != None)
+        if qu: sql = buildQuery(sql, qu, UserMapped)
         if qs: sql = buildQuery(sql, qs, SourceMapped)
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed: return IterPart(sqlLimit.all(), sql.count(), offset, limit)
