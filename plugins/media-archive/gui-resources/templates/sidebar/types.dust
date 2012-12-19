@@ -4,7 +4,7 @@
 	<div class="module-row">
 		<div id="filter-modifiers" data-toggle="buttons-radio" class="btn-group">
 			<a data-modifier="inc" class="btn btn-mini active" type="button">Include</a>
-			<a data-modifier="exp" class="btn btn-mini" type="button">Expand</a>
+			<a data-modifier="ext" class="btn btn-mini" type="button">Expand</a>
 			<a data-modifier="exc" class="btn btn-mini" type="button">Exclude</a>
 		</div>
 	</div>
@@ -14,7 +14,7 @@
 		<ul id="MAFilterResults" class="filter-list hide" style="position: absolute; top: 24px;"></ul>
 		<div class="filter-value-container"></div>
 		<button data-action="save-filter" type="submit">save filter</button>
-		<button data-action="search" class="pull-right">_('Search')</button>
+		<button data-action="search" class="pull-right" type="button">_('Search')</button>
 		<ul id="tag-container" class="tag-container clearfix"></ul>
 	</div>
 </form>
@@ -28,7 +28,7 @@
             <li icon="{Type}">
             	<label for="filter-{Type}">
             		<span class="treemenuicon {Type}">{Type}</span>
-            		<input type="checkbox" class="check" id="filter-{Type}" value="{Type}" />
+            		<input type="checkbox" class="check" id="filter-{Type}" value="{Id}" />
             	</label>
             </li>
         {/Types}
