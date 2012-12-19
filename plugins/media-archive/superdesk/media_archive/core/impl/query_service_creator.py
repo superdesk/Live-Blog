@@ -203,7 +203,7 @@ class QueryServiceAlchemy(SessionSupport):
 
         elif not metaInfos and metaDatas:
             for metaData in metaDatas:
-                sql = buildSubquery(self, None, MetaData, qa, qi, qd)
+                sql = buildSubquery(self, None, metaData, qa, qi, qd)
 
                 if sqlUnion: sqlUnion = sqlUnion.union(sql)
                 else: sqlUnion = sql
@@ -225,7 +225,7 @@ class QueryServiceAlchemy(SessionSupport):
             for metaData in metaDatas:
                 if metaData is MetaDataMapped: continue
                 if self.queryIndexer.metaInfosByData[metaData.__name__] not in metaInfos:
-                    sql = buildSubquery(self, None, MetaData, qa, qi, qd)
+                    sql = buildSubquery(self, None, metaData, qa, qi, qd)
 
                     if sqlUnion: sqlUnion = sqlUnion.union(sql)
                     else: sqlUnion = sql
