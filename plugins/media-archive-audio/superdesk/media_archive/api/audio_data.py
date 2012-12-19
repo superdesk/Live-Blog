@@ -14,7 +14,7 @@ from superdesk.media_archive.api.domain_archive import modelArchive
 from superdesk.media_archive.api.meta_data import QMetaData, IMetaDataService,\
     MetaData
 from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
-from ally.api.criteria import AsRangeOrdered, AsEqualOrdered
+from ally.api.criteria import AsRangeOrdered, AsEqualOrdered, AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -52,9 +52,9 @@ class QAudioData(QMetaData):
     The query for audio model.
     '''
     length = AsRangeOrdered
-    audioEncoding = AsLikeExpressionOrdered
+    audioEncoding = AsLikeOrdered
     sampleRate = AsRangeOrdered
-    channels = AsLikeExpressionOrdered
+    channels = AsLikeOrdered
     audioBitrate = AsRangeOrdered
     
     title = AsLikeExpressionOrdered
