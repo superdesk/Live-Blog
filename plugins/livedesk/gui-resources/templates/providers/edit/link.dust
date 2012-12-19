@@ -1,0 +1,16 @@
+	<div>{title}</div>
+	<div class="link-preview">
+		<figure class="link-thumbnail"> 
+			<img src="http://uidesign.lab.sourcefabric.org/liveblog/embed/wikitest.jpg">
+		</figure>
+
+		<h3 class="linkpost-editable"><a href="{url}">{title}</a></h3>
+		<p class="result-text linkpost-editable">{description}</p>
+		<p class="attributes">
+			<i class="source-icon">
+				<img src="http://g.etfv.co/{url}" style="max-width: 16px" border="0">
+			</i>
+			<a href="{url}" class="source-link" target="_blank">{title}</a>
+		</p>
+
+	</div>
