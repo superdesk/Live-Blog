@@ -19,6 +19,8 @@ define('providers/edit', [
     'jqueryui/texteditor',
     'tmpl!livedesk>providers/edit',
     'tmpl!livedesk>providers/edit/item',
+    'tmpl!livedesk>providers/edit/link',
+    'tmpl!livedesk>providers/edit/urlinput',
 ], function( providers, $, Gizmo, PostType, Post, uploadCom ) {
 	var OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
@@ -153,9 +155,11 @@ define('providers/edit', [
 	}),
 	EditView = Gizmo.View.extend({
 		postView: null,
+		lastType: null,
 		events: {
 			'[ci="savepost"]': { 'click': 'savepost'},
-			'[ci="save"]': { 'click': 'save'}
+			'[ci="save"]': { 'click': 'save'},
+			'[name="type"]' : {'change': 'changetype'}
 		},
 		init: function()
 		{	
@@ -168,6 +172,49 @@ define('providers/edit', [
 			
 			self.postTypes.on('read', function(){ self.render(); }).xfilter('Key').sync();
 			
+		},
+		populateUrlInfo: function() {
+			console.log('yeah my funct');
+			var self = this;
+			var url = self.el.find('.insert-link').val();
+			var data = {
+				url: url,
+				title: 'my custom title',
+				desc: 'my custom description',
+				thumbnail: ''
+			}
+			$.tmpl('livedesk>providers/edit/link' , data, function(e,o) {
+					self.el.find('article.editable').html(o)
+					editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, {});
+					self.el.find('.linkpost-editable').texteditor({
+						plugins: {controls: editorTitleControls},
+						floatingToolbar: 'top'
+					});
+				});
+		},
+		changetype: function() {
+			var self = this;
+			var type = $('[name="type"]').val();
+			if ( type == 'link') {
+				//inject template
+				$.tmpl('livedesk>providers/edit/urlinput' , {}, function(e,o) {
+					self.el.find('.url-input-holder').html(o);
+					self.el.find('article.editable').html('').css('height', '113px');
+					self.el.find('.insert-link').unbind('keydown, keypress', function(event) {return false; })
+					.bind('keydown, keypress', function(event){
+						console.log('hammer');
+						self.populateUrlInfo();
+					});
+				});
+			} else {
+				if ( this.lastType == 'link' ) {
+					//clear article
+					self.el.find('.url-input-holder').html('');
+					self.el.find('article.editable').html('').css('height', '150px');
+					self.el.find('.url-input-holder').html('');
+				}
+			}
+			this.lastType = type;
 		},
 		render: function(){
 			var self = this,
