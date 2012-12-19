@@ -38,7 +38,8 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
         for( i = 0; i < a2.length; i++ ) if( a2[i] in lookup ) results.push(a2[i]);
         
         return results;
-    }
+    },
+    
     /*!
      * @see gizmo/views/list/ItemView
      */
