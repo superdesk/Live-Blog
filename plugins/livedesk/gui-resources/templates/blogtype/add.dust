@@ -268,18 +268,18 @@
 
         <div class="wizard-picture-selection">
           <ul>
-            <li><img imageid="1" src="img/posttype-icons/posttype-1.png"></li>
-            <li><img imageid="2" src="img/posttype-icons/posttype-2.png"></li>
-            <li><img imageid="3" src="img/posttype-icons/posttype-3.png"></li>
-            <li><img imageid="4" src="img/posttype-icons/posttype-4.png"></li>
-            <li><img imageid="5" src="img/posttype-icons/posttype-5.png"></li>
-            <li><img imageid="6" src="img/posttype-icons/posttype-6.png"></li>
-            <li><img imageid="7" src="img/posttype-icons/posttype-7.png"></li>
-            <li><img imageid="8" src="img/posttype-icons/posttype-8.png"></li>
-            <li><img imageid="9" src="img/posttype-icons/posttype-9.png"></li>
-            <li><img imageid="10" src="img/posttype-icons/posttype-10.png"></li>
-            <li><img imageid="11" src="img/posttype-icons/posttype-11.png"></li>
-            <li><img imageid="12" src="img/posttype-icons/posttype-12.png"></li>
+            <li><img imageid="1" src="images/posttype-icons/posttype-1.png"></li>
+            <li><img imageid="2" src="images/posttype-icons/posttype-2.png"></li>
+            <li><img imageid="3" src="images/posttype-icons/posttype-3.png"></li>
+            <li><img imageid="4" src="images/posttype-icons/posttype-4.png"></li>
+            <li><img imageid="5" src="images/posttype-icons/posttype-5.png"></li>
+            <li><img imageid="6" src="images/posttype-icons/posttype-6.png"></li>
+            <li><img imageid="7" src="images/posttype-icons/posttype-7.png"></li>
+            <li><img imageid="8" src="images/posttype-icons/posttype-8.png"></li>
+            <li><img imageid="9" src="images/posttype-icons/posttype-9.png"></li>
+            <li><img imageid="10" src="images/posttype-icons/posttype-10.png"></li>
+            <li><img imageid="11" src="images/posttype-icons/posttype-11.png"></li>
+            <li><img imageid="12" src="images/posttype-icons/posttype-12.png"></li>
           </ul>
         </div>
 
