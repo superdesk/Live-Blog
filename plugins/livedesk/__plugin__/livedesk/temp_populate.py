@@ -213,16 +213,16 @@ def getCollaboratorsIds():
     if not _cache_collaborators:
         collaborators = _cache_collaborators
         for uname, source in COLLABORATORS.items():
-            try: person = getUsersIds()[uname]
+            try: user = getUsersIds()[uname]
             except KeyError:
-                person = None
+                user = None
                 colls, index = collaboratorService.getAll(qs=QSource(name=source)), source
             else:
-                colls, index = collaboratorService.getAll(qp=QPerson(firstName=USERS[uname][0])), uname
+                colls, index = collaboratorService.getAll(qu=QUser(name=USERS[uname][0])), uname
             if colls: collaborators[index] = colls[0].Id
             else:
                 coll = Collaborator()
-                coll.Person = person
+                coll.User = user
                 coll.Source = getSourcesIds()[source]
                 collaborators[index] = collaboratorService.insert(coll)
     return _cache_collaborators
