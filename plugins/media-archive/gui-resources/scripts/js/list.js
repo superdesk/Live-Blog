@@ -131,7 +131,10 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             "qd.width": _("Width"),
             "qd.height": _("Height"),
             "qd.genre": _("Genre"),
-            "qd.album": _("Album")
+            "qd.album": _("Album"),
+            "qd.title": _("Title"),
+            "qd.caption": _("Caption"),
+            "qd.keywoard": _("Keywords")
         },
         criteriaTypes:
         {
@@ -399,7 +402,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             });
             dateFrom.length && query.push({'qd.creationDate.since': dateFrom });
             dateTo.length && query.push({'qd.creationDate.until': dateTo });
-            $('#type-list input:checked', this.el).each(function(){ query.push({'qd.type': $(this).val()}); });
+            $('#type-list input:checked', this.el).each(function(){ query.push({'qd.typeId': $(this).val()}); });
             return query;
         }
     }),
