@@ -10,7 +10,7 @@ Creates the service that will be used for multi-plugins queries.
 '''
 
 from ally.api.config import service, call, query
-from ally.api.type import Iter, Scheme, Reference
+from ally.api.type import Iter, Scheme, Reference, typeFor
 from ally.support.api.util_service import namesForQuery
 from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import buildLimits
@@ -35,6 +35,8 @@ from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty
 from superdesk.media_archive.api.criteria import AsIn, \
     AsLikeExpressionOrdered, AsLikeExpression, AsInOrdered
+from ally.api.operator.type import TypeQuery
+from ally.api.operator.container import Query
 
 
 # --------------------------------------------------------------------
@@ -156,7 +158,7 @@ class QueryServiceAlchemy(SessionSupport):
                     criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
                     #if MetaInfo is present, add only MetaInfo
                     if MetaInfoMapped not in criteriaMetaInfos:
-                        metaInfos = set.union(metaInfos, MetaInfoMapped)
+                        metaInfos = set.union(metaInfos, criteriaMetaInfos)
                     else: metaInfos.add(MetaInfoMapped)
 
             for name, criteria in self.queryIndexer.dataCriterias.items():
@@ -177,7 +179,7 @@ class QueryServiceAlchemy(SessionSupport):
                 assert criteriaMetaInfos, 'No model class available for %s' % name
                 #if MetaInfo is present, add only MetaInfo
                 if MetaInfoMapped not in criteriaMetaInfos:
-                    metaInfos = set.union(metaInfos, MetaInfoMapped)
+                    metaInfos = set.union(metaInfos, criteriaMetaInfos)
                 else: metaInfos.add(MetaInfoMapped)
 
         if qd is not None:
@@ -293,6 +295,8 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, queryClauses, 
         The mapped model class to use the query on.
     '''
 
+    assert isinstance(queryLike, QMetaDataInfo), 'Invalid query %s' % queryLike
+
     ordered, unordered = [], []
     mapper = mappingFor(mapped)
     assert isinstance(mapper, Mapper)
@@ -302,6 +306,11 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, queryClauses, 
 
     if andClauses is None: andClauses = list()
     if orClauses is None: orClauses = list()
+
+    if pQuery:
+        queryType = typeFor(pQuery)
+        assert isinstance(queryType, TypeQuery)
+        assert isinstance(queryType.query, Query)
 
     if query:
         clazz = query.__class__
@@ -363,41 +372,37 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, queryClauses, 
                     if asc: sqlQuery = sqlQuery.order_by(column)
                     else: sqlQuery = sqlQuery.order_by(column.desc())
 
-            elif queryLike and getattr(pQuery, criteria):
-                crt = getattr(pQuery, criteria)
-                print(crt)
+            elif queryLike and queryType and criteria in queryType.query.criterias:
+                crtClass = queryType.query.criterias[criteria]
 
-                if crt is AsLikeExpression or crt is AsLikeExpressionOrdered:
-                    if AsLikeExpression.inc in queryLike:
-                        for value in queryLike.inc:
+                if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
+                    if AsLikeExpression.inc in queryLike.all or AsLikeExpressionOrdered.inc in queryLike.all:
+                        for value in queryLike.all.inc:
                             andClauses.append(column.like(value))
-                    if AsLikeExpression.ext in queryLike:
-                        for value in queryLike.ext:
+                    if AsLikeExpression.ext in queryLike.all or AsLikeExpressionOrdered.ext in queryLike.all:
+                        for value in queryLike.all.ext:
                             orClauses.append(column.like(value))
-                    if AsLikeExpression.exc in queryLike:
-                        for value in queryLike.exc:
+                    if AsLikeExpression.exc in queryLike.all or AsLikeExpressionOrdered.exc in queryLike.all:
+                        for value in queryLike.all.exc:
                             andClauses.append(not_(column.like(value)))
 
-    elif queryLike:
-        for criteria in namesForQuery(pQuery):
+    elif queryLike and queryType:
+
+        for criteria, crtClass in queryType.query.criterias.items():
             column = properties.get(criteria.lower())
 
             if column is None: continue
 
-            if getattr(pQuery, criteria):
-                crt = getattr(pQuery, criteria)
-                print(crt)
-
-                if crt is AsLikeExpression or crt is AsLikeExpressionOrdered:
-                    if AsLikeExpression.inc in queryLike:
-                        for value in queryLike.inc:
-                            andClauses.append(column.like(value))
-                    if AsLikeExpression.ext in queryLike:
-                        for value in queryLike.ext:
-                            orClauses.append(column.like(value))
-                    if AsLikeExpression.exc in queryLike:
-                        for value in queryLike.exc:
-                            andClauses.append(not_(column.like(value)))
+            if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
+                if AsLikeExpression.inc in queryLike.all or AsLikeExpressionOrdered.inc in queryLike.all:
+                    for value in queryLike.all.inc:
+                        andClauses.append(column.like(value))
+                if AsLikeExpression.ext in queryLike.all or AsLikeExpressionOrdered.ext in queryLike.all:
+                    for value in queryLike.all.ext:
+                        orClauses.append(column.like(value))
+                if AsLikeExpression.exc in queryLike.all or AsLikeExpressionOrdered.exc in queryLike.all:
+                    for value in queryLike.all.exc:
+                        andClauses.append(not_(column.like(value)))
 
 
     if not append:
