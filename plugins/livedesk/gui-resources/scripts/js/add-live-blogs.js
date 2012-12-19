@@ -99,13 +99,13 @@ define([
             $.tmpl('livedesk>add', {}, function(e, o){
                 self.setElement(o);
                 self.languagesView = new LanguagesView({
-                    collection: new Gizmo.Register.Languages(),
+                    collection: self.languages,
                     el: self.el.find('.languages'),
                     _parent: self
                 });
                 self.blogtypesView = new BlogTypesView({
-                    collection: new Gizmo.Register.BlogTypes(),
                     el: self.el.find('.blogtypes'),
+                    collection: self.blogTypes,
                     _parent: self
                 });                 
                 self.el.modal('show');
@@ -117,8 +117,8 @@ define([
                 events: {
                     '#save-add-blogtype': { 'click': 'save' }
                 },
+                pendingPosts: [],
                 init: function() {
-                    this.model = new Gizmo.Register.BlogType();
                     this.render();
                 },
                 render: function(){
@@ -130,7 +130,7 @@ define([
                 },
                 save: function(){
                     var name = this.el.find('[name="blogtypename"]').val();
-                    console.log(name);
+                    this.collection.insert({ Name: name });
                 }
             })
     },
@@ -150,8 +150,10 @@ define([
             ini: function(){}
         })   
     },
-    blogView = new BlogView(),
-    addBlogView = new Add.BlogTypeView();
+    blogTypes = new Gizmo.Register.BlogTypes(),
+    languages = new Gizmo.Register.Languages(),
+    blogView = new BlogView({ blogTypes: blogTypes, languages: languages }),
+    addBlogView = new Add.BlogTypeView({ collection: blogTypes });
     $('body')
         .append(blogView.el)
         .append(addBlogView.el);
