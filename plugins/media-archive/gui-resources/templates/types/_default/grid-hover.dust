@@ -1,4 +1,4 @@
-<div class="media-box-hover">
+<div class="media-box-hover {Type}">
 
   	<figure>
   	{+body}
