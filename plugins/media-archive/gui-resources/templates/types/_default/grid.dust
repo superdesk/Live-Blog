@@ -10,7 +10,7 @@
 	{/side}
 !}
 
-<div class="media-box" style="-moz-user-select: none;">
+<div class="media-box {Item.Type}" style="-moz-user-select: none;">
 	<figure>
     	{+body}
     		{#Item}
