@@ -104,8 +104,8 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
                 self = this;
             $(this.el).tmpl('media-archive>sidebar/types', {Types: data}, function()
             {
-                
                 self.criteriaList.sync();
+                self.resetEvents();
             }); //, PluralType: function(chk, ctx){ console.log(nlp.pluralize(ctx.current().Type)); return 'x' }});
         },
 
@@ -124,7 +124,7 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             "qd.audioBitrate": _("Audio Bitrate"),
             "qd.audioEncoding": _("Audio Encoding"),
             "qd.sampleRate": _("Sample Rate"),
-            "qd.createdOn": _("Date"),
+            //"qd.createdOn": _("Date"),
             "qd.fps": _("FPS"),
             "qd.tbpm": _("BPM"),
             "qd.albumArtist": _("Artists"),
@@ -200,11 +200,16 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         selectType: function()
         {
             var selectedTypes = [],
-                criteria = this.criteriaList.feed();
+                criteria = this.criteriaList.feed(),
+                self = this;
             // get the list of selected types
             $('#type-list input:checked', this.el).each(function()
-            {
-                selectedTypes.push($(this).val());
+            {   
+                var type = $(this);
+                self.types.each(function()
+                { 
+                    this.get('Id') == type.val() && selectedTypes.push( this.get('Type') );  
+                });
             });
 
             selectedTypes = selectedTypes.sort();
@@ -330,7 +335,6 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
             $('.filter-list').addClass('hide');
             return false;
         },
-        _criteriaOperator: '.op',
         /*!
          * save selected filter and value 
          */
@@ -386,13 +390,16 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         
         getSearch: function()
         {
-            var search = this.searchInput.val(),
-                query = [];
+            var query = [],
+                dateFrom = $('#date_from', self.el).val(),
+                dateTo = $('#date_to', self.el).val();
             $('.tag-container li', self.el).each(function()
             {
                 query = query.concat($(this).data('criteria'));
             });
-            if( $.trim(search) != '' ) query.push({'qi.keywords.ilike': search});
+            dateFrom.length && query.push({'qd.creationDate.since': dateFrom });
+            dateTo.length && query.push({'qd.creationDate.until': dateTo });
+            $('#type-list input:checked', this.el).each(function(){ query.push({'qd.type': $(this).val()}); });
             return query;
         }
     }),
@@ -407,8 +414,18 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         {
             '[data-action="add-media"]': { 'click' : 'add' },
             '[rel="popover"]': { 'mouseenter': 'popover', 'mouseleave': 'popoverleave' },
-            '.ipp a': { 'click': 'switchPage' }
+            '.ipp a': { 'click': 'switchPage' },
+            '#list_view': { 'click': 'switchDisplayMode' },
+            '#grid_view': { 'click': 'switchDisplayMode' }
         }),
+        
+        switchDisplayMode: function(evt)
+        {
+            var x = $(evt.currentTarget).attr('id');
+            if( x == 'list_view' ) this.displayMode = 1;
+            else this.displayMode = 0;
+            this.refresh();
+        },
         
         itemView: ItemView,
         tmpl: 'media-archive>list',
@@ -424,7 +441,6 @@ function($, superdesk, giz, gizList, nlp, MetaData, MetaType, MetaDataInfo, Quer
         searchData: function()
         { 
             var aquery = this.filterView.getSearch(), query = '', j;
-            console.log(aquery);
             for( var i=0; i<aquery.length; i++ )
                 for( var j in aquery[i] ) query += encodeURIComponent(j) + "=" + encodeURIComponent(aquery[i][j]) + '&';
                 
