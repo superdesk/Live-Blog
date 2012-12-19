@@ -75,7 +75,9 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             '.filter-list': { 'hover': 'hoverFilterList' },
             '.filter-list li': { 'click': 'selectFilter' },
             '.filters-form': { 'submit': 'saveFilter' },
-            '.closebutton': { 'click': 'deleteFilter' }
+            '.closebutton': { 'click': 'deleteFilter' },
+            '#date_from': { 'keydown': 'selectDate' },
+            '#date_to': { 'keydown': 'selectDate' }
         },
         tagName: 'span',
         types: null,
@@ -109,6 +111,11 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             }); //, PluralType: function(chk, ctx){ console.log(nlp.pluralize(ctx.current().Type)); return 'x' }});
         },
 
+        selectDate: function(evt)
+        {
+            if(evt.keyCode == 13) $(this).triggerHandler('trigger-search');
+        },
+        
         showFilterList: function()
         {
             if(!$('.filter-list', this.el).hasClass('hide')) $('.filter-list').addClass('hide');
@@ -231,6 +238,9 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                     $('.filter-list li[data-criteria="'+criteria[i].Key+'"]', self.el).removeClass('hide');
                 }
             }
+            
+            $(this).triggerHandler('trigger-search');
+            
         },
         
         hoverFilterList: function()
@@ -388,12 +398,16 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                     + '<a class="closebutton" href="javascript:void(0)">x</a></li>');
             $('.tag-container', self.el).append(newTag);
             newTag.data('criteria', saveFilters);
+            
+            $(this).triggerHandler('trigger-search');
+            
             return false;
         },
         
         deleteFilter: function(evt)
         {
             $(evt.currentTarget).parents('li:eq(0)').remove();
+            $(this).triggerHandler('trigger-search');
         },
         
         getSearch: function()
@@ -443,6 +457,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             gizList.ListView.prototype.init.call(this);
             this.filterView = new FilterView;
             var self = this;
+            $(this.filterView).on('trigger-search', function(){ self.search.call(self) });
             $(Add).on('uploaded', function(e, Id){ self.uploaded.call(self, Id); });
         },
         getSearchTerm: function(){ return 'abc'; },
