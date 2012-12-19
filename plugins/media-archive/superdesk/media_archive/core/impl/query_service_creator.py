@@ -230,6 +230,8 @@ class QueryServiceAlchemy(SessionSupport):
                     if sqlUnion: sqlUnion = sqlUnion.union(sql)
                     else: sqlUnion = sql
 
+        if sqlUnion is None:
+            sqlUnion = buildSubquery(self, MetaInfoMapped, MetaDataMapped, qa, qi, qd)
         count = sqlUnion.count()
 
         sqlUnion = buildLimits(sqlUnion, offset, limit)
@@ -278,7 +280,8 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=Non
         The mapped model class to use the query on.
     '''
 
-    assert isinstance(queryLike, QMetaDataInfo), 'Invalid query %s' % queryLike
+    if queryLike:
+        assert isinstance(queryLike, QMetaDataInfo), 'Invalid query %s' % queryLike
 
     ordered, unordered = [], []
     mapper = mappingFor(mapped)
