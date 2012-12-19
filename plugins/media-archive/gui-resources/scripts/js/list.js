@@ -132,10 +132,15 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             "qd.height": _("Height"),
             "qd.genre": _("Genre"),
             "qd.album": _("Album"),
-            "qd.title": _("Title"),
-            "qd.caption": _("Caption"),
-            "qd.keywoard": _("Keywords")
+            "qi.title": _("Title"),
+            "qi.caption": _("Caption"),
+            "qi.keywords": _("Keywords"),
+            "qi.description": _("Description"),
+            "qd.creator": _("Creator"),
+            "qi.sizeInBytes": _("Size in bytes"),
+            "qd.name": _("Name")
         },
+        
         criteriaTypes:
         {
             "AsEqual": "numeric",
