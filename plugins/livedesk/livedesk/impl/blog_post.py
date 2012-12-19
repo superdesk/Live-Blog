@@ -286,7 +286,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         if authorId:
             sql = sql.filter((BlogPostMapped.Author == authorId) |
                              ((CollaboratorMapped.Id == authorId) &
-                              (CollaboratorMapped.Person == BlogPostMapped.Creator)))
+                              (CollaboratorMapped.User == BlogPostMapped.Creator)))
 
         return sql
 
