@@ -141,14 +141,11 @@ class QueryServiceAlchemy(SessionSupport):
         '''
         Provides the meta data based on unified multi-plugin criteria.
         '''
-        sql = self.session().query(MetaDataMapped)
-        sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
-        sql = sql.add_entity(MetaInfoMapped)
-
-        queryClauses = list()
 
         metaInfos = set()
         metaDatas = set()
+
+        sqlUnion = None
 
         if qa is not None:
             assert isinstance(qa, QMetaDataInfo), 'Invalid query %s' % qa
@@ -194,63 +191,51 @@ class QueryServiceAlchemy(SessionSupport):
                     metaDatas = set.union(metaDatas, criteriaMetaDatas)
                 else: metaDatas.add(MetaDataMapped)
 
-        andClauses = None
-        orClauses = None
 
         if not metaInfos and not metaDatas:
             pass;
         elif metaInfos and not metaDatas:
-            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, queryClauses)
-
             for metaInfo in metaInfos:
-                if metaInfo is MetaInfoMapped: continue
-                sql = sql.outerjoin(metaInfo)
-                sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], queryClauses)
+                sql = buildSubquery(self, metaInfo, None, qa, qi, qd)
+
+                if sqlUnion: sqlUnion = sqlUnion.union(sql)
+                else: sqlUnion = sql
 
         elif not metaInfos and metaDatas:
-            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, queryClauses)
-
             for metaData in metaDatas:
-                if metaData is MetaDataMapped: continue
-                sql = sql.outerjoin(metaData)
-                sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], queryClauses)
+                sql = buildSubquery(self, None, MetaData, qa, qi, qd)
+
+                if sqlUnion: sqlUnion = sqlUnion.union(sql)
+                else: sqlUnion = sql
 
         else:
-            andClauses = list()
-            orClauses = list()
-            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, queryClauses, andClauses, orClauses, append=False)
-            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, queryClauses, andClauses, orClauses)
-
             for metaInfo in metaInfos:
-                if metaInfo is MetaInfoMapped: continue
                 metaData = self.queryIndexer.metaDatasByInfo[metaInfo.__name__]
                 if metaData in metaDatas:
-                    if metaData is MetaDataMapped: continue
-                    sql = sql.outerjoin(metaInfo)
-                    sql = sql.outerjoin(metaData)
-                    andClauses = list()
-                    orClauses = list()
-                    sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], queryClauses, andClauses, orClauses, append=False)
-                    sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], queryClauses, andClauses, orClauses)
+                    sql = buildSubquery(self, metaInfo, metaData, qa, qi, qd)
+
+                    if sqlUnion: sqlUnion = sqlUnion.union(sql)
+                    else: sqlUnion = sql
                 else:
-                    sql = sql.outerjoin(metaInfo)
-                    sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], queryClauses)
+                    sql = buildSubquery(self, metaInfo, None, qa, qi, qd)
+
+                    if sqlUnion: sqlUnion = sqlUnion.union(sql)
+                    else: sqlUnion = sql
 
             for metaData in metaDatas:
                 if metaData is MetaDataMapped: continue
                 if self.queryIndexer.metaInfosByData[metaData.__name__] not in metaInfos:
-                    sql = sql.outerjoin(metaData)
-                    sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], queryClauses)
+                    sql = buildSubquery(self, None, MetaData, qa, qi, qd)
 
-        length = len(queryClauses)
-        if length == 1: sql = sql.filter(queryClauses[0])
-        elif length > 1: sql = sql.filter(or_(*queryClauses))
+                    if sqlUnion: sqlUnion = sqlUnion.union(sql)
+                    else: sqlUnion = sql
 
-        count = sql.count()
-        sql = buildLimits(sql, offset, limit)
+        count = sqlUnion.count()
+
+        sqlUnion = buildLimits(sqlUnion, offset, limit)
 
         metaDataInfos = list()
-        for row in sql.all():
+        for row in sqlUnion.all():
             metaDataInfo = MetaDataInfo()
 
             metaDataMapped = row[0]
@@ -281,7 +266,7 @@ class QueryServiceAlchemy(SessionSupport):
         return IterPart(metaDataInfos, count, offset, limit)
 
 
-def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, queryClauses, andClauses=None, orClauses=None, append=True):
+def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=None, orClauses=None, append=True):
     '''
     Builds the query on the SQL alchemy query.
 
@@ -414,23 +399,78 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, queryClauses, 
             #do nothing 
             pass
         elif lengthOr == 1:
-            queryClauses.append(orClauses[0])
+            sqlQuery = sqlQuery.filter(orClauses[0])
         elif lengthOr > 1:
-            queryClauses.append(or_(*orClauses))
+            sqlQuery = sqlQuery.filter(or_(*orClauses))
     elif lengthAnd == 1:
         if lengthOr == 0:
-            queryClauses.append(andClauses[0])
+            sqlQuery = sqlQuery.filter(andClauses[0])
         elif lengthOr == 1:
-            queryClauses.append(or_(andClauses[0], orClauses[0]))
+            sqlQuery = sqlQuery.filter(andClauses[0]).filter(orClauses[0])
         elif lengthOr > 1:
-            queryClauses.append(or_(andClauses[0], or_(*orClauses)))
+            sqlQuery = sqlQuery.filter(andClauses[0]).filter(or_(*orClauses))
     elif lengthAnd > 1:
         if lengthOr == 0:
-            queryClauses.append(and_(*andClauses))
+            sqlQuery = sqlQuery.filter(and_(*andClauses))
         elif lengthOr == 1:
-            queryClauses.append(or_(and_(*andClauses), orClauses[0]))
+            sqlQuery = sqlQuery.filter(and_(*andClauses)).filter(orClauses[0])
         elif lengthOr > 1:
-            queryClauses.append(or_(and_(*andClauses), or_(*orClauses)))
+            sqlQuery = sqlQuery.filter(and_(*andClauses)).filter(or_(*orClauses))
 
     return sqlQuery
+
+
+
+def buildSubquery(self, metaInfo, metaData, qa, qi, qd):
+    if metaData is None:
+        sql = self.session().query(MetaDataMapped)
+        sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
+        sql = sql.add_entity(MetaInfoMapped)
+
+        if metaInfo is MetaInfoMapped:
+            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo)
+        else:
+            andClauses = list()
+            orClauses = list()
+            sql = sql.outerjoin(metaInfo)
+            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, andClauses, orClauses, append=False)
+            sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], andClauses, orClauses)
+
+    elif metaInfo is None:
+        sql = self.session().query(MetaDataMapped)
+        sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
+        sql = sql.add_entity(MetaInfoMapped)
+
+        if metaData is MetaDataMapped:
+            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData)
+        else:
+            andClauses = list()
+            orClauses = list()
+            sql = sql.outerjoin(metaData)
+            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, andClauses, orClauses, append=False)
+            sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], andClauses, orClauses)
+
+    else:
+            sql = self.session().query(MetaDataMapped)
+            sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
+            sql = sql.add_entity(MetaInfoMapped)
+
+            andClauses = list()
+            orClauses = list()
+
+            if metaInfo is MetaInfoMapped:
+                sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, andClauses, orClauses, append=False)
+            else:
+                sql = sql.outerjoin(metaInfo)
+                sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, andClauses, orClauses, append=False)
+                sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], andClauses, orClauses, append=False)
+
+            if metaData is MetaDataMapped:
+                sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, andClauses, orClauses)
+            else:
+                sql = sql.outerjoin(metaData)
+                sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, andClauses, orClauses, append=False)
+                sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], andClauses, orClauses)
+
+    return sql
 
