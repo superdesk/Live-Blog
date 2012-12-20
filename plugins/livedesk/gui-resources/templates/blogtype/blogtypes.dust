@@ -1,5 +1,6 @@
-<a href="#add-blogtype" blogtype="true" name="openmodal" data-toggle="modal" class="btn"><i class="icon-plus-sign"></i>_("Add New Blog Type");</a>
-
+{^add}
+  <a href="#add-blogtype" blogtype="true" name="openmodal" data-toggle="modal" class="btn"><i class="icon-plus-sign"></i>_("Add New Blog Type");</a>
+{/add}
 <ul class="blogtype-list">
   {#BlogTypes}
   {+blogtype_item}
