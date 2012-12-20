@@ -8,7 +8,4 @@
     <li>
     	<a data-action="download" href="javascript:void(0)"><i class="icon-download-alt"></i> _('Download')</a>
     </li>
-	<li>
-		<a data-action="delete" href="javascript:void(0)"><i class="icon-trash"></i> _('Delete')</a>
-	</li>
 </ul>
