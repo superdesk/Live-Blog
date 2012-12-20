@@ -7,19 +7,23 @@
 	{/side}
 !}
 
-<div class="media-box-hover-list" style="-moz-user-select: none;">
+<div class="media-box-hover-list {Type}" style="-moz-user-select: none;">	
+
+
   	{+body}
-	  	{#Item}
 		<figure>{Content|s}</figure>
 		
+		<!--
 		<div class="actions-left">
 			<div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div>
 		</div>
-            
+        -->
+
 		<div class="media-info">
-			<h5>{Name}</h5>
+			{+title}
+		    	<h5>{?Title}{Title}{:else}{Name}{/Title}</h5>
+		    {/title}
 		</div>
-		{/Item}
     {/body}
 
 	{+side}
