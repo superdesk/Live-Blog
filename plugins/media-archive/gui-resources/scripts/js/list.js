@@ -79,8 +79,8 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             '.closebutton': { 'click': 'deleteFilter' },
             '#date_from': { 'keydown': 'selectDate' },
             '#date_to': { 'keydown': 'selectDate' },
-            '#display_date_from': { 'keydown': 'selectDate' },
-            '#display_date_to': { 'keydown': 'selectDate' }
+            '#display_date_from': { 'keydown': 'selectDate', 'change': 'selectDate' },
+            '#display_date_to': { 'keydown': 'selectDate', 'change': 'selectDate' }
         },
         tagName: 'span',
         types: null,
@@ -130,7 +130,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
 
         selectDate: function(evt)
         {
-            if(evt.keyCode == 13) $(this).triggerHandler('trigger-search');
+            if(evt.keyCode == 13 || evt.type == 'change') $(this).triggerHandler('trigger-search');
         },
         
         showFilterList: function()
@@ -240,7 +240,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                 var type = $(this);
                 self.types.each(function()
                 { 
-                    this.get('Id') == type.val() && selectedTypes.push( this.get('Type') );  
+                    this.get('Type') == type.val() && selectedTypes.push( this.get('Type') );  
                 });
             });
 
@@ -543,7 +543,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                                 try
                                 { 
                                     // render new item view
-                                    var newItemView = new View({ model: model, el: placeEl });
+                                    var newItemView = new View({ model: model, el: placeEl, parent: self });
                                     newItemView.render();
                                     // look for recently uploaded item to popup edit
                                     if( self.recentlyUploaded && self.recentlyUploaded == model.get('Id') )

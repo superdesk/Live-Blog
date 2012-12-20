@@ -307,12 +307,19 @@ function($, superdesk, giz, MetaInfo, Languages)
         {
             this.currentItem = item;
             // TODO this is wrong
-            var box = $(item.el).find('div:eq(0)');
+            var box = $(item.el).find('div:eq(0)'),
+                displayMode = item.parent.displayModes[item.parent.displayMode];
             $(this.el).appendTo(box.parents().eq(1));
             this.resetEvents();
             
             boxPosition = box.offset();
-            $(this.el).removeClass('hide').offset({top: boxPosition.top-8, left : boxPosition.left-8});
+            
+            $(this.el).removeClass('hide');
+            $(this.el).find('div:eq(0)').css('position', 'relative');
+            if( displayMode == 'grid-view')
+                $(this.el).find('div:eq(0)').offset({top: boxPosition.top-8, left : boxPosition.left-8});
+            else $(this.el).find('div:eq(0)').offset({top: boxPosition.top, left : boxPosition.left});
+
             
             // get main-content-inner width and left
             var mainContentInnerWidth = $(item.el).parents().eq(1).width();
@@ -434,7 +441,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             this.getEdit().refresh().activate();
         },
         
-        download: function(){},
+        download: function(){ window.open(this.model.get('Content').href); },
         
         remove: function()
         {
