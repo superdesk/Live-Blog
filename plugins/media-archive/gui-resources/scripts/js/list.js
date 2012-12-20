@@ -78,7 +78,9 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             '.filters-form': { 'submit': 'saveFilter' },
             '.closebutton': { 'click': 'deleteFilter' },
             '#date_from': { 'keydown': 'selectDate' },
-            '#date_to': { 'keydown': 'selectDate' }
+            '#date_to': { 'keydown': 'selectDate' },
+            '#display_date_from': { 'keydown': 'selectDate' },
+            '#display_date_to': { 'keydown': 'selectDate' }
         },
         tagName: 'span',
         types: null,
@@ -434,8 +436,8 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             {
                 query = query.concat($(this).data('criteria'));
             });
-            dateFrom.length && query.push({'qd.creationDate.since': dateFrom });
-            dateTo.length && query.push({'qd.creationDate.until': dateTo });
+            dateFrom.length && query.push({'qd.createdOn.since': dateFrom });
+            dateTo.length && query.push({'qd.createdOn.until': dateTo });
             $('#type-list input:checked', this.el).each(function(){ query.push({'type': $(this).val()}); });
             return query;
         }
