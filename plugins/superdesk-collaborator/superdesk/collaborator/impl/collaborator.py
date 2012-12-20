@@ -40,6 +40,7 @@ class CollaboratorServiceAlchemy(EntityGetCRUDServiceAlchemy, ICollaboratorServi
         '''
         sql = self.session().query(CollaboratorMapped)
         if userId: sql = sql.filter(CollaboratorMapped.User == userId)
+        sql = sql.filter(UserMapped.DeletedOn == None)
         if sourceId: sql = sql.filter(CollaboratorMapped.Source == sourceId)
         if qu: sql = buildQuery(sql.join(UserMapped), qu, UserMapped)
         if qs: sql = buildQuery(sql.join(SourceMapped), qs, SourceMapped)
