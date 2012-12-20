@@ -37,6 +37,7 @@ from superdesk.media_archive.api.criteria import AsIn, \
     AsLikeExpressionOrdered, AsLikeExpression, AsInOrdered
 from ally.api.operator.type import TypeQuery
 from ally.api.operator.container import Query
+from superdesk.media_archive.meta.meta_type import MetaTypeMapped
 
 
 # --------------------------------------------------------------------
@@ -72,6 +73,7 @@ class QMetaDataInfo:
     The query for the meta data info models for all texts search.
     '''
     all = AsLikeExpressionOrdered
+    type = AsIn
 
 # --------------------------------------------------------------------
 
@@ -101,7 +103,7 @@ class IQueryService:
     Provides the service methods for the unified multi-plugin criteria query.
     '''
 
-    def getMetaInfos(self, scheme, offset=None, limit=10, all=None, qi=None, qd=None, thumbSize=None):
+    def getMetaInfos(self, scheme, offset=None, limit=10, qa=None, qi=None, qd=None, thumbSize=None):
         '''
         Provides the meta data based on unified multi-plugin criteria.
         '''
@@ -148,24 +150,34 @@ class QueryServiceAlchemy(SessionSupport):
         sqlUnion = None
         sqlList = list()
 
+        types = [self.queryIndexer.typesByMetaData[key] for key in self.queryIndexer.typesByMetaData.keys()]
+
         if qa is not None:
             assert isinstance(qa, QMetaDataInfo), 'Invalid query %s' % qa
+
+            if QMetaDataInfo.type in qa:
+                types = qa.type.values
+
 
             for name, criteria in self.queryIndexer.infoCriterias.items():
                 if criteria is AsLikeExpression or criteria is AsLikeExpressionOrdered:
                     criteriaMetaInfos = self.queryIndexer.metaInfoByCriteria.get(name)
                     #if MetaInfo is present, add only MetaInfo
                     if MetaInfoMapped not in criteriaMetaInfos:
-                        metaInfos = set.union(metaInfos, criteriaMetaInfos)
-                    else: metaInfos.add(MetaInfoMapped)
+                        for metaInfo in criteriaMetaInfos:
+                            if self.queryIndexer.typesByMetaInfo[metaInfo.__name__] in types: metaInfos.add(metaInfo)
+                    elif self.queryIndexer.typesByMetaInfo[MetaInfoMapped.__name__] in types:
+                        metaInfos.add(MetaInfoMapped)
 
             for name, criteria in self.queryIndexer.dataCriterias.items():
                 if criteria is AsLikeExpression or criteria is AsLikeExpressionOrdered:
                     criteriaMetaDatas = self.queryIndexer.metaDataByCriteria.get(name)
                     #if MetaData is present, add only MetaData
                     if MetaDataMapped not in criteriaMetaDatas:
-                        metaDatas = set.union(metaDatas, criteriaMetaDatas)
-                    else: metaDatas.add(MetaDataMapped)
+                        for metaData in criteriaMetaDatas:
+                            if self.queryIndexer.typesByMetaData[metaData.__name__] in types: metaDatas.add(metaData)
+                    elif self.queryIndexer.typesByMetaData[MetaDataMapped.__name__] in types:
+                        metaDatas.add(MetaDataMapped)
 
 
         if qi is not None:
@@ -177,8 +189,10 @@ class QueryServiceAlchemy(SessionSupport):
                 assert criteriaMetaInfos, 'No model class available for %s' % name
                 #if MetaInfo is present, add only MetaInfo
                 if MetaInfoMapped not in criteriaMetaInfos:
-                    metaInfos = set.union(metaInfos, criteriaMetaInfos)
-                else: metaInfos.add(MetaInfoMapped)
+                    for metaInfo in criteriaMetaInfos:
+                        if self.queryIndexer.typesByMetaInfo[metaInfo.__name__] in types: metaInfos.add(metaInfo)
+                elif self.queryIndexer.typesByMetaInfo[MetaInfoMapped.__name__] in types:
+                    metaInfos.add(MetaInfoMapped)
 
         if qd is not None:
             assert isinstance(qd, self.QMetaData), 'Invalid query %s' % qd
@@ -189,38 +203,47 @@ class QueryServiceAlchemy(SessionSupport):
                 assert criteriaMetaDatas, 'No model class available for %s' % name
                 #if MetaData is present, add only MetaData
                 if MetaDataMapped not in criteriaMetaDatas:
-                    metaDatas = set.union(metaDatas, criteriaMetaDatas)
-                else: metaDatas.add(MetaDataMapped)
+                    for metaData in criteriaMetaDatas:
+                        if self.queryIndexer.typesByMetaData[metaData.__name__] in types: metaDatas.add(metaData)
+                elif self.queryIndexer.typesByMetaData[MetaDataMapped.__name__] in types:
+                    metaDatas.add(MetaDataMapped)
 
+        for metaData in self.queryIndexer.metaDatas:
+            if metaData not in metaDatas and self.queryIndexer.typesByMetaData[metaData.__name__] not in types:
+                types.append(self.queryIndexer.typesByMetaData[metaData.__name__])
+
+        for metaInfo in self.queryIndexer.metaInfos:
+            if metaInfo not in metaInfos and self.queryIndexer.typesByMetaInfo[metaInfo.__name__] not in types:
+                types.append(self.queryIndexer.typesByMetaInfo[metaInfo.__name__])
 
         if not metaInfos and not metaDatas:
             pass;
         elif metaInfos and not metaDatas:
             for metaInfo in metaInfos:
-                sql = buildSubquery(self, metaInfo, MetaDataMapped, qa, qi, qd)
-
-                if sqlUnion: sqlUnion = sqlUnion.union(sql)
-                else: sqlUnion = sql
-
+                sql = buildSubquery(self, metaInfo, MetaDataMapped, qa, qi, qd, types)
+                if sql: sqlList.append(sql)
         elif not metaInfos and metaDatas:
             for metaData in metaDatas:
-                sqlList.append(buildSubquery(self, MetaInfoMapped, metaData, qa, qi, qd))
+                sql = buildSubquery(self, MetaInfoMapped, metaData, qa, qi, qd, types)
+                if sql: sqlList.append(sql)
         else:
             for metaInfo in metaInfos:
                 metaData = self.queryIndexer.metaDatasByInfo[metaInfo.__name__]
                 if metaData in metaDatas:
-                    sqlList.append(buildSubquery(self, metaInfo, metaData, qa, qi, qd))
+                    sql = buildSubquery(self, metaInfo, metaData, qa, qi, qd, types)
+                    if sql: sqlList.append(sql)
                 else:
-                    sqlList.append(buildSubquery(self, metaInfo, MetaDataMapped, qa, qi, qd))
-
+                    sql = buildSubquery(self, metaInfo, MetaDataMapped, qa, qi, qd, types)
+                    if sql: sqlList.append(sql)
             for metaData in metaDatas:
                 if metaData is MetaDataMapped: continue
                 if self.queryIndexer.metaInfosByData[metaData.__name__] not in metaInfos:
-                    sqlList.append(buildSubquery(self, MetaInfoMapped, metaData, qa, qi, qd))
+                    sql = buildSubquery(self, MetaInfoMapped, metaData, qa, qi, qd, types)
+                    if sql: sqlList.append(sql)
 
         sqlLength = len(sqlList)
         if sqlLength == 0:
-            sqlUnion = buildSubquery(self, MetaInfoMapped, MetaDataMapped, qa, qi, qd)
+            sqlUnion = buildSubquery(self, MetaInfoMapped, MetaDataMapped, qa, qi, qd, types)
         elif sqlLength == 1:
             sqlUnion = sqlList[0]
         else:
@@ -260,12 +283,20 @@ class QueryServiceAlchemy(SessionSupport):
 
         return IterPart(metaDataInfos, count, offset, limit)
 
-
-def buildSubquery(self, metaInfo, metaData, qa, qi, qd):
+def buildSubquery(self, metaInfo, metaData, qa, qi, qd, types):
     sql = self.session().query(MetaDataMapped)
+
+    if metaInfo == MetaInfoMapped and metaData == MetaDataMapped:
+        if types:
+            sql = sql.join(MetaTypeMapped, MetaTypeMapped.Id == MetaDataMapped.typeId)
+            sql = sql.filter(MetaTypeMapped.Type.in_(types))
+    elif metaInfo != MetaInfoMapped:
+        sql = sql.join(MetaTypeMapped, and_(MetaTypeMapped.Id == MetaDataMapped.typeId, MetaTypeMapped.Type == self.queryIndexer.typesByMetaInfo[metaInfo.__name__]))
+    elif metaData != MetaDataMapped:
+        sql = sql.join(MetaTypeMapped, and_(MetaTypeMapped.Id == MetaDataMapped.typeId, MetaTypeMapped.Type == self.queryIndexer.typesByMetaData[metaData.__name__]))
+
     sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
     sql = sql.add_entity(MetaInfoMapped)
-
 
     andClauses = list()
     andAllClauses = list()
@@ -286,8 +317,6 @@ def buildSubquery(self, metaInfo, metaData, qa, qi, qd):
         sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], andClauses, andAllClauses, orClauses)
 
     return sql
-
-
 
 def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=None, andAllClauses=None, orClauses=None, append=True):
     '''
@@ -360,12 +389,12 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=Non
                 elif isinstance(crt, AsIn) or isinstance(crt, AsInOrdered):
                     andClauses.append(column.in_(crt.values))
                 elif isinstance(crt, AsEqual):
-                    if AsEqual.equal in crt: andClauses.append(column.ilike(column == crt.equal))
+                    if AsEqual.equal in crt: andClauses.append(column == crt.equal)
                 elif isinstance(crt, (AsDate, AsTime, AsDateTime, AsRange)):
-                    if crt.__class__.start in crt: andClauses.append(column.ilike(column >= crt.start))
-                    elif crt.__class__.until in crt: andClauses.append(column.ilike(column < crt.until))
-                    if crt.__class__.end in crt:andClauses.append(column.ilike(column <= crt.end))
-                    elif crt.__class__.since in crt: andClauses.append(column.ilike(column > crt.since))
+                    if crt.__class__.start in crt: andClauses.append(column >= crt.start)
+                    elif crt.__class__.until in crt: andClauses.append(column < crt.until)
+                    if crt.__class__.end in crt:andClauses.append(column <= crt.end)
+                    elif crt.__class__.since in crt: andClauses.append(column > crt.since)
 
                 if isinstance(crt, AsOrdered):
                     assert isinstance(crt, AsOrdered)
