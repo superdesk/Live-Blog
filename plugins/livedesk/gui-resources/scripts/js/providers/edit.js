@@ -180,14 +180,13 @@ define('providers/edit', [
 			var data = {
 				url: url,
 				title: 'my custom title',
-				desc: 'my custom description',
+				description: 'my custom description',
 				thumbnail: ''
 			}
 			$.tmpl('livedesk>providers/edit/link' , data, function(e,o) {
 					self.el.find('article.editable').html(o)
-					editorTitleControls = $.extend({}, $.ui.texteditor.prototype.plugins.controls, {});
 					self.el.find('.linkpost-editable').texteditor({
-						plugins: {controls: editorTitleControls},
+						plugins: {controls: {}},
 						floatingToolbar: 'top'
 					});
 				});
@@ -200,18 +199,18 @@ define('providers/edit', [
 				$.tmpl('livedesk>providers/edit/urlinput' , {}, function(e,o) {
 					self.el.find('.url-input-holder').html(o);
 					self.el.find('article.editable').html('').css('height', '113px');
-					self.el.find('.insert-link').unbind('keydown, keypress', function(event) {return false; })
-					.bind('keydown, keypress', function(event){
-						console.log('hammer');
-						self.populateUrlInfo();
+					self.el.find('.insert-link').unbind('keypress').bind('keypress', function(event){
+						var keyCode = event.keyCode;
+						if ( keyCode == 13 ) {
+							self.populateUrlInfo();							
+						}
 					});
+
 				});
 			} else {
 				if ( this.lastType == 'link' ) {
 					//clear article
-					self.el.find('.url-input-holder').html('');
-					self.el.find('article.editable').html('').css('height', '150px');
-					self.el.find('.url-input-holder').html('');
+					self.clear();
 				}
 			}
 			this.lastType = type;
@@ -273,7 +272,8 @@ define('providers/edit', [
 		clear: function()
 		{
 			this.el.find('[name="type"]').val('normal');
-			this.el.find('.edit-block article.editable').html('');
+			this.el.find('.edit-block article.editable').html('').css('height', '150px');;
+			this.el.find('.url-input-holder').html('');
 		},
 		savepost: function(evt){
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
