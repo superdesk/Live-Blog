@@ -28,7 +28,7 @@
             <li icon="{Type}">
             	<label for="filter-{Type}">
             		<span class="treemenuicon {Type}">{Type}</span>
-            		<input type="checkbox" class="check" id="filter-{Type}" value="{Id}" />
+            		<input type="checkbox" class="check" id="filter-{Type}" value="{Type}" />
             	</label>
             </li>
         {/Types}
@@ -40,11 +40,13 @@
     <div class="module-row">
     	
         <label class="half" for="date_from">from
-        	<input type="text" id="date_from" class="date">
+        	<input type="text" id="display_date_from" class="date">
+        	<input type="text" id="date_from" class="date" style="display:none">
         </label>
         
         <label class="half" for="date_to">to
-         	<input type="text" id="date_to" class="date">
+        	<input type="text" id="display_date_to" class="date">
+         	<input type="text" id="date_to" class="date" style="display:none">
         </label>
     </div>
     
