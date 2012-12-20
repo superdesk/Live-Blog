@@ -318,17 +318,21 @@ function($, superdesk, giz, MetaInfo, Languages)
             var mainContentInnerWidth = $(item.el).parents().eq(1).width();
             var mainContentInnerLeft = $(item.el).parents().eq(1).offset().left;
              
-            var bottommenu = $(this.el).find("div.media-box-button.bottom.right");
-            //get menu left attr
-            var left = bottommenu.offset().left;
-            //calculate free space on right side
-            var freeSpace = mainContentInnerWidth - (left-mainContentInnerLeft);
-            var collisionRadius = bottommenu.find("ul.nav.nav-pills > li > ul").outerWidth();
-
-            if (freeSpace<collisionRadius) 
-                bottommenu.find("ul.nav.nav-pills > li").addClass("pull-right");
-            else 
-                bottommenu.find("ul.nav.nav-pills > li").removeClass("pull-right");
+            try
+            {
+                var bottommenu = $(this.el).find("div.media-box-button.bottom.right");
+                //get menu left attr
+                var left = bottommenu.offset().left;
+                //calculate free space on right side
+                var freeSpace = mainContentInnerWidth - (left-mainContentInnerLeft);
+                var collisionRadius = bottommenu.find("ul.nav.nav-pills > li > ul").outerWidth();
+    
+                if (freeSpace<collisionRadius) 
+                    bottommenu.find("ul.nav.nav-pills > li").addClass("pull-right");
+                else 
+                    bottommenu.find("ul.nav.nav-pills > li").removeClass("pull-right");
+            }
+            catch(e){}
             
         },
         hide: function(evt)
@@ -395,7 +399,6 @@ function($, superdesk, giz, MetaInfo, Languages)
         hoverViewOut: function(){ HoverMenu.hide(); },
         hoverView: function()
         {
-            console.log(this.hoverTmpl);
             HoverMenu.render(this._getData(), this.hoverTmpl).show(this); 
         },
         
