@@ -146,6 +146,7 @@ class QueryServiceAlchemy(SessionSupport):
         metaDatas = set()
 
         sqlUnion = None
+        sqlList = list()
 
         if qa is not None:
             assert isinstance(qa, QMetaDataInfo), 'Invalid query %s' % qa
@@ -196,45 +197,37 @@ class QueryServiceAlchemy(SessionSupport):
             pass;
         elif metaInfos and not metaDatas:
             for metaInfo in metaInfos:
-                sql = buildSubquery(self, metaInfo, None, qa, qi, qd)
+                sql = buildSubquery(self, metaInfo, MetaDataMapped, qa, qi, qd)
 
                 if sqlUnion: sqlUnion = sqlUnion.union(sql)
                 else: sqlUnion = sql
 
         elif not metaInfos and metaDatas:
             for metaData in metaDatas:
-                sql = buildSubquery(self, None, metaData, qa, qi, qd)
-
-                if sqlUnion: sqlUnion = sqlUnion.union(sql)
-                else: sqlUnion = sql
-
+                sqlList.append(buildSubquery(self, MetaInfoMapped, metaData, qa, qi, qd))
         else:
             for metaInfo in metaInfos:
                 metaData = self.queryIndexer.metaDatasByInfo[metaInfo.__name__]
                 if metaData in metaDatas:
-                    sql = buildSubquery(self, metaInfo, metaData, qa, qi, qd)
-
-                    if sqlUnion: sqlUnion = sqlUnion.union(sql)
-                    else: sqlUnion = sql
+                    sqlList.append(buildSubquery(self, metaInfo, metaData, qa, qi, qd))
                 else:
-                    sql = buildSubquery(self, metaInfo, None, qa, qi, qd)
-
-                    if sqlUnion: sqlUnion = sqlUnion.union(sql)
-                    else: sqlUnion = sql
+                    sqlList.append(buildSubquery(self, metaInfo, MetaDataMapped, qa, qi, qd))
 
             for metaData in metaDatas:
                 if metaData is MetaDataMapped: continue
                 if self.queryIndexer.metaInfosByData[metaData.__name__] not in metaInfos:
-                    sql = buildSubquery(self, None, metaData, qa, qi, qd)
+                    sqlList.append(buildSubquery(self, MetaInfoMapped, metaData, qa, qi, qd))
 
-                    if sqlUnion: sqlUnion = sqlUnion.union(sql)
-                    else: sqlUnion = sql
-
-        if sqlUnion is None:
+        sqlLength = len(sqlList)
+        if sqlLength == 0:
             sqlUnion = buildSubquery(self, MetaInfoMapped, MetaDataMapped, qa, qi, qd)
+        elif sqlLength == 1:
+            sqlUnion = sqlList[0]
+        else:
+            sqlUnion = sqlList.pop()
+            sqlUnion = sqlUnion.union(*sqlList)
 
         count = sqlUnion.count()
-
         sqlUnion = buildLimits(sqlUnion, offset, limit)
 
         metaDataInfos = list()
@@ -270,7 +263,35 @@ class QueryServiceAlchemy(SessionSupport):
         return IterPart(metaDataInfos, count, offset, limit)
 
 
-def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=None, orClauses=None, append=True):
+def buildSubquery(self, metaInfo, metaData, qa, qi, qd):
+    sql = self.session().query(MetaDataMapped)
+    sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
+    sql = sql.add_entity(MetaInfoMapped)
+
+
+    andClauses = list()
+    andAllClauses = list()
+    orClauses = list()
+
+    if metaInfo is MetaInfoMapped:
+        sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, andClauses, andAllClauses, orClauses, append=False)
+    else:
+        sql = sql.outerjoin(metaInfo)
+        sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, andClauses, andAllClauses, orClauses, append=False)
+        sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], andClauses, andAllClauses, orClauses, append=False)
+
+    if metaData is MetaDataMapped:
+        sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, andClauses, andAllClauses, orClauses)
+    else:
+        sql = sql.outerjoin(metaData)
+        sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, andClauses, andAllClauses, orClauses, append=False)
+        sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], andClauses, andAllClauses, orClauses)
+
+    return sql
+
+
+
+def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=None, andAllClauses=None, orClauses=None, append=True):
     '''
     Builds the query on the SQL alchemy query.
 
@@ -293,6 +314,7 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=Non
                   for cp in mapper.iterate_properties if isinstance(cp, ColumnProperty)}
 
     if andClauses is None: andClauses = list()
+    if andAllClauses is None: andAllClauses = list()
     if orClauses is None: orClauses = list()
 
     if pQuery:
@@ -313,29 +335,29 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=Non
                 if isinstance(crt, AsBoolean):
                     if AsBoolean.value in crt: andClauses.append(column == crt.value)
                 elif isinstance(crt, AsLike):
-                    if AsLike.like in crt: andClauses.append(column.like(crt.like))
-                    elif AsLike.ilike in crt: andClauses.append(column.ilike(crt.ilike))
+                    if AsLike.like in crt: andClauses.append(column.like(processLike(crt.like)))
+                    elif AsLike.ilike in crt: andClauses.append(column.ilike(processLike(crt.ilike)))
                 elif isinstance(crt, AsLikeExpression) or isinstance(crt, AsLikeExpressionOrdered):
                         if AsLikeExpression.inc in crt:
                             for value in crt.inc:
-                                andClauses.append(column.like(value))
+                                andClauses.append(column.like(processLike(value)))
                         if AsLikeExpression.ext in crt:
                             for value in crt.ext:
-                                orClauses.append(column.like(value))
+                                orClauses.append(column.like(processLike(value)))
                         if AsLikeExpression.exc in crt:
                             for value in crt.exc:
-                                andClauses.append(not_(column.like(value)))
+                                andClauses.append(not_(column.like(processLike(value))))
 
                         if queryLike:
                             if AsLikeExpression.inc in queryLike:
                                 for value in queryLike.inc:
-                                    andClauses.append(column.like(value))
+                                    andClauses.append(column.like(processLike(value)))
                             if AsLikeExpression.ext in queryLike:
                                 for value in queryLike.ext:
-                                    orClauses.append(column.like(value))
+                                    orClauses.append(column.like(processLike(value)))
                             if AsLikeExpression.exc in queryLike:
                                 for value in queryLike.exc:
-                                    andClauses.append(not_(column.like(value)))
+                                    andClauses.append(not_(column.like(processLike(value))))
 
                 elif isinstance(crt, AsIn) or isinstance(crt, AsInOrdered):
                     andClauses.append(column.in_(crt.values))
@@ -366,13 +388,13 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=Non
                 if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
                     if AsLikeExpression.inc in queryLike.all or AsLikeExpressionOrdered.inc in queryLike.all:
                         for value in queryLike.all.inc:
-                            andClauses.append(column.like(value))
+                            andAllClauses.append(column.like(processLike(value)))
                     if AsLikeExpression.ext in queryLike.all or AsLikeExpressionOrdered.ext in queryLike.all:
                         for value in queryLike.all.ext:
-                            orClauses.append(column.like(value))
+                            orClauses.append(column.like(processLike(value)))
                     if AsLikeExpression.exc in queryLike.all or AsLikeExpressionOrdered.exc in queryLike.all:
                         for value in queryLike.all.exc:
-                            andClauses.append(not_(column.like(value)))
+                            andClauses.append(not_(column.like(processLike(value))))
 
     elif queryLike and queryType:
 
@@ -384,20 +406,27 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=Non
             if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
                 if AsLikeExpression.inc in queryLike.all or AsLikeExpressionOrdered.inc in queryLike.all:
                     for value in queryLike.all.inc:
-                        andClauses.append(column.like(value))
+                        andAllClauses.append(column.like(processLike(value)))
                 if AsLikeExpression.ext in queryLike.all or AsLikeExpressionOrdered.ext in queryLike.all:
                     for value in queryLike.all.ext:
-                        orClauses.append(column.like(value))
+                        orClauses.append(column.like(processLike(value)))
                 if AsLikeExpression.exc in queryLike.all or AsLikeExpressionOrdered.exc in queryLike.all:
                     for value in queryLike.all.exc:
-                        andClauses.append(not_(column.like(value)))
+                        andClauses.append(not_(column.like(processLike(value))))
 
 
     if not append:
         return sqlQuery
 
     lengthAnd = len(andClauses)
+    lengthAndAll = len(andAllClauses)
     lengthOr = len(orClauses)
+
+    if lengthAndAll == 1:
+        sqlQuery = sqlQuery.filter(andAllClauses[0])
+    elif lengthAndAll > 1:
+        sqlQuery = sqlQuery.filter(or_(*andAllClauses))
+
 
     if lengthAnd == 0:
         if lengthOr == 0:
@@ -424,58 +453,16 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=Non
 
     return sqlQuery
 
+def processLike(value):
+    assert isinstance(value, str), 'Invalid like value %s' % value
 
+    if not value:
+        return '%'
 
-def buildSubquery(self, metaInfo, metaData, qa, qi, qd):
-    if metaData is None:
-        sql = self.session().query(MetaDataMapped)
-        sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
-        sql = sql.add_entity(MetaInfoMapped)
+    if not value.endswith('%'):
+        value = value + '%'
 
-        if metaInfo is MetaInfoMapped:
-            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo)
-        else:
-            andClauses = list()
-            orClauses = list()
-            sql = sql.outerjoin(metaInfo)
-            sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, andClauses, orClauses, append=False)
-            sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], andClauses, orClauses)
+    if not value.startswith('%'):
+        value = '%' + value
 
-    elif metaInfo is None:
-        sql = self.session().query(MetaDataMapped)
-        sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
-        sql = sql.add_entity(MetaInfoMapped)
-
-        if metaData is MetaDataMapped:
-            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData)
-        else:
-            andClauses = list()
-            orClauses = list()
-            sql = sql.outerjoin(metaData)
-            sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, andClauses, orClauses, append=False)
-            sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], andClauses, orClauses)
-
-    else:
-            sql = self.session().query(MetaDataMapped)
-            sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
-            sql = sql.add_entity(MetaInfoMapped)
-
-            andClauses = list()
-            orClauses = list()
-
-            if metaInfo is MetaInfoMapped:
-                sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, andClauses, orClauses, append=False)
-            else:
-                sql = sql.outerjoin(metaInfo)
-                sql = buildPartialQuery(sql, qi, qa, MetaInfoMapped, QMetaInfo, andClauses, orClauses, append=False)
-                sql = buildPartialQuery(sql, qi, qa, metaInfo, self.queryIndexer.queryByInfo[metaInfo.__name__], andClauses, orClauses, append=False)
-
-            if metaData is MetaDataMapped:
-                sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, andClauses, orClauses)
-            else:
-                sql = sql.outerjoin(metaData)
-                sql = buildPartialQuery(sql, qd, qa, MetaDataMapped, QMetaData, andClauses, orClauses, append=False)
-                sql = buildPartialQuery(sql, qd, qa, metaData, self.queryIndexer.queryByData[metaData.__name__], andClauses, orClauses)
-
-    return sql
-
+    return value
