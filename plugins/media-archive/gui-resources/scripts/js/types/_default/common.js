@@ -314,9 +314,12 @@ function($, superdesk, giz, MetaInfo, Languages)
             
             boxPosition = box.offset();
             
-            $(this.el).find('div:eq(0)').removeClass('hide').css('position', 'absolute');
+            $(this.el).removeClass('hide');
+            $(this.el).find('div:eq(0)').css('position', 'relative');
             if( displayMode == 'grid-view')
                 $(this.el).find('div:eq(0)').offset({top: boxPosition.top-8, left : boxPosition.left-8});
+            else $(this.el).find('div:eq(0)').offset({top: boxPosition.top, left : boxPosition.left});
+
             
             // get main-content-inner width and left
             var mainContentInnerWidth = $(item.el).parents().eq(1).width();
