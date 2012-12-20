@@ -8,20 +8,21 @@
 !}
 
 <div class="media-box {Item.Type}" style="-moz-user-select: none;">
+  	{+body}
+  	{#Item}
   	<figure>
-    	{+body}
-    		{#Item}
-		    	{Content|s}
-	        {/Item}
-        {/body}
-        {+side}
-		{/side}
+		{Content|s}
 	</figure>
 
-	{+title}
-	{#Item}
-    	<h5>{?Title}{Title}{:else}{Name}{/Title}</h5>
-    {/Item}
-    {/title}
+	<div class="media-info">
+			{+title}
+		    	<h5>{?Title}{Title}{:else}{Name}{/Title}</h5>
+		    {/title}
+		</div>
+
+	{/Item}
+    {/body}
+
+	
     
 </div>
