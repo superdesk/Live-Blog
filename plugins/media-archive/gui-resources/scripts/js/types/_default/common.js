@@ -438,7 +438,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             this.getEdit().refresh().activate();
         },
         
-        download: function(){},
+        download: function(){ window.open(this.model.get('Content').href); },
         
         remove: function()
         {
