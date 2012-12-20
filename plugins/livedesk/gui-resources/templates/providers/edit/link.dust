@@ -1,4 +1,4 @@
-	<div>{title}</div>
+	<div>{url}</div>
 	<div class="link-preview">
 		<figure class="link-thumbnail"> 
 			<img src="http://uidesign.lab.sourcefabric.org/liveblog/embed/wikitest.jpg">
