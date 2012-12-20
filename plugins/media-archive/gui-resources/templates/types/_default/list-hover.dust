@@ -9,7 +9,6 @@
 
 <div class="media-box-hover-list" style="-moz-user-select: none;">	
   	{+body}
-	  	{#Item}
 		<figure>{Content|s}</figure>
 		
 		<div class="actions-left">
@@ -19,7 +18,6 @@
 		<div class="media-info">
 			<h5>{Name}</h5>
 		</div>
-		{/Item}
     {/body}
 
 	{+side}
