@@ -3,13 +3,13 @@
 	data-colab-id="{Creator.Id}" data-post-id="{Id}">
 	<div class="drag-bar"></div>
 	<figure>
-        {#Person}
+        {#AuthorPerson}
             {?Avatar}
                 <img src="{Avatar}" />
             {:else}
                 <img src="images/avatar_default_collaborator.png" />
-            {/Avatar}
-        {/Person}
+            {/AuthorPerson}
+        {/User}
 	</figure>
 	<div class="result-content">
     	<h3><span class="author">{AuthorName}</span></h3>
