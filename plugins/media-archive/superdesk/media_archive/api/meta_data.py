@@ -45,7 +45,7 @@ class QMetaData(QEntity):
     The query for he meta models.
     '''
     name = AsLikeExpressionOrdered
-    type = AsInOrdered
+    #type = AsInOrdered
     sizeInBytes = AsRangeOrdered
     creator = AsInOrdered
     createdOn = AsDateTimeOrdered
