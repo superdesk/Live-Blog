@@ -12,17 +12,12 @@
 	  	{#Item}
 		<figure>{Content|s}</figure>
 		
-		<!--div class="actions-left">
+		<div class="actions-left">
 			<div class="media-box-button top left"><a href="#"><i class="icon-plus-small"></i></a></div>
-		    <a data-placement="bottom" rel="tooltip" class="add-to-scratchpad" href="#" data-original-title="add to scratchpad"></a>
-		    <span style="display:none; position:absolute" class="label label-important alertAlreadyAdded">_('already added')</span>
-		</div-->
-		
+		</div>
+            
 		<div class="media-info">
 			<h5>{Name}</h5>
-		    <!--dl>
-		        <dt>Source</dt><dd>4</dd>
-		    </dl-->           
 		</div>
 		{/Item}
     {/body}
