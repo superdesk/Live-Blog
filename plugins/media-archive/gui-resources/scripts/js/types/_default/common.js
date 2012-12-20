@@ -307,12 +307,16 @@ function($, superdesk, giz, MetaInfo, Languages)
         {
             this.currentItem = item;
             // TODO this is wrong
-            var box = $(item.el).find('div:eq(0)');
+            var box = $(item.el).find('div:eq(0)'),
+                displayMode = item.parent.displayModes[item.parent.displayMode];
             $(this.el).appendTo(box.parents().eq(1));
             this.resetEvents();
             
             boxPosition = box.offset();
-            $(this.el).removeClass('hide').offset({top: boxPosition.top-8, left : boxPosition.left-8});
+            
+            $(this.el).find('div:eq(0)').removeClass('hide').css('position', 'absolute');
+            if( displayMode == 'grid-view')
+                $(this.el).find('div:eq(0)').offset({top: boxPosition.top-8, left : boxPosition.left-8});
             
             // get main-content-inner width and left
             var mainContentInnerWidth = $(item.el).parents().eq(1).width();
