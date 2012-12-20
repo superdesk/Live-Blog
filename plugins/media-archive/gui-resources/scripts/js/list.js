@@ -490,6 +490,8 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             this.filterView.searchInput = $('.searchbar-container [name="search"]', this.el);
             this.filterView.placeInView($(this.el).find('#sidebar'));
             this.filterView.refresh();
+
+            $('.main-content-inner', this.el).addClass(this.displayModes[this.displayMode]);
         },
         /*!
          * @return MetaDataCollection
