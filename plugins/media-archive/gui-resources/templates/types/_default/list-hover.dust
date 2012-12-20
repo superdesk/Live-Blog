@@ -8,7 +8,6 @@
 !}
 
 <div class="media-box-list" style="-moz-user-select: none; top: -1995px; left: 0px;">
-  	
   	{+body}
 	  	{#Item}
 		<figure>{Content|s}</figure>
