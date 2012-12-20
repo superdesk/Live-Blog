@@ -291,7 +291,8 @@ function($, superdesk, giz, MetaInfo, Languages)
             '[data-action="download"]': { 'click': 'download' },
             '[data-action="delete"]': { 'click': 'remove' },
             '.media-box-button.top.right' : { 'mouseenter': 'popover' },
-            '.media-box-button.top.right' : { 'mouseleave': 'popoverHide' }
+            '.media-box-button.top.right' : { 'mouseleave': 'popoverHide' },
+            '.media-box-hover': {'mouseleave': 'hide'}
         },
         tmpl: 'media-archive>types/_default/grid-hover',
         /*!
@@ -330,9 +331,9 @@ function($, superdesk, giz, MetaInfo, Languages)
                 bottommenu.find("ul.nav.nav-pills > li").removeClass("pull-right");
             
         },
-        hide: function()
+        hide: function(evt)
         {
-            $(this).addClass('hide');
+            $(this.el).addClass('hide');
         },
         
         popover: function(evt)
@@ -388,7 +389,7 @@ function($, superdesk, giz, MetaInfo, Languages)
             '[data-action="edit"]': { 'click': 'edit' },
             '[data-action="download"]': { 'click': 'download' },
             '[data-action="delete"]': { 'click': 'remove' },
-            '': { 'mouseenter': 'hoverView', 'mouseleave': 'hoverViewOut' }
+            '': { 'mouseover': 'hoverView' }
         },
         
         hoverViewOut: function(){ HoverMenu.hide(); },
