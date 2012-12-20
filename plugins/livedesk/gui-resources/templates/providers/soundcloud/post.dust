@@ -1,11 +1,11 @@
 <li class="soundcloud draggable timeline clearfix"  data-post-id="{Id}" data-post-type="{Type.Key}">
     <div class="drag-bar"></div>
-    <div class="tool-box-right">
+    <div class="tool-box-right" style="z-index: 1000">
     	<a href="#delete-post" data-toggle="modal" class="close image">x</a>
+        {?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image">&nbsp;</a>{/PublishedOn}
     </div>
     
     <div class="result-content" style="display:block; position:relative; min-height: 256px;">
-		<img src="{Meta.artwork_url}" style="position:absolute; max-width: 80px; max-height: 64px; right: 5px;">
         <div style="display:block; right: 90px; position: absolute; left:5px;">
             <h3><a href="{Meta.permalink_url}" target="_blank">{Meta.title|s}</a></h3>
             <p class="result-text" style="float:left; text-align: left; height:51px;">
