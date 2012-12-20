@@ -33,6 +33,7 @@ from sqlalchemy.orm.properties import ColumnProperty
 from superdesk.media_archive.api.criteria import AsIn, \
     AsLikeExpressionOrdered, AsLikeExpression
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
+from itertools import chain
 
 
 # --------------------------------------------------------------------
@@ -298,6 +299,19 @@ def buildSubquery(self, metaInfo, metaData, qa, qi, qd, types):
     if qi: sql = buildQuery(sql, qi, metaInfo)
     if qd: sql = buildQuery(sql, qd, metaData)
 
+    if qi and metaInfo != MetaInfoMapped:
+        sql = buildQuery(sql, qi, MetaInfoMapped)
+    if qd and metaData != MetaDataMapped:
+        sql = buildQuery(sql, qd, MetaDataMapped)
+
+    if qi: sql = buildExpressionQuery(sql, qi, metaInfo, qa)
+    if qd: sql = buildExpressionQuery(sql, qd, metaData, qa)
+
+    if qi and metaInfo != MetaInfoMapped:
+        sql = buildExpressionQuery(sql, qi, MetaInfoMapped, qa)
+    if qd and metaData != MetaDataMapped:
+        sql = buildExpressionQuery(sql, qd, MetaDataMapped, qa)
+
     if qa and qa.all:
         assert isinstance(qa, QMetaDataInfo), 'Invalid query %s' % qa
         sql = buildAllQuery(sql, qa.all, self.queryIndexer.queryByInfo[metaInfo.__name__], metaInfo,
@@ -305,6 +319,70 @@ def buildSubquery(self, metaInfo, metaData, qa, qi, qd, types):
 
 
     return sql
+
+def buildExpressionQuery(sql, query, mapped, qa):
+    '''
+    Builds the query on the SQL alchemy query.
+
+    @param sqlQuery: SQL alchemy
+        The sql alchemy query to use.
+    @param query: query
+        The REST query object to provide filtering on.
+    @param mapped: class
+        The mapped model class to use the query on.
+    '''
+
+    assert query is not None, 'A query object is required'
+    clazz = query.__class__
+    mapper = mappingFor(mapped)
+    assert isinstance(mapper, Mapper)
+
+    all = None
+    if qa: all = qa.all
+
+    columns = {cp.key.lower(): getattr(mapper.c, cp.key)
+                  for cp in mapper.iterate_properties if isinstance(cp, ColumnProperty)}
+    columns = {criteria:columns.get(criteria.lower()) for criteria in namesForQuery(clazz)}
+
+    for criteria, column in columns.items():
+        if column is None or getattr(clazz, criteria) not in query: continue
+        crt = getattr(query, criteria)
+
+        if isinstance(crt, AsLikeExpression) or isinstance(crt, AsLikeExpressionOrdered):
+            #include
+            if AsLikeExpression.inc in crt:
+                for value in crt.inc:
+                    sql = sql.filter(column.like(processLike(value)))
+
+            if all and AsLikeExpression.inc in all:
+                for value in all.inc:
+                    sql = sql.filter(column.like(processLike(value)))
+
+            #extend
+            clauses = list()
+            if AsLikeExpression.ext in crt:
+                for value in crt.ext:
+                    clauses.append(column.like(processLike(value)))
+
+            if all and AsLikeExpression.ext in all:
+                for value in all.ext:
+                    clauses.append(column.like(processLike(value)))
+
+            length = len(clauses)
+            if length == 1: sql = sql.filter(clauses[0])
+            elif length > 1: sql = sql.filter(or_(*clauses))
+
+            #exclude
+            if AsLikeExpression.exc in crt:
+                for value in crt.exc:
+                    sql = sql.filter(not_(column.like(processLike(value))))
+
+            if all and AsLikeExpression.exc in all:
+                for value in all.exc:
+                    sql = sql.filter(not_(column.like(processLike(value))))
+
+    return sql
+
 
 def buildAllQuery(sql, all, qMetaInfo, metaInfo, qMetaData, metaData):
     '''
@@ -328,14 +406,29 @@ def buildAllQuery(sql, all, qMetaInfo, metaInfo, qMetaData, metaData):
     dataMapper = mappingFor(metaData)
     assert isinstance(dataMapper, Mapper)
 
+    baseInfoMapper = mappingFor(MetaInfoMapped)
+    assert isinstance(infoMapper, Mapper)
+
+    baseDataMapper = mappingFor(MetaDataMapped)
+    assert isinstance(dataMapper, Mapper)
+
     infoProperties = {cp.key.lower(): getattr(infoMapper.c, cp.key)
                   for cp in infoMapper.iterate_properties if isinstance(cp, ColumnProperty)}
 
     dataProperties = {cp.key.lower(): getattr(dataMapper.c, cp.key)
                   for cp in dataMapper.iterate_properties if isinstance(cp, ColumnProperty)}
 
+    baseInfoProperties = {cp.key.lower(): getattr(baseInfoMapper.c, cp.key)
+                  for cp in baseInfoMapper.iterate_properties if isinstance(cp, ColumnProperty)}
+
+    baseDataProperties = {cp.key.lower(): getattr(baseDataMapper.c, cp.key)
+                  for cp in baseDataMapper.iterate_properties if isinstance(cp, ColumnProperty)}
+
     infoQueryType = typeFor(qMetaInfo)
     dataQueryType = typeFor(qMetaData)
+
+    baseInfoQueryType = typeFor(QMetaInfo)
+    baseDataQueryType = typeFor(QMetaData)
 
     if all.inc:
         for value in all.inc:
@@ -352,6 +445,20 @@ def buildAllQuery(sql, all, qMetaInfo, metaInfo, qMetaData, metaData):
                 if column is None: continue
                 if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
                     clauses.append(column.like(processLike(value)))
+
+            if metaInfo != MetaInfoMapped:
+                for criteria, crtClass in baseInfoQueryType.query.criterias.items():
+                    column = baseInfoProperties.get(criteria.lower())
+                    if column is None: continue
+                    if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
+                        clauses.append(column.like(processLike(value)))
+
+            if metaData != MetaDataMapped:
+                for criteria, crtClass in baseDataQueryType.query.criterias.items():
+                    column = baseDataProperties.get(criteria.lower())
+                    if column is None: continue
+                    if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
+                        clauses.append(column.like(processLike(value)))
 
             length = len(clauses)
             if length == 1: sql = sql.filter(clauses[0])
@@ -372,6 +479,20 @@ def buildAllQuery(sql, all, qMetaInfo, metaInfo, qMetaData, metaData):
                 if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
                     clauses.append(column.like(processLike(value)))
 
+            if metaInfo != MetaInfoMapped:
+                for criteria, crtClass in baseInfoQueryType.query.criterias.items():
+                    column = baseInfoProperties.get(criteria.lower())
+                    if column is None: continue
+                    if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
+                        clauses.append(column.like(processLike(value)))
+
+            if metaData != MetaDataMapped:
+                for criteria, crtClass in baseDataQueryType.query.criterias.items():
+                    column = baseDataProperties.get(criteria.lower())
+                    if column is None: continue
+                    if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
+                        clauses.append(column.like(processLike(value)))
+
         length = len(clauses)
         if length == 1: sql = sql.filter(clauses[0])
         elif length > 1: sql = sql.filter(or_(*clauses))
@@ -383,13 +504,27 @@ def buildAllQuery(sql, all, qMetaInfo, metaInfo, qMetaData, metaData):
                 column = infoProperties.get(criteria.lower())
                 if column is None: continue
                 if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
-                    clauses.append(column.like(not_(processLike(value))))
+                    clauses.append(not_(column.like(processLike(value))))
 
             for criteria, crtClass in dataQueryType.query.criterias.items():
                 column = dataProperties.get(criteria.lower())
                 if column is None: continue
                 if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
-                    clauses.append(column.like(not_(processLike(value))))
+                    clauses.append(not_(column.like(processLike(value))))
+
+            if metaInfo != MetaInfoMapped:
+                for criteria, crtClass in baseInfoQueryType.query.criterias.items():
+                    column = baseInfoProperties.get(criteria.lower())
+                    if column is None: continue
+                    if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
+                        clauses.append(not_(column.like(processLike(value))))
+
+            if metaData != MetaDataMapped:
+                for criteria, crtClass in baseDataQueryType.query.criterias.items():
+                    column = baseDataProperties.get(criteria.lower())
+                    if column is None: continue
+                    if crtClass == AsLikeExpression or crtClass == AsLikeExpressionOrdered:
+                        clauses.append(not_(column.like(processLike(value))))
 
         length = len(clauses)
         if length == 1: sql = sql.filter(clauses[0])
