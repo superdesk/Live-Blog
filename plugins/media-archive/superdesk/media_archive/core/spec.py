@@ -187,7 +187,7 @@ class QueryIndexer:
 
     # --------------------------------------------------------------------
 
-    def register(self, EntryMetaInfoClass, QMetaInfoClass, EntryMetaDataClass, QMetaDataClass, typeId):
+    def register(self, EntryMetaInfoClass, QMetaInfoClass, EntryMetaDataClass, QMetaDataClass, type):
         '''
         Construct the meta info base service for the provided classes.
 
@@ -234,8 +234,8 @@ class QueryIndexer:
         self.metaDatasByInfo[EntryMetaInfoClass.__name__] = EntryMetaDataClass
         self.metaInfosByData[EntryMetaDataClass.__name__] = EntryMetaInfoClass
 
-        self.typesByMetaData[EntryMetaDataClass.__name__] = typeId
-        self.typesByMetaInfo[EntryMetaInfoClass.__name__] = typeId
+        self.typesByMetaData[EntryMetaDataClass.__name__] = type
+        self.typesByMetaInfo[EntryMetaInfoClass.__name__] = type
 
         self.queryByData[EntryMetaDataClass.__name__] = QMetaDataClass
         self.queryByInfo[EntryMetaInfoClass.__name__] = QMetaInfoClass
