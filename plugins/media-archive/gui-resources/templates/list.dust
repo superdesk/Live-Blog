@@ -67,7 +67,7 @@
 			{/pagination}
         </div>
         
-        <div class="main-content-inner media-library-main-content-inner grid scroller" style="top:100px">
+        <div class="main-content-inner media-library-main-content-inner grid scroller">
 		</div>
           
     </div>
