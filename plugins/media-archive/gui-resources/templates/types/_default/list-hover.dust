@@ -7,7 +7,7 @@
 	{/side}
 !}
 
-<div class="media-box-list" style="-moz-user-select: none; top: -1995px; left: 0px;">
+<div class="media-box-hover-list" style="-moz-user-select: none;">
   	
   	{+body}
 	  	{#Item}
