@@ -16,6 +16,7 @@ define
     config.guiJs('media-archive', 'models/meta-data-info'),
     config.guiJs('media-archive', 'models/query-criteria'),
     config.guiJs('media-archive', 'add'),
+    'jqueryui/datepicker',
     'tmpl!media-archive>list',
     'tmpl!media-archive>sidebar/types',
     'tmpl!media-archive>sidebar/crit-date',
@@ -107,6 +108,20 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             $(this.el).tmpl('media-archive>sidebar/types', {Types: data}, function()
             {
                 self.criteriaList.sync();
+                $('#display_date_from')
+                    .datepicker
+                    ({
+                        altField: '#date_from',
+                        altFormat: "yy-mm-dd 00:00:00", 
+                        dateFormat: "yy-mm-dd" 
+                    }); 
+                $('#display_date_to')
+                .datepicker
+                    ({
+                        altField: '#date_to',
+                        altFormat: "yy-mm-dd 23:59:59", 
+                        dateFormat: "yy-mm-dd" 
+                    }); 
                 self.resetEvents();
             }); //, PluralType: function(chk, ctx){ console.log(nlp.pluralize(ctx.current().Type)); return 'x' }});
         },
@@ -421,7 +436,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             });
             dateFrom.length && query.push({'qd.creationDate.since': dateFrom });
             dateTo.length && query.push({'qd.creationDate.until': dateTo });
-            $('#type-list input:checked', this.el).each(function(){ query.push({'qd.typeId': $(this).val()}); });
+            $('#type-list input:checked', this.el).each(function(){ query.push({'qd.type': $(this).val()}); });
             return query;
         }
     }),
