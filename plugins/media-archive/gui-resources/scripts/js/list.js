@@ -436,7 +436,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
             });
             dateFrom.length && query.push({'qd.creationDate.since': dateFrom });
             dateTo.length && query.push({'qd.creationDate.until': dateTo });
-            $('#type-list input:checked', this.el).each(function(){ query.push({'qd.type': $(this).val()}); });
+            $('#type-list input:checked', this.el).each(function(){ query.push({'type': $(this).val()}); });
             return query;
         }
     }),
