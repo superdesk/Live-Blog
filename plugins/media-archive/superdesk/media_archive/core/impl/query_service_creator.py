@@ -285,18 +285,18 @@ class QueryServiceAlchemy(SessionSupport):
 
 def buildSubquery(self, metaInfo, metaData, qa, qi, qd, types):
     sql = self.session().query(MetaDataMapped)
-    sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
-    sql = sql.add_entity(MetaInfoMapped)
 
     if metaInfo == MetaInfoMapped and metaData == MetaDataMapped:
         if types:
-            sql = sql.outerjoin(MetaTypeMapped, MetaTypeMapped.Id == MetaDataMapped.typeId)
+            sql = sql.join(MetaTypeMapped, MetaTypeMapped.Id == MetaDataMapped.typeId)
             sql = sql.filter(MetaTypeMapped.Type.in_(types))
     elif metaInfo != MetaInfoMapped:
-        sql = sql.outerjoin(MetaTypeMapped, and_(MetaTypeMapped.Id == MetaDataMapped.typeId, MetaTypeMapped.Type == self.queryIndexer.typesByMetaInfo[metaInfo.__name__]))
+        sql = sql.join(MetaTypeMapped, and_(MetaTypeMapped.Id == MetaDataMapped.typeId, MetaTypeMapped.Type == self.queryIndexer.typesByMetaInfo[metaInfo.__name__]))
     elif metaData != MetaDataMapped:
-        sql = sql.outerjoin(MetaTypeMapped, and_(MetaTypeMapped.Id == MetaDataMapped.typeId, MetaTypeMapped.Type == self.queryIndexer.typesByMetaData[metaData.__name__]))
+        sql = sql.join(MetaTypeMapped, and_(MetaTypeMapped.Id == MetaDataMapped.typeId, MetaTypeMapped.Type == self.queryIndexer.typesByMetaData[metaData.__name__]))
 
+    sql = sql.outerjoin(MetaInfoMapped, MetaDataMapped.Id == MetaInfoMapped.MetaData)
+    sql = sql.add_entity(MetaInfoMapped)
 
     andClauses = list()
     andAllClauses = list()
@@ -389,12 +389,12 @@ def buildPartialQuery(sqlQuery, query, queryLike, mapped, pQuery, andClauses=Non
                 elif isinstance(crt, AsIn) or isinstance(crt, AsInOrdered):
                     andClauses.append(column.in_(crt.values))
                 elif isinstance(crt, AsEqual):
-                    if AsEqual.equal in crt: andClauses.append(column.ilike(column == crt.equal))
+                    if AsEqual.equal in crt: andClauses.append(column == crt.equal)
                 elif isinstance(crt, (AsDate, AsTime, AsDateTime, AsRange)):
-                    if crt.__class__.start in crt: andClauses.append(column.ilike(column >= crt.start))
-                    elif crt.__class__.until in crt: andClauses.append(column.ilike(column < crt.until))
-                    if crt.__class__.end in crt:andClauses.append(column.ilike(column <= crt.end))
-                    elif crt.__class__.since in crt: andClauses.append(column.ilike(column > crt.since))
+                    if crt.__class__.start in crt: andClauses.append(column >= crt.start)
+                    elif crt.__class__.until in crt: andClauses.append(column < crt.until)
+                    if crt.__class__.end in crt:andClauses.append(column <= crt.end)
+                    elif crt.__class__.since in crt: andClauses.append(column > crt.since)
 
                 if isinstance(crt, AsOrdered):
                     assert isinstance(crt, AsOrdered)
