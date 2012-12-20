@@ -7,8 +7,7 @@
 	{/side}
 !}
 
-<div class="media-box-hover-list" style="-moz-user-select: none;">
-  	
+<div class="media-box-hover-list" style="-moz-user-select: none;">	
   	{+body}
 	  	{#Item}
 		<figure>{Content|s}</figure>
