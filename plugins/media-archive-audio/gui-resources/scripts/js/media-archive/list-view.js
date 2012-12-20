@@ -5,7 +5,8 @@ define
     'gizmo/superdesk',
     config.guiJs('media-archive', 'types/_default/list-view'),
     config.guiJs('media-archive-audio', 'media-archive/common'),
-    'tmpl!media-archive-audio>media-archive/list'
+    'tmpl!media-archive-audio>media-archive/list',
+    'tmpl!media-archive-audio>media-archive/list-hover'
 ],
 function($, superdesk, giz, ItemView, common)
 {
@@ -15,6 +16,7 @@ function($, superdesk, giz, ItemView, common)
     AudioView = ItemView.extend
     ({
         tmpl: 'media-archive-audio>media-archive/list',
+        hoverTmpl: 'media-archive-audio>media-archive/list-hover',
         editClass: common.edit,
         viewClass: common.view
     });

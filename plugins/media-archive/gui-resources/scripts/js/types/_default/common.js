@@ -393,7 +393,11 @@ function($, superdesk, giz, MetaInfo, Languages)
         },
         
         hoverViewOut: function(){ HoverMenu.hide(); },
-        hoverView: function(){ HoverMenu.render(this._getData(), this.hoverTmpl).show(this); },
+        hoverView: function()
+        {
+            console.log(this.hoverTmpl);
+            HoverMenu.render(this._getData(), this.hoverTmpl).show(this); 
+        },
         
         // view modal
         
