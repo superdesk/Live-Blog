@@ -460,7 +460,7 @@ function($, superdesk, giz, User, Person, sha)
         activate: function()
         {
             var self = this;
-            $(self.el).off(self.getEvent('click')).on( self.getEvent('click'), 'table tbody .edit', this.showUpdateUser);
+            $(self.el).off(self.getEvent('click'), 'table tbody .edit').on( self.getEvent('click'), 'table tbody .edit', this.showUpdateUser);
             
             return this.refresh().done(function()
             {
