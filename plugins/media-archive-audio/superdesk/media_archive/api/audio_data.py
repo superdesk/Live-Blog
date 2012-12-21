@@ -9,10 +9,12 @@ Created on Oct 1, 2012
 API specifications for media meta data audio archive.
 '''
 
-from .domain_archive import modelArchive
-from .meta_data import MetaData, QMetaData, IMetaDataService
 from ally.api.config import query, service
-from ally.api.criteria import AsEqualOrdered, AsLikeOrdered
+from superdesk.media_archive.api.domain_archive import modelArchive
+from superdesk.media_archive.api.meta_data import QMetaData, IMetaDataService,\
+    MetaData
+from superdesk.media_archive.api.criteria import AsLikeExpressionOrdered
+from ally.api.criteria import AsRangeOrdered, AsEqualOrdered, AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -49,25 +51,25 @@ class QAudioData(QMetaData):
     '''
     The query for audio model.
     '''
-    length = AsEqualOrdered
+    length = AsRangeOrdered
     audioEncoding = AsLikeOrdered
-    sampleRate = AsEqualOrdered
+    sampleRate = AsRangeOrdered
     channels = AsLikeOrdered
-    audioBitrate = AsEqualOrdered
+    audioBitrate = AsRangeOrdered
     
-    title = AsLikeOrdered
-    artist = AsLikeOrdered
-    track = AsEqualOrdered
-    album = AsLikeOrdered
-    genre = AsLikeOrdered
+    title = AsLikeExpressionOrdered
+    artist = AsLikeExpressionOrdered
+    track = AsRangeOrdered
+    album = AsLikeExpressionOrdered
+    genre = AsLikeExpressionOrdered
     #Part of a compilation 1 - True, 0 - False
     tcmp = AsEqualOrdered
-    albumArtist = AsLikeOrdered
-    year = AsEqualOrdered
-    disk = AsEqualOrdered
+    albumArtist = AsLikeExpressionOrdered
+    year = AsRangeOrdered
+    disk = AsRangeOrdered
     #Beats-per-minute
-    tbpm = AsEqualOrdered
-    composer = AsLikeOrdered
+    tbpm = AsRangeOrdered
+    composer = AsLikeExpressionOrdered
 
 # --------------------------------------------------------------------
 
