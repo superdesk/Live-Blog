@@ -30,7 +30,22 @@
             }
         },
         render: function(evt, data){
-            this.el.tmpl('livedesk>blogtype/blogtypes', this.tmplData );
+            var self = this;
+            self.el
+                .off(self.getEvent('click'), 'input[name="blogtypeselection"]')
+                .on(self.getEvent('click'), 'input[name="blogtypeselection"]', function(){
+                    self.el.find('input[name="blogtypeselection"]').each(function(i,val) {
+                        var li = $(val).parents().eq(2);
+                        if ($(val).prop('checked')===true) {
+                          if (!li.hasClass("selected")) li.addClass("selected");
+                        }
+                        else {
+                          if (li.hasClass("selected")) li.removeClass("selected");
+                        }
+                        
+                    });
+              });
+            self.el.tmpl('livedesk>blogtype/blogtypes', this.tmplData);
             this.addAll(evt, data);
         }
     });
