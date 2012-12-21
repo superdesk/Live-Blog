@@ -6,6 +6,7 @@ define
     config.guiJs('superdesk/user', 'models/user'),
     config.guiJs('superdesk/user', 'models/person'),
     'utils/sha512',
+    config.guiJs('media-archive', 'upload'),
     'tmpl!superdesk/user>list',
     'tmpl!superdesk/user>item',
     'tmpl!superdesk/user>add',
@@ -14,7 +15,7 @@ define
 
 // TODO remove cleanup duplicate code
 
-function($, superdesk, giz, User, Person, sha)
+function($, superdesk, giz, User, Person, sha, uploadCom)
 {
     var 
     // TODO place in appropriate plugins
@@ -25,9 +26,14 @@ function($, superdesk, giz, User, Person, sha)
         url: new giz.Url('Superdesk/Collaborator'),
         sources: Sources
     }),
-    UserCollaborators = giz.Collection.extend({model: Collaborator});
+    PersonCollaborators = giz.Collection.extend({model: Collaborator}),
     // ---
-        
+    
+    PersonIcon = giz.Model.extend
+    ({
+        url: new giz.Url('Superdesk/Person/{1}/MetaData/{2}/PersonIcon')
+    });
+    
     ItemView = giz.View.extend
     ({
         tagName: 'tr',
@@ -124,8 +130,8 @@ function($, superdesk, giz, User, Person, sha)
             '#user-edit-modal [data-action="close"]': { 'click': 'closeUpdateUser' },
             '#user-delete-modal [data-action="delete"]': { 'click': 'deleteUser' },
             '#user-delete-modal [data-action="close"]': { 'click': 'closeDeleteUser' },
-            'table thead th': { 'click': 'sortList' }
-            
+            "[data-action='browse']": { 'click': 'browse' },
+            "[data-action='upload']": { 'change': 'upload' }
         },
         
         closeUpdateUser: function(){ $('#user-edit-modal', this.el).modal('hide'); },
@@ -134,15 +140,53 @@ function($, superdesk, giz, User, Person, sha)
         
         closeDeleteUser: function(){ $('#user-delete-modal', this.el).modal('hide'); },
         
+        // -- upload
+        browse: function()
+        {
+            $('input[type="file"]', this.el).trigger('click');
+        },
+        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/Archive/MetaData/Upload?X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
+        upload: function()
+        {
+            var files = $('[data-action="upload"]', this.el)[0].files,
+                self = this; 
+            for( var i=0; i<files.length; i++)
+            {
+                xhr = uploadCom.upload( files[i], 'upload_file', this.uploadEndPoint,
+                        // display some progress type visual
+                        function(){ $('[data-action="browse"]', self.el).val(_('Uploading...')); }, 'json');
+                xhr.onload = function(event) 
+                { 
+                    $('[data-action="browse"]', this.el).val(_('Browse'));
+                    try // either get it from the responseXML or responseText
+                    {
+                        var content = JSON.parse(event.target.responseText);
+                    }
+                    catch(e)
+                    {
+                        var content = JSON.parse(event.target.response);
+                    }
+                    if(!content) return;
+                    $(self).triggerHandler('uploaded', [content.Id]);
+                    self._latestUpload = content;
+                };
+            }
+            $('[data-action="upload"]', this.el).val('');
+        },
+        _latestUpload: null,
+        // -- upload
+        
         showAddUser: function()
         { 
+            var self = this;
             $('#user-add-modal .alert', this.el).addClass('hide'); 
             $('#user-add-modal', this.el).modal();
             $('#user-add-modal form', this.el).trigger('reset');
             $('#user-add-modal', this.el).on('shown', function()
             { 
                 $('#user-add-modal form input:eq(0)', this.el).focus(); 
-            });
+            })
+            .on('close', function(){ self._latestUpload = null; });
         },
         
         showDeleteUser: function(evt)
@@ -285,6 +329,13 @@ function($, superdesk, giz, User, Person, sha)
                     self.switchPage(e);
                 };
                 
+                if( self._latestUpload )
+                {
+                    var pi = new PersonIcon,
+                        piurl = PersonIcon.prototype.url.get().replace('\{1\}', newModel.get('Id')).replace('\{2\}', self._latestUpload.Id);
+                    pi.sync(piurl).done(function(){ self._latestUpload = null; });
+                }
+                
                 // TODO very uncool
                 if( $('#user-add-modal form input#inputCollaborator:checked').length )
                 {
@@ -363,10 +414,13 @@ function($, superdesk, giz, User, Person, sha)
                 });
             });
             
+            var self = this;
             // fill in values with bound model props
             $('#user-edit-modal .alert', this.el).addClass('hide');
             $('#user-edit-modal', self.el).modal();
-            $('#user-edit-modal', this.el).on('shown', function(){ $('#user-add-modal form input:eq(0)', this.el).focus(); });
+            $('#user-edit-modal', this.el)
+                .on('shown', function(){ $('#user-add-modal form input:eq(0)', this.el).focus(); })
+                .on('close', function(){ self._latestUpload = null; });
             $('#user-edit-modal', self.el).prop('view', $this.prop('view'));
         },
         /*!
@@ -410,6 +464,13 @@ function($, superdesk, giz, User, Person, sha)
             })
             .done(function()
             {
+                if( self._latestUpload )
+                {
+                    var pi = new PersonIcon,
+                        piurl = PersonIcon.prototype.url.get().replace('\{1\}', $('#user-edit-modal', self.el).prop('view').model.get('Id')).replace('\{2\}', self._latestUpload.Id);
+                    pi.sync(piurl).done(function(){ self._latestUpload = null; });
+                }
+                
                 $('#user-edit-modal', self.el).modal('hide');
             }); 
         },
