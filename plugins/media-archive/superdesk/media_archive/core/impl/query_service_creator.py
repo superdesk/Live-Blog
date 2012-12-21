@@ -33,7 +33,6 @@ from sqlalchemy.orm.properties import ColumnProperty
 from superdesk.media_archive.api.criteria import AsIn, \
     AsLikeExpressionOrdered, AsLikeExpression
 from superdesk.media_archive.meta.meta_type import MetaTypeMapped
-from itertools import chain
 
 
 # --------------------------------------------------------------------
@@ -162,7 +161,7 @@ class QueryServiceAlchemy(SessionSupport):
                     if MetaInfoMapped not in criteriaMetaInfos:
                         for metaInfo in criteriaMetaInfos:
                             if self.queryIndexer.typesByMetaInfo[metaInfo.__name__] in types: metaInfos.add(metaInfo)
-                    elif self.queryIndexer.typesByMetaInfo[MetaInfoMapped.__name__] in types:
+                    elif self.queryIndexer.typesByMetaInfo[getattr(MetaInfoMapped, '__name__')] in types:
                         metaInfos.add(MetaInfoMapped)
 
             for name, criteria in self.queryIndexer.dataCriterias.items():
@@ -172,7 +171,7 @@ class QueryServiceAlchemy(SessionSupport):
                     if MetaDataMapped not in criteriaMetaDatas:
                         for metaData in criteriaMetaDatas:
                             if self.queryIndexer.typesByMetaData[metaData.__name__] in types: metaDatas.add(metaData)
-                    elif self.queryIndexer.typesByMetaData[MetaDataMapped.__name__] in types:
+                    elif self.queryIndexer.typesByMetaData[getattr(MetaDataMapped, '__name__')] in types:
                         metaDatas.add(MetaDataMapped)
 
 
@@ -187,7 +186,7 @@ class QueryServiceAlchemy(SessionSupport):
                 if MetaInfoMapped not in criteriaMetaInfos:
                     for metaInfo in criteriaMetaInfos:
                         if self.queryIndexer.typesByMetaInfo[metaInfo.__name__] in types: metaInfos.add(metaInfo)
-                elif self.queryIndexer.typesByMetaInfo[MetaInfoMapped.__name__] in types:
+                elif self.queryIndexer.typesByMetaInfo[getattr(MetaInfoMapped, '__name__')] in types:
                     metaInfos.add(MetaInfoMapped)
 
         if qd is not None:
@@ -201,7 +200,7 @@ class QueryServiceAlchemy(SessionSupport):
                 if MetaDataMapped not in criteriaMetaDatas:
                     for metaData in criteriaMetaDatas:
                         if self.queryIndexer.typesByMetaData[metaData.__name__] in types: metaDatas.add(metaData)
-                elif self.queryIndexer.typesByMetaData[MetaDataMapped.__name__] in types:
+                elif self.queryIndexer.typesByMetaData[getattr(MetaDataMapped, '__name__')] in types:
                     metaDatas.add(MetaDataMapped)
 
         for metaData in self.queryIndexer.metaDatas:
