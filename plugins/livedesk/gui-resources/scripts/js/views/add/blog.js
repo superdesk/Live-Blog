@@ -3,7 +3,8 @@
     'gizmo/superdesk',
     config.guiJs('livedesk', 'views/languages'),
     config.guiJs('livedesk', 'views/blogtypes'),
-    config.guiJs('livedesk', 'models/blogs'),
+    config.guiJs('livedesk', 'models/blog'),
+   'jquery/superdesk',
    'jqueryui/texteditor',
     'tmpl!livedesk>add' 
 ], function( $, Gizmo, LanguagesView, BlogTypesView) {
@@ -13,8 +14,8 @@
             '.save': { 'click': 'save' }
         },
         init: function() {
-            if(!this.collection) {
-                this.collection = new Gizmo.Register.Blogs()
+            if(!this.model) {
+                this.model = Gizmo.Auth(new Gizmo.Register.Blog());
             }
         },
         refresh: function() {
@@ -98,7 +99,18 @@
                     Type: blogtype.val(),
                     Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, '')
                 };
-            self.collection.insert(data).sync();
+            self.model.set(data).xfilter('Id,Description,Title,CreatedOn,Creator.*,Language,Type,Admin').sync().done(function(liveBlog){
+                console.log(liveBlog);
+                    require([$.superdesk.apiUrl+'/content/lib/livedesk/scripts/js/edit-live-blogs.js'],
+                        function(EditApp){
+                            $.superdesk.navigation.bind( 'live-blog/'+liveBlog.Id, 
+                                    function(){ 
+                                        new EditApp(liveBlog.href); 
+                                        $('#navbar-top').trigger('refresh-menu');
+                                    }, 
+                                    liveBlog.Title );
+                        });
+             });
         }
     });
 });
