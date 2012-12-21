@@ -111,29 +111,29 @@
 
 
                 .normal .attributes .source-icon {
-                    background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/icfj-16px.png") ;
+                    background-image: url("img/icfj-16px.png") ;
                 }
                 .twitterservice .attributes .source-icon {
-                    background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/twitter-16px.png");
+                    background-image: url("img/twitter-16px.png");
                 }
                 .flickrservice .attributes .source-icon {
-                    background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/flickr-16px.png");
+                    background-image: url("img/flickr-16px.png");
                 }
                 .facebook .attributes .source-icon {
-                    background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/facebook-16px.png");
+                    background-image: url("img/facebook-16px.png");
                 }
                 .youtubeservice .attributes .source-icon {
-                    background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/youtube-16px.png");
+                    background-image: url("img/youtube-16px.png");
                 }
                 
                 .quotation .attributes .source-icon {
-                    background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/icfj-16px.png");
+                    background-image: url("img/icfj-16px.png");
                 }
                 .googleservice .attributes .source-icon {
-                    background-image: url("http://usa-elections.lab.sourcefabric.org/content/lib/livedesk/scripts/js/embed/img/google-16px.png");
+                    background-image: url("img/google-16px.png");
                 }
                 .instagram .attributes .source-icon {
-                    background-image: url("http://uidesign.lab.sourcefabric.org/liveblog/embed/img/instagram.png");
+                    background-image: url("img/instagram.png");
                 }            
 
                 .googleservice h3,
@@ -574,4 +574,67 @@ li#loading-more{
 }
 .social.email {
     background: url(img/social_email_color.png) no-repeat;
+}
+
+.twitter-controls {
+    position: relative;
+    top:7px;
+    margin-right: 10px;
+}
+
+.twitter-controls .twitter-button {
+    float: right;
+    width: auto;
+    padding-left: 18px;
+    margin-left: 15px;
+    height: 15px;
+    line-height: 12px;
+    font-size: 11px;
+    color: #585858;
+    text-decoration: none;
+    display: none;
+}
+
+.twitter-controls .twitter-button.reply {
+    background: url(img/reply.png) no-repeat 0 2px;
+}
+
+.twitter-controls .twitter-button.retweet {
+    background: url(img/retweet.png) no-repeat 0 2px;
+}
+
+.twitter-controls .twitter-button.favorites {
+  background: url(img/favorites.png) no-repeat 0 1px;
+}
+
+.liveblog-post-list li:hover .share,
+.liveblog-post-list li:hover .reply,
+.liveblog-post-list li:hover .retweet,
+.liveblog-post-list li:hover .favorites {
+    display: block ;
+}
+
+.twitterservice figure.profile-thumbnail, .linkpost figure.link-thumbnail {
+    float: left;
+    margin: 0 10px 0 0;
+    max-height: 48px;
+    max-width: 48px;
+    padding: 0;
+}
+
+.twitterservice figure + h3 + .result-text, .linkpost figure + h3 + .result-text {
+    padding-left: 60px;
+}
+.twitterservice figure + h3 + .result-text + .twitter-controls + p, .linkpost figure + h3 + .result-text + p {
+    padding-left: 60px;
+}
+.twitterservice figure + h3 + .result-text + .twitter-controls + p, .linkpost figure + h3 + .result-text + p {
+    padding-left: 60px;
+}
+.twitterservice h3 a, .googleservice h3 a, .linkpost h3 a {
+    color: #2D6AAF;
+    font-size: 14px;
+    font-weight: bold;
+    padding-right: 5px;
+    text-decoration: none;
 }
