@@ -1,7 +1,9 @@
 <li>
   <input type="checkbox" class="select-colaborator" name="internalCollaborator1" group="internalCollaborators">
   <figure>
-    <img src="images/avatar_default_collaborator.png" width="32" height="32" />
+      {#User}{?Avatar}
+                <img src="{Avatar}" />
+      {/Avatar}{/User}
   </figure>
   <span class="add-collaborator-name">{#User}{FullName}{/User}</span>
   <span>{#User}{EMail}{/User}</span>

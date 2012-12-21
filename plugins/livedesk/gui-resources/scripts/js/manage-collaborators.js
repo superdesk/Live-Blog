@@ -100,6 +100,7 @@ define([
 		},
 		render: function(){
 			var self = this, data = self.model.feed('json',true);
+			$.avatar.set(data, 'User.EMail', { size: 32});
 			this.el.tmpl('livedesk>manage-collaborators/add-internal-collaborator',data);
 		},
 		addInternalCollaborator: function(evt) {
