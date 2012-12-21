@@ -305,6 +305,7 @@ function($, superdesk, giz, gizList, MetaData, MetaType, MetaDataInfo, QueryCrit
                     break;
 
                 case 8: // backspace
+                    this.selectFilter(evt);
                     break;
                     
                 default:
