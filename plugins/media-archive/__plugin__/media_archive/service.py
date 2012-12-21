@@ -104,7 +104,7 @@ def publishQueryCriteriaService() -> IQueryCriteriaService:
 
 @ioc.after(loadAllMetaDataHandlers, createTables)
 def publishQueryService():
-    b = createService(queryIndexer())
+    b = createService(queryIndexer(), cdmArchive(), thumbnailManager())
     registerService(b, (bindSuperdeskSession,))
 
 @ioc.after(loadAllMetaDataHandlers, createTables)

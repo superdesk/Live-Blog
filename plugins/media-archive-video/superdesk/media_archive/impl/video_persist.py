@@ -9,9 +9,6 @@ Created on Aug 23, 2012
 Implementation for the video persistence API.
 '''
 
-from ..core.spec import IThumbnailManager
-from ..meta.meta_data import MetaDataMapped
-from ..meta.video_data import VideoDataEntry
 from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
@@ -21,13 +18,16 @@ from os import remove
 from os.path import exists, splitext, abspath
 from ally.support.util_sys import pythonPath
 from sqlalchemy.exc import SQLAlchemyError
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 from superdesk.media_archive.core.impl.meta_service_base import \
     thumbnailFormatFor, metaTypeFor
-from superdesk.media_archive.core.spec import IMetaDataHandler
-from superdesk.media_archive.meta.video_data import META_TYPE_KEY
+from superdesk.media_archive.core.spec import IMetaDataHandler,\
+    IThumbnailManager
 import re
 from os.path import join
+from superdesk.media_archive.meta.meta_data import MetaDataMapped
+from superdesk.media_archive.meta.video_data import META_TYPE_KEY,\
+    VideoDataEntry
 
 # --------------------------------------------------------------------
 
@@ -93,7 +93,7 @@ class VideoPersistanceAlchemy(SessionSupport, IMetaDataHandler):
 
         thumbnailPath = contentPath + '.jpg'
         p = Popen((self.ffmpeg_path, '-i', contentPath, '-vframes', '1', '-an', '-ss', '2', thumbnailPath),
-                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                  stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         if p.wait() != 0: return False
         if not exists(thumbnailPath): return False
 

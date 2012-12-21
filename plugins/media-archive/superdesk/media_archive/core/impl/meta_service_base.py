@@ -136,6 +136,15 @@ class MetaInfoServiceBaseAlchemy(EntityGetCRUDServiceAlchemy):
         sql = buildLimits(sql, offset, limit)
         return sql.all()
 
+    def delete(self, id):
+        '''
+        needed to overwrite this because EntityCRUDServiceAlchemy.delete didn't work
+        something to do with the join between the extended mapped tables
+        '''
+        self.session().delete(self.session().query(self.Entity).get(id))
+        self.session().commit()
+        return True
+
     # ----------------------------------------------------------------
 
     def buildSql(self, dataId, languageId, qi, qd):
