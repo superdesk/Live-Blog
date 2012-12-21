@@ -44,12 +44,16 @@ class QueryCriteriaService(IQueryCriteriaService):
         locales = self._localesOf(locales)
 
         queryCriterias = list()
+        
+        for key, metaInfos in self.queryIndexer.metaInfoByCriteria.items():
+            types = ''.join([(self.queryIndexer.typesByMetaInfo[metaInfo.__name__] + '-') for metaInfo in metaInfos])
+            criteria = self.queryIndexer.infoCriterias[key]
+            queryCriterias.append(QueryCriteria('qi.' + key, criteria.__name__, types, key))#TODO: self._translate(key, locales)))
 
-        for key, criteria in self.queryIndexer.infoCriterias.items():
-            queryCriterias.append(QueryCriteria(key, criteria.__name__, key))#TODO: self._translate(key, locales)))
-
-        for key, criteria in self.queryIndexer.dataCriterias.items():
-            queryCriterias.append(QueryCriteria('qd.' + key, criteria.__name__, key))#TODO: self._translate(key, locales)))
+        for key, metaDatas in self.queryIndexer.metaDataByCriteria.items():
+            types = ''.join([(self.queryIndexer.typesByMetaData[metaData.__name__] + '-') for metaData in metaDatas])
+            criteria = self.queryIndexer.dataCriterias[key]
+            queryCriterias.append(QueryCriteria('qd.' + key, criteria.__name__, types, key))#TODO: self._translate(key, locales)))  
 
         if q:
             queryCriterias = processQuery(queryCriterias, q, QueryCriteria)

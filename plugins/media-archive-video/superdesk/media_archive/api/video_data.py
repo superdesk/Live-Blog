@@ -9,10 +9,11 @@ Created on Aug 23, 2012
 API specifications for media meta data video archive.
 '''
 
-from .domain_archive import modelArchive
-from .meta_data import MetaData, QMetaData, IMetaDataService
 from ally.api.config import query, service
-from ally.api.criteria import AsEqualOrdered, AsLikeOrdered
+from superdesk.media_archive.api.meta_data import MetaData, QMetaData, \
+    IMetaDataService
+from superdesk.media_archive.api.domain_archive import modelArchive
+from ally.api.criteria import AsRangeOrdered, AsLikeOrdered
 
 # --------------------------------------------------------------------
 
@@ -40,16 +41,16 @@ class QVideoData(QMetaData):
     '''
     The query for video model.
     '''
-    length = AsEqualOrdered
+    length = AsRangeOrdered
     videoEncoding = AsLikeOrdered
-    width = AsEqualOrdered
-    height = AsEqualOrdered
-    videoBitrate = AsEqualOrdered
-    fps = AsEqualOrdered
+    width = AsRangeOrdered
+    height = AsRangeOrdered
+    videoBitrate = AsRangeOrdered
+    fps = AsRangeOrdered
     audioEncoding = AsLikeOrdered
-    sampleRate = AsEqualOrdered
+    sampleRate = AsRangeOrdered
     channels = AsLikeOrdered
-    audioBitrate = AsEqualOrdered
+    audioBitrate = AsRangeOrdered
 
 # --------------------------------------------------------------------
 
