@@ -5,6 +5,14 @@
     	<h3>_('Edit user')</h3>
     </div>
     <div class="modal-body">
+    
+    	<div style="position:relative;" class="controls">
+			<input type="button" value="_('Browse')" data-action="browse"
+	    		class="btn btn-primary btn-block btn-medium span1" style="position:absolute;" />
+	    	<input type="file" name="upload_file" multiple="multiple" data-action="upload"
+	    		style="cursor: pointer; position:absolute; width:100%; opacity:0; top: 0; left: 0;" />
+	 	</div>
+	 	
     	<form class="form-horizontal">
 			<div class="control-group">
 				<label class="control-label" for="inputFName">_('First Name')</label>
