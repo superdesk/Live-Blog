@@ -9,17 +9,17 @@ Created on Aug 23, 2012
 SQL Alchemy based implementation for the video data API. 
 '''
 
-from ..api.video_data import QVideoData
-from ..api.video_info import IVideoInfoService, QVideoInfo
-from ..meta.video_data import VideoDataMapped
-from ..meta.video_info import VideoInfoMapped
-from .meta_info import MetaInfoServiceBaseAlchemy
 from ally.container.ioc import injected
 from ally.container.support import setup
 from superdesk.media_archive.core.spec import QueryIndexer
 from ally.container import wire
-from superdesk.media_archive.meta.video_info import VideoInfoEntry
-from superdesk.media_archive.meta.video_data import VideoDataEntry
+from superdesk.media_archive.api.video_info import IVideoInfoService, QVideoInfo
+from superdesk.media_archive.core.impl.meta_service_base import MetaInfoServiceBaseAlchemy
+from superdesk.media_archive.api.video_data import QVideoData
+from superdesk.media_archive.meta.video_data import VideoDataMapped,\
+    VideoDataEntry, META_TYPE_KEY
+from superdesk.media_archive.meta.video_info import VideoInfoMapped,\
+    VideoInfoEntry
 
 
 # --------------------------------------------------------------------
@@ -35,5 +35,5 @@ class VideoInfoServiceAlchemy(MetaInfoServiceBaseAlchemy, IVideoInfoService):
 
     def __init__(self):
         MetaInfoServiceBaseAlchemy.__init__(self, VideoInfoMapped, QVideoInfo, VideoDataMapped, QVideoData)
-        self.queryIndexer.register(VideoInfoEntry, QVideoInfo, VideoDataEntry, QVideoData)
+        self.queryIndexer.register(VideoInfoEntry, QVideoInfo, VideoDataEntry, QVideoData, META_TYPE_KEY)
         

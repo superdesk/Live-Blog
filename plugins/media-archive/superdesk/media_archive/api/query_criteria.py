@@ -24,10 +24,12 @@ class QueryCriteria:
     Key = str
     Criteria = str
     Name = str
+    Types = str
 
-    def __init__(self, Key, Criteria, Name=None):
+    def __init__(self, Key, Criteria, Types, Name=None):
         self.Key = Key
         self.Criteria = Criteria
+        self.Types = Types
         self.Name = Name
 
 # --------------------------------------------------------------------
@@ -39,6 +41,7 @@ class QQueryCriteria:
     '''
     key = AsLikeOrdered
     criteria = AsLikeOrdered
+    types = AsLikeOrdered
     name = AsLikeOrdered
 
 

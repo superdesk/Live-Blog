@@ -1,0 +1,32 @@
+<div class="media-box-hover {Type}">
+
+  	<figure>
+  	{+body}
+
+  		{Content|s}
+        <!--div class="media-box-button top left" ><a href="javascript:void(0)"><i class="icon-plus-small"></i></a></div-->
+        <div class="media-box-button top right">
+        	<a href="javascript:void(0)" id="additionalInfo" rel="popover" 
+        		data-content="{Description}" data-additional="info" 
+		        data-original-title="{?Title}{Title}{:else}{Name}{/Title}"><i class="icon-info-sign"></i>
+		    </a>
+        </div>
+    
+    {/body}
+    {+side}
+        <div class="media-box-button bottom right">
+	        <ul class="nav nav-pills">
+	          	<li class="dropdown">
+	            	<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0)"><b class="caret"></b></a>
+	            	{>"media-archive>types/_default/menu"/}
+	          	</li>
+	        </ul>
+		</div>
+	{/side}
+    </figure>
+    
+    {+title}
+    	<h5>{?Title}{Title}{:else}{Name}{/Title}</h5>
+    {/title}
+    
+</div>

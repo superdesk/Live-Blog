@@ -1,0 +1,30 @@
+{! overwrite item blocks if needed in specific templates like so
+	{<body}
+		...
+	{/body}
+	{<side}
+		...
+	{/side}
+	{<side}
+		...
+	{/side}
+!}
+
+<div class="media-box {Item.Type}" style="-moz-user-select: none;">
+	<figure>
+    	{+body}
+    		{#Item}
+		    	{Content|s}
+	        {/Item}
+        {/body}
+        {+side}
+		{/side}
+	</figure>
+
+	{+title}
+	{#Item}
+    	<h5>{?Title}{Title}{:else}{Name}{/Title}</h5>
+    {/Item}
+    {/title}
+            
+</div>
