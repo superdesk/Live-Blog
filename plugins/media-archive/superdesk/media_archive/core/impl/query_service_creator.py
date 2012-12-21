@@ -244,6 +244,40 @@ class QueryServiceAlchemy(SessionSupport):
         else:
             sqlUnion = sqlList.pop()
             sqlUnion = sqlUnion.union(*sqlList)
+
+        count = sqlUnion.count()
+        sqlUnion = buildLimits(sqlUnion, offset, limit)
+        elif metaInfos and not metaDatas:
+            for metaInfo in metaInfos:
+                sql = buildSubquery(self, metaInfo, MetaDataMapped, qa, qi, qd, types)
+                if sql: sqlList.append(sql)
+        elif not metaInfos and metaDatas:
+            for metaData in metaDatas:
+                sql = buildSubquery(self, MetaInfoMapped, metaData, qa, qi, qd, types)
+                if sql: sqlList.append(sql)
+        else:
+            for metaInfo in metaInfos:
+                metaData = self.queryIndexer.metaDatasByInfo[metaInfo.__name__]
+                if metaData in metaDatas:
+                    sql = buildSubquery(self, metaInfo, metaData, qa, qi, qd, types)
+                    if sql: sqlList.append(sql)
+                else:
+                    sql = buildSubquery(self, metaInfo, MetaDataMapped, qa, qi, qd, types)
+                    if sql: sqlList.append(sql)
+            for metaData in metaDatas:
+                if metaData is MetaDataMapped: continue
+                if self.queryIndexer.metaInfosByData[metaData.__name__] not in metaInfos:
+                    sql = buildSubquery(self, MetaInfoMapped, metaData, qa, qi, qd, types)
+                    if sql: sqlList.append(sql)
+
+        sqlLength = len(sqlList)
+        if sqlLength == 0:
+            sqlUnion = buildSubquery(self, MetaInfoMapped, MetaDataMapped, qa, qi, qd, types)
+        elif sqlLength == 1:
+            sqlUnion = sqlList[0]
+        else:
+            sqlUnion = sqlList.pop()
+            sqlUnion = sqlUnion.union(*sqlList)
         count = sqlUnion.count()
         sqlUnion = buildLimits(sqlUnion, offset, limit)
 
