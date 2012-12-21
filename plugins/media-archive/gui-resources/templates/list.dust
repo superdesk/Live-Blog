@@ -12,7 +12,7 @@
             <span class="info">({#pagination}{total}{/pagination})</span>
             
         
-        	<div class="btn-toolbar pull-right">
+        	<div class="btn-toolbar pull-right" style="margin:0">
         		<div class="btn-group">
         			<a href="javascript:void(0)" class="btn btn-info pull-right"
 					data-action="add-media"> <span class="media-archive-icon-add"></span>_('Add Media')</a>
