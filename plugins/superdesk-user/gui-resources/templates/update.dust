@@ -6,6 +6,10 @@
     </div>
     <div class="modal-body">
     
+    	<figure class="user-image">
+    	
+    	</figure>
+    	
     	<div style="position:relative;" class="controls">
 			<input type="button" value="_('Browse')" data-action="browse"
 	    		class="btn btn-primary btn-block btn-medium span1" style="position:absolute;" />
