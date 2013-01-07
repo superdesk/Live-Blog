@@ -89,7 +89,6 @@ class HTMLInfoExtractor(HTMLParser):
                 self.urlInfo.Description = attrs['content'].strip()
         elif tag == LINK:
             if 'rel' in attrs and attrs['rel'].lower() == 'shortcut icon':
-                print('shortcut icon: %s' % attrs)
                 self.urlInfo.SiteIcon = self._fullURL(self.urlInfo.URL, attrs['href'])
         elif tag == IMG:
             if 'src' in attrs:
