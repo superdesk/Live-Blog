@@ -73,7 +73,8 @@ define([
 		},
 		render: function(){
 			var self = this, data = self.model.feed('json',true);
-			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator',data);
+			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator'
+				,data);
 		},
 		delete: function(){
 			var self = this;
