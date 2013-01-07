@@ -7,6 +7,7 @@ define
     config.guiJs('superdesk/user', 'models/person'),
     'utils/sha512',
     config.guiJs('media-archive', 'upload'),
+    'jquery/avatar',
     'tmpl!superdesk/user>list',
     'tmpl!superdesk/user>item',
     'tmpl!superdesk/user>add',
@@ -15,7 +16,7 @@ define
 
 // TODO remove cleanup duplicate code
 
-function($, superdesk, giz, User, Person, sha, uploadCom)
+function($, superdesk, giz, User, Person, sha, uploadCom, avatar)
 {
     var 
     // TODO place in appropriate plugins
@@ -329,6 +330,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                     self.switchPage(e);
                 };
                 
+                // set user image
                 if( self._latestUpload )
                 {
                     var pi = new PersonIcon,
@@ -385,7 +387,15 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             personModel.sync().done(function()
             {
                 var p = personModel.get('Id'),
-                    c = new PersonCollaborators({ href: new giz.Url('Superdesk/Person/'+p+'/Collaborator')});
+                    c = new PersonCollaborators({ href: new giz.Url('Superdesk/Person/'+p+'/Collaborator')}),
+                    m = personModel.get('MetaData');
+                
+                // display user image
+                $('#user-edit-modal figure.user-image', self.el).html('');
+                m.sync({ data: { thumbSize: 'medium' }}).done(function()
+                {
+                    $('#user-edit-modal figure.user-image', self.el).html('<img src="'+m.get('Thumbnail').href+'" />');
+                });
                 
                 // check collaborator status
                 c.xfilter('Id,Source.Id,Source.Name').sync().done(function()
@@ -504,8 +514,6 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
         },
         activate: function()
         {
-            $(this.el).on( 'click', 'table tbody .edit', this.showUpdateUser);
-            
             var self = this;
             return this.refresh().done(function()
             {
