@@ -10,6 +10,7 @@ define('providers/edit', [
 	config.guiJs('livedesk', 'models/posttype'),
 	config.guiJs('livedesk', 'models/post'),
     config.guiJs('media-archive', 'upload'),
+    config.guiJs('livedesk', 'models/urlinfo'),
     'jquery/utils',
     'jquery/rest',
     'jquery/superdesk',
@@ -19,7 +20,11 @@ define('providers/edit', [
     'jqueryui/texteditor',
     'tmpl!livedesk>providers/edit',
     'tmpl!livedesk>providers/edit/item',
-], function( providers, $, Gizmo, PostType, Post, uploadCom ) {
+    'tmpl!livedesk>providers/edit/link',
+    'tmpl!livedesk>providers/edit/urlinput',
+    'tmpl!livedesk>providers/loading',
+    'tmpl!livedesk>providers/generic-error'
+], function( providers, $, Gizmo, PostType, Post, uploadCom, URLInfo ) {
 	var OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
 			this.desynced = false;
@@ -153,9 +158,11 @@ define('providers/edit', [
 	}),
 	EditView = Gizmo.View.extend({
 		postView: null,
+		lastType: null,
 		events: {
 			'[ci="savepost"]': { 'click': 'savepost'},
-			'[ci="save"]': { 'click': 'save'}
+			'[ci="save"]': { 'click': 'save'},
+			'[name="type"]' : {'change': 'changetype'}
 		},
 		init: function()
 		{	
@@ -169,15 +176,104 @@ define('providers/edit', [
 			self.postTypes.on('read', function(){ self.render(); }).xfilter('Key').sync();
 			
 		},
+		populateUrlInfo: function() {
+			var self = this;
+
+			//show loading info
+			$.tmpl('livedesk>providers/loading' , {}, function(e,o) {
+					self.el.find('article.editable').html(o)
+				});
+
+			var url = self.el.find('.insert-link').val();
+			//search for http or https and add if not found
+            if ( url.search('http://') == -1 && url.search('https://') == -1) {
+                url = 'http://' + url;
+            }
+			var urlinfo = new URLInfo;
+			urlinfo.getInfoSync(url).done(function(siteData){
+				var myThumb = '';
+				var favicon = "http://g.etfv.co/" + url;
+				//use site image if one is provided
+				if (siteData.Picture) {
+					var picArr = siteData.Picture.Picture;
+					if ( picArr.length > 0 ) {
+						myThumb = picArr[0];
+					}
+				}
+
+				//use provided site icon if given one
+				if ( siteData.SiteIcon ) {
+					favicon = siteData.SiteIcon;
+				}
+
+				var data = {
+					url: url,
+					title: siteData.Title,
+					description: siteData.Description,
+					thumbnail: myThumb,
+					favicon: favicon
+				}
+				$.tmpl('livedesk>providers/edit/link' , data, function(e,o) {
+					self.el.find('article.editable').html(o)
+					self.el.find('.linkpost-editable').texteditor({
+						plugins: {controls: {}},
+						floatingToolbar: 'top'
+					});
+				});					
+			}).fail(function() {
+				//show error message
+				console.log('error dude');
+				$.tmpl('livedesk>providers/generic-error' , {message: 'Could not retreive site info'}, function(e,o) {
+					console.log(o);
+					self.el.find('article.editable').html(o)
+				});
+			})
+
+			
+		},
+		changetype: function() {
+			var self = this;
+			var type = $('[name="type"]').val();
+			if ( type == 'link') {
+				//inject template
+				$.tmpl('livedesk>providers/edit/urlinput' , {}, function(e,o) {
+					self.el.find('.url-input-holder').html(o);
+					self.el.find('article.editable').html('').css('height', '113px');
+					self.el.find('.insert-link').unbind('keypress').bind('keypress', function(event){
+						var keyCode = event.keyCode;
+						if ( keyCode == 13 ) {
+							self.populateUrlInfo();							
+						}
+					});
+
+				});
+			} else {
+				if ( this.lastType == 'link' ) {
+					//clear article
+					self.clear();
+				}
+			}
+			this.lastType = type;
+		},
 		render: function(){
 			var self = this,
 			PostTypes = this.postTypes.feed();
+
 			for(var i=0; i<PostTypes.length; i++){
 				if(PostTypes[i].Key == 'advertisement') {
 					PostTypes.splice(i,1);
 					break;
 				}
 			}
+			for(var i=0; i<PostTypes.length; i++){
+				if(PostTypes[i].Key == 'normal') {
+					var arrPT = PostTypes.splice(i,1);
+					PostTypes.unshift(arrPT[0]);
+					break;
+				}
+			}
+
+			
 			this.el.tmpl('livedesk>providers/edit', { PostTypes: PostTypes }, function(){
 				// editor 
 				fixedToolbar = 
@@ -221,12 +317,14 @@ define('providers/edit', [
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
+				self.changetype();
 			} );
 		},
 		clear: function()
 		{
 			this.el.find('[name="type"]').val('normal');
-			this.el.find('.edit-block article.editable').html('');
+			this.el.find('.edit-block article.editable').html('').css('height', '150px');;
+			this.el.find('.url-input-holder').html('');
 		},
 		savepost: function(evt){
             var originalContent = $.styledNodeHtml(this.el.find('.edit-block article.editable'));
