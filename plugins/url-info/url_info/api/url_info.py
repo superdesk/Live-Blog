@@ -25,7 +25,7 @@ class URLInfo:
     ContentType = str
     Title = str
     Description = str
-    SiteIcon = Reference
+    SiteIcon = str
     Date = datetime
     Picture = List(Reference)
 
