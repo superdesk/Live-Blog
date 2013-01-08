@@ -42,7 +42,7 @@ class IURLInfoService:
     '''
 
     @call
-    def getURLInfo(self, url:URLInfo.URL) -> URLInfo:
+    def getURLInfo(self, url:str=None) -> URLInfo:
         '''
         Provides the info entity based on the URL.
 
