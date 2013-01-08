@@ -307,6 +307,7 @@ define('providers/edit', [
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
+				self.changetype();
 			} );
 		},
 		clear: function()
