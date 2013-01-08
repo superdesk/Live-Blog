@@ -44,6 +44,7 @@ set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-person
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-post
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-source
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-user
+set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%url-info
 
 IF EXIST distribution\workspace\shared\superdesk.db del distribution\workspace\shared\superdesk.db
 
