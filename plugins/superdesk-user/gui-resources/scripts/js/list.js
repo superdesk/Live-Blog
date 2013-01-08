@@ -7,7 +7,7 @@ define
     config.guiJs('superdesk/user', 'models/person'),
     'utils/sha512',
     config.guiJs('media-archive', 'upload'),
-    'jquery/avatar',
+    config.guiJs('superdesk/user', 'avatar'),
     'tmpl!superdesk/user>list',
     'tmpl!superdesk/user>item',
     'tmpl!superdesk/user>add',
@@ -16,7 +16,7 @@ define
 
 // TODO remove cleanup duplicate code
 
-function($, superdesk, giz, User, Person, sha, uploadCom, avatar)
+function($, superdesk, giz, User, Person, sha, uploadCom)
 {
     var 
     // TODO place in appropriate plugins
@@ -142,14 +142,15 @@ function($, superdesk, giz, User, Person, sha, uploadCom, avatar)
         closeDeleteUser: function(){ $('#user-delete-modal', this.el).modal('hide'); },
         
         // -- upload
-        browse: function()
+        browse: function(evt)
         {
-            $('input[type="file"]', this.el).trigger('click');
+            $(evt.target).siblings('[type="file"]').trigger('click');
         },
-        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/Archive/MetaData/Upload?X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
-        upload: function()
+        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/Archive/MetaData/Upload?thumbSize=large&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
+        upload: function(evt)
         {
-            var files = $('[data-action="upload"]', this.el)[0].files,
+            var uploadInput = $(evt.target),
+                files = uploadInput[0].files,
                 self = this; 
             for( var i=0; i<files.length; i++)
             {
@@ -170,6 +171,8 @@ function($, superdesk, giz, User, Person, sha, uploadCom, avatar)
                     if(!content) return;
                     $(self).triggerHandler('uploaded', [content.Id]);
                     self._latestUpload = content;
+                    
+                    uploadInput.siblings('.user-image').html('<img src="'+content.Thumbnail.href+'" />');
                 };
             }
             $('[data-action="upload"]', this.el).val('');
@@ -383,18 +386,19 @@ function($, superdesk, giz, User, Person, sha, uploadCom, avatar)
             var $this = $(evt.target),
                 model = $this.prop('model');
             //var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
-            model.sync().done(function()
+            $('#user-edit-modal figure.user-image', this.el).html('');
+            
             {
                 var p = model.get('Id'),
+                    person = $.avatar.parse(personModel),
                     c = new PersonCollaborators({ href: new giz.Url('Superdesk/Person/'+p+'/Collaborator')}),
                     m = personModel.get('MetaData');
                 
                 // display user image
-                $('#user-edit-modal figure.user-image', self.el).html('');
-                m.sync({ data: { thumbSize: 'medium' }}).done(function()
-                {
-                    $('#user-edit-modal figure.user-image', self.el).html('<img src="'+m.get('Thumbnail').href+'" />');
-                });
+//                m.sync({ data: { thumbSize: 'large' }}).done(function()
+//                {
+//                    $('#user-edit-modal figure.user-image', self.el).html('<img src="'+m.get('Thumbnail').href+'" />');
+//                });
                 
                 // check collaborator status
                 c.xfilter('Id,Source.Id,Source.Name').sync().done(function()
@@ -409,9 +413,10 @@ function($, superdesk, giz, User, Person, sha, uploadCom, avatar)
                     });
                 });
                 
+                $('#user-edit-modal figure.user-image', self.el).html(person['Avatar']);
                 $('#user-edit-modal form input', self.el).each(function()
                 {
-                    var val = model.get( $(this).attr('name') ) || model.get( $(this).attr('name') );
+                    var val = model.get( $(this).attr('name') ) || person[$(this).attr('name')];
                     !$.isObject(val) && $(this).val( val );
                 });
 

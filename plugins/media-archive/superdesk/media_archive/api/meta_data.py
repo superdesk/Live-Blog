@@ -79,7 +79,7 @@ class IMetaDataUploadService(IMetaDataService):
     '''
 
     @call(webName='Upload')
-    def insert(self, userId:auth(User.Id), content:Content) -> MetaData.Id:
+    def insert(self, userId:auth(User.Id), content:Content, scheme:Scheme='http', thumbSize:str=None) -> MetaData:
         '''
         Inserts the meta data content into the media archive. The process of a adding a resource to the media archive is as
         follows:
