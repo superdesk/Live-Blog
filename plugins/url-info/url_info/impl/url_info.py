@@ -16,6 +16,8 @@ from datetime import datetime
 from inspect import isclass
 from ally.container.support import setup
 from urllib.parse import unquote, urljoin
+from urllib.error import URLError
+from ally.exception import InputError
 
 # --------------------------------------------------------------------
 
@@ -25,35 +27,37 @@ class URLInfoService(IURLInfoService):
     @see IURLInfoService
     '''
 
-    def getURLInfo(self, url):
+    def getURLInfo(self, url=None):
         '''
         @see: IURLInfoService.getURLInfo
         '''
         url = unquote(url)
         assert isinstance(url, str), 'Invalid URL %s' % url
 
-        with urlopen(url) as conn:
-            urlInfo = URLInfo()
-            urlInfo.URL = url
-            urlInfo.Date = datetime.now()
-            contentType = None
-            for tag, val in conn.info().items():
-                if tag == 'Content-Type': contentType = val.split(';')[0].strip().lower(); break
-            if not contentType or contentType != 'text/html':
-                req = Request(url)
-                selector = req.get_selector().strip('/')
-                if selector:
-                    parts = selector.split('/')
-                    if parts: urlInfo.Title = parts[len(parts) - 1]
-                else:
-                    urlInfo.Title = req.get_host()
-                return urlInfo
-            elif contentType == 'text/html': urlInfo.ContentType = contentType
-            extr = HTMLInfoExtractor(urlInfo)
-            try: extr.feed(conn.read().decode())
-            except AssertionError: pass
-            except UnicodeDecodeError: pass
-            return extr.urlInfo
+        try:
+            with urlopen(url) as conn:
+                urlInfo = URLInfo()
+                urlInfo.URL = url
+                urlInfo.Date = datetime.now()
+                contentType = None
+                for tag, val in conn.info().items():
+                    if tag == 'Content-Type': contentType = val.split(';')[0].strip().lower(); break
+                if not contentType or contentType != 'text/html':
+                    req = Request(url)
+                    selector = req.get_selector().strip('/')
+                    if selector:
+                        parts = selector.split('/')
+                        if parts: urlInfo.Title = parts[len(parts) - 1]
+                    else:
+                        urlInfo.Title = req.get_host()
+                    return urlInfo
+                elif contentType == 'text/html': urlInfo.ContentType = contentType
+                extr = HTMLInfoExtractor(urlInfo)
+                try: extr.feed(conn.read().decode())
+                except AssertionError: pass
+                except UnicodeDecodeError: pass
+                return extr.urlInfo
+        except URLError: raise InputError('Invalid URL %s' % url)
 
 # --------------------------------------------------------------------
 
