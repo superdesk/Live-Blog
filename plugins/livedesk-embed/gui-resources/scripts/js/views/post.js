@@ -10,6 +10,7 @@ define([
 	'tmpl!theme/item/posttype/normal',
 	'tmpl!theme/item/posttype/wrapup',
 	'tmpl!theme/item/posttype/quote',
+	'tmpl!theme/item/posttype/link',
 	'tmpl!theme/item/source/advertisement',	
 	'tmpl!theme/item/source/google',
 	'tmpl!theme/item/source/twitter',
