@@ -28,14 +28,24 @@
             var self = this;
             self.model = Gizmo.Auth(new Gizmo.Register.Blog(self.theBlog));
             self.model
-                .on('read', self.render, self)
+                .one('read', self.render, self)
                 .sync();
         },
         render: function() {
-            var self = this;
-            $.tmpl('livedesk>configure', self.model.feed(), function(e, o){
-                self.el.html(o);
-                console.log(o);
+            var self = this,
+                data = $.extend({}, self.model.feed(), {
+                    BlogHref: self.theBlog,
+                    ui: 
+                    {
+                        content: 'is-content=1',
+                        side: 'is-side=1',
+                        submenu: 'is-submenu',
+                        submenuActive2: 'active'
+                    }
+                });
+            $.superdesk.applyLayout('livedesk>configure', data, function() {
+            //$.tmpl('livedesk>configure', self.model.feed(), function(e, o){
+                //self.el.html(o);
                 self.languagesView = new LanguagesView({
                     tmpl: 'livedesk>configure/languages',
                     el: self.el.find('.languages'),
@@ -49,12 +59,11 @@
                     tmplData: { selected: self.model.get('Type').get('Id') }
                 });
                 var 
-                    topSubMenu = $(this.el).find('[is-submenu]'),
-                    content = $(this.el).find('[is-content]');
-                console.log(topSubMenu);
+                    topSubMenu = $(self.el).find('[is-submenu]'),
+                    content = $(self.el).find('[is-content]');
                 $(topSubMenu)
-                .off('click'+self.getNamespace(), 'a[data-target="configure-blog"]')
-                .on('click'+self.getNamespace(), 'a[data-target="configure-blog"]', function(event)
+                .off(self.getEvent('click'), 'a[data-target="configure-blog"]')
+                .on(self.getEvent('click'), 'a[data-target="configure-blog"]', function(event)
                 {
                     event.preventDefault();
                     var blogHref = $(this).attr('href')
@@ -77,8 +86,8 @@
                             require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
                     });
                 })
-                .off('click'+self.getNamespace(), 'a[data-target="edit-blog"]')
-                .on('click'+self.getNamespace(), 'a[data-target="edit-blog"]', function(event)
+                .off(self.getEvent('click'), 'a[data-target="edit-blog"]')
+                .on(self.getEvent('click'), 'a[data-target="edit-blog"]', function(event)
                 {
                     event.preventDefault();
                     var blogHref = $(this).attr('href');
