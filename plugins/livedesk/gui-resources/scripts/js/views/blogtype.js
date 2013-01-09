@@ -27,8 +27,8 @@
         editBlogType: function(evt) {
             var self = this;
             self._parent.configBlogType.model = self.model;
-            self._parent.configBlogType.el.find('#add-blogtype').modal('show');
             self._parent.configBlogType.render();
+            self._parent.configBlogType.el.find('#add-blogtype').modal('show');
         },
         remove: function(){
             this.el.remove();

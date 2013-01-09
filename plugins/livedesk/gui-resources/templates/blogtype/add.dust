@@ -8,7 +8,7 @@
     <div class="modal-body">
       <form>
         <label>_("Blog type name");</label>
-        <input type="text" class="fullwidth-input" value="" placeholder="Enter Blog Type Name" name="blogtypename">
+        <input type="text" class="fullwidth-input" value="{Name}" placeholder='_("Enter Blog Type Name");' name="blogtypename">
 
         <a name="addnewpost" href="#" class="btn"><i class="icon-plus-sign"></i>_("Create New Post");</a>
       </form> 
