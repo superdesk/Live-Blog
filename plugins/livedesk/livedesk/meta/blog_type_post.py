@@ -8,7 +8,7 @@ Created on Aug 30, 2012
 
 Contains the SQL alchemy meta for blog type post API.
 '''
-from livedesk.meta.blog import BlogMapped
+
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.schema import Column, ForeignKey
 from superdesk.meta.metadata_superdesk import Base
@@ -17,6 +17,7 @@ from sqlalchemy.types import REAL, String
 from livedesk.api.blog_type_post import BlogTypePost
 from ally.container.binder_op import validateManaged
 from ally.support.sqlalchemy.mapper import validate
+from livedesk.meta.blog_type import BlogTypeMapped
 
 # --------------------------------------------------------------------
 
@@ -27,7 +28,7 @@ class BlogTypePostDefinition:
     __tablename__ = 'livedesk_blog_type_post'
     __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
-    BlogType = declared_attr(lambda cls: Column('fk_blog_type_id', ForeignKey(BlogMapped.Id), nullable=False))
+    BlogType = declared_attr(lambda cls: Column('fk_blog_type_id', ForeignKey(BlogTypeMapped.Id), nullable=False))
     Name = declared_attr(lambda cls: Column('name', String(255), nullable=False, unique=True))
     Order = declared_attr(lambda cls: Column('ordering', REAL))
     # Non REST model attribute --------------------------------------
