@@ -3,11 +3,12 @@
     'gizmo/superdesk',
     config.guiJs('livedesk', 'models/languages'),
     
-    'tmpl!livedesk>add/languages',
+    'tmpl!livedesk>base/languages',
 ], function( $, Gizmo) {
    
    return Gizmo.View.extend({
-    
+        tmpl: 'livedesk>base/languages',
+        tmplData: {},
         init: function(){
             var self = this;
             if( !self.collection ) {
@@ -19,7 +20,10 @@
                 .sync();
         },
         render: function(evt, data){
-            this.el.tmpl('livedesk>add/languages', { Languages: this.collection.feed() });
+            var self = this,
+                data = { Languages: this.collection.feed() };
+            $.extend( data, self.tmplData );
+            self.el.tmpl(self.tmpl, data);
         }
     });
 });
