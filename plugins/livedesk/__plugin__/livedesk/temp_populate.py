@@ -19,7 +19,8 @@ from livedesk.api.blog_admin import IBlogAdminService
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
-from livedesk.api.blog_type_post import IBlogTypePostService
+from livedesk.api.blog_type_post import IBlogTypePostService, \
+    BlogTypePostPersist
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
@@ -106,8 +107,8 @@ def createBlogTypePosts():
     blogTypePostService = entityFor(IBlogTypePostService)
     assert isinstance(blogTypePostService, IBlogTypePostService)
     for data in BLOG_TYPE_POSTS:
-        pst = Post()
-        blogType, pst.Type, creator, author, name, pst.Content = data
+        pst = BlogTypePostPersist()
+        blogType, pst.Type, creator, author, pst.Name, pst.Content = data
         blogTypeId = getBlogTypesIds()[blogType]
         exists = False
         for post in blogTypePostService.getAll(blogTypeId):
@@ -115,7 +116,7 @@ def createBlogTypePosts():
         if not exists:
             pst.Creator = getUsersIds()[creator]
             if author: pst.Author = getCollaboratorsIds()[author]
-            blogTypePostService.insert(blogTypeId, name, pst)
+            blogTypePostService.insert(blogTypeId, pst)
 
 
 BLOG_TYPES = ('default',)
