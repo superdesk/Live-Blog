@@ -3,7 +3,7 @@
 <option value="">_('Choose language');</option>
 	{+language_item}
 	{#Languages}
-	    <option value="{Id}"{@if cond="{Id}==={selected}"} selected{/if}>{Name}</option>
+	    <option value="{Id}"{@if cond="'{Id}'==='{selected}'"} selected{/if}>{Name}</option>
 	{/Languages}
 	{/language_item}
 </select>
