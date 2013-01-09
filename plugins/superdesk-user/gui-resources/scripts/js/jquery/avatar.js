@@ -16,7 +16,8 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
             
             if(data instanceof gizmo.Model)
             {
-                var retData = data.feed(),
+                var self = this,
+                    retData = data.feed(),
                     meta = data.get('MetaData');
                 if(!meta) return;
                 meta.__imgAvatarId = counter;
@@ -26,10 +27,17 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
                 {
                     $('[data-avatar-id="'+meta.__imgAvatarId+'"]').attr('src', meta.get('Thumbnail').href);
                     delete meta.__imgAvatarId;
+                })
+                .fail(function()
+                {
+                    self._parse(retData, needle, meta.__imgAvatarId);
                 });
                 return retData;
             }
-            
+            return this._parse(data, needle);
+        },
+        _parse: function(data, needle, imgId)
+        {
             if(!needle) needle = this.defaults.needle;
             var self = this,
 			arr = needle.split('.'),
@@ -37,10 +45,11 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
             searchValue = arr[1];
             $.each(data, function(key, value){
 				if((key === searchKey) && (searchValue!==undefined) && ( $.isDefined(value[searchValue]))) {
-					this[self.defaults.key] = self.get(value[searchValue]);
+					if(imgId) $('[data-avatar-id="'+meta.__imgAvatarId+'"]').attr('src', self.get(value[searchValue]));
+					else this[self.defaults.key] = self.get(value[searchValue]);
                 }
                 if($.isObject(value) || $.isArray(value)) {
-                    self.parse(value,needle);
+                    self._parse(value, needle, imgId);
                 }
             });
             return data;
