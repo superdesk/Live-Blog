@@ -1,9 +1,9 @@
 {+blogtype_item}
 {#BlogType}
-<li blogtypeid="{Id}"{@if cond="{Id}==={selected}"} class="selected"{/if}>
+<li blogtypeid="{Id}"{@if cond="'{Id}'==='{selected}'"} class="selected"{/if}>
   <div class="blogtype-header">
     <label class="radio">
-        <input type="radio" value="{Id}" name="blogtypeselection" {@if cond="{Id}==={selected}"} checked{/if}>
+        <input type="radio" value="{Id}" name="blogtypeselection" {@if cond="'{Id}'==='{selected}'"} checked{/if}>
     </label>
     {^add}
     <div class="tool-box-right">
