@@ -1,8 +1,1 @@
-<select name="Language" class="span3">
-<option value="">_('Choose language');</option>
-	{+language_item}
-	{#Languages}
-	    <option value="{Id}">{Name}</option>
-	{/Languages}
-	{/language_item}
-</select>
+{>"livedesk>base/languages"/}
