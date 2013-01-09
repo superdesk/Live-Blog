@@ -388,6 +388,8 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             //var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
             $('#user-edit-modal figure.user-image', this.el).html('');
             
+            $('#user-edit-modal figure.user-image', this.el).html('');
+            
             {
                 var p = model.get('Id'),
                     person = $.avatar.parse(personModel),
