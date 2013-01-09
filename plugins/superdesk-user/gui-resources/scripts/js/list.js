@@ -7,7 +7,7 @@ define
     config.guiJs('superdesk/user', 'models/person'),
     'utils/sha512',
     config.guiJs('media-archive', 'upload'),
-    config.guiJs('superdesk/user', 'avatar'),
+    config.guiJs('superdesk/user', 'jquery/avatar'),
     'tmpl!superdesk/user>list',
     'tmpl!superdesk/user>item',
     'tmpl!superdesk/user>add',
