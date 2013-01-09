@@ -3,7 +3,8 @@ define([ 'gizmo/superdesk',
     config.guiJs('livedesk', 'models/language'),
     config.guiJs('livedesk', 'models/posts'),
     config.guiJs('livedesk', 'models/collaborators'),
-    config.guiJs('livedesk', 'models/admins')],
+    config.guiJs('livedesk', 'models/admins'),
+    config.guiJs('livedesk', 'models/blogtype')],
 function(Gizmo, User, Language, Posts, Collaborators, Admins) 
 {
     // Blog
@@ -13,6 +14,7 @@ function(Gizmo, User, Language, Posts, Collaborators, Admins)
 		url: new Gizmo.Url('LiveDesk/Blog'),
         defaults:
         { 
+            Type: Gizmo.Register.BlogType,
             Creator: User,
             Language: Language,
             Collaborator: Collaborators,
