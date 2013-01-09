@@ -5,10 +5,11 @@ define([
 
 ], function( $, Gizmo, ConfigureBlogView ) {
 
-    var addBlogView = new ConfigureBlogView();
+    var configBlogView = new ConfigureBlogView({el: '#area-main'});
 
-    return function()
+    return function(theBlog)
     {
-        addBlogView.refresh();
+    	configBlogView.theBlog = theBlog;
+        configBlogView.refresh();
     }
 });
