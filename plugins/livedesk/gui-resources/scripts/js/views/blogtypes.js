@@ -19,7 +19,7 @@
             }
             self.collection
                 .on('read update', self.render, self)
-                .xfilter('Id,Name,PostPosts')
+                .xfilter('Id,Name,Post')
                 .sync();
             self.collection.model.on('add',self.addOne, self);
         },
@@ -34,6 +34,9 @@
             }
         },
         render: function(evt, data){
+            if(this.checkElement()) {
+                console.log('checked');
+            }
             if(!$('#add-blogtype').length) {
                 $('body').append('<div id="content-add-blogtype"></div>');
             }
