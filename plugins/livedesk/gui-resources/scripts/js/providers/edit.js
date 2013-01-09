@@ -177,11 +177,11 @@ define('providers/edit', [
 			self.postTypes.on('read', function(){ self.render(); }).xfilter('Key').sync();
 			
 			self.blog = Gizmo.Auth(new Gizmo.Register.Blog(self.blogUrl));
-			self.blog.on('read update', function(){
+			self.blog.one('read update', function(){
 				self.blog.get('Type')
-					.on('read update', function(){
-						self.blog.get('Type').get('PostPosts')
-							.on('read update', function(){ self.addBlogTypePosts();})
+					.one('read update', function(){
+						self.blog.get('Type').get('Post')
+							.one('read update', function(){ self.addBlogTypePosts();})
 							.xfilter('Id,Name,Content,Meta').sync();
 					})
 					.sync();
@@ -195,7 +195,7 @@ define('providers/edit', [
 				content = el.find('option:selected').attr('content'),
 				post;
 			if(content) {
-				var postspost = self.blog.get('Type').get('PostPosts').feed();
+				var postspost = self.blog.get('Type').get('Post').feed();
 				for( var i = 0, count = postspost.length; i < count; i++ ){
 					post = postspost[i];
 					if( content == post.Id) {
@@ -208,7 +208,7 @@ define('providers/edit', [
 		addBlogTypePosts: function(){
 			var self = this, 
 				select = this.el.find('[name="type"]');
-			var postspost = self.blog.get('Type').get('PostPosts').feed();
+			var postspost = self.blog.get('Type').get('Post').feed();
 			for( var i = 0, count = postspost.length; i < count; i++ ){
 				var post = postspost[i];
 				select.append('<option value="normal" content="'+post.Id+'">'+post.Name+'</option>');
