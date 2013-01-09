@@ -55,7 +55,7 @@
         init: function(){
             var self = this;
             if( !self.model ) {
-                self.model = Gizmo.Auth(new Gizmo.Register.BlogType({ PostPosts: []}));
+                self.model = Gizmo.Auth(new Gizmo.Register.BlogType({ Post: []}));
             }
             self.render();
         },
@@ -65,7 +65,7 @@
             self.el.tmpl('livedesk>blogtype/add', self.model.feed(), function(){
                 self.postPosts = new PostPostsView({
                     el: $('<div></div>').appendTo(self.el.find('.blogtype-content')),
-                    collection: self.model.get('PostPosts')
+                    collection: self.model.get('Post')
                 });
             });
         },
@@ -76,27 +76,28 @@
         },
         save: function(evt) {
             var self = this;
-            var postspost = self.model.data['PostPosts'];
-            delete self.model.data['PostPosts'];
+            var postspost = self.model.data['Post'];
+            delete self.model.data['Post'];
             self.model
                 .addSync({ Name: self.el.find('[name="blogtypename"]').val()})
                 .done(function(){
-                    self.model.data['PostPosts'] = postspost;
-                    self.model.get('PostPosts').savePending(self.model.href+'/Post');
+                    self.model.data['Post'] = postspost;
+                    self.model.get('Post').savePending(self.model.href+'/Post');
                 })
                 .fail(function(){
                     evt.preventDefault();
                 });
-            self.model.data['PostPosts'] = postspost;
+            self.model.data['Post'] = postspost;
         },
         addPost: function(evt) {
             var self = this,
                 post = Gizmo.Auth(new Gizmo.Register.Post({
-                    Meta:$.extend({},self._post_settings),
+                    Type: 'normal',
+                    Meta: JSON.stringify($.extend({},self._post_settings)),
                     Content: self._post_settings.predefinedContent,
                     Name: self._post_settings.name
                 }));
-            self.model.get('PostPosts').clientAdd(post);
+            self.model.get('Post').clientAdd(post);
             this.switchModal(evt, 0);
         },
         showBgImages: function(evt) {
