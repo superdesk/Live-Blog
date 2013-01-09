@@ -29,6 +29,9 @@
             'input[name="post-addbgimage"]': { 'click': 'showBgImages'},
             '.wizard-picture-selection ul li': { 'click': 'selectBgImage'}
         },
+        restBlog: function() {
+            this.el.find('[name="blogtypename"]').val('');
+        },
         resetPost: function(){
             var self = this;
             self._post_settings = {
@@ -58,6 +61,7 @@
         },
         render: function(evt, data){
             var self = this;
+            console.log('model: ',self.model.feed());
             self.el.tmpl('livedesk>blogtype/add', self.model.feed(), function(){
                 self.postPosts = new PostPostsView({
                     el: $('<div></div>').appendTo(self.el.find('.blogtype-content')),
@@ -78,7 +82,7 @@
                 .addSync({ Name: self.el.find('[name="blogtypename"]').val()})
                 .done(function(){
                     self.model.data['PostPosts'] = postspost;
-                    self.model.get('PostPosts').savePending(self.model.href+'/Post/Posts');
+                    self.model.get('PostPosts').savePending(self.model.href+'/Post');
                 })
                 .fail(function(){
                     evt.preventDefault();
