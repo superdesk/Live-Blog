@@ -28,67 +28,6 @@
     <a href="#" class="btn save btn-primary">_("Save changes");</a>
   </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!--
-<div id="add-live-blog" title="_('Add Live blog')">
-    <form class="form-horizontal row-fluid">
-        <fieldset>
-            <div class="control-group">
-                <label class="control-label">_('Language');</label>
-                <div class="controls">
-                    <select name="Language" class="span3">
-                    <option value="">_('Choose language');</option>
-                    {#Languages}
-                        <option value="{Id}">{Name}</option>
-                    {/Languages}
-                    </select>
-                </div>
-			</div>
-			<div class="control-group">
-				<label class="control-label">_('Configure type of blog');</label>
-            <div class="controls">
-				<a href="#" blogtype="true" name="openmodal" class="btn"><i class="icon-plus-sign"></i>_('Add New Blog Type');</a>
-				<ul class="blogtype-list">
-					{#BlogTypes}
-					<li blogtypeid="55">
-						<div class="blogtype-header">
-						<label class="radio">
-							<input type="radio" value="option1" name="blogtypeselection">
-						</label>                    
-                    <div class="tool-box-right">
-                      <a class="tool-box-button" href="#"><i class="icon-remove"></i></a>
-                      <a class="tool-box-button" name="openmodal" href="#"><i class="icon-pencil"></i></a>
-                    </div>
-                    <h3>{Name}</h3>
-                  </div>
-                  <div class="blogtype-content">
-                    <h4>Blog Post Types</h4>
-                    <ul class="posttypes">
-                      <li>Image Post</li>
-                      <li>Normal</li>
-                      <li>Reporting</li>
-                      <li>Surprise</li>
-                    </ul>
-                  </div>
-                </li>
-				{/BlogTypes}
-			  </ul>             
-            </div>
-          </div>			
 			<div class="control-group">
 				<label class="control-label">_('Configure type of blog');</label>
             <div class="controls">
@@ -121,12 +60,3 @@
             </div>
           </div>			
             <div class="control-group">
-				<h2 data-value="Title" placeholder="_('A new blog title')"></h2>
-            </div>
-            <div class="control-group">
-				<article data-value="Description" placeholder="_('and some description')"></article> 
-	    	</div>
-        </fieldset>
-    </form>
-</div>
--->

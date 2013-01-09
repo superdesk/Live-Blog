@@ -1,14 +1,14 @@
 {+blogtype_item}
 {#BlogType}
-<li blogtypeid="{Id}">
+<li blogtypeid="{Id}"{@if cond="{Id}==={selected}"} class="selected"{/if}>
   <div class="blogtype-header">
     <label class="radio">
-        <input type="radio" value="{Id}" name="blogtypeselection">
+        <input type="radio" value="{Id}" name="blogtypeselection" {@if cond="{Id}==={selected}"} checked{/if}>
     </label>
     {^add}
     <div class="tool-box-right">
-      <a class="tool-box-button" href="#"><i class="icon-remove"></i></a>
-      <a class="tool-box-button" name="openmodal" href="#"><i class="icon-pencil"></i></a>
+      <a class="tool-box-button" data-toggle="modal" href="#delete-blogtype" name="remove-blogtype"><i class="icon-remove"></i></a>
+      <a class="tool-box-button" name="edit-blogtype" href="#"><i class="icon-pencil"></i></a>
     </div>
     {/add}
     <h3>{Name}</h3>
