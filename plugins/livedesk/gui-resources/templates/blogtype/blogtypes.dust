@@ -1,5 +1,5 @@
 {^add}
-  <a href="#add-blogtype" blogtype="true" name="openmodal" data-toggle="modal" class="btn"><i class="icon-plus-sign"></i>_("Add New Blog Type");</a>
+  <a href="#add-blogtype" blogtype="true" name="add-blogtype-modal" data-toggle="modal" class="btn"><i class="icon-plus-sign"></i>_("Add New Blog Type");</a>
 {/add}
 <ul class="blogtype-list">
   {#BlogTypes}
@@ -11,14 +11,14 @@
       </label>
       
       <div class="tool-box-right">
-        <a class="tool-box-button" href="#"><i class="icon-remove"></i></a>
+        <a class="tool-box-button"><i class="icon-remove"></i></a>
         <a class="tool-box-button" name="openmodal" href="#"><i class="icon-pencil"></i></a>
       </div>
       <h3>{Name}</h3>
     </div>
     <div class="blogtype-content">
       <h4>_("Blog Posts");</h4>
-      <ul class="posts">
+      <ul class="posttypes">
         {+blogtype_post_item}
         <li>{Content}</li>
         {/blogtype_post_item}

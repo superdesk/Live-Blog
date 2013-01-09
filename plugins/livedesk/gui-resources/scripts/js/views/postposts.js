@@ -9,12 +9,16 @@
         init: function(){
             var self = this;
             self.collection
-                .on('read update', self.render, self)
+                .on('read update clientupdate', self.render, self)
                 .xfilter('*')
                 .sync();
         },
+
         render: function(evt, data){
-            var self = this, data = { PostPosts: this.collection.feed() };
+            var self = this,
+                posts = this.collection.feed(),
+                data = { PostPosts: posts.concat(this.collection.feedPending()) };
+            console.log(posts.concat(this.collection.pendingPosts));
             $.extend(data, self.tmplData);
             $.tmpl('livedesk>blogtype/postposts', data, function(e, o){
                 self.setElement(o);
