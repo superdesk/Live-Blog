@@ -5,6 +5,9 @@ define(['gizmo/superdesk',
     return Gizmo.Collection.extend({ 
 		model: Gizmo.Register.Post,
         pendingPosts: [],
+        init: function() {
+            this.pendingPosts = [];
+        },
 		insertSync: function() {
             
             this.desynced = false;
@@ -27,14 +30,16 @@ define(['gizmo/superdesk',
                 this.insert(this.pendingPosts[i]);
             }
             this.pendingPosts = [];
+            this.triggerHandler('addingspending');
             return ret;            
         },
-        clientAdd: function(model) {
+        addPending: function(model) {
             this.desynced = false;
             if( !(model instanceof Gizmo.Model) ) model = this.modelDataBuild(new this.model(model));
             model.hash();
+            console.log(model.feed());
             this.pendingPosts.push(model);
-            this.triggerHandler('clientupdate',[[model]]);
+            this.triggerHandler('updatepending',[[model]]);
         }	
 	}, { register: 'Posts' });
 });
