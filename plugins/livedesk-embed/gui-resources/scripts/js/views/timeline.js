@@ -105,7 +105,7 @@ define([
 							.on('addings', self.addAll, self)
 							.on('addingsauto',self.addAllAutoupdate, self)
 							.on('removeingsauto', self.removeAllAutoupdate, self)
-							.on('updatesauto', self.updateStatus, self)
+							.on('updateauto', self.updateStatus, self)
 							.on('beforeUpdate', self.updateingStatus, self)
 							.xfilter(self.xfilter)
 							.limit(postPublished._stats.limit);
