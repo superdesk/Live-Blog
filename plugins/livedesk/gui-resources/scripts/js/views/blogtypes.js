@@ -4,7 +4,7 @@
     config.guiJs('livedesk', 'views/blogtype'),
     config.guiJs('livedesk', 'views/add-blogtype'),
     config.guiJs('livedesk', 'models/blogtypes'),
-    
+    config.guiJs('livedesk', 'models/blogtype'),
     'tmpl!livedesk>blogtype/blogtypes'
 ], function( $, Gizmo, BlogTypeView, AddBlogTypeView ) {  
    return Gizmo.View.extend({
@@ -34,9 +34,6 @@
             }
         },
         render: function(evt, data){
-            if(this.checkElement()) {
-                console.log('checked');
-            }
             if(!$('#add-blogtype').length) {
                 $('body').append('<div id="content-add-blogtype"></div>');
             }
@@ -63,6 +60,8 @@
         },
         addBlogTypeModal: function(evt) {
             var self = this;
+            self.configBlogType.model = Gizmo.Auth(new Gizmo.Register.BlogType({ Post: []}));
+            self.configBlogType.render();
             self.configBlogType.switchModal(evt, 0);
         }
     });
