@@ -1,9 +1,13 @@
-define([ 'gizmo/superdesk'],
-function(Gizmo)
+define([ 'gizmo/superdesk', config.guiJs('superdesk/user', 'models/person')],
+function(Gizmo, Person)
 {
     // Post
 	return Gizmo.Model.extend
 	({
+	    defaults: 
+	    {
+	        AuthorPerson: Person
+	    },
 		url: new Gizmo.Url('/Post'),
 		orderSync: function(id, before)
 		{
