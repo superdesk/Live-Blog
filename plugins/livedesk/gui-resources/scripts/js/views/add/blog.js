@@ -53,7 +53,6 @@
                 delete h2ctrl.html;
                 delete h2ctrl.image;
                 delete h2ctrl.link;
-                console.log(hasEditor, h2ctrl);
                 !hasEditor && 
                 self.el.find("h2[data-value='Title']").texteditor
                 ({
@@ -100,7 +99,6 @@
                     Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, '')
                 };
             self.model.set(data).xfilter('Id,Description,Title,CreatedOn,Creator.*,Language,Type,Admin').sync().done(function(liveBlog){
-                console.log(liveBlog);
                     require([$.superdesk.apiUrl+'/content/lib/livedesk/scripts/js/edit-live-blogs.js'],
                         function(EditApp){
                             $.superdesk.navigation.bind( 'live-blog/'+liveBlog.Id, 

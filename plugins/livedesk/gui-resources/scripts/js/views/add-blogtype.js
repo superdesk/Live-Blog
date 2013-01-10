@@ -14,6 +14,7 @@
         events: {
             '#save-add-blogtype': { 'click': 'save' },
             'a[name="save-post"]': { 'click': 'addPost' },
+            'a[name="save-post-close"]': { 'click': 'savePostClose' },
             'a[name="addnewpost"]': { 'click': 'createPost' },
             'a[name="wizard-back"]': { 'click': 'previousStep' },
             'a[name="wizard-next"]': { 'click': 'nextStep' },
@@ -50,8 +51,11 @@
                 'background-image-id': 0
             };
             self.el.find('.wizard-picture-selection ul li').removeClass("picked");
+            self.el.find('[name="post-name"]').val('');
+            self.el.find('[name="post-predefined"]').val('');
+            self.el.find('.wizard-preview').html('');
+            self.el.find('[name="post-bold"],[name="post-bold"],[name="post-underline"],[name="post-align"]').removeClass('active');
         },
-        pendingPosts: [],
         init: function(){
             var self = this;
             if( !self.model ) {
@@ -61,13 +65,13 @@
         },
         render: function(evt, data){
             var self = this;
-            console.log('model: ',self.model.feed());
             self.el.tmpl('livedesk>blogtype/add', self.model.feed(), function(){
                 self.postPosts = new PostPostsView({
                     el: $('<div></div>').appendTo(self.el.find('.blogtype-content')),
                     collection: self.model.get('Post')
                 });
             });
+            self._currentStep = 0;
         },
         refresh: function(evt, data) {
             var self = this;
@@ -79,7 +83,7 @@
             var postspost = self.model.data['Post'];
             delete self.model.data['Post'];
             self.model
-                .addSync({ Name: self.el.find('[name="blogtypename"]').val()})
+                .syncParse({ Name: self.el.find('[name="blogtypename"]').val()})
                 .done(function(){
                     self.model.data['Post'] = postspost;
                     self.model.get('Post').savePending(self.model.href+'/Post');
@@ -97,8 +101,12 @@
                     Content: self._post_settings.predefinedContent,
                     Name: self._post_settings.name
                 }));
-            self.model.get('Post').clientAdd(post);
+            self.model.get('Post').addPending(post);
             this.switchModal(evt, 0);
+        },
+        savePostClose: function(evt) {
+            this.addPost(evt);
+            this.save(evt);
         },
         showBgImages: function(evt) {
             var self = this,
@@ -263,9 +271,12 @@
             //getting and saving data from current screen
             var current_screen = self.el.find('div.modalscreen[screenid="'+self._currentStep+'"]');
             switch(self._currentStep) {
-              case 1: self._post_settings['name']=current_screen.find('input[name="post-name"]').val();  break;
+              case 1: 
+                self._post_settings['name']=current_screen.find('input[name="post-name"]').val();  
+                break;
               case 2: 
                 self._post_settings['predefinedContent']=current_screen.find('[name="post-predefined"]').val();
+                self.el.find('.wizard-preview').html(current_screen.find('[name="post-predefined"]').val());
                 break;
             }
             current_screen.css("display","none");
