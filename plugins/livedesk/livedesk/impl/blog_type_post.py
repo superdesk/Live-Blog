@@ -133,9 +133,9 @@ class BlogTypePostServiceAlchemy(SessionSupport, IBlogTypePostService):
         @see: IBlogPostService.delete
         '''
         if self.postService.delete(id):
-            postEntry = self.session().query(BlogTypePostEntry).get(id)
+            postEntry = self.session().query(BlogTypePostMapped).get(id)
             if postEntry:
-                assert isinstance(postEntry, BlogTypePostEntry)
+                assert isinstance(postEntry, BlogTypePostMapped)
                 self.session().flush((postEntry,))
             return True
         return False
