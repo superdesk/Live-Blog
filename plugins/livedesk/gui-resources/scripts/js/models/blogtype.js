@@ -8,14 +8,18 @@ define([
     	defaults: { 
     		Post: Gizmo.Register.Posts
     	},
-    	addSync: function(data){
+    	syncParse: function(data){
     		var self = this,
-    			ret = self.xfilter('Id,Post').set(data).sync();
-    		ret.done(function(data){
-                self._parseHash(data);
-    			self.Class.triggerHandler('add', self);
-    		});
-    		return ret;
+                ret = self.set(data);
+            if(self._new) {
+                return ret.xfilter('Id').sync().done(function(data){
+                    self._parseHash(data);
+                    self.Class.triggerHandler('add', self);
+                });
+
+            } else {
+    		  return ret.sync();
+            }
     	}
 	}, { register: 'BlogType' });
 });
