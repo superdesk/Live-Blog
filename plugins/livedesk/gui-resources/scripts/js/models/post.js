@@ -8,7 +8,10 @@ function(Gizmo, Person)
 	    {
 	        AuthorPerson: Person
 	    },
+	    insertExcludes: [ 'AuthorPerson' ],
+	      
 		url: new Gizmo.Url('/Post'),
+		
 		orderSync: function(id, before)
 		{
 			var reorderHref = this.href+'/Post/'+id+'/Reorder?before='+before;

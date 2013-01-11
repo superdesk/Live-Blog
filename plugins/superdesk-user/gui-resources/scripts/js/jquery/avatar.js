@@ -15,7 +15,7 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
         parse: function(data, needle) 
         {
             if(!data) return;
-            if(!needle) needle = this.defaults.needle;
+            if( typeof needle == 'undefined' ) needle = this.defaults.needle;
             
             if(data instanceof gizmo.Model)
             {
@@ -28,7 +28,7 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
                 for( var i=0; i<lookInto.length; i++)
                 {
                     meta = meta.get(lookInto[i]);
-                    if( !(meta instanceof gizmo.Model) ) return; // can't go down the chain
+                    if( !(meta instanceof gizmo.Model) ) return retData; // can't go down the chain
                     if(i == lookInto.length-1) 
                     {
                         meta.sync().done(function(){ dfdMeta.resolve(); });
@@ -36,23 +36,22 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
                     }
                     meta.sync();
                 }
-                
-                retData[this.defaults.key] = '<img data-avatar-id="'+(counter++)+'" src="'+this.defaults.default+'" />';
+                if(!lookInto.length) dfdMeta.resolve();
                 dfdMeta.__imgAvatarId = counter;
+                retData[this.defaults.key] = '<img data-avatar-id="'+(counter++)+'" src="'+this.defaults.default+'" />';
                 dfdMeta.done(function()
                 {
                     meta = meta.get(self.defaults.metaDataKey);
                     if(!meta) return;
-                    meta.__imgAvatarId = this.__imgAvatarId;
-                    var img = retData[self.defaults.key];
+                    var img = retData[self.defaults.key],
+                        count = this.__imgAvatarId;
                     meta.sync({ data: { thumbSize: self.defaults.sizeText }}).done(function()
                     {
-                        $('[data-avatar-id="'+meta.__imgAvatarId+'"]').attr('src', meta.get('Thumbnail').href);
-                        delete meta.__imgAvatarId;
+                        $('[data-avatar-id="'+count+'"]').attr('src', meta.get('Thumbnail').href);
                     })
                     .fail(function()
                     {
-                        self._parse(retData, needle, meta.__imgAvatarId);
+                        self._parse(retData, needle, count);
                     });
                 });
                 
@@ -68,7 +67,7 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
             searchValue = arr[1];
             $.each(data, function(key, value){
 				if((key === searchKey) && (searchValue!==undefined) && ( $.isDefined(value[searchValue]))) {
-					if(imgId) $('[data-avatar-id="'+meta.__imgAvatarId+'"]').attr('src', self.get(value[searchValue]));
+					if(imgId) $('[data-avatar-id="'+imgId+'"]').attr('src', self.get(value[searchValue]));
 					else this[self.defaults.key] = self.get(value[searchValue]);
                 }
                 if($.isObject(value) || $.isArray(value)) {
