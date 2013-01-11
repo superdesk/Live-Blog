@@ -9,12 +9,9 @@
       <form>
         <label>_("Blog type name");</label>
         <input type="text" class="fullwidth-input" value="{Name}" placeholder='_("Enter Blog Type Name");' name="blogtypename">
-
+        <div class="blogtype-content"></div>
         <a name="addnewpost" href="#" class="btn"><i class="icon-plus-sign"></i>_("Create New Post");</a>
       </form> 
-      <div class="blogtype-content">
-        <h4>_("Blog Posts");</h4>
-      </div>
     </div>
 
 
@@ -45,7 +42,7 @@
             <li>4</li>
           </ul>
         </div>
-        <legend class="small-legend">_("Post Name");</legend>
+        <legend class="small-legend" style="clear:both;">_("Post Name");</legend>
         <input type="text" placeholder='_("Enter the Post Name");' class="fullwidth-input" name="post-name">
         <div class="message-error">_("Post Name can't be empty!");</div>
       </form>
@@ -53,7 +50,7 @@
     </div>
 
     <div class="modal-footer"> 
-      <a data-dismiss="modal" class="btn" href="#">_("Cancel");</a> 
+      <a name="wizard-start" class="btn" href="#">_("Cancel");</a> 
       <a name="wizard-next" class="btn btn-primary" href="#">_("Next");</a> 
     </div>
 
@@ -79,7 +76,7 @@
             <li>4</li>
           </ul>
         </div>
-        <legend class="small-legend">_("Predefine the content of the Post");</legend>
+        <legend class="small-legend" style="clear:both;">_("Predefine the content of the Post");</legend>
         <div class="alert alert-info">
            <a data-dismiss="alert" class="close">x</a>
            <strong>_("Note!");</strong> _("You can optionally place a predifined text in your Post type.");
@@ -92,7 +89,7 @@
 
     <div class="modal-footer"> 
       <a name="wizard-back" class="btn pull-left" href="#">_("Back");</a> 
-      <a data-dismiss="modal" class="btn" href="#">_("Cancel");</a> 
+      <a name="wizard-start" class="btn" href="#">_("Cancel");</a> 
       <a name="wizard-next" class="btn btn-primary" href="#">_("Next");</a> 
 
     </div>
@@ -122,7 +119,7 @@
             <li>4</li>
           </ul>
         </div>
-        <legend class="small-legend">Customize the Font style and color of the Post Type <i style="color:#989898">(optional)</i></legend>
+        <legend class="small-legend" style="clear:both;">Customize the Font style and color of the Post Type <i style="color:#989898">(optional)</i></legend>
         <div class="alert alert-info">
            <a data-dismiss="alert" class="close">x</a>
            <strong>Note!</strong> You can difine a differnt Font style, size and/or color for each Post type.
@@ -198,7 +195,7 @@
 
     <div class="modal-footer"> 
       <a name="wizard-back" class="btn pull-left" href="#">Back</a> 
-      <a data-dismiss="modal" class="btn" href="#">Cancel</a> 
+      <a name="wizard-start" class="btn" href="#">Cancel</a> 
       <a name="wizard-next" class="btn btn-primary" href="#">Next</a> 
 
     </div>
@@ -226,7 +223,7 @@
             <li>4</li>
           </ul>
         </div>
-        <legend class="small-legend">Customize the Background the Post Type <i style="color:#989898">(optional)</i></legend>
+        <legend class="small-legend" style="clear:both;">Customize the Background the Post Type <i style="color:#989898">(optional)</i></legend>
         <div class="alert alert-info">
            <a data-dismiss="alert" class="close">×</a>
            <strong>Note!</strong> You can difine a differnt Background color and/or graphic for each Post type.
@@ -291,9 +288,9 @@
 
     <div class="modal-footer"> 
       <a name="wizard-back" class="btn pull-left" href="#">Back</a> 
-      <a data-dismiss="modal" class="btn" href="#">Cancel</a> 
+      <a name="wizard-start" class="btn" href="#">Cancel</a> 
       <a name="save-post" class="btn btn-primary" href="#">Save</a>
-      <a data-dismiss="modal" name="save-post-close" class="btn btn-primary" href="#">Save and Close</a> 
+      <!--<a data-dismiss="modal" name="save-post-close" class="btn btn-primary" href="#">Save and Close</a>-->
 
     </div>
 

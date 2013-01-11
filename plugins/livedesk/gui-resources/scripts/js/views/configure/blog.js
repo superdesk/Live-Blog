@@ -11,7 +11,8 @@
    return Gizmo.View.extend({
         events: {
             '[data-action="save"]': { 'click': 'save' },
-            '[data-action="save-close"]': { 'click': 'saveClose'}
+            '[data-action="save-close"]': { 'click': 'saveClose' },
+            '[data-action="cancel"]': { 'click': 'close' }
         },
         init: function() {
             
@@ -23,6 +24,20 @@
                     Type: self.el.find('[name="blogtypeselection"]:checked').val()
                 }
             self.model.set(data).sync();
+        },
+        saveClose: function(evt) {
+            var self = this,
+                data = {
+                    Language: self.el.find('[name="Language"]').val(),
+                    Type: self.el.find('[name="blogtypeselection"]:checked').val()
+                }
+            self.model.set(data).sync().done(function(){
+               self.close(evt);
+            });
+        },
+        close:  function(evt) {
+            var self = this;
+            $(self.el).find('a[data-target="edit-blog"]').click();
         },
         refresh: function() {
             var self = this;
