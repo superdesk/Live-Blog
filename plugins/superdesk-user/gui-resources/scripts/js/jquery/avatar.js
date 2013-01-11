@@ -6,46 +6,68 @@ define('jquery/avatar', ['utils/str', 'jquery', 'gizmo', 'jquery/utils', 'jquery
             rate: 'pg',
             size: 48,
             sizeText: 'large',
+            metaDataKey: 'MetaData',
             default: encodeURIComponent('images/avatar_default_collaborator.png'),
             forcedefault: '',
             key: 'Avatar',
             needle: 'Person.EMail'
         },
-        parse: function(data, needle) {
+        parse: function(data, needle) 
+        {
             if(!data) return;
+            if( typeof needle == 'undefined' ) needle = this.defaults.needle;
             
             if(data instanceof gizmo.Model)
             {
                 var self = this,
                     retData = data.feed(),
-                    meta = data.get('MetaData');
-                if(!meta) return;
-                meta.__imgAvatarId = counter;
+                    lookInto = needle.split('.'),
+                    meta = data,
+                    dfdMeta = new $.Deferred;
+                lookInto.pop();
+                for( var i=0; i<lookInto.length; i++)
+                {
+                    meta = meta.get(lookInto[i]);
+                    if( !(meta instanceof gizmo.Model) ) return retData; // can't go down the chain
+                    if(i == lookInto.length-1) 
+                    {
+                        meta.sync().done(function(){ dfdMeta.resolve(); });
+                        continue;
+                    }
+                    meta.sync();
+                }
+                if(!lookInto.length) dfdMeta.resolve();
+                dfdMeta.__imgAvatarId = counter;
                 retData[this.defaults.key] = '<img data-avatar-id="'+(counter++)+'" src="'+this.defaults.default+'" />';
-                var img = retData[this.defaults.key];
-                meta.sync({ data: { thumbSize: this.defaults.sizeText }}).done(function()
+                dfdMeta.done(function()
                 {
-                    $('[data-avatar-id="'+meta.__imgAvatarId+'"]').attr('src', meta.get('Thumbnail').href);
-                    delete meta.__imgAvatarId;
-                })
-                .fail(function()
-                {
-                    self._parse(retData, needle, meta.__imgAvatarId);
+                    meta = meta.get(self.defaults.metaDataKey);
+                    if(!meta) return;
+                    var img = retData[self.defaults.key],
+                        count = this.__imgAvatarId;
+                    meta.sync({ data: { thumbSize: self.defaults.sizeText }}).done(function()
+                    {
+                        $('[data-avatar-id="'+count+'"]').attr('src', meta.get('Thumbnail').href);
+                    })
+                    .fail(function()
+                    {
+                        self._parse(retData, needle, count);
+                    });
                 });
+                
                 return retData;
             }
             return this._parse(data, needle);
         },
         _parse: function(data, needle, imgId)
         {
-            if(!needle) needle = this.defaults.needle;
             var self = this,
 			arr = needle.split('.'),
 			searchKey = arr[0],
             searchValue = arr[1];
             $.each(data, function(key, value){
 				if((key === searchKey) && (searchValue!==undefined) && ( $.isDefined(value[searchValue]))) {
-					if(imgId) $('[data-avatar-id="'+meta.__imgAvatarId+'"]').attr('src', self.get(value[searchValue]));
+					if(imgId) $('[data-avatar-id="'+imgId+'"]').attr('src', self.get(value[searchValue]));
 					else this[self.defaults.key] = self.get(value[searchValue]);
                 }
                 if($.isObject(value) || $.isArray(value)) {

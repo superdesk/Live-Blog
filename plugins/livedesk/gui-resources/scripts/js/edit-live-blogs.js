@@ -8,7 +8,7 @@ define
 	config.guiJs('livedesk', 'models/posttype'),
     config.guiJs('livedesk', 'models/post'),
     'jquery/splitter', 'jquery/rest', 'jquery/param', 'jqueryui/droppable',
-    'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', 'jquery/avatar',
+    'jqueryui/texteditor','jqueryui/sortable', 'jquery/utils', config.guiJs('superdesk/user', 'jquery/avatar'),
     'tmpl!livedesk>layouts/livedesk',
     'tmpl!livedesk>layouts/blog',
     'tmpl!livedesk>edit',
@@ -524,8 +524,8 @@ function(providers, Gizmo, $)
 				        rendered = true;
 				    }
 				}
-				var posts = this.model.feed();
-				posts = $.avatar.parse(posts, 'AuthorPerson.EMail');
+				var //posts = this.model.feed();
+				posts = $.avatar.parse(this.model, 'AuthorPerson.EMail');
 				!rendered &&
 				$.tmpl('livedesk>timeline-item', {Post: posts}, function(e, o)
 				{
