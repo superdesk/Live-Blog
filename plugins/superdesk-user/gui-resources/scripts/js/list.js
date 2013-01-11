@@ -65,7 +65,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             if( !this.model.__collaborator && data.Collaborator )
             {
                 var newCollaborator = new Collaborator;
-                newCollaborator.set('User', this.model.get('Id'))
+                newCollaborator.set('Person', this.model.get('Id'))
                     .sources.xfilter('*').sync().done(function()
                     {
                         newCollaborator.sources.each(function()
@@ -345,7 +345,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                 if( $('#user-add-modal form input#inputCollaborator:checked').length )
                 {
                     var newCollaborator = new Collaborator;
-                    newCollaborator.set('User', newModel.get('Id'))
+                    newCollaborator.set('Person', newModel.get('Id'))
                         .on('insert', h, this)
                         .sources.xfilter('*').sync().done(function()
                         {
@@ -385,14 +385,14 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
         {
             var $this = $(evt.target),
                 model = $this.prop('model');
-            //var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
+
             $('#user-edit-modal figure.user-image', this.el).html('');
             
-            $('#user-edit-modal figure.user-image', this.el).html('');
-            
+            var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
+            personModel.sync().done(function()
             {
-                var p = model.get('Id'),
-                    person = $.avatar.parse(personModel),
+                var p = personModel.get('Id'),
+                    person = $.avatar.parse(personModel, 'Email'),
                     c = new PersonCollaborators({ href: new giz.Url('Superdesk/Person/'+p+'/Collaborator')}),
                     m = personModel.get('MetaData');
                 
@@ -414,7 +414,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                         }
                     });
                 });
-                
+
                 $('#user-edit-modal figure.user-image', self.el).html(person['Avatar']);
                 $('#user-edit-modal form input', self.el).each(function()
                 {
@@ -491,23 +491,6 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                 $('#user-edit-modal', self.el).modal('hide');
             }); 
         },
-        
-        currentSort: {'asc': 'name'},
-        sortList: function(evt)
-        {
-            var sort = $(evt.target).attr('data-sort');
-            if( !sort ) return false;
-            if( this.currentSort.asc != sort ) this.currentSort = {'asc': sort};
-            else this.currentSort = {'desc': sort};
-            
-            this.refresh();
-        },
-        
-        sort: function()
-        {
-            return this.currentSort;
-        },
-        
         init: function()
         {
             var self = this;
@@ -528,7 +511,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             var self = this;
             this.users._list = [];
             this.syncing = true;
-            var options = {data: $.extend({limit: this.page.limit, offset: this.page.offset}, this.sort()), done: function(data)
+            var options = {data: {limit: this.page.limit, offset: this.page.offset, asc: 'name'}, done: function(data)
             { 
                 self.syncing = false; 
                 self.page.total = data.total;
@@ -538,8 +521,6 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
         activate: function()
         {
             var self = this;
-            $(self.el).off(self.getEvent('click'), 'table tbody .edit').on( self.getEvent('click'), 'table tbody .edit', this.showUpdateUser);
-            
             return this.refresh().done(function()
             {
                 $(superdesk.layoutPlaceholder).html(self.el);
@@ -587,11 +568,6 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                 // new ItemView for each models
                 self.renderList();
                 self.users.on('read update', self.renderList, self);
-                
-                $('table th', self.el).each(function()
-                { 
-                    for(var i in self.currentSort) if($(this).attr('data-sort') == self.currentSort[i]) $(this).addClass(i); 
-                });
             });
             $.superdesk.hideLoader();
         }
