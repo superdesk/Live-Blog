@@ -72,8 +72,9 @@ define([
 			this.render();
 		},
 		render: function(){
-			var self = this, data = self.model.feed('json',true);
-			$.avatar.set(data, 'User.EMail', { size: 22});
+			var self = this;
+			self.model.set({ 'User': Gizmo.Auth(self.model.get('User'))});
+			var data = $.avatar.parse(self.model, 'User.EMail', { size: 22});
 			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator',data);
 		},
 		delete: function(){
@@ -99,8 +100,9 @@ define([
 			this.render();
 		},
 		render: function(){
-			var self = this, data = self.model.feed('json',true);
-			$.avatar.set(data, 'User.EMail', { size: 32});
+			var self = this;
+			self.model.set({ 'User': Gizmo.Auth(self.model.get('User'))});
+			var data = $.avatar.parse(self.model, 'User.EMail', { size: 32});
 			this.el.tmpl('livedesk>manage-collaborators/add-internal-collaborator',data);
 		},
 		addInternalCollaborator: function(evt) {
