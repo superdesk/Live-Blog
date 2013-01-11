@@ -1,9 +1,9 @@
 <li>
   {+item_header}{/item_header}
-  <figure>
-      {#User}{?Avatar}
-                <img src="{Avatar}" />
-      {/Avatar}{/User}
+  <figure class="avatar-small">
+      {#User}
+        {Avatar|s}
+      {/User}
   </figure>
   <a href="#" class="collaborator-name">{Name}</a>
   <span data="collaborator_name">{#User}{FullName}{/User}</span>

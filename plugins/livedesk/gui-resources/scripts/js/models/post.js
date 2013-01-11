@@ -1,10 +1,17 @@
-define([ 'gizmo/superdesk'],
-function(Gizmo)
+define([ 'gizmo/superdesk', config.guiJs('superdesk/user', 'models/person')],
+function(Gizmo, Person)
 {
     // Post
 	return Gizmo.Model.extend
 	({
+	    defaults: 
+	    {
+	        AuthorPerson: Person
+	    },
+	    insertExcludes: [ 'AuthorPerson' ],
+	      
 		url: new Gizmo.Url('/Post'),
+		
 		orderSync: function(id, before)
 		{
 			var reorderHref = this.href+'/Post/'+id+'/Reorder?before='+before;
