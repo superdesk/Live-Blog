@@ -392,7 +392,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             personModel.sync().done(function()
             {
                 var p = personModel.get('Id'),
-                    person = $.avatar.parse(personModel),
+                    person = $.avatar.parse(personModel, 'Email'),
                     c = new PersonCollaborators({ href: new giz.Url('Superdesk/Person/'+p+'/Collaborator')}),
                     m = personModel.get('MetaData');
                 
@@ -414,7 +414,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                         }
                     });
                 });
-                
+
                 $('#user-edit-modal figure.user-image', self.el).html(person['Avatar']);
                 $('#user-edit-modal form input', self.el).each(function()
                 {
