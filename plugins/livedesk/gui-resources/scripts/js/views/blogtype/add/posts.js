@@ -1,19 +1,20 @@
 define([
     'jquery', 
     'gizmo/superdesk',
-    'tmpl!livedesk>blogtype/postposts'
+    'tmpl!livedesk>blogtype/add/posts'
 ], function( $, Gizmo) {
 
     return Gizmo.View.extend({
         tmplData: {},
         init: function(){
+            this.render();
             var self = this;
             self.collection
-                .off('read update', self.render)
-                .on('read update', self.render, self)
-                .xfilter('*')
+                .off('read update addingspending updatepending', self.render)
+                .on('read update addingspending updatepending', self.render, self);
+            /*    .xfilter('*')
                 .sync();
-            console.log('posts: ',self.collection._clientId)
+            */
         },
 
         render: function(evt, data){
@@ -21,7 +22,7 @@ define([
                 posts = this.collection.feed(),
                 data = { PostPosts: this.collection.feedPending().concat(posts) };
             $.extend(data, self.tmplData);
-            $.tmpl('livedesk>blogtype/postposts', data, function(e, o){
+            $.tmpl('livedesk>blogtype/add/posts', data, function(e, o){
                 self.setElement(o);
             });
         }        
