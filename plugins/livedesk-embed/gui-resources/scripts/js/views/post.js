@@ -44,7 +44,7 @@ define([
 							.xfilter(self.xfilter)
 							.sync();
 		},
-		remove: function()
+		remove: function(evt)
 		{
 			var self = this;
 			self._parent.removeOne(self);
