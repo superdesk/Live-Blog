@@ -1,11 +1,11 @@
  define([
     'jquery', 
     'gizmo/superdesk',
-    config.guiJs('livedesk', 'views/postposts'), 
+    config.guiJs('livedesk', 'views/blogtype/add/posts'), 
     config.guiJs('livedesk', 'models/blogtype'),
     config.guiJs('livedesk', 'models/post'),
     'tmpl!livedesk>blogtype/add',
-], function( $, Gizmo, PostPostsView ) {
+], function( $, Gizmo, PostsView ) {
    
    return Gizmo.View.extend({
         _currentStep: 0,
@@ -28,7 +28,8 @@
             '#colorpicker1 ul li span': { 'click': 'selectColorPicker1'},
             '#colorpicker2 ul li span': { 'click': 'selectColorPicker2'},
             'input[name="post-addbgimage"]': { 'click': 'showBgImages'},
-            '.wizard-picture-selection ul li': { 'click': 'selectBgImage'}
+            '.wizard-picture-selection ul li': { 'click': 'selectBgImage'},
+            '[name="wizard-start"]': { 'click': 'wizardStart' }
         },
         restBlog: function() {
             this.el.find('[name="blogtypename"]').val('');
@@ -66,8 +67,8 @@
         render: function(evt, data){
             var self = this;
             self.el.tmpl('livedesk>blogtype/add', self.model.feed(), function(){
-                self.postPosts = new PostPostsView({
-                    el: $('<div></div>').appendTo(self.el.find('.blogtype-content')),
+                self.postPosts = new PostsView({
+                    el: self.el.find('.blogtype-content'),
                     collection: self.model.get('Post')
                 });
             });
@@ -94,11 +95,12 @@
             self.model.data['Post'] = postspost;
         },
         addPost: function(evt) {
+            console.log(this.el.find('.wizard-preview').html());
             var self = this,
                 post = Gizmo.Auth(new Gizmo.Register.Post({
                     Type: 'normal',
                     Meta: JSON.stringify($.extend({},self._post_settings)),
-                    Content: self._post_settings.predefinedContent,
+                    Content: self.el.find('.wizard-preview').clone().removeClass('wizard-preview').wrap('<p>').parent().html(),
                     Name: self._post_settings.name
                 }));
             self.model.get('Post').addPending(post);
@@ -265,6 +267,11 @@
                 } 
             }
             self.switchModal(evt, next_step );
+        },
+        wizardStart: function(evt) {
+            var self = this;
+            self.switchModal(evt, 0);
+            self._currentStep = 0;            
         },
         switchModal: function(evt, id){
             var self = this;
