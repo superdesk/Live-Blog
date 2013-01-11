@@ -119,7 +119,7 @@
 	        	{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image">&nbsp;</a>{/PublishedOn}
 	        </div>
 	        <figure>
-	        {Avatar|s}
+	        	{Avatar|s}
 	            {?AuthorPerson.Avatar}
 	                <img src="{AuthorPerson.Avatar}" />
 	            {:else}
