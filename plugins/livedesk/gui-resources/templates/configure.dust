@@ -22,14 +22,14 @@
               			<textarea>{EmbedSource}</textarea>
              		</div>
           		</div>				
-          		<div class="control-group">
-            		<label class="control-label">Language</label>
-            		<div class="controls">
-              			<select class="span3" data-key="Language" data-value="{Language.Id}">
-                			<option value="">Choose language</option>
-              			</select>
-            		</div>
-          		</div>
+              <div class="control-group">
+                <label class="control-label">_('Language');</label>
+                <div class="controls languages"></div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">_('Configure type of blog');</label>
+                <div class="controls blogtypes"></div>
+              </div>
 			</fieldset>
           <div class="form-actions">
             <button type="button" class="btn btn-primary" data-action="save">Save</button>{~s}

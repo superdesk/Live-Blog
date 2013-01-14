@@ -72,9 +72,9 @@ define([
 			this.render();
 		},
 		render: function(){
-			var self = this, data = self.model.feed('json',true);
-			$.avatar.set(data, 'User.EMail', { size: 22});
-			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator',data);
+			var self = this;
+			self.model.set({ 'User': Gizmo.Auth(self.model.get('User'))});
+			var data = $.avatar.parse(self.model, 'User.EMail', { size: 22});
 		},
 		delete: function(){
 			var self = this;
@@ -99,8 +99,9 @@ define([
 			this.render();
 		},
 		render: function(){
-			var self = this, data = self.model.feed('json',true);
-			$.avatar.set(data, 'User.EMail', { size: 32});
+			var self = this;
+			self.model.set({ 'User': Gizmo.Auth(self.model.get('User'))});
+			var data = $.avatar.parse(self.model, 'User.EMail', { size: 32});
 			this.el.tmpl('livedesk>manage-collaborators/add-internal-collaborator',data);
 		},
 		addInternalCollaborator: function(evt) {
@@ -309,6 +310,7 @@ define([
 		            	action = (action[0])? action[0] : action;
 		                action.ScriptPath &&
 		                    require([$.superdesk.apiUrl+action.ScriptPath], function(app){ 
+		                    	//console.log(app);
 		                    	new app(blogHref); });
 		            });
 		        })
