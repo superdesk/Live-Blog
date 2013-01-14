@@ -15,7 +15,7 @@ from ..api.blog_post import IBlogPostService, QBlogPostUnpublished, \
 from ..meta.blog_post import BlogPostMapped, BlogPostEntry
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.container.support import setup
+from ally.container.support import setup, entityFor
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
@@ -31,6 +31,7 @@ from superdesk.person.meta.person import PersonMapped
 from superdesk.post.api.post import IPostService, Post, QPostUnpublished
 from superdesk.post.meta.type import PostTypeMapped
 from sqlalchemy.sql.expression import func
+from superdesk.person_icon.api.person_icon import IPersonIconService
 
 # --------------------------------------------------------------------
 
@@ -44,14 +45,16 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
     '''
 
     postService = IPostService; wire.entity('postService')
+    personIconService = IPersonIconService; wire.entity('personIconService')
 
     def __init__(self):
         '''
         Construct the blog post service.
         '''
         assert isinstance(self.postService, IPostService), 'Invalid post service %s' % self.postService
+        assert isinstance(self.personIconService, IPersonIconService), 'Invalid person icon service %s' % self.personIconService
 
-    def getById(self, blogId, postId):
+    def getById(self, blogId, postId, thumbSize):
         '''
         @see: IBlogPostService.getById
         '''
@@ -59,7 +62,8 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = sql.filter(BlogPostMapped.Blog == blogId)
         sql = sql.filter(BlogPostMapped.Id == postId)
 
-        try: return sql.one()
+        
+        try: return self._addImage(sql.one(), thumbSize)
         except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogPostMapped.Id))
 
     def getPublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, detailed=False,
@@ -80,7 +84,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
             sql = sql.filter((BlogPostMapped.PublishedOn != None) & (BlogPostMapped.DeletedOn == None))
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
-
+        
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed:
             posts = IterPost(self._trimmDeleted(sqlLimit.all()), sql.count(), offset, limit)
@@ -128,7 +132,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
-        return self._trimmDeleted(sql.all())
+        return self._trimmDeleted(self._addImages(sql.all()))
 
     def insert(self, blogId, post):
         '''
@@ -321,3 +325,25 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         max = self.session().query(fn.max(BlogPostMapped.Order)).filter(BlogPostMapped.Blog == blogId).scalar()
         if max: return max + 1
         return 1
+    
+    # TODO: nasty 
+    def _addImage(self, post, thumbSize='medium'):
+        '''
+        Takes the image for the author or creator and adds the thumbnail to the response
+        '''
+        assert isinstance(post, BlogPostMapped)
+        id = None
+        if post.author is None: id = post.Creator
+        if post.author.User is not None: id = post.author.User
+        
+        try: 
+            if id is not None: 
+                post.AuthorImage = self.personIconService.getByPersonId(id=id, thumbSize=thumbSize).Thumbnail
+        except: pass
+        
+        return post
+    
+    def _addImages(self, posts, thumbSize='medium'):
+        for post in posts:
+            post = self._addImage(post, thumbSize)
+            yield post
