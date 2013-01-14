@@ -1,0 +1,9 @@
+<li posttypeid="1">
+	<label class="checkbox">
+		<!--<input type="checkbox"> -->{Name}
+	</label>
+  <div class="tool-box-right">
+    <a class="tool-box-button" name="post-remove" href="#"><i class="icon-remove"></i></a>
+    <a class="tool-box-button" name="post-edit" href="#"><i class="icon-pencil"></i></a>
+  </div>
+</li>

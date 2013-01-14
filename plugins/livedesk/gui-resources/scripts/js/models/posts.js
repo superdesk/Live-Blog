@@ -20,14 +20,31 @@ define(['gizmo/superdesk',
         feedPending: function(format, deep) {
             var ret = [];
             for( var i in this.pendingPosts )
-                ret[i] = this.pendingPosts[i].feed(format, deep);
+                ret[i] = this.pendingPosts[i];
             return ret;
         },
+        removePending: function(model) {
+            var self = this,
+                pos = self._list.indexOf(model),
+                ppos = self.pendingPosts.indexOf(model);
+            if( pos !== -1 ) {
+                self._list.splice(pos,1);
+                self.pendingPosts.push(model);
+            }
+            if( ppos !== -1 )
+                self.pendingPosts.splice(ppos,1);
+
+        },
         savePending: function(href){
-            var ret = [];
+            var ret = [], ppost;
             for( var i in this.pendingPosts ) {
-                this.pendingPosts[i].href = href;
-                this.insert(this.pendingPosts[i]);
+                ppost = this.pendingPosts[i];
+                if(ppost._new) {
+                   ppost.href = href;
+                   this.insert(ppost);
+                } else {
+                    ppost.sync();
+                }
             }
             this.pendingPosts = [];
             this.triggerHandler('addingspending');
@@ -37,7 +54,6 @@ define(['gizmo/superdesk',
             this.desynced = false;
             if( !(model instanceof Gizmo.Model) ) model = this.modelDataBuild(new this.model(model));
             model.hash();
-            console.log(model.feed());
             this.pendingPosts.push(model);
             this.triggerHandler('updatepending',[[model]]);
         }	
