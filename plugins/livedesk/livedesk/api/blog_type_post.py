@@ -18,13 +18,21 @@ from livedesk.api.blog_type import BlogType
 
 # --------------------------------------------------------------------
 
-@modelLiveDesk(name=Post)
+@modelLiveDesk(name='Post')
 class BlogTypePost(Post):
     '''
     Provides the blog post model.
     '''
+    Name = str
     Order = float
     BlogType = BlogType
+
+@modelLiveDesk(name='Post')
+class BlogTypePostPersist(Post):
+    '''
+    Provides the blog post model.
+    '''
+    Name = str
 
 # --------------------------------------------------------------------
 
@@ -48,7 +56,7 @@ class IBlogTypePostService:
         Provides the blog post based on the id.
         '''
 
-    @call(webName='Posts')
+    @call
     def getAll(self, blogTypeId:BlogType, typeId:PostType=None, offset:int=None,
                limit:int=None, q:QBlogTypePost=None) -> Iter(BlogTypePost):
         '''
@@ -56,7 +64,7 @@ class IBlogTypePostService:
         '''
 
     @call
-    def insert(self, blogTypeId:BlogType.Id, post:Post) -> BlogTypePost.Id:
+    def insert(self, blogTypeId:BlogType.Id, post:BlogTypePostPersist) -> BlogTypePost.Id:
         '''
         Inserts the post for the blog type.
         '''

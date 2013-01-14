@@ -54,7 +54,9 @@ class PostMapped(Base, Post):
         return self.PublishedOn is not None
     @hybrid_property
     def AuthorName(self):
-        if self.Author is None: return self.creator.Name
+        if self.Author is None:
+            if self.creator is None: return None
+            else: return self.creator.Name
         return self.author.Name
 
     # Non REST model attributes --------------------------------------

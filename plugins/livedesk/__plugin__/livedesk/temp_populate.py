@@ -19,7 +19,8 @@ from livedesk.api.blog_admin import IBlogAdminService
 from livedesk.api.blog_collaborator import IBlogCollaboratorService
 from livedesk.api.blog_post import IBlogPostService
 from livedesk.api.blog_type import IBlogTypeService, BlogType, QBlogType
-from livedesk.api.blog_type_post import IBlogTypePostService
+from livedesk.api.blog_type_post import IBlogTypePostService, \
+    BlogTypePostPersist
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from superdesk.collaborator.api.collaborator import ICollaboratorService, \
@@ -98,16 +99,16 @@ def getSourcesIds():
 
 
 BLOG_TYPE_POSTS = [
-                   ('default', 'normal', 'User1', 'User1', 'Hello world!'),
-                   ('default', 'normal', 'User1', 'User1', 'Greetings!')
+                   ('default', 'normal', 'User1', 'User1', 'Hello', 'Hello world!'),
+                   ('default', 'normal', 'User1', 'User1', 'Conclusion', 'To summarise, this is the conclusion...')
                    ]
 
 def createBlogTypePosts():
     blogTypePostService = entityFor(IBlogTypePostService)
     assert isinstance(blogTypePostService, IBlogTypePostService)
     for data in BLOG_TYPE_POSTS:
-        pst = Post()
-        blogType, pst.Type, creator, author, pst.Content = data
+        pst = BlogTypePostPersist()
+        blogType, pst.Type, creator, author, pst.Name, pst.Content = data
         blogTypeId = getBlogTypesIds()[blogType]
         exists = False
         for post in blogTypePostService.getAll(blogTypeId):
@@ -231,6 +232,9 @@ def getCollaboratorsIds():
 BLOG_COLLABORATORS = {
                       'User1': 'GEN Live Desk Master Class',
                       'User2': 'GEN Live Desk Master Class',
+                      'User3': 'GEN Live Desk Master Class',
+                      'User4': 'GEN Live Desk Master Class',
+                      'User5': 'GEN Live Desk Master Class',
                      }
 
 def createBlogCollaborators():
@@ -280,7 +284,7 @@ def createPostType(key):
 
 
 POSTS = [
-     ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'Hello world!'),
+		 ('GEN Live Desk Master Class', 'normal', 'User1', 'User1', 'Hello world!'),
          ('GEN Live Desk Master Class', 'quote', 'User2', 'User2', 'GEN Live Desk is a next-generation '
           'open source web tool for both individuals and teams to report live breaking news from anywhere.'),
          ('GEN Live Desk Master Class', 'normal', 'User3', 'User3', 'GEN Live Desk is free to download, '
