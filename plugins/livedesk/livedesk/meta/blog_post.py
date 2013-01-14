@@ -13,13 +13,16 @@ from ..api.blog_post import BlogPost
 from livedesk.meta.blog import BlogMapped
 from sqlalchemy.dialects.mysql.base import INTEGER
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.hybrid import hybrid_property, Comparator
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.sql.expression import case
 from superdesk.meta.metadata_superdesk import Base
 from superdesk.post.meta.post import PostMapped
 from superdesk.collaborator.meta.collaborator import CollaboratorMapped
 from sqlalchemy.types import REAL
+from sqlalchemy.orm.util import aliased
+from sqlalchemy.orm import relationship
+from superdesk.person_icon.meta.person_icon import PersonIconMapped
 
 # --------------------------------------------------------------------
 
@@ -47,7 +50,7 @@ class BlogPostMapped(BlogPostDefinition, PostMapped, BlogPost):
     Provides the mapping for BlogPost in the form of extending the Post.
     '''
     __table_args__ = dict(BlogPostDefinition.__table_args__, extend_existing=True)
-
+    
     @hybrid_property
     def AuthorPerson(self):
         if self.author is None: return self.Creator
@@ -56,3 +59,5 @@ class BlogPostMapped(BlogPostDefinition, PostMapped, BlogPost):
     # Expression for hybrid ------------------------------------
     AuthorPerson.expression(lambda cls: case([(cls.author == None, cls.Creator)], else_=
                                              case([(CollaboratorMapped.User != None, CollaboratorMapped.User)])))
+        
+    
