@@ -133,7 +133,7 @@ define([
 		showLiner: function()
 		{
 			var self = this;
-			$('#liveblog-firstmore')
+			$('#load-more')
 				.on('click', function(){
 					self.el.find('#liveblog-post-list').html('');
 					for(i=0, count = self._views.length; i<count; i++) {
