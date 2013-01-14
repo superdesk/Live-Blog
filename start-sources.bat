@@ -41,6 +41,7 @@ set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-collaborator
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-country
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-language
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-person
+set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-person-icon
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-post
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-source
 set PYTHONPATH=%PYTHONPATH%;%SUPERPLUG%superdesk-user
