@@ -42,7 +42,9 @@ define(['gizmo/superdesk',
 
         },
         savePending: function(href){
-            var ret = [], ppost;
+            var ret = [], 
+                ppost, 
+                posts;
             for( var i = 0, count = this.pendingPosts.length; i < count; i++ ){
                 ppost = this.pendingPosts[i];
                 if(ppost._new) {
@@ -54,7 +56,12 @@ define(['gizmo/superdesk',
                     ppost.sync();
                 }
             }
-            this.pendingPosts = [];
+            if(this.pendingPosts.length) {
+                posts = this.pendingPosts.slice(0);
+                this.pendingPosts = [];                
+                this.triggerHandler('update',[posts]);
+
+            }
             this.triggerHandler('addingspending');
             return ret;            
         },
