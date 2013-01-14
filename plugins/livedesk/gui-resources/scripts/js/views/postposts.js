@@ -13,7 +13,7 @@ define([
                 .on('read update addingspending updatepending', self.render, self)
                 .xfilter('*')
                 .sync();
-            console.log('posts: ',self.collection._clientId)
+            //console.log('posts: ',self.collection._clientId)
         },
 
         render: function(evt, data){
