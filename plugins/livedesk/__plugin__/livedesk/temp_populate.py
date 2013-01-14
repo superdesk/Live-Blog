@@ -100,7 +100,7 @@ def getSourcesIds():
 
 BLOG_TYPE_POSTS = [
                    ('default', 'normal', 'User1', 'User1', 'Hello', 'Hello world!'),
-                   ('default', 'normal', 'User1', 'User1', 'Conclusion', 'To summarise, this is the conclusion...')
+                   ('default', 'normal', 'User1', 'User1', 'Conclusion', 'To summarise, this is the conclusion...', )
                    ]
 
 def createBlogTypePosts():
