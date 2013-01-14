@@ -9,8 +9,8 @@ define([
         init: function(){
             var self = this;
             self.collection
-                .off('read update', self.render)
-                .on('read update', self.render, self)
+                .off('read update addingspending updatepending', self.render)
+                .on('read update addingspending updatepending', self.render, self)
                 .xfilter('*')
                 .sync();
             console.log('posts: ',self.collection._clientId)
