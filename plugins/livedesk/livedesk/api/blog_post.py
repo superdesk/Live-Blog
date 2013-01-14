@@ -16,7 +16,7 @@ from superdesk.post.api.post import Post, QPostUnpublished, \
     QPost, IPostService
 from superdesk.user.api.user import User
 from superdesk.collaborator.api.collaborator import Collaborator
-from ally.api.type import Iter
+from ally.api.type import Iter, Reference
 from ally.api.criteria import AsRangeOrdered, AsBoolean
 from ally.api.authentication import auth
 from superdesk.person.api.person import Person
@@ -35,6 +35,7 @@ class BlogPost(Post):
     Blog = Blog
     AuthorPerson = Person
     AuthorName = str
+    AuthorImage = Reference
 
 # --------------------------------------------------------------------
 
@@ -90,7 +91,7 @@ class IBlogPostService:
     '''
 
     @call
-    def getById(self, blogId:Blog, postId:BlogPost) -> BlogPost:
+    def getById(self, blogId:Blog, postId:BlogPost, thumbSize:str=None) -> BlogPost:
         '''
         Provides the blog post based on the id.
         '''
