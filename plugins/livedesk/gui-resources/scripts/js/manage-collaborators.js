@@ -308,7 +308,7 @@ define([
 		            	action = (action[0])? action[0] : action;
 		                action.ScriptPath &&
 		                    require([$.superdesk.apiUrl+action.ScriptPath], function(app){ 
-		                    	console.log(app);
+		                    	//console.log(app);
 		                    	new app(blogHref); });
 		            });
 		        })
