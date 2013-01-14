@@ -11,6 +11,7 @@ define([
 		limit: 6,
 		hashIdentifier: 'livedeskitem=',
 		location: '',
+		_views: [],
 		el: '#livedesk-root',
 		timeInterval: 10000,
 		idInterval: 0,
@@ -132,7 +133,7 @@ define([
 		showLiner: function()
 		{
 			var self = this;
-			$('#liveblog-firstmore')
+			$('#load-more')
 				.on('click', function(){
 					self.el.find('#liveblog-post-list').html('');
 					for(i=0, count = self._views.length; i<count; i++) {
@@ -156,9 +157,12 @@ define([
 			var 
 				self = this,
 				pos = self._views.indexOf(view);
-			//console.log(self.model.get('PostPublished').total);
-			self.model.get('PostPublished').total--;					
-			self._views.splice(pos,1);
+			if(pos !== -1 ) {
+				//console.log(self.model.get('PostPublished').total);
+				self.model.get('PostPublished').total--;					
+				self._views.splice(pos,1);
+				self.markScroll();
+			}
 			return self;
 		},
 		reorderOne: function(view) {
@@ -227,6 +231,7 @@ define([
 					data[i].postview.remove();
 				}
 			}
+			self.markScroll();
 		},
 		addAllAutoupdate: function(evt, data)
 		{

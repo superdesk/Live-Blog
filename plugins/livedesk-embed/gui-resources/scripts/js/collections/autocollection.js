@@ -164,9 +164,8 @@ define(['gizmo/superdesk'], function(Gizmo) {
 				 */
 				if( ( count === 0) ){
 					//console.log('read');
-
 					self.triggerHandler('readauto',[self._list,attr]);
-                } else {                    
+                } else {          
                     /**
                      * Trigger handler with changeset extraparameter as a vector of vectors,
                      * caz jquery will send extraparameters as arguments when calling handler
