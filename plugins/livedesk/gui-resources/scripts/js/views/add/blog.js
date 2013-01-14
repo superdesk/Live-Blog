@@ -17,9 +17,21 @@
             if(!this.model) {
                 this.model = Gizmo.Auth(new Gizmo.Register.Blog());
             }
+            this.render();
         },
-        refresh: function() {
+        refresh: function(){
             var self = this;
+            self.model = Gizmo.Auth(new Gizmo.Register.Blog());
+            self.el.find("[name='Language']:eq(0)").val('');
+            self.el.find("[data-value='Title']:eq(0)").html('').trigger('placeholder.texteditor');
+            self.el.find("[name='blogtypeselection']").removeAttr('checked'); 
+            self.el.find(".blogtype-list li").removeClass('selected');
+            self.el.find("[data-value='Description']:eq(0)").html('').trigger('placeholder.texteditor');
+            self.el.modal('show');
+        },
+        render: function() {
+            var self = this;
+            //console.log(self.el);
             $.tmpl('livedesk>add', {}, function(e, o){
                 self.setElement(o);
                 self.languagesView = new LanguagesView({
@@ -99,8 +111,10 @@
                     Description: $.styledNodeHtml(descr).replace(/<br\s*\/?>\s*$/, '')
                 };
             self.model.set(data).xfilter('Id,Description,Title,CreatedOn,Creator.*,Language,Type,Admin').sync().done(function(liveBlog){
+                    self.model._parseHash(liveBlog);
                     require([$.superdesk.apiUrl+'/content/lib/livedesk/scripts/js/edit-live-blogs.js'],
                         function(EditApp){
+                            self.el.modal('hide');
                             $.superdesk.navigation.bind( 'live-blog/'+liveBlog.Id, 
                                     function(){ 
                                         new EditApp(liveBlog.href); 
