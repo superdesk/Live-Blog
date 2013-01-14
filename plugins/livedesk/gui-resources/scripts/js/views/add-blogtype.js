@@ -141,7 +141,7 @@
         }, 
         savePost: function(evt) {
             var self = this;
-            console.log(JSON.stringify($.extend({},self._post_settings)));
+            //console.log(JSON.stringify($.extend({},self._post_settings)));
             if(self.currentPost._new) {
                 self.currentPost.set({
                     Type: 'normal',
