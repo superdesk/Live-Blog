@@ -1,6 +1,6 @@
  define([
     'jquery', 
-    'gizmo/superdesk',
+    'gizmo/superdesk',  
     config.guiJs('livedesk', 'views/blogtype/add/posts'), 
     config.guiJs('livedesk', 'models/blogtype'),
     config.guiJs('livedesk', 'models/post'),
@@ -13,9 +13,9 @@
         _post_settings: {},
         events: {
             '#save-add-blogtype': { 'click': 'save' },
-            'a[name="save-post"]': { 'click': 'addPost' },
+            'a[name="save-post"]': { 'click': 'savePost' },
             'a[name="save-post-close"]': { 'click': 'savePostClose' },
-            'a[name="addnewpost"]': { 'click': 'createPost' },
+            'a[name="addnewpost"]': { 'click': 'addPost' },
             'a[name="wizard-back"]': { 'click': 'previousStep' },
             'a[name="wizard-next"]': { 'click': 'nextStep' },
             'select[name="post-fontfamily"]': { 'change': 'selectFontFamily'},
@@ -34,29 +34,6 @@
         restBlog: function() {
             this.el.find('[name="blogtypename"]').val('');
         },
-        resetPost: function(){
-            var self = this;
-            self._post_settings = {
-                'name': '',
-                'type' : '',
-                'predefinedContent' : '',
-                'font-family': 1,
-                'font-size': 13,
-                'font-bold': false,
-                'font-italic': false,
-                'font-underline': false,
-                'font-align': 'left',
-                'font-color': 'black',
-                'background-color': 'white',
-                'background-image': '',
-                'background-image-id': 0
-            };
-            self.el.find('.wizard-picture-selection ul li').removeClass("picked");
-            self.el.find('[name="post-name"]').val('');
-            self.el.find('[name="post-predefined"]').val('');
-            self.el.find('.wizard-preview').html('');
-            self.el.find('[name="post-bold"],[name="post-bold"],[name="post-underline"],[name="post-align"]').removeClass('active');
-        },
         init: function(){
             var self = this;
             if( !self.model ) {
@@ -64,12 +41,14 @@
             }
             self.render();
         },
+
         render: function(evt, data){
             var self = this;
             self.el.tmpl('livedesk>blogtype/add', self.model.feed(), function(){
                 self.postPosts = new PostsView({
                     el: self.el.find('.blogtype-content'),
-                    collection: self.model.get('Post')
+                    collection: self.model.get('Post'),
+                    _parent: self
                 });
             });
             self._currentStep = 0;
@@ -94,16 +73,90 @@
                 });
             self.model.data['Post'] = postspost;
         },
-        addPost: function(evt) {
-            console.log(this.el.find('.wizard-preview').html());
+        resetMeta: function() {
             var self = this,
-                post = Gizmo.Auth(new Gizmo.Register.Post({
+                el;
+            if(self.currentPost.get('Content')) {
+                var el1 = $(self.currentPost.get('Content')).addClass('wizard-preview');
+                var el2 = $(self.currentPost.get('Content')).addClass('wizard-preview');
+                self.el.find('.wizard-preview').eq(0).replaceWith(el1);
+                self.el.find('.wizard-preview').eq(1).replaceWith(el2);
+            } else {
+                self.el.find('.wizard-preview').attr('style','');
+            }
+            self.el.find('[name="post-name"]').val(self.currentPost.get('Name'));
+            self.el.find('[name="post-predefined"]').val(self._post_settings.predefinedContent);
+            self.el.find('[name="post-fontfamily"]').val(self._post_settings['font-family']);
+            self.el.find('[name="post-fontsize"]').val(self._post_settings['font-size']);
+            self.el.find('[name="post-bold"]').toggleClass('active', self._post_settings['font-bold']);
+            self.el.find('[name="post-italic"]').toggleClass('active', self._post_settings['font-italic']);
+            self.el.find('[name="post-underline"]').toggleClass('active', self._post_settings['font-underline']);
+            self.el.find('[name="post-align"]').removeClass('active');
+            self.el.find('[align="'+ self._post_settings['font-align']+'"]').addClass('active');
+            self.el.find('#colorpicker1 span[name="picked-color"]').attr('class',"wizard-color "+self._post_settings['color']);
+            self.el.find('#colorpicker2 span[name="picked-color"]').attr('class',"wizard-color "+self._post_settings['background-color']);
+            if(self._post_settings["background-image-id"] != 0) {
+                self.el.find('[name="post-addbgimage"]').attr('checked','checked');
+            } else {
+                self.el.find('[name="post-addbgimage"]').removeAttr( 'checked' );
+            }
+
+        },
+        resetPostSettings: function() {
+            this._post_settings = {
+                'name': '',
+                'type' : '',
+                'predefinedContent' : '',
+                'font-family': 1,
+                'font-size': 13,
+                'font-bold': false,
+                'font-italic': false,
+                'font-underline': false,
+                'font-align': 'left',
+                'color': 'black',
+                'color-code': '',
+                'background-color': 'white',
+                'background-color-code': '',
+                'background-image': '',
+                'background-image-id': 0
+            };            
+        },
+        addPost: function(evt) {
+            var self = this;
+            self.currentPost = Gizmo.Auth(new Gizmo.Register.Post({}));
+            self.resetPostSettings();
+            self.resetMeta();
+            self.switchModal(evt, 1);
+        },
+        editPost: function(evt, model) {
+            var self = this;
+            self.currentPost = model;
+            if(model.get('Meta')) {
+                self._post_settings = JSON.parse(model.get('Meta'));
+            } else {
+                self.resetPostSettings();
+            }
+            self.resetMeta();
+            self.switchModal(evt, 1);
+        }, 
+        savePost: function(evt) {
+            var self = this;
+            console.log(JSON.stringify($.extend({},self._post_settings)));
+            if(self.currentPost._new) {
+                self.currentPost.set({
                     Type: 'normal',
                     Meta: JSON.stringify($.extend({},self._post_settings)),
                     Content: self.el.find('.wizard-preview').clone().removeClass('wizard-preview').wrap('<p>').parent().html(),
                     Name: self._post_settings.name
-                }));
-            self.model.get('Post').addPending(post);
+                });    
+            } else {
+                self.currentPost.set({
+                        Meta: JSON.stringify($.extend({},self._post_settings)),
+                        Content: self.el.find('.wizard-preview').clone().removeClass('wizard-preview').wrap('<p>').parent().html(),
+                        Name: self._post_settings.name
+                    });
+            }
+            self.model.get('Post').addPending(self.currentPost);
             this.switchModal(evt, 0);
         },
         savePostClose: function(evt) {
@@ -166,14 +219,16 @@
                 el = $(evt.target);
             self.el.find('#colorpicker1 span[name="picked-color"]').attr("class",el.attr("class"));
             self.el.find('.wizard-preview').css("color",el.css("background-color"));
-            self._post_settings['font-color'] = el.css("background-color");            
+            self._post_settings['color-code'] = el.css("background-color");
+            self._post_settings['color'] = el.attr("class").replace("wizard-color ","");
         },
         selectColorPicker2: function(evt) {
             var self = this,
                 el = $(evt.target);
             self.el.find('#colorpicker2 span[name="picked-color"]').attr("class",el.attr("class"));
             self.el.find('.wizard-preview').css("background-color",el.css("background-color"));
-            self._post_settings['background-color'] = el.css("background-color");            
+            self._post_settings['background-color-code'] = el.css("background-color");
+            self._post_settings['background-color'] = el.attr("class").replace("wizard-color ","");
         },
         selectItalic: function(evt){
             var self = this,
@@ -247,9 +302,6 @@
             var l_height = parseInt($(evt.target).val()) + 5;
             self.el.find('.wizard-preview').css({'font-size' : size+'px', 'line-height' : l_height+'px'});
             self._post_settings['font-size'] = size;            
-        },
-        createPost: function(evt) {
-            this.switchModal(evt, 1);
         },
         previousStep: function(evt) {
             var self = this,
