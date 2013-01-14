@@ -47,7 +47,9 @@ define(['gizmo/superdesk',
                 ppost = this.pendingPosts[i];
                 if(ppost._new) {
                     ppost.href = href;
-                    this.insert(ppost);
+                    this.insert(ppost).done(function(data){
+                        ppost._parseHash(data);
+                    });
                 } else {
                     ppost.sync();
                 }

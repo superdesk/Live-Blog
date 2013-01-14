@@ -190,45 +190,6 @@ define('providers/edit', [
 			});
 			self.blog.sync();
 		},
-		selectContent: function(evt) {
-			var self = this,
-				el = $(evt.target),
-				currentContentId = el.find('option:selected').attr('content'),
-				previous = el.data('previous'),
-				post,
-				previousContentId ;
-			/*!
-			 * If there is no previous then set previous content id to the first selection
-			 */
-			currentContentId = currentContentId? currentContentId: 0;
-			if(!previous) {
-				previousContentId = el.find('option:first').attr('content');
-			} else {
-				previousContentId = previous;
-			}
-			/*!
-			 * If previous selection is a blogtype post and current is a posttype
-			 *   then clear the editable html
-			 */
-			if(previousContentId && !currentContentId) {
-				this.el.find('.edit-block article.editable').html('');
-			} 
-			/*!
-			 * If previous selection is a posttype and the current is a blogtype post
-			 *   then set editable html to blogtype post content
-			 */
-			else if(currentContentId) {
-				var postspost = self.blog.get('Type').get('Post').feed();
-				for( var i = 0, count = postspost.length; i < count; i++ ){
-					post = postspost[i];
-					if( currentContentId == post.Id) {
-						this.el.find('.edit-block article.editable').html(post.Content);
-						break;
-					}
-				}
-			}
-			el.data('previous', currentContentId);
-		},
 		addBlogTypePosts: function(evt){
 			var self = this, 
 				select = this.el.find('[name="type"]');
@@ -289,11 +250,48 @@ define('providers/edit', [
 					console.log(o);
 					self.el.find('article.editable').html(o)
 				});
-			})
-
-			
+			})		
 		},
-		changetype: function() {
+		selectContent: function(evt) {
+			var self = this,
+				el = $(evt.target),
+				currentContentId = el.find('option:selected').attr('content'),
+				previous = el.data('previous'),
+				post,
+				previousContentId ;
+			/*!
+			 * If there is no previous then set previous content id to the first selection
+			 */
+			currentContentId = currentContentId? currentContentId: 0;
+			if(!previous) {
+				previousContentId = el.find('option:first').attr('content');
+			} else {
+				previousContentId = previous;
+			}
+			/*!
+			 * If previous selection is a blogtype post and current is a posttype
+			 *   then clear the editable html
+			 */
+			if(previousContentId && !currentContentId) {
+				this.el.find('.edit-block article.editable').html('');
+			} 
+			/*!
+			 * If previous selection is a posttype and the current is a blogtype post
+			 *   then set editable html to blogtype post content
+			 */
+			else if(currentContentId) {
+				var postspost = self.blog.get('Type').get('Post').feed();
+				for( var i = 0, count = postspost.length; i < count; i++ ){
+					post = postspost[i];
+					if( currentContentId == post.Id) {
+						this.el.find('.edit-block article.editable').html(post.Content);
+						break;
+					}
+				}
+			}
+			el.data('previous', currentContentId);
+		},
+		changetype: function(evt) {
 			var self = this;
 			var type = $('[name="type"]').val();
 			if ( type == 'link') {
@@ -315,6 +313,7 @@ define('providers/edit', [
 					self.clear();
 				}
 			}
+			this.selectContent(evt);
 			this.lastType = type;
 		},
 		render: function(){
@@ -379,7 +378,7 @@ define('providers/edit', [
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
-				self.changetype();
+				//self.changetype();
 			} );
 		},
 		clear: function()
