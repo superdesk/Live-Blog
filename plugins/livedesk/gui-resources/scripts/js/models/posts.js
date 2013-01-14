@@ -43,11 +43,11 @@ define(['gizmo/superdesk',
         },
         savePending: function(href){
             var ret = [], ppost;
-            for( var i in this.pendingPosts ) {
+            for( var i = 0, count = this.pendingPosts.length; i < count; i++ ){
                 ppost = this.pendingPosts[i];
                 if(ppost._new) {
-                   ppost.href = href;
-                   this.insert(ppost);
+                    ppost.href = href;
+                    this.insert(ppost);
                 } else {
                     ppost.sync();
                 }
@@ -58,6 +58,8 @@ define(['gizmo/superdesk',
         },
         addPending: function(model) {
             this.desynced = false;
+            if( !(model instanceof Gizmo.Model) ) model = this.modelDataBuild(new this.model(model));
+            model.hash();
             var found = false,
                 post;
             for( var i = 0, count = this.pendingPosts.length; i < count; i++ ){
