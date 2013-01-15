@@ -327,6 +327,7 @@ def populate():
     createPostType('normal')
     createPostType('wrapup')
     createPostType('link')
+    createPostType('image')
     createPostType('quote')
     createPostType('advertisement')
     getBlogsIds()
