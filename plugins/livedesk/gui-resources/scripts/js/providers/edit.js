@@ -23,10 +23,120 @@ define('providers/edit', [
     'tmpl!livedesk>providers/edit/item',
     'tmpl!livedesk>providers/edit/link',
     'tmpl!livedesk>providers/edit/urlinput',
+    'tmpl!livedesk>providers/edit/image',
     'tmpl!livedesk>providers/loading',
     'tmpl!livedesk>providers/generic-error'
 ], function( providers, $, Gizmo, PostType, Post, uploadCom, URLInfo ) {
-	var OwnCollection = Gizmo.Collection.extend({
+	var 
+	
+	ImagePostType = Gizmo.View.extend
+	({ 
+	    events:
+	    {
+	        ".upload-image-container": { 'click': 'add' },
+	        "[data-image-source] li": { 'click': 'changeSource' },
+            "[data-action='upload']": { 'change': '_upload' }
+	    },
+	    _restorePlace: null,
+	    _isActive: false,
+	    _currentSource: null,
+	    changeSource: function(evt)
+	    {
+	        this._currentSource = $(evt.currentTarget).attr('data-source');
+	        switch(this._currentSource)
+	        {
+	            case 'url': $('.upload-url', this.el).focus();
+	        }
+	    },
+	    add: function(evt)
+	    {
+	        switch(this._currentSource)
+	        {
+	            case 'computer': 
+	                $('[data-action="upload"]').trigger('click');
+	            break;
+	            
+	            case 'media-archive': 
+	                
+	            break;
+	            
+	            case 'url': 
+	                $('.upload-url', this.el).focus();
+	            break;
+	        }
+	    },
+	    
+	    save: function()
+	    {
+	        
+	    },
+	        
+	    // -- upload
+        browse: function(evt)
+        {
+            $(evt.target).siblings('[type="file"]').trigger('click');
+        },
+        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/Archive/MetaData/Upload?thumbSize=large&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
+        _upload: function(evt)
+        {
+            var uploadInput = $(evt.target),
+                files = uploadInput[0].files,
+                self = this; 
+            for( var i=0; i<files.length; i++)
+            {
+                xhr = uploadCom.upload( files[i], 'upload_file', this.uploadEndPoint,
+                        // display some progress type visual
+                        function(){ $('[data-action="browse"]', self.el).val(_('Uploading...')); }, 'json');
+                xhr.onload = function(event) 
+                { 
+                    $('[data-action="browse"]', this.el).val(_('Browse'));
+                    try // either get it from the responseXML or responseText
+                    {
+                        var content = JSON.parse(event.target.responseText);
+                    }
+                    catch(e)
+                    {
+                        var content = JSON.parse(event.target.response);
+                    }
+                    if(!content) return;
+                    $(self).triggerHandler('uploaded', [content.Id]);
+                    self._latestUpload = content;
+                    
+                    $('.uploaded-image', self.el).html('<img src="'+content.Thumbnail.href+'" />');
+                    $('.upload-url', self.el).val(content.Content.href)
+                };
+            }
+            $('[data-action="upload"]', this.el).val('');
+        },
+        _latestUpload: null,
+        // -- upload
+        
+	    show: function()
+	    {
+	        this._restorePlace = $(this.el).html();
+	        var self = this;
+	        $.tmpl('livedesk>providers/edit/image', {}, function(e, o)
+	        {
+	            $(self.el).html(o);
+	            if(self._currentSource == null)
+	                self._currentSource = $('[data-image-source] li').eq(0).attr('data-source');
+	        });
+	        this._isActive = true;
+	    },
+	    isActive: function()
+	    {
+	        return this._isActive;
+	    },
+	    restore: function()
+	    {
+	        $(this.el).html(this._restorePlace);
+	        this._isActive = false;
+	    }
+	    
+	}),
+	imagePostType = new ImagePostType,
+	
+	OwnCollection = Gizmo.Collection.extend({
 		insertFrom: function(model) {
 			this.desynced = false;
 			if( !(model instanceof Gizmo.Model) ) model = Gizmo.Auth(new this.model(model));
@@ -294,6 +404,20 @@ define('providers/edit', [
 		changetype: function(evt) {
 			var self = this;
 			var type = $('[name="type"]').val();
+			
+			/*if( type == 'image' ) 
+            {
+                imagePostType.show();
+                this.lastType = type;
+                return;
+            }
+            else if(imagePostType.isActive())
+            {
+                imagePostType.restore();
+                this.lastType = type;
+                return;
+            }*/
+			
 			if ( type == 'link') {
 				//inject template
 				$.tmpl('livedesk>providers/edit/urlinput' , {}, function(e,o) {
@@ -378,7 +502,12 @@ define('providers/edit', [
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
+				
+				// to be commented?
 				//self.changetype();
+				
+				imagePostType.setElement( $(this).find('.edit-area') )
+				
 			} );
 		},
 		clear: function()
