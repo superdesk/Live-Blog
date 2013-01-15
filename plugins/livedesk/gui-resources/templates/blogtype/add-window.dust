@@ -1,0 +1,672 @@
+<div class="modal hide fade" id="configureblogtype">
+  
+  <div class="modalscreen" screenid="0">
+    
+    <div class="modal-header">
+      
+      <a class="close" data-dismiss="modal">
+        ×
+      </a>
+      <h3>
+        Configure blog type
+      </h3>
+    </div>
+    
+    <div class="modal-body">
+      
+      <form>
+        
+        <label>
+          Blog type name
+        </label>
+        <input type="text" name="blogtypename" placeholder="Enter Blog Type Name" value="" class="fullwidth-input">
+        <legend class="small-legend">
+          Configure Post Types
+        </legend>
+        <label>
+          Select Post Types
+        </label>
+        
+        
+        
+        <div class="blogpost-selection">
+          <ul>
+            <li posttypeID="1">
+              <label class="checkbox">
+                <input type="checkbox">
+                Normal
+              </label>
+            </li>
+            <li posttypeID="2">
+              <label class="checkbox">
+                <input type="checkbox">
+                Quote
+              </label>
+            </li>
+            <li posttypeID="3">
+              <label class="checkbox">
+                <input type="checkbox">
+                Wrapup
+              </label>
+            </li>
+            <li posttypeID="4">
+              <label class="checkbox">
+                <input type="checkbox">
+                Image post
+              </label>
+            </li>
+            <li posttypeID="5">
+              <label class="checkbox">
+                <input type="checkbox">
+                Goal
+              </label>
+            </li>
+            <li posttypeID="6">
+              <label class="checkbox">
+                <input type="checkbox">
+                Penalty
+              </label>
+            </li>
+            <li posttypeID="7">
+              <label class="checkbox">
+                <input type="checkbox">
+                Yellow Card
+              </label>
+            </li>
+            <li posttypeID="8">
+              <label class="checkbox">
+                <input type="checkbox">
+                Red Card
+              </label>
+            </li>
+            <li posttypeID="9">
+              <label class="checkbox">
+                <input type="checkbox">
+                Extended
+              </label>
+            </li>
+            <li posttypeID="10">
+              <label class="checkbox">
+                <input type="checkbox">
+                Reporting
+              </label>
+            </li>
+            <li posttypeID="11">
+              <label class="checkbox">
+                <input type="checkbox">
+                Slideshow
+              </label>
+            </li>
+            <li posttypeID="12">
+              <label class="checkbox">
+                <input type="checkbox">
+                Surprise
+              </label>
+            </li>
+            <li posttypeID="13">
+              <label class="checkbox">
+                <input type="checkbox">
+                Exclusive
+              </label>
+            </li>
+          </ul>
+        </div>
+        
+        <a class="btn" href="#" name="addnewposttype">
+          <i class="icon-plus-sign">
+          </i>
+          Add New Post Type
+        </a>
+        
+      </form>
+      
+      
+    </div>
+    
+    <div class="modal-footer">
+      
+      <a href="#" class="btn" data-dismiss="modal">
+        Cancel
+      </a>
+      
+      <a href="#" class="btn btn-primary" data-dismiss="modal" name="save-changes-modal">
+        Save changes
+      </a>
+      
+    </div>
+    
+  </div>
+  
+  
+  <!--screen 1 -->
+  <div class="modalscreen" screenid="1">
+    
+    <div class="modal-header">
+      
+      <a class="close" data-dismiss="modal">
+        ×
+      </a>
+      <h3>
+        Create new Post Type
+      </h3>
+    </div>
+    
+    <div class="modal-body">
+      
+      <form>
+        <div class="wizard">
+          <div class="wizard-line">
+          </div>
+          <ul>
+            <li>
+              1
+            </li>
+            <li>
+              2
+            </li>
+            <li>
+              3
+            </li>
+            <li>
+              4
+            </li>
+          </ul>
+        </div>
+        <legend class="small-legend">
+          Name the Post Type
+        </legend>
+        <input type="text" name="posttype-name" placeholder="Enter Blog Type Name" value="" class="fullwidth-input">
+        
+      </form>
+      
+    </div>
+    
+    <div class="modal-footer">
+      
+      <a href="#" class="btn" data-dismiss="modal">
+        Cancel
+      </a>
+      
+      <a href="#" class="btn btn-primary" name="wizard-next">
+        Next
+      </a>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+  <!--screen 2 -->
+  <div class="modalscreen" screenid="2">
+    
+    <div class="modal-header">
+      
+      <a class="close" data-dismiss="modal">
+        ×
+      </a>
+      <h3>
+        Create new Post Type
+      </h3>
+    </div>
+    
+    <div class="modal-body">
+      
+      <form>
+        <div class="wizard">
+          <div class="wizard-line">
+          </div>
+          <ul>
+            <li>
+              1
+            </li>
+            <li>
+              2
+            </li>
+            <li>
+              3
+            </li>
+            <li>
+              4
+            </li>
+          </ul>
+        </div>
+        <legend class="small-legend">
+          Predefine the content of the Post Type
+        </legend>
+        <div class="alert alert-info">
+          <a class="close" data-dismiss="alert">
+            ×
+          </a>
+          <strong>
+            Note!
+          </strong>
+          You can optionally place a predifined text in your Post type.
+        </div>
+        <textarea rows="4" placeholder="Type your text here" name="posttype-predefined" class="fullwidth-input">
+        </textarea>
+        
+      </form>
+      
+    </div>
+    
+    <div class="modal-footer">
+      
+      <a href="#" class="btn pull-left" name="wizard-back">
+        Back
+      </a>
+      
+      <a href="#" class="btn" data-dismiss="modal">
+        Cancel
+      </a>
+      
+      <a href="#" class="btn btn-primary" name="wizard-next">
+        Next
+      </a>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+  
+  
+  
+  <!--screen 3 -->
+  <div class="modalscreen" screenid="3">
+    
+    <div class="modal-header">
+      
+      <a class="close" data-dismiss="modal">
+        ×
+      </a>
+      <h3>
+        Create new Post Type
+      </h3>
+    </div>
+    
+    <div class="modal-body">
+      
+      <form>
+        <div class="wizard">
+          <div class="wizard-line">
+          </div>
+          <ul>
+            <li>
+              1
+            </li>
+            <li>
+              2
+            </li>
+            <li>
+              3
+            </li>
+            <li>
+              4
+            </li>
+          </ul>
+        </div>
+        <legend class="small-legend">
+          Customize the Font style and color of the Post Type 
+          <i style="color:#989898">
+            (optional)
+          </i>
+        </legend>
+        <div class="alert alert-info">
+          <a class="close" data-dismiss="alert">
+            ×
+          </a>
+          <strong>
+            Note!
+          </strong>
+          You can difine a differnt Font style, size and/or color for each Post type.
+        </div>
+        <legend class="small-legend wizard-legend">
+          Font options
+        </legend>
+        <select style="width:140px;" name="posttypetext-fontfamily">
+          <option value="1" selected="selected">
+            Arial, Helvetica, sans-serif
+          </option>
+          <option value="2">
+            Times New Roman, Times, serif
+          </option>
+          <option value="3">
+            Courier New, Courier, monospace
+          </option>
+          <option value="4">
+            Verdana, Arial, Helvetica, sans-serif
+          </option>
+        </select>
+        <select style="width:65px;margin-left:5px;" name="posttypetext-fontsize">
+          <option value="8">
+            8px
+          </option>
+          <option value="9">
+            9px
+          </option>
+          <option value="10">
+            10px
+          </option>
+          <option value="11">
+            11px
+          </option>
+          <option value="12">
+            12px
+          </option>
+          <option value="13" selected="selected">
+            13px
+          </option>
+          <option value="14">
+            14px
+          </option>
+          <option value="16">
+            16px
+          </option>
+          <option value="18">
+            18px
+          </option>
+          <option value="20">
+            20px
+          </option>
+          <option value="22">
+            22px
+          </option>
+          <option value="24">
+            24px
+          </option>
+          <option value="28">
+            28px
+          </option>
+          <option value="32">
+            32px
+          </option>
+          <option value="38">
+            38px
+          </option>
+          <option value="45">
+            45px
+          </option>
+          <option value="55">
+            55px
+          </option>
+        </select>
+        <div class="btn-toolbar">
+          <div class="btn-group" data-toggle="buttons-checkbox">
+            <a class="btn" href="#" name="posttypetext-bold">
+              <i class="icon-bold">
+              </i>
+            </a>
+            <a class="btn" href="#" name="posttypetext-italic">
+              <i class="icon-italic">
+              </i>
+            </a>
+            <a class="btn" href="#" name="posttypetext-underline">
+              <i class="icon-underline">
+              </i>
+            </a>
+          </div>
+        </div>
+        <div class="btn-toolbar" >
+          <div class="btn-group" data-toggle="buttons-radio">
+            <a class="btn" href="#" name="posttypetext-align" align="left">
+              <i class="icon-align-left">
+              </i>
+            </a>
+            <a class="btn" href="#" name="posttypetext-align" align="center">
+              <i class="icon-align-center">
+              </i>
+            </a>
+            <a class="btn" href="#" name="posttypetext-align" align="right">
+              <i class="icon-align-right">
+              </i>
+            </a>
+          </div>
+        </div>
+        <div class="btn-group color-picker" id="colorpicker1">
+          <button class="btn" name="picked-color">
+            <span class="wizard-color black" name="picked-color" >
+            </span>
+          </button>
+          <button class="btn dropdown-toggle" data-toggle="dropdown">
+            <span class="caret">
+            </span>
+          </button>
+          <ul class="dropdown-menu pull-right">
+            <li>
+              <span class="wizard-color black">
+              </span>
+              Default color
+            </li>
+            <li class="divider">
+            </li>
+            <li>
+              <span class="wizard-color gray">
+              </span>
+              <span class="wizard-color gray-dark">
+              </span>
+              <span class="wizard-color blue">
+              </span>
+              <span class="wizard-color blue-light">
+              </span>
+              <span class="wizard-color green">
+              </span>
+              <span class="wizard-color green-light">
+              </span>
+              <span class="wizard-color red">
+              </span>
+              <span class="wizard-color orange">
+              </span>
+              <span class="wizard-color white">
+              </span>
+            </li>
+          </ul>
+        </div>
+        <legend class="small-legend wizard-legend" style="border:0;margin-bottom:0px;">
+          Preview
+        </legend>
+        <div class="wizard-preview">
+          Vel vut turpis rhoncus lectus pulvinar lacus, sed urna, scelerisque vel lundium a, egestas! Vut, amet in, porttitor lacus phasellus dignissim lundium lundium! Placerat! Nisi, dolor proin augue in, nec aliquet nisi pellentesque
+        </div>
+      </form>
+      
+    </div>
+    
+    <div class="modal-footer">
+      
+      <a href="#" class="btn pull-left" name="wizard-back">
+        Back
+      </a>
+      
+      <a href="#" class="btn" data-dismiss="modal">
+        Cancel
+      </a>
+      
+      <a href="#" class="btn btn-primary" name="wizard-next">
+        Next
+      </a>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+  
+  <!--screen 4 -->
+  <div class="modalscreen" screenid="4">
+    
+    <div class="modal-header">
+      
+      <a class="close" data-dismiss="modal">
+        ×
+      </a>
+      <h3>
+        Create new Post Type
+      </h3>
+    </div>
+    
+    <div class="modal-body">
+      
+      <form>
+        <div class="wizard">
+          <div class="wizard-line">
+          </div>
+          <ul>
+            <li>
+              1
+            </li>
+            <li>
+              2
+            </li>
+            <li>
+              3
+            </li>
+            <li>
+              4
+            </li>
+          </ul>
+        </div>
+        <legend class="small-legend">
+          Customize the Background the Post Type 
+          <i style="color:#989898">
+            (optional)
+          </i>
+        </legend>
+        <div class="alert alert-info">
+          <a class="close" data-dismiss="alert">
+            ×
+          </a>
+          <strong>
+            Note!
+          </strong>
+          You can difine a differnt Background color and/or graphic for each Post type.
+        </div>
+        
+        <legend class="small-legend wizard-legend">
+          Background options
+        </legend>
+        <label class="bgcolor" >
+          Background color:
+        </label>
+        
+        <div class="btn-group color-picker" id="colorpicker2" style="float:left;margin-left:10px;">
+          <button class="btn" name="picked-color">
+            <span class="wizard-color white" name="picked-color" >
+            </span>
+          </button>
+          <button class="btn dropdown-toggle" data-toggle="dropdown">
+            <span class="caret">
+            </span>
+          </button>
+          <ul class="dropdown-menu pull-right">
+            <li>
+              <span class="wizard-color white">
+              </span>
+              Default color
+            </li>
+            <li class="divider">
+            </li>
+            <li>
+              <span class="wizard-color gray">
+              </span>
+              <span class="wizard-color gray-dark">
+              </span>
+              <span class="wizard-color blue">
+              </span>
+              <span class="wizard-color blue-light">
+              </span>
+              <span class="wizard-color green">
+              </span>
+              <span class="wizard-color green-light">
+              </span>
+              <span class="wizard-color red">
+              </span>
+              <span class="wizard-color orange">
+              </span>
+              <span class="wizard-color white">
+              </span>
+            </li>
+          </ul>
+        </div>
+        
+        <label  class="checkbox" style="display:inline-block; vertical-align:middle; margin-left:20px;">
+          <input type="checkbox" name="posstype-addbgimage"  />
+          Add Background graphic
+        </label>
+        
+        <div class="wizard-picture-selection">
+          <ul>
+            <li>
+              <img src="img/posttype-icons/posttype-1.png" imageID="1" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-2.png" imageID="2" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-3.png" imageID="3" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-4.png" imageID="4" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-5.png" imageID="5" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-6.png" imageID="6" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-7.png" imageID="7" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-8.png" imageID="8" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-9.png" imageID="9" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-10.png" imageID="10" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-11.png" imageID="11" />
+            </li>
+            <li>
+              <img src="img/posttype-icons/posttype-12.png" imageID="12" />
+            </li>
+          </ul>
+        </div>
+        
+        <legend class="small-legend wizard-legend" style="border:0;margin-bottom:0px;">
+          Preview
+        </legend>
+        <div class="wizard-preview">
+          Vel vut turpis rhoncus lectus pulvinar lacus, sed urna, scelerisque vel lundium a, egestas! Vut, amet in, porttitor lacus phasellus dignissim lundium lundium! Placerat! Nisi, dolor proin augue in, nec aliquet nisi pellentesque
+        </div>
+        
+        
+      </form>
+      
+    </div>
+    
+    <div class="modal-footer">
+      
+      <a href="#" class="btn pull-left" name="wizard-back">
+        Back
+      </a>
+      
+      <a href="#" class="btn" data-dismiss="modal">
+        Cancel
+      </a>
+      
+      <a href="#" class="btn btn-primary" name="save-posttype" data-dismiss="modal">
+        Save
+      </a>
+      
+      
+    </div>
+    
+  </div>
+
+</div>
+  
