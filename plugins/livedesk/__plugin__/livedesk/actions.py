@@ -34,6 +34,10 @@ def modulesAction():
     return Action('livedesk', Parent=defaults.modulesAction())
 
 @ioc.entity   
+def dashboardAction():
+    return Action('livedesk', Parent=defaults.modulesDashboardAction(), ScriptPath=getPublishedGui('livedesk/scripts/js/dashboard.js'))
+
+@ioc.entity   
 def modulesAddAction():
     return Action('add', Parent=modulesAction(), 
                   ScriptPath=getPublishedGui('livedesk/scripts/js/add-live-blogs.js'))
@@ -60,6 +64,7 @@ def registerActions():
     actionManagerService().add(menuAction())
     actionManagerService().add(subMenuAction())
     actionManagerService().add(modulesAction())
+    actionManagerService().add(dashboardAction())
     actionManagerService().add(modulesAddAction())
     actionManagerService().add(modulesEditAction())
     actionManagerService().add(modulesConfigureAction())
