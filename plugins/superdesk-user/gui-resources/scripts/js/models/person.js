@@ -4,7 +4,7 @@ function(Gizmo, PersonMeta)
     // Person (1-1 User)
     return Gizmo.Model.extend
     ({ 
-        url: Gizmo.Url('/Person'),
+        url: new Gizmo.Url('Superdesk/Person'),
         defaults: { MetaData: PersonMeta }
     });
 });

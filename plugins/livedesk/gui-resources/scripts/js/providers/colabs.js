@@ -4,22 +4,32 @@ define( 'providers/colabs', [
     'gizmo/superdesk',
     config.guiJs('livedesk', 'models/blog'),
     config.guiJs('livedesk', 'models/collaborator'),
+    config.guiJs('superdesk/user', 'models/person'),
    'jquery/avatar',
 
     'providers/colabs/adaptor',
     'tmpl!livedesk>providers/colabs',
     'tmpl!livedesk>providers/colabs/items' ],
   
-function(providers, $, giz, Blog, Collaborator)
+function(providers, $, giz, Blog, Collaborator, Person)
 {
     var config = { updateInterval: 10 },
         colabsList = [], 
         updateInterval = 0,
         intervalRunning = false,
-        updateItemCount = 0;
+        updateItemCount = 0,
+        
+        userImages = [];
+    
+    var addUserImages = function()
+    {
+        for(var i=0; i<userImages.length; i++) 
+            colabView.el.find('[data-colab-id="'+userImages[i].UserId+'"] figure')
+                .html('<img src="'+userImages[i].Thumbnail+'" />');
+    },
     
     // single post item view
-    var PostView = giz.View.extend
+    PostView = giz.View.extend
     ({
         init: function(opts)
         {
@@ -31,9 +41,7 @@ function(providers, $, giz, Blog, Collaborator)
         {
             var self = this,
                 posts = this.model.feed('json');
-            $.avatar.set(posts, 'User.EMail');
-            console.log(posts);
-            $.tmpl( 'livedesk>providers/colabs/items', {Posts: posts }, function(e, o)
+            $.tmpl( 'livedesk>providers/colabs/items', {Posts: posts}, function(e, o)
             {
                 self.setElement(o);
                 // make draggable
@@ -44,6 +52,7 @@ function(providers, $, giz, Blog, Collaborator)
                     zIndex: 2700,
                     start: function(){ $(this).data('post', self.model); }
                 });
+                addUserImages();
             });
             return self;
         },
@@ -219,6 +228,18 @@ function(providers, $, giz, Blog, Collaborator)
                 colab._viewModels = [];
                 colab.sync().done(function()
                 { 
+                    // hacking user image
+                    (new Person(Person.prototype.url.get()+'/'+colab.get('User').get('Id')))
+                    .on('read', function()
+                    { 
+                        var meta = this.get('MetaData')
+                        meta.sync({data:{ thumbSize: 'medium' }}).done(function()
+                        {  
+                            userImages.push({UserId: colab.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
+                        });
+                    })
+                    .sync();
+
                     // get posts for each collaborator
                     var post = colab.get('Post');
                     post.xfilter('*')
