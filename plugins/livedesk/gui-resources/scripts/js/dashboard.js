@@ -16,8 +16,6 @@ function(Gizmo, superdesk, $)
     DashboardApp = Gizmo.View.extend
     ({
         init: function(){
-            $(this.el).addClass(' myclass ');
-            $(this.el).html('supernebunia');
 
             this.collection = new Gizmo.Register.LiveBlogs;
             this.collection.on('read update', this.render, this).
@@ -32,12 +30,10 @@ function(Gizmo, superdesk, $)
                 var model = this;
                 this.get('PostPublished').sync().done(function(data)
                 { 
-                    console.log('published ', data); 
                     self.el.find('[data-model-id="'+model.get('Id')+'"]').text(data.total) 
                 });
                 this.get('PostUnpublished').sync().done(function(data)
                 {
-                    console.log('unpublished ', data); 
                     //self.el.find('[data-model-unpublished-id="'+model.get('Id')+'"]').text(data.total) 
                 });
                 data['live'].push(self.cleanDescription(this.data));
