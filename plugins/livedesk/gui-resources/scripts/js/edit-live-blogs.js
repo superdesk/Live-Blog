@@ -429,7 +429,7 @@ function(providers, Gizmo, $)
 						//; self.model.xfilter(xfilter).sync();
 						
 					})
-					.xfilter(self.xfilter).sync();
+					.xfilter(self.xfilter).sync({data: {thumbSize: 'medium'}});
 			},
 			
 			reorder: function(evt, ui)
@@ -524,10 +524,11 @@ function(providers, Gizmo, $)
 				        rendered = true;
 				    }
 				}
-				var //posts = this.model.feed();
-				posts = $.avatar.parse(this.model, 'AuthorPerson.EMail');
+				var post = this.model.feed();
+				post['Avatar'] = post['AuthorImage'] ? '<img src="'+post['AuthorImage'].href+'" />' :
+				        '<img src="'+$.avatar.get('AuthorPerson.EMail')+'" />';
 				!rendered &&
-				$.tmpl('livedesk>timeline-item', {Post: posts}, function(e, o)
+				$.tmpl('livedesk>timeline-item', {Post: post}, function(e, o)
 				{
 					self.setElement(o).el.find('.editable')
 					    .texteditor({plugins: {controls: timelinectrl}, floatingToolbar: 'top'});

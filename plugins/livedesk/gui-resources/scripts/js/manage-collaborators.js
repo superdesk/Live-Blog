@@ -75,7 +75,6 @@ define([
 			var self = this;
 			self.model.set({ 'User': Gizmo.Auth(self.model.get('User'))});
 			var data = $.avatar.parse(self.model, 'User.EMail', { size: 22});
-			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator',data);
 		},
 		delete: function(){
 			var self = this;
@@ -311,6 +310,7 @@ define([
 		            	action = (action[0])? action[0] : action;
 		                action.ScriptPath &&
 		                    require([$.superdesk.apiUrl+action.ScriptPath], function(app){ 
+		                    	//console.log(app);
 		                    	new app(blogHref); });
 		            });
 		        })

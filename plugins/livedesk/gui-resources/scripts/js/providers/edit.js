@@ -11,6 +11,7 @@ define('providers/edit', [
 	config.guiJs('livedesk', 'models/post'),
     config.guiJs('media-archive', 'upload'),
     config.guiJs('livedesk', 'models/urlinfo'),
+    config.guiJs('livedesk', 'models/blog'),
     'jquery/utils',
     'jquery/rest',
     'jquery/superdesk',
@@ -175,6 +176,28 @@ define('providers/edit', [
 			
 			self.postTypes.on('read', function(){ self.render(); }).xfilter('Key').sync();
 			
+			self.blog = Gizmo.Auth(new Gizmo.Register.Blog(self.blogUrl));
+			self.blog.one('read update', function(){
+				self.blog.get('Type')
+					.on('read.edit update.edit', function(evt){
+						self.blog.get('Type').off('read.edit update.edit');
+						self.blog.get('Type').get('Post')
+							.one('read update', function(evt){ self.addBlogTypePosts(evt);})
+							.xfilter('Id,Name,Content,Meta').sync();
+					})
+					.sync();
+
+			});
+			self.blog.sync();
+		},
+		addBlogTypePosts: function(evt){
+			var self = this, 
+				select = this.el.find('[name="type"]');
+			var postspost = self.blog.get('Type').get('Post').feed();
+			for( var i = 0, count = postspost.length; i < count; i++ ){
+				var post = postspost[i];
+				select.append('<option value="normal" content="'+post.Id+'">'+post.Name+'</option>');
+			}
 		},
 		populateUrlInfo: function() {
 			var self = this;
@@ -227,11 +250,48 @@ define('providers/edit', [
 					console.log(o);
 					self.el.find('article.editable').html(o)
 				});
-			})
-
-			
+			})		
 		},
-		changetype: function() {
+		selectContent: function(evt) {
+			var self = this,
+				el = $(evt.target),
+				currentContentId = el.find('option:selected').attr('content'),
+				previous = el.data('previous'),
+				post,
+				previousContentId ;
+			/*!
+			 * If there is no previous then set previous content id to the first selection
+			 */
+			currentContentId = currentContentId? currentContentId: 0;
+			if(!previous) {
+				previousContentId = el.find('option:first').attr('content');
+			} else {
+				previousContentId = previous;
+			}
+			/*!
+			 * If previous selection is a blogtype post and current is a posttype
+			 *   then clear the editable html
+			 */
+			if(previousContentId && !currentContentId) {
+				this.el.find('.edit-block article.editable').html('');
+			} 
+			/*!
+			 * If previous selection is a posttype and the current is a blogtype post
+			 *   then set editable html to blogtype post content
+			 */
+			else if(currentContentId) {
+				var postspost = self.blog.get('Type').get('Post').feed();
+				for( var i = 0, count = postspost.length; i < count; i++ ){
+					post = postspost[i];
+					if( currentContentId == post.Id) {
+						this.el.find('.edit-block article.editable').html(post.Content);
+						break;
+					}
+				}
+			}
+			el.data('previous', currentContentId);
+		},
+		changetype: function(evt) {
 			var self = this;
 			var type = $('[name="type"]').val();
 			if ( type == 'link') {
@@ -253,6 +313,7 @@ define('providers/edit', [
 					self.clear();
 				}
 			}
+			this.selectContent(evt);
 			this.lastType = type;
 		},
 		render: function(){
@@ -317,7 +378,7 @@ define('providers/edit', [
 				//posts.asc('createdOn');
 				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
-				self.changetype();
+				//self.changetype();
 			} );
 		},
 		clear: function()
