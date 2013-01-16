@@ -33,6 +33,7 @@ class Blog(Entity):
     Title = str
     Description = str
     OutputLink = str
+    EmbedConfig = str
     CreatedOn = datetime
     LiveOn = datetime
     LastUpdatedOn = datetime
