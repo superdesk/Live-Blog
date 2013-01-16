@@ -14,7 +14,7 @@ function(Gizmo, $)
     DashboardApp = Gizmo.View.extend
     ({
         init: function(){
-            $(this.el).addClass('pula mea')
+            $(this.el).addClass(' myclass ')
         }
     }),
     dashboardApp = new DashboardApp();
