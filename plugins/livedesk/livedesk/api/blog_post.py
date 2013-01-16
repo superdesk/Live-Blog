@@ -97,14 +97,14 @@ class IBlogPostService:
         '''
 
     @call(webName='Published')
-    def getPublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
+    def getPublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
                      offset:int=None, limit:int=None, detailed:bool=True, q:QBlogPostPublished=None) -> Iter(BlogPost):
         '''
         Provides all the blogs published posts. The detailed iterator will return a @see: IterPost.
         '''
 
     @call(webName='Unpublished')
-    def getUnpublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
+    def getUnpublished(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
                        offset:int=None, limit:int=None, q:QBlogPostUnpublished=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
@@ -119,7 +119,7 @@ class IBlogPostService:
         '''
 
     @call
-    def getAll(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None,
+    def getAll(self, blogId:Blog, typeId:PostType=None, creatorId:User=None, authorId:Collaborator=None, thumbSize:str=None,
                        offset:int=None, limit:int=None, q:QBlogPost=None) -> Iter(BlogPost):
         '''
         Provides all the unpublished blogs posts.
