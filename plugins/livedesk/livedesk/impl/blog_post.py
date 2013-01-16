@@ -66,7 +66,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         try: return self._addImage(sql.one(), thumbSize)
         except NoResultFound: raise InputError(Ref(_('No such blog post'), ref=BlogPostMapped.Id))
 
-    def getPublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, detailed=False,
+    def getPublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None, detailed=False,
                      q=None):
         '''
         @see: IBlogPostService.getPublished
@@ -87,16 +87,16 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         
         sqlLimit = buildLimits(sql, offset, limit)
         if detailed:
-            posts = IterPost(self._trimmDeleted(sqlLimit.all()), sql.count(), offset, limit)
+            posts = IterPost(self._addImages(self._trimmDeleted(sqlLimit.all()), thumbSize), sql.count(), offset, limit)
 
             posts.lastCId = self.session().query(func.MAX(BlogPostMapped.CId)).filter(BlogPostMapped.Blog == blogId).scalar()
             if sqlMore: posts.offsetMore = sqlMore.count()
             else: posts.offsetMore = posts.total
         else:
-            posts = self._trimmDeleted(sqlLimit.all())
+            posts = self._addImages(self._trimmDeleted(sqlLimit.all()), thumbSize)
         return posts
 
-    def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
+    def getUnpublished(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
         '''
         @see: IBlogPostService.getUnpublished
         '''
@@ -106,7 +106,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
-        return sql.all()
+        return self._addImages(sql.all())
 
     def getOwned(self, blogId, creatorId, typeId=None, offset=None, limit=None, q=None):
         '''
@@ -123,7 +123,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         sql = buildLimits(sql, offset, limit)
         return sql.all()
 
-    def getAll(self, blogId, typeId=None, creatorId=None, authorId=None, offset=None, limit=None, q=None):
+    def getAll(self, blogId, typeId=None, creatorId=None, authorId=None, thumbSize=None, offset=None, limit=None, q=None):
         '''
         @see: IBlogPostService.getAll
         '''
@@ -132,7 +132,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
-        return self._trimmDeleted(self._addImages(sql.all()))
+        return self._addImages(sql.all(), thumbSize)
 
     def insert(self, blogId, post):
         '''
