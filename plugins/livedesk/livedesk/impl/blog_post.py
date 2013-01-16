@@ -106,7 +106,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
 
         sql = sql.order_by(desc_op(BlogPostMapped.Order))
         sql = buildLimits(sql, offset, limit)
-        return self._trimmDeleted(sql.all())
+        return sql.all()
 
     def getOwned(self, blogId, creatorId, typeId=None, offset=None, limit=None, q=None):
         '''
