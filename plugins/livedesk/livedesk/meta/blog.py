@@ -39,6 +39,7 @@ class BlogMapped(Base, Blog):
     Title = Column('title', String(255), nullable=False)
     Description = Column('description', Text)
     OutputLink = Column('output_link', Text)
+    EmbedConfig = Column('embed_config', Text)
     CreatedOn = Column('created_on', DateTime, nullable=False)
     LiveOn = Column('live_on', DateTime)
     ClosedOn = Column('closed_on', DateTime)
