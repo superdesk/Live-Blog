@@ -144,6 +144,7 @@ define('providers/edit', [
 			model.hash();
 			var x = model.sync(model.url.root(this.options.theBlog).xfilter(this._xfilter));
 			x.done(function(data) {
+				model._parseHash(data);
 				model.set(data,{ silent: true}).clearChangeset();
 			});
 			x.model = model;
@@ -403,7 +404,7 @@ define('providers/edit', [
 		},
 		changetype: function(evt) {
 			var self = this;
-			var type = $('[name="type"]').val();
+			var type = self.el.find('[name="type"]').val();
 			
 			/*if( type == 'image' ) 
             {
@@ -436,6 +437,10 @@ define('providers/edit', [
 					//clear article
 					self.clear();
 				}
+			}
+			if(!evt) {
+				evt = $.Event("change");
+				evt.target =  self.el.find('[name="type"]');
 			}
 			this.selectContent(evt);
 			this.lastType = type;
@@ -503,10 +508,10 @@ define('providers/edit', [
 				posts.xfilter(posts._xfilter);
 				self.postsView = new PostsView({ el: $(this).find('#own-posts-results'), posts: posts, _parent: self});
 				
-				// to be commented?
-				//self.changetype();
+				self.changetype();
 				
-				imagePostType.setElement( $(this).find('.edit-area') )
+				// this breaks the edit area when navigation between providers
+				//imagePostType.setElement( $(this).find('.edit-area') )
 				
 			} );
 		},
