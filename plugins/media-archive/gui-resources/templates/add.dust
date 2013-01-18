@@ -14,7 +14,7 @@
 	</div>
 </div>
 <div class="modal-footer">
-	<a class="btn" href="javascript:void(0)" data-action="edit"><i class="icon-close"></i>_('Close')</a>
+	<a class="btn" href="javascript:void(0)" data-dismiss="modal"><i class="icon-close"></i>_('Close')</a>
 </div>
 </div>
 
