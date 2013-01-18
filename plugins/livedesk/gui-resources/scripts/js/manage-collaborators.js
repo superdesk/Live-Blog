@@ -1,6 +1,7 @@
 define([
 	'jquery',
 	'gizmo/superdesk',
+	config.guiJs('superdesk/user', 'models/person'),
 	'jquery/rest',
 	'jquery/superdesk',
 	'jquery/avatar',
@@ -13,8 +14,16 @@ define([
 	'tmpl!livedesk>manage-collaborators/internal-collaborator',
 	'tmpl!livedesk>manage-collaborators/internal-collaborators',
 	'tmpl!livedesk>manage-collaborators/add-internal-collaborator'
-	], function ($, Gizmo) {
+	], function ($, Gizmo, Person) {
 
+    var 
+    userImages = [],
+    addUserImages = function()
+    {
+        for(var i=0; i<userImages.length; i++) 
+            mainManageCollaboratosView.el.find('[data-user-id="'+userImages[i].UserId+'"] figure')
+                .html('<img src="'+userImages[i].Thumbnail+'" />');
+    },
 	/*!
 	 * A default view witch can handle the sort process
 	 *    the model will be added in the views in a sorted fashion.
@@ -22,7 +31,7 @@ define([
 	 *   Initialize:
 	 *     the _view propertie empty
 	 */ 
-	var SortedView = Gizmo.View.extend({
+	SortedView = Gizmo.View.extend({
 		_views: [],
 		// default key for sorting the objects
 		sortProperty: 'Name',
@@ -73,8 +82,20 @@ define([
 		},
 		render: function(){
 			var self = this;
-			self.model.set({ 'User': Gizmo.Auth(self.model.get('User'))});
-			var data = $.avatar.parse(self.model, 'User.EMail', { size: 22});
+			
+			(new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
+            .on('read', function()
+            { 
+                var meta = this.get('MetaData')
+                meta.sync({data:{ thumbSize: 'medium' }}).done(function()
+                {  
+                    userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
+                    self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
+                        .html('<img src="'+meta.get('Thumbnail').href+'" />');
+                });
+            })
+            .sync();
+			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator', self.model.feed());
 		},
 		delete: function(){
 			var self = this;
