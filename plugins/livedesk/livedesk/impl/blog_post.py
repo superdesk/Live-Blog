@@ -54,7 +54,7 @@ class BlogPostServiceAlchemy(SessionSupport, IBlogPostService):
         assert isinstance(self.postService, IPostService), 'Invalid post service %s' % self.postService
         assert isinstance(self.personIconService, IPersonIconService), 'Invalid person icon service %s' % self.personIconService
 
-    def getById(self, blogId, postId, thumbSize):
+    def getById(self, blogId, postId, thumbSize=None):
         '''
         @see: IBlogPostService.getById
         '''
