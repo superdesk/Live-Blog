@@ -1,7 +1,10 @@
 define
 ([ 
     'gizmo/superdesk',
+<<<<<<< HEAD
     'jquery/superdesk',
+=======
+>>>>>>> 608fc3a876783ca0f679e912832725d25a7f863b
     'jquery',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -9,13 +12,19 @@ define
     config.guiJs('livedesk', 'models/liveblogs'),
     'tmpl!livedesk>layouts/dashboard'
  ], 
+<<<<<<< HEAD
 function(Gizmo, superdesk, $) 
+=======
+function(Gizmo, $) 
+>>>>>>> 608fc3a876783ca0f679e912832725d25a7f863b
 {
     var 
 
     DashboardApp = Gizmo.View.extend
     ({
         init: function(){
+<<<<<<< HEAD
+
             this.collection = new Gizmo.Register.LiveBlogs;
             this.collection.on('read update', this.render, this).
                 xfilter('*,Creator.*,PostPublished').sync();
@@ -65,6 +74,31 @@ function(Gizmo, superdesk, $)
             var clean = data.Description;
             data.Description = clean.replace(/(<([^>]+)>)/ig,"");
             return data;
+=======
+            $(this.el).addClass(' myclass ');
+            $(this.el).html('supernebunia');
+            //this.render();
+
+
+
+            this.collection = new Gizmo.Register.LiveBlogs;
+            this.collection.on('read update', this.render, this).
+                //xfilter('Content').sync();
+                sync();
+            //console.log(this.collection);
+        },
+        render: function(){
+            var self = this;
+            //console.log(this.collection);
+            
+            self.collection.each(function(){
+                console.log(this);
+            })
+
+            $.tmpl('livedesk>layouts/dashboard', {}, function(e,o) {
+                $(self.el).append(o);
+            });
+>>>>>>> 608fc3a876783ca0f679e912832725d25a7f863b
         }
     }),
     dashboardApp = new DashboardApp();
