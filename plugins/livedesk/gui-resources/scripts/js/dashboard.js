@@ -36,7 +36,7 @@ function(Gizmo, $)
             })
 
             $.tmpl('livedesk>layouts/dashboard', {}, function(e,o) {
-                $(self.el).append(o);
+                //$(self.el).append(o);
             });
         }
     }),
