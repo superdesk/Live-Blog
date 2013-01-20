@@ -16,7 +16,6 @@ function(Gizmo, superdesk, $)
     DashboardApp = Gizmo.View.extend
     ({
         init: function(){
-
             this.collection = new Gizmo.Register.LiveBlogs;
             this.collection.on('read update', this.render, this).
                 xfilter('*,Creator.*,PostPublished').sync();

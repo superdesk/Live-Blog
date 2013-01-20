@@ -1,5 +1,4 @@
 <div class="content-topnav" style="margin-top:40px;">
-	
 	<ul class="nav nav-tabs dashboard-tabs" id="myTab">
 	  <li class="active"><a href="#active_blogs" data-toggle="tab">Active blogs</a></li>
 	  <li><a href="#archive_blogs" data-toggle="tab">Archive blogs</a></li>
@@ -126,5 +125,4 @@
 			<li class=""> <a href="#" data-ipp="100">100</a> </li>
 		</ul>
 	</div>
-
 </div>
