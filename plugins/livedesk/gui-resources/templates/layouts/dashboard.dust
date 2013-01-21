@@ -1,3 +1,4 @@
+
 <div class="content-topnav" style="margin-top:40px;">
 	<ul class="nav nav-tabs dashboard-tabs" id="myTab">
 	  <li class="active"><a href="#active_blogs" data-toggle="tab">Active blogs</a></li>
@@ -112,11 +113,11 @@
 		</ul>
 
 		<ul class="pagination" style="float:left;">
-			<li> <a href="#" data-pagination="first" title="First">⇤</a> </li>
-			<li> <a href="#" data-pagination="prev" title="Previous">←</a> </li> 
+			<li> <a href="#" data-pagination="first" title="First">?</a> </li>
+			<li> <a href="#" data-pagination="prev" title="Previous">?</a> </li> 
 			<li class="active"> <a href="#" data-pagination="currentpages" title="Page 1" data-offset="0">1</a> </li>	
-			<li> <a href="#" data-pagination="next" title="Next">→</a> </li>
-			<li> <a href="#" data-pagination="last" title="Last">⇥</a> </li>
+			<li> <a href="#" data-pagination="next" title="Next">?</a> </li>
+			<li> <a href="#" data-pagination="last" title="Last">?</a> </li>
 		</ul>
 
 		<ul class="pagination ipp" style="margin-left:20px;float:left;">

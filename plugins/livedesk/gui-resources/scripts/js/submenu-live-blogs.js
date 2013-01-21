@@ -32,6 +32,7 @@ define
         {
             $(this.menu).on('click', '#submenu-liveblogs-archive', function(event)
             {
+                console.log('archive');
                 var self = this;
                 superdesk.showLoader();
                 superdesk.getAction('modules.livedesk.archive')
@@ -48,6 +49,7 @@ define
             
             $(this.menu).on('click', '#submenu-liveblogs-create', function(event)
             {
+                console.log('create');
                 superdesk.showLoader();
                 superdesk.getAction('modules.livedesk.add')
                 .done(function(action)
@@ -59,6 +61,7 @@ define
             });
             $(this.menu).on('click', '.submenu-blog', function(event)
             {
+                console.log('submenu');
                 superdesk.showLoader();
                 var theBlog = $(this).attr('data-blog-link'), self = this;
                 superdesk.getAction('modules.livedesk.edit')
