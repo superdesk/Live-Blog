@@ -35,7 +35,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
         url: new giz.Url('Superdesk/Person/{1}/MetaData/{2}/PersonIcon')
     });
     
-    ItemView = giz.View.extend
+    var ItemView = giz.View.extend
     ({
         tagName: 'tr',
         model: null,
@@ -60,12 +60,12 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
              * Set all the data at once, caz a nasty bug in set model in gizmojs.
              */
             if( this.model.__collaborator && !data.Collaborator )
-                this.model.__collaborator.remove().sync();
+                var colabSync = this.model.__collaborator.remove().sync();
             
             if( !this.model.__collaborator && data.Collaborator )
             {
                 var newCollaborator = new Collaborator;
-                newCollaborator.set('Person', this.model.get('Id'))
+                var colabSync = newCollaborator.set('Person', this.model.get('Id'))
                     .sources.xfilter('*').sync().done(function()
                     {
                         newCollaborator.sources.each(function()
@@ -90,15 +90,15 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             var chPassModel = giz.Auth(new giz.Model(this.model.href+'/ChangePassword'));
             chPassModel.set('Id', this.model.get('Id'));
             chPassModel.set('Password', data.Password);
-            chPassModel.sync();
+            var passSync = chPassModel.sync();
             
             delete data.Password;
             this.model.set(data);
             
             // TODO add this fnc in gizmo
-            var s = this.model.sync();
-            $.isEmptyObject(this.model.changeset) && s.resolve();
-            return s;
+            var personSync = this.model.sync();
+            $.isEmptyObject(this.model.changeset) && personSync.resolve();
+            return $.when(colabSync, passSync, personSync);
         },
         remove: function()
         {
@@ -393,7 +393,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             {
                 var p = personModel.get('Id'),
                     person = $.avatar.parse(personModel, 'Email'),
-                    c = new PersonCollaborators({ href: new giz.Url('Superdesk/Person/'+p+'/Collaborator')}),
+                    c = new PersonCollaborators({ href: new giz.Url('Superdesk/User/'+p+'/Collaborator')}),
                     m = personModel.get('MetaData');
                 
                 // display user image
@@ -474,8 +474,17 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             {
                 eval('var data = '+data.responseText);
                 var msg = '';
-                if(data.details) for(var i in data.details.model.User)
-                    msg += i+', '+data.details.model.User[i]+'. ';
+                if(data.details) for(var i in data.details.model)
+                {
+                    var msge = data.details.model[i].error && $.type(data.details.model[i].error.error) == 'array' 
+                            ? data.details.model[i].error.error.join(', ') : false;
+                    if(!msge) 
+                    {
+                        msge = '';
+                        for(var j in data.details.model[i]) msge += j+': '+data.details.model[i][j]+'. ';
+                    }
+                    msg += '<em>'+i+'</em> - '+msge+'. ';
+                }
                 $('#user-edit-modal .alert', self.el).removeClass('hide')
                     .html('<strong>'+data.message+'</strong> '+msg);  
             })
