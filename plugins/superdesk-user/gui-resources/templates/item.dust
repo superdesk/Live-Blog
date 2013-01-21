@@ -8,10 +8,21 @@
 	<td>{Name}</td>
 	<td>{EMail}</td>
 	<td>{CreatedOn}</td>
+
 	<td>    
 		<span class="btn-group">
     		<button class="btn edit">_('Edit')</button>
     		<button class="btn btn-danger delete">_('Delete')</button>
     	</span>
     </td>
+
+    <!--
+    <td style="width:50px !important;">
+    	<div class="tool-box-right">
+    		<a class="tool-box-button" href="#"><i class="icon-remove"></i></a>
+    		<a class="tool-box-button" href="#"><i class="icon-pencil"></i></a>
+    	</div>
+    </td>
+    -->
+
 {/User}
