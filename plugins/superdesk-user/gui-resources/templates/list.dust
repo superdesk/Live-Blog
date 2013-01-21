@@ -9,21 +9,17 @@
 
 <div data-main-table="true" 
 	style="
-	margin-top:60px;
-	background-color: #FFFFFF;
-    border: 1px solid #DDDDDD;
-    border-radius: 4px 4px 4px 4px;
     margin: 0;
     height: 100%; overflow: auto;">
     <div style="padding: 5px 19px 14px;">
 		<div class="input-append pull-right" style="display:inline-block; margin: 10px 0">
-			<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" style="margin:0" />
+			<input class="span3" size="16" type="text" name="search" placeholder="_('Search')" style="margin:0;height:28px;" />
 			<button class="btn hide" data-action="cancel-search" type="button">&times;</button>
 			<button class="btn" data-action="search" type="button">Search</button>
 		</div>
 		{~s}
 		<button style="margin: 10px 0" class="btn btn-primary add-user">_('Add User')</button>
-		<table class="table table-hover table-bordered table-sort" >
+		<table class="table table-hover table-bordered table-sort table-buttons-control" style="background:#fff;" >
 			<thead>
 				<tr>
 	    			<th>#</th>
