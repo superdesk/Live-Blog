@@ -72,7 +72,6 @@ function(Gizmo, superdesk, $)
     return {
         init: function(element)
         { 
-            console.log(element);
             $(element).append( dashboardApp.el );
             return dashboardApp; 
         }
