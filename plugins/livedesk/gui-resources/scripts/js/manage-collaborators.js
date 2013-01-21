@@ -71,7 +71,7 @@ define([
 				from.el[dir](view.el);
 			}
 			return view;
-		},		
+		}
 	}),
 	CollaboratorView = Gizmo.View.extend({
 		events: {
@@ -95,7 +95,7 @@ define([
                 });
             })
             .sync();
-			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator', self.model.feed());
+			this.el.tmpl('livedesk>manage-collaborators/internal-collaborator', self.model.feed('', true), addUserImages );
 		},
 		delete: function(){
 			var self = this;
@@ -120,10 +120,23 @@ define([
 			this.render();
 		},
 		render: function(){
-			var self = this;
-			self.model.set({ 'User': Gizmo.Auth(self.model.get('User'))});
-			var data = $.avatar.parse(self.model, 'User.EMail', { size: 32});
-			this.el.tmpl('livedesk>manage-collaborators/add-internal-collaborator',data);
+		    
+		    var data = this.model.feed('', true),
+		        self = this;
+		    (new Person(Person.prototype.url.get()+'/'+self.model.get('User').get('Id')))
+            .on('read', function()
+            { 
+                var meta = this.get('MetaData')
+                meta.sync({data:{ thumbSize: 'medium' }}).done(function()
+                {  
+                    userImages.push({UserId: self.model.get('User').get('Id'), Thumbnail: meta.get('Thumbnail').href});
+                    self.el.find('figure[data-user-id="'+self.model.get('User').get('Id')+'"]')
+                        .html('<img src="'+meta.get('Thumbnail').href+'" />');
+                });
+            })
+            .sync();
+		    
+			this.el.tmpl('livedesk>manage-collaborators/add-internal-collaborator', data, addUserImages );
 		},
 		addInternalCollaborator: function(evt) {
 			var self = this;
