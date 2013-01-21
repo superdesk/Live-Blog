@@ -1,11 +1,11 @@
 <li>
   <input type="checkbox" class="select-colaborator" name="internalCollaborator1" group="internalCollaborators">
-  <figure class="avatar-medium">
+  <figure class="avatar-medium" data-user-id="{User.Id}">
       {#User}
         {Avatar|s}
       {/User}
   </figure>
-  <span class="add-collaborator-name">{#User}{FullName}{/User}</span>
+  <a href="#" class="collaborator-name">{?User.FullName}{User.FullName}{:else}{Name}{/User.FullName}</a>
   <span>{#User}{EMail}{/User}</span>
   <div class="dropdown dropdown-simple">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
