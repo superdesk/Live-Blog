@@ -1,6 +1,7 @@
 define
 ([ 
     'gizmo/superdesk',
+    'jquery/superdesk',
     'jquery',
     config.guiJs('livedesk', 'models/blog'),
 	config.guiJs('livedesk', 'models/posttype'),
@@ -8,7 +9,7 @@ define
     config.guiJs('livedesk', 'models/liveblogs'),
     'tmpl!livedesk>layouts/dashboard'
  ], 
-function(Gizmo, $) 
+function(Gizmo, superdesk, $) 
 {
     var 
 
@@ -23,21 +24,49 @@ function(Gizmo, $)
 
             this.collection = new Gizmo.Register.LiveBlogs;
             this.collection.on('read update', this.render, this).
-                //xfilter('Content').sync();
-                sync();
-            //console.log(this.collection);
+                xfilter('*,Creator.*,PostPublished').sync();
         },
         render: function(){
             var self = this;
-            //console.log(this.collection);
-            
-            self.collection.each(function(){
-                console.log(this);
+            var data = [];
+            data['live'] = [];
+            self.collection.each(function()
+            {
+                var model = this;
+                this.get('PostPublished').sync().done(function(data)
+                { 
+                    self.el.find('[data-model-id="'+model.get('Id')+'"]').text(data.total) 
+                });
+                data['live'].push(self.cleanDescription(this.data));
             })
+            $.tmpl('livedesk>layouts/dashboard', {
+                live: data['live']
+            }, function(e,o) {
+                $(self.el).append(o);
 
-            $.tmpl('livedesk>layouts/dashboard', {}, function(e,o) {
-                //$(self.el).append(o);
             });
+
+            $(self.el).on('click', '.active-blog-link', function(event)
+            {
+                event.preventDefault();
+                superdesk.showLoader();
+                var theBlog = $(this).attr('data-blog-link'), self = this;
+                superdesk.getAction('modules.livedesk.edit')
+                .done(function(action)
+                {
+                    var callback = function()
+                    { 
+                        require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); }); 
+                    };
+                    action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                });
+                event.preventDefault();
+            });
+        },
+        cleanDescription: function(data) {
+            var clean = data.Description;
+            data.Description = clean.replace(/(<([^>]+)>)/ig,"");
+            return data;
         }
     }),
     dashboardApp = new DashboardApp();
@@ -45,7 +74,6 @@ function(Gizmo, $)
     return {
         init: function(element)
         { 
-            console.log(element);
             $(element).append( dashboardApp.el );
             return dashboardApp; 
         }
