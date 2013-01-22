@@ -28,7 +28,7 @@
     			_("There was a problem updating the information!")
     		</div>
         </div>
-        <div class="btn-group pull-right">
+        <div class="pull-right">
 
 			<span class="timeline-controls">
         		<button data-toggle="autorefresh" class="btn" title="_("Pin timeline so you won't get disturbed by new incoming posts")">_("Pin")</button>
