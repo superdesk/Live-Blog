@@ -419,7 +419,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                 $('#user-edit-modal form input', self.el).each(function()
                 {
                     var val = model.get( $(this).attr('name') ) || person[$(this).attr('name')];
-                    !$.isObject(val) && $(this).val( val );
+                    !$.isObject(val) && $(this).is(':not(:checkbox)') && $(this).val( val );
                 });
 
             })
@@ -459,7 +459,6 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                     name = $(this).attr('name');
                 if( $(this).is(':checkbox') && $(this).is(':not(:checked)') ) return true;
                 if( name && val != '' ) data[name] = val;
-                
             });
             
             // checking email
