@@ -29,6 +29,7 @@ function(Gizmo, superdesk, $)
                 var model = this;
                 this.get('PostPublished').sync().done(function(data)
                 { 
+                    console.log('published ', data); 
                     self.el.find('[data-model-id="'+model.get('Id')+'"]').text(data.total) 
                 });
                 this.get('PostUnpublished').sync().done(function(data)
