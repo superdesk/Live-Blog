@@ -44,6 +44,7 @@
 				</div>
 				<ul class="active-blogs-notification clearfix">
 					<li class="posticon-notification" data-model-id="{Id}"></li>
+					<li class="active-notification" data-model-unpublished-id="{Id}"></li>
 				</ul>
 			</li>
 			{/live}
