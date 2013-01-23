@@ -15,7 +15,7 @@ from ..api.blog_post import IBlogPostService, QBlogPostUnpublished, \
 from ..meta.blog_post import BlogPostMapped, BlogPostEntry
 from ally.container import wire
 from ally.container.ioc import injected
-from ally.container.support import setup, entityFor
+from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.sqlalchemy.session import SessionSupport
