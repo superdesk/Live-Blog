@@ -1,6 +1,10 @@
 {#Post}
 	{@if cond="'{Type.Key}'=='wrapup'"}
     <li class="wrapup open timeline" data-post-id="{Id}" data-post-type="{Type.Key}">
+    	<div class="tool-box-right">
+    		<a href="#delete-post" class="close image" data-toggle="modal">x</a>
+    		{?PublishedOn}<a href="#unpublish-post" data-toggle="modal" class="unpublish image"><i class="icon-ban-circle"></i></a>{/PublishedOn}
+    	</div>
        <div class="drag-bar"></div>
        <div class="arrow"></div>
        <div class="wrapup-content">
