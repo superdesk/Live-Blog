@@ -15,7 +15,7 @@ from superdesk.language.api.language import LanguageEntity
 from superdesk.user.api.user import User
 from datetime import datetime
 from ally.api.config import query, service, call, UPDATE
-from ally.api.criteria import AsLikeOrdered, AsDateOrdered
+from ally.api.criteria import AsLikeOrdered, AsDateOrdered, AsBoolean
 from ally.api.type import Iter
 from ally.api.authentication import auth
 from livedesk.api.blog_type import BlogType
@@ -35,6 +35,7 @@ class Blog(Entity):
     OutputLink = str
     EmbedConfig = str
     CreatedOn = datetime
+    IsLive = bool
     LiveOn = datetime
     LastUpdatedOn = datetime
     ClosedOn = datetime
@@ -51,6 +52,7 @@ class QBlog(Entity):
     createdOn = AsDateOrdered
     liveOn = AsDateOrdered
     lastUpdatedOn = AsDateOrdered
+    isLive = AsBoolean
 
 # --------------------------------------------------------------------
 
