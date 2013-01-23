@@ -1,0 +1,130 @@
+
+<div class="content-topnav" style="margin-top:40px;">
+	
+	<ul class="nav nav-tabs dashboard-tabs" id="myTab">
+	  <li class="active"><a href="#active_blogs" data-toggle="tab">Active blogs</a></li>
+	  <li><a href="#archive_blogs" data-toggle="tab">Archive blogs</a></li>
+	</ul>
+	<a href="#" class="btn btn-info pull-right"><i class="icon-white icon-plus-sign"></i> Create Live blog</a>
+</div>
+<div class="tab-content">
+
+	<div class="dashboard-content tab-pane active" id="active_blogs">
+
+      	<div class="btn-group pull-left">
+        	<a class="btn" href="#"><i class="icon-settings"></i></a>
+        	<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+        		<ul class="dropdown-menu">
+                    <li><a id="grid_view" href="#"><i class="icon-th"></i> Grid view</a></li>
+            		<li><a id="list_view" href="#"><i class="icon-th-list"></i> List view</a></li>
+          		</ul>
+      	</div>
+
+      	<script type="text/javascript">
+      		$(document).ready(function(){
+      			$("#grid_view").click(function(){
+      					$(".active-blogs").removeClass("list-active-blogs");
+      			});
+      			$("#list_view").click(function(){
+      					$(".active-blogs").addClass("list-active-blogs");
+      			});
+      		});
+      	</script>
+
+		<ul class="active-blogs clearfix list-active-blogs">
+			{#live}
+			<li class="clearfix">
+				<div class="active-blogs-title"><a href="live-blog/{Id}" data-blog-link="{href}" class="active-blog-link">{Title}</a></div>
+				<ul class="active-blogs-info clearfix" >
+					<li>{LiveOn}</li>
+					<li>{Creator.data.FullName}</li>
+				</ul>
+				<div class="active-blogs-text">
+					{Description}
+				</div>
+				<ul class="active-blogs-notification clearfix">
+					<li class="posticon-notification" data-model-id="{Id}"></li>
+					<li class="active-notification" data-model-unpublished-id="{Id}"></li>
+				</ul>
+			</li>
+			{/live}
+
+			<!--
+			<li class="clearfix">
+				<div class="active-blogs-title"><a href="">Reading VS Arsenal - Live</a></div>
+				<ul class="active-blogs-info clearfix" >
+					<li>17 December 2012</li>
+					<li>Jacob Steinberg</li>
+				</ul>
+				<div class="active-blogs-text">
+					Praesent laoreet purus eu nunc cursus vitae faucibus mauris sagittis. Integer rhoncus mollis eleifend. Aliquam congue placerat odio sit amet aliquam
+				</div>
+				<ul class="active-blogs-notification clearfix">
+					<li class="posticon-notification">15</li>
+					<li class="active-notification">7</li>
+				</ul>
+			</li>
+			-->
+		</ul>
+	</div>
+
+	<div class="dashboard-content tab-pane" id="archive_blogs">
+		<div class="archive-blogs-header">
+			<input class="span3 searchbox" size="16" type="text" name="search" placeholder="Search by Title" style="float:left !important;">
+			<a href="#" class="btn pull-left">Go!</a>
+			<a href="#" class="btn pull-left">Clear</a>
+			<select class="archive-sort">
+				<option>Sort by</option>
+				<option>Title</option>
+				<option>Creation date</option>
+				<option>Published date</option>
+				<option>Last update</option>
+			</select>
+		</div>
+		<div class="searchphrase">Displaynig results for: <span>"Arsenal"</span></div>
+		<ul class="archive-blogs clearfix">
+			
+			<li class="no-results-msg" >
+				<span class="archive-blogs-title"><a href="#">No search results found</a></span>
+			</li>
+
+			<li>
+				<span class="archive-blogs-title"><a href="#">Newtown school shooting: funeral to be helds for victims</a></span>
+				<span class="archive-blogs-date">14.12.2012.</span>
+			</li>
+			<li>
+				<span class="archive-blogs-title"><a href="#">Reading VS Arsenal Live!</a></span>
+				<span class="archive-blogs-date">14.12.2012.</span>
+			</li>
+			<li>
+				<span class="archive-blogs-title"><a href="#">Liverpool VS Totenham Live</a></span>
+				<span class="archive-blogs-date">14.12.2012.</span>
+			</li>
+			<li>
+				<span class="archive-blogs-title"><a href="#">US Elections live coverage</a></span>
+				<span class="archive-blogs-date">14.12.2012.</span>
+			</li>
+			<!--
+				<li>
+					<span class="archive-blogs-title"><a href="#">US Elections live coverage</a><span class="archive-blogs-notification">763</span></span>
+					<span class="archive-blogs-date">14.12.2012.</span>
+					<span class="archive-blogs-date">14.12.2012.</span>
+				</li>
+			-->
+		</ul>
+
+		<ul class="pagination" style="float:left;">
+			<li> <a href="#" data-pagination="first" title="First">⇤</a> </li>
+			<li> <a href="#" data-pagination="prev" title="Previous">←</a> </li> 
+			<li class="active"> <a href="#" data-pagination="currentpages" title="Page 1" data-offset="0">1</a> </li>	
+			<li> <a href="#" data-pagination="next" title="Next">→</a> </li>
+			<li> <a href="#" data-pagination="last" title="Last">⇥</a> </li>
+		</ul>
+
+		<ul class="pagination ipp" style="margin-left:20px;float:left;">
+			<li class="disabled"> <a href="#" data-ipp="25">25</a> </li>
+			<li class=""> <a href="#" data-ipp="50">50</a> </li>
+			<li class=""> <a href="#" data-ipp="100">100</a> </li>
+		</ul>
+	</div>
+</div>
