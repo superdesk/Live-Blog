@@ -64,7 +64,7 @@ class BlogServiceAlchemy(EntityCRUDServiceAlchemy, IBlogService):
         @see: IBlogService.getLiveWhereAdmin
         '''
         sql = self._buildQuery(languageId, adminId, None, q)
-        sql = sql.filter(BlogMapped.ClosedOn == None)
+        sql = sql.filter((BlogMapped.ClosedOn == None) & (BlogMapped.LiveOn != None))
         return sql.all()
 
     def getLive(self, languageId=None, q=None):
