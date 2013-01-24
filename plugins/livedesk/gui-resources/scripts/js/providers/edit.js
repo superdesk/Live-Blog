@@ -324,6 +324,7 @@ define('providers/edit', [
                 url = 'http://' + url;
             }
 			var urlinfo = new URLInfo;
+
 			urlinfo.getInfoSync(url).done(function(siteData){
 				var myThumb = '';
 				var favicon = "http://g.etfv.co/" + url;
