@@ -64,7 +64,7 @@
 			}
 			var livedesk = { 
 				'theme': {
-					'item/posttype/normal': '{>"theme/item/base"/}{<item_class}normal{/item_class}{<reference_name}thewebsiteyouwant.extension{/reference_name}'
+					'item/posttype/normal': '{>"themes/item/base"/}{<item_class}normal{/item_class}{<reference_name}thewebsiteyouwant.extension{/reference_name}'
 				},
 				'server': function(){ return config.api_url; },
 				'blog': config.rest_url+ '/my/LiveDesk/Blog/' + id
@@ -77,7 +77,7 @@
 		    if (d.getElementById(id)) return;
 		    js = d.createElement(s);
 		    js.id = id;
-		    js.setAttribute('data-main',config.content_url + '/' + config.guiJs('livedesk-embed','theme/default'));
+		    js.setAttribute('data-main',config.content_url + '/' + config.gui('livedesk-embed')+ '/themes/default');
 		    js.src = config.coreScripts('require.js');
 		    fjs.parentNode.insertBefore(js, fjs);
 		}(document, "script", "livedesk-jssdk"));
