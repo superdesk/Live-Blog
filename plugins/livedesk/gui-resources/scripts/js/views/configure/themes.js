@@ -17,7 +17,7 @@
             }
             self.collection
                 .on('read update', self.render, self)
-                .xfilter('Key,URL')
+                .xfilter('Name,URL')
                 .sync();          
         },
         change: function(evt) {
@@ -30,7 +30,7 @@
         	}
         	for( var i = 0, count = this.collection._list.length; i < count; i++ ){
         		theme = this.collection._list[i];
-        		if(theme.get('Key') === el.val()) {
+        		if(theme.get('Name') === el.val()) {
         			break;
         		}
         	}
