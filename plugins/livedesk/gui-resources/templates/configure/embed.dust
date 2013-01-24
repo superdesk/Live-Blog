@@ -1,0 +1,8 @@
+<div id="livedesk-root"></div>
+<script>
+var livedesk = {
+	'server': function(){ return "{ApiUrl}"; },
+	'blog': '{TheBlog}',
+};
+</script>
+<script data-main="{Theme}" src="{GuiLivedeskEmbed}"></script>
