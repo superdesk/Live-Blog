@@ -23,7 +23,7 @@
               <div class="control-group">
                 <label class="control-label">_("Embed script");</label>
                 <div class="controls">
-                    <textarea id="emebed-script"></textarea>
+                    <textarea id="emebed-script" rows="3" style="width:600px;height:auto;"></textarea>
                 </div>
               </div>
               <div class="control-group">
