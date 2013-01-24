@@ -3,7 +3,7 @@
 <option value="">_('Choose the theme to be generate');</option>
 	{+theme_item}
 	{#Themes}
-	    <option value="{Key}"{@if cond="'{Key}'==='{selected}'"} selected{/if}>{Key}</option>
+	    <option value="{Name}"{@if cond="'{Name}'==='{selected}'"} selected{/if}>{Name}</option>
 	{/Themes}
 	{/theme_item}
 </select>
