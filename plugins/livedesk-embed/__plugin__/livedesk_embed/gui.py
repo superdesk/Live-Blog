@@ -1,4 +1,4 @@
-''', 
+''',
 Created on May 3rd, 2012
 
 @package: superdesk media archive
@@ -10,13 +10,15 @@ Publish the GUI resources.
 '''
 
 from ally.container import ioc
-from ..gui_core.gui_lib import publish, server_url, js_core_libs_format
+from ..gui_core.gui_lib import publish, server_url
 from ..gui_core import publish_gui_resources
 from ..gui_core.gui_core import getGuiPath, getPublishedLib, gui_folder_format, lib_folder_format, publishGui
 from ..plugin.registry import cdmGUI
 from ally.support.util_io import openURI
 from io import BytesIO
 import logging
+from ally.container.support import entityFor
+from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
 
 
 # --------------------------------------------------------------------
@@ -25,14 +27,36 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-@ioc.start
-def publishJS():
-    publishGui('livedesk-embed')
-
 @ioc.config
 def ui_demo_embed_file():
     ''' the demo client html file '''
     return 'index.html'
+
+@ioc.config
+def themes_path():
+    ''' The path to the themes directory '''
+    return 'lib/livedesk-embed/themes'
+
+# --------------------------------------------------------------------
+
+@ioc.start
+def publishJS():
+    publishGui('livedesk-embed')
+
+@ioc.start
+def insertThemes():
+    s = entityFor(IBlogThemeService)
+    assert isinstance(s, IBlogThemeService)
+    for name in ('default', 'space'):
+        q = QBlogTheme()
+        q.name = name
+        l = s.getAll(q=q)
+        if not l:
+            t = BlogTheme()
+            t.Name = name
+            t.URL = cdmGUI().getURI(themes_path() + '/' + name, 'http')
+            t.IsLocal = True
+            s.insert(t)
 
 @ioc.after(publish)
 def updateDemoEmbedFile():

@@ -14,7 +14,7 @@ from ally.container.support import setup
 from livedesk.api.blog_type import IBlogTypeService, QBlogType
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 from livedesk.meta.blog_type import BlogTypeMapped
-from livedesk.meta.blog_type_post import BlogTypePostMapped, BlogTypePostEntry
+from livedesk.meta.blog_type_post import BlogTypePostMapped
 from sqlalchemy.exc import OperationalError
 from ally.exception import InputError, Ref
 import logging
