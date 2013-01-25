@@ -17,9 +17,6 @@ from ..plugin.registry import cdmGUI
 from ally.support.util_io import openURI
 from io import BytesIO
 import logging
-from ally.container.support import entityFor
-from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
-
 
 # --------------------------------------------------------------------
 
@@ -42,21 +39,6 @@ def themes_path():
 @ioc.start
 def publishJS():
     publishGui('livedesk-embed')
-
-@ioc.start
-def insertThemes():
-    s = entityFor(IBlogThemeService)
-    assert isinstance(s, IBlogThemeService)
-    for name in ('default', 'space'):
-        q = QBlogTheme()
-        q.name = name
-        l = s.getAll(q=q)
-        if not l:
-            t = BlogTheme()
-            t.Name = name
-            t.URL = cdmGUI().getURI(themes_path() + '/' + name, 'http')
-            t.IsLocal = True
-            s.insert(t)
 
 @ioc.after(publish)
 def updateDemoEmbedFile():
