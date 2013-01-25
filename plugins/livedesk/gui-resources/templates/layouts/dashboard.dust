@@ -4,7 +4,7 @@
 	  <li class="active"><a href="#active_blogs" data-toggle="tab">Active blogs</a></li>
 	  <li><a href="#archive_blogs" data-toggle="tab">Archive blogs</a></li>
 	</ul>
-	<a href="#" class="btn btn-info pull-right"><i class="icon-white icon-plus-sign"></i> Create Live blog</a>
+	<a href="#" class="btn btn-info pull-right" id="welcome-screen-create-liveblog"><i class="icon-white icon-plus-sign"></i> Create Live blog</a>
 </div>
 <div class="tab-content">
 
@@ -41,10 +41,12 @@
 				<div class="active-blogs-text">
 					{Description}
 				</div>
+				<!--
 				<ul class="active-blogs-notification clearfix">
 					<li class="posticon-notification" data-model-id="{Id}"></li>
 					<li class="active-notification" data-model-unpublished-id="{Id}"></li>
 				</ul>
+				-->
 			</li>
 			{:else}
 			<li class="no-results-msg" >
