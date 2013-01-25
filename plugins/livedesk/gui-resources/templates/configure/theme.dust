@@ -1,0 +1,5 @@
+{+theme_item}
+{#Themes}
+    <option value="{Name}"{@if cond="{Name}==={selected}"} selected{/if}>{Name}</option>
+{/Themes}
+{/theme_item}

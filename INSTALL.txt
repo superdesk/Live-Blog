@@ -39,6 +39,8 @@ In this example the content of the package was copied in the
 The admin interface can be accessed from a browser on the same system at
 the URL: http://localhost:8080/content/lib/core/start.html
 
+Log in with User1 .. User5 and password a
+
 Access from the Internet
 ------------------------
 In order to access the application from other machines the following changes
