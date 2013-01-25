@@ -1,4 +1,0 @@
-<li class="{+class}default{/class}">
-	{+head}Head{/head}
-	{+body}Body{/body}
-</li>
