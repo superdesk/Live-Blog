@@ -35,12 +35,9 @@
 	<li> <a href="#" data-pagination="next" title="Next" id="pag-next">→</a> </li>
 	<li> <a href="#" data-pagination="last" title="Last" id="pag-last">⇥</a> </li>
 </ul>
-
-<!--
-<ul class="pagination ipp" style="margin-left:20px;float:left;">
-	<li class="disabled"> <a href="#" data-ipp="25">25</a> </li>
-	<li class=""> <a href="#" data-ipp="50">50</a> </li>
-	<li class=""> <a href="#" data-ipp="100">100</a> </li>
-</ul>
--->
 {/pagination}
+<ul class="pagination ipp" style="margin-left:20px;float:left;">
+	<li class="{ippa}"> <a href="#" class="ippli" data-ipp="10">10</a> </li>
+	<li class="{ippb}"> <a href="#" class="ippli" data-ipp="20">20</a> </li>
+	<li class="{ippc}"> <a href="#" class="ippli" data-ipp="50">50</a> </li>
+</ul>

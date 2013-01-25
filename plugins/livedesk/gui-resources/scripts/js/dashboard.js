@@ -23,7 +23,7 @@ function($, Gizmo, superdesk, BLOGSArchive)
             this.collection = new Gizmo.Register.LiveBlogs;
             this.collection.on('read update', this.render, this).
                 xfilter('*,Creator.*,PostPublished').sync();
-            this.ipp = 6;
+            this.ipp = 10;
 
         },
         searchArchive: function(title, page, order){
@@ -54,7 +54,9 @@ function($, Gizmo, superdesk, BLOGSArchive)
                     var blog = bloglist[i];
                     data['archive'].push(blog);
                 }
-                var items = {}
+                var items = {
+                    ippa:'',ippb:'', ippc:''
+                }
                 if ( data['archive'].length > 0) {
                     items.archive = data['archive'];
                 }
@@ -65,6 +67,20 @@ function($, Gizmo, superdesk, BLOGSArchive)
 
                 if ( dataArchive.total > self.ipp ) {
                     items.pagination = 1;
+                }
+
+                //items per page stuff
+                //corky stuff
+                if ( ipp == 10 || ipp == '10') {
+                    items.ippa = 'disabled';
+                }
+                switch (ipp) {
+                    case '20':
+                        items.ippb = 'disabled';
+                        break;
+                    case '50':
+                        items.ippc = 'disabled';
+                        break;
                 }
 
                 $.tmpl('livedesk>layouts/dashboard-archive', items, function(e,o) {
@@ -140,6 +156,13 @@ function($, Gizmo, superdesk, BLOGSArchive)
                 });
                 event.preventDefault();
             });
+
+            $(self.el).off('click').on('click', '.ippli', function(el, evt){
+                self.ipp = $(this).attr('data-ipp');
+                self.searchArchive();
+            });
+
+
 
         },
         render: function(){
