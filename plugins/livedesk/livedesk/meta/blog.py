@@ -46,13 +46,13 @@ class BlogMapped(Base, Blog):
     ClosedOn = Column('closed_on', DateTime)
     @hybrid_property
     def IsLive(self):
-        return self.LiveOn is not None
+        return self.LiveOn is not None and self.ClosedOn is None
 
     # Expression for hybrid ------------------------------------
     @classmethod
     @IsLive.expression
     def _IsLive(cls):
-        return case([(cls.LiveOn != None, True)], else_=False)
+        return case([((cls.LiveOn != None) & (cls.ClosedOn == None), True)], else_=False)
 
 validateManaged(BlogMapped.CreatedOn)
 
