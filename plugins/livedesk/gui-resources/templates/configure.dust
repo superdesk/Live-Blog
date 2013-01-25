@@ -10,18 +10,22 @@
         	<fieldset>
         		<legend>General</legend>
         		<div class="control-group">
-            		<label class="control-label">This Blogs output feed</label>
+            		<label class="control-label">_("This Blogs output feed");</label>
             		<div class="controls">
               			<a href="#" class="block-link" 
               				data-key="OutputLink">{OutputLink}</a>
              		</div>
           		</div>
-        		<div class="control-group">
-            		<label class="control-label">gettext("This Blogs embed script");</label>
-            		<div class="controls">
-              			<textarea>{EmbedSource}</textarea>
-             		</div>
-          		</div>				
+              <div class="control-group">
+                <label class="control-label">_('Theme');</label>
+                <div class="controls themes"></div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">_("Embed script");</label>
+                <div class="controls">
+                    <textarea id="emebed-script" rows="3" style="width:600px;height:auto;"></textarea>
+                </div>
+              </div>
               <div class="control-group">
                 <label class="control-label">_('Language');</label>
                 <div class="controls languages"></div>
