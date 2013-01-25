@@ -14,8 +14,8 @@ from ally.container import support, ioc
 from ..superdesk.db_superdesk import bindSuperdeskSession, bindSuperdeskValidations
 from livedesk.impl.blog_theme import BlogThemeServiceAlchemy
 from livedesk.api.blog_theme import IBlogThemeService
-from __plugin__.cdm.local_cdm import contentDeliveryManager
-from __plugin__.livedesk_embed.gui import themes_path
+from ..cdm.local_cdm import contentDeliveryManager
+from ..livedesk_embed.gui import themes_path
 
 # --------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ support.loadAllEntities(SERVICES)
 # --------------------------------------------------------------------
 
 @ioc.replace(ioc.getEntity(IBlogThemeService))
-def themeService() -> IBlogThemeService:
+def blogThemeService() -> IBlogThemeService:
     s = BlogThemeServiceAlchemy()
     s.themesPath = themes_path()
     s.cdmGUI = contentDeliveryManager()
