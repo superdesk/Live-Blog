@@ -37,7 +37,7 @@
 	<a class="close image" data-dismiss="modal">×</a>
     <h3>_('Put live')</h3>
   </div>
-  <div class="modal-body" style="height:50px; min-height:50px">
+  <div class="modal-body">
     <p id="put-live-msg-live" class="{isLive}">_('Are you sure you want to put Live Blog') <strong>{Title|s}</strong> _('online?')</p>
     <p id="put-live-msg-offline" class="{isOffline}">_('Are you sure you want to take Live Blog') <strong>{Title|s}</strong> _('offline?')</p>
   </div>
@@ -50,7 +50,7 @@
   <div class="modal-header"> <a class="close image" data-dismiss="modal">x</a>
     <h3>_('Put live')</h3>
   </div>
-  <div class="modal-body" style="height:50px; min-height:50px">
+  <div class="modal-body">
     <p>_('Are you sure you want to put Live Blog') <strong>{Title|s}</strong> _('online?')</p>
   </div>
   <div class="modal-footer">
