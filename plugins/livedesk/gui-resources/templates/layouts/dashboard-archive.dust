@@ -2,14 +2,13 @@
 	<input class="span3 searchbox" size="16" type="text" name="search" placeholder="Search by Title" style="float:left !important;" id="search-archive-text" value="{searchkey}">
 	<a href="#" class="btn pull-left" id="search-archive-button">Go!</a>
 	<a href="#" class="btn pull-left" id="search-archive-clear">Clear</a>
-	<!--
+	
 	<select class="archive-sort">
 		<option>Sort by</option>
-		<option value="title">Title</option>
-		<option value="createdOn" selected="selected">Creation date</option>
-		<option value="lastUpdatedOn">Last update</option>
+		<option value="title" {sela}>Title</option>
+		<option value="createdOn" {selb}>Creation date</option>
+		<option value="lastUpdatedOn" {selc}>Last update</option>
 	</select>
-	-->
 </div>
 {#searchkey}
 <div class="searchphrase">_('Displaying results for'): <span>"{searchkey}"</span></div>

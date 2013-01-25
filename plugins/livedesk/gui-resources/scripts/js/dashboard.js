@@ -32,7 +32,7 @@ function($, Gizmo, superdesk, BLOGSArchive)
             var data = [];
             data['archive'] = [];
             title = typeof title == 'undefined' ? '' : title;
-            order = typeof order == undefined ? '' : order;
+            order = typeof order == 'undefined' ? 'createdOn' : order;
             page = typeof page == 'undefined' ? 0 : page;
 
             offset = page * self.ipp;
@@ -82,6 +82,19 @@ function($, Gizmo, superdesk, BLOGSArchive)
                         items.ippc = 'disabled';
                         break;
                 }
+
+                //order select
+                switch (order) {
+                    case 'title':
+                        items.sela = 'selected="selected"';
+                        break;
+                    case 'createdOn':
+                        items.selb = 'selected="selected"';
+                        break;
+                    case 'lastUpdatedOn':
+                        items.selc = 'selected="selected"';
+                        break;
+                }                 
 
                 $.tmpl('livedesk>layouts/dashboard-archive', items, function(e,o) {
                     $('#archive_blogs').html(o);
