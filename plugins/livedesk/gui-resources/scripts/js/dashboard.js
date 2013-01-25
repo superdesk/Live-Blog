@@ -29,14 +29,12 @@ function($, Gizmo, superdesk, BLOGSArchive)
         },
         searchArchive: function(title, page, order){
             
-            console.log('search archive');
             var self = this;
             var data = [];
             data['archive'] = [];
             title = typeof title == 'undefined' ? '' : title;
             order = typeof order == undefined ? '' : order;
             page = typeof page == 'undefined' ? 0 : page;
-            console.log('page ', page);
 
             offset = page * self.ipp;
             var archive = new BLOGSArchive;
@@ -51,8 +49,6 @@ function($, Gizmo, superdesk, BLOGSArchive)
                         maxpage --;
                     } 
                 }
-
-                console.log(total, ' , ',maxpage);
 
                 var bloglist = dataArchive.BlogList;
                 for ( var i = 0; i < bloglist.length; i ++ ) {
@@ -81,16 +77,19 @@ function($, Gizmo, superdesk, BLOGSArchive)
         setArchiveActions: function(curpage, maxpage) {
             var self = this;
 
+            //search button
             $('#search-archive-button').off('click').on('click', function(){
                 var key = $('#search-archive-text').val();
                 if ( key.length > 0 ) {
                     self.searchArchive(key);
                 }
             });
+            //clear button
             $('#search-archive-clear').off('click').on('click', function(){
                 self.searchArchive();
             });
 
+            //pagination buttons
             $('#pag-first').off('click').on('click', function(){
                 var key = $('#search-archive-text').val();
                 var order = $('.archive-sort').val();
@@ -126,6 +125,23 @@ function($, Gizmo, superdesk, BLOGSArchive)
                 self.searchArchive(key, 0, order);
             });
 
+            $(self.el).on('click', '.archive-blog-link', function(event)
+            {
+                event.preventDefault();
+                superdesk.showLoader();
+                var theBlog = $(this).attr('data-blog-link'), self = this;
+                superdesk.getAction('modules.livedesk.edit')
+                .done(function(action)
+                {
+                    var callback = function()
+                    { 
+                        require([superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(theBlog); }); 
+                    };
+                    action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
+                });
+                event.preventDefault();
+            });
+
         },
         render: function(){
             var self = this;
@@ -154,8 +170,6 @@ function($, Gizmo, superdesk, BLOGSArchive)
                 self.searchArchive();
             });
            
-            
-
             $(self.el).on('click', '.active-blog-link', function(event)
             {
                 event.preventDefault();
@@ -170,6 +184,18 @@ function($, Gizmo, superdesk, BLOGSArchive)
                     };
                     action.ScriptPath && superdesk.navigation.bind( $(self).attr('href'), callback, $(self).text() );
                 });
+                event.preventDefault();
+            });
+
+            $(self.el).on('click', '#welcome-screen-create-liveblog', function(event)
+            {
+                superdesk.showLoader();
+                superdesk.getAction('modules.livedesk.add')
+                .done(function(action)
+                {
+                    action.ScriptPath &&
+                        require([superdesk.apiUrl+action.ScriptPath], function(AddApp){ addApp = new AddApp(); });
+                }); 
                 event.preventDefault();
             });
         },
