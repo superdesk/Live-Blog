@@ -31,7 +31,7 @@ from superdesk.media_archive.meta.audio_data import AudioDataEntry,\
 # --------------------------------------------------------------------
 
 @injected
-@setup(IMetaDataHandler, 'audioDataHandler')
+@setup(IMetaDataHandler, name='audioDataHandler')
 class AudioPersistanceAlchemy(SessionSupport, IMetaDataHandler):
     '''
     Provides the service that handles the audio persistence @see: IAudioPersistanceService.

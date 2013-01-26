@@ -342,8 +342,8 @@ define([
 		            .done(function(action)
 		            {
 		            	action = (action[0])? action[0] : action;
-		                action.ScriptPath &&
-		                    require([$.superdesk.apiUrl+action.ScriptPath], function(app){ 
+		                action.Script &&
+		                    require([action.Script.href], function(app){ 
 		                    	//console.log(app);
 		                    	new app(blogHref); });
 		            });
@@ -357,8 +357,8 @@ define([
 					.done(function(action)
 					{
 						action = (action[0])? action[0] : action;
-						action.ScriptPath && 
-							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+						action.Script && 
+							require([action.Script.href], function(app){ new app(blogHref); });
 					});
 				})
 		        .off(self.getEvent('click'), 'a[data-target="edit-blog"]')
@@ -370,8 +370,8 @@ define([
 		            .done(function(action)
 		            {
 		            	action = (action[0])? action[0] : action;
-		                action.ScriptPath && 
-							require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
+		                action.Script && 
+							require([action.Script.href], function(EditApp){ EditApp(blogHref); });
 		            });
 		        });
 				self.el.find('.controls').append(self.manageInternalCollaboratorsView.el);

@@ -9,17 +9,16 @@ Created on Apr 17, 2012
 API specifications for media meta data image archive.
 '''
 
-from ally.api.config import query, service
+from ally.api.config import query, service, model
+from ally.api.criteria import AsDateTimeOrdered, AsRangeOrdered, AsLikeOrdered
 from datetime import datetime
-from superdesk.media_archive.api.domain_archive import modelArchive
 from superdesk.media_archive.api.meta_data import MetaData, QMetaData, \
     IMetaDataService
-from ally.api.criteria import AsDateTimeOrdered, AsRangeOrdered, AsLikeOrdered
 
 
 # --------------------------------------------------------------------
 
-@modelArchive
+@model
 class ImageData(MetaData):
     '''
     Provides the meta data that is extracted based on the content.
@@ -29,7 +28,6 @@ class ImageData(MetaData):
     CreationDate = datetime
     CameraMake = str
     CameraModel = str
-
 
 # --------------------------------------------------------------------
 

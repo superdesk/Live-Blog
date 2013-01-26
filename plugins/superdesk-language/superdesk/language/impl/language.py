@@ -26,7 +26,7 @@ from ally.api.extension import IterPart
 # --------------------------------------------------------------------
 
 @injected
-@setup(ILanguageService)
+@setup(ILanguageService, name='languageService')
 class LanguageServiceBabelAlchemy(EntityNQServiceAlchemy, ILanguageService):
     '''
     Implementation for @see: ILanguageService using Babel library.

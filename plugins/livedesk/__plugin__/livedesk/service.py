@@ -10,10 +10,9 @@ Contains the services for livedesk.
 '''
 
 from ..plugin.registry import addService
-from ally.container import support, ioc
-from ..superdesk.db_superdesk import bindSuperdeskSession, bindSuperdeskValidations
-from livedesk.impl.blog_theme import BlogThemeServiceAlchemy
-from livedesk.api.blog_theme import IBlogThemeService
+from ..superdesk.db_superdesk import bindSuperdeskSession, \
+    bindSuperdeskValidations
+from ally.container import support
 from ..cdm.local_cdm import contentDeliveryManager
 from ..livedesk_embed.gui import themes_path
 

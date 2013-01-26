@@ -10,15 +10,15 @@ The API specifications for the person icon.
 '''
 
 from ally.api.config import service, call, INSERT
-from ally.support.api.entity import Entity
-from superdesk.api.domain_superdesk import modelSuperDesk
-from superdesk.person.api.person import Person
-from superdesk.media_archive.api.meta_data import MetaData
 from ally.api.type import Scheme
+from ally.support.api.entity import Entity
+from superdesk.api.domain_superdesk import modelHR
+from superdesk.media_archive.api.meta_data import MetaData
+from superdesk.person.api.person import Person
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk
+@modelHR
 class PersonIcon(Entity):
     '''
     Provides the icon for a Person from the media archive.
@@ -34,7 +34,7 @@ class IPersonIconService:
     Person icon model service interface
     '''
 
-    @call
+    @call(webName='Icon')
     def getByPersonId(self, id:Person.Id, scheme:Scheme='http', thumbSize:str=None) -> MetaData:
         '''
         Provides the PersonIcon entity based on the person id.
@@ -59,18 +59,3 @@ class IPersonIconService:
         @return: PersonIcon.Id
             Returns the identifier of the person for which the association took place.
         '''
-
-#    @call
-#    def getAll(self, offset:int=None, limit:int=LIMIT_DEFAULT, detailed:bool=True) -> Iter(PersonIcon):
-#        '''
-#        '''
-#
-#    @call
-#    def delete(self, ) -> bool:
-#        '''
-#        '''
-#
-#    @call
-#    def update(self, ) -> bool:
-#        '''
-#        '''

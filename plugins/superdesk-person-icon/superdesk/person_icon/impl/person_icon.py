@@ -9,35 +9,34 @@ Created on Nov 22, 2012
 Implementation for the person icon.
 '''
 
+from ally.container import wire
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError, Ref
+from ally.internationalization import _
+from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle
 from sqlalchemy.exc import SQLAlchemyError
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.internationalization import _
+from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.person_icon.api.person_icon import IPersonIconService
 from superdesk.person_icon.meta.person_icon import PersonIconMapped
-from superdesk.person.api.person import Person
-from superdesk.media_archive.api.meta_data import MetaData, IMetaDataUploadService
-from ally.container import wire
 
 # --------------------------------------------------------------------
 
 @injected
-@setup(IPersonIconService)
+@setup(IPersonIconService, name='personIconService')
 class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
     '''
-    @see: IPersonIconService
+    Implementation for @see: IPersonIconService
     '''
-    metaDataService = IMetaDataUploadService; wire.entity('metaDataService')
+    metaDataService = IMetaDataService; wire.entity('metaDataService')
     # provides the metadata service in order to retrieve metadata of the person icon
 
     def __init__(self):
         '''
         Construct the service
         '''
-        assert isinstance(self.metaDataService, IMetaDataUploadService), 'Invalid metadata service %s' % self.metaDataService
+        assert isinstance(self.metaDataService, IMetaDataService), 'Invalid metadata service %s' % self.metaDataService
 
     def getByPersonId(self, id, scheme='http', thumbSize=None):
         '''
@@ -46,7 +45,7 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
         personIcon = self.session().query(PersonIconMapped).get(id)
         if not personIcon: raise InputError(Ref(_('Invalid person icon'), ref=PersonIconMapped.Id))
         assert isinstance(personIcon, PersonIconMapped)
-        assert isinstance(self.metaDataService, IMetaDataUploadService)
+        assert isinstance(self.metaDataService, IMetaDataService)
         metaData = self.metaDataService.getById(personIcon.MetaData, scheme, thumbSize)
         return metaData
 
@@ -61,23 +60,3 @@ class PersonIconServiceAlchemy(SessionSupport, IPersonIconService):
             self.session().flush((entityDb,))
         except SQLAlchemyError as e: handle(e, entityDb)
         return entityDb.Id
-
-#    def getAll(self, offset=None, limit=None, detailed=False):
-#        '''
-#        @see: IPersonIconService.getAll
-#        '''
-#
-#    @call
-#    def delete(self, ):
-#        '''
-#        '''
-#
-#    def update(self,):
-#        '''
-#        @see: IPersonIconService.update
-#        '''
-#
-#    def delete(self,):
-#        '''
-#        @see: IPersonIconService.delete
-#        '''

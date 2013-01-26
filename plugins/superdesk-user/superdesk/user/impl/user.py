@@ -9,26 +9,27 @@ Created on Mar 6, 2012
 Implementation for user services.
 '''
 
+from ally.api.criteria import AsLike
+from ally.api.extension import IterPart
 from ally.container.ioc import injected
 from ally.container.support import setup
 from ally.exception import InputError, Ref
+from ally.internationalization import _
 from ally.support.api.util_service import copy
+from ally.support.sqlalchemy.session import SessionSupport
 from ally.support.sqlalchemy.util_service import handle, buildQuery, buildLimits
 from sqlalchemy.exc import SQLAlchemyError
-from superdesk.user.api.user import IUserService, QUser, User
-from superdesk.user.meta.user import UserMapped
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.functions import current_timestamp
-from ally.support.sqlalchemy.session import SessionSupport
-from ally.api.extension import IterPart
-from ally.internationalization import _
-from ally.api.criteria import AsLike
+from superdesk.user.api.user import IUserService, QUser, User, Password
+from superdesk.user.meta.user import UserMapped
 
 # --------------------------------------------------------------------
 
 ALL_NAMES = (UserMapped.Name, UserMapped.FirstName, UserMapped.LastName, UserMapped.EMail)
 
 @injected
-@setup(IUserService)
+@setup(IUserService, name='userService')
 class UserServiceAlchemy(SessionSupport, IUserService):
     '''
     @see: IUserService
@@ -38,17 +39,16 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         Construct the service
         '''
 
-    def getById(self, adminId, id):
+    def getById(self, id):
         '''
         @see: IUserService.getById
         '''
         user = self.session().query(UserMapped).get(id)
-        if not user or user.DeletedOn is not None:
-            assert isinstance(user, UserMapped), 'Invalid user %s' % user
-            raise InputError(Ref(_('Unknown user id'), ref=User.Id))
+        if not user or user.DeletedOn is not None: raise InputError(Ref(_('Unknown user id'), ref=User.Id))
+        assert isinstance(user, UserMapped), 'Invalid user %s' % user
         return user
 
-    def getAll(self, adminId, offset=None, limit=None, detailed=False, q=None):
+    def getAll(self, offset=None, limit=None, detailed=False, q=None):
         '''
         @see: IUserService.getAll
         '''
@@ -74,7 +74,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             if detailed: return IterPart(entities, sql.count(), offset, limit)
         return entities
 
-    def insert(self, adminId, user):
+    def insert(self, user):
         '''
         @see: IUserService.insert
         '''
@@ -95,7 +95,7 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         user.Id = userDb.Id
         return user.Id
 
-    def update(self, adminId, user):
+    def update(self, user):
         '''
         @see: IUserService.update
         '''
@@ -114,9 +114,8 @@ class UserServiceAlchemy(SessionSupport, IUserService):
             
             self.session().flush((copy(user, userDb),))
         except SQLAlchemyError as e: handle(e, userDb)
-        return True
 
-    def delete(self, adminId, id):
+    def delete(self, id):
         '''
         @see: IUserService.delete
         '''
@@ -126,17 +125,20 @@ class UserServiceAlchemy(SessionSupport, IUserService):
         userDb.DeletedOn = current_timestamp()
         self.session().merge(userDb)
         return True
-    
-    def changePassword(self, adminId, user):
+   
+    def changePassword(self, id, password):
         '''
         @see: IUserService.changePassword
         '''
-        userDb = self.session().query(UserMapped).get(user.Id)
+        assert isinstance(password, Password), 'Invalid password change %s' % password
+        try: userDb = self.session().query(UserMapped).filter(UserMapped.Id == id).one() #.filter(UserMapped.password == password.OldPassword).one()
+        except NoResultFound: userDb = None
+        
         if not userDb or userDb.DeletedOn is not None:
             assert isinstance(userDb, UserMapped), 'Invalid user %s' % userDb
-            raise InputError(Ref(_('Unknown user id'), ref=User.Id))
+            raise InputError(Ref(_('Invalid user id or old password'), ref=User.Id))
+        
         try:
-            userDb.password = user.Password
-            self.session().flush((userDb, ))
-        except SQLAlchemyError as e: handle(e, userDb)  
-
+            userDb.password = password.NewPassword
+            self.session().flush((userDb,))
+        except SQLAlchemyError as e: handle(e, userDb)

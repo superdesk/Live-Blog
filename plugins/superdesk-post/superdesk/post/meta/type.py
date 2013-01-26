@@ -22,7 +22,7 @@ class PostTypeMapped(Base, PostType):
     Provides the mapping for PostType.
     '''
     __tablename__ = 'post_type'
-    __table_args__ = dict(mysql_engine='InnoDB')
+    __table_args__ = dict(mysql_engine='InnoDB', mysql_charset='utf8')
 
     Key = Column('key', String(100), nullable=False, unique=True)
     # None REST model attribute --------------------------------------

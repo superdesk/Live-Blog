@@ -17,7 +17,6 @@ from datetime import datetime
 from ally.api.config import query, service, call, UPDATE
 from ally.api.criteria import AsLikeOrdered, AsDateOrdered, AsBoolean
 from ally.api.type import Iter
-from ally.api.authentication import auth
 from livedesk.api.blog_type import BlogType
 
 # --------------------------------------------------------------------
@@ -29,7 +28,7 @@ class Blog(Entity):
     '''
     Type = BlogType
     Language = LanguageEntity
-    Creator = User; Creator = auth(Creator) # This is redundant, is just to keep IDE hinting.
+    Creator = User
     Title = str
     Description = str
     OutputLink = str
@@ -56,8 +55,6 @@ class QBlog(Entity):
 
 # --------------------------------------------------------------------
 
-#TODO: change the policy, here more of a security check this doesn't need to happen for authentification
-# remove methods like getBlog, getAll
 @service((Entity, Blog))
 class IBlogService(IEntityCRUDService):
     '''
@@ -67,19 +64,18 @@ class IBlogService(IEntityCRUDService):
     @call
     def getBlog(self, blogId:Blog) -> Blog:
         '''
-        Provides the blog based on the specified id, is the user is not specified the blog will be returned only if is
-        in live mode.
+        Provides the blog based on the specified id
         '''
 
     @call
-    def getAll(self, languageId:LanguageEntity=None, userId:auth(User)=None, offset:int=None, limit:int=None,
+    def getAll(self, languageId:LanguageEntity=None, userId:User=None, offset:int=None, limit:int=None,
                detailed:bool=True, q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs.
         '''
 
     @call(webName='Administered')
-    def getLiveWhereAdmin(self, adminId:auth(User), languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
+    def getLiveWhereAdmin(self, adminId:User, languageId:LanguageEntity=None, q:QBlog=None) -> Iter(Blog):
         '''
         Provides all the blogs that are administered by the provided user.
         '''
@@ -91,7 +87,7 @@ class IBlogService(IEntityCRUDService):
         '''
 
     @call(webName='PutLive', method=UPDATE)
-    def putLive(self, adminId:auth(User.Id), blogId:Blog.Id):
+    def putLive(self, blogId:Blog.Id):
         '''
         Puts blog live
         @raise InputError: on invalid credentials or blog id 

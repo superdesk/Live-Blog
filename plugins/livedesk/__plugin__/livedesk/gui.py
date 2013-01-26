@@ -7,12 +7,12 @@ Created on May 3rd, 2012
 @author: Mihai Balaceanu
 '''
 
-from ally.container import ioc
 from ..gui_core.gui_core import publishGui
+from distribution.container import app
 
 # --------------------------------------------------------------------
 
-@ioc.start
+@app.populate
 def publishJS():
     publishGui('livedesk')
     
