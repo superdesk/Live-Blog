@@ -9,14 +9,12 @@ Created on May 3rd, 2012
 Publish the GUI resources.
 '''
 
-from ally.container import ioc
-from ..plugin.registry import cdmGUI
-import logging
-from ally.container.support import entityFor
-from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
-from ..livedesk import service
 from ..livedesk_embed.gui import themes_path
-from ..superdesk.db_superdesk import createTables
+from ..plugin.registry import cdmGUI
+from ally.container.support import entityFor
+from distribution.container import app
+from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme, BlogTheme
+import logging
 
 # --------------------------------------------------------------------
 
@@ -24,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
-@ioc.after(ioc.getEntity(IBlogThemeService, service), createTables)
+@app.populate
 def insertThemes():
     s = entityFor(IBlogThemeService)
     assert isinstance(s, IBlogThemeService)

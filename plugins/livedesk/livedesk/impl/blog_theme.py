@@ -11,12 +11,12 @@ Contains the implementation of the blog theme API.
 
 from ally.container.ioc import injected
 from ally.container.support import setup
-from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme
-from ally.container import wire
 from cdm.spec import ICDM
+from livedesk.api.blog_theme import IBlogThemeService, QBlogTheme
+from livedesk.meta.blog_theme import BlogThemeMapped
 from sql_alchemy.impl.entity import EntityServiceAlchemy
 import logging
-from livedesk.meta.blog_theme import BlogThemeMapped
+from ally.container import wire
 
 # --------------------------------------------------------------------
 
@@ -25,15 +25,12 @@ log = logging.getLogger(__name__)
 # --------------------------------------------------------------------
 
 @injected
-@setup(IBlogThemeService)
+@setup(IBlogThemeService, name='blogThemeService')
 class BlogThemeServiceAlchemy(EntityServiceAlchemy, IBlogThemeService):
     '''
     Implementation for @see: IBlogThemeService
     '''
-    themesPath = str
-    # The path to the themes directory
-
-    cdmGUI = ICDM
+    blogThemeCDM = ICDM; wire.entity('blogThemeCDM')
     # The GUI resources CDM.
 
     def __init__(self):
