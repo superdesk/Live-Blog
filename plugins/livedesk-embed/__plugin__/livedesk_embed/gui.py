@@ -9,7 +9,6 @@ Created on May 3rd, 2012
 Publish the GUI resources.
 '''
 
-from ..gui_core.gui_lib import publish, server_url
 from ..gui_core import publish_gui_resources
 from ..gui_core.gui_core import getGuiPath, getPublishedLib, gui_folder_format, \
     lib_folder_format, publishGui
@@ -36,12 +35,6 @@ def ui_demo_embed_file():
 def themes_path():
     ''' The path to the themes directory '''
     return 'lib/livedesk-embed/themes'
-
-# --------------------------------------------------------------------
-
-@ioc.start
-def publishJS():
-    publishGui('livedesk-embed')
 
 # --------------------------------------------------------------------
 
