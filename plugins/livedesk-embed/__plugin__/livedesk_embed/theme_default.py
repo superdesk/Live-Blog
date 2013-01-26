@@ -11,8 +11,8 @@ Publish the theme files.
 
 from __plugin__.livedesk_embed.theme import theme_folder_format, getThemePath
 from __plugin__.plugin.registry import cdmGUI
+from distribution.container import app
 import logging
-from ally.container import ioc
 
 # --------------------------------------------------------------------
 
@@ -30,6 +30,6 @@ def publishThemes(name):
 
 # --------------------------------------------------------------------
 
-@ioc.start
+@app.populate
 def publishDefaultThemes():
     publishThemes('livedesk-embed')
