@@ -9,12 +9,12 @@ Created on Feb 2, 2012
 Contains the GUI configuration setup for the node presenter plugin.
 '''
 
-from ally.container import ioc
 from ..gui_core.gui_core import publishGui
+from distribution.container import app
 
 # --------------------------------------------------------------------
 
-@ioc.start
+@app.populate
 def publishJS():
     publishGui('superdesk/person')
     

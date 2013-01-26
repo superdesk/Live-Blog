@@ -15,11 +15,11 @@ from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsBoolean, AsLikeOrdered
 from ally.api.type import Iter, Reference
 from ally.support.api.entity import Entity, IEntityGetCRUDService, QEntity
-from superdesk.api.domain_superdesk import modelSuperDesk
+from superdesk.api.domain_superdesk import modelData
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk
+@modelData
 class Source(Entity):
     '''
     Provides the source model.

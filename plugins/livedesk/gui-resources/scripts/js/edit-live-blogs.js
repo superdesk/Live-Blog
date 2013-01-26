@@ -24,7 +24,7 @@ function(providers, Gizmo, $)
     // TODO rethink cause this is very ugly
     var AuthApp;
     // force homepage
-    require([config.lib_js_urn + 'views/auth'], function(a)
+    require([config.cjs('views/auth.js')], function(a)
     {
         AuthApp = a;
         $(AuthApp).on('logout', function()
@@ -826,7 +826,7 @@ function(providers, Gizmo, $)
 				var self = this,
 					PostTypes = Gizmo.Collection.extend({model: Gizmo.Register.PostType});
 							
-				self.collection = Gizmo.Auth(new PostTypes(self.theBlog+'/../../../../Superdesk/PostType'));
+				self.collection = Gizmo.Auth(new PostTypes(self.theBlog+'/../../../../Data/PostType'));
 				
 				self.collection.on('read', function(){ self.render(); }).xfilter('Key').sync();				
 			},
@@ -1103,8 +1103,8 @@ function(providers, Gizmo, $)
 					$.superdesk.getAction('modules.livedesk.configure')
 					.done(function(action)
 					{
-						action.ScriptPath && 
-							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+						action.Script && 
+							require([action.Script.href], function(app){ new app(blogHref); });
 					});
 				})
 				.off(this.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
@@ -1115,8 +1115,8 @@ function(providers, Gizmo, $)
 					$.superdesk.getAction('modules.livedesk.manage-collaborators')
 					.done(function(action)
 					{
-						action.ScriptPath && 
-							require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+						action.Script && 
+							require([action.Script.href], function(app){ new app(blogHref); });
 					});
 				})
 				.off('click'+this.getNamespace(), 'a[data-target="edit-blog"]')

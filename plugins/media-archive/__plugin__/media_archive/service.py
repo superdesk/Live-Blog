@@ -12,28 +12,20 @@ Contains the services setups for media archive superdesk.
 from ..cdm.local_cdm import server_uri, repository_path
 from ..plugin.registry import registerService
 from ..superdesk import service
-from ..superdesk.db_superdesk import bindSuperdeskSession, createTables
+from ..superdesk.db_superdesk import bindSuperdeskSession
 from ally.container import ioc, support
 from cdm.impl.local_filesystem import LocalFileSystemCDM, HTTPDelivery, \
     IDelivery
 from cdm.spec import ICDM
 from cdm.support import ExtendPathCDM
-from superdesk.media_archive.api.meta_data import IMetaDataService, \
-    IMetaDataUploadService
+from distribution.container import app
+from superdesk.media_archive.api.meta_data import IMetaDataService
 from superdesk.media_archive.api.query_criteria import IQueryCriteriaService
 from superdesk.media_archive.core.impl.query_service_creator import \
     createService
-from superdesk.media_archive.core.impl.thumbnail_manager import \
-    ThumbnailManagerAlchemy
 from superdesk.media_archive.core.spec import IThumbnailManager, QueryIndexer
-from superdesk.media_archive.impl.meta_data import IMetaDataHandler, \
-    MetaDataServiceAlchemy
+from superdesk.media_archive.impl.meta_data import IMetaDataHandler
 from superdesk.media_archive.impl.query_criteria import QueryCriteriaService
-import logging
-
-# --------------------------------------------------------------------
-
-log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------
 
@@ -43,7 +35,7 @@ def addMetaDataHandler(handler):
 support.createEntitySetup('superdesk.media_archive.core.impl.**.*')
 support.bindToEntities('superdesk.media_archive.core.impl.**.*Alchemy', binders=bindSuperdeskSession)
 support.listenToEntities(IMetaDataHandler, listeners=addMetaDataHandler, beforeBinding=False, module=service)
-loadAllMetaDataHandlers = support.loadAllEntities(IMetaDataHandler, module=service)
+support.loadAllEntities(IMetaDataHandler, module=service)
 
 # --------------------------------------------------------------------
 
@@ -74,41 +66,20 @@ def cdmThumbnail() -> ICDM:
     '''
     return ExtendPathCDM(contentDeliveryManager(), 'media_archive/thumbnail/%s')
 
-@ioc.replace(ioc.getEntity(IThumbnailManager))
-def thumbnailManager() -> IThumbnailManager:
-    b = ThumbnailManagerAlchemy()
-    b.cdm = cdmThumbnail()
-    return b
+@ioc.entity
+def metaDataHandlers() -> list: return []
 
 @ioc.entity
-def metaDataHandlers(): return []
-
-@ioc.replace(ioc.getEntity(IMetaDataUploadService, service))
-def metaDataService() -> IMetaDataUploadService:
-    b = MetaDataServiceAlchemy()
-    b.cdmArchive = cdmArchive()
-    b.metaDataHandlers = metaDataHandlers()
-    return b
+def queryIndexer() -> QueryIndexer: return QueryIndexer()
 
 @ioc.entity
-def queryIndexer() -> QueryIndexer:
-    b = QueryIndexer()
-    return b
-
-@ioc.replace(ioc.getEntity(IQueryCriteriaService, service))
-def publishQueryCriteriaService() -> IQueryCriteriaService:
-    b = QueryCriteriaService(queryIndexer())
-    return b
+def publishQueryCriteriaService() -> IQueryCriteriaService: return QueryCriteriaService(queryIndexer())
 
 # --------------------------------------------------------------------
 
-@ioc.after(loadAllMetaDataHandlers, createTables)
+@app.deploy
 def publishQueryService():
-    b = createService(queryIndexer(), cdmArchive(), thumbnailManager())
+    b = createService(queryIndexer(), cdmArchive(), support.entityFor(IThumbnailManager))
     registerService(b, (bindSuperdeskSession,))
-
-@ioc.after(loadAllMetaDataHandlers, createTables)
-def deploy():
-    metaDataService().deploy()
 
 

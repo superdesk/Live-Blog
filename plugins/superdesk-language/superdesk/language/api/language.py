@@ -13,11 +13,11 @@ from ally.api.config import service, call, query, LIMIT_DEFAULT
 from ally.api.criteria import AsLikeOrdered
 from ally.api.type import Locale, List, Iter
 from ally.support.api.entity import Entity, IEntityCRUDService
-from superdesk.api.domain_superdesk import modelSuperDesk
+from superdesk.api.domain_superdesk import modelLocalization
 
 # --------------------------------------------------------------------
 
-@modelSuperDesk(id='Code')
+@modelLocalization(id='Code')
 class Language:
     '''    
     Provides the language model.
@@ -32,7 +32,7 @@ class Language:
         if Code: self.Code = Code
         if Name: self.Name = Name
 
-@modelSuperDesk(name=Language)
+@modelLocalization(name=Language)
 class LanguageEntity(Entity, Language):
     '''    
     Provides the language model.

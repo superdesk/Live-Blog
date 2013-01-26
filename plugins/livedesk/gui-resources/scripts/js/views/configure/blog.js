@@ -108,8 +108,8 @@
                     $.superdesk.getAction('modules.livedesk.configure')
                     .done(function(action)
                     {
-                        action.ScriptPath && 
-                            require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+                        action.Script && 
+                            require([action.Script.href], function(app){ new app(blogHref); });
                     });
                 })
                 .off(self.getEvent('click'), 'a[data-target="manage-collaborators-blog"]')
@@ -120,8 +120,8 @@
                     $.superdesk.getAction('modules.livedesk.manage-collaborators')
                     .done(function(action)
                     {
-                        action.ScriptPath && 
-                            require([$.superdesk.apiUrl+action.ScriptPath], function(app){ new app(blogHref); });
+                        action.Script && 
+                            require([action.Script.href], function(app){ new app(blogHref); });
                     });
                 })
                 .off(self.getEvent('click'), 'a[data-target="edit-blog"]')
@@ -132,8 +132,8 @@
                     $.superdesk.getAction('modules.livedesk.edit')
                     .done(function(action)
                     {
-                        action.ScriptPath && 
-                            require([$.superdesk.apiUrl+action.ScriptPath], function(EditApp){ EditApp(blogHref); });
+                        action.Script && 
+                            require([action.Script.href], function(EditApp){ EditApp(blogHref); });
                     });
                 });
             });

@@ -20,11 +20,11 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
 {
     var 
     // TODO place in appropriate plugins
-    Source = giz.Model.extend({url: new giz.Url('Superdesk/Source')}),
-    Sources = new (giz.Collection.extend({ model: Source, href: new giz.Url('Superdesk/Source') })),
+    Source = giz.Model.extend({url: new giz.Url('Data/Source')}),
+    Sources = new (giz.Collection.extend({ model: Source, href: new giz.Url('Data/Source') })),
     Collaborator = giz.Model.extend
     ({
-        url: new giz.Url('Superdesk/Collaborator'),
+        url: new giz.Url('Data/Collaborator'),
         sources: Sources
     }),
     PersonCollaborators = giz.Collection.extend({model: Collaborator}),
@@ -32,7 +32,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
     
     PersonIcon = giz.Model.extend
     ({
-        url: new giz.Url('Superdesk/Person/{1}/MetaData/{2}/PersonIcon')
+        url: new giz.Url('HR/Person/{1}/MetaData/{2}/PersonIcon')
     });
     
     var ItemView = giz.View.extend
@@ -48,7 +48,20 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
         render: function()
         {
             delete this.model.data['Password'];
-            $(this.el).tmpl('superdesk/user>item', {User: this.model.feed()});
+            $(this.el).tmpl( 'superdesk/user>item', 
+                {User: this.model.feed()},
+                function()
+                {
+                    // authentication techniques
+                    $.superdesk.getAction('modules.user.update').done(function(action)
+                    { 
+                        if( !action )
+                        { 
+                            $('button.edit', self.el).addClass('hide');
+                            $('button.delete', self.el).addClass('hide');
+                        }
+                    });
+                });
             $(this.el).prop('model', this.model).prop('view', this);
             $('.edit', this.el).prop('model', this.model).prop('view', this);
             $('.delete', this.el).prop('model', this.model).prop('view', this);
@@ -65,7 +78,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             if( !this.model.__collaborator && data.Collaborator )
             {
                 var newCollaborator = new Collaborator;
-                var colabSync = newCollaborator.set('Person', this.model.get('Id'))
+                var colabSync = newCollaborator.set('User', this.model.get('Id'))
                     .sources.xfilter('*').sync().done(function()
                     {
                         newCollaborator.sources.each(function()
@@ -87,16 +100,16 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             if( data.Password )
                 data.Password = (new sha(data.Password, 'ASCII')).getHash('SHA-512', 'HEX');
             
-            var chPassModel = giz.Auth(new giz.Model(this.model.href+'/ChangePassword'));
+            var chPassModel = giz.Auth(new giz.Model(this.model.href+'/Password'));
             chPassModel.set('Id', this.model.get('Id'));
-            chPassModel.set('Password', data.Password);
+            chPassModel.set('NewPassword', data.Password);
             var passSync = chPassModel.sync();
             
             delete data.Password;
             this.model.set(data);
             
             // TODO add this fnc in gizmo
-            var personSync = this.model.sync();
+            var personSync = this.model.sync(); 
             $.isEmptyObject(this.model.changeset) && personSync.resolve();
             return $.when(colabSync, passSync, personSync);
         },
@@ -146,7 +159,9 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
         {
             $(evt.target).siblings('[type="file"]').trigger('click');
         },
-        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/Archive/MetaData/Upload?thumbSize=large&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
+        uploadEndPoint: $.superdesk.apiUrl+'/resources/my/HR/User/'+
+            localStorage.getItem('superdesk.login.id')+
+            '/MetaData/Upload?thumbSize=large&X-Filter=*&Authorization='+ localStorage.getItem('superdesk.login.session'),
         upload: function(evt)
         {
             var uploadInput = $(evt.target),
@@ -388,32 +403,31 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
 
             $('#user-edit-modal figure.user-image', this.el).html('');
             
-            var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person')));
+            var personModel = giz.Auth(new Person(model.hash().replace('User', 'Person'))),
+                checkColab = function(id)
+                {
+                    $('#user-edit-modal form input#inputCollaborator', self.el).attr('checked', false);
+                    var c = new PersonCollaborators({ href: new giz.Url('HR/User/'+id+'/Collaborator')});
+                    // check collaborator status
+                    c.xfilter('Id,Source.Id,Source.Name').sync().done(function()
+                    {  
+                        c.each(function()
+                        { 
+                            if( this.get('Source').Name == 'internal' )
+                            {
+                                model.__collaborator = this;
+                                $('#user-edit-modal form input#inputCollaborator', self.el).attr('checked', true);
+                                return false;
+                            }
+                        });
+                    });
+                };
             personModel.sync().done(function()
             {
                 var p = personModel.get('Id'),
                     person = $.avatar.parse(personModel, 'Email'),
-                    c = new PersonCollaborators({ href: new giz.Url('Superdesk/User/'+p+'/Collaborator')}),
                     m = personModel.get('MetaData');
-                
-                // display user image
-//                m.sync({ data: { thumbSize: 'large' }}).done(function()
-//                {
-//                    $('#user-edit-modal figure.user-image', self.el).html('<img src="'+m.get('Thumbnail').href+'" />');
-//                });
-                
-                // check collaborator status
-                c.xfilter('Id,Source.Id,Source.Name').sync().done(function()
-                {  
-                    c.each(function()
-                    { 
-                        if( this.get('Source').Name == 'internal' )
-                        {
-                            model.__collaborator = this;
-                            $('#user-edit-modal form input#inputCollaborator', self.el).attr('checked', true);
-                        }
-                    });
-                });
+                checkColab(p);
 
                 $('#user-edit-modal figure.user-image', self.el).html(person['Avatar']);
                 $('#user-edit-modal form input', self.el).each(function()
@@ -425,6 +439,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             })
             .fail(function()
             {
+                checkColab(model.get('Id'));
                 $('#user-edit-modal form input', self.el).each(function()
                 {
                     $(this).val( model.get( $(this).attr('name') ) );
@@ -458,6 +473,7 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                 var val = $(this).val(),
                     name = $(this).attr('name');
                 if( $(this).is(':checkbox') && $(this).is(':not(:checked)') ) return true;
+                if( $(this).is(':checkbox') ) data[name] = true;
                 if( name && val != '' ) data[name] = val;
             });
             
@@ -511,7 +527,8 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
                 ipp: [25, 50, 100], 
                 isipp: function(chk, ctx){ return ctx.current() == ctx.get('limit') ? "disabled" : ""; }
             };
-            this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('Superdesk/User') })));
+            this.users = giz.Auth(new (giz.Collection.extend({ model: User, href: new giz.Url('HR/User') })));
+            //this.users = new (giz.Collection.extend({ model: User, href: new giz.Url('HR/User') }));
             this._resetEvents = false;
         },
         refresh: function(opts)
@@ -570,6 +587,13 @@ function($, superdesk, giz, User, Person, sha, uploadCom)
             $.tmpl('superdesk/user>list', data, function(e, o)
             {
                 self.el.html(o);
+                
+                // authentication techniques
+                $.superdesk.getAction('modules.user.update').done(function(action)
+                { 
+                    if( !action ){ $('.add-user', self.el).addClass('hide'); }
+                });
+                
                 $.tmpl('superdesk/user>add', {}, function(e, o){ $(self.el).append(o); });
                 $.tmpl('superdesk/user>update', {}, function(e, o){ $(self.el).append(o); });
                 $.isFunction(cb) && cb.apply(self);

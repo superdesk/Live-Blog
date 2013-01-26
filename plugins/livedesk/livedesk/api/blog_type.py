@@ -9,10 +9,10 @@ Created on Aug 30, 2012
 API specifications for livedesk blog type.
 '''
 
-from ally.support.api.entity import Entity, IEntityService, QEntity
-from livedesk.api.domain_livedesk import modelLiveDesk
 from ally.api.config import query, service
 from ally.api.criteria import AsLike
+from ally.support.api.entity import Entity, IEntityService, QEntity
+from livedesk.api.domain_livedesk import modelLiveDesk
 
 # --------------------------------------------------------------------
 

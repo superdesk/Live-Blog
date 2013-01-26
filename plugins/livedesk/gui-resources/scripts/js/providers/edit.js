@@ -142,6 +142,7 @@ define('providers/edit', [
 			if( !(model instanceof Gizmo.Model) ) model = Gizmo.Auth(new this.model(model));
 			this._list.push(model);
 			model.hash();
+			model.data.Creator = localStorage.getItem('superdesk.login.id');
 			var x = model.sync(model.url.root(this.options.theBlog).xfilter(this._xfilter));
 			x.done(function(data) {
 				model._parseHash(data);
@@ -283,7 +284,7 @@ define('providers/edit', [
 			
 			self.theBlog = self.blogUrl;
 			
-			self.postTypes = Gizmo.Auth(new PostTypes(self.blogUrl+'/../../../../Superdesk/PostType'));
+			self.postTypes = Gizmo.Auth(new PostTypes(self.blogUrl+'/../../../../Data/PostType'));
 			
 			self.postTypes.on('read', function(){ self.render(); }).xfilter('Key').sync();
 			
@@ -500,7 +501,7 @@ define('providers/edit', [
     				}
 				});
 				var posts = Gizmo.Auth(new OwnCollection(
-						self.theBlog+ '/Post/Owned?asc=createdOn', 
+						self.theBlog+ '/User/'+localStorage.getItem('superdesk.login.id')+'/Post/Owned?asc=createdOn', 
 						Gizmo.Register.Post,
 						{ theBlog: self.theBlog}
 					));

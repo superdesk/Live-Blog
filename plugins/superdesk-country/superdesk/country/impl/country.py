@@ -10,14 +10,15 @@ SQL alchemy implementation for language API.
 '''
 
 from ..api.country import Country, ICountryService
+from ally.api.extension import IterPart
 from ally.container import wire
 from ally.container.ioc import injected
+from ally.container.support import setup
 from ally.exception import InputError, Ref
 from ally.internationalization import _
 from ally.support.api.util_service import trimIter, processQuery
 from babel.core import Locale
 from babel.localedata import locale_identifiers
-from ally.api.extension import IterPart
 
 # --------------------------------------------------------------------
 
@@ -27,6 +28,7 @@ class Countries(dict):
     '''
 
 @injected
+@setup(ICountryService, name='countryService')
 class CountryServiceBabelAlchemy(ICountryService):
     '''
     Implementation for @see: ICountryService using Babel library for translating country names and for the country codes

@@ -28,8 +28,7 @@ def deploy(*tests):
         setups = aop.modulesIn('__setup__.**')
         # We need to remove the server configurations
         setups.exclude('**.server_*')
-        application.assembly = ioc.open(setups, *tests)
-        try: application.assembly.processStart()
+        try: ioc.open(setups, *tests).processStart()
         finally: ioc.deactivate()
     except:
         print('-' * 150, file=sys.stderr)
@@ -62,5 +61,3 @@ def start(*tests):
     except:
         print('=' * 50, 'Problems while deploying application')
         traceback.print_exc()
-        
-    return application.assembly
